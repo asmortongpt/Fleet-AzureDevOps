@@ -45,12 +45,12 @@ export class RealDataService {
    */
   async getVehicles(): Promise<Vehicle[]> {
     try {
-      const response = await api.get<ApiResponse<Vehicle> | Vehicle[]>('/vehicles');
+      const response = await api.get<ApiResponse<Vehicle> | Vehicle[]>('/api/v1/vehicles');
       // Handle both { data: [] } and direct array responses
       if (Array.isArray(response.data)) {
         return response.data;
       }
-      return response.data.data || [];
+      return response.data.vehicles || response.data.data || [];
     } catch (error) {
       console.error('Error fetching vehicles:', error);
       return [];
@@ -62,12 +62,12 @@ export class RealDataService {
    */
   async getPeople(): Promise<Person[]> {
     try {
-      const response = await api.get<ApiResponse<Person> | Person[]>('/drivers');
+      const response = await api.get<ApiResponse<Person> | Person[]>('/api/v1/drivers');
       // Handle both { data: [] } and direct array responses
       if (Array.isArray(response.data)) {
         return response.data;
       }
-      return response.data.data || [];
+      return response.data.drivers || response.data.data || [];
     } catch (error) {
       console.error('Error fetching people:', error);
       return [];

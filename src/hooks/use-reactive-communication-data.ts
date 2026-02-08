@@ -7,7 +7,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import logger from '@/utils/logger';
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
 
 interface Message {
   id: string
@@ -56,7 +58,7 @@ export function useReactiveCommunicationData() {
     queryKey: ['messages', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/communications/messages`)
+        const response = await authFetch(`${API_BASE}/communications/messages`)
         if (!response.ok) {
           logger.warn('Messages API unavailable, returning empty array')
           return []
@@ -76,7 +78,7 @@ export function useReactiveCommunicationData() {
     queryKey: ['notifications', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/notifications`)
+        const response = await authFetch(`${API_BASE}/notifications`)
         if (!response.ok) {
           logger.warn('Notifications API unavailable, returning empty array')
           return []
@@ -213,4 +215,3 @@ export function useReactiveCommunicationData() {
     refresh: () => setRealTimeUpdate((prev) => prev + 1),
   }
 }
-

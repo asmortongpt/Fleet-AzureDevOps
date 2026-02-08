@@ -23,6 +23,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface HazardZoneDetailPanelProps {
   hazardZoneId: string
 }
@@ -68,8 +72,7 @@ interface ZoneEvent {
   metadata?: Record<string, any>
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
+const fetcher = (url: string) => authFetch(url)
     .then((r) => r.json())
     .then((data) => data?.data ?? data)
 

@@ -42,6 +42,10 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface GarageBayDrilldownProps {
   bayId: string
   bayNumber?: string
@@ -132,7 +136,7 @@ interface GarageBay {
   equipment: string[]
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps) {
   const { push } = useDrilldown()

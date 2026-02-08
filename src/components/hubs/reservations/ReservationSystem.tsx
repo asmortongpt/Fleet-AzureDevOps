@@ -18,6 +18,7 @@ import React, { useState, useEffect } from 'react';
 
 import { OutlookEmailButton, CalendarEventButton } from '@/components/integrations/MicrosoftIntegration';
 import { Dialog } from '@/components/shared/Dialog';
+import { useAuth } from '@/contexts/AuthContext';
 
 // TypeScript Interfaces
 interface Reservation {
@@ -64,16 +65,16 @@ interface AvailabilityCheck {
 }
 
 // API Functions
-const API_BASE = 'https://fleet.capitaltechalliance.com/api/v1';
+const API_BASE = '/api/v1';
 
 async function fetchReservations(): Promise<Reservation[]> {
-  const res = await fetch(`${API_BASE}/reservations`);
+  const res = await fetch(`${API_BASE}/reservations`, { credentials: 'include' });
   const json = await res.json();
   return json.reservations || [];
 }
 
 async function fetchVehicles(): Promise<Vehicle[]> {
-  const res = await fetch(`${API_BASE}/vehicles`);
+  const res = await fetch(`${API_BASE}/vehicles`, { credentials: 'include' });
   const json = await res.json();
   return json.vehicles || [];
 }
@@ -82,6 +83,7 @@ async function checkAvailability(vehicleId: string, startDate: string, endDate: 
   const res = await fetch(`${API_BASE}/reservations/availability`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ vehicleId, startDate, endDate })
   });
   return res.json();
@@ -91,6 +93,7 @@ async function createReservation(data: Partial<Reservation>): Promise<Reservatio
   const res = await fetch(`${API_BASE}/reservations`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data)
   });
   return res.json();
@@ -100,6 +103,7 @@ async function updateReservationStatus(id: string, status: Reservation['status']
   const res = await fetch(`${API_BASE}/reservations/${id}/status`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ status })
   });
   return res.json();
@@ -406,18 +410,29 @@ const NewReservationForm: React.FC<{
   onClose: () => void;
   onSuccess: () => void;
 }> = ({ vehicles, onClose, onSuccess }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     vehicleId: '',
     startDate: '',
     endDate: '',
     purpose: '',
     department: '',
-    driverId: 'current-user', // Would come from auth context
-    driverName: 'Current User',
-    driverEmail: 'andrew.m@capitaltechalliance.com'
+    driverId: user?.id || '',
+    driverName: user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : '',
+    driverEmail: user?.email || ''
   });
   const [availability, setAvailability] = useState<AvailabilityCheck | null>(null);
   const [checking, setChecking] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    setFormData((prev) => ({
+      ...prev,
+      driverId: prev.driverId || user.id || '',
+      driverName: prev.driverName || `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim(),
+      driverEmail: prev.driverEmail || user.email || ''
+    }));
+  }, [user]);
 
   const checkAvail = async () => {
     if (!formData.vehicleId || !formData.startDate || !formData.endDate) return;
@@ -611,19 +626,23 @@ const ReservationDetails: React.FC<{
         {/* Outlook Integration */}
         <div className="border-t border-border pt-2">
           <h3 className="font-semibold mb-3">Calendar Integration</h3>
-          <div className="flex gap-2">
-            <CalendarEventButton
-              subject={`Vehicle Reservation: ${reservation.vehicleName}`}
-              start={new Date(reservation.startDate)}
-              end={new Date(reservation.endDate)}
-              attendees={[reservation.driverEmail || 'andrew.m@capitaltechalliance.com']}
-            />
-            <OutlookEmailButton
-              to={reservation.driverEmail || 'andrew.m@capitaltechalliance.com'}
-              subject={`Reservation Confirmation: ${reservation.vehicleName}`}
-              body={`Your reservation for ${reservation.vehicleName} from ${new Date(reservation.startDate).toLocaleString()} to ${new Date(reservation.endDate).toLocaleString()} has been confirmed.`}
-            />
-          </div>
+          {reservation.driverEmail ? (
+            <div className="flex gap-2">
+              <CalendarEventButton
+                subject={`Vehicle Reservation: ${reservation.vehicleName}`}
+                start={new Date(reservation.startDate)}
+                end={new Date(reservation.endDate)}
+                attendees={[reservation.driverEmail]}
+              />
+              <OutlookEmailButton
+                to={reservation.driverEmail}
+                subject={`Reservation Confirmation: ${reservation.vehicleName}`}
+                body={`Your reservation for ${reservation.vehicleName} from ${new Date(reservation.startDate).toLocaleString()} to ${new Date(reservation.endDate).toLocaleString()} has been confirmed.`}
+              />
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Driver email unavailable for calendar integration.</p>
+          )}
         </div>
       </div>
     </Dialog>

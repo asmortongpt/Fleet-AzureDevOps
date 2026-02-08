@@ -10,6 +10,7 @@ import { Vehicle, Driver, Facility } from './types'
  * Transform vehicle data from API format to frontend format
  */
 export function transformVehicle(apiVehicle: any): Vehicle {
+  const location = parseLocation(apiVehicle)
   return {
     id: apiVehicle?.id?.toString() || '',
     tenantId: apiVehicle?.tenant_id?.toString() || '',
@@ -21,7 +22,13 @@ export function transformVehicle(apiVehicle: any): Vehicle {
     vin: apiVehicle?.vin || '',
     licensePlate: apiVehicle?.license_plate || apiVehicle?.licensePlate || '',
     status: normalizeStatus(apiVehicle?.status) || 'idle',
-    location: parseLocation(apiVehicle),
+    location: {
+      ...location,
+      latitude: location.lat,
+      longitude: location.lng
+    },
+    latitude: location.lat,
+    longitude: location.lng,
     region: apiVehicle?.region || '',
     department: apiVehicle?.department || '',
     fuelLevel: apiVehicle?.fuel_level ?? apiVehicle?.fuelLevel ?? 0,

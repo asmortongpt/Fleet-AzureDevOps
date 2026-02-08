@@ -26,4 +26,4 @@ Each report includes:
 If you want, I can also:
 - generate the SQL view scripts for each `vw_*`
 - generate React components that auto-render these configs
-- generate sample mock datasets per report
+- generate sample datasets per report

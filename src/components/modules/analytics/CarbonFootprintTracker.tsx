@@ -24,6 +24,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import logger from '@/utils/logger';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface CarbonData {
   vehicle_id: number;
   vehicle_name: string;
@@ -83,12 +87,6 @@ const CarbonFootprintTracker: React.FC = () => {
 
   const loadCarbonData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-
       const endDate = new Date();
       const startDate = new Date();
 
@@ -112,7 +110,7 @@ const CarbonFootprintTracker: React.FC = () => {
         url += `&vehicleId=${_selectedVehicle}`;
       }
 
-      const response = await fetch(url, { headers });
+      const response = await authFetch(url);
       const data = await response.json();
 
       if (data.success) {
@@ -123,7 +121,7 @@ const CarbonFootprintTracker: React.FC = () => {
       // Load ESG report
       const currentYear = new Date().getFullYear();
       const currentMonth = new Date().getMonth() + 1;
-      const esgResponse = await fetch(
+      const esgResponse = await authFetch(
         `/api/ev/esg-report?period=monthly&year=${currentYear}&month=${currentMonth}`,
         { headers }
       );

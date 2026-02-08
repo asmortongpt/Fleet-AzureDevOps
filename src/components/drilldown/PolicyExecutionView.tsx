@@ -39,6 +39,10 @@ import {
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface PolicyExecutionViewProps {
   policyId?: string
   entityType?: 'vehicle' | 'driver' | 'trip'
@@ -82,7 +86,7 @@ interface ExecutionStatistics {
   avg_confidence: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 export function PolicyExecutionView({
   policyId,

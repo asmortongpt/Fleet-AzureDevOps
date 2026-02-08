@@ -10,6 +10,10 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 export interface AssetRelationshipsListProps {
   /** ID of the vehicle to show relationships for */
   vehicleId: string
@@ -28,7 +32,7 @@ interface AssetRelationship {
   notes?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 /**
  * AssetRelationshipsList Component

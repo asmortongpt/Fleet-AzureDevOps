@@ -353,199 +353,221 @@ app.use('/api/batch', batchRouter)
 // Legacy compatibility: current-user endpoints
 app.use('/api/v1/me', meRouter)
 
-// Core Fleet Management Routes
-app.use('/api/alerts', alertsRouter)
-app.use('/api/vehicles', vehiclesRouter)
-app.use('/api/drivers', driversRouter)
-app.use('/api/fuel-transactions', fuelRouter)
-app.use('/api/fuel-cards', fuelCardsRouter)
-app.use('/api/fuel-card-transactions', fuelCardsRouter) // Same router handles both paths
-app.use('/api/tires', tiresRouter)
-app.use('/api/insurance', insuranceRouter)
-app.use('/api/accounts-payable', accountsPayableRouter)
-app.use('/api/vehicle-contracts', vehicleContractsRouter)
-app.use('/api/vendor-management', vendorManagementRouter)
-app.use('/api/maintenance', maintenanceRouter)
-app.use('/api/incidents', incidentsRouter)
-app.use('/api/incident-management', incidentManagementRouter)
-app.use('/api/parts', partsRouter)
-app.use('/api/inventory', inventoryRouter) // Registered here as core
-app.use('/api/vendors', vendorsRouter)
-app.use('/api/invoices', invoicesRouter)
-app.use('/api/purchase-orders', purchaseOrdersRouter)
-app.use('/api/tasks', tasksRouter)
-app.use('/api/reservations', reservationsRouter)
+const mountApiRoutes = (base: string) => {
+  // Core Fleet Management Routes
+  app.use(`${base}/alerts`, alertsRouter)
+  app.use(`${base}/vehicles`, vehiclesRouter)
+  app.use(`${base}/drivers`, driversRouter)
+  app.use(`${base}/fuel-transactions`, fuelRouter)
+  app.use(`${base}/fuel-cards`, fuelCardsRouter)
+  app.use(`${base}/fuel-card-transactions`, fuelCardsRouter) // Same router handles both paths
+  app.use(`${base}/tires`, tiresRouter)
+  app.use(`${base}/insurance`, insuranceRouter)
+  app.use(`${base}/accounts-payable`, accountsPayableRouter)
+  app.use(`${base}/vehicle-contracts`, vehicleContractsRouter)
+  app.use(`${base}/vendor-management`, vendorManagementRouter)
+  app.use(`${base}/maintenance`, maintenanceRouter)
+  app.use(`${base}/incidents`, incidentsRouter)
+  app.use(`${base}/incident-management`, incidentManagementRouter)
+  app.use(`${base}/parts`, partsRouter)
+  app.use(`${base}/inventory`, inventoryRouter) // Registered here as core
+  app.use(`${base}/vendors`, vendorsRouter)
+  app.use(`${base}/invoices`, invoicesRouter)
+  app.use(`${base}/purchase-orders`, purchaseOrdersRouter)
+  app.use(`${base}/tasks`, tasksRouter)
+  app.use(`${base}/reservations`, reservationsRouter)
 // TEMP DISABLED: app.use('/api/hos', hosRouter)  // TODO: Import hosRouter from './routes/hos.routes'
 
-// Asset Management Routes
-app.use('/api/analytics', analyticsRouter)
-app.use('/api/assets', assetManagementRouter)
-app.use('/api/asset-analytics', assetAnalyticsRouter)
-app.use('/api/assets-mobile', assetsMobileRouter)
-app.use('/api/heavy-equipment', heavyEquipmentRouter)
+  // Asset Management Routes
+  app.use(`${base}/analytics`, analyticsRouter)
+  app.use(`${base}/assets`, assetManagementRouter)
+  app.use(`${base}/asset-analytics`, assetAnalyticsRouter)
+  app.use(`${base}/assets-mobile`, assetsMobileRouter)
+  app.use(`${base}/heavy-equipment`, heavyEquipmentRouter)
 
-// Dispatch & Communication Routes
-app.use('/api/communication-logs', communicationLogsRouter)
-app.use('/api/teams', teamsRouter)
-app.use('/api/tenants', tenantsRouter)
-app.use('/api/notifications', notificationsRouter)
-app.use('/api/users', usersRouter)
-app.use('/api/audit-logs', auditLogsRouter)
-app.use('/api/sessions', sessionsRouter)
-app.use('/api/system', systemMetricsRouter)
+  // Dispatch & Communication Routes
+  app.use(`${base}/communication-logs`, communicationLogsRouter)
+  app.use(`${base}/teams`, teamsRouter)
+  app.use(`${base}/tenants`, tenantsRouter)
+  app.use(`${base}/notifications`, notificationsRouter)
+  app.use(`${base}/users`, usersRouter)
+  app.use(`${base}/audit-logs`, auditLogsRouter)
+  app.use(`${base}/sessions`, sessionsRouter)
+  app.use(`${base}/system`, systemMetricsRouter)
 
-// GPS & Tracking Routes
-app.use('/api/gps', gpsRouter)
-app.use('/api/geofences', geofencesRouter)
-app.use('/api/telematics', telematicsRouter)
-app.use('/api/traffic-cameras', trafficCamerasRouter)
-app.use('/api/vehicle-idling', vehicleIdlingRouter)
+  // GPS & Tracking Routes
+  app.use(`${base}/gps`, gpsRouter)
+  app.use(`${base}/geofences`, geofencesRouter)
+  app.use(`${base}/telematics`, telematicsRouter)
+  app.use(`${base}/traffic-cameras`, trafficCamerasRouter)
+  app.use(`${base}/vehicle-idling`, vehicleIdlingRouter)
 
-// Maintenance & Inspection Routes
-app.use('/api/maintenance-schedules', maintenanceSchedulesRouter)
-app.use('/api/maintenance/drilldowns', maintenanceDrilldownsRouter)
-app.use('/api/inspections', inspectionsRouter)
-app.use('/api/work-orders', workOrdersRouter)
+  // Maintenance & Inspection Routes
+  app.use(`${base}/maintenance-schedules`, maintenanceSchedulesRouter)
+  app.use(`${base}/maintenance/drilldowns`, maintenanceDrilldownsRouter)
+  app.use(`${base}/inspections`, inspectionsRouter)
+  app.use(`${base}/work-orders`, workOrdersRouter)
 
-// EV Management Routes
-app.use('/api/ev-management', evManagementRouter)
-app.use('/api/charging-sessions', chargingSessionsRouter)
-app.use('/api/charging-stations', chargingStationsRouter)
-app.use('/api/predictive-maintenance', predictiveMaintenanceRouter)
+  // EV Management Routes
+  app.use(`${base}/ev-management`, evManagementRouter)
+  app.use(`${base}/charging-sessions`, chargingSessionsRouter)
+  app.use(`${base}/charging-stations`, chargingStationsRouter)
+  app.use(`${base}/predictive-maintenance`, predictiveMaintenanceRouter)
 
-// Document Management Routes
-app.use('/api/documents', documentsRouter)
-app.use('/api/fleet-documents', fleetDocumentsRouter)
-app.use('/api/fleet', fleetRouter)
+  // Document Management Routes
+  app.use(`${base}/documents`, documentsRouter)
+  app.use(`${base}/fleet-documents`, fleetDocumentsRouter)
+  app.use(`${base}/fleet`, fleetRouter)
+}
 
-// Financial & Cost Management Routes
-// app.use('/api/costs', costsRouter)
-app.use('/api/accounts-payable', accountsPayableRouter)
-app.use('/api/cost-analysis', costAnalysisRouter)
-app.use('/api/cost-benefit-analysis', costBenefitAnalysisRouter)
-app.use('/api/billing-reports', billingReportsRouter)
-app.use('/api/mileage-reimbursement', mileageReimbursementRouter)
-app.use('/api/personal-use-charges', chargesRouter)
-app.use('/api/personal-use-policies', personalUsePoliciesRouter)
-app.use('/api/flair', flairExpensesRouter)
+// Register legacy and versioned routes
+mountApiRoutes('/api')
+mountApiRoutes('/api/v1')
 
-// Reporting & Analytics Routes
-app.use('/api/executive-dashboard', executiveDashboardRouter)
-app.use('/api/assignment-reporting', assignmentReportingRouter)
-app.use('/api/driver-scorecard', driverScorecardRouter)
+const mountExtendedRoutes = (base: string) => {
+  // Financial & Cost Management Routes
+  // app.use(`${base}/costs`, costsRouter)
+  app.use(`${base}/accounts-payable`, accountsPayableRouter)
+  app.use(`${base}/cost-analysis`, costAnalysisRouter)
+  app.use(`${base}/cost-benefit-analysis`, costBenefitAnalysisRouter)
+  app.use(`${base}/billing-reports`, billingReportsRouter)
+  app.use(`${base}/mileage-reimbursement`, mileageReimbursementRouter)
+  app.use(`${base}/personal-use-charges`, chargesRouter)
+  app.use(`${base}/personal-use-policies`, personalUsePoliciesRouter)
+  app.use(`${base}/flair`, flairExpensesRouter)
 
-// AI & Automation Routes
-app.use('/api/ai/chat', aiChatRouter) // AI Chat interface for document Q&A
-app.use('/api/ai-search', aiSearchRouter)
-app.use('/api/ai-task-asset', aiTaskAssetRouter)
-app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
+  // Reporting & Analytics Routes
+  app.use(`${base}/executive-dashboard`, executiveDashboardRouter)
+  app.use(`${base}/assignment-reporting`, assignmentReportingRouter)
+  app.use(`${base}/driver-scorecard`, driverScorecardRouter)
 
-// Task & Schedule Management Routes
-app.use('/api/scheduling', schedulingRouter)
-app.use('/api/calendar', calendarRouter)
-app.use('/api/on-call-management', onCallManagementRouter)
+  // AI & Automation Routes
+  app.use(`${base}/ai/chat`, aiChatRouter) // AI Chat interface for document Q&A
+  app.use(`${base}/ai-search`, aiSearchRouter)
+  app.use(`${base}/ai-task-asset`, aiTaskAssetRouter)
+  app.use(`${base}/ai-tasks`, aiTaskPrioritizationRouter)
 
-// Mobile & Integration Routes
-app.use('/api/mobile-assignment', mobileAssignmentRouter)
-app.use('/api/mobile-hardware', mobileHardwareRouter)
-app.use('/api/mobile-integration', mobileIntegrationRouter)
-app.use('/api/mobile-messaging', mobileMessagingRouter)
-app.use('/api/mobile-photos', mobilePhotosRouter)
-app.use('/api/mobile-trips', mobileTripsRouter)
-app.use('/api/push-notifications', pushNotificationsRouter)
+  // Task & Schedule Management Routes
+  app.use(`${base}/scheduling`, schedulingRouter)
+  app.use(`${base}/calendar`, calendarRouter)
+  app.use(`${base}/on-call-management`, onCallManagementRouter)
 
-// Vehicle Management Routes
-app.use('/api/vehicle-assignments', vehicleAssignmentsRouter)
-app.use('/api/vehicle-history', vehicleHistoryRouter)
-app.use('/api/vehicle-3d', vehicle3dRouter)
-app.use('/api/damage', damageRouter)
-app.use('/api/damage-reports', damageReportsRouter)
-app.use('/api/ai/damage-detection', aiDamageDetectionRouter)
-app.use('/api/lidar', lidarRouter)
+  // Mobile & Integration Routes
+  app.use(`${base}/mobile-assignment`, mobileAssignmentRouter)
+  app.use(`${base}/mobile-hardware`, mobileHardwareRouter)
+  app.use(`${base}/mobile-integration`, mobileIntegrationRouter)
+  app.use(`${base}/mobile-messaging`, mobileMessagingRouter)
+  app.use(`${base}/mobile-photos`, mobilePhotosRouter)
+  app.use(`${base}/mobile-trips`, mobileTripsRouter)
+  app.use(`${base}/push-notifications`, pushNotificationsRouter)
 
-// Trip & Route Management Routes
-app.use('/api/routes', routesRouter)
-app.use('/api/trips', tripsRouter)
-// app.use('/api/route-emulator', routeEmulatorRouter)
-app.use('/api/trip-usage', tripUsageRouter)
+  // Vehicle Management Routes
+  app.use(`${base}/vehicle-assignments`, vehicleAssignmentsRouter)
+  app.use(`${base}/vehicle-history`, vehicleHistoryRouter)
+  app.use(`${base}/vehicle-3d`, vehicle3dRouter)
+  app.use(`${base}/damage`, damageRouter)
+  app.use(`${base}/damage-reports`, damageReportsRouter)
+  app.use(`${base}/ai/damage-detection`, aiDamageDetectionRouter)
+  app.use(`${base}/lidar`, lidarRouter)
 
-// Safety & Compliance Routes
-app.use('/api/safety-incidents', safetyIncidentsRouter)
-app.use('/api/hazard-zones', hazardZonesRouter)
-app.use('/api/safety-alerts', safetyAlertsRouter)
-app.use('/api/osha-compliance', oshaComplianceRouter)
-app.use('/api/compliance', complianceRouter)
-app.use('/api/annual-reauthorization', annualReauthorizationRouter)
-app.use('/api/training', trainingRouter)
-app.use('/api/certifications', certificationsRouter)
+  // Trip & Route Management Routes
+  app.use(`${base}/routes`, routesRouter)
+  app.use(`${base}/trips`, tripsRouter)
+  // app.use(`${base}/route-emulator`, routeEmulatorRouter)
+  app.use(`${base}/trip-usage`, tripUsageRouter)
 
-// Policy & Permission Routes
-app.use('/api/policies', policiesRouter)
-app.use('/api/policy-templates', policyTemplatesRouter)
-app.use('/api/permissions', permissionsRouter)
+  // Safety & Compliance Routes
+  app.use(`${base}/safety-incidents`, safetyIncidentsRouter)
+  app.use(`${base}/hazard-zones`, hazardZonesRouter)
+  app.use(`${base}/safety-alerts`, safetyAlertsRouter)
+  app.use(`${base}/osha-compliance`, oshaComplianceRouter)
+  app.use(`${base}/compliance`, complianceRouter)
+  app.use(`${base}/annual-reauthorization`, annualReauthorizationRouter)
+  app.use(`${base}/training`, trainingRouter)
+  app.use(`${base}/certifications`, certificationsRouter)
 
-// Reporting
-app.use('/api/reports', reportsRouter)
+  // Policy & Permission Routes
+  app.use(`${base}/policies`, policiesRouter)
+  app.use(`${base}/policy-templates`, policyTemplatesRouter)
+  app.use(`${base}/permissions`, permissionsRouter)
 
-// Authentication & User Management Routes
-app.use('/api/auth', authRouter)
+  // Reporting
+  app.use(`${base}/reports`, reportsRouter)
+
+  // Authentication & User Management Routes
+  app.use(`${base}/auth`, authRouter)
+  app.use(`${base}/auth`, microsoftAuthRouter) // Microsoft SSO: /microsoft, /microsoft/callback
+  app.use(`${base}/auth`, sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
+  app.use(`${base}/employees`, employeesRouter)
+  app.use(`${base}/performance-reviews`, performanceReviewsRouter)
+  app.use(`${base}/break-glass`, breakGlassRouter)
+
+  // External Integrations Routes
+  app.use(`${base}/smartcar`, smartcarRouter)
+  app.use(`${base}/arcgis-layers`, arcgisLayersRouter)
+  app.use(`${base}/outlook`, outlookRouter)
+  app.use(`${base}/video-events`, videoEventsRouter)
+  app.use(`${base}/video-telematics`, videoTelematicsRouter)
+  app.use(`${base}/warranty`, warrantyRecallsRouter)
+  app.use(`${base}/integrations`, integrationsHealthRouter)
+
+  // Dashboard API Routes (Role-Based Dashboards)
+  app.use(`${base}/dashboard`, dashboardRouter)
+
+  // Emulator & Testing Routes
+  app.use(`${base}/emulator`, emulatorRouter)
+  app.use(`${base}/obd2-emulator`, obd2EmulatorRouter)
+  app.use(`${base}/dispatch`, dispatchRouter)
+
+  // System Management Routes
+  app.get(`${base}/client-ip`, (req, res) => {
+    const forwarded = req.headers['x-forwarded-for']
+    const ip = Array.isArray(forwarded)
+      ? forwarded[0]
+      : (forwarded || '').toString().split(',')[0].trim()
+    res.json({ ip: ip || req.ip })
+  })
+  app.use(`${base}/monitoring`, monitoringRouter)
+  app.use(`${base}/health`, healthSystemRouter) // Comprehensive system health (BACKEND-12)
+  app.use(`${base}/health/microsoft`, healthRouter) // Microsoft integration health
+  // TEMP DISABLED: app.use(`${base}/health`, healthStartupRouter) // TODO: Import healthStartupRouter from './routes/health-startup.routes'
+  app.use(`${base}/health-detailed`, healthDetailedRouter)
+  // REMOVED: app.use(`${base}/performance`, performanceRouter)
+  app.use(`${base}/telemetry`, telemetryRouter)
+  app.use(`${base}/security`, securityEventsRouter)
+  app.use(`${base}/queue`, queueRouter)
+  app.use(`${base}/deployments`, deploymentsRouter)
+  app.use(`${base}/facilities`, facilitiesRouter)
+  app.use(`${base}/service-bays`, serviceBaysRouter)
+  app.use(`${base}/search`, searchRouter)
+  app.use(`${base}/presence`, presenceRouter)
+  app.use(`${base}/storage-admin`, storageAdminRouter)
+  app.use(`${base}/sync`, syncRouter)
+  app.use(`${base}/quality-gates`, qualityGatesRouter)
+  // TEMP DISABLED: app.use(`${base}/reservations`, reservationsRouter) // TODO: Import reservationsRouter
+  app.use(`${base}/admin/jobs`, adminJobsRouter)
+}
+
+mountExtendedRoutes('/api')
+mountExtendedRoutes('/api/v1')
+
+// Auth aliases without /api prefix
 app.use('/auth', authRouter) // Alias without /api prefix for backward compatibility
-app.use('/api/auth', microsoftAuthRouter) // Microsoft SSO: /microsoft, /microsoft/callback
 app.use('/auth', microsoftAuthRouter) // Microsoft SSO without /api prefix for frontend calls
-app.use('/api/auth', sessionRevocationRouter) // Session revocation endpoints (/revoke, /revoke/status)
-app.use('/api/employees', employeesRouter)
-app.use('/api/performance-reviews', performanceReviewsRouter)
-app.use('/api/break-glass', breakGlassRouter)
-
-// External Integrations Routes
-app.use('/api/smartcar', smartcarRouter)
-app.use('/api/arcgis-layers', arcgisLayersRouter)
-app.use('/api/outlook', outlookRouter)
-app.use('/api/video-events', videoEventsRouter)
-app.use('/api/video-telematics', videoTelematicsRouter)
-app.use('/api/warranty', warrantyRecallsRouter)
-app.use('/api/integrations', integrationsHealthRouter)
-
-// Dashboard API Routes (Role-Based Dashboards)
-app.use('/api/dashboard', dashboardRouter)
-
-// Emulator & Testing Routes
-app.use('/api/emulator', emulatorRouter)
-app.use('/api/obd2-emulator', obd2EmulatorRouter)
-app.use('/api/dispatch', dispatchRouter)
-// app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
-
-// System Management Routes
-app.use('/api/monitoring', monitoringRouter)
-app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
-app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
-// TEMP DISABLED: app.use('/api/health', healthStartupRouter) // TODO: Import healthStartupRouter from './routes/health-startup.routes'
-app.use('/api/health-detailed', healthDetailedRouter)
-// REMOVED: app.use('/api/performance', performanceRouter)
-app.use('/api/telemetry', telemetryRouter)
-app.use('/api/security', securityEventsRouter)
-app.use('/api/queue', queueRouter)
-app.use('/api/deployments', deploymentsRouter)
-app.use('/api/facilities', facilitiesRouter)
-app.use('/api/service-bays', serviceBaysRouter)
-app.use('/api/search', searchRouter)
-app.use('/api/presence', presenceRouter)
-app.use('/api/storage-admin', storageAdminRouter)
-app.use('/api/sync', syncRouter)
-app.use('/api/quality-gates', qualityGatesRouter)
-// TEMP DISABLED: app.use('/api/reservations', reservationsRouter) // TODO: Import reservationsRouter
-app.use('/api/admin/jobs', adminJobsRouter)
 
 // E2E Test Routes - explicit opt-in only (no authentication required)
 // Never enable by default (even in development) so demos don't accidentally expose these endpoints.
 if (process.env.ENABLE_E2E_ROUTES === 'true' && process.env.NODE_ENV !== 'production') {
   app.use('/api/e2e-test', e2eTestRouter)
+  app.use('/api/v1/e2e-test', e2eTestRouter)
   console.log('⚠️  E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
 }
 
 // Route aliases for frontend compatibility
 app.use('/api/garage-bays', serviceBaysRouter)
+app.use('/api/v1/garage-bays', serviceBaysRouter)
 app.use('/api', initializeBudgetRoutes(pool))
+app.use('/api/v1', initializeBudgetRoutes(pool))
 
 // 404 handler - must come before error handlers
 app.use(notFoundHandler())
@@ -666,6 +688,8 @@ const initializeJobProcessors = () => {
   logger.info('  - Report queue: ready')
 }
 
+const HOST = process.env.HOST || (process.env.NODE_ENV === 'production' ? '0.0.0.0' : '127.0.0.1')
+
 console.log('--- READY TO LISTEN ON PORT ' + PORT + ' ---');
 
 let server: any;
@@ -674,7 +698,7 @@ async function listenWithRetry(port: number, maxRetries = 10): Promise<any> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       const s = await new Promise<any>((resolve, reject) => {
-        const srv = app.listen(port, () => resolve(srv))
+        const srv = app.listen(port, HOST, () => resolve(srv))
         srv.on('error', (err: any) => reject(err))
       })
       return s
@@ -706,7 +730,7 @@ const startServer = async () => {
     // NOTE: `listenWithRetry()` resolves only after the server is already listening.
     // Registering a `'listening'` handler *after* that can miss the event entirely.
     // Run startup hooks immediately after the server is bound.
-    console.log(`Server running on http://localhost:${PORT}`)
+    console.log(`Server running on http://${HOST}:${PORT}`)
     console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
     console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
     console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)

@@ -50,7 +50,7 @@ import logger from '@/utils/logger';
 export interface CameraStream {
   vehicleId: string;
   cameraAngle: string;
-  videoUrl: string;
+  videoUrl?: string;
   videoId?: string;
   title: string;
   isActive: boolean;
@@ -111,7 +111,7 @@ export const MultiCameraGrid: React.FC<MultiCameraGridProps> = ({
           return {
             vehicleId,
             cameraAngle: cam.angle,
-            videoUrl: matchingVideo?.url || `https://via.placeholder.com/640x360?text=${cam.label}+Camera`,
+            videoUrl: matchingVideo?.url,
             videoId: matchingVideo?.id,
             title: `${cam.label} Camera`,
             isActive: !!matchingVideo

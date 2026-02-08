@@ -22,7 +22,7 @@ const router = express.Router()
 
 const setAuthCookie = (res: Response, token: string) => {
   const isProduction = process.env.NODE_ENV === 'production'
-  const cookieDomain = process.env.AUTH_COOKIE_DOMAIN || undefined
+  const cookieDomain = isProduction ? (process.env.AUTH_COOKIE_DOMAIN || undefined) : undefined
 
   const sameSiteEnv = (process.env.AUTH_COOKIE_SAMESITE || '').toLowerCase()
   const secureEnv = process.env.AUTH_COOKIE_SECURE === 'true'
@@ -1223,6 +1223,7 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       // This avoids accidentally provisioning SSO users into a non-demo tenant.
       const envDefaultTenantId = process.env.DEFAULT_TENANT_ID
       const envDefaultTenantSlug = process.env.DEFAULT_TENANT_SLUG
+      const envDefaultTenantDomain = process.env.DEFAULT_TENANT_DOMAIN
 
       if (envDefaultTenantId) {
         const tenantResult = await pool.query('SELECT id FROM tenants WHERE id = $1', [envDefaultTenantId])
@@ -1238,9 +1239,19 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
         }
       }
 
+      if (!tenantId && envDefaultTenantDomain) {
+        const tenantResult = await pool.query('SELECT id FROM tenants WHERE domain = $1', [envDefaultTenantDomain])
+        if (tenantResult.rows.length > 0) {
+          tenantId = tenantResult.rows[0].id
+        }
+      }
+
       // Dev convenience: if the CTA demo tenant exists, use it by default.
       if (!tenantId && process.env.NODE_ENV !== 'production') {
-        const tenantResult = await pool.query('SELECT id FROM tenants WHERE slug = $1', ['cta-fleet'])
+        const tenantResult = await pool.query(
+          'SELECT id FROM tenants WHERE domain = $1 OR name ILIKE $2 LIMIT 1',
+          ['cta-fleet.local', '%Capital Transit Authority%']
+        )
         if (tenantResult.rows.length > 0) {
           tenantId = tenantResult.rows[0].id
         }

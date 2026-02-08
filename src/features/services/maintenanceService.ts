@@ -39,12 +39,12 @@ class MaintenanceService {
    */
   async getAll(): Promise<MaintenanceRecord[]> {
     try {
-      const response = await api.get<ApiResponse<MaintenanceRecord> | MaintenanceRecord[]>('/maintenance-schedules');
+      const response = await api.get<ApiResponse<MaintenanceRecord> | MaintenanceRecord[]>('/api/v1/work-orders');
       // Handle both { data: [] } and direct array responses
       if (Array.isArray(response.data)) {
         return response.data.map(r => ({ ...r, id: String(r.id) }));
       }
-      const data = response.data.data || [];
+      const data = response.data.work_orders || response.data.data || [];
       return data.map(r => ({ ...r, id: String(r.id) }));
     } catch (error) {
       console.error('Error fetching maintenance records:', error);
@@ -57,7 +57,7 @@ class MaintenanceService {
    */
   async create(record: CreateMaintenanceRecord): Promise<MaintenanceRecord> {
     try {
-      const response = await api.post<MaintenanceRecord>('/maintenance-schedules', record);
+      const response = await api.post<MaintenanceRecord>('/api/v1/work-orders', record);
       return { ...response.data, id: String(response.data.id) };
     } catch (error) {
       console.error('Error creating maintenance record:', error);
@@ -70,7 +70,7 @@ class MaintenanceService {
    */
   async update(id: string, data: Partial<MaintenanceRecord>): Promise<MaintenanceRecord> {
     try {
-      const response = await api.put<MaintenanceRecord>(`/maintenance-schedules/${id}`, data);
+      const response = await api.put<MaintenanceRecord>(`/api/v1/work-orders/${id}`, data);
       return { ...response.data, id: String(response.data.id) };
     } catch (error) {
       console.error(`Error updating maintenance record ${id}:`, error);
@@ -83,7 +83,7 @@ class MaintenanceService {
    */
   async delete(id: string): Promise<void> {
     try {
-      await api.delete(`/maintenance-schedules/${id}`);
+      await api.delete(`/api/v1/work-orders/${id}`);
     } catch (error) {
       console.error(`Error deleting maintenance record ${id}:`, error);
       throw error;

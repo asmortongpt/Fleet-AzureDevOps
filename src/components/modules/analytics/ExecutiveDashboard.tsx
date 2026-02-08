@@ -83,35 +83,37 @@ const COLORS = {
 
 const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
 
 // API fetcher functions for real API calls
 const fetchDashboardKpis = async (): Promise<KPIData> => {
-  const response = await fetch(`${API_BASE}/executive-dashboard/kpis`)
+  const response = await authFetch(`${API_BASE}/executive-dashboard/kpis`)
   if (!response.ok) throw new Error('Failed to fetch KPI data')
   return response.json()
 }
 
 const fetchDashboardHealth = async (): Promise<FleetHealth> => {
-  const response = await fetch(`${API_BASE}/executive-dashboard/fleet-health`)
+  const response = await authFetch(`${API_BASE}/executive-dashboard/fleet-health`)
   if (!response.ok) throw new Error('Failed to fetch fleet health data')
   return response.json()
 }
 
 const fetchDashboardCosts = async (): Promise<CostAnalysis> => {
-  const response = await fetch(`${API_BASE}/executive-dashboard/cost-analysis`)
+  const response = await authFetch(`${API_BASE}/executive-dashboard/cost-analysis`)
   if (!response.ok) throw new Error('Failed to fetch cost analysis data')
   return response.json()
 }
 
 const fetchDashboardInsights = async (): Promise<AIInsight[]> => {
-  const response = await fetch(`${API_BASE}/executive-dashboard/insights`)
+  const response = await authFetch(`${API_BASE}/executive-dashboard/insights`)
   if (!response.ok) throw new Error('Failed to fetch insights')
   return response.json()
 }
 
 const fetchDashboardTrends = async () => {
-  const response = await fetch(`${API_BASE}/executive-dashboard/trends`)
+  const response = await authFetch(`${API_BASE}/executive-dashboard/trends`)
   if (!response.ok) throw new Error('Failed to fetch trends')
   return response.json()
 }

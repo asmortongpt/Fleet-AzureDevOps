@@ -38,6 +38,10 @@ import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import type { Vehicle, GISFacility } from '@/lib/types'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 /**
  * Represents a delivery or service stop
  */
@@ -197,7 +201,7 @@ export function RouteOptimizer() {
     try {
       setGeocodingIndex(index)
       const csrf = await getCsrfToken()
-      const response = await fetch('/api/documents/geo/geocode', {
+      const response = await authFetch('/api/documents/geo/geocode', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -352,7 +356,7 @@ export function RouteOptimizer() {
       abortControllerRef.current = new AbortController()
 
       const csrf = await getCsrfToken()
-      const response = await fetch('/api/route-optimization/optimize', {
+      const response = await authFetch('/api/route-optimization/optimize', {
         method: 'POST',
         credentials: 'include',
         headers: {

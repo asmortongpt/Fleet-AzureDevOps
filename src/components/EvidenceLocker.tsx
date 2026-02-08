@@ -16,6 +16,9 @@ import { Textarea } from './ui/textarea';
 
 import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
+
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
 interface EvidenceLocker {
   id: number;
   locker_name: string;
@@ -100,11 +103,7 @@ export default function EvidenceLocker() {
       if (filters.lockerType !== 'all') params.append('lockerType', filters.lockerType);
       if (filters.legalHold !== 'all') params.append('legalHold', filters.legalHold);
 
-      const response = await fetch(`/api/video/evidence-locker?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await authFetch(`/api/video/evidence-locker?${params.toString()}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -119,11 +118,7 @@ export default function EvidenceLocker() {
 
   const loadLockerDetails = async (lockerId: number) => {
     try {
-      const response = await fetch(`/api/video/evidence-locker/${lockerId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await authFetch(`/api/video/evidence-locker/${lockerId}`);
 
       if (response.ok) {
         const data = await response.json();
@@ -137,12 +132,9 @@ export default function EvidenceLocker() {
 
   const handleCreateLocker = async () => {
     try {
-      const response = await fetch('/api/video/evidence-locker', {
+      const response = await authFetch('/api/video/evidence-locker', {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newLocker)
       });
 
@@ -166,11 +158,7 @@ export default function EvidenceLocker() {
 
   const getVideoPlaybackUrl = async (eventId: number) => {
     try {
-      const response = await fetch(`/api/video/events/${eventId}/clip`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
+      const response = await authFetch(`/api/video/events/${eventId}/clip`);
 
       if (response.ok) {
         const data = await response.json();

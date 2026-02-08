@@ -193,8 +193,13 @@ export class TelemetryService extends EventEmitter {
         SELECT
           v.id,
           v.tenant_id,
-          v.number as vehicle_number,
-          v.name,
+          COALESCE(NULLIF(v.registration_number, ''), NULLIF(v.license_plate, ''), v.vin) AS vehicle_number,
+          CONCAT_WS(
+            ' ',
+            v.make,
+            v.model,
+            COALESCE(NULLIF(v.registration_number, ''), NULLIF(v.license_plate, ''), v.vin)
+          ) AS display_name,
           v.make,
           v.model,
           v.year,
@@ -205,9 +210,30 @@ export class TelemetryService extends EventEmitter {
           v.fuel_type,
           v.latitude,
           v.longitude,
-          v.metadata
+          v.battery_capacity_kwh,
+          v.estimated_range_miles,
+          v.telematics_data,
+          ft.tank_capacity_gallons,
+          ft.mpg_calculated,
+          ft.mpg_expected,
+          f.name AS facility_name,
+          f.latitude AS facility_latitude,
+          f.longitude AS facility_longitude
         FROM vehicles v
-        WHERE v.is_active = true AND v.status = 'active'
+        LEFT JOIN facilities f ON f.id = v.assigned_facility_id
+        LEFT JOIN LATERAL (
+          SELECT
+            tank_capacity_gallons,
+            mpg_calculated,
+            mpg_expected
+          FROM fuel_transactions
+          WHERE vehicle_id = v.id
+          ORDER BY transaction_date DESC NULLS LAST, created_at DESC
+          LIMIT 1
+        ) ft ON true
+        WHERE v.status = 'active'
+          AND v.latitude IS NOT NULL
+          AND v.longitude IS NOT NULL
         ORDER BY v.created_at, v.id
       `)
 
@@ -215,7 +241,9 @@ export class TelemetryService extends EventEmitter {
       for (const row of results) {
         idx += 1
         const vehicle = this.mapDatabaseVehicle(row, idx)
-        this.vehicleCache.set(vehicle.id, vehicle)
+        if (vehicle) {
+          this.vehicleCache.set(vehicle.id, vehicle)
+        }
       }
 
       console.log(`Loaded ${this.vehicleCache.size} vehicles from database`)
@@ -228,44 +256,94 @@ export class TelemetryService extends EventEmitter {
   /**
    * Map database row to TelemetryVehicle
    */
-  private mapDatabaseVehicle(row: any, sequence: number): TelemetryVehicle {
-    const specs = row.metadata?.specifications || row.specifications || {}
-    const fallbackCoords = { lat: 30.4383, lng: -84.2807 }
-    const coords =
-      row.latitude != null && row.longitude != null
-        ? { lat: Number(row.latitude), lng: Number(row.longitude) }
-        : fallbackCoords
+  private mapDatabaseVehicle(row: any, sequence: number): TelemetryVehicle | null {
+    const specs = row.telematics_data?.specifications || row.telematics_data || row.specifications || {}
+    if (row.latitude == null || row.longitude == null) {
+      console.warn(`TelemetryService: Vehicle ${row.id} missing latitude/longitude; skipping`)
+      return null
+    }
+    const coords = {
+      lat: Number(row.latitude),
+      lng: Number(row.longitude)
+    }
+    if (Number.isNaN(coords.lat) || Number.isNaN(coords.lng)) {
+      console.warn(`TelemetryService: Vehicle ${row.id} has invalid coordinates; skipping`)
+      return null
+    }
+
+    const homeLat =
+      row.facility_latitude != null ? Number(row.facility_latitude) : coords.lat
+    const homeLng =
+      row.facility_longitude != null ? Number(row.facility_longitude) : coords.lng
+    const homeName =
+      row.facility_name ||
+      row.vehicle_number ||
+      row.license_plate ||
+      row.vin
+
+    const tankSizeGallons =
+      specs.tankSizeGallons ??
+      specs.tankSize ??
+      specs.tank_capacity_gallons ??
+      specs.tank_capacity ??
+      row.tank_capacity_gallons ??
+      null
+
+    const fuelEfficiency =
+      specs.fuelEfficiency ??
+      specs.fuel_efficiency ??
+      specs.mpg ??
+      row.mpg_calculated ??
+      row.mpg_expected ??
+      null
+
+    if (tankSizeGallons == null || fuelEfficiency == null) {
+      console.warn(`TelemetryService: Vehicle ${row.id} missing tank size or fuel efficiency; skipping`)
+      return null
+    }
+    const behaviorSource =
+      row.telematics_data?.driverBehavior ||
+      row.telematics_data?.driver_behavior ||
+      row.telematics_data?.behavior
     const driverBehavior =
-      row.metadata?.driverBehavior === 'aggressive' ||
-      row.metadata?.driverBehavior === 'cautious' ||
-      row.metadata?.driverBehavior === 'normal'
-        ? row.metadata.driverBehavior
-        : 'normal'
+      behaviorSource === 'aggressive' ||
+      behaviorSource === 'cautious' ||
+      behaviorSource === 'normal'
+        ? behaviorSource
+        : this.inferDriverBehavior(row)
 
     return {
       id: `VEH-${String(sequence).padStart(3, '0')}`,
       dbId: String(row.id),
       tenantId: String(row.tenant_id),
       vehicleNumber: row.vehicle_number,
-      name: row.name,
+      name: row.display_name,
       make: row.make,
       model: row.model,
       year: row.year,
       type: this.inferVehicleType(row.make, row.model),
       vin: row.vin,
       licensePlate: row.license_plate,
-      tankSize: specs.tankSize || this.getDefaultTankSize(row.fuel_type),
-      fuelEfficiency: specs.fuelEfficiency || this.getDefaultFuelEfficiency(row.make, row.model),
-      batteryCapacity: specs.batteryCapacity,
-      electricRange: specs.electricRange,
+      tankSize: Number(tankSizeGallons),
+      fuelEfficiency: Number(fuelEfficiency),
+      batteryCapacity:
+        specs.batteryCapacity ??
+        specs.battery_capacity ??
+        row.battery_capacity_kwh ??
+        undefined,
+      electricRange:
+        specs.electricRange ??
+        specs.electric_range ??
+        row.estimated_range_miles ??
+        undefined,
       startingLocation: {
         lat: coords.lat,
         lng: coords.lng
       },
       homeBase: {
-        lat: coords.lat,
-        lng: coords.lng,
-        name: row.metadata?.homeBaseName || 'Fleet Center'
+        lat: Number(homeLat),
+        lng: Number(homeLng),
+        name: homeName
       },
       driverBehavior,
       features: this.inferFeatures(row.make, row.model, row.fuel_type),
@@ -462,15 +540,15 @@ export class TelemetryService extends EventEmitter {
         SELECT
           id,
           name,
-          type,
-          center_lat,
-          center_lng,
+          geofence_type as type,
+          center_latitude as center_lat,
+          center_longitude as center_lng,
           center_latitude,
           center_longitude,
           radius,
-          radius_meters,
-          notify_on_entry,
-          notify_on_exit,
+          radius as radius_meters,
+          alert_on_entry as notify_on_entry,
+          alert_on_exit as notify_on_exit,
           alert_on_entry,
           alert_on_exit
         FROM geofences
@@ -681,9 +759,9 @@ export class TelemetryService extends EventEmitter {
         'vehicle_id',
         'timestamp',
         'engine_rpm',
-        'engine_temperature',
+        'coolant_temp',
         'battery_voltage',
-        'diagnostic_codes',
+        'dtc_codes',
         'raw_data',
       ]
       const params: any[] = []
@@ -930,23 +1008,13 @@ export class TelemetryService extends EventEmitter {
     return 'sedan'
   }
 
-  private getDefaultTankSize(fuelType: string): number {
-    return fuelType === 'electric' ? 0 : 20
-  }
-
-  private getDefaultFuelEfficiency(make: string, model: string): number {
-    const type = this.inferVehicleType(make, model)
-    const defaults: Record<string, number> = {
-      sedan: 30, suv: 24, truck: 18, van: 19, excavator: 4, dump_truck: 6
-    }
-    return defaults[type] || 25
-  }
-
-  private randomDriverBehavior(): 'aggressive' | 'normal' | 'cautious' {
-    const roll = Math.random()
-    if (roll < 0.15) return 'aggressive'
-    if (roll > 0.85) return 'cautious'
-    return 'normal'
+  private inferDriverBehavior(row: any): 'aggressive' | 'normal' | 'cautious' {
+    const scoreRaw = row.health_score ?? row.safety_score ?? row.safetyScore
+    const score = typeof scoreRaw === 'number' ? scoreRaw : Number(scoreRaw)
+    if (!Number.isFinite(score)) return 'normal'
+    if (score >= 85) return 'cautious'
+    if (score >= 70) return 'normal'
+    return 'aggressive'
   }
 
   private inferFeatures(make: string, model: string, fuelType: string): string[] {
@@ -1025,14 +1093,14 @@ export class TelemetryService extends EventEmitter {
       timestamp: new Date(row.timestamp),
       rpm: row.engine_rpm != null ? Number(row.engine_rpm) : 0,
       speed: raw.speed != null ? Number(raw.speed) : 0,
-      coolantTemp: row.engine_temperature != null ? Number(row.engine_temperature) : 0,
+      coolantTemp: row.coolant_temp != null ? Number(row.coolant_temp) : 0,
       fuelLevel: raw.fuelLevel != null ? Number(raw.fuelLevel) : 0,
       batteryVoltage: row.battery_voltage != null ? Number(row.battery_voltage) : 0,
       engineLoad: raw.engineLoad != null ? Number(raw.engineLoad) : 0,
       throttlePosition: raw.throttlePosition != null ? Number(raw.throttlePosition) : 0,
       maf: raw.maf != null ? Number(raw.maf) : 0,
       o2Sensor: raw.o2Sensor != null ? Number(raw.o2Sensor) : 0,
-      dtcCodes: Array.isArray(row.diagnostic_codes) ? row.diagnostic_codes : [],
+      dtcCodes: Array.isArray(row.dtc_codes) ? row.dtc_codes : [],
       checkEngineLight: Boolean(raw.checkEngineLight),
       mil: Boolean(raw.mil)
     }

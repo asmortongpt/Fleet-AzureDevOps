@@ -2,40 +2,25 @@
  * Notification Job Processor
  *
  * Processes push notification jobs for mobile devices
- * Supports: FCM (Firebase Cloud Messaging), APNS (Apple Push Notification Service)
+ * Supports: APNS (Apple Push Notification Service) only
+ * Firebase removed from project - Android push notifications disabled
  */
 
 import { Job } from 'bull'
-import admin from 'firebase-admin'
+// Firebase removed from project
+// import admin from 'firebase-admin'
 
 import { pool } from '../../config/database'
 import logger from '../../config/logger'
 
 /**
- * Initialize Firebase Admin SDK
+ * Firebase removed - Android push notifications disabled
  */
-let firebaseInitialized = false
+const firebaseInitialized = false
 
 function initializeFirebase() {
-  if (firebaseInitialized) {
-return
-}
-
-  try {
-    // Initialize Firebase Admin with service account credentials
-    if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-      const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-      })
-      firebaseInitialized = true
-      logger.info('Firebase Admin SDK initialized successfully')
-    } else {
-      logger.warn('Firebase service account not configured, push notifications disabled')
-    }
-  } catch (error) {
-    logger.error('Failed to initialize Firebase Admin SDK:', error)
-  }
+  // Firebase removed from project - use APNS for iOS notifications only
+  logger.info('Firebase disabled - Android push notifications unavailable (iOS via APNS only)')
 }
 
 // Initialize on module load
@@ -155,45 +140,48 @@ export async function processNotificationJob(job: Job): Promise<any> {
     }
 
     // Send notification to all devices
-    const response = await admin.messaging().sendMulticast(message)
+    // Firebase removed - cannot send notifications
+    throw new Error('Firebase removed from project - push notifications disabled')
+    // const response = await admin.messaging().sendMulticast(message)
 
-    logger.info(`Notification sent: ${response.successCount}/${tokens.length} delivered`, {
-      jobId: job.id,
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-    })
+    // logger.info(`Notification sent: ${response.successCount}/${tokens.length} delivered`, {
+    //   jobId: job.id,
+    //   successCount: response.successCount,
+    //   failureCount: response.failureCount,
+    // })
 
     // Handle failed tokens (e.g., remove invalid tokens)
-    if (response.failureCount > 0) {
-      const failedTokens: string[] = []
-      response.responses.forEach((resp: any, idx: number) => {
-        if (!resp.success) {
-          failedTokens.push(tokens[idx])
-          logger.warn(`Failed to send to token ${tokens[idx]}:`, resp.error?.message)
+    // Firebase removed - code commented out
+    // if (response.failureCount > 0) {
+    //   const failedTokens: string[] = []
+    //   response.responses.forEach((resp: any, idx: number) => {
+    //     if (!resp.success) {
+    //       failedTokens.push(tokens[idx])
+    //       logger.warn(`Failed to send to token ${tokens[idx]}:`, resp.error?.message)
 
-          // Remove invalid tokens
-          if (
-            resp.error?.code === 'messaging/invalid-registration-token' ||
-            resp.error?.code === 'messaging/registration-token-not-registered'
-          ) {
-            pool
-              .query(`UPDATE user_devices SET enabled = FALSE WHERE device_token = $1`, [tokens[idx]])
-              .catch((err) => logger.error('Failed to disable invalid token:', err))
-          }
-        }
-      })
-    }
+    //       // Remove invalid tokens
+    //       if (
+    //         resp.error?.code === 'messaging/invalid-registration-token' ||
+    //         resp.error?.code === 'messaging/registration-token-not-registered'
+    //       ) {
+    //         pool
+    //           .query(`UPDATE user_devices SET enabled = FALSE WHERE device_token = $1`, [tokens[idx]])
+    //           .catch((err) => logger.error('Failed to disable invalid token:', err))
+    //       }
+    //     }
+    //   })
+    // }
 
     // Save successful notification log
-    await saveNotificationLog(userId, title, body, data, 'sent')
+    // await saveNotificationLog(userId, title, body, data, 'sent')
 
-    return {
-      success: true,
-      successCount: response.successCount,
-      failureCount: response.failureCount,
-      totalTokens: tokens.length,
-      sentAt: new Date().toISOString(),
-    }
+    // return {
+    //   success: true,
+    //   successCount: response.successCount,
+    //   failureCount: response.failureCount,
+    //   totalTokens: tokens.length,
+    //   sentAt: new Date().toISOString(),
+    // }
   } catch (error: any) {
     logger.error(`Failed to send notification in job ${job.id}:`, error)
 
@@ -240,10 +228,12 @@ export async function sendTopicNotification(topic: string, title: string, body: 
     },
   }
 
-  const messageId = await admin.messaging().send(message)
-  logger.info(`Topic notification sent: ${messageId} to topic ${topic}`)
+  // Firebase removed - cannot send topic notifications
+  throw new Error('Firebase removed from project - topic notifications disabled')
+  // const messageId = await admin.messaging().send(message)
+  // logger.info(`Topic notification sent: ${messageId} to topic ${topic}`)
 
-  return { success: true, messageId, topic }
+  // return { success: true, messageId, topic }
 }
 
 /**
@@ -260,20 +250,22 @@ export async function subscribeToTopic(userId: string, topic: string): Promise<a
     throw new Error('Firebase not initialized')
   }
 
-  const messaging = admin.messaging() as any;
-  const response = await messaging.subscribeToTopic(tokens, topic)
+  // Firebase removed - cannot subscribe to topics
+  throw new Error('Firebase removed from project - topic subscriptions disabled')
+  // const messaging = admin.messaging() as any;
+  // const response = await messaging.subscribeToTopic(tokens, topic)
 
-  logger.info(`Subscribed ${response.successCount} devices to topic ${topic}`, {
-    userId,
-    successCount: response.successCount,
-    failureCount: response.failureCount,
-  })
+  // logger.info(`Subscribed ${response.successCount} devices to topic ${topic}`, {
+  //   userId,
+  //   successCount: response.successCount,
+  //   failureCount: response.failureCount,
+  // })
 
-  return {
-    success: true,
-    successCount: response.successCount,
-    failureCount: response.failureCount,
-  }
+  // return {
+  //   success: true,
+  //   successCount: response.successCount,
+  //   failureCount: response.failureCount,
+  // }
 }
 
 /**
@@ -290,20 +282,22 @@ export async function unsubscribeFromTopic(userId: string, topic: string): Promi
     throw new Error('Firebase not initialized')
   }
 
-  const messaging = admin.messaging() as any;
-  const response = await messaging.unsubscribeFromTopic(tokens, topic)
+  // Firebase removed - cannot unsubscribe from topics
+  throw new Error('Firebase removed from project - topic unsubscriptions disabled')
+  // const messaging = admin.messaging() as any;
+  // const response = await messaging.unsubscribeFromTopic(tokens, topic)
 
-  logger.info(`Unsubscribed ${response.successCount} devices from topic ${topic}`, {
-    userId,
-    successCount: response.successCount,
-    failureCount: response.failureCount,
-  })
+  // logger.info(`Unsubscribed ${response.successCount} devices from topic ${topic}`, {
+  //   userId,
+  //   successCount: response.successCount,
+  //   failureCount: response.failureCount,
+  // })
 
-  return {
-    success: true,
-    successCount: response.successCount,
-    failureCount: response.failureCount,
-  }
+  // return {
+  //   success: true,
+  //   successCount: response.successCount,
+  //   failureCount: response.failureCount,
+  // }
 }
 
 /**

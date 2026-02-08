@@ -13,6 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import logger from '@/utils/logger'
+import { useAuth } from '@/hooks/useAuth'
+
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
 
 interface TripUsageClassification {
   id?: string
@@ -76,20 +81,15 @@ const EmptyState = ({ message }: { message: string }) => (
 )
 
 const apiClient = async (url: string) => {
-  const _token = localStorage.getItem('token')
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${_token}` }
-  })
+  const response = await authFetch(url)
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
 }
 
 const apiMutation = async (url: string, method: string, data?: any) => {
-  const _token = localStorage.getItem('token')
-  const response = await fetch(url, {
+  const response = await authFetch(url, {
     method,
     headers: {
-      Authorization: `Bearer ${_token}`,
       'Content-Type': 'application/json'
     },
     body: data ? JSON.stringify(data) : undefined
@@ -104,6 +104,7 @@ const apiMutation = async (url: string, method: string, data?: any) => {
 export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
   currentTheme: _currentTheme
 }) => {
+  const { user } = useAuth()
   const queryClient = useQueryClient()
   const [userRole, setUserRole] = useState<'driver' | 'manager' | 'admin'>('driver')
   const [userId, setUserId] = useState<string>('')
@@ -114,12 +115,10 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
   React.useEffect(() => {
-    // Get user info from localStorage or token
-    const _token = localStorage.getItem('token')
-    const user = JSON.parse(localStorage.getItem('user') || '{}')
+    if (!user) return
     setUserId(user.id || '')
-    setUserRole(user.role || 'driver')
-  }, [])
+    setUserRole((user as any).role || 'driver')
+  }, [user])
 
   // Driver data queries
   const { data: limitsData, isLoading: limitsLoading } = useQuery({

@@ -10,6 +10,10 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface FacilityVehiclesViewProps {
   facilityId: string
   facilityName?: string
@@ -28,7 +32,7 @@ interface Vehicle {
   assigned_to?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehiclesViewProps) {
   const { data: vehicles, error, isLoading, mutate } = useSWR<Vehicle[]>(

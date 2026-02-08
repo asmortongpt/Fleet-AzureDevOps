@@ -14,6 +14,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/contexts/AuthContext';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
@@ -24,13 +25,28 @@ interface CommandCenterHeaderProps {
 
 export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderProps) {
     const { setActiveModule } = useNavigation();
+    const { user, logout } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
     const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     const handleLogout = useCallback(() => {
-        localStorage.removeItem('auth_token');
-        window.location.href = '/login';
-    }, []);
+        logout().catch(() => {
+            window.location.href = '/login';
+        });
+    }, [logout]);
+
+    const displayName = user ? `${user.firstName ?? ''} ${user.lastName ?? ''}`.trim() : 'User';
+    const displayEmail = user?.email || '';
+    const roleLabel = user?.role || 'Member';
+    const avatarUrl = (user as { avatarUrl?: string })?.avatarUrl;
+    const initials = displayName
+        ? displayName
+            .split(' ')
+            .filter(Boolean)
+            .slice(0, 2)
+            .map((part) => part[0]?.toUpperCase())
+            .join('')
+        : 'US';
 
     const handleSearch = useCallback((query: string) => {
         logger.info('Global search:', query);
@@ -108,12 +124,12 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                                 )}
                             >
                                 <div className="hidden lg:flex flex-col items-end">
-                                    <span className="text-sm font-medium text-foreground leading-none">Admin User</span>
-                                    <span className="text-xs text-muted-foreground leading-none mt-1">Fleet Manager</span>
+                                    <span className="text-sm font-medium text-foreground leading-none">{displayName || 'User'}</span>
+                                    <span className="text-xs text-muted-foreground leading-none mt-1">{roleLabel}</span>
                                 </div>
                                 <Avatar className="h-9 w-9 border-2 border-minimalist-medium">
-                                    <AvatarImage src="https://github.com/shadcn.png" alt="Admin User profile picture" />
-                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">AD</AvatarFallback>
+                                    <AvatarImage src={avatarUrl} alt={`${displayName} profile picture`} />
+                                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">{initials}</AvatarFallback>
                                 </Avatar>
                             </Button>
                         </DropdownMenuTrigger>
@@ -124,8 +140,8 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                         >
                             <DropdownMenuLabel className="px-3 py-2">
                                 <div className="flex flex-col">
-                                    <span className="font-semibold text-sm">Admin User</span>
-                                    <span className="text-xs text-muted-foreground font-normal">admin@fleetops.com</span>
+                                    <span className="font-semibold text-sm">{displayName || 'User'}</span>
+                                    <span className="text-xs text-muted-foreground font-normal">{displayEmail}</span>
                                 </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator className="bg-minimalist-subtle my-1" />

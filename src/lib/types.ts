@@ -60,6 +60,8 @@ export interface Vehicle {
   vin: string
   licensePlate: string
   status: "active" | "idle" | "charging" | "service" | "emergency" | "offline"
+  latitude?: number
+  longitude?: number
   location: {
     lat: number
     lng: number

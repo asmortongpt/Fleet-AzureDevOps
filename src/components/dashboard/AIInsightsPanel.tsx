@@ -16,7 +16,19 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { AIInsight } from '@/hooks/useSystemStatus'
+
+// AI Insight type (moved from removed useSystemStatus hook)
+export interface AIInsight {
+  id: string
+  type: 'prediction' | 'recommendation' | 'alert' | 'anomaly' | 'optimization'
+  priority: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  confidence?: number
+  timestamp: Date
+  dismissed?: boolean
+  actionable?: boolean
+}
 
 interface AIInsightsPanelProps {
   insights: AIInsight[]

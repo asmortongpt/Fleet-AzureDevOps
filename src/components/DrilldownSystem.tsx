@@ -90,11 +90,23 @@ export function DrilldownSystem() {
   const renderVehicleDrilldown = async (data: any) => {
     try {
       // Fetch vehicles from API
-      const response = await api.get('/vehicles');
-      const vehicles: Vehicle[] = response.data.data || [];
+      const response = await api.get('/api/v1/vehicles');
+      const vehicles: Vehicle[] = response.data.vehicles || response.data.data || [];
+      const normalizedVehicles = vehicles.map((vehicle: any) => ({
+        ...vehicle,
+        number: vehicle.registration_number || vehicle.license_plate || vehicle.vin,
+        mileage: vehicle.odometer != null ? Number(vehicle.odometer) : undefined,
+        fuelType: vehicle.fuel_type || vehicle.fuelType,
+        purchasePrice: vehicle.purchase_price != null ? Number(vehicle.purchase_price) : undefined,
+        currentValue: vehicle.current_value != null ? Number(vehicle.current_value) : undefined,
+        assignedDriver: vehicle.assigned_driver_name || vehicle.assigned_driver_id,
+        home_facility: vehicle.assigned_facility_name || vehicle.assigned_facility_id,
+        lastService: vehicle.last_oil_change_date,
+        nextService: vehicle.next_service_due_date,
+      }));
 
       // Apply filters if provided
-      let filteredVehicles = vehicles;
+      let filteredVehicles = normalizedVehicles;
       if (data?.filter) {
         filteredVehicles = vehicles.filter((v: Vehicle) => {
           switch (data.filter) {
@@ -172,8 +184,54 @@ export function DrilldownSystem() {
   const renderMaintenanceDrilldown = async (data: any) => {
     try {
       // Fetch maintenance records from API
-      const response = await api.get('/maintenance');
-      const records: MaintenanceRecord[] = response.data.data || [];
+      const [workOrdersResponse, vehiclesResponse] = await Promise.all([
+        api.get('/api/v1/work-orders'),
+        api.get('/api/v1/vehicles'),
+      ]);
+
+      const workOrders = workOrdersResponse.data.work_orders || workOrdersResponse.data.data || [];
+      const vehicles = vehiclesResponse.data.vehicles || vehiclesResponse.data.data || [];
+      const vehicleLookup = new Map(
+        vehicles.map((vehicle: any) => [vehicle.id, vehicle.registration_number || vehicle.license_plate || vehicle.vin])
+      );
+
+      const records: MaintenanceRecord[] = workOrders.map((record: any) => {
+        const statusMap: Record<string, MaintenanceRecord['status']> = {
+          open: 'scheduled',
+          in_progress: 'in-progress',
+          completed: 'completed',
+          cancelled: 'cancelled',
+          on_hold: 'scheduled',
+        };
+        const priorityMap: Record<string, MaintenanceRecord['priority']> = {
+          low: 'routine',
+          medium: 'urgent',
+          high: 'emergency',
+          critical: 'emergency',
+        };
+
+        return {
+          id: record.id,
+          vehicle_id: record.vehicle_id,
+          unit_number: vehicleLookup.get(record.vehicle_id) || record.vehicle_id,
+          service_type: record.type,
+          description: record.description,
+          service_date: record.actual_start || record.scheduled_start || record.created_at,
+          mileage: record.odometer_reading != null ? Number(record.odometer_reading) : undefined,
+          cost: record.total_cost != null
+            ? Number(record.total_cost)
+            : record.labor_cost != null || record.parts_cost != null
+              ? Number(record.labor_cost || 0) + Number(record.parts_cost || 0)
+              : undefined,
+          technician: record.assigned_technician_id || record.requested_by || '',
+          facility: record.facility_id || '',
+          status: statusMap[record.status] || 'scheduled',
+          priority: priorityMap[record.priority] || 'routine',
+          parts_used: record.component_replaced ? [record.component_replaced] : undefined,
+          labor_hours: record.labor_hours != null ? Number(record.labor_hours) : undefined,
+          next_service_date: record.next_service_due_date,
+        };
+      });
 
       if (records.length === 0) {
         return (
@@ -241,9 +299,26 @@ export function DrilldownSystem() {
 
   const renderDriverDrilldown = async (data: any) => {
     try {
-      // In a real app, fetch from API
-      const response = await api.get('/drivers');
-      const drivers: Driver[] = response.data.data || [];
+      const response = await api.get('/api/v1/drivers');
+      const drivers: Driver[] = (response.data.drivers || response.data.data || []).map((driver: any) => ({
+        id: driver.id,
+        driver_id: driver.license_number || driver.employee_number || driver.id,
+        first_name: driver.first_name || '',
+        last_name: driver.last_name || '',
+        email: driver.email,
+        phone: driver.phone,
+        license_number: driver.license_number,
+        license_state: driver.license_state,
+        license_expiration: driver.license_expiration,
+        hire_date: driver.hire_date,
+        status: driver.status === 'on_leave' ? 'on-leave' : driver.status,
+        assigned_vehicle: driver.assigned_vehicle_id,
+        certifications: driver.cdl_endorsements || undefined,
+        violations_count: driver.violations_count,
+        total_miles_driven: driver.total_miles_driven,
+        performance_score: driver.safety_score != null ? Number(driver.safety_score) : undefined,
+        avatar_url: driver.avatar_url,
+      }));
 
       return (
         <DriverDrilldownView

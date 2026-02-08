@@ -42,7 +42,9 @@ interface FacilityData {
   }
 }
 
-const fetcher = (url: string): Promise<FacilityData> => fetch(url).then((r) => r.json())
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+const fetcher = (url: string): Promise<FacilityData> => authFetch(url).then((r) => r.json())
 
 export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
   const { push } = useDrilldown()

@@ -12,14 +12,15 @@ import type {
   PolicyStatistics
 } from '@/types/radio';
 
-const API_BASE = import.meta.env.VITE_API_URL;
+const API_BASE = import.meta.env.VITE_API_URL || window.location.origin;
+const DEFAULT_FETCH_OPTIONS: RequestInit = { credentials: 'include' };
 
 // ============================================================================
 // Channel Management
 // ============================================================================
 
 export async function getChannels(): Promise<RadioChannel[]> {
-  const response = await fetch(`${API_BASE}/api/radio/channels`);
+  const response = await fetch(`${API_BASE}/api/radio/channels`, DEFAULT_FETCH_OPTIONS);
   if (!response.ok) {
     throw new Error(`Failed to fetch channels: ${response.statusText}`);
   }
@@ -27,7 +28,7 @@ export async function getChannels(): Promise<RadioChannel[]> {
 }
 
 export async function getChannel(channelId: string): Promise<RadioChannel> {
-  const response = await fetch(`${API_BASE}/api/radio/channels/${channelId}`);
+  const response = await fetch(`${API_BASE}/api/radio/channels/${channelId}`, DEFAULT_FETCH_OPTIONS);
   if (!response.ok) {
     throw new Error(`Failed to fetch channel: ${response.statusText}`);
   }
@@ -36,6 +37,7 @@ export async function getChannel(channelId: string): Promise<RadioChannel> {
 
 export async function createChannel(data: Partial<RadioChannel>): Promise<RadioChannel> {
   const response = await fetch(`${API_BASE}/api/radio/channels`, {
+    ...DEFAULT_FETCH_OPTIONS,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -48,6 +50,7 @@ export async function createChannel(data: Partial<RadioChannel>): Promise<RadioC
 
 export async function updateChannel(channelId: string, data: Partial<RadioChannel>): Promise<RadioChannel> {
   const response = await fetch(`${API_BASE}/api/radio/channels/${channelId}`, {
+    ...DEFAULT_FETCH_OPTIONS,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -60,6 +63,7 @@ export async function updateChannel(channelId: string, data: Partial<RadioChanne
 
 export async function deleteChannel(channelId: string): Promise<void> {
   const response = await fetch(`${API_BASE}/api/radio/channels/${channelId}`, {
+    ...DEFAULT_FETCH_OPTIONS,
     method: 'DELETE'
   });
   if (!response.ok) {
@@ -69,6 +73,7 @@ export async function deleteChannel(channelId: string): Promise<void> {
 
 export async function testChannel(channelId: string): Promise<{ success: boolean; message: string }> {
   const response = await fetch(`${API_BASE}/api/radio/channels/${channelId}/test`, {
+    ...DEFAULT_FETCH_OPTIONS,
     method: 'POST'
   });
   if (!response.ok) {
@@ -78,7 +83,7 @@ export async function testChannel(channelId: string): Promise<{ success: boolean
 }
 
 export async function getChannelStatistics(channelId: string): Promise<ChannelStatistics> {
-  const response = await fetch(`${API_BASE}/api/radio/channels/${channelId}/statistics`);
+  const response = await fetch(`${API_BASE}/api/radio/channels/${channelId}/statistics`, DEFAULT_FETCH_OPTIONS);
   if (!response.ok) {
     throw new Error(`Failed to fetch channel statistics: ${response.statusText}`);
   }
@@ -101,7 +106,7 @@ export async function getTransmissions(params?: {
   if (params?.limit) query.set('limit', params.limit.toString());
   if (params?.offset) query.set('offset', params.offset.toString());
 
-  const response = await fetch(`${API_BASE}/api/radio/transmissions?${query}`);
+  const response = await fetch(`${API_BASE}/api/radio/transmissions?${query}`, DEFAULT_FETCH_OPTIONS);
   if (!response.ok) {
     throw new Error(`Failed to fetch transmissions: ${response.statusText}`);
   }
@@ -109,7 +114,7 @@ export async function getTransmissions(params?: {
 }
 
 export async function getTransmission(transmissionId: string): Promise<Transmission> {
-  const response = await fetch(`${API_BASE}/api/radio/transmissions/${transmissionId}`);
+  const response = await fetch(`${API_BASE}/api/radio/transmissions/${transmissionId}`, DEFAULT_FETCH_OPTIONS);
   if (!response.ok) {
     throw new Error(`Failed to fetch transmission: ${response.statusText}`);
   }
@@ -118,6 +123,7 @@ export async function getTransmission(transmissionId: string): Promise<Transmiss
 
 export async function searchTranscripts(query: string): Promise<Transmission[]> {
   const response = await fetch(`${API_BASE}/api/radio/transmissions/search`, {
+    ...DEFAULT_FETCH_OPTIONS,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ query })
@@ -138,7 +144,7 @@ export async function exportTranscripts(params?: {
   if (params?.start_date) query.set('start_date', params.start_date);
   if (params?.end_date) query.set('end_date', params.end_date);
 
-  const response = await fetch(`${API_BASE}/api/radio/transmissions/export?${query}`);
+  const response = await fetch(`${API_BASE}/api/radio/transmissions/export?${query}`, DEFAULT_FETCH_OPTIONS);
   if (!response.ok) {
     throw new Error(`Failed to export transcripts: ${response.statusText}`);
   }
@@ -150,7 +156,7 @@ export async function exportTranscripts(params?: {
 // ============================================================================
 
 export async function getPolicies(): Promise<DispatchPolicy[]> {
-  const response = await fetch(`${API_BASE}/api/dispatch/policies`);
+  const response = await fetch(`${API_BASE}/api/dispatch/policies`, DEFAULT_FETCH_OPTIONS);
   if (!response.ok) {
     throw new Error(`Failed to fetch policies: ${response.statusText}`);
   }
@@ -158,7 +164,7 @@ export async function getPolicies(): Promise<DispatchPolicy[]> {
 }
 
 export async function getPolicy(policyId: string): Promise<DispatchPolicy> {
-  const response = await fetch(`${API_BASE}/api/dispatch/policies/${policyId}`);
+  const response = await fetch(`${API_BASE}/api/dispatch/policies/${policyId}`, DEFAULT_FETCH_OPTIONS);
   if (!response.ok) {
     throw new Error(`Failed to fetch policy: ${response.statusText}`);
   }
@@ -167,6 +173,7 @@ export async function getPolicy(policyId: string): Promise<DispatchPolicy> {
 
 export async function createPolicy(data: Partial<DispatchPolicy>): Promise<DispatchPolicy> {
   const response = await fetch(`${API_BASE}/api/dispatch/policies`, {
+    ...DEFAULT_FETCH_OPTIONS,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -179,6 +186,7 @@ export async function createPolicy(data: Partial<DispatchPolicy>): Promise<Dispa
 
 export async function updatePolicy(policyId: string, data: Partial<DispatchPolicy>): Promise<DispatchPolicy> {
   const response = await fetch(`${API_BASE}/api/dispatch/policies/${policyId}`, {
+    ...DEFAULT_FETCH_OPTIONS,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
@@ -191,6 +199,7 @@ export async function updatePolicy(policyId: string, data: Partial<DispatchPolic
 
 export async function deletePolicy(policyId: string): Promise<void> {
   const response = await fetch(`${API_BASE}/api/dispatch/policies/${policyId}`, {
+    ...DEFAULT_FETCH_OPTIONS,
     method: 'DELETE'
   });
   if (!response.ok) {

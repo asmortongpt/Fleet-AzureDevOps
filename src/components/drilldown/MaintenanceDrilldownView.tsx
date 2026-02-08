@@ -12,10 +12,10 @@ export interface MaintenanceRecord {
   service_type: string;
   description: string;
   service_date: string;
-  mileage: number;
-  cost: number;
-  technician: string;
-  facility: string;
+  mileage?: number;
+  cost?: number;
+  technician?: string;
+  facility?: string;
   status: 'scheduled' | 'in-progress' | 'completed' | 'cancelled';
   priority: 'routine' | 'urgent' | 'emergency';
   parts_used?: string[];
@@ -129,7 +129,10 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
     {
       accessorKey: 'mileage',
       header: 'Mileage',
-      cell: ({ getValue }) => `${getValue<number>()?.toLocaleString()} mi`,
+      cell: ({ getValue }) => {
+        const value = getValue<number>();
+        return value != null ? `${value.toLocaleString()} mi` : 'N/A';
+      },
     },
     {
       accessorKey: 'cost',
@@ -137,7 +140,9 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
           <DollarSign className="w-4 h-4 text-emerald-700" />
-          <span className="font-semibold text-emerald-700">${getValue<number>()?.toLocaleString()}</span>
+          <span className="font-semibold text-emerald-700">
+            {getValue<number>() != null ? `$${getValue<number>()?.toLocaleString()}` : 'N/A'}
+          </span>
         </div>
       ),
     },

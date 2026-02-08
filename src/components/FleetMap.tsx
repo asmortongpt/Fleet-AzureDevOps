@@ -145,7 +145,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
 
   // Get marker icon based on vehicle status
   const getMarkerIcon = (status?: string): string => {
-    const baseUrl = 'http://maps.google.com/mapfiles/ms/icons/';
+    const baseUrl = 'https://maps.google.com/mapfiles/ms/icons/';
     switch (status?.toLowerCase()) {
       case 'active':
       case 'available':

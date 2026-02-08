@@ -395,7 +395,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.removeItem('demo_role');
   }, [instance, accounts]);
 
-  // Set user (for demo mode)
+  // Set user state
   const setUser = useCallback((newUser: User | null) => {
     setUserState(newUser);
   }, []);

@@ -146,7 +146,7 @@ export class OfflineSyncService {
   private syncCallbacks: Array<(status: SyncStatus) => void> = [];
   private readonly DB_NAME = 'fleet-offline-db';
   private readonly DB_VERSION = 1;
-  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
   constructor() {
     this.initDB();
@@ -308,9 +308,9 @@ export class OfflineSyncService {
 
     const response = await fetch(url, {
       method,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.getAuthToken()}`,
       },
       body: operation.type !== 'delete' ? JSON.stringify(operation.data) : undefined,
     });
@@ -354,9 +354,7 @@ export class OfflineSyncService {
 
     const url = `${this.API_BASE_URL}/${entityType}?since=${since}`;
     const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${this.getAuthToken()}`,
-      },
+      credentials: 'include',
     });
 
     if (!response.ok) {

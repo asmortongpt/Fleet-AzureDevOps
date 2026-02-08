@@ -43,7 +43,7 @@ import React, { useRef, useEffect, useState } from 'react';
 // ============================================================================
 
 export interface VideoPlayerProps {
-  videoUrl: string;
+  videoUrl?: string;
   videoId?: string;
   title?: string;
   vehicleId?: string;
@@ -82,6 +82,21 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   onTimeUpdate,
   onEnded
 }) => {
+  if (!videoUrl) {
+    return (
+      <Card sx={{ height: '100%', bgcolor: 'background.paper' }}>
+        <CardContent>
+          <Stack spacing={2} alignItems="center" justifyContent="center" sx={{ minHeight: 220 }}>
+            <Warning color="disabled" />
+            <Typography variant="subtitle2">No camera feed available</Typography>
+            <Typography variant="body2" color="text.secondary">
+              This camera does not have an active video stream.
+            </Typography>
+          </Stack>
+        </CardContent>
+      </Card>
+    );
+  }
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);

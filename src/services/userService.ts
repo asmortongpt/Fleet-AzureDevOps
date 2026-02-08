@@ -9,9 +9,12 @@ import { User } from '../types/user-management';
  * @returns A promise that resolves to the user data.
  * @throws {AppError} If the fetch operation fails.
  */
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
 export const fetchUserProfile = async (userId: string): Promise<User> => {
   try {
-    const response = await fetch(`/api/users/${encodeURIComponent(userId)}`);
+    const response = await authFetch(`/api/users/${encodeURIComponent(userId)}`);
     if (!response.ok) {
       throw new AppError(`Failed to fetch user profile: ${response.statusText}`);
     }
@@ -34,7 +37,7 @@ export const fetchUserProfile = async (userId: string): Promise<User> => {
  */
 export const fetchCurrentUser = async (): Promise<User> => {
   try {
-    const response = await fetch('/api/auth/me');
+    const response = await authFetch('/api/auth/me');
     if (!response.ok) {
       throw new AppError(`Authentication failed: ${response.statusText}`);
     }

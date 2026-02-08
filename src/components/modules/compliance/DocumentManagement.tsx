@@ -150,11 +150,10 @@ export function DocumentManagement() {
       formData.append('description', uploadData.description)
       formData.append('isPublic', uploadData.isPublic.toString())
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/documents/upload`, {
+      const apiBase = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/api\/?$/, '')
+      const response = await fetch(`${apiBase}/api/documents/upload`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+        credentials: 'include',
         body: formData
       })
 
@@ -206,7 +205,8 @@ export function DocumentManagement() {
   const handleDownloadDocument = (document: Document) => {
     // In production, this would trigger actual download
     toast('Download started')
-    window.open(`${import.meta.env.VITE_API_URL}${document.file_url}`, '_blank')
+    const apiBase = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/api\/?$/, '')
+    window.open(`${apiBase}${document.file_url}`, '_blank')
   }
 
   const getFileIcon = (fileType: string) => {

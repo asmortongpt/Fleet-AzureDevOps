@@ -18,6 +18,10 @@ import {
 } from '@/types/trip-usage'
 import logger from '@/utils/logger';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface PersonalUsePolicyConfigProps {
   currentTheme?: string
 }
@@ -58,20 +62,15 @@ const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }
 )
 
 const apiClient = async (url: string) => {
-  const token = localStorage.getItem('token') || '';
-  const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
-  })
+  const response = await authFetch(url)
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
 }
 
 const apiMutation = async (url: string, method: string, data?: any) => {
-  const token = localStorage.getItem('token') || '';
-  const response = await fetch(url, {
+  const response = await authFetch(url, {
     method,
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: data ? JSON.stringify(data) : undefined

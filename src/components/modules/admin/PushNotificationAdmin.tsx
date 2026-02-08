@@ -20,6 +20,10 @@ import React, { useState } from 'react';
 
 import logger from '@/utils/logger';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 
 interface NotificationStats {
   totalSent: number;
@@ -76,10 +80,8 @@ const PushNotificationAdmin: React.FC = () => {
 
   // Fetch functions for queries
   const fetchStats = async (): Promise<NotificationStats> => {
-    const response = await fetch('/api/push-notifications/stats', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+    const response = await authFetch('/api/push-notifications/stats', {
+      headers: {      }
     });
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Failed to fetch stats');
@@ -87,10 +89,8 @@ const PushNotificationAdmin: React.FC = () => {
   };
 
   const fetchHistory = async (): Promise<NotificationHistory[]> => {
-    const response = await fetch('/api/push-notifications/history?limit=50', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+    const response = await authFetch('/api/push-notifications/history?limit=50', {
+      headers: {      }
     });
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Failed to fetch history');
@@ -98,10 +98,8 @@ const PushNotificationAdmin: React.FC = () => {
   };
 
   const fetchTemplates = async (): Promise<NotificationTemplate[]> => {
-    const response = await fetch('/api/push-notifications/templates', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+    const response = await authFetch('/api/push-notifications/templates', {
+      headers: {      }
     });
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Failed to fetch templates');
@@ -109,10 +107,8 @@ const PushNotificationAdmin: React.FC = () => {
   };
 
   const fetchUsers = async () => {
-    const response = await fetch('/api/users', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+    const response = await authFetch('/api/users', {
+      headers: {      }
     });
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Failed to fetch users');
@@ -143,12 +139,10 @@ const PushNotificationAdmin: React.FC = () => {
   // Mutations
   const sendNotificationMutation = useMutation({
     mutationFn: async (body: any) => {
-      const response = await fetch(body.endpoint, {
+      const response = await authFetch(body.endpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
+          'Content-Type': 'application/json',        },
         body: JSON.stringify(body.payload)
       });
       const data = await response.json();
@@ -179,12 +173,10 @@ const PushNotificationAdmin: React.FC = () => {
 
   const scheduleNotificationMutation = useMutation({
     mutationFn: async (body: any) => {
-      const response = await fetch('/api/push-notifications/schedule', {
+      const response = await authFetch('/api/push-notifications/schedule', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
+          'Content-Type': 'application/json',        },
         body: JSON.stringify(body)
       });
       const data = await response.json();
@@ -215,12 +207,10 @@ const PushNotificationAdmin: React.FC = () => {
 
   const sendFromTemplateMutation = useMutation({
     mutationFn: async (body: any) => {
-      const response = await fetch('/api/push-notifications/send-from-template', {
+      const response = await authFetch('/api/push-notifications/send-from-template', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
+          'Content-Type': 'application/json',        },
         body: JSON.stringify(body)
       });
       const data = await response.json();
@@ -251,11 +241,9 @@ const PushNotificationAdmin: React.FC = () => {
 
   const testNotificationMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/push-notifications/test', {
+      const response = await authFetch('/api/push-notifications/test', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: {        }
       });
       const data = await response.json();
       if (!data.success) throw new Error('Failed to send test notification');

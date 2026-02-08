@@ -209,11 +209,8 @@ class PhotoUploadService {
 
       xhr.open('POST', url);
 
-      // Add authorization header if available
-      const token = localStorage.getItem('authToken');
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-      }
+      // Use httpOnly cookies for auth
+      xhr.withCredentials = true;
 
       xhr.send(formData);
     });

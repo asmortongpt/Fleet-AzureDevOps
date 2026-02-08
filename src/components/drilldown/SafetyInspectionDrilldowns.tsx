@@ -34,8 +34,11 @@ import {
 } from '@/components/ui/select'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-const fetcher = (url: string) =>
-  fetch(url)
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
+const fetcher = (url: string) => authFetch(url)
     .then((r) => r.json())
     .then((data) => data?.data ?? data)
 

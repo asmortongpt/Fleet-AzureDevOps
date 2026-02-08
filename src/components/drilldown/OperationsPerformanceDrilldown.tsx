@@ -21,8 +21,11 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 
-const fetcher = (url: string) =>
-  fetch(url)
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
+const fetcher = (url: string) => authFetch(url)
     .then((r) => r.json())
     .then((data) => data?.data ?? data)
 

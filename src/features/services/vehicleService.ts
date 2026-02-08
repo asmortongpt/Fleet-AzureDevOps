@@ -28,12 +28,12 @@ class VehicleService {
    */
   async getAll(): Promise<Vehicle[]> {
     try {
-      const response = await api.get<ApiResponse<Vehicle> | Vehicle[]>('/vehicles');
+      const response = await api.get<ApiResponse<Vehicle> | Vehicle[]>('/api/v1/vehicles');
       // Handle both { data: [] } and direct array responses
       if (Array.isArray(response.data)) {
         return response.data.map(v => ({ ...v, id: String(v.id) }));
       }
-      const data = response.data.data || [];
+      const data = response.data.vehicles || response.data.data || [];
       return data.map(v => ({ ...v, id: String(v.id) }));
     } catch (error) {
       console.error('Error fetching vehicles:', error);
@@ -46,7 +46,7 @@ class VehicleService {
    */
   async getById(id: string): Promise<Vehicle | null> {
     try {
-      const response = await api.get<Vehicle>(`/vehicles/${id}`);
+      const response = await api.get<Vehicle>(`/api/v1/vehicles/${id}`);
       return { ...response.data, id: String(response.data.id) };
     } catch (error) {
       console.error(`Error fetching vehicle ${id}:`, error);

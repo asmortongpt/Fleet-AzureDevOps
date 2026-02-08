@@ -41,6 +41,10 @@ import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import logger from '@/utils/logger';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface ViolationDetailPanelProps {
   violationId: string
 }
@@ -127,7 +131,7 @@ interface Comment {
   is_internal: boolean
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps) {
   const { push } = useDrilldown()
@@ -199,7 +203,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
     if (!newComment.trim()) return
 
     try {
-      await fetch(`/api/violations/${violationId}/comments`, {
+      await authFetch(`/api/violations/${violationId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commentText: newComment }),

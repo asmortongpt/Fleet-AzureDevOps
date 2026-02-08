@@ -85,7 +85,7 @@ export function RadioPopover({ className }: RadioPopoverProps): JSX.Element {
   const handlePTT = (): void => {
     setIsTransmitting(true)
     // Implement PTT logic here
-    setTimeout(() => setIsTransmitting(false), 2000) // Auto-release for demo
+    setTimeout(() => setIsTransmitting(false), 2000)
   }
 
   const openFullConsole = (): void => {

@@ -57,19 +57,15 @@ export const AUTH_SCOPES = {
  * IMPORTANT: All URIs must be registered in Azure AD App Registration:
  * Azure Portal > App Registrations > Your App > Authentication > Platform configurations > Web
  */
-export const REDIRECT_URIS = {
-  // Development (localhost) - Note: Vite usually uses 5173, but may use 5174 if 5173 is busy
-  dev: [
-    'http://localhost:5174/auth/callback', // Primary (current port)
-    'http://localhost:5173/auth/callback',
-    'http://localhost:5175/auth/callback',
-  ],
+const getEnvRedirectUris = (): string[] => {
+  const raw = import.meta.env.VITE_AZURE_AD_REDIRECT_URIS;
+  if (!raw) return [];
+  return raw.split(',').map((u: string) => u.trim()).filter(Boolean);
+};
 
-  // Production (Azure Static Web Apps)
-  prod: [
-    'https://proud-bay-0fdc8040f.3.azurestaticapps.net/auth/callback',
-    'https://fleet.capitaltechalliance.com/auth/callback',
-  ],
+export const REDIRECT_URIS = {
+  dev: getEnvRedirectUris(),
+  prod: getEnvRedirectUris(),
 } as const;
 
 /**
@@ -101,18 +97,20 @@ export function getRedirectUri(): string {
     return `${origin}/auth/callback`;
   }
 
-  // Fallback to localhost for development (use 5174 as that's our current port)
-  return 'http://localhost:5174/auth/callback';
+  // No window available: require explicit configuration
+  return '';
 }
 
 /**
  * Get the post-logout redirect URI
  */
 export function getPostLogoutRedirectUri(): string {
+  const envRedirectUri = import.meta.env.VITE_AZURE_AD_POST_LOGOUT_REDIRECT_URI;
+  if (envRedirectUri) return envRedirectUri;
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  return 'http://localhost:5174';
+  return '';
 }
 
 /**

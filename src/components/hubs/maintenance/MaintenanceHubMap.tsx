@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { useFacilities } from '@/hooks/use-api';
 
 interface WorkOrder {
   id: string;
@@ -51,92 +52,29 @@ export function MaintenanceHubMap({
   const [selectedWorkOrder, setSelectedWorkOrder] = useState<WorkOrder | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<ServiceLocation | null>(null);
   const [_map, setMap] = useState<google.maps.Map | null>(null);
+  const { data: facilities = [] } = useFacilities();
 
-  // Sample work orders - would come from props/API in production
-  const sampleWorkOrders: WorkOrder[] = useMemo(() => [
-    {
-      id: 'WO-001',
-      vehicleId: 'V-45',
-      vehicleUnit: 'Unit 45',
-      type: 'active',
-      description: 'Oil change and tire rotation',
-      location: {
-        lat: 28.5383,
-        lng: -81.3792,
-        address: '123 Service Way, Orlando, FL'
-      },
-      estimatedCompletion: '2:00 PM'
-    },
-    {
-      id: 'WO-002',
-      vehicleId: 'V-23',
-      vehicleUnit: 'Unit 23',
-      type: 'urgent',
-      description: 'Brake repair - urgent',
-      location: {
-        lat: 28.5500,
-        lng: -81.3700,
-        address: '456 Repair Blvd, Orlando, FL'
-      },
-      estimatedCompletion: 'ASAP'
-    },
-    {
-      id: 'WO-003',
-      vehicleId: 'V-67',
-      vehicleUnit: 'Unit 67',
-      type: 'scheduled',
-      description: 'Preventive maintenance inspection',
-      location: {
-        lat: 28.5200,
-        lng: -81.3900,
-        address: '789 Fleet St, Orlando, FL'
-      },
-      scheduledDate: 'Tomorrow 9:00 AM'
-    }
-  ], []);
+  const displayWorkOrders = workOrders;
 
-  // Sample service locations
-  const sampleServiceLocations: ServiceLocation[] = useMemo(() => [
-    {
-      id: 'SL-001',
-      name: 'Main Service Center',
-      type: 'service_center',
-      location: {
-        lat: 28.5383,
-        lng: -81.3792,
-        address: '123 Service Way, Orlando, FL'
-      },
-      services: ['Oil Change', 'Tire Service', 'Brake Repair', 'Engine Diagnostics'],
-      phone: '(407) 555-0100'
-    },
-    {
-      id: 'SL-002',
-      name: 'Parts Warehouse North',
-      type: 'parts_warehouse',
-      location: {
-        lat: 28.5600,
-        lng: -81.3600,
-        address: '456 Industrial Pkwy, Orlando, FL'
-      },
-      services: ['Parts Inventory', 'Emergency Parts'],
-      phone: '(407) 555-0200'
-    },
-    {
-      id: 'SL-003',
-      name: 'Certified Vendor - AutoCare',
-      type: 'vendor',
-      location: {
-        lat: 28.5100,
-        lng: -81.4000,
-        address: '789 Vendor Lane, Orlando, FL'
-      },
-      services: ['Transmission Repair', 'AC Service', 'Electrical'],
-      phone: '(407) 555-0300'
-    }
-  ], []);
+  const derivedLocations: ServiceLocation[] = useMemo(() => {
+    if (serviceLocations.length > 0) return serviceLocations;
+    return facilities
+      .filter((facility: any) => Number.isFinite(facility.latitude) && Number.isFinite(facility.longitude))
+      .map((facility: any) => ({
+        id: facility.id,
+        name: facility.name,
+        type: 'service_center',
+        location: {
+          lat: Number(facility.latitude),
+          lng: Number(facility.longitude),
+          address: [facility.address, facility.city, facility.state, facility.zip].filter(Boolean).join(', ')
+        },
+        services: facility.services || [],
+        phone: facility.phone
+      })) as ServiceLocation[];
+  }, [serviceLocations, facilities]);
 
-  const displayWorkOrders = workOrders.length > 0 ? workOrders : sampleWorkOrders;
-  const displayLocations = serviceLocations.length > 0 ? serviceLocations : sampleServiceLocations;
+  const displayLocations = derivedLocations;
 
   // Calculate center point from all markers
   const center = useMemo(() => {
@@ -146,7 +84,7 @@ export function MaintenanceHubMap({
     ];
 
     if (allPoints.length === 0) {
-      return { lat: 28.5383, lng: -81.3792 }; // Orlando, FL default
+      return { lat: 0, lng: 0 };
     }
 
     const avgLat = allPoints.reduce((sum, p) => sum + p.lat, 0) / allPoints.length;

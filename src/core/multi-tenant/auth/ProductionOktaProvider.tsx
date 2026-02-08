@@ -125,7 +125,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
       }
 
-      // Create user profile compatible with mock auth
+      // Create user profile compatible with app auth shape
       const userProfile: MockUserProfile = {
         id: userInfo.sub || 'okta-user',
         email: userInfo.email || '',

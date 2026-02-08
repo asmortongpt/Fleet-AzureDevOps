@@ -9,7 +9,8 @@
  */
 
 import apn from '@parse/node-apn';
-import * as admin from 'firebase-admin';
+// Firebase removed - push notifications via APNS only
+// import * as admin from 'firebase-admin';
 
 import { PushNotificationRepository } from '../repositories/push-notification.repository';
 import type {
@@ -70,31 +71,13 @@ class PushNotificationService {
   }
 
   /**
-   * Initialize Firebase Cloud Messaging
+   * Initialize Firebase Cloud Messaging (DISABLED - Firebase removed from project)
    */
   private initializeFCM() {
-    try {
-      // Check if FCM is already initialized
-      if ((admin as any).apps.length > 0) {
-        this.fcmInitialized = true;
-        console.log('FCM already initialized');
-        return;
-      }
-
-      // Use service account credentials
-      if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-        const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
-        admin.initializeApp({
-          credential: admin.credential.cert(serviceAccount),
-        });
-        this.fcmInitialized = true;
-        console.log('FCM initialized with service account');
-      } else {
-        console.warn('Firebase service account not configured, push notifications disabled');
-      }
-    } catch (error) {
-      console.error('Failed to initialize FCM:', error);
-    }
+    // Firebase removed from project - Android push notifications disabled
+    // iOS push notifications via APNS still available
+    this.fcmInitialized = false;
+    // No initialization needed - Firebase completely removed
   }
 
   /**
@@ -489,8 +472,10 @@ class PushNotificationService {
           data: notification.data_payload || {},
         };
 
-        await (admin as any).messaging().send(message);
-        await this.updateRecipientStatus(notificationId, device.id, 'delivered');
+        // Firebase removed - cannot send Android notifications
+        throw new Error('Firebase removed from project - Android push notifications disabled');
+        // await (admin as any).messaging().send(message);
+        // await this.updateRecipientStatus(notificationId, device.id, 'delivered');
       } catch (error: any) {
         console.error('Error sending to Android device:', error);
         await this.updateRecipientStatus(notificationId, device.id, 'failed', error.message);

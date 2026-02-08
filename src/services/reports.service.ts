@@ -84,13 +84,15 @@ export interface ChatRequest {
 
 class ReportsService {
   private baseUrl = '/api/reports';
+  private authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+    fetch(input, { credentials: 'include', ...init });
 
   /**
    * Get list of all available reports (filtered by RBAC)
    */
   async getReports(): Promise<ReportListItem[]> {
     try {
-      const response = await fetch(this.baseUrl);
+      const response = await this.authFetch(this.baseUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch reports: ${response.statusText}`);
       }
@@ -106,7 +108,7 @@ class ReportsService {
    */
   async getReport(reportId: string): Promise<ReportDefinition> {
     try {
-      const response = await fetch(`${this.baseUrl}/${reportId}`);
+      const response = await this.authFetch(`${this.baseUrl}/${reportId}`);
       if (!response.ok) {
         throw new Error(`Failed to fetch report: ${response.statusText}`);
       }
@@ -122,7 +124,7 @@ class ReportsService {
    */
   async executeReport(request: ExecuteReportRequest): Promise<Record<string, any>> {
     try {
-      const response = await fetch(`${this.baseUrl}/execute`, {
+      const response = await this.authFetch(`${this.baseUrl}/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request)
@@ -144,7 +146,7 @@ class ReportsService {
    */
   async saveCustomReport(definition: any, name: string): Promise<{ reportId: string }> {
     try {
-      const response = await fetch(`${this.baseUrl}/custom`, {
+      const response = await this.authFetch(`${this.baseUrl}/custom`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ definition, name })
@@ -169,7 +171,7 @@ class ReportsService {
     reportId: string;
   }> {
     try {
-      const response = await fetch(`${this.baseUrl}/ai/generate`, {
+      const response = await this.authFetch(`${this.baseUrl}/ai/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request)
@@ -195,7 +197,7 @@ class ReportsService {
     modelUsed: string;
   }> {
     try {
-      const response = await fetch(`${this.baseUrl}/chat`, {
+      const response = await this.authFetch(`${this.baseUrl}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request)
@@ -217,7 +219,7 @@ class ReportsService {
    */
   async exportReport(request: ExportReportRequest): Promise<Blob> {
     try {
-      const response = await fetch(`${this.baseUrl}/export`, {
+      const response = await this.authFetch(`${this.baseUrl}/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(request)

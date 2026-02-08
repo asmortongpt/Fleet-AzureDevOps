@@ -25,6 +25,10 @@ import { useAuth } from '@/hooks/useAuth'
 import { useInspect } from '@/services/inspect/InspectContext'
 import logger from '@/utils/logger'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface DispatchChannel {
   id: number
   name: string
@@ -145,10 +149,8 @@ export default function DispatchConsole() {
 
   const loadChannels = async () => {
     try {
-      const response = await fetch('/api/dispatch/channels', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await authFetch('/api/dispatch/channels', {
+        headers: {        }
       })
 
       const data = await response.json()
@@ -165,10 +167,8 @@ export default function DispatchConsole() {
 
   const loadChannelHistory = async (channelId: number) => {
     try {
-      const response = await fetch(`/api/dispatch/channels/${channelId}/history?limit=50`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await authFetch(`/api/dispatch/channels/${channelId}/history?limit=50`, {
+        headers: {        }
       })
 
       const data = await response.json()
@@ -182,10 +182,8 @@ export default function DispatchConsole() {
 
   const loadActiveListeners = async (channelId: number) => {
     try {
-      const response = await fetch(`/api/dispatch/channels/${channelId}/listeners`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await authFetch(`/api/dispatch/channels/${channelId}/listeners`, {
+        headers: {        }
       })
 
       const data = await response.json()
@@ -199,10 +197,8 @@ export default function DispatchConsole() {
 
   const loadEmergencyAlerts = async () => {
     try {
-      const response = await fetch('/api/dispatch/emergency?status=active&limit=10', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+      const response = await authFetch('/api/dispatch/emergency?status=active&limit=10', {
+        headers: {        }
       })
 
       const data = await response.json()
@@ -218,8 +214,6 @@ export default function DispatchConsole() {
     if (wsRef.current) {
       wsRef.current.close()
     }
-
-    const _token = localStorage.getItem('token')
     const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/dispatch/ws`
 
     const ws = new WebSocket(wsUrl)
@@ -431,12 +425,10 @@ export default function DispatchConsole() {
 
   const sendEmergencyAlert = async () => {
     try {
-      const response = await fetch('/api/dispatch/emergency', {
+      const response = await authFetch('/api/dispatch/emergency', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        },
+          'Content-Type': 'application/json',        },
         body: JSON.stringify({
           alertType: 'panic',
           description: 'Emergency alert triggered from dispatch console'

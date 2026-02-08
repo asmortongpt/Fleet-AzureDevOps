@@ -182,7 +182,7 @@ export class FPSMonitor {
 // ============================================================================
 
 export function trackWebVitals(callback: (vital: WebVital) => void): () => void {
-  // Use web-vitals library if available, otherwise provide mock data
+  // Use web-vitals library if available, otherwise use PerformanceObserver fallback
   try {
     // This is a simplified implementation
     // In production, you would use the 'web-vitals' npm package

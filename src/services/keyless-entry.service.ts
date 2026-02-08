@@ -112,7 +112,7 @@ export class KeylessEntryService {
   private connectedDevice: BluetoothDevice | null = null;
   private deviceCharacteristics: Map<string, BluetoothRemoteGATTCharacteristic> = new Map();
   private accessLogs: AccessLog[] = [];
-  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
   constructor() {
     this.loadAccessLogs();
@@ -430,9 +430,9 @@ export class KeylessEntryService {
     try {
       const response = await fetch(`${this.API_BASE_URL}/keyless-entry/token`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAuthToken()}`,
         },
         body: JSON.stringify({
           vehicleId,
@@ -540,9 +540,9 @@ export class KeylessEntryService {
     try {
       await fetch(`${this.API_BASE_URL}/keyless-entry/logs`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAuthToken()}`,
         },
         body: JSON.stringify(log),
       });

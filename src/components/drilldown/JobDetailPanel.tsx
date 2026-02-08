@@ -29,6 +29,10 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface JobMatrixData {
   id: string
   number: string
@@ -47,8 +51,7 @@ interface JobMatrixData {
   delayMinutes?: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
+const fetcher = (url: string) => authFetch(url)
     .then((r) => r.json())
     .then((data) => data?.data ?? data)
 

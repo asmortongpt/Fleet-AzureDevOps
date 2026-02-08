@@ -9,9 +9,7 @@
  * - WebSocket streaming to frontend
  */
 
-import { ComprehensiveFleetEmulator } from './azure-emulators/services/comprehensive-emulator.js'
-
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://fleetadmin:fleetpassword@localhost:5432/fleetdb'
+import { EmulatorOrchestrator } from './api/src/emulators/EmulatorOrchestrator'
 
 // Configuration
 const CONFIG = {
@@ -26,21 +24,16 @@ async function main() {
   console.log('╚═══════════════════════════════════════════════════════╝\n')
 
   console.log('Configuration:')
-  console.log(`  Database: ${DATABASE_URL}`)
   console.log(`  Vehicles: ${CONFIG.vehiclesPerPod}`)
   console.log(`  Update Interval: ${CONFIG.updateIntervalMs}ms`)
   console.log(`  Location: Tallahassee, FL (30.4383°N, 84.2807°W)\n`)
 
-  // Initialize emulator
-  const emulator = new ComprehensiveFleetEmulator(
-    DATABASE_URL,
-    CONFIG.vehicleIdOffset,
-    CONFIG.vehiclesPerPod
-  )
+  // Initialize emulator orchestrator (DB-backed telemetry only)
+  const emulator = EmulatorOrchestrator.getInstance()
 
-  // Initialize vehicle data
-  console.log('Initializing vehicles...')
-  await emulator.initialize()
+  console.log('Initializing vehicles from database...')
+  // Give the orchestrator a moment to load DB-backed vehicles
+  await new Promise((r) => setTimeout(r, 1000))
 
   console.log('\n✅ Initialization complete!\n')
 

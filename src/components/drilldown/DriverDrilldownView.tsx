@@ -38,20 +38,23 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       id: 'avatar',
       header: 'Photo',
       cell: ({ row }) => {
-        const avatarUrl = row.original.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${row.original.driver_id}`;
+        const avatarUrl = row.original.avatar_url;
         return (
           <div className="w-10 h-8 rounded-full overflow-hidden bg-slate-800 flex items-center justify-center border-2 border-slate-700">
-            <img
-              src={avatarUrl}
-              alt={`${row.original.first_name} ${row.original.last_name}`}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                // Fallback to initials if image fails
-                const initials = `${row.original.first_name[0]}${row.original.last_name[0]}`.toUpperCase();
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center bg-blue-600 text-white text-sm font-bold">${initials}</div>`;
-              }}
-            />
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={`${row.original.first_name} ${row.original.last_name}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-blue-600 text-white text-sm font-bold">
+                {`${row.original.first_name[0] ?? ''}${row.original.last_name[0] ?? ''}`.toUpperCase()}
+              </div>
+            )}
           </div>
         );
       },

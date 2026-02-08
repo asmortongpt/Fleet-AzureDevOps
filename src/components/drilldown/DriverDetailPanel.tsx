@@ -24,6 +24,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface DriverDetailPanelProps {
   driverId: string
 }
@@ -54,7 +58,7 @@ interface DriverData {
   }>
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
   const { push } = useDrilldown()

@@ -10,7 +10,9 @@ import type { CostDataPoint } from '@/components/analytics/CostAnalyticsChart'
 import type { EfficiencyDataPoint } from '@/components/analytics/EfficiencyMetricsChart'
 import logger from '@/utils/logger';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+    fetch(input, { credentials: 'include', ...init })
 
 // Cache configuration
 const CACHE_TIME = 5 * 60 * 1000 // 5 minutes
@@ -50,7 +52,7 @@ export function useCostAnalytics(filters?: AnalyticsFilters, options?: UseQueryO
             if (filters?.endDate) params.append('endDate', filters.endDate)
             if (filters?.vehicleIds) params.append('vehicleIds', filters.vehicleIds.join(','))
 
-            const response = await fetch(`${API_BASE_URL}/analytics/cost?${params}`)
+            const response = await authFetch(`${API_BASE_URL}/analytics/cost?${params}`)
             if (!response.ok) {
                 throw new Error('Failed to fetch cost analytics')
             }
@@ -92,7 +94,7 @@ export function useEfficiencyAnalytics(filters?: AnalyticsFilters, options?: Use
             if (filters?.endDate) params.append('endDate', filters.endDate)
             if (filters?.vehicleIds) params.append('vehicleIds', filters.vehicleIds.join(','))
 
-            const response = await fetch(`${API_BASE_URL}/analytics/efficiency?${params}`)
+            const response = await authFetch(`${API_BASE_URL}/analytics/efficiency?${params}`)
             if (!response.ok) {
                 throw new Error('Failed to fetch efficiency analytics')
             }

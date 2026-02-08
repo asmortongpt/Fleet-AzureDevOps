@@ -18,6 +18,10 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface TripTelemetryViewProps {
   tripId: string
   trip?: unknown
@@ -42,7 +46,7 @@ interface TelemetryData {
 }
 
 const fetcher = (url: string): Promise<TelemetryData> =>
-  fetch(url).then((r) => r.json())
+  authFetch(url).then((r) => r.json())
 
 export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
   const [activeTab, setActiveTab] = useState('overview')

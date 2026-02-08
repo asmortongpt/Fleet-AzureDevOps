@@ -86,13 +86,10 @@ export class VehicleModelsService {
       headers: {
         'Content-Type': 'application/json',
       },
+      withCredentials: true,
     });
 
-    // Add auth token if available
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-      this.api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
+    // Auth handled via httpOnly cookies (withCredentials)
   }
 
   /**

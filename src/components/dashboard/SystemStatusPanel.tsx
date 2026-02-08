@@ -20,7 +20,43 @@ import { useState } from 'react'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { EmulatorStatus, AIServiceStatus, SystemHealthMetrics } from '@/hooks/useSystemStatus'
+
+// Type definitions (moved from removed useSystemStatus hook)
+export interface EmulatorStatus {
+  id: string
+  name: string
+  type: 'vehicle' | 'obd2' | 'telematics' | 'incident' | 'gps'
+  status: 'connected' | 'disconnected' | 'error'
+  lastUpdate: Date | null
+  recordCount?: number
+  eventsPerSecond?: number
+}
+
+export interface AIServiceStatus {
+  id: string
+  name: string
+  provider: string
+  status: 'healthy' | 'degraded' | 'down'
+  responseTime?: number
+  lastCheck: Date
+  errorRate?: number
+}
+
+export interface SystemHealthMetrics {
+  cpuUsage: number
+  memoryUsage: number
+  diskUsage: number
+  networkLatency: number
+  activeConnections: number
+  requestsPerMinute: number
+  overall?: string
+  emulatorsActive?: number
+  emulatorsTotal?: number
+  aiServicesHealthy?: number
+  aiServicesTotal?: number
+  totalDataFlow?: number
+  uptime?: string
+}
 
 interface SystemStatusPanelProps {
   emulators: EmulatorStatus[]

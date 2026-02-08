@@ -50,7 +50,11 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 // ============================================
 // TYPE DEFINITIONS

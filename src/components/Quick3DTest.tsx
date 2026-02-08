@@ -2,6 +2,10 @@ import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
 import { Canvas } from '@react-three/fiber';
 import React from 'react';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 function VehicleModel({ path }: { path: string }) {
   const { scene } = useGLTF(path || '/models/default-vehicle.glb');
   return <primitive object={scene} scale={0.5} />;
@@ -29,7 +33,7 @@ export function QuickAITest() {
   const testAI = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/ai/query', {
+      const res = await authFetch('/api/ai/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',

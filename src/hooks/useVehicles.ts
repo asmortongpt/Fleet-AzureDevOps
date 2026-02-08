@@ -25,8 +25,11 @@ export function useVehicles(params?: {
   return useQuery({
     queryKey: ['vehicles', params],
     queryFn: async () => {
-      const response = await api.get('/vehicles', params) as Vehicle[]
-      return response ?? []
+      const response = await api.get('/api/v1/vehicles', params) as { data?: Vehicle[] } | Vehicle[]
+      if (Array.isArray(response)) {
+        return response
+      }
+      return response?.vehicles ?? response?.data ?? []
     },
   })
 }
@@ -35,7 +38,7 @@ export function useVehicle(id: number) {
   return useQuery({
     queryKey: ['vehicle', id],
     queryFn: async () => {
-      const response = await (api.get as <T>(endpoint: string) => Promise<T>)<Vehicle>(`/vehicles/${id}`)
+      const response = await (api.get as <T>(endpoint: string) => Promise<T>)<Vehicle>(`/api/v1/vehicles/${id}`)
       return response
     },
     enabled: !!id,
@@ -47,7 +50,7 @@ export function useCreateVehicle() {
 
   return useMutation({
     mutationFn: async (data: Partial<Vehicle>) => {
-      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Vehicle>('/vehicles', data)
+      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Vehicle>('/api/v1/vehicles', data)
       return response
     },
     onSuccess: () => {
@@ -61,7 +64,7 @@ export function useUpdateVehicle() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<Vehicle> }) => {
-      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Vehicle>(`/vehicles/${id}`, data)
+      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Vehicle>(`/api/v1/vehicles/${id}`, data)
       return response
     },
     onSuccess: () => {
@@ -75,7 +78,7 @@ export function useDeleteVehicle() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      await api.delete(`/vehicles/${id}`)
+      await api.delete(`/api/v1/vehicles/${id}`)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['vehicles'] })

@@ -113,11 +113,10 @@ export class EmulatorOrchestrator extends EventEmitter {
 
       console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles from database`)
     }).catch((err) => {
-      console.warn('TelemetryService initialization failed, falling back to JSON files:', err)
-      // Fallback to JSON files
-      this.loadVehicles()
-      this.loadRoutes()
-      this.loadScenarios()
+      // Do not fall back to JSON or synthetic data in production/demos.
+      // The emulator must be DB-backed to satisfy "no mock data" requirements.
+      console.error('TelemetryService initialization failed; emulator requires DB-backed data:', err)
+      this.telemetryServiceInitialized = false
     })
 
     // Initialize WebSocket if enabled

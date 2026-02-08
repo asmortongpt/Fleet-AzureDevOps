@@ -38,6 +38,9 @@ import {
   AssetCategory, AssetType, PowerType, OperationalStatus
 } from '@/types/asset.types'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
 interface VehicleDetailPanelProps {
   vehicleId: string
 }
@@ -102,7 +105,7 @@ interface FuelRecord {
   odometer?: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
   const { push } = useDrilldown()

@@ -64,6 +64,10 @@ import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 
 import logger from '@/utils/logger';
+
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -556,7 +560,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config`)
+      const response = await authFetch(`/api/vehicles/${vehicleId}/hardware-config`)
       if (!response.ok) {
         throw new Error(`Failed to fetch providers: ${response.statusText}`)
       }
@@ -573,7 +577,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const handleAddProvider = async (type: ProviderType, config: ProviderConfig) => {
     setIsAdding(true)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config/providers`, {
+      const response = await authFetch(`/api/vehicles/${vehicleId}/hardware-config/providers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type, configuration: config })
@@ -597,7 +601,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
 
   const handleRemoveProvider = async (providerId: string) => {
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `/api/vehicles/${vehicleId}/hardware-config/providers/${providerId}`,
         { method: 'DELETE' }
       )
@@ -619,7 +623,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const handleTestConnection = async (providerId: string) => {
     setTestingConnectionId(providerId)
     try {
-      const response = await fetch(
+      const response = await authFetch(
         `/api/vehicles/${vehicleId}/hardware-config/providers/${providerId}/test`,
         { method: 'POST' }
       )

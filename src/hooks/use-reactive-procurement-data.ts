@@ -37,11 +37,14 @@ import {
   ContractSchema,
 } from '@/types/procurement'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // ms
 const REQUEST_TIMEOUT = 30000 // 30 seconds
@@ -116,17 +119,9 @@ async function secureFetch<T>(
     'X-Requested-With': 'XMLHttpRequest', // CSRF protection
     'Accept': 'application/json',
   }
-
-  // Add authentication if available and required
-  if (requireAuth) {
-    const token = localStorage.getItem('auth_token')
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`
-    }
-  }
-
+  // Auth handled via httpOnly cookies (credentials: 'include')
   try {
-    const response = await fetch(url, {
+    const response = await authFetch(url, {
       signal,
       headers,
       credentials: 'include', // Include cookies for session management

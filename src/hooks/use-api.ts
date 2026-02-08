@@ -48,7 +48,7 @@ export async function getCsrfToken(): Promise<string> {
   // Fetch new token
   csrfTokenPromise = (async () => {
     try {
-      const response = await fetch('/api/csrf-token', {
+      const response = await fetch('/api/v1/csrf-token', {
         method: 'GET',
         credentials: 'include', // Required for cookies
       });
@@ -397,6 +397,12 @@ function unwrapApiRows<T = unknown>(payload: any): T[] {
   if (Array.isArray(cur)) return cur as T[];
   if (cur && typeof cur === 'object') {
     if (Array.isArray(cur.data)) return cur.data as T[];
+    if (Array.isArray(cur.vehicles)) return cur.vehicles as T[];
+    if (Array.isArray(cur.drivers)) return cur.drivers as T[];
+    if (Array.isArray(cur.work_orders)) return cur.work_orders as T[];
+    if (Array.isArray(cur.fuel_transactions)) return cur.fuel_transactions as T[];
+    if (Array.isArray(cur.documents)) return cur.documents as T[];
+    if (Array.isArray(cur.inspections)) return cur.inspections as T[];
     if (Array.isArray(cur.rows)) return cur.rows as T[];
     if (Array.isArray(cur.items)) return cur.items as T[];
   }
@@ -471,7 +477,7 @@ export function useInspections(filters: { tenant_id: string; [key: string]: stri
     queryKey: queryKeyFactory.inspections(filters),
     queryFn: async () => {
       const qs = buildQueryString(filters as unknown as Record<string, unknown>)
-      const res = await secureFetch(`/api/inspections${qs}`)
+      const res = await secureFetch(`/api/v1/inspections${qs}`)
       if (!res.ok) throw new Error('Network response was not ok')
       const payload = await res.json()
       return unwrapApiRows<any>(payload)
@@ -487,58 +493,11 @@ export function useVehicles(filters: VehicleFilters = DEFAULT_VEHICLE_FILTERS) {
     queryKey: queryKeyFactory.vehicles(filters),
     queryFn: async () => {
       const qs = buildQueryString(filters as unknown as Record<string, unknown>)
-      const res = await secureFetch(`/api/vehicles${qs}`, { method: 'GET' });
+      const res = await secureFetch(`/api/v1/vehicles${qs}`, { method: 'GET' });
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       const rows = unwrapApiRows<any>(payload);
       const vehicles = transformVehicles(rows);
-      const hasLocation = vehicles.some((vehicle) => {
-        const lat = vehicle.location?.lat ?? 0;
-        const lng = vehicle.location?.lng ?? 0;
-        return Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0 && lng !== 0;
-      });
-
-      if (hasLocation) {
-        return vehicles;
-      }
-
-      // If DB-backed vehicles are missing GPS coordinates, try the emulator feed.
-      try {
-        const emuRes = await secureFetch('/api/emulator/vehicles', { method: 'GET' });
-        if (!emuRes.ok) return vehicles;
-        const emuPayload = await emuRes.json();
-        const emuRows = unwrapApiRows<any>(emuPayload);
-        const emuMap = new Map<string, any>();
-        emuRows.forEach((row: any) => {
-          const key = String(row.dbId ?? row.id ?? row.vehicleId ?? row.vehicle_id ?? '');
-          if (key) emuMap.set(key, row);
-        });
-
-        return vehicles.map((vehicle) => {
-          const emu = emuMap.get(vehicle.id);
-          if (!emu) return vehicle;
-          const start = emu.startingLocation || emu.homeBase || {};
-          const lat = Number(start.lat ?? start.latitude ?? start.location?.lat ?? vehicle.location?.lat ?? 0);
-          const lng = Number(start.lng ?? start.longitude ?? start.location?.lng ?? vehicle.location?.lng ?? 0);
-          if (!Number.isFinite(lat) || !Number.isFinite(lng) || (lat === 0 && lng === 0)) {
-            return vehicle;
-          }
-          return {
-            ...vehicle,
-            name: vehicle.name || emu.name,
-            status: vehicle.status || emu.status,
-            location: {
-              ...vehicle.location,
-              lat,
-              lng,
-              address: vehicle.location?.address || emu.homeBase?.name || emu.homeBase?.address || 'Tallahassee, FL'
-            }
-          };
-        });
-      } catch (error) {
-        logger.warn('[Vehicles] Failed to hydrate locations from emulator', { error });
-      }
-
       return vehicles;
     },
     staleTime: 5 * 60 * 1000,
@@ -552,7 +511,7 @@ export function useDrivers(filters: DriverFilters = DEFAULT_DRIVER_FILTERS) {
     queryKey: queryKeyFactory.drivers(filters),
     queryFn: async () => {
       const qs = buildQueryString(filters as unknown as Record<string, unknown>)
-      const res = await secureFetch(`/api/drivers${qs}`);
+      const res = await secureFetch(`/api/v1/drivers${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       const rows = unwrapApiRows<any>(payload);
@@ -591,7 +550,7 @@ export function useMaintenance(filters: MaintenanceFilters = DEFAULT_MAINTENANCE
     queryKey: queryKeyFactory.maintenance(filters),
     queryFn: async () => {
       const qs = buildQueryString(filters as unknown as Record<string, unknown>)
-      const res = await secureFetch(`/api/maintenance${qs}`);
+      const res = await secureFetch(`/api/v1/work-orders${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       return unwrapApiRows<Maintenance>(payload);
@@ -607,7 +566,7 @@ export function useWorkOrders(filters: WorkOrderFilters = DEFAULT_WORK_ORDER_FIL
     queryKey: queryKeyFactory.workOrders(filters),
     queryFn: async () => {
       const qs = buildQueryString(filters as unknown as Record<string, unknown>)
-      const res = await secureFetch(`/api/work-orders${qs}`);
+      const res = await secureFetch(`/api/v1/work-orders${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       return unwrapApiRows<WorkOrder>(payload);
@@ -623,7 +582,7 @@ export function useFuelTransactions(filters: FuelTransactionFilters = DEFAULT_FU
     queryKey: queryKeyFactory.fuelTransactions(filters),
     queryFn: async () => {
       const qs = buildQueryString(filters as unknown as Record<string, unknown>)
-      const res = await secureFetch(`/api/fuel-transactions${qs}`);
+      const res = await secureFetch(`/api/v1/fuel-transactions${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       return unwrapApiRows<FuelTransaction>(payload);
@@ -655,7 +614,7 @@ export function useMaintenanceSchedules(filters: MaintenanceScheduleFilters = DE
     queryKey: queryKeyFactory.maintenanceSchedules(filters),
     queryFn: async () => {
       const qs = buildQueryString(filters as unknown as Record<string, unknown>)
-      const res = await secureFetch(`/api/maintenance-schedules${qs}`);
+      const res = await secureFetch(`/api/v1/work-orders${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       return unwrapApiRows<MaintenanceSchedule>(payload);
@@ -809,7 +768,7 @@ export function useDocuments(filters: DocumentFilters = {}) {
     queryKey: queryKeyFactory.documents(filters),
     queryFn: async () => {
       const qs = buildQueryString(filters as unknown as Record<string, unknown>)
-      const res = await secureFetch(`/api/documents${qs}`);
+      const res = await secureFetch(`/api/v1/documents${qs}`);
       if (!res.ok) throw new Error('Network response was not ok');
       const payload = await res.json();
       return unwrapApiRows<DocumentRecord>(payload);
@@ -841,7 +800,7 @@ export function useVehicleMutations() {
 
   const createVehicle = useMutation<Vehicle, Error, Vehicle>({
     mutationFn: async (newVehicle) => {
-      const res = await secureFetch('/api/vehicles', {
+      const res = await secureFetch('/api/v1/vehicles', {
         method: 'POST',
         body: JSON.stringify(newVehicle),
       });
@@ -855,7 +814,7 @@ export function useVehicleMutations() {
 
   const updateVehicle = useMutation<Vehicle, Error, Vehicle, { previousVehicles?: Vehicle[] }>({
     mutationFn: async (updatedVehicle) => {
-      const res = await secureFetch(`/api/vehicles/${updatedVehicle.id}`, {
+      const res = await secureFetch(`/api/v1/vehicles/${updatedVehicle.id}`, {
         method: 'PUT',
         body: JSON.stringify(updatedVehicle),
       });
@@ -884,7 +843,7 @@ export function useVehicleMutations() {
 
   const deleteVehicle = useMutation<void, Error, { id: string; tenant_id: string }>({
     mutationFn: async ({ id }) => {
-      const res = await secureFetch(`/api/vehicles/${id}`, {
+      const res = await secureFetch(`/api/v1/vehicles/${id}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Network response was not ok');
@@ -902,7 +861,7 @@ export function useDriverMutations() {
 
   const createDriver = useMutation<Driver, Error, Driver>({
     mutationFn: async (newDriver) => {
-      const res = await secureFetch('/api/drivers', {
+      const res = await secureFetch('/api/v1/drivers', {
         method: 'POST',
         body: JSON.stringify(newDriver),
       });
@@ -916,7 +875,7 @@ export function useDriverMutations() {
 
   const updateDriver = useMutation<Driver, Error, Driver, { previousDrivers?: Driver[]; tenantId?: string }>({
     mutationFn: async (updatedDriver) => {
-      const res = await secureFetch(`/api/drivers/${updatedDriver.id}`, {
+      const res = await secureFetch(`/api/v1/drivers/${updatedDriver.id}`, {
         method: 'PUT',
         body: JSON.stringify(updatedDriver),
       });
@@ -947,7 +906,7 @@ export function useDriverMutations() {
 
   const deleteDriver = useMutation<void, Error, { id: string; tenant_id: string }>({
     mutationFn: async ({ id }) => {
-      const res = await secureFetch(`/api/drivers/${id}`, {
+      const res = await secureFetch(`/api/v1/drivers/${id}`, {
         method: 'DELETE',
       });
       if (!res.ok) throw new Error('Network response was not ok');
@@ -966,7 +925,7 @@ export function useWorkOrderMutations() {
   return {
     createWorkOrder: useMutation({
       mutationFn: async (workOrder: unknown) => {
-        const res = await secureFetch('/api/work-orders', {
+        const res = await secureFetch('/api/v1/work-orders', {
           method: 'POST',
           body: JSON.stringify(workOrder),
         });
@@ -980,7 +939,7 @@ export function useWorkOrderMutations() {
         const id = payload?.id || payload?.workOrderId || payload?.updates?.id;
         if (!id) throw new Error('Work order id is required');
         const body = payload?.updates ? payload.updates : payload;
-        const res = await secureFetch(`/api/work-orders/${id}`, {
+        const res = await secureFetch(`/api/v1/work-orders/${id}`, {
           method: 'PUT',
           body: JSON.stringify(body),
         });
@@ -991,7 +950,7 @@ export function useWorkOrderMutations() {
     }),
     deleteWorkOrder: useMutation({
       mutationFn: async (id: string) => {
-        const res = await secureFetch(`/api/work-orders/${id}`, {
+        const res = await secureFetch(`/api/v1/work-orders/${id}`, {
           method: 'DELETE',
         });
         if (!res.ok) throw new Error('Network response was not ok');
@@ -1089,7 +1048,7 @@ export function useMaintenanceMutations() {
   return {
     createMaintenanceSchedule: useMutation({
       mutationFn: async (schedule: unknown) => {
-        const res = await secureFetch('/api/maintenance-schedules', {
+        const res = await secureFetch('/api/v1/work-orders', {
           method: 'POST',
           body: JSON.stringify(schedule),
         });
@@ -1103,7 +1062,7 @@ export function useMaintenanceMutations() {
         const id = payload?.id || payload?.scheduleId || payload?.updates?.id;
         if (!id) throw new Error('Maintenance schedule id is required');
         const body = payload?.updates ? payload.updates : payload;
-        const res = await secureFetch(`/api/maintenance-schedules/${id}`, {
+        const res = await secureFetch(`/api/v1/work-orders/${id}`, {
           method: 'PUT',
           body: JSON.stringify(body),
         });
@@ -1114,7 +1073,7 @@ export function useMaintenanceMutations() {
     }),
     deleteMaintenanceSchedule: useMutation({
       mutationFn: async (id: string) => {
-        const res = await secureFetch(`/api/maintenance-schedules/${id}`, {
+        const res = await secureFetch(`/api/v1/work-orders/${id}`, {
           method: 'DELETE',
         });
         if (!res.ok) throw new Error('Network response was not ok');
@@ -1130,7 +1089,7 @@ export function useFuelMutations() {
   return {
     createFuelTransaction: useMutation({
       mutationFn: async (transaction: unknown) => {
-        const res = await secureFetch('/api/fuel-transactions', {
+        const res = await secureFetch('/api/v1/fuel-transactions', {
           method: 'POST',
           body: JSON.stringify(transaction),
         });
@@ -1144,7 +1103,7 @@ export function useFuelMutations() {
         const id = payload?.id || payload?.transactionId || payload?.updates?.id;
         if (!id) throw new Error('Fuel transaction id is required');
         const body = payload?.updates ? payload.updates : payload;
-        const res = await secureFetch(`/api/fuel-transactions/${id}`, {
+        const res = await secureFetch(`/api/v1/fuel-transactions/${id}`, {
           method: 'PUT',
           body: JSON.stringify(body),
         });
@@ -1155,7 +1114,7 @@ export function useFuelMutations() {
     }),
     deleteFuelTransaction: useMutation({
       mutationFn: async (id: string) => {
-        const res = await secureFetch(`/api/fuel-transactions/${id}`, {
+        const res = await secureFetch(`/api/v1/fuel-transactions/${id}`, {
           method: 'DELETE',
         });
         if (!res.ok) throw new Error('Network response was not ok');

@@ -15,6 +15,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import logger from '@/utils/logger';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface ChargingStation {
   id: number;
   station_id: string;
@@ -62,18 +66,9 @@ interface StationUtilization {
   utilization_percent: number;
 }
 
-// Helper function to get auth headers
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Authorization': `Bearer ${token}`,
-    'Content-Type': 'application/json'
-  };
-};
-
 // Query function for charging stations
 const fetchChargingStations = async (): Promise<ChargingStation[]> => {
-  const response = await fetch('/api/ev/chargers', { headers: getAuthHeaders() });
+  const response = await authFetch('/api/ev/chargers');
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch charging stations');
@@ -81,7 +76,7 @@ const fetchChargingStations = async (): Promise<ChargingStation[]> => {
 
 // Query function for active sessions
 const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
-  const response = await fetch('/api/ev/sessions/active', { headers: getAuthHeaders() });
+  const response = await authFetch('/api/ev/sessions/active');
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch active sessions');
@@ -89,7 +84,7 @@ const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
 
 // Query function for station utilization
 const fetchStationUtilization = async (): Promise<StationUtilization[]> => {
-  const response = await fetch('/api/ev/station-utilization', { headers: getAuthHeaders() });
+  const response = await authFetch('/api/ev/station-utilization');
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch station utilization');
@@ -150,7 +145,7 @@ const EVChargingDashboard: React.FC = () => {
         throw new Error('Please select a vehicle before starting charging');
       }
 
-      const response = await fetch(`/api/ev/chargers/${stationId}/remote-start`, {
+      const response = await authFetch(`/api/ev/chargers/${stationId}/remote-start`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -176,7 +171,7 @@ const EVChargingDashboard: React.FC = () => {
   // Mutation for remote stop
   const remoteStopMutation = useMutation({
     mutationFn: async (transactionId: string) => {
-      const response = await fetch(`/api/ev/sessions/${transactionId}/stop`, {
+      const response = await authFetch(`/api/ev/sessions/${transactionId}/stop`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
@@ -250,7 +245,7 @@ const EVChargingDashboard: React.FC = () => {
     endTime: string;
   }): Promise<void> => {
     try {
-      const response = await fetch('/api/ev/reservations', {
+      const response = await authFetch('/api/ev/reservations', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({

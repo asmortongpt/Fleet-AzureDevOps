@@ -104,9 +104,7 @@ export default function VideoTelematicsDashboard() {
       }
 
       const response = await fetch(`/api/video/events?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: {        }
       });
 
       if (response.ok) {
@@ -123,9 +121,7 @@ export default function VideoTelematicsDashboard() {
   const loadCameraHealth = async () => {
     try {
       const response = await fetch('/api/video/health/cameras', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: {        }
       });
 
       if (response.ok) {
@@ -141,9 +137,7 @@ export default function VideoTelematicsDashboard() {
     try {
       const response = await fetch(`/api/video/events/${eventId}/review`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+        headers: {          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           reviewed,
@@ -164,9 +158,7 @@ export default function VideoTelematicsDashboard() {
     try {
       const response = await fetch(`/api/video/events/${eventId}/review`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
+        headers: {          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           coachingRequired: true
@@ -184,9 +176,7 @@ export default function VideoTelematicsDashboard() {
   const getVideoPlaybackUrl = async (eventId: number) => {
     try {
       const response = await fetch(`/api/video/events/${eventId}/clip`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        headers: {        }
       });
 
       if (response.ok) {

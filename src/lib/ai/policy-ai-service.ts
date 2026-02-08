@@ -564,18 +564,25 @@ function convertPolicyToRules(policy: Policy): any[] {
  * Register rule with the application's rule engine
  */
 async function registerRule(rule: any): Promise<void> {
-  // This would integrate with your actual rules engine
-  // For now, we'll store in localStorage as a demo
-  const existingRules = JSON.parse(localStorage.getItem('fleet_rules') || '[]')
-  const index = existingRules.findIndex((r: any) => r.id === rule.id)
-
-  if (index >= 0) {
-    existingRules[index] = rule
-  } else {
-    existingRules.push(rule)
+  if (!rule?.createdBy) {
+    throw new Error('Rule missing createdBy (required for persistence)')
   }
 
-  localStorage.setItem('fleet_rules', JSON.stringify(existingRules))
+  const payload = {
+    name: rule.name || `Policy Rule ${rule.id}`,
+    description: rule.description || rule.name || 'Policy rule',
+    type: rule.type || 'operational',
+    status: rule.enabled ? 'active' : 'draft',
+    mode: rule.mode || 'monitor',
+    conditions: rule.conditions || [],
+    actions: rule.actions || [],
+    scope: rule.scope || {},
+    created_by: rule.createdBy,
+    category: rule.category || 'Policy',
+  }
+
+  const { apiClient } = await import('@/lib/api-client')
+  await apiClient.post('/policies', payload)
 }
 
 export default {

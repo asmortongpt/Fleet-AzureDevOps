@@ -5,10 +5,11 @@
 import type { ValueFormatterParams, CellValueChangedEvent, ColDef, CellClassParams } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { Download, Filter } from 'lucide-react';
-import React, { useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import logger from '@/utils/logger';
+import { useVehicles } from '@/hooks/use-api';
 
 interface RowData {
   vehicle: string;
@@ -19,12 +20,17 @@ interface RowData {
 }
 
 export const DataWorkbench: React.FC = () => {
-  const [rowData] = useState([
-    { vehicle: 'Toyota Camry', vin: 'VIN001', mileage: 45000, status: 'Active', fuel: 32.5 },
-    { vehicle: 'Honda Accord', vin: 'VIN002', mileage: 52000, status: 'Maintenance', fuel: 28.3 },
-    { vehicle: 'Ford F-150', vin: 'VIN003', mileage: 38000, status: 'Active', fuel: 18.7 },
-    // ... add more sample data
-  ]);
+  const { data: vehicles = [] } = useVehicles({ limit: 200 } as any);
+
+  const rowData = useMemo<RowData[]>(() => {
+    return vehicles.map((vehicle) => ({
+      vehicle: vehicle.name || `${vehicle.make} ${vehicle.model}`.trim() || vehicle.number,
+      vin: vehicle.vin,
+      mileage: vehicle.mileage,
+      status: vehicle.status,
+      fuel: vehicle.fuelLevel
+    }));
+  }, [vehicles]);
 
   const [columnDefs] = useState<ColDef<RowData>[]>([
     {

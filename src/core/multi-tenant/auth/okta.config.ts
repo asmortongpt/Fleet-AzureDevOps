@@ -14,30 +14,36 @@ export interface OktaEnvironmentConfig {
 }
 
 // Environment-specific configurations
+const getWindowOrigin = () => (typeof window !== 'undefined' ? window.location.origin : '')
+const getDefaultRedirectUri = () => {
+  const origin = getWindowOrigin()
+  return origin ? `${origin}/login/callback` : ''
+}
+
 export const oktaConfigs: Record<string, OktaEnvironmentConfig> = {
   development: {
-    issuer: 'https://dev-dcf-florida.okta.com/oauth2/default',
-    clientId: 'dcf-fleet-dev-client',
-    redirectUri: 'http://localhost:3001/login/callback',
-    postLogoutRedirectUri: 'http://localhost:3001',
+    issuer: import.meta.env.VITE_OKTA_ISSUER || '',
+    clientId: import.meta.env.VITE_OKTA_CLIENT_ID || '',
+    redirectUri: getDefaultRedirectUri(),
+    postLogoutRedirectUri: getWindowOrigin(),
     scopes: ['openid', 'profile', 'email', 'groups', 'dcf.fleet.access'],
     environment: 'development'
   },
 
   staging: {
-    issuer: 'https://staging-dcf-florida.okta.com/oauth2/default',
-    clientId: 'dcf-fleet-staging-client',
-    redirectUri: 'https://staging-fleet.dcf.state.fl.us/login/callback',
-    postLogoutRedirectUri: 'https://staging-fleet.dcf.state.fl.us',
+    issuer: import.meta.env.VITE_OKTA_ISSUER || '',
+    clientId: import.meta.env.VITE_OKTA_CLIENT_ID || '',
+    redirectUri: getDefaultRedirectUri(),
+    postLogoutRedirectUri: getWindowOrigin(),
     scopes: ['openid', 'profile', 'email', 'groups', 'dcf.fleet.access'],
     environment: 'staging'
   },
 
   production: {
-    issuer: 'https://dcf-florida.okta.com/oauth2/default',
-    clientId: 'dcf-fleet-prod-client',
-    redirectUri: 'https://fleet.dcf.state.fl.us/login/callback',
-    postLogoutRedirectUri: 'https://fleet.dcf.state.fl.us',
+    issuer: import.meta.env.VITE_OKTA_ISSUER || '',
+    clientId: import.meta.env.VITE_OKTA_CLIENT_ID || '',
+    redirectUri: getDefaultRedirectUri(),
+    postLogoutRedirectUri: getWindowOrigin(),
     scopes: ['openid', 'profile', 'email', 'groups', 'dcf.fleet.access'],
     environment: 'production'
   }
@@ -52,10 +58,10 @@ export const getCurrentOktaConfig = (): OktaEnvironmentConfig => {
   // Override with environment variables if provided
   return {
     ...config,
-    issuer: process.env.VITE_REACT_APP_OKTA_ISSUER || config.issuer,
-    clientId: process.env.VITE_REACT_APP_OKTA_CLIENT_ID || config.clientId,
-    redirectUri: process.env.VITE_REACT_APP_OKTA_REDIRECT_URI || config.redirectUri,
-    postLogoutRedirectUri: process.env.VITE_REACT_APP_OKTA_POST_LOGOUT_URI || config.postLogoutRedirectUri
+    issuer: import.meta.env.VITE_OKTA_ISSUER || config.issuer,
+    clientId: import.meta.env.VITE_OKTA_CLIENT_ID || config.clientId,
+    redirectUri: import.meta.env.VITE_OKTA_REDIRECT_URI || config.redirectUri,
+    postLogoutRedirectUri: import.meta.env.VITE_OKTA_POST_LOGOUT_URI || config.postLogoutRedirectUri
   }
 }
 

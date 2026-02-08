@@ -26,9 +26,21 @@ export const VehicleGrid: React.FC = () => {
   const { data: vehicles = [], isLoading } = useQuery({
     queryKey: ['vehicles'],
     queryFn: async () => {
-      const res = await fetch('https://fleet.capitaltechalliance.com/api/v1/vehicles');
+      const res = await fetch('/api/v1/vehicles');
       const json = await res.json();
-      return json.vehicles || [];
+      const rows = json.vehicles || json.data || [];
+      return rows.map((row: any) => ({
+        id: row.id,
+        vin: row.vin,
+        make: row.make,
+        model: row.model,
+        year: row.year,
+        status: row.status || 'active',
+        mileage: row.odometer != null ? Number(row.odometer) : 0,
+        location: row.latitude != null && row.longitude != null
+          ? { lat: Number(row.latitude), lng: Number(row.longitude) }
+          : undefined,
+      }));
     }
   });
 

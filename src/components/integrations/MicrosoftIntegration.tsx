@@ -5,13 +5,8 @@
 import { Mail, MessageSquare, Calendar, Send } from 'lucide-react';
 import React, { useState } from 'react';
 import logger from '@/utils/logger';
-
-// Microsoft Graph API configuration
-const GRAPH_CONFIG = {
-  clientId: process.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
-  tenantId: process.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
-  scopes: ['Mail.Send', 'Chat.ReadWrite', 'Calendars.ReadWrite']
-};
+import { apiClient } from '@/lib/api-client';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Send Email via Outlook
 export const OutlookEmailButton: React.FC<{
@@ -24,25 +19,14 @@ export const OutlookEmailButton: React.FC<{
   const sendEmail = async () => {
     setSending(true);
     try {
-      const response = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${await getAccessToken()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: {
-            subject,
-            body: {
-              contentType: 'HTML',
-              content: body
-            },
-            toRecipients: [{ emailAddress: { address: to } }]
-          }
-        })
+      const response = await apiClient.post('/api/outlook/send', {
+        to,
+        subject,
+        body,
+        bodyType: 'html'
       });
 
-      if (response.ok) {
+      if ((response as any)?.success !== false) {
         alert('Email sent successfully!');
       }
     } catch (error) {
@@ -72,46 +56,8 @@ export const TeamsChatButton: React.FC<{
 }> = ({ userEmail, message = '' }) => {
   const startChat = async () => {
     try {
-      // Create Teams chat
-      const response = await fetch('https://graph.microsoft.com/v1.0/chats', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${await getAccessToken()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          chatType: 'oneOnOne',
-          members: [
-            {
-              '@odata.type': '#microsoft.graph.aadUserConversationMember',
-              roles: ['owner'],
-              'user@odata.bind': `https://graph.microsoft.com/v1.0/users('${userEmail}')`
-            }
-          ]
-        })
-      });
-
-      const chat = await response.json();
-
-      // Send initial message if provided
-      if (message && chat.id) {
-        await fetch(`https://graph.microsoft.com/v1.0/chats/${chat.id}/messages`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${await getAccessToken()}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            body: {
-              content: message
-            }
-          })
-        });
-      }
-
-      // Open Teams
+      // Open Teams chat (server-side integration can be added later if configured)
       window.open(`https://teams.microsoft.com/l/chat/0/0?users=${userEmail}`, '_blank');
-
     } catch (error) {
       logger.error('Failed to start Teams chat:', error);
     }
@@ -140,30 +86,14 @@ export const CalendarEventButton: React.FC<{
   const createEvent = async () => {
     setCreating(true);
     try {
-      const response = await fetch('https://graph.microsoft.com/v1.0/me/events', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${await getAccessToken()}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          subject,
-          start: {
-            dateTime: start.toISOString(),
-            timeZone: 'UTC'
-          },
-          end: {
-            dateTime: end.toISOString(),
-            timeZone: 'UTC'
-          },
-          attendees: attendees.map(email => ({
-            emailAddress: { address: email },
-            type: 'required'
-          }))
-        })
+      const response = await apiClient.post('/api/calendar/events', {
+        title: subject,
+        start_time: start.toISOString(),
+        end_time: end.toISOString(),
+        attendees
       });
 
-      if (response.ok) {
+      if ((response as any)?.success !== false) {
         alert('Calendar event created!');
       }
     } catch (error) {
@@ -194,6 +124,8 @@ export const CommunicationPanel: React.FC<{
     maintenanceId?: string;
   };
 }> = ({ context }) => {
+  const { user } = useAuth();
+  const defaultEmail = user?.email || '';
   return (
     <div className="border border-border rounded-lg p-2 space-y-3">
       <h3 className="font-semibold flex items-center gap-2">
@@ -202,33 +134,31 @@ export const CommunicationPanel: React.FC<{
       </h3>
 
       <div className="flex flex-wrap gap-2">
-        <OutlookEmailButton
-          to="andrew.m@capitaltechalliance.com"
-          subject={`Fleet Alert: ${context.vehicleId || 'General'}`}
-          body={`<p>Regarding: ${JSON.stringify(context)}</p>`}
-        />
+        {defaultEmail && (
+          <OutlookEmailButton
+            to={defaultEmail}
+            subject={`Fleet Alert: ${context.vehicleId || 'General'}`}
+            body={`<p>Regarding: ${JSON.stringify(context)}</p>`}
+          />
+        )}
 
-        <TeamsChatButton
-          userEmail="andrew.m@capitaltechalliance.com"
-          message={`Fleet notification: ${context.vehicleId || 'Alert'}`}
-        />
+        {defaultEmail && (
+          <TeamsChatButton
+            userEmail={defaultEmail}
+            message={`Fleet notification: ${context.vehicleId || 'Alert'}`}
+          />
+        )}
 
-        <CalendarEventButton
-          subject="Fleet Maintenance Review"
-          start={new Date()}
-          end={new Date(Date.now() + 3600000)}
-          attendees={['andrew.m@capitaltechalliance.com']}
-        />
+        {defaultEmail && (
+          <CalendarEventButton
+            subject="Fleet Maintenance Review"
+            start={new Date()}
+            end={new Date(Date.now() + 3600000)}
+            attendees={[defaultEmail]}
+          />
+        )}
       </div>
     </div>
   );
 };
-
-// Helper function to get Microsoft Graph access token
-async function getAccessToken(): Promise<string> {
-  // In production, this would use MSAL (Microsoft Authentication Library)
-  // For now, return a placeholder - implement proper OAuth flow
-  return 'YOUR_ACCESS_TOKEN_HERE';
-}
-
 export default CommunicationPanel;

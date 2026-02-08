@@ -129,9 +129,7 @@ export function CostAnalysisCenter() {
       const response = await fetch(
         `/api/cost-analysis/export?startDate=${_dateRange.startDate.toISOString()}&endDate=${_dateRange.endDate.toISOString()}`,
         {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+          headers: {          }
         }
       )
 

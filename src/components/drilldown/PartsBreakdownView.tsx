@@ -10,12 +10,16 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface PartsBreakdownViewProps {
   workOrderId: string
   workOrderNumber?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakdownViewProps) {
   const { push } = useDrilldown()

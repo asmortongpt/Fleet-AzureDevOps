@@ -10,6 +10,7 @@ import { TrendChart, TrendDataPoint } from './visualizations/TrendChart';
 
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts';
+import { secureFetch } from '@/hooks/use-api';
 import logger from '@/utils/logger';
 
 
@@ -121,12 +122,13 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
       try {
         // Load report JSON from reporting_library
-        const response = await fetch(`/src/reporting_library/reports/${reportId}.json`);
+        const response = await secureFetch(`/api/reports/definitions/${reportId}`, { method: 'GET' });
         if (!response.ok) {
           throw new Error(`Failed to load report: ${response.statusText}`);
         }
 
-        const definition = await response.json();
+        const payload = await response.json();
+        const definition = payload?.data ?? payload;
         setReportDef(definition);
       } catch (err) {
         logger.error('Error loading report:', err);
@@ -145,11 +147,8 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
     setLoading(true);
     try {
-      // In production, this would call the backend API
-      // For now, we'll simulate with mock data
-      const response = await fetch('/api/reports/execute', {
+      const response = await secureFetch('/api/reports/execute', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           reportId: reportDef.id,
           filters,
@@ -166,7 +165,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       setReportData(data);
     } catch (err) {
       logger.error('Error fetching report data:', err);
-      // Return empty data structure when API is unavailable
+      setError('Failed to fetch report data');
       setReportData(generateEmptyData(reportDef));
     } finally {
       setLoading(false);

@@ -142,8 +142,9 @@ app.post('/api/auth/logout', authenticate, (req, res) => {
   res.json({ message: 'Logged out successfully' });
 });
 
-// Use existing auth router (legacy support)
+// Use existing auth router (legacy + versioned support)
 app.use('/api/auth', authRouter);
+app.use('/api/v1/auth', authRouter);
 
 // ============================================================================
 // PROTECTED API ROUTES (Authentication + Authorization Required)
@@ -151,9 +152,27 @@ app.use('/api/auth', authRouter);
 
 // Apply global rate limiting to all API routes
 app.use('/api', apiRateLimiter);
+app.use('/api/v1', apiRateLimiter);
+
+// Client IP endpoint (used by frontend IP guard)
+app.get('/api/client-ip', (req, res) => {
+  const forwarded = req.headers['x-forwarded-for']
+  const ip = Array.isArray(forwarded)
+    ? forwarded[0]
+    : (forwarded || '').toString().split(',')[0].trim()
+  res.json({ ip: ip || req.ip })
+})
+app.get('/api/v1/client-ip', (req, res) => {
+  const forwarded = req.headers['x-forwarded-for']
+  const ip = Array.isArray(forwarded)
+    ? forwarded[0]
+    : (forwarded || '').toString().split(',')[0].trim()
+  res.json({ ip: ip || req.ip })
+})
 
 // Mount production-ready routes with full authentication and authorization
 app.use('/api', authenticate, enforceTenantIsolation, productionReadyRouter);
+app.use('/api/v1', authenticate, enforceTenantIsolation, productionReadyRouter);
 
 // ============================================================================
 // EXISTING SERVER-SIMPLE ROUTES (Backward Compatible)
@@ -456,11 +475,12 @@ async function startServer() {
     console.log('✅ Database connection successful');
 
     // Start server
-    const server = app.listen(Number(PORT), '0.0.0.0', () => {
+    const host = process.env.HOST || '0.0.0.0'
+    const server = app.listen(Number(PORT), host, () => {
       console.log('');
-      console.log(`📡 Server: http://localhost:${PORT}`);
-      console.log(`🏥 Health: http://localhost:${PORT}/health`);
-      console.log(`🔐 CSRF Token: http://localhost:${PORT}/api/csrf`);
+      console.log(`📡 Server: http://${host}:${PORT}`);
+      console.log(`🏥 Health: http://${host}:${PORT}/health`);
+      console.log(`🔐 CSRF Token: http://${host}:${PORT}/api/csrf`);
       console.log('');
       console.log('🔒 SECURITY FEATURES:');
       console.log('   ✅ JWT Authentication');

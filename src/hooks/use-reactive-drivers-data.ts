@@ -14,7 +14,7 @@ import { useMemo, useCallback } from 'react'
 import { z } from 'zod'
 
 // Environment variables with secure fallbacks
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 const REFETCH_INTERVAL = 10000 // 10 seconds
 const STALE_TIME = 5000 // 5 seconds
 const RETRY_ATTEMPTS = 3

@@ -46,7 +46,7 @@ import {
 import Grid from '@mui/material/Grid'
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 interface Message {
   id: string
@@ -97,19 +97,11 @@ const AIAssistant: React.FC = () => {
   const [dataLoadError, setDataLoadError] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Helper function to get auth token
-  const getAuthHeader = useCallback(() => {
-    const token = localStorage.getItem('token')
-    return { Authorization: `Bearer ${token}` }
-  }, [])
-
   // Fetch agents using TanStack Query
   const { data: agents = [], isLoading: agentsLoading, error: agentsError } = useQuery<Agent[]>({
     queryKey: ['agents'],
     queryFn: async () => {
-      const response = await axios.get('/api/langchain/agents', {
-        headers: getAuthHeader()
-      })
+      const response = await axios.get('/api/langchain/agents', { withCredentials: true })
       return response.data?.agents || []
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -120,9 +112,7 @@ const AIAssistant: React.FC = () => {
   const { data: workflows = [], error: workflowsError } = useQuery<Workflow[]>({
     queryKey: ['workflows'],
     queryFn: async () => {
-      const response = await axios.get('/api/langchain/workflows', {
-        headers: getAuthHeader()
-      })
+      const response = await axios.get('/api/langchain/workflows', { withCredentials: true })
       return response.data?.workflows || []
     },
     staleTime: 5 * 60 * 1000,
@@ -133,9 +123,7 @@ const AIAssistant: React.FC = () => {
   const { data: mcpServers = [], isLoading: mcpLoading, error: mcpError } = useQuery<unknown[]>({
     queryKey: ['mcpServers'],
     queryFn: async () => {
-      const response = await axios.get('/api/langchain/mcp/servers', {
-        headers: getAuthHeader()
-      })
+      const response = await axios.get('/api/langchain/mcp/servers', { withCredentials: true })
       return response.data?.servers || []
     },
     staleTime: 5 * 60 * 1000,

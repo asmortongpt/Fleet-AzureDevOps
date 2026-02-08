@@ -49,7 +49,7 @@ export function useObd2Socket(options: UseObd2SocketOptions = {}) {
         const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
         // If we are served from port 3000, API might be on 3001
         // But VITE_API_URL might be http://localhost:3001
-        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+        const apiUrl = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/api\/?$/, '');
         const host = apiUrl.replace(/^http(s)?:\/\//, '');
         return `${protocol}//${host}/ws/obd2/${sid}`;
     };
@@ -122,12 +122,12 @@ export function useObd2Socket(options: UseObd2SocketOptions = {}) {
     const startEmulation = useCallback(async (profile: string = 'sedan', scenario: string = 'city') => {
         try {
             // Call REST API to start session
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const apiUrl = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/api\/?$/, '');
             const res = await fetch(`${apiUrl}/api/obd2-emulator/start`, {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}` // Ensure we send auth if needed (though emulator might be public)
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ profile, scenario })
             });
@@ -150,12 +150,10 @@ export function useObd2Socket(options: UseObd2SocketOptions = {}) {
         if (!sessionId) return;
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const apiUrl = (import.meta.env.VITE_API_URL || window.location.origin).replace(/\/api\/?$/, '');
             await fetch(`${apiUrl}/api/obd2-emulator/stop/${sessionId}`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
+                credentials: 'include'
             });
             disconnect();
         } catch (err) {

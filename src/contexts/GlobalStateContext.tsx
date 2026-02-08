@@ -27,12 +27,15 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const [currentTenant, setCurrentTenant] = useState<Tenant | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+    fetch(input, { credentials: 'include', ...init })
+
   useEffect(() => {
     const loadTenant = async () => {
       try {
         const tenantId = typeof window !== 'undefined' ? localStorage.getItem('tenant_id') : null;
         if (tenantId) {
-          const res = await fetch(`/api/tenants/${tenantId}`);
+          const res = await authFetch(`/api/tenants/${tenantId}`);
           const tenant = await res.json();
           setCurrentTenant(tenant);
         }
@@ -49,7 +52,7 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const switchTenant = async (tenantId: number) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/tenants/${tenantId}`);
+      const res = await authFetch(`/api/tenants/${tenantId}`);
       const tenant = await res.json();
       setCurrentTenant(tenant);
       if (typeof window !== 'undefined') {
@@ -121,7 +124,7 @@ export function FeatureFlagsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadFeatureFlags = async () => {
       try {
-        const res = await fetch('/api/feature-flags');
+        const res = await authFetch('/api/feature-flags');
         const flags = await res.json();
         setFeatureFlags(flags);
       } catch (error) {

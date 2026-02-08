@@ -62,7 +62,7 @@ const DEFAULT_TELEMETRY_CONFIG: TelemetryConfig = {
   serviceName: 'fleet-management-frontend',
   serviceVersion: import.meta.env.VITE_APP_VERSION || '1.0.0',
   environment: import.meta.env.MODE,
-  endpoint: import.meta.env.VITE_OTEL_EXPORTER_URL || 'http://localhost:4318/v1/traces',
+  endpoint: import.meta.env.VITE_OTEL_EXPORTER_URL || '',
   enabled: !!import.meta.env.VITE_OTEL_EXPORTER_URL,
   sampleRate: import.meta.env.PROD ? 0.1 : 1.0,
 };

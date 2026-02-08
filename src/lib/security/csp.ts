@@ -28,6 +28,9 @@ export interface CSPDirectives {
 /**
  * Development CSP - More permissive for HMR and debugging
  */
+const DEV_ORIGIN = typeof window !== 'undefined' ? window.location.origin : '';
+const DEV_WS_ORIGIN = DEV_ORIGIN ? DEV_ORIGIN.replace(/^http/, 'ws') : '';
+
 export const DEV_CSP_DIRECTIVES: Partial<CSPDirectives> = {
   'default-src': ["'self'"],
   'script-src': [
@@ -52,14 +55,12 @@ export const DEV_CSP_DIRECTIVES: Partial<CSPDirectives> = {
     'data:',
     'blob:',
     'https:',
-    'http://localhost:*',
+    ...(DEV_ORIGIN ? [DEV_ORIGIN] : []),
   ],
   'connect-src': [
     "'self'",
-    'ws://localhost:*',
-    'wss://localhost:*',
-    'http://localhost:*',
-    'https://localhost:*',
+    ...(DEV_WS_ORIGIN ? [DEV_WS_ORIGIN] : []),
+    ...(DEV_ORIGIN ? [DEV_ORIGIN] : []),
     'https://api.fleet-management.com',
     'https://*.azure.com',
     'https://*.microsoft.com',

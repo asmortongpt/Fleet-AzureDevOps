@@ -82,8 +82,8 @@ export function useDrivers(params?: {
   return useQuery({
     queryKey: ['drivers', params],
     queryFn: async () => {
-      const response = await api.get('/drivers', params)
-      const rows = Array.isArray(response) ? response : (response?.data || [])
+      const response = await api.get('/api/v1/drivers', params)
+      const rows = Array.isArray(response) ? response : (response?.drivers || response?.data || [])
       return rows.map(mapDriverRow)
     },
   })
@@ -93,7 +93,7 @@ export function useDriver(id: number) {
   return useQuery({
     queryKey: ['driver', id],
     queryFn: async () => {
-      const response = await (api.get as <T>(endpoint: string) => Promise<T>)(`/drivers/${id}`)
+      const response = await (api.get as <T>(endpoint: string) => Promise<T>)(`/api/v1/drivers/${id}`)
       return mapDriverRow(response)
     },
     enabled: !!id,
@@ -118,7 +118,7 @@ export function useCreateDriver() {
         status: normalizeStatusForApi(data.status),
         department: data.department
       }
-      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>('/drivers', payload)
+      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>('/api/v1/drivers', payload)
       return mapDriverRow(response)
     },
     onSuccess: () => {
@@ -145,7 +145,7 @@ export function useUpdateDriver() {
         status: normalizeStatusForApi(data.status),
         department: data.department
       }
-      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>(`/drivers/${id}`, payload)
+      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>(`/api/v1/drivers/${id}`, payload)
       return mapDriverRow(response)
     },
     onSuccess: () => {
@@ -159,7 +159,7 @@ export function useDeleteDriver() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      await api.delete(`/drivers/${id}`)
+      await api.delete(`/api/v1/drivers/${id}`)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })

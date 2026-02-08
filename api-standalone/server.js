@@ -593,6 +593,125 @@ app.get('/api/v1/stats', async (req, res) => {
 });
 
 // ============================================================================
+// Work Orders API (Enhanced)
+// ============================================================================
+app.get('/api/v1/work-orders', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+
+    const result = await pool.query(
+      `SELECT * FROM work_orders ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM work_orders');
+
+    res.json({
+      work_orders: result.rows,
+      data: result.rows,
+      count: result.rowCount,
+      total: parseInt(countResult.rows[0].total),
+      limit,
+      offset
+    });
+  } catch (error) {
+    console.error('Work orders endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch work orders', details: error.message });
+  }
+});
+
+app.get('/api/v1/work-orders/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM work_orders WHERE id = $1', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Work order not found' });
+    }
+
+    res.json({ work_order: result.rows[0], data: result.rows[0] });
+  } catch (error) {
+    console.error('Work order fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch work order', details: error.message });
+  }
+});
+
+// ============================================================================
+// Inspections API (Enhanced with DVIR)
+// ============================================================================
+app.get('/api/v1/inspections', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+
+    const result = await pool.query(
+      `SELECT * FROM inspections ORDER BY inspection_date DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM inspections');
+
+    res.json({
+      inspections: result.rows,
+      data: result.rows,
+      count: result.rowCount,
+      total: parseInt(countResult.rows[0].total),
+      limit,
+      offset
+    });
+  } catch (error) {
+    console.error('Inspections endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch inspections', details: error.message });
+  }
+});
+
+app.get('/api/v1/inspections/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query('SELECT * FROM inspections WHERE id = $1', [id]);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'Inspection not found' });
+    }
+
+    res.json({ inspection: result.rows[0], data: result.rows[0] });
+  } catch (error) {
+    console.error('Inspection fetch error:', error);
+    res.status(500).json({ error: 'Failed to fetch inspection', details: error.message });
+  }
+});
+
+// ============================================================================
+// Fuel Transactions API (Enhanced with IFTA)
+// ============================================================================
+app.get('/api/v1/fuel-transactions', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+
+    const result = await pool.query(
+      `SELECT * FROM fuel_transactions ORDER BY transaction_date DESC LIMIT $1 OFFSET $2`,
+      [limit, offset]
+    );
+
+    const countResult = await pool.query('SELECT COUNT(*) as total FROM fuel_transactions');
+
+    res.json({
+      fuel_transactions: result.rows,
+      data: result.rows,
+      count: result.rowCount,
+      total: parseInt(countResult.rows[0].total),
+      limit,
+      offset
+    });
+  } catch (error) {
+    console.error('Fuel transactions endpoint error:', error);
+    res.status(500).json({ error: 'Failed to fetch fuel transactions', details: error.message });
+  }
+});
+
+// ============================================================================
 // Root API endpoint
 // ============================================================================
 app.get('/api', (req, res) => {
@@ -610,7 +729,10 @@ app.get('/api', (req, res) => {
       vehicles: '/api/v1/vehicles',
       drivers: '/api/v1/drivers',
       documents: '/api/v1/documents',
-      stats: '/api/v1/stats'
+      stats: '/api/v1/stats',
+      workOrders: '/api/v1/work-orders',
+      inspections: '/api/v1/inspections',
+      fuelTransactions: '/api/v1/fuel-transactions'
     },
     timestamp: new Date().toISOString()
   });
@@ -622,7 +744,7 @@ app.get('/', (req, res) => {
     service: 'Fleet Management API',
     version: '2.0.1',
     status: 'operational',
-    endpoints: ['/api', '/health', '/api/health', '/api/v1/vehicles', '/api/v1/drivers', '/api/v1/documents', '/api/v1/stats']
+    endpoints: ['/api', '/health', '/api/health', '/api/v1/vehicles', '/api/v1/drivers', '/api/v1/documents', '/api/v1/stats', '/api/v1/work-orders', '/api/v1/inspections', '/api/v1/fuel-transactions']
   });
 });
 
@@ -632,7 +754,7 @@ app.use((req, res) => {
     error: 'Not found',
     path: req.url,
     method: req.method,
-    availableEndpoints: ['/api', '/health', '/api/health', '/api/v1/vehicles', '/api/v1/drivers', '/api/v1/documents', '/api/v1/stats']
+    availableEndpoints: ['/api', '/health', '/api/health', '/api/v1/vehicles', '/api/v1/drivers', '/api/v1/documents', '/api/v1/stats', '/api/v1/work-orders', '/api/v1/inspections', '/api/v1/fuel-transactions']
   });
 });
 
@@ -660,6 +782,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`👤 Drivers: http://localhost:${PORT}/api/v1/drivers`);
   console.log(`📄 Documents: http://localhost:${PORT}/api/v1/documents`);
   console.log(`📈 Stats: http://localhost:${PORT}/api/v1/stats`);
+  console.log(`🔧 Work Orders: http://localhost:${PORT}/api/v1/work-orders`);
+  console.log(`🔍 Inspections: http://localhost:${PORT}/api/v1/inspections`);
+  console.log(`⛽ Fuel: http://localhost:${PORT}/api/v1/fuel-transactions`);
   console.log(``);
   console.log(`Database host: ${process.env.DB_HOST || 'fleet-postgres-service'}`);
 });

@@ -72,7 +72,7 @@ const API_ENDPOINTS: APIEndpoint[] = [
 
 export function MobileEmulatorTestScreen() {
   const [selectedDevice, setSelectedDevice] = useState<Device>(DEVICES[0])
-  const [iframeUrl, setIframeUrl] = useState('http://localhost:5000')
+  const [iframeUrl, setIframeUrl] = useState(() => (typeof window !== 'undefined' ? window.location.origin : ''))
   const [apiResults, setApiResults] = useState<APIEndpoint[]>(API_ENDPOINTS)
   const [isTestingAPI, setIsTestingAPI] = useState(false)
   const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait')
@@ -228,7 +228,7 @@ export function MobileEmulatorTestScreen() {
                 value={iframeUrl}
                 onChange={(e) => setIframeUrl(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="http://localhost:5000"
+                placeholder={typeof window !== 'undefined' ? window.location.origin : ''}
               />
               <button
                 onClick={() => {

@@ -33,6 +33,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface IncidentDetailPanelProps {
   incidentId: string
 }
@@ -108,7 +112,7 @@ interface RelatedRecord {
   status?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => authFetch(url).then((r) => r.json())
 
 export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
   const { push } = useDrilldown()

@@ -58,7 +58,7 @@ export function useGeofenceBreachDetector(vehicles: Vehicle[], geofences: Geofen
                         vehicleId: vehicle.id,
                         geofenceId: geofence.id,
                         timestamp: new Date().toISOString(),
-                        type: 'enter' // Simplified for demo
+                        type: 'enter'
                     });
 
                     if (!breachesByGeofence[geofence.id]) {

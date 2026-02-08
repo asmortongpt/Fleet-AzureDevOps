@@ -47,6 +47,7 @@ import {
   shouldBlockAction,
   getApprovalRequirements
 } from "@/lib/policy-engine/policy-enforcement"
+import { secureFetch } from "@/hooks/use-api"
 
 
 interface ChargingStation {
@@ -96,7 +97,7 @@ interface ChargingSession {
 }
 
 const fetcher = (url: string) =>
-  fetch(url)
+  secureFetch(url, { method: 'GET' })
     .then((r) => r.json())
     .then((data) => data?.data?.data ?? data?.data ?? data)
 
@@ -415,7 +416,6 @@ export function EVChargingManagement() {
   const totalCost = (sessions || []).filter(s => s.status === "completed").reduce((sum, s) => sum + s.cost, 0)
   const totalCarbon = (sessions || []).filter(s => s.status === "completed").reduce((sum, s) => sum + s.carbonOffset, 0)
 
-  // Mock sample data
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">

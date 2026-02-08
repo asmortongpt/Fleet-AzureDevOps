@@ -20,7 +20,7 @@ import {
   Copy,
   Info,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -30,6 +30,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { useAuth } from '@/hooks/useAuth'
+import { secureFetch } from '@/hooks/use-api'
 import logger from '@/utils/logger';
 
 interface PolicyTemplateDetailPanelProps {
@@ -102,137 +104,127 @@ export function PolicyTemplateDetailPanel({
   template,
 }: PolicyTemplateDetailPanelProps) {
   const { pop } = useDrilldown()
+  const { user } = useAuth()
   const [activeTab, setActiveTab] = useState('overview')
   const [isLoading, setIsLoading] = useState(false)
 
-  // Mock data if not provided
-  const templateData: PolicyTemplate = template || {
-    id: templateId,
-    name: 'Speed Limit Enforcement',
-    category: 'Fleet Safety',
-    type: 'safety',
-    description:
-      'Automated speed limit monitoring and enforcement policy that tracks vehicle speeds against posted limits and geofenced zones.',
-    purpose:
-      'Reduce speeding incidents, improve driver safety, lower insurance premiums, and ensure compliance with DOT regulations.',
-    priority: 'high',
-    enforcement_level: 'mandatory',
-    applies_to: 'all',
-    industry_vertical: ['Logistics & Transportation', 'Government', 'Healthcare'],
-    fleet_size_min: 10,
-    conditions: [
-      {
-        id: '1',
-        condition_type: 'speed_threshold',
-        description: 'Vehicle speed exceeds posted limit by configurable threshold',
-        parameters: { threshold_mph: 10, duration_seconds: 5 },
-        is_required: true,
-      },
-      {
-        id: '2',
-        condition_type: 'geofence_zone',
-        description: 'Applies different thresholds in school zones and residential areas',
-        parameters: { zone_types: ['school', 'residential'], threshold_mph: 5 },
-        is_required: false,
-      },
-    ],
-    actions: [
-      {
-        id: '1',
-        action_type: 'notification',
-        description: 'Send real-time alert to driver via mobile app',
-        parameters: { delivery_method: 'push', priority: 'high' },
-        severity: 'medium',
-        automated: true,
-      },
-      {
-        id: '2',
-        action_type: 'escalation',
-        description: 'Notify fleet manager if speed exceeds critical threshold',
-        parameters: { threshold_mph: 20, notify_roles: ['manager', 'supervisor'] },
-        severity: 'high',
-        automated: true,
-      },
-      {
-        id: '3',
-        action_type: 'documentation',
-        description: 'Log violation for driver record and review',
-        parameters: { retention_days: 365, include_video: true },
-        severity: 'low',
-        automated: true,
-      },
-    ],
-    sample_violations: [
-      {
-        id: '1',
-        scenario: 'Highway Speeding',
-        description: 'Driver exceeds 70 mph speed limit by 15 mph on interstate',
-        severity: 'medium',
-        frequency: 'occasional',
-      },
-      {
-        id: '2',
-        scenario: 'School Zone Violation',
-        description: 'Vehicle travels 35 mph in 15 mph school zone during school hours',
-        severity: 'critical',
-        frequency: 'rare',
-      },
-      {
-        id: '3',
-        scenario: 'Residential Speeding',
-        description: 'Consistent speeding in residential neighborhoods',
-        severity: 'high',
-        frequency: 'common',
-      },
-    ],
-    implementation_requirements: [
-      {
-        id: '1',
-        requirement_type: 'data',
-        title: 'Real-time GPS Data',
-        description: 'Requires vehicle telematics with GPS and speed data',
-        priority: 'required',
-        estimated_time: '1 day',
-      },
-      {
-        id: '2',
-        requirement_type: 'integration',
-        title: 'Speed Limit Database',
-        description: 'Integration with HERE or Google Maps for posted speed limits',
-        priority: 'required',
-        estimated_time: '3 days',
-      },
-      {
-        id: '3',
-        requirement_type: 'configuration',
-        title: 'Geofence Setup',
-        description: 'Define custom geofences for school zones and sensitive areas',
-        priority: 'recommended',
-        estimated_time: '2 days',
-      },
-      {
-        id: '4',
-        requirement_type: 'training',
-        title: 'Driver Training',
-        description: 'Educate drivers on new policy and mobile alerts',
-        priority: 'recommended',
-        estimated_time: '1 week',
-      },
-    ],
-    estimated_impact: {
-      cost_savings: 25000,
-      safety_improvement: 35,
-      efficiency_gain: 10,
-    },
-    compliance_standards: ['DOT', 'FMCSA', 'OSHA'],
-    best_practices_source: 'NHTSA Fleet Safety Best Practices 2024',
+
+  const [templateData, setTemplateData] = useState<PolicyTemplate | null>(template ?? null)
+
+  useEffect(() => {
+    let mounted = true
+
+    const loadTemplate = async () => {
+      if (template) {
+        setTemplateData(template)
+        return
+      }
+
+      try {
+        setIsLoading(true)
+        const res = await secureFetch(`/api/policy-templates/${templateId}`, { method: 'GET' })
+        if (!res.ok) {
+          throw new Error('Failed to load policy template')
+        }
+        const raw = await res.json()
+        const payload = raw?.data || raw
+        const policyContent = (() => {
+          if (!payload?.policy_content) return {}
+          if (typeof payload.policy_content === 'string') {
+            try {
+              return JSON.parse(payload.policy_content)
+            } catch {
+              return {}
+            }
+          }
+          return payload.policy_content
+        })()
+
+        const mapped: PolicyTemplate = {
+          id: payload.id,
+          name: payload.policy_name || payload.name || 'Policy Template',
+          category: payload.policy_category || payload.category || 'General',
+          type: (policyContent.type || 'operational') as PolicyTemplate['type'],
+          description: payload.policy_scope || payload.policy_objective || policyContent.description || '',
+          purpose: payload.policy_objective || policyContent.purpose || '',
+          priority: (policyContent.priority || 'medium') as PolicyTemplate['priority'],
+          enforcement_level: (policyContent.enforcement_level || 'advisory') as PolicyTemplate['enforcement_level'],
+          applies_to: (policyContent.applies_to || 'all') as PolicyTemplate['applies_to'],
+          industry_vertical: policyContent.industry_vertical || [],
+          fleet_size_min: policyContent.fleet_size_min,
+          fleet_size_max: policyContent.fleet_size_max,
+          conditions: policyContent.conditions || [],
+          actions: policyContent.actions || [],
+          sample_violations: policyContent.sample_violations || [],
+          implementation_requirements: policyContent.implementation_requirements || [],
+          estimated_impact: policyContent.estimated_impact || {},
+          compliance_standards: payload.regulatory_references || policyContent.compliance_standards || [],
+          best_practices_source: policyContent.best_practices_source,
+        }
+
+        if (mounted) {
+          setTemplateData(mapped)
+        }
+      } catch (error) {
+        logger.error('Failed to load policy template', { error })
+        if (mounted) {
+          setTemplateData(null)
+        }
+      } finally {
+        if (mounted) setIsLoading(false)
+      }
+    }
+
+    loadTemplate()
+
+    return () => {
+      mounted = false
+    }
+  }, [template, templateId])
+
+  if (!templateData) {
+    return (
+      <DrilldownContent title="Policy Template" onClose={pop}>
+        <Card>
+          <CardContent className="py-8 text-center text-sm text-muted-foreground">
+            Unable to load policy template.
+          </CardContent>
+        </Card>
+      </DrilldownContent>
+    )
   }
 
   const handleUseTemplate = async () => {
     setIsLoading(true)
     try {
-      // Simulate API call to create policy from template
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      if (!user?.email) {
+        throw new Error('User context required to create policy')
+      }
+
+      const payload = {
+        name: templateData.name,
+        description: templateData.description || templateData.purpose || '',
+        type: templateData.type,
+        status: 'draft',
+        mode: templateData.enforcement_level === 'critical' ? 'autonomous' : 'monitor',
+        conditions: templateData.conditions,
+        actions: templateData.actions,
+        scope: {
+          applies_to: templateData.applies_to,
+          industry_vertical: templateData.industry_vertical,
+        },
+        category: templateData.category,
+        created_by: user.email,
+      }
+
+      const res = await secureFetch('/api/policies', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      })
+
+      if (!res.ok) {
+        throw new Error('Failed to create policy from template')
+      }
 
       toast.success(`Policy "${templateData.name}" created successfully!`)
       pop() // Go back to template list

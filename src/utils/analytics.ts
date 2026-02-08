@@ -72,18 +72,6 @@ class AnalyticsService {
 
   private async sendEvent(event: AnalyticsEvent) {
     try {
-      // In production, send to your analytics backend
-      // For now, store in localStorage for demo purposes
-      const events = this.getStoredEvents();
-      events.push(event);
-
-      // Keep only last 100 events
-      if (events.length > 100) {
-        events.shift();
-      }
-
-      localStorage.setItem('analytics_events', JSON.stringify(events));
-
       // Send to Application Insights via Telemetry Service
       // This ensures all analytics are consolidated in one place
       import('@/lib/telemetry').then(({ telemetryService }) => {
@@ -97,12 +85,7 @@ class AnalyticsService {
   }
 
   private getStoredEvents(): AnalyticsEvent[] {
-    try {
-      const stored = localStorage.getItem('analytics_events');
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
+    return [];
   }
 
   // Get all stored events (for debugging)
@@ -112,7 +95,7 @@ class AnalyticsService {
 
   // Clear all stored events
   clearEvents() {
-    localStorage.removeItem('analytics_events');
+    return;
   }
 }
 

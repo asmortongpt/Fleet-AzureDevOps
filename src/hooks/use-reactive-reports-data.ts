@@ -22,11 +22,15 @@ import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
 import logger from '@/utils/logger';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // ms
 
@@ -171,16 +175,8 @@ async function secureFetch<T>(
     'X-Requested-With': 'XMLHttpRequest', // CSRF protection
     'Accept': 'application/json',
   }
-
-  // Add authentication if available
-  if (requireAuth) {
-    const token = localStorage.getItem('auth_token')
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`
-    }
-  }
-
-  const response = await fetch(url, {
+  // Auth handled via httpOnly cookies (credentials: 'include')
+  const response = await authFetch(url, {
     signal,
     headers,
     credentials: 'include', // Include cookies for session management

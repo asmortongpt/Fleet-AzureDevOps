@@ -26,6 +26,10 @@ import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 interface TaskDetailPanelProps {
   taskId: string
 }
@@ -90,8 +94,7 @@ interface DependencyTask {
   status: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
+const fetcher = (url: string) => authFetch(url)
     .then((r) => r.json())
     .then((data) => data?.data ?? data)
 

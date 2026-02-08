@@ -23,6 +23,8 @@ import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { DriverVehicle, DriverTrip } from '@/services/dashboardApi';
 import logger from '@/utils/logger';
+import { secureFetch } from '@/hooks/use-api';
+import { useAuth } from '@/hooks/useAuth';
 
 interface InspectionItem {
   id: string;
@@ -32,7 +34,8 @@ interface InspectionItem {
 
 export function DriverDashboard() {
   const navigate = useNavigate();
-  const [driverName] = useState('John Smith');
+  const { user } = useAuth();
+  const driverName = [user?.firstName, user?.lastName].filter(Boolean).join(' ') || user?.email || '';
 
   // React Query hooks for real-time data fetching
   const { data: vehicleData, isLoading: vehicleLoading, error: vehicleError } = useQuery({
@@ -105,11 +108,8 @@ export function DriverDashboard() {
     toast.loading('Submitting inspection...');
 
     try {
-      // Uncomment when API is ready:
-      /*
-      const response = await fetch('/api/inspections', {
+      const response = await secureFetch('/api/inspections', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           vehicle_id: assignedVehicle.id,
           inspection_items: inspectionItems.map(item => ({
@@ -121,10 +121,6 @@ export function DriverDashboard() {
       });
 
       if (!response.ok) throw new Error('Inspection submission failed');
-      */
-
-      // Mock delay for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success('Pre-trip inspection completed!');
 
       // Reset checklist after successful submission

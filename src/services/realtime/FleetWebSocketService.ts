@@ -27,7 +27,7 @@ export class FleetWebSocketService extends EventEmitter {
   private subscriptions = new Map<string, Set<string>>();
 
   private config = {
-    url: import.meta.env.VITE_WS_URL || 'wss://fleet.capitaltechalliance.com/ws',
+    url: import.meta.env.VITE_WS_URL || `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/ws`,
     reconnectDelay: 1000,
     maxReconnectDelay: 30000,
     heartbeatInterval: 30000,

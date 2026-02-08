@@ -18,11 +18,15 @@ import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
 import logger from '@/utils/logger';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 // ============================================================================
 // CONFIGURATION
 // ============================================================================
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 const MAX_RETRIES = 3
 const RETRY_DELAY = 1000 // ms
 
@@ -132,16 +136,8 @@ async function secureFetch<T>(
     'Content-Type': 'application/json',
     'X-Requested-With': 'XMLHttpRequest', // CSRF protection
   }
-
-  // Add authentication if available
-  if (requireAuth) {
-    const token = localStorage.getItem('auth_token')
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`
-    }
-  }
-
-  const response = await fetch(url, {
+  // Auth handled via httpOnly cookies (credentials: 'include')
+  const response = await authFetch(url, {
     signal,
     headers,
     credentials: 'include', // Include cookies for session management
@@ -250,7 +246,7 @@ export function useReactiveAdminData() {
     queryKey: ['admin-users'],
     queryFn: async ({ signal }) => {
       try {
-        const response = await fetch(`${API_BASE}/users?limit=200`, {
+        const response = await authFetch(`${API_BASE}/users?limit=200`, {
           signal,
           credentials: 'include'
         })
@@ -315,7 +311,7 @@ export function useReactiveAdminData() {
     queryKey: ['audit-logs'],
     queryFn: async ({ signal }) => {
       try {
-        const response = await fetch(`${API_BASE}/audit-logs?limit=100`, {
+        const response = await authFetch(`${API_BASE}/audit-logs?limit=100`, {
           signal,
           credentials: 'include'
         })
@@ -358,7 +354,7 @@ export function useReactiveAdminData() {
     queryKey: ['active-sessions'],
     queryFn: async ({ signal }) => {
       try {
-        const response = await fetch(`${API_BASE}/sessions?limit=200`, {
+        const response = await authFetch(`${API_BASE}/sessions?limit=200`, {
           signal,
           credentials: 'include'
         })

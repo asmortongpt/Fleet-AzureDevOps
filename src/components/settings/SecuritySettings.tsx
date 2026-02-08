@@ -27,6 +27,10 @@ import { swrFetcher } from '@/lib/fetcher'
 import { securitySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 import logger from '@/utils/logger';
 
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
+
 export function SecuritySettings() {
   const [settings, setSettings] = useAtom(securitySettingsAtom)
   const [, setHasUnsavedChanges] = useAtom(hasUnsavedChangesAtom)
@@ -130,7 +134,7 @@ export function SecuritySettings() {
         return
       }
 
-      const response = await fetch('/api/auth/change-password', {
+      const response = await authFetch('/api/auth/change-password', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -152,7 +156,7 @@ export function SecuritySettings() {
 
   const handleTerminateSession = async (sessionId: string) => {
     try {
-      const response = await fetch(`/api/sessions/${sessionId}`, {
+      const response = await authFetch(`/api/sessions/${sessionId}`, {
         method: 'DELETE',
         credentials: 'include'
       })

@@ -166,12 +166,9 @@ export function AuthCallback() {
           window.dispatchEvent(new Event('fleet-auth-refresh'))
         }
 
-        // Step 7: Redirect to home after a brief delay
-        setTimeout(() => {
-          if (!mounted) return
-          logger.info('[Auth Callback] Authentication complete, redirecting to home')
-          navigate('/', { replace: true })
-        }, 500)
+        // Step 7: Redirect to home
+        logger.info('[Auth Callback] Authentication complete, redirecting to home')
+        navigate('/', { replace: true })
 
       } catch (error) {
         logger.error('[Auth Callback] Authentication callback failed:', {

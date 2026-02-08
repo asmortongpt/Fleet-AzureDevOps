@@ -250,8 +250,6 @@ export const useAuditLogger = () => {
       event_type: eventType,
       user_id: user?.id || 'anonymous',
       user_email: user?.email || 'unknown',
-      session_id: 'session_' + Date.now(), // Simplified for demo
-      ip_address: 'client_ip', // Would be populated by backend
       user_agent: navigator.userAgent,
       resource,
       action,
@@ -303,16 +301,8 @@ export const useMFAGuard = () => {
 
   useEffect(() => {
     if (needsMFA && user) {
-      // In a real implementation, this would redirect to MFA setup
       logger.debug('MFA setup required for user');
-
-      // For demo purposes, show a warning
-      if (window.confirm('Multi-Factor Authentication is required. Would you like to set it up now?')) {
-        navigate('/profile/security');
-      } else {
-        // Force logout if user refuses MFA setup
-        logout();
-      }
+      navigate('/profile/security');
     }
   }, [needsMFA, user, navigate, logout]);
 
@@ -330,12 +320,10 @@ export const useIPGuard = () => {
   const { logout } = useAuth();
 
   useEffect(() => {
-    // Get client IP (in production, this would come from the server)
+    // Get client IP from server
     const fetchClientIP = async () => {
       try {
-        // This is a simplified example - in production, IP validation
-        // would be handled on the server side
-        const response = await fetch('/api/client-ip');
+        const response = await fetch('/api/client-ip', { credentials: 'include' });
 
         if (response.ok) {
           const data = await response.json();

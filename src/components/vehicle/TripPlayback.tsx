@@ -24,6 +24,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Slider } from '@/components/ui/slider';
 import logger from '@/utils/logger';
+
+const authFetch = (input: RequestInfo | URL, init: RequestInit = {}) =>
+  fetch(input, { credentials: 'include', ...init })
+
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -123,7 +127,7 @@ function interpolatePosition(
 // ============================================================================
 
 const fetcher = async (url: string): Promise<TripBreadcrumbsResponse> => {
-  const response = await fetch(url);
+  const response = await authFetch(url);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   }

@@ -61,7 +61,7 @@ export class PushNotificationService {
   private subscription: PushSubscription | null = null;
   private settings: NotificationSettings;
   private readonly VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
-  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
   private notificationQueue: NotificationPayload[] = [];
 
   constructor() {
@@ -239,9 +239,9 @@ export class PushNotificationService {
     try {
       const response = await fetch(`${this.API_BASE_URL}/notifications/push`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAuthToken()}`,
         },
         body: JSON.stringify({
           userId,
@@ -320,9 +320,9 @@ export class PushNotificationService {
     try {
       const response = await fetch(`${this.API_BASE_URL}/notifications/subscribe`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAuthToken()}`,
         },
         body: JSON.stringify({
           subscription: subscription.toJSON(),
@@ -344,9 +344,9 @@ export class PushNotificationService {
     try {
       const response = await fetch(`${this.API_BASE_URL}/notifications/unsubscribe`, {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.getAuthToken()}`,
         },
         body: JSON.stringify({
           subscription: subscription.toJSON(),
@@ -461,10 +461,6 @@ export class PushNotificationService {
       soundEnabled: true,
       vibrationEnabled: true,
     };
-  }
-
-  private getAuthToken(): string {
-    return localStorage.getItem('authToken') || '';
   }
 
   private urlBase64ToUint8Array(base64String: string): Uint8Array {
