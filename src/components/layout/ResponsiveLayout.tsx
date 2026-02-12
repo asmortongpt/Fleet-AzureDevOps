@@ -346,7 +346,7 @@ export function ResponsiveSidebarLayout({
   const sidebarContent = (
     <aside
       className={`
-        ${isMobile ? 'fixed inset-y-0 z-50 bg-white dark:bg-neutral-900 shadow-sm transition-transform' : `w-${sidebarWidth}`}
+        ${isMobile ? 'fixed inset-y-0 z-50 bg-background shadow-sm transition-transform' : `w-${sidebarWidth}`}
         ${isMobile && !isOpen ? '-translate-x-full' : 'translate-x-0'}
         ${sidebarPosition === 'right' ? 'right-0' : 'left-0'}
       `}
@@ -427,7 +427,7 @@ export function ResponsiveCard({
 
   return (
     <div
-      className={`bg-white dark:bg-neutral-800 rounded-lg shadow-${shadow} ${paddingClasses} ${className}`}
+      className={`bg-card text-card-foreground rounded-lg border border-border/50 shadow-${shadow} ${paddingClasses} ${className}`}
     >
       {children}
     </div>

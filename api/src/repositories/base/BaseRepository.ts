@@ -32,12 +32,17 @@ export interface PaginatedResult<T> {
 }
 
 export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Partial<T>> {
+  // Whitelist: table names must be lowercase alphanumeric with underscores only
+  private static readonly VALID_TABLE_NAME_REGEX = /^[a-z_][a-z0-9_]*$/
 
   protected pool: Pool
   protected tableName: string
   protected idColumn: string = 'id'
 
   constructor(pool: Pool, tableName: string, idColumn: string = 'id') {
+    if (!BaseRepository.VALID_TABLE_NAME_REGEX.test(tableName)) {
+      throw new Error(`Invalid table name: ${tableName}`)
+    }
     this.pool = pool
     this.tableName = tableName
     this.idColumn = idColumn
@@ -167,9 +172,9 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
   async findWhere(
     conditions: Record<string, unknown>,
     tenantId: number | string,
-    options: { page?: number; limit?: number; sortBy?: string; sortOrder?: 'ASC' | 'DESC' } = {}
+    options: { page?: number; limit?: number; sortBy?: string; sortOrder?: 'ASC' | 'DESC'; columns?: string } = {}
   ): Promise<T[]> {
-    const { page = 1, limit = 50, sortBy = this.idColumn, sortOrder = 'DESC' } = options
+    const { page = 1, limit = 50, sortBy = this.idColumn, sortOrder = 'DESC', columns = '*' } = options
 
     const whereParts = this.buildWhereClause(conditions, 2)
     const pagination = this.buildPagination(page, limit)
@@ -178,7 +183,7 @@ export abstract class BaseRepository<T, CreateDTO = Partial<T>, UpdateDTO = Part
     const whereClause = `tenant_id = $1${whereParts.clause !== '1=1' ? ' AND ' + whereParts.clause : ''}`
 
     const result = await this.pool.query(
-      `SELECT * FROM ${this.tableName} WHERE ${whereClause} ${sorting} ${pagination.clause}`,
+      `SELECT ${columns} FROM ${this.tableName} WHERE ${whereClause} ${sorting} ${pagination.clause}`,
       [tenantId, ...whereParts.params]
     )
     return result.rows

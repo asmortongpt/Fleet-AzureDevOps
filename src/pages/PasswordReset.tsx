@@ -168,25 +168,24 @@ export function PasswordReset() {
         </div>
 
         {/* Premium Password Reset Card */}
-        <Card className="border-white/10 bg-white/95 shadow-2xl shadow-black/20 backdrop-blur-xl">
+        <Card className="border-border/50 bg-card/90 shadow-2xl shadow-black/20 backdrop-blur-xl text-card-foreground">
           <div className="p-5">
             {/* Card Title Section */}
             <div className="mb-3.5 text-center">
-              <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-slate-900">
+              <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-foreground">
                 <Shield className="h-5 w-5" style={{ color: '#41B2E3' }} />
                 <span>Reset Password</span>
               </h2>
-              <p className="text-xs text-slate-600 mb-2">
+              <p className="text-xs text-muted-foreground mb-2">
                 Enter your email address and we'll send you a link to reset your password
               </p>
-              <div className="text-[10px] text-gray-800 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-md p-2">
+              <div className="text-[10px] text-foreground bg-muted/40 border border-border/50 rounded-md p-2">
                 <strong>Note:</strong> If you sign in with Microsoft, please use{' '}
                 <a
                   href="https://aka.ms/sspr"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-semibold hover:underline"
-                  style={{ color: '#41B2E3' }}
+                  className="font-semibold hover:underline text-primary"
                 >
                   Microsoft Self-Service Password Reset
                 </a> instead.
@@ -202,7 +201,7 @@ export function PasswordReset() {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="reset-email" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    <Label htmlFor="reset-email" className="text-sm font-medium text-foreground">
                       Email Address
                     </Label>
                     <Input
@@ -213,7 +212,7 @@ export function PasswordReset() {
                       onChange={(e) => setEmail(e.target.value)}
                       required
                       disabled={isLoading}
-                      className="h-11 border-slate-300 dark:border-slate-600 focus:border-blue-600 dark:focus:border-blue-500"
+                      className="h-11 border-border/50 focus:border-primary/60"
                     />
                   </div>
 
@@ -259,8 +258,8 @@ export function PasswordReset() {
               </>
             ) : (
               <div className="space-y-4">
-                <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-                  <AlertDescription className="text-green-800 dark:text-green-200">
+                <Alert className="border-emerald-400/40 bg-emerald-500/10">
+                  <AlertDescription className="text-emerald-100">
                     <strong>Check your email!</strong>
                     <br />
                     If an account exists for {email}, you will receive a password reset link shortly.
@@ -268,23 +267,21 @@ export function PasswordReset() {
                 </Alert>
 
                 <div className="text-center space-y-3">
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-muted-foreground">
                     Didn't receive the email? Check your spam folder or{' '}
                     <button
                       onClick={() => {
                         setIsSubmitted(false)
                         setEmail('')
                       }}
-                      className="font-medium hover:underline"
-                      style={{ color: '#41B2E3' }}
+                      className="font-medium hover:underline text-primary"
                     >
                       try again
                     </button>
                   </p>
                   <Link
                     to="/login"
-                    className="block text-sm font-medium hover:underline"
-                    style={{ color: '#41B2E3' }}
+                    className="block text-sm font-medium hover:underline text-primary"
                   >
                     ← Back to Login
                   </Link>
@@ -293,12 +290,11 @@ export function PasswordReset() {
             )}
 
             {/* Support Link */}
-            <p className="text-center text-[10px] text-gray-800">
+            <p className="text-center text-[10px] text-muted-foreground">
               Need assistance?{' '}
               <a
                 href="mailto:support@capitaltechalliance.com"
-                className="font-semibold transition-colors hover:underline"
-                style={{ color: '#41B2E3' }}
+                className="font-semibold transition-colors hover:underline text-primary"
               >
                 Contact Support
               </a>

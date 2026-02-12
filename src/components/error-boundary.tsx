@@ -120,8 +120,8 @@ class ErrorBoundary extends Component<Props, State> {
 
       // Default error UI
       return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 p-2">
-          <Card className="w-full max-w-2xl">
+        <div className="flex items-center justify-center min-h-screen cta-hub p-2">
+          <Card className="w-full max-w-2xl bg-card/90 text-card-foreground border border-border/50">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <AlertTriangle className="h-8 w-8 text-destructive" />

@@ -81,11 +81,8 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
     }, []);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100 dark:from-slate-900 dark:via-blue-950/30 dark:to-slate-950">
-            {/* Pro Max animated background pattern */}
-            <div className="fixed inset-0 bg-grid-slate-200/50 dark:bg-grid-slate-800/50 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none" />
-
-            {/* Main content wrapper with glassmorphic effect */}
+        <div className="min-h-screen cta-hub">
+            {/* Main content wrapper */}
             <div className="relative z-10 flex h-screen w-full text-foreground overflow-hidden font-sans">
                 {/* Skip Link for Accessibility */}
                 <a
@@ -138,7 +135,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
             {/* MAIN CONTENT AREA */}
             <main
                 id="main-content"
-                className="flex-1 flex flex-col relative z-10 overflow-hidden backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 min-w-0"
+                className="flex-1 flex flex-col relative z-10 overflow-hidden backdrop-blur-xl bg-background/70 min-w-0"
             >
                 {/* Header with mobile menu button */}
                 <div className="relative shrink-0">
@@ -171,7 +168,7 @@ export function CommandCenterLayout({ children }: CommandCenterLayoutProps): Rea
                 </div>
 
                 {/* Footer for accessibility */}
-                <footer className="shrink-0 px-4 py-2 text-xs text-muted-foreground border-t border-border/50 backdrop-blur-xl bg-white/50 dark:bg-slate-900/50">
+                <footer className="shrink-0 px-4 py-2 text-xs text-muted-foreground border-t border-border/50 backdrop-blur-xl bg-background/60">
                     <div className="flex items-center justify-between">
                         <span>&copy; {new Date().getFullYear()} CTAFleet. All rights reserved.</span>
                         <span>v1.0.0</span>

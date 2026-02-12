@@ -158,14 +158,14 @@ export function SSOLogin() {
         </div>
 
         {/* Login Card */}
-        <Card className="border-white/10 bg-white/95 shadow-2xl backdrop-blur-xl">
+        <Card className="border-border/50 bg-card/90 shadow-2xl backdrop-blur-xl text-card-foreground">
           <div className="p-6">
             {/* Welcome Header */}
             <div className="mb-6 text-center">
-              <h2 className="mb-2 text-xl font-semibold text-slate-900">
+              <h2 className="mb-2 text-xl font-semibold text-foreground">
                 Welcome
               </h2>
-              <p className="text-sm" style={{ color: '#475569' }}>
+              <p className="text-sm text-muted-foreground">
                 Sign in to access your fleet dashboard
               </p>
             </div>
@@ -213,12 +213,11 @@ export function SSOLogin() {
               </span>
             </Button>
 
-            <p className="text-center text-xs text-slate-500 mt-4">
+            <p className="text-center text-xs text-muted-foreground mt-4">
               Need assistance?{' '}
               <a
                 href="mailto:support@capitaltechalliance.com"
-                className="font-semibold transition-colors hover:underline"
-                style={{ color: '#2F3359' }}
+                className="font-semibold transition-colors hover:underline text-primary"
               >
                 Contact Support
               </a>

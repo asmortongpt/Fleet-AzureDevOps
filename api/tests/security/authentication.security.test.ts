@@ -13,7 +13,7 @@ describe('Authentication Security Tests', () => {
   describe('Password Security', () => {
     it('should hash passwords with bcrypt', async () => {
       const plainPassword = 'SecurePassword123!';
-      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+      const hashedPassword = await bcrypt.hash(plainPassword, 12);
 
       expect(hashedPassword).not.toBe(plainPassword);
       expect(hashedPassword.length).toBeGreaterThan(50);
@@ -22,7 +22,7 @@ describe('Authentication Security Tests', () => {
 
     it('should verify correct passwords', async () => {
       const plainPassword = 'SecurePassword123!';
-      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+      const hashedPassword = await bcrypt.hash(plainPassword, 12);
 
       const isValid = await bcrypt.compare(plainPassword, hashedPassword);
       expect(isValid).toBe(true);
@@ -30,7 +30,7 @@ describe('Authentication Security Tests', () => {
 
     it('should reject incorrect passwords', async () => {
       const plainPassword = 'SecurePassword123!';
-      const hashedPassword = await bcrypt.hash(plainPassword, 10);
+      const hashedPassword = await bcrypt.hash(plainPassword, 12);
 
       const isValid = await bcrypt.compare('WrongPassword', hashedPassword);
       expect(isValid).toBe(false);

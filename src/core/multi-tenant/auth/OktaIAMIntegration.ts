@@ -670,12 +670,12 @@ declare const soc2Framework: {
 
 // Configuration for DCF production environment
 export const oktaConfig: OktaConfig = {
-  issuer: process.env.VITE_VITE_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
-  clientId: process.env.VITE_VITE_OKTA_CLIENT_ID || 'dcf-fleet-management-client',
-  redirectUri: process.env.VITE_VITE_OKTA_REDIRECT_URI || (typeof window !== 'undefined' ? `${window.location.origin}/login/callback` : 'http://localhost:3000/login/callback'),
-  scopes: process.env.VITE_VITE_OKTA_SCOPES?.split(',') || ['openid', 'profile', 'email', 'groups'],
+  issuer: import.meta.env.VITE_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
+  clientId: import.meta.env.VITE_OKTA_CLIENT_ID || 'dcf-fleet-management-client',
+  redirectUri: import.meta.env.VITE_OKTA_REDIRECT_URI || (typeof window !== 'undefined' ? `${window.location.origin}/login/callback` : 'http://localhost:3001/login/callback'),
+  scopes: import.meta.env.VITE_OKTA_SCOPES?.split(',') || ['openid', 'profile', 'email', 'groups'],
   pkce: true,
-  disableHttpsCheck: process.env.VITE_NODE_ENV === 'development'
+  disableHttpsCheck: import.meta.env.DEV
 };
 
 // Export singleton instance

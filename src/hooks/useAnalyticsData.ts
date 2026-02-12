@@ -10,7 +10,7 @@ import type { CostDataPoint } from '@/components/analytics/CostAnalyticsChart'
 import type { EfficiencyDataPoint } from '@/components/analytics/EfficiencyMetricsChart'
 import logger from '@/utils/logger';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 // Cache configuration
 const CACHE_TIME = 5 * 60 * 1000 // 5 minutes

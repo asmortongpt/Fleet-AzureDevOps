@@ -37,7 +37,7 @@ export class TestIsolationManager {
   private cleanupTimer?: NodeJS.Timeout;
 
   constructor(baseUrl?: string, options: IsolationOptions = {}) {
-    this.baseUrl = baseUrl || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/postgres';
+    this.baseUrl = baseUrl || process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/postgres' : (() => { throw new Error('DATABASE_URL must be set in production'); })());
 
     // Connect to postgres database for admin operations
     const adminUrl = this.baseUrl.replace(/\/[^/]+$/, '/postgres');

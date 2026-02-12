@@ -39,14 +39,20 @@ export interface QueryContext {
  * Subclasses implement their own CRUD operations
  */
 export abstract class BaseRepository<T extends { id: string | number }> {
+  // Whitelist: table names must be lowercase alphanumeric with underscores only
+  private static readonly VALID_TABLE_NAME_REGEX = /^[a-z_][a-z0-9_]*$/;
+
   protected tableName: string = '';
   protected idColumn: string = 'id';
   protected _pool?: Pool | PoolClient;
 
   constructor(tableName?: string, pool?: Pool | PoolClient) {
     if (tableName) {
-this.tableName = tableName;
-}
+      if (!BaseRepository.VALID_TABLE_NAME_REGEX.test(tableName)) {
+        throw new Error(`Invalid table name: ${tableName}`);
+      }
+      this.tableName = tableName;
+    }
     if (pool) {
 this._pool = pool;
 }

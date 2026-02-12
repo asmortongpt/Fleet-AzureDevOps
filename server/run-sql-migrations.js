@@ -14,9 +14,10 @@ const DB_CONFIG = {
   database: process.env.DATABASE_NAME || 'postgres',
   user: process.env.DATABASE_USER || 'fleetadmin',
   password: process.env.DATABASE_PASSWORD || 'FleetP0stgr3s0fad3984a32ddb85!',
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: process.env.DATABASE_SSL !== 'false' ? {
+    rejectUnauthorized: process.env.NODE_ENV === 'production',
+    ...(process.env.DB_SSL_CA ? { ca: process.env.DB_SSL_CA } : {})
+  } : false
 };
 
 const SQL_MIGRATIONS = [

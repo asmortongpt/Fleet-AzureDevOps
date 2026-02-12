@@ -42,7 +42,7 @@ export class SnapshotManager {
   };
 
   constructor(databaseUrl?: string) {
-    this.databaseUrl = databaseUrl || process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_dev';
+    this.databaseUrl = databaseUrl || process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/fleet_dev' : (() => { throw new Error('DATABASE_URL must be set in production'); })());
     this.snapshotDir = process.env.SNAPSHOT_DIR || path.join(process.cwd(), 'api/src/db/reset/snapshots');
     this.connectionParams = this.parseConnectionString(this.databaseUrl);
   }

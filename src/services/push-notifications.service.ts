@@ -61,7 +61,7 @@ export class PushNotificationService {
   private subscription: PushSubscription | null = null;
   private settings: NotificationSettings;
   private readonly VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY || '';
-  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
   private notificationQueue: NotificationPayload[] = [];
 
   constructor() {

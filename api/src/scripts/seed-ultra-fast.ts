@@ -16,6 +16,7 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'fleetdb',
   user: process.env.DB_USER || 'fleetadmin',
   password: process.env.DB_PASSWORD,
+  // DEV-ONLY script: rejectUnauthorized: false is acceptable for local seed data generation
   ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 });
 

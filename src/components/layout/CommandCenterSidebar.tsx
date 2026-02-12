@@ -48,7 +48,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                     isSidebarOpen ? "px-3 gap-3" : "px-0 justify-center",
                     isActive
                         ? "bg-primary/10 text-primary"
-                        : "text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
                 )}
                 style={{ animationDelay: `${index * 30}ms` }}
                 aria-label={item.label}
@@ -62,7 +62,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
 
                 <div className={cn(
                     "w-4 h-4 flex items-center justify-center shrink-0 transition-colors duration-200",
-                    isActive ? "text-primary" : "text-minimalist-secondary group-hover/navbtn:text-foreground"
+                    isActive ? "text-primary" : "text-muted-foreground group-hover/navbtn:text-foreground"
                 )}>
                     {item.icon}
                 </div>
@@ -107,7 +107,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 {isSidebarOpen && (
                     <h3 className={cn(
                         "px-3 py-1.5 text-xs font-bold uppercase tracking-wider",
-                        accentColor === "primary" ? "text-primary/80" : "text-minimalist-tertiary"
+                        accentColor === "primary" ? "text-primary/80" : "text-muted-foreground"
                     )}>
                         {title}
                     </h3>
@@ -124,12 +124,12 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             <div
                 aria-label="Application sidebar"
                 className={cn(
-                    "z-20 flex flex-col h-full backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-r border-white/20 dark:border-slate-800/20 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-pro",
+                    "z-20 flex flex-col h-full backdrop-blur-xl bg-background/95 border-r border-border/50 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-pro",
                     isSidebarOpen ? "w-56" : "w-16"
                 )}
             >
                 {/* Logo Area */}
-                <div className="h-14 flex items-center justify-between px-4 border-b border-minimalist-subtle shrink-0">
+                <div className="h-14 flex items-center justify-between px-4 border-b border-border/50 shrink-0">
                     <div className="flex items-center gap-2 min-w-0">
                         {isSidebarOpen ? (
                             <img
@@ -156,7 +156,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="p-2 border-t border-minimalist-subtle shrink-0 space-y-2">
+                <div className="p-2 border-t border-border/50 shrink-0 space-y-2">
                     {/* Settings Button */}
                     {!isSidebarOpen ? (
                         <Tooltip delayDuration={0}>
@@ -167,7 +167,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                         navigate('/settings');
                                         onNavigate?.();
                                     }}
-                                    className="w-full justify-center h-10 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary"
+                                    className="w-full justify-center h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60"
                                     aria-label="Settings"
                                 >
                                     <Settings className="w-4 h-4" />
@@ -184,7 +184,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                 navigate('/settings');
                                 onNavigate?.();
                             }}
-                            className="w-full justify-start h-10 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary px-3 gap-3"
+                            className="w-full justify-start h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 px-3 gap-3"
                             aria-label="Settings"
                         >
                             <Settings className="w-4 h-4 shrink-0" />
@@ -201,7 +201,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                     size="sm"
                                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                                     className={cn(
-                                        "w-full h-9 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary transition-all duration-200",
+                                        "w-full h-9 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all duration-200",
                                         isSidebarOpen ? "justify-start px-3 gap-2" : "justify-center"
                                     )}
                                     aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}

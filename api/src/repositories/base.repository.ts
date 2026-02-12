@@ -3,19 +3,26 @@ import { pool } from '../db';
 export abstract class BaseRepository<T> {
   protected pool = pool;
 
-  constructor(protected tableName: string) { }
+  // Whitelist: table names must be lowercase alphanumeric with underscores only
+  private static readonly VALID_TABLE_NAME_REGEX = /^[a-z_][a-z0-9_]*$/;
 
-  async findById(id: number, tenantId: number): Promise<T | null> {
+  constructor(protected tableName: string) {
+    if (!BaseRepository.VALID_TABLE_NAME_REGEX.test(tableName)) {
+      throw new Error(`Invalid table name: ${tableName}`);
+    }
+  }
+
+  async findById(id: number, tenantId: number, columns: string = '*'): Promise<T | null> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2`,
+      `SELECT ${columns} FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     );
     return result.rows[0] || null;
   }
 
-  async findAll(tenantId: number): Promise<T[]> {
+  async findAll(tenantId: number, columns: string = '*'): Promise<T[]> {
     const result = await pool.query(
-      `SELECT * FROM ${this.tableName} WHERE tenant_id = $1`,
+      `SELECT ${columns} FROM ${this.tableName} WHERE tenant_id = $1`,
       [tenantId]
     );
     return result.rows;

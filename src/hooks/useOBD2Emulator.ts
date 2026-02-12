@@ -75,7 +75,7 @@ export function useOBD2Emulator(autoConnect: boolean = false): UseOBD2EmulatorRe
     }
 
     const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
-    const apiBase = API_BASE ?? 'http://localhost:3000'
+    const apiBase = API_BASE ?? (import.meta.env.VITE_API_URL || 'http://localhost:3001')
     const wsHost = apiBase.replace(/^https?:\/\//, '')
     const wsUrl = `${wsProtocol}//${wsHost}/ws/obd2/${sid}`
 

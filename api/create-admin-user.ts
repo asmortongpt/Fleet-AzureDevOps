@@ -47,8 +47,8 @@ async function createAdminUser() {
     }
 
     // 4. Create admin user with FIPS-compliant password hash
-    const adminPassword = 'Fleet@2026'
-    console.log('Creating admin user with password:', adminPassword)
+    const adminPassword = process.env.ADMIN_PASSWORD || (() => { throw new Error('ADMIN_PASSWORD environment variable is required'); })()
+    console.log('Creating admin user with provided ADMIN_PASSWORD env var...')
     console.log('Hashing password with FIPS-compliant PBKDF2...')
 
     const passwordHash = await FIPSCryptoService.hashPassword(adminPassword)
@@ -83,7 +83,7 @@ async function createAdminUser() {
     console.log('LOGIN CREDENTIALS:')
     console.log('='.repeat(60))
     console.log(`Email:    admin@fleet.local`)
-    console.log(`Password: Fleet@2026`)
+    console.log(`Password: (set via ADMIN_PASSWORD env var)`)
     console.log('='.repeat(60))
     console.log('\nUser Details:')
     console.log(`  ID:         ${user.id}`)
