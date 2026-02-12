@@ -50,9 +50,6 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
   const finalConfig = { ...DEFAULT_SENTRY_CONFIG, ...config };
 
   if (!finalConfig.enabled || !finalConfig.dsn) {
-    if (import.meta.env.DEV) {
-      console.log('[Sentry] Not initialized - disabled or missing DSN');
-    }
     return;
   }
 
@@ -215,11 +212,6 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
       attachStacktrace: true,
     });
 
-    if (import.meta.env.DEV) {
-      console.log('[Sentry] Initialized successfully');
-      console.log('[Sentry] Environment:', finalConfig.environment);
-      console.log('[Sentry] Release:', finalConfig.release);
-    }
   } catch (error) {
     console.error('[Sentry] Failed to initialize:', error);
   }

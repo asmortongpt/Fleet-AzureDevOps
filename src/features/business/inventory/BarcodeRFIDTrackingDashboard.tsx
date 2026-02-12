@@ -181,11 +181,9 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         const mapped = Array.isArray(rows) ? rows.map(mapInventoryItem) : [];
         setInventoryItems(mapped);
       } else {
-        console.warn('Inventory API unavailable');
         setInventoryItems([]);
       }
     } catch (error) {
-      console.warn('Failed to fetch inventory items:', error);
       setInventoryItems([]);
     } finally {
       setLoading(false);
@@ -216,11 +214,9 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         }));
         setRecentScans(mapped);
       } else {
-        console.warn('Scans API unavailable');
         setRecentScans([]);
       }
     } catch (error) {
-      console.warn('Failed to fetch recent scans:', error);
       setRecentScans([]);
     }
   };

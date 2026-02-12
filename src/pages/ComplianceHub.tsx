@@ -121,7 +121,7 @@ export default function ComplianceHub() {
           return (
             <span className={cn(
               'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
-              typeColors[type] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+              typeColors[type] || 'bg-muted/40 text-muted-foreground border-border/50'
             )}>
               {type}
             </span>
@@ -171,7 +171,7 @@ export default function ComplianceHub() {
         header: 'Severity',
         cell: ({ row }) => {
           const severity = row.getValue('severity') as string | undefined
-          if (!severity) return <span className="text-gray-500">-</span>
+          if (!severity) return <span className="text-muted-foreground">-</span>
 
           const severityColors: Record<string, string> = {
             'Low': 'text-emerald-400',
@@ -207,7 +207,7 @@ export default function ComplianceHub() {
         header: 'Due Date',
         cell: ({ row }) => {
           const dueDate = row.getValue('dueDate') as string | undefined
-          if (!dueDate) return <span className="text-gray-500">-</span>
+          if (!dueDate) return <span className="text-muted-foreground">-</span>
 
           const isOverdue = new Date(dueDate) < new Date()
           return (

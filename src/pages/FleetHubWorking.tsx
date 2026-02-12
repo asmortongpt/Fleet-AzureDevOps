@@ -62,7 +62,7 @@ const TabsListWrap = ({ className, ...props }: React.ComponentProps<typeof TabsP
 const TabsTriggerWrap = ({ className, children, ...props }: React.ComponentProps<typeof TabsPrimitive.Trigger>) => (
     <TabsPrimitive.Trigger
         className={cn(
-            "group inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-slate-300 transition-all hover:bg-white/10 hover:text-white data-[state=active]:bg-white/10 data-[state=active]:text-white",
+            "group inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-white/10 hover:text-white data-[state=active]:bg-white/10 data-[state=active]:text-white",
             className
         )}
         {...props}
@@ -222,7 +222,7 @@ export default function FleetHub() {
     }, [vehicles, telemetryVehicles]);
 
     return (
-        <div className="flex h-full w-full flex-col bg-slate-950 text-white overflow-hidden">
+        <div className="flex h-full w-full flex-col cta-hub text-white overflow-hidden">
             {/* Debug: FLEET HUB NEW RENDER */}
             {/* Fallback Navigation for Automation/Accessibility */}
             <div className="fixed top-0 left-0 z-50 flex gap-2 opacity-0 pointer-events-none">

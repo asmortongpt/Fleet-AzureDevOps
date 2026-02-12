@@ -689,7 +689,7 @@ export function MaintenanceOperations() {
             onClick={handleCreateNew}
             disabled={loading}
             size="sm"
-            className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold disabled:opacity-50"
+            className="bg-amber-400 hover:bg-amber-300 text-primary-foreground font-bold disabled:opacity-50"
           >
             <Plus className="w-4 h-4" weight="bold" />
             <span className="ml-2">Schedule</span>
