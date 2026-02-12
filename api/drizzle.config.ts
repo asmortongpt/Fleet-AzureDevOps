@@ -8,7 +8,7 @@ export default {
   out: './src/migrations',
   dialect: 'postgresql',
   dbCredentials: {
-    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_dev',
+    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_test',
   },
   verbose: true,
   strict: true,

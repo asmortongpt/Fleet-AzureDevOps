@@ -146,7 +146,7 @@ export class OfflineSyncService {
   private syncCallbacks: Array<(status: SyncStatus) => void> = [];
   private readonly DB_NAME = 'fleet-offline-db';
   private readonly DB_VERSION = 1;
-  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
   constructor() {
     this.initDB();

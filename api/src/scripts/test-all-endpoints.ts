@@ -202,7 +202,7 @@ class EndpointTester {
 
   async testDatabaseConnection(): Promise<ConnectionTestResult> {
     const startTime = Date.now();
-    const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_dev';
+    const dbUrl = process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_test';
 
     console.log(`${colors.cyan}Testing PostgreSQL connection...${colors.reset}`);
 

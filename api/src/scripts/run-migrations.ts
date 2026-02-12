@@ -25,7 +25,10 @@ const pool = process.env.DATABASE_URL
     database: process.env.DB_NAME || 'fleet_management',
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD,
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false,
+    ssl: process.env.DB_SSL === 'true' ? {
+      rejectUnauthorized: process.env.NODE_ENV === 'production',
+      ...(process.env.DB_SSL_CA ? { ca: process.env.DB_SSL_CA } : {})
+    } : false,
   });
 
 interface MigrationRecord {

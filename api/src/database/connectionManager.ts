@@ -68,14 +68,11 @@ interface BackoffConfig {
  * Database SSL configuration helper
  */
 function getDatabaseSSLConfig(): boolean | { rejectUnauthorized: boolean; ca?: string } {
-  if (process.env.DATABASE_SSL === 'true') {
-    if (process.env.NODE_ENV === 'production') {
-      return {
-        rejectUnauthorized: true,
-        ca: process.env.DB_SSL_CA
-      };
-    }
-    return { rejectUnauthorized: false };
+  if (process.env.DATABASE_SSL !== 'false') {
+    return {
+      rejectUnauthorized: process.env.NODE_ENV === 'production',
+      ...(process.env.DB_SSL_CA ? { ca: process.env.DB_SSL_CA } : {})
+    };
   }
   return false;
 }

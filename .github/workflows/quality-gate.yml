@@ -46,8 +46,8 @@ jobs:
         run: npm run test:coverage -- --run --passWithNoTests
 
       - name: Security Audit
-        run: npm audit --audit-level=high || echo "Security vulnerabilities found"
-        continue-on-error: true
+        run: npm audit --audit-level=high --production
+        continue-on-error: false
 
       - name: Build Verification
         run: npm run build

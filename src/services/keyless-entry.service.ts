@@ -112,7 +112,7 @@ export class KeylessEntryService {
   private connectedDevice: BluetoothDevice | null = null;
   private deviceCharacteristics: Map<string, BluetoothRemoteGATTCharacteristic> = new Map();
   private accessLogs: AccessLog[] = [];
-  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  private readonly API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
   constructor() {
     this.loadAccessLogs();

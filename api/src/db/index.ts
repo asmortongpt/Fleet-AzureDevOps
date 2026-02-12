@@ -9,8 +9,9 @@ import { Pool } from 'pg'
 import * as schema from './schema'
 
 // Create PostgreSQL connection pool
+const connectionString = process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/fleet_local' : (() => { throw new Error('DATABASE_URL must be set in production'); })());
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_local',
+  connectionString,
   max: 20, // Maximum number of clients in the pool
   idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
   connectionTimeoutMillis: 2000, // Fail fast if connection takes more than 2 seconds

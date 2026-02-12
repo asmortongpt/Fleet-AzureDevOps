@@ -89,17 +89,17 @@ const MetricCard = React.memo<MetricCardProps>(({
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
+    <div className="bg-card/90 text-card-foreground rounded-lg shadow-sm p-6 border border-border/50 cta-card cta-stat">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <p className="text-sm font-medium text-foreground">
             {title}
           </p>
           <p className={`text-3xl font-bold mt-2 ${statusColors[status]}`}>
             {value}
           </p>
           {subtitle && (
-            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {subtitle}
             </p>
           )}
@@ -135,23 +135,23 @@ const ViolationRow = React.memo<ViolationRowProps>(({ violation, onResolve }) =>
   }, [onResolve, violation.id]);
 
   return (
-    <tr className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+    <tr className="border-b border-border/50 hover:bg-muted/40">
       <td className="px-4 py-3">
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getSeverityBadgeClass(violation.severity)}`}>
           {violation.severity}
         </span>
       </td>
       <td className="px-4 py-3">
-        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+        <span className="text-sm font-medium text-foreground">
           {violation.type}
         </span>
       </td>
       <td className="px-4 py-3">
-        <p className="text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
+        <p className="text-sm text-muted-foreground line-clamp-2">
           {violation.description}
         </p>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+      <td className="px-4 py-3 text-sm text-muted-foreground">
         {new Date(violation.occurredAt).toLocaleDateString()}
       </td>
       <td className="px-4 py-3">
@@ -168,7 +168,7 @@ const ViolationRow = React.memo<ViolationRowProps>(({ violation, onResolve }) =>
           <button
             onClick={() => onResolve(violation.id)}
             onKeyDown={handleKeyDown}
-            className="text-[#41B2E3] hover:text-blue-800 dark:text-blue-700 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#41B2E3] rounded px-2 py-1"
+            className="text-primary hover:text-primary/80 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
             aria-label={`Resolve violation: ${violation.description}`}
           >
             Resolve
@@ -187,19 +187,19 @@ ViolationRow.displayName = 'ViolationRow';
 
 const AuditRow = React.memo<AuditRowProps>(({ audit }) => {
   return (
-    <tr className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+    <tr className="border-b border-border/50 hover:bg-muted/40">
       <td className="px-4 py-3">
-        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+        <span className="text-sm font-medium text-foreground">
           {audit.type}
         </span>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+      <td className="px-4 py-3 text-sm text-muted-foreground">
         {audit.auditor}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+      <td className="px-4 py-3 text-sm text-muted-foreground">
         {audit.department}
       </td>
-      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+      <td className="px-4 py-3 text-sm text-muted-foreground">
         {new Date(audit.scheduledDate).toLocaleDateString()}
       </td>
       <td className="px-4 py-3">
@@ -207,12 +207,12 @@ const AuditRow = React.memo<AuditRowProps>(({ audit }) => {
           audit.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700' :
           audit.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
           audit.status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
-          'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-700'
+          'bg-muted/40 text-muted-foreground'
         }`}>
           {audit.status}
         </span>
       </td>
-      <td className="px-4 py-3 text-sm text-gray-900 dark:text-gray-100">
+      <td className="px-4 py-3 text-sm text-muted-foreground">
         {audit.score !== undefined ? `${audit.score}%` : 'N/A'}
       </td>
       <td className="px-4 py-3">
@@ -309,34 +309,34 @@ const DashboardTab = React.memo<{
 
       {/* Additional Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <div className="bg-card/90 text-card-foreground rounded-lg shadow-sm p-6 border border-border/50">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
             Cost Impact
           </h3>
           <p className="text-3xl font-bold text-[#DD3903] dark:text-red-400">
             ${totalCostImpact.toLocaleString()}
           </p>
-          <p className="text-sm text-gray-900 dark:text-gray-100 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Total violation costs
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+        <div className="bg-card/90 text-card-foreground rounded-lg shadow-sm p-6 border border-border/50">
+          <h3 className="text-lg font-semibold text-foreground mb-4">
             Avg. Resolution Time
           </h3>
           <p className="text-3xl font-bold text-[#41B2E3] dark:text-blue-700">
             {Math.round(avgResolutionTime)} days
           </p>
-          <p className="text-sm text-gray-900 dark:text-gray-100 mt-2">
+          <p className="text-sm text-muted-foreground mt-2">
             Time to resolve violations
           </p>
         </div>
       </div>
 
       {/* Compliance by Category */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-card/90 text-card-foreground rounded-lg shadow-sm p-6 border border-border/50">
+        <h3 className="text-lg font-semibold text-foreground mb-4">
           Compliance by Category
         </h3>
         <div className="space-y-4">
@@ -345,14 +345,14 @@ const DashboardTab = React.memo<{
             return (
               <div key={category}>
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-sm font-medium text-muted-foreground">
                     {category}
                   </span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="text-sm font-semibold text-foreground">
                     {formatCompliancePercentage(percentage)}
                   </span>
                 </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-muted/40 rounded-full h-2">
                   <div
                     className="h-2 rounded-full transition-all duration-500"
                     style={{
@@ -423,22 +423,22 @@ const ViolationsTab = React.memo<{
   return (
     <div className="space-y-6">
       {/* Search and Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-4 border border-gray-200 dark:border-gray-700">
+      <div className="bg-card/90 text-card-foreground rounded-lg shadow-sm p-4 border border-border/50">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
-            <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-700" />
+            <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <input
               type="search"
               placeholder="Search violations..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-[#41B2E3] focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className="w-full pl-10 pr-4 py-2 border border-border/50 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-background/70 text-foreground"
               aria-label="Search violations"
             />
           </div>
           <div className="flex gap-2">
             <button
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
+              className="flex items-center gap-2 px-4 py-2 border border-border/50 rounded-lg hover:bg-muted/40 text-muted-foreground"
               aria-label="Filter violations"
             >
               <Funnel className="w-5 h-5" />
@@ -450,27 +450,27 @@ const ViolationsTab = React.memo<{
       </div>
 
       {/* Violations Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-card/90 text-card-foreground rounded-lg shadow-sm border border-border/50 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full" role="table">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-muted/40">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Severity
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Type
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Description
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Date
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -478,7 +478,7 @@ const ViolationsTab = React.memo<{
             <tbody>
               {filteredViolations.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-gray-900 dark:text-gray-100">
+                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                     No violations found
                   </td>
                 </tr>
@@ -531,12 +531,12 @@ const AuditsTab = React.memo<{
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-2xl font-bold text-foreground">
           Audit Schedule
         </h2>
         <button
           onClick={handleScheduleAudit}
-          className="flex items-center gap-2 px-4 py-2 bg-[#41B2E3] text-white rounded-lg hover:bg-[#2F3359] focus:outline-none focus:ring-2 focus:ring-[#41B2E3] focus:ring-offset-2"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           aria-label="Schedule new audit"
         >
           <Plus className="w-5 h-5" />
@@ -545,30 +545,30 @@ const AuditsTab = React.memo<{
       </div>
 
       {/* Audits Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="bg-card/90 text-card-foreground rounded-lg shadow-sm border border-border/50 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full" role="table">
-            <thead className="bg-gray-50 dark:bg-gray-700">
+            <thead className="bg-muted/40">
               <tr>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Type
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Auditor
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Department
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Scheduled Date
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Score
                 </th>
-                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-gray-900 dark:text-gray-100 uppercase tracking-wider">
+                <th scope="col" className="px-4 py-3 text-left text-xs font-medium text-foreground uppercase tracking-wider">
                   Report
                 </th>
               </tr>
@@ -576,7 +576,7 @@ const AuditsTab = React.memo<{
             <tbody>
               {!data.data || data.data.audits.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-900 dark:text-gray-100">
+                  <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
                     No audits scheduled
                   </td>
                 </tr>
@@ -630,12 +630,12 @@ const ReportsTab = React.memo<{
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <h2 className="text-2xl font-bold text-foreground">
           Compliance Reports
         </h2>
         <button
           onClick={handleGenerateReport}
-          className="flex items-center gap-2 px-4 py-2 bg-[#41B2E3] text-white rounded-lg hover:bg-[#2F3359] focus:outline-none focus:ring-2 focus:ring-[#41B2E3] focus:ring-offset-2"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           aria-label="Generate new report"
         >
           <Plus className="w-5 h-5" />
@@ -646,29 +646,29 @@ const ReportsTab = React.memo<{
       {/* Reports Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {!data.data || data.data.reports.length === 0 ? (
-          <div className="col-span-full text-center py-12 text-gray-900 dark:text-gray-100">
+          <div className="col-span-full text-center py-12 text-muted-foreground">
             No reports available
           </div>
         ) : (
           data.data.reports.map((report) => (
             <div
               key={report.id}
-              className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 border border-gray-200 dark:border-gray-700"
+              className="bg-card/90 text-card-foreground rounded-lg shadow-sm p-6 border border-border/50"
             >
               <div className="flex items-start justify-between mb-4">
                 <FileText className="w-8 h-8 text-[#41B2E3] dark:text-blue-700" />
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   report.status === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
                   report.status === 'PENDING_REVIEW' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
-                  'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-700'
+                  'bg-muted/40 text-muted-foreground'
                 }`}>
                   {report.status}
                 </span>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {report.title}
               </h3>
-              <p className="text-sm text-gray-900 dark:text-gray-100 mb-4">
+              <p className="text-sm text-muted-foreground mb-4">
                 {new Date(report.period.start).toLocaleDateString()} - {new Date(report.period.end).toLocaleDateString()}
               </p>
               {report.downloadUrl && (
@@ -676,7 +676,7 @@ const ReportsTab = React.memo<{
                   href={report.downloadUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-[#41B2E3] hover:text-blue-800 dark:text-blue-700 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#41B2E3] rounded px-2 py-1"
+                  className="flex items-center gap-2 text-primary hover:text-primary/80 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
                   aria-label={`Download ${report.title}`}
                 >
                   <Download className="w-4 h-4" />
@@ -741,6 +741,7 @@ export function ComplianceReportingHub() {
 
   return (
     <HubPage
+      className="cta-hub cta-compliance-hub"
       title="Compliance Reporting"
       icon={<Shield className="w-4 h-4" />}
       description="FedRAMP and NIST 800-53 compliance management with real-time monitoring"

@@ -25,8 +25,8 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_PASS || process.env.SMTP_PASSWORD,
   },
   tls: {
-    ciphers: 'SSLv3',
-    rejectUnauthorized: false,
+    minVersion: 'TLSv1.2',
+    rejectUnauthorized: process.env.NODE_ENV === 'production' ? true : false,
   },
 })
 

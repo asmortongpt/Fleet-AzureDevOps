@@ -19,7 +19,10 @@ const pool = new Pool({
   database: process.env.DB_NAME || 'fleetdb',
   user: process.env.DB_USER || process.env.DB_USERNAME || 'fleetadmin',
   password: process.env.DB_PASSWORD,
-  ssl: process.env.DB_SSL_MODE === 'require' ? { rejectUnauthorized: false } : false
+  ssl: process.env.DB_SSL_MODE === 'require' ? {
+    rejectUnauthorized: process.env.NODE_ENV === 'production',
+    ...(process.env.DB_SSL_CA ? { ca: process.env.DB_SSL_CA } : {})
+  } : false
 });
 
 interface Migration {

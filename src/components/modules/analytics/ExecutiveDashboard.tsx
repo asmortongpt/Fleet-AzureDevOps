@@ -83,7 +83,7 @@ const COLORS = {
 
 const PIE_COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4']
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/api'
 
 // API fetcher functions for real API calls
 const fetchDashboardKpis = async (): Promise<KPIData> => {

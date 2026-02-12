@@ -224,6 +224,102 @@ describe('BaseRepository', () => {
     });
   });
 
+  describe('Table Name Validation', () => {
+    it('should accept valid table names', () => {
+      expect(() => {
+        class ValidRepo extends BaseRepository<any> {
+          constructor() { super('valid_table_name'); }
+        }
+        new ValidRepo();
+      }).not.toThrow();
+    });
+
+    it('should reject table names with SQL injection characters', () => {
+      expect(() => {
+        class BadRepo extends BaseRepository<any> {
+          constructor() { super('users; DROP TABLE users--'); }
+        }
+        new BadRepo();
+      }).toThrow('Invalid table name');
+    });
+
+    it('should reject table names with spaces', () => {
+      expect(() => {
+        class BadRepo extends BaseRepository<any> {
+          constructor() { super('my table'); }
+        }
+        new BadRepo();
+      }).toThrow('Invalid table name');
+    });
+
+    it('should reject table names starting with numbers', () => {
+      expect(() => {
+        class BadRepo extends BaseRepository<any> {
+          constructor() { super('123table'); }
+        }
+        new BadRepo();
+      }).toThrow('Invalid table name');
+    });
+
+    it('should reject table names with uppercase letters', () => {
+      expect(() => {
+        class BadRepo extends BaseRepository<any> {
+          constructor() { super('MyTable'); }
+        }
+        new BadRepo();
+      }).toThrow('Invalid table name');
+    });
+
+    it('should reject empty table names', () => {
+      expect(() => {
+        class BadRepo extends BaseRepository<any> {
+          constructor() { super(''); }
+        }
+        new BadRepo();
+      }).toThrow('Invalid table name');
+    });
+  });
+
+  describe('Explicit Column Selection', () => {
+    it('should use SELECT * by default for findById', async () => {
+      (pool.query as ReturnType<typeof vi.fn>).mockResolvedValue({ rows: [{ id: 1 }], rowCount: 1 });
+
+      await repository.findById(1, mockTenantId);
+
+      const call = (pool.query as ReturnType<typeof vi.fn>).mock.calls[0];
+      expect(call[0]).toContain('SELECT *');
+    });
+
+    it('should use explicit columns when provided to findById', async () => {
+      (pool.query as ReturnType<typeof vi.fn>).mockResolvedValue({ rows: [{ id: 1, name: 'Test' }], rowCount: 1 });
+
+      await repository.findById(1, mockTenantId, 'id, name');
+
+      const call = (pool.query as ReturnType<typeof vi.fn>).mock.calls[0];
+      expect(call[0]).toContain('SELECT id, name');
+      expect(call[0]).not.toContain('SELECT *');
+    });
+
+    it('should use SELECT * by default for findAll', async () => {
+      (pool.query as ReturnType<typeof vi.fn>).mockResolvedValue({ rows: [], rowCount: 0 });
+
+      await repository.findAll(mockTenantId);
+
+      const call = (pool.query as ReturnType<typeof vi.fn>).mock.calls[0];
+      expect(call[0]).toContain('SELECT *');
+    });
+
+    it('should use explicit columns when provided to findAll', async () => {
+      (pool.query as ReturnType<typeof vi.fn>).mockResolvedValue({ rows: [], rowCount: 0 });
+
+      await repository.findAll(mockTenantId, 'id, name, status');
+
+      const call = (pool.query as ReturnType<typeof vi.fn>).mock.calls[0];
+      expect(call[0]).toContain('SELECT id, name, status');
+      expect(call[0]).not.toContain('SELECT *');
+    });
+  });
+
   describe('Security - SQL Injection Prevention', () => {
     it('should use parameterized queries for findById', async () => {
       (pool.query as ReturnType<typeof vi.fn>).mockResolvedValue({ rows: [], rowCount: 0 });

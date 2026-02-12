@@ -13,9 +13,11 @@ const databaseUrl =
   process.env.DATABASE_URL ||
   // Safe local default for dev/demo environments.
   // Matches other parts of the codebase that assume a local `fleet_dev` database.
-  (process.env.DB_HOST || process.env.DB_NAME || process.env.DB_USER
-    ? undefined
-    : 'postgresql://postgres:postgres@localhost:5432/fleet_dev');
+  (process.env.NODE_ENV === 'production'
+    ? (() => { throw new Error('DATABASE_URL must be set in production'); })()
+    : (process.env.DB_HOST || process.env.DB_NAME || process.env.DB_USER
+        ? undefined
+        : 'postgresql://postgres:postgres@localhost:5432/fleet_dev'));
 
 export const pool = databaseUrl
   ? new Pool({

@@ -24,16 +24,11 @@ var PoolType;
  * Database SSL configuration helper
  */
 function getDatabaseSSLConfig() {
-    if (process.env.DATABASE_SSL === 'true') {
-        // Production: Enforce certificate validation
-        if (process.env.NODE_ENV === 'production') {
-            return {
-                rejectUnauthorized: true,
-                ca: process.env.DB_SSL_CA, // Provide CA certificate in production
-            };
-        }
-        // Development: Allow self-signed certificates
-        return { rejectUnauthorized: false };
+    if (process.env.DATABASE_SSL !== 'false') {
+        return {
+            rejectUnauthorized: process.env.NODE_ENV === 'production',
+            ...(process.env.DB_SSL_CA ? { ca: process.env.DB_SSL_CA } : {})
+        };
     }
     return false;
 }

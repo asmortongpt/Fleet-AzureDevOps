@@ -39,7 +39,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
     return (
         <header className="relative shrink-0">
             <div className={cn(
-                "h-16 border-b border-white/20 dark:border-slate-800/20 backdrop-blur-xl bg-white/70 dark:bg-slate-900/70 z-30 flex items-center justify-between transition-all duration-200 shadow-pro-sm",
+                "h-16 border-b border-border/50 backdrop-blur-xl bg-background/80 z-30 flex items-center justify-between transition-all duration-200 shadow-pro-sm",
                 isMobile ? "px-4" : "px-4"
             )}>
                 {/* Left: CTA Branding */}
@@ -94,7 +94,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                     <NotificationBell onNavigate={setActiveModule} />
 
                     {/* Separator - hidden on mobile */}
-                    <div className="hidden sm:block h-8 w-px bg-minimalist-subtle mx-2" />
+                    <div className="hidden sm:block h-8 w-px bg-border/50 mx-2" />
 
                     {/* User Menu */}
                     <DropdownMenu modal={false}>
@@ -103,7 +103,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                                 variant="ghost"
                                 className={cn(
                                     "gap-3 h-11 rounded-lg transition-all duration-200",
-                                    "hover:bg-minimalist-tertiary border border-transparent hover:border-minimalist-medium",
+                                    "hover:bg-muted/60 border border-transparent hover:border-border/50",
                                     "pl-3 pr-3"
                                 )}
                             >
@@ -111,7 +111,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                                     <span className="text-sm font-medium text-foreground leading-none">Admin User</span>
                                     <span className="text-xs text-muted-foreground leading-none mt-1">Fleet Manager</span>
                                 </div>
-                                <Avatar className="h-9 w-9 border-2 border-minimalist-medium">
+                                <Avatar className="h-9 w-9 border-2 border-border/50">
                                     <AvatarImage src="https://github.com/shadcn.png" alt="Admin User profile picture" />
                                     <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs">AD</AvatarFallback>
                                 </Avatar>
@@ -119,7 +119,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-56 bg-minimalist-elevated border-minimalist-medium shadow-lg rounded-lg p-1"
+                            className="w-56 bg-popover border-border/50 shadow-lg rounded-lg p-1"
                             sideOffset={8}
                         >
                             <DropdownMenuLabel className="px-3 py-2">
@@ -128,29 +128,29 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                                     <span className="text-xs text-muted-foreground font-normal">admin@fleetops.com</span>
                                 </div>
                             </DropdownMenuLabel>
-                            <DropdownMenuSeparator className="bg-minimalist-subtle my-1" />
+                            <DropdownMenuSeparator className="bg-border/50 my-1" />
                             <DropdownMenuItem
-                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-minimalist-tertiary transition-colors"
+                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-muted/60 transition-colors"
                                 onClick={() => setActiveModule('profile')}
                             >
-                                <User className="w-4 h-4 mr-3 text-minimalist-secondary" />
+                                <User className="w-4 h-4 mr-3 text-muted-foreground" />
                                 Profile
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-minimalist-tertiary transition-colors"
+                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-muted/60 transition-colors"
                                 onClick={() => setActiveModule('settings')}
                             >
-                                <CreditCard className="w-4 h-4 mr-3 text-minimalist-secondary" />
+                                <CreditCard className="w-4 h-4 mr-3 text-muted-foreground" />
                                 Billing
                             </DropdownMenuItem>
                             <DropdownMenuItem
-                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-minimalist-tertiary transition-colors"
+                                className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm focus:bg-muted/60 transition-colors"
                                 onClick={() => setActiveModule('settings')}
                             >
-                                <Users className="w-4 h-4 mr-3 text-minimalist-secondary" />
+                                <Users className="w-4 h-4 mr-3 text-muted-foreground" />
                                 Team
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator className="bg-minimalist-subtle my-1" />
+                            <DropdownMenuSeparator className="bg-border/50 my-1" />
                             <DropdownMenuItem
                                 className="cursor-pointer rounded-md mx-1 px-3 py-2 text-sm text-destructive focus:bg-destructive/10 focus:text-destructive transition-colors"
                                 onClick={handleLogout}

@@ -10,11 +10,17 @@ import { DatabaseError, NotFoundError, ValidationError } from './errors'
  * Provides common CRUD operations and query utilities for all repositories
  */
 export abstract class BaseRepository<T = any> {
+  // Whitelist: table names must be lowercase alphanumeric with underscores only
+  private static readonly VALID_TABLE_NAME_REGEX = /^[a-z_][a-z0-9_]*$/
+
   protected tableName: string
   protected pool: Pool
   protected logger: QueryLogger
 
   constructor(tableName: string, pool: Pool) {
+    if (!BaseRepository.VALID_TABLE_NAME_REGEX.test(tableName)) {
+      throw new Error(`Invalid table name: ${tableName}`)
+    }
     this.tableName = tableName
     this.pool = pool
     this.logger = new QueryLogger()

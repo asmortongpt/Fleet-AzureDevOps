@@ -1225,7 +1225,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 <div className="flex items-center gap-3">
                   <Tool className={`h-5 w-5 ${
                     order.priority === 'high' || order.priority === 'urgent' ? 'text-red-500' :
-                    order.priority === 'medium' ? 'text-blue-500' : 'text-gray-700'
+                    order.priority === 'medium' ? 'text-blue-500' : 'text-muted-foreground'
                   }`} />
                   <div>
                     <div className="flex items-center gap-2">
