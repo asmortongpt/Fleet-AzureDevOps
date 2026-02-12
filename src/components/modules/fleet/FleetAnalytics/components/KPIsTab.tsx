@@ -1,4 +1,3 @@
-import React from "react"
 import {
   CurrencyDollar,
   GasPump,
@@ -8,6 +7,7 @@ import {
   HeartHalf,
   Buildings
 } from "@phosphor-icons/react"
+import React from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"

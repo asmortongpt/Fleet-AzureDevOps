@@ -27,11 +27,12 @@
  * ```
  */
 
+import { FileText, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { FileText, Camera, CheckCircle, AlertTriangle, XCircle } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -50,7 +51,6 @@ import {
   SelectValue
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
 import { useDVIRMutations, type InspectionType, type CreateDVIRInput, type DefectSeverity } from '@/hooks/use-hos-data'
 import logger from '@/utils/logger'
 

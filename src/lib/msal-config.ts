@@ -12,6 +12,7 @@
  */
 
 import { Configuration, PopupRequest, SilentRequest } from '@azure/msal-browser';
+
 import { getMsalConfig, getLoginRequest, getSilentRequest } from '@/config/auth-config';
 import logger from '@/utils/logger';
 

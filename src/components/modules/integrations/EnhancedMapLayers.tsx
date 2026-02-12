@@ -18,6 +18,7 @@
  * @version 2.0.0
  */
 
+import { useQuery } from "@tanstack/react-query"
 import {
   CloudRain,
   Construction,
@@ -25,7 +26,6 @@ import {
   Zap,
   AlertTriangle
 } from "lucide-react"
-import { useQuery } from "@tanstack/react-query"
 import { useState, useCallback, useMemo } from "react"
 
 import { UniversalMap } from "@/components/UniversalMap"

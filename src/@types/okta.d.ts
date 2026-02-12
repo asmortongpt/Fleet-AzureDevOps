@@ -49,8 +49,8 @@ declare module '@okta/okta-auth-js' {
 }
 
 declare module '@okta/okta-react' {
-    import type { ReactNode, ComponentType } from 'react';
     import type { OktaAuth, AuthState } from '@okta/okta-auth-js';
+    import type { ReactNode, ComponentType } from 'react';
 
     export interface SecurityProps {
         oktaAuth: OktaAuth;

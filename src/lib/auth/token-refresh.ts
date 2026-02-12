@@ -12,9 +12,10 @@
  */
 
 import { PublicClientApplication } from '@azure/msal-browser';
-import logger from '@/utils/logger';
-import { getTokenStorage, getTokenExpiration, parseJWT } from '@/services/token-storage';
+
 import { loginRequest } from '@/lib/msal-config';
+import { getTokenStorage, getTokenExpiration } from '@/services/token-storage';
+import logger from '@/utils/logger';
 
 export interface TokenRefreshConfig {
   /** Token refresh interval in milliseconds (default: 25 minutes) */

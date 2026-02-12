@@ -15,8 +15,7 @@ import { User, Plus, MagnifyingGlass, CheckCircle, Trophy, Trash, Warning } from
 import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { ActionButton, StatusBadge, InlineEditPanel, ConfirmDialog } from "@/components/operations";
-import { SplitView } from "@/components/operations";
+import { ActionButton, StatusBadge, InlineEditPanel, ConfirmDialog , SplitView } from "@/components/operations";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -1,11 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { MapPin, Navigation, Clock } from "lucide-react"
+import { useMemo } from "react"
+import useSWR from "swr"
+
 import { GoogleMapView } from "@/components/Maps/GoogleMapView"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { Vehicle } from "@/types/Vehicle"
-import useSWR from "swr"
-import { useMemo } from "react"
+
 
 interface GpsRecord {
   id?: string

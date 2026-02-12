@@ -4,8 +4,8 @@
  */
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { User, Check, X, Upload, Linkedin, Github, Twitter } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { User, Check, X, Upload, Linkedin, Github, Twitter } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
@@ -16,9 +16,9 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Section } from '@/components/ui/section'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
-import { Section } from '@/components/ui/section'
 import { currentUserAtom } from '@/lib/reactive-state'
 import { fetchCurrentUser } from '@/services/userService'
 import logger from '@/utils/logger';

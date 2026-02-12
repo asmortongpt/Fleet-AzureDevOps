@@ -13,14 +13,15 @@
  * - Debug logging for troubleshooting
  */
 
-import { useCallback, useEffect, useState } from 'react';
-import { useMsal } from '@azure/msal-react';
 import {
   AccountInfo,
   AuthenticationResult,
   InteractionRequiredAuthError,
   InteractionStatus
 } from '@azure/msal-browser';
+import { useMsal } from '@azure/msal-react';
+import { useCallback, useEffect, useState } from 'react';
+
 import { loginRequest } from '@/lib/msal-config';
 import logger from '@/utils/logger';
 

@@ -1,3 +1,4 @@
+import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode"
 import {
   QrCode,
   Barcode,
@@ -7,7 +8,6 @@ import {
   Check,
   X
 } from "lucide-react"
-import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
 

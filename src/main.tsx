@@ -7,6 +7,14 @@ import ReactDOM from "react-dom/client"
 import './i18n/config'
 
 // Initialize axe-core accessibility testing in development
+import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { registerSW } from 'virtual:pwa-register'
+
+import App from "./App"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
+import { ThemeProvider } from "./components/providers/ThemeProvider"
+import { AuthProvider } from "./contexts/AuthContext"
 import { initializeAxe } from './lib/accessibility/axe-init'
 // Only enable when explicitly requested; axe logs to console.error by design.
 if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_AXE === 'true') {
@@ -35,28 +43,22 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
 }
 
 // Initialize Sentry before all other imports for proper error tracking
-import { BrowserRouter, Routes, Route } from "react-router-dom"
 // @ts-expect-error - virtual module provided by vite-plugin-pwa; types require adding
 // `/// <reference types="vite-plugin-pwa/client" />` or referencing client.d.ts in tsconfig
-import { registerSW } from 'virtual:pwa-register'
 
-import App from "./App"
-import ProtectedRoute from "./components/ProtectedRoute"
-import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
-import { ThemeProvider } from "./components/providers/ThemeProvider"
 // Azure Key Vault integration is backend-only (Node.js packages cannot run in browser)
 // Frontend validates backend availability via /api/health endpoint instead
-import { AuthProvider } from "./contexts/AuthContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { PolicyProvider } from "./contexts/PolicyContext"
 import { TenantProvider } from "./contexts/TenantContext"
+import { msalConfig } from "./lib/msal-config"
 import { initSentry } from "./lib/sentry"
-import { Login } from "./pages/Login"
 import { AuthCallback } from "./pages/AuthCallback"
+import { Login } from "./pages/Login"
+
 import { PublicClientApplication } from "@azure/msal-browser"
 import { MsalProvider } from "@azure/msal-react"
-import { msalConfig } from "./lib/msal-config"
 
 initSentry()
 

@@ -5,10 +5,11 @@
  * SECURITY (CRIT-F-003): Implements RBAC with role hierarchy and permissions
  */
 
+import { InteractionStatus } from '@azure/msal-browser';
+import { useMsal } from '@azure/msal-react';
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 
-import { useMsal } from '@azure/msal-react';
-import { InteractionStatus } from '@azure/msal-browser';
+
 import { getCsrfToken, refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
 import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
 import { getMicrosoftLoginUrl } from '@/lib/microsoft-auth';

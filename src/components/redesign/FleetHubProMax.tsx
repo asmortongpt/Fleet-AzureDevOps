@@ -9,7 +9,6 @@
  * - Accessibility: WCAG AA compliant, reduced motion support
  */
 
-import { useState, useEffect } from 'react'
 import {
   Truck,
   AlertTriangle,
@@ -24,6 +23,7 @@ import {
   ArrowUpRight,
   ArrowDownRight
 } from 'lucide-react'
+import { useState, useEffect } from 'react'
 // motion removed - React 19 incompatible
 
 interface FleetMetric {

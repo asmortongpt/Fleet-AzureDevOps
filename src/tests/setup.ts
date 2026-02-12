@@ -104,7 +104,7 @@ beforeAll(() => {
   // axe-core calls it with (elt, pseudoElt) for some rules; treat it as a no-op on the pseudo arg.
   if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
     const originalGetComputedStyle = window.getComputedStyle.bind(window);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     (window as any).getComputedStyle = (elt: Element, _pseudoElt?: string) => originalGetComputedStyle(elt);
   }
 

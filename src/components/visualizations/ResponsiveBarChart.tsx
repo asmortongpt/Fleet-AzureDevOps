@@ -4,13 +4,11 @@
  */
 
 // motion removed - React 19 incompatible
-import { BarChart, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts'
-import { Bar } from 'recharts'
+import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Cell, LabelList } from 'recharts';
 interface DataPoint {
   name: string
   value?: number

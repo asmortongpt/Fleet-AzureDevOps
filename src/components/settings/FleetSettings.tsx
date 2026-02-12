@@ -3,8 +3,8 @@
  * Fleet-specific preferences: units, view defaults, and map settings
  */
 
-import { Car, Ruler, Map, RefreshCw } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Car, Ruler, Map, RefreshCw } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'

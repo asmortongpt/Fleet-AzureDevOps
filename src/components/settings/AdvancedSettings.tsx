@@ -3,8 +3,8 @@
  * Developer mode, API endpoint, feature flags, and debug settings
  */
 
-import { Code, Cpu, Flag, Bug, BarChart, AlertTriangle, Database } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Code, Cpu, Flag, Bug, BarChart, AlertTriangle, Database } from 'lucide-react'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'

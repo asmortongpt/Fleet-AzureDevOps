@@ -5,8 +5,9 @@
  * Lists sub-modules for the hovered category from module-registry.
  */
 import { useCallback } from 'react'
-import { usePanel } from '@/contexts/PanelContext'
+
 import { getModulesByCategory, getModule, type ModuleCategory } from '@/config/module-registry'
+import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
 const categoryLabels: Record<ModuleCategory, string> = {

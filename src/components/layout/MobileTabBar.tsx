@@ -10,12 +10,12 @@ import {
   Wrench,
   ShieldCheck,
   BarChart3,
-  Settings,
   MapPin,
 } from 'lucide-react'
 import { useCallback, type ReactNode } from 'react'
-import { usePanel } from '@/contexts/PanelContext'
+
 import { getModule, type ModuleCategory } from '@/config/module-registry'
+import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
 interface TabDef {

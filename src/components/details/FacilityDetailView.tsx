@@ -1,7 +1,6 @@
 import {
   Building2,
   Users,
-  Car,
   Package,
   TrendingUp,
   MapPin,

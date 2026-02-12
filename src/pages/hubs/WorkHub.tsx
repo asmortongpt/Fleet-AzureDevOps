@@ -12,8 +12,8 @@ import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { Badge } from "../../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
-import { useFleetData } from "../../hooks/use-fleet-data";
 import { secureFetch } from "../../hooks/use-api";
+import { useFleetData } from "../../hooks/use-fleet-data";
 
 type WorkModule = "tasks" | "maintenance" | "routes";
 

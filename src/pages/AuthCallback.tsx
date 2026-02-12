@@ -4,14 +4,14 @@
  * Handles MSAL redirect callback after Microsoft authentication
  * Exchanges access token with backend and establishes session
  */
+import { useMsal } from '@azure/msal-react'
+import { Loader2, ShieldCheck, Zap } from 'lucide-react'
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 // motion removed - React 19 incompatible
-import { Loader2, ShieldCheck, Zap } from 'lucide-react'
-import { useMsal } from '@azure/msal-react'
 
-import logger from '@/utils/logger'
 import { loginRequest } from '@/lib/msal-config'
+import logger from '@/utils/logger'
 
 export function AuthCallback() {
   const navigate = useNavigate()
@@ -45,7 +45,7 @@ export function AuthCallback() {
         })
 
         // Step 2: Get the authenticated account
-        let account = redirectResponse?.account || accounts[0] || instance.getAllAccounts()[0]
+        const account = redirectResponse?.account || accounts[0] || instance.getAllAccounts()[0]
 
         if (!account) {
           logger.error('[Auth Callback] No account found after redirect')

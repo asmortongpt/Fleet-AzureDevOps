@@ -15,19 +15,13 @@
  * - Performance optimized
  */
 
-import { useState, Suspense, lazy, memo, useMemo } from 'react'
-// motion removed - React 19 incompatible
 import {
   Users,
   MessageSquare,
   Briefcase,
   User,
-  Mail,
-  Phone,
   Calendar,
   CheckSquare,
-  Bell,
-  Send,
   Inbox,
   UserPlus,
   UserCheck,
@@ -36,31 +30,28 @@ import {
   Award,
   Target,
   TrendingUp,
-  AlertCircle,
-  FileText,
-  Video,
   Hash,
   Megaphone,
   Activity,
   BookOpen
 } from 'lucide-react'
-import HubPage from '@/components/ui/hub-page'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Section } from '@/components/ui/section'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useState, memo, useMemo } from 'react'
+
+// motion removed - React 19 incompatible
 import toast from 'react-hot-toast'
-import logger from '@/utils/logger';
+import useSWR from 'swr'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import HubPage from '@/components/ui/hub-page'
+import { Section } from '@/components/ui/section'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   StatCard,
-  ResponsiveBarChart,
-  ResponsiveLineChart,
-  ResponsivePieChart,
 } from '@/components/visualizations'
-import useSWR from 'swr'
+import logger from '@/utils/logger';
+
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' })

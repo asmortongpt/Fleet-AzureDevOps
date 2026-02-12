@@ -13,8 +13,8 @@
  * Created: 2025-11-23
  */
 
-import { Bell, User, Wrench, Fuel, AlertTriangle, Zap, MapPin, MessageCircle, Filter, Check, Radio, Activity } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { Bell, User, Wrench, Fuel, AlertTriangle, Zap, MapPin, MessageCircle, Filter, Check, Radio, Activity } from 'lucide-react'
 // motion removed - React 19 incompatible
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 

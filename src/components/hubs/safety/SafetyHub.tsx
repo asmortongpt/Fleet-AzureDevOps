@@ -10,6 +10,7 @@
  * - OSHA compliance metrics dashboard
  */
 
+import { GoogleMap, LoadScript, Marker, Circle } from "@react-google-maps/api"
 import {
   Cross,
   AlertTriangle,
@@ -20,7 +21,6 @@ import {
   FileText,
   Calendar
 } from "lucide-react"
-import { GoogleMap, LoadScript, Marker, Circle } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
 
 import { Badge } from "@/components/ui/badge"

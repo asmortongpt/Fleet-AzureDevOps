@@ -7,6 +7,7 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import logger from '@/utils/logger';
 
 let axeInitialized = false;

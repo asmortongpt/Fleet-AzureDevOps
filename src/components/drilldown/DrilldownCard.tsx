@@ -17,8 +17,7 @@
  * ```
  */
 
-import { TrendingUp, TrendingDown } from 'lucide-react'
-import { ArrowRight, Loader2 } from 'lucide-react'
+import { TrendingUp, TrendingDown , ArrowRight, Loader2 } from 'lucide-react'
 import React, { ReactNode, MouseEvent, KeyboardEvent } from 'react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'

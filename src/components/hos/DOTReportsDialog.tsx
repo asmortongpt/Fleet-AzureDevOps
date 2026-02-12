@@ -20,7 +20,6 @@
  * ```
  */
 
-import { useState, useMemo } from 'react'
 import { format, subMonths, differenceInDays } from 'date-fns'
 import {
   FileText,
@@ -33,7 +32,11 @@ import {
   CheckCircle,
   XCircle
 } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import { toast } from 'sonner'
 
+import { DateRangePicker, type DateRange } from '@/components/reports/filters/DateRangePicker'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -50,8 +53,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
-import { DateRangePicker, type DateRange } from '@/components/reports/filters/DateRangePicker'
+import { useDrivers } from '@/hooks/use-api'
 import {
   useHOSLogs,
   useDVIRReports,
@@ -60,9 +62,8 @@ import {
   type DVIRReport,
   type HOSViolation
 } from '@/hooks/use-hos-data'
-import { useDrivers } from '@/hooks/use-api'
 import logger from '@/utils/logger'
-import { toast } from 'sonner'
+
 
 // ============================================================================
 // TYPES

@@ -5,8 +5,9 @@
  * and detail view on the right.
  */
 
-import React from 'react';
 import { X } from '@phosphor-icons/react';
+import React from 'react';
+
 // motion removed - React 19 incompatible
 import { cn } from '@/lib/utils';
 

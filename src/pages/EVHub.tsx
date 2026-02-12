@@ -1,10 +1,10 @@
+import { useQuery } from '@tanstack/react-query';
 import { Battery, Leaf, TrendingUp, Zap, Car, Plug2, BarChart3, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
 
-import { Section } from '@/components/ui/section';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Section } from '@/components/ui/section';
 import logger from '@/utils/logger';
 
 interface EVVehicle {

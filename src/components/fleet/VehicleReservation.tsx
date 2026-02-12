@@ -10,8 +10,6 @@
  * - WCAG 2.1 AA accessible
  */
 
-import { useState } from 'react'
-// motion removed - React 19 incompatible
 import {
   Calendar,
   Car,
@@ -22,16 +20,19 @@ import {
   CheckCircle,
   X,
   Plus,
-  Search,
-  Loader2
+  Search
 } from 'lucide-react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { useState } from 'react'
+
+// motion removed - React 19 incompatible
+import toast from 'react-hot-toast'
+
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import {
   Select,
   SelectContent,
@@ -39,11 +40,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
 import { useTenant } from '@/contexts/TenantContext'
 import { useVehicles } from '@/hooks/use-api'
 import { useCreateReservation } from '@/hooks/use-reservations'
 import { useVehicleScheduleWithUtils } from '@/hooks/useVehicleSchedule'
-import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
 
 interface VehicleReservationProps {

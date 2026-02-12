@@ -12,11 +12,11 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+import { useAuth } from '@/hooks/useAuth';
 import type {
   EmergencyAlert,
   DispatchUnit
 } from '@/types/radio';
-import { useAuth } from '@/hooks/useAuth';
 import logger from '@/utils/logger';
 
 interface UseDispatchSocketOptions {

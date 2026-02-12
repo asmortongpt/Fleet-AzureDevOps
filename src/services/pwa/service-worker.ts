@@ -7,6 +7,7 @@ import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
+
 import logger from '@/utils/logger';
 
 declare const self: ServiceWorkerGlobalScope;

@@ -17,10 +17,10 @@ import {
 } from 'lucide-react'
 import { memo, useCallback, useState, useMemo } from 'react'
 
+import { VehicleModelLibrary } from '@/components/VehicleModelLibrary'
 import { Button } from '@/components/ui/button'
 import { StatCard } from '@/components/ui/stat-card'
 import { Tabs, TabsContent } from "@/components/ui/tabs"
-import { VehicleModelLibrary } from '@/components/VehicleModelLibrary'
 import { useMaintenanceSchedules, useVehicles, useWorkOrders } from '@/hooks/use-api'
 import { useVehicleTelemetry } from '@/hooks/useVehicleTelemetry'
 import { cn } from "@/lib/utils"

@@ -23,10 +23,11 @@
  * ```
  */
 
+import { CheckCircle, AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { CheckCircle, AlertTriangle } from 'lucide-react'
 
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -38,7 +39,6 @@ import {
 } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
 import { useViolationMutations, type HOSViolation } from '@/hooks/use-hos-data'
 import logger from '@/utils/logger'
 

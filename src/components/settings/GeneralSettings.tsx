@@ -3,8 +3,8 @@
  * Language, timezone, date/time format, and display preferences
  */
 
-import { Globe, Calendar, Home } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Globe, Calendar, Home } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'

@@ -9,17 +9,19 @@
  * - Tablet/Mobile (<1024px): Bottom tab bar + full-width panels
  */
 import { useState, useEffect, memo } from 'react'
-import { cn } from '@/lib/utils'
-import { usePanel } from '@/contexts/PanelContext'
-import { IconRail } from './IconRail'
-import { FlyoutMenu } from './FlyoutMenu'
-import { CompactHeader } from './CompactHeader'
-import { MapCanvas } from './MapCanvas'
-import { FloatingKPIStrip } from './FloatingKPIStrip'
-import { PanelManager } from './PanelManager'
+
 import { BottomDrawer } from './BottomDrawer'
 import { CommandPalette } from './CommandPalette'
+import { CompactHeader } from './CompactHeader'
+import { FloatingKPIStrip } from './FloatingKPIStrip'
+import { FlyoutMenu } from './FlyoutMenu'
+import { IconRail } from './IconRail'
+import { MapCanvas } from './MapCanvas'
 import { MobileTabBar } from './MobileTabBar'
+import { PanelManager } from './PanelManager'
+
+import { usePanel } from '@/contexts/PanelContext'
+import { cn } from '@/lib/utils'
 
 export const SinglePageShell = memo(function SinglePageShell() {
   const [isDesktop, setIsDesktop] = useState(true)

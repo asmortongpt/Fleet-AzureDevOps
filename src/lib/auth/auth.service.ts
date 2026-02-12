@@ -12,6 +12,7 @@ import {
 } from '@azure/msal-browser'
 
 import { msalConfig, loginScopes } from './msal.config'
+
 import logger from '@/utils/logger'
 
 // Singleton MSAL instance

@@ -15,6 +15,7 @@
  */
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+
 import logger from '@/utils/logger';
 
 // Database schema

@@ -2,20 +2,16 @@ import {
   Truck,
   Package,
   Navigation,
-  CheckCircle,
   AlertTriangle,
-  Clock,
-  TrendingUp,
   Users,
   MapPin,
   Settings,
-  Zap,
   Calendar,
   LayoutGrid,
   Activity
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
-import type { Vehicle as CanonicalVehicle } from '@/types/Vehicle';
+
 
 import { OperationsHubMap } from './OperationsHubMap';
 
@@ -34,6 +30,7 @@ import { VehicleStatusGrid } from '@/components/visualizations/VehicleStatusGrid
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
+import type { Vehicle as CanonicalVehicle } from '@/types/Vehicle';
 
 /**
  * Enhanced Operations Hub

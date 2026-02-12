@@ -17,8 +17,8 @@
  * - Gradient Bar: #F0A000 → #DD3903
  */
 
-import { useState, useEffect } from 'react'
 import { AlertCircle, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'

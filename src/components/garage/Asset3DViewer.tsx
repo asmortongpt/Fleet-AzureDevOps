@@ -488,10 +488,10 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // eslint-disable-next-line no-console
+     
     console.error('[R3F ErrorBoundary] 3D renderer crashed:', error.message);
     if (import.meta.env.DEV && errorInfo.componentStack) {
-      // eslint-disable-next-line no-console
+       
       console.error('[R3F ErrorBoundary] Component stack:', errorInfo.componentStack);
     }
   }

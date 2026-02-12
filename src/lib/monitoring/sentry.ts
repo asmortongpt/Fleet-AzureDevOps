@@ -5,13 +5,13 @@
  * @module monitoring/sentry
  */
 
+import type { Span } from '@sentry/core';
 import * as Sentry from '@sentry/react';
 import {
   browserTracingIntegration,
   replayIntegration,
   getClient,
 } from '@sentry/react';
-import type { Span } from '@sentry/core';
 
 import type { User } from '@/types';
 

@@ -31,9 +31,9 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { secureFetch } from '@/hooks/use-api';
 import { Folder as FolderType } from '@/lib/documents/types';
 import { cn } from '@/lib/utils';
-import { secureFetch } from '@/hooks/use-api';
 
 interface DocumentSidebarProps {
   currentFolderId?: string;

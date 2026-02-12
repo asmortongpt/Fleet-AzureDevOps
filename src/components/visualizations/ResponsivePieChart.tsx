@@ -4,13 +4,12 @@
  */
 
 // motion removed - React 19 incompatible
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts'
+import { useState } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip , Sector } from 'recharts'
 
 import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useState } from 'react';
-import { Sector } from 'recharts';
 interface DataPoint {
   name: string
   value: number

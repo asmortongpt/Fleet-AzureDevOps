@@ -11,7 +11,6 @@ import React, { Suspense, useMemo, useState } from "react";
 import useSWR from "swr";
 
 import { HubLayout } from "../../components/layout/HubLayout";
-
 import { CostAnalysisCenter } from "../../components/modules/analytics/CostAnalysisCenter";
 import { CustomReportBuilder } from "../../components/modules/analytics/CustomReportBuilder";
 import { DataWorkbench } from "../../components/modules/analytics/DataWorkbench";

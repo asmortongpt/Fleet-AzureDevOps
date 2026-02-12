@@ -2,8 +2,9 @@
  * Maintenance Service - Provides access to maintenance records from the API
  */
 
-import { api } from '@/services/api';
 import { Vehicle } from './vehicleService';
+
+import { api } from '@/services/api';
 
 export interface MaintenanceRecord {
   id: string;

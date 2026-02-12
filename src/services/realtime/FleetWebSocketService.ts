@@ -3,6 +3,7 @@
 // Based on: FLEET_CRITICAL_GAP_ANALYSIS.md Implementation 1
 
 import { EventEmitter } from 'events';
+
 import logger from '@/utils/logger';
 
 interface QueuedMessage {

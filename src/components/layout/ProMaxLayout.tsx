@@ -7,6 +7,7 @@
 
 // motion removed - React 19 incompatible
 import { ReactNode } from 'react'
+
 import { glass } from '@/lib/design-system'
 
 interface ProMaxLayoutProps {

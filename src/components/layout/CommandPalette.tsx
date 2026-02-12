@@ -7,8 +7,9 @@
  */
 import { Search, X, ArrowRight } from 'lucide-react'
 import { useState, useCallback, useEffect, useRef } from 'react'
+
+import { searchModules, type ModuleDefinition, type ModuleCategory } from '@/config/module-registry'
 import { usePanel } from '@/contexts/PanelContext'
-import { searchModules, getModule, type ModuleDefinition, type ModuleCategory } from '@/config/module-registry'
 import { cn } from '@/lib/utils'
 
 const categoryLabels: Record<ModuleCategory, string> = {

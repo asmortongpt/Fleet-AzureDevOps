@@ -3,8 +3,8 @@
  * Theme, colors, fonts, and display density
  */
 
-import { Moon, Sun, Wand2, Palette, Type, Sidebar } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Moon, Sun, Wand2, Palette, Type, Sidebar } from 'lucide-react'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'

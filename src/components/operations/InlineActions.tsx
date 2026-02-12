@@ -5,11 +5,12 @@
  * status badges, edit panels, and confirmation dialogs.
  */
 
-import React from 'react';
 import { X, PencilSimple, Check, Spinner } from '@phosphor-icons/react';
+import React from 'react';
+
 // motion removed - React 19 incompatible
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 // ============================================================================
 // ActionButton

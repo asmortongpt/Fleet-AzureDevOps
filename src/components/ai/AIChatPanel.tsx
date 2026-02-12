@@ -22,13 +22,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import logger from '@/utils/logger';
 import {
   sendMessage,
   generateContextPrompt,
   type Message,
   type StreamCallback
 } from '@/services/aiService';
+import logger from '@/utils/logger';
 
 interface AIChatPanelProps {
   hubType?: string;

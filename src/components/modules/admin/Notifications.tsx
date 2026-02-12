@@ -10,8 +10,8 @@
  * - Alert rules management
  */
 
-import { Bell, Check, CheckCircle, AlertTriangle, Info, ArrowUp, Search, Filter } from 'lucide-react'
 import { AxiosResponse } from 'axios'
+import { Bell, Check, CheckCircle, AlertTriangle, Info, ArrowUp, Search, Filter } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'

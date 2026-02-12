@@ -73,6 +73,7 @@ import {
   ScanEvent,
   InventoryAudit
 } from '../../services/inventory/BarcodeRFIDTrackingService';
+
 import { useAuth } from '@/contexts';
 import { secureFetch } from '@/hooks/use-api';
 

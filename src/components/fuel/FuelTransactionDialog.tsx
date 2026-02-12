@@ -20,9 +20,9 @@
  * ```
  */
 
+import { Fuel, MapPin, Navigation } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { Fuel, MapPin, Navigation } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -33,9 +33,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -43,8 +42,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { useFuelMutations, type CreateFuelTransactionInput } from '@/hooks/use-reactive-fuel-data'
+import { Textarea } from '@/components/ui/textarea'
 import { useVehicles, useDrivers } from '@/hooks/use-api'
+import { useFuelMutations, type CreateFuelTransactionInput } from '@/hooks/use-reactive-fuel-data'
 import logger from '@/utils/logger'
 
 // ============================================================================

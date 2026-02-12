@@ -24,8 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
-import { ActionButton, StatusBadge } from "@/components/operations";
-import { SplitView } from "@/components/operations";
+import { ActionButton, StatusBadge , SplitView } from "@/components/operations";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getCsrfToken } from '@/hooks/use-api';

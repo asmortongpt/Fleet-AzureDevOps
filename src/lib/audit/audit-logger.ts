@@ -12,7 +12,6 @@
  * SOC 2: CC7.2, CC7.3
  */
 
-import { createHash } from 'crypto';
 import logger from '@/utils/logger';
 
 /**
@@ -288,7 +287,7 @@ class AuditLogger {
     };
 
     // Generate SHA-256 hash for tamper detection
-    record.recordHash = this.generateHash(record);
+    record.recordHash = await this.generateHash(record);
 
     // Store in multiple locations for redundancy
     // FedRAMP AU-4: Audit Storage Capacity
@@ -323,7 +322,7 @@ class AuditLogger {
    * FedRAMP AU-9: Protection of Audit Information
    * FedRAMP SC-13: Cryptographic Protection
    */
-  private generateHash(record: Omit<ImmutableAuditRecord, 'recordHash'>): string {
+  private async generateHash(record: Omit<ImmutableAuditRecord, 'recordHash'>): Promise<string> {
     // Create deterministic string representation
     const data = JSON.stringify({
       recordId: record.recordId,
@@ -339,8 +338,11 @@ class AuditLogger {
       details: record.details
     });
 
-    // Use SHA-256 (FIPS 140-2 compliant)
-    return createHash('sha256').update(data).digest('hex');
+    // Use SHA-256 via Web Crypto API (FIPS 140-2 compliant, browser-compatible)
+    const encoder = new TextEncoder();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoder.encode(data));
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   /**

@@ -1,8 +1,7 @@
 import { Truck, Circle, AlertTriangle } from 'lucide-react';
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { UniversalMap } from '@/components/UniversalMap';
+import { Badge } from '@/components/ui/badge';
 import { useVehicles, useRoutes } from '@/hooks/use-api';
 
 interface Vehicle {

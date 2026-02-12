@@ -17,11 +17,9 @@ import {
     LinearProgress,
     Stack,
     CircularProgress,
-    useTheme,
-    Chip
+    useTheme
 } from '@mui/material';
 import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 import type { Obd2Data } from '@/hooks/useObd2Socket';
 

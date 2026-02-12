@@ -4,8 +4,8 @@
  * Each stat card in CommunicationHub drills down to a filtered list of actual records.
  * From the list, users can click individual items to view full details.
  */
-import { MessageCircle, Mail, Bot, Bell, Archive, Send, Clock, CheckCircle, AlertTriangle, Star, Paperclip, Eye, Flag, Calendar, TrendingUp, Hash, Users, Sparkles, ArrowRight } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import { MessageCircle, Mail, Bot, Bell, Archive, Send, Clock, CheckCircle, AlertTriangle, Star, Paperclip, Eye, Flag, Calendar, TrendingUp, Hash, Users, Sparkles, ArrowRight } from 'lucide-react'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'

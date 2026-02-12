@@ -28,8 +28,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useVehicles, useFacilities, useDrivers, useVehicleMutations } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { cn } from "@/lib/utils"
 import type { Vehicle } from "@/lib/types"
+import { cn } from "@/lib/utils"
 
 interface FleetVehicle {
   id: string;

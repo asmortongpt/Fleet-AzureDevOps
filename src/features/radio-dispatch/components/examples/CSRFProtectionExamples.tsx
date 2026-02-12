@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 
-import { CSRFInput, useCSRFToken } from '../CSRFInput';
-import { api } from "@/lib/api";
 import { useMutation } from '../../lib/hooks/useMutation';
+import { CSRFInput, useCSRFToken } from '../CSRFInput';
+
+import { api } from "@/lib/api";
 
 /**
  * CSRF Protection Examples

@@ -9,12 +9,12 @@
  * - Quick access to common driver tasks
  */
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Car, MapPin, Fuel, AlertTriangle, CheckCircle, PlayCircle, Clipboard, Clock, Route, Gauge, Calendar, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
 // motion removed - React 19 incompatible
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';

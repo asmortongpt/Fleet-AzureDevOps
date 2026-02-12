@@ -34,12 +34,12 @@ import {
   analyzeVehicleModel,
   type VehicleModelMetadata,
 } from '@/lib/3d/model-loader';
-import logger from '@/utils/logger';
 import {
   applyVehicleMaterials,
   type MaterialQuality,
   type PaintType,
 } from '@/lib/3d/pbr-materials';
+import logger from '@/utils/logger';
 
 export interface VehicleViewer3DProps {
   vehicleId?: number;

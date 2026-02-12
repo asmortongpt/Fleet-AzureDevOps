@@ -9,8 +9,6 @@
  * - Complete CRUD operations
  */
 
-import React, { useState, useCallback, useMemo } from 'react';
-// motion removed - React 19 incompatible
 import {
   Car,
   Plus,
@@ -21,15 +19,15 @@ import {
   CheckCircle,
   Trash,
   PencilSimple,
-  X,
   GasPump,
   Wrench,
   Clock
 } from '@phosphor-icons/react';
+import React, { useState, useCallback, useMemo } from 'react';
+// motion removed - React 19 incompatible
 import { toast } from 'react-hot-toast';
 
-import { SplitView } from "@/components/operations";
-import {
+import { SplitView ,
   ActionButton,
   InlineEditPanel,
   ConfirmDialog,
@@ -37,8 +35,8 @@ import {
 } from "@/components/operations";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import { useVehicles, useVehicleMutations } from '@/hooks/use-api';
+import { cn } from '@/lib/utils';
 
 interface Vehicle {
   id: string;

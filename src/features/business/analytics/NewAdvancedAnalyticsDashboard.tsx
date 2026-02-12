@@ -23,11 +23,12 @@ import {
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 
-import { secureFetch } from '@/hooks/use-api';
 
 import CostAnalyticsChart from './CostAnalyticsChart';
 import FleetMetricsCards from './FleetMetricsCards';
 import VehicleUtilizationChart from './VehicleUtilizationChart';
+
+import { secureFetch } from '@/hooks/use-api';
 
 interface DashboardData {
   fleet: {

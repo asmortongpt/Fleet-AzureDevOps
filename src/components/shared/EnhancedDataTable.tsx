@@ -38,7 +38,6 @@
  * ```
  */
 
-import { ChevronUp, ChevronDown, ChevronsUpDown, Search, Download, Columns, ChevronLeft, ChevronRight, Download as DownloadSimple, ChevronsUpDown as CaretUpDown } from 'lucide-react'
 import {
   ColumnDef,
   flexRender,
@@ -51,6 +50,7 @@ import {
   VisibilityState,
   useReactTable
 } from '@tanstack/react-table'
+import { ChevronUp, ChevronDown, Search, Columns, ChevronLeft, ChevronRight, Download as DownloadSimple, ChevronsUpDown as CaretUpDown } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { LoadingSkeleton } from './LoadingSkeleton'

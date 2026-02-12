@@ -36,8 +36,7 @@ import {
   ActionButton,
   InlineEditPanel,
   StatusBadge as OperationStatusBadge
-} from "@/components/operations";
-import { SplitView } from "@/components/operations";
+, SplitView } from "@/components/operations";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';

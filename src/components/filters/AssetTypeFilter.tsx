@@ -12,8 +12,8 @@
  * - Group and location filtering
  */
 
-import React, { useState } from 'react'
 import { Truck, Settings, Wrench, Filter, CheckCircle, Calendar, X } from 'lucide-react'
+import React, { useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 

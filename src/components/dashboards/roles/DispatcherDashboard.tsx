@@ -13,17 +13,13 @@ import {
   MapTrifold,
   Radio,
   Siren,
-  Path,
-  CarSimple,
   Clock,
   CheckCircle,
-  Warning,
   Users,
-  Phone,
-  ChatCircle,
-  Lightning
+  Phone
 } from '@phosphor-icons/react';
 // motion removed - React 19 incompatible
+import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
@@ -31,7 +27,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
 interface OperationStats {
   active_trips: number;
   en_route: number;

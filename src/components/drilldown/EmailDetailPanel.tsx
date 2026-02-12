@@ -5,6 +5,7 @@
  * and actions. Supports drilling to related records (vendors, work orders, etc.)
  */
 
+import DOMPurify from 'dompurify'
 import {
   Paperclip,
   Star,
@@ -22,7 +23,6 @@ import {
   ExternalLink,
   Eye,
 } from 'lucide-react'
-import DOMPurify from 'dompurify'
 import React from 'react'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'

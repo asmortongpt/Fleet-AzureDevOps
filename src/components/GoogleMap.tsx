@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 
 
-import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/components/UniversalMap/utils/coordinates"
+import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import logger from '@/utils/logger';
 /**
  * Props for the GoogleMap component

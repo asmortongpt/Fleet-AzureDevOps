@@ -6,10 +6,9 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { apiClient } from '@/lib/api-client'
-import { microsoft365Service } from '@/services/microsoft365Service'
 import toast from 'react-hot-toast'
-import logger from '@/utils/logger';
+
+import { apiClient } from '@/lib/api-client'
 
 export interface Reservation {
   id: string

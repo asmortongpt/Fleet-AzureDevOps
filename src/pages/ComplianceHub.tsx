@@ -9,10 +9,8 @@
  * - All data visible upfront
  */
 
-import { useMemo, useState } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import {
-  Shield,
   AlertTriangle,
   CheckCircle,
   XCircle,
@@ -23,14 +21,15 @@ import {
   Car,
   TrendingUp,
   TrendingDown,
-  Activity,
   AlertOctagon,
   BadgeCheck,
 } from 'lucide-react'
-import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
+import { useMemo, useState } from 'react'
+
 import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { DataTable, createStatusColumn } from '@/components/ui/data-table'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { cn } from '@/lib/utils'
 
 interface ComplianceRecord {
   id: number

@@ -1,10 +1,10 @@
-import { Sparkles, AlertCircle, Shield, CheckCircle2, Lock } from 'lucide-react'
+import { Shield } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 

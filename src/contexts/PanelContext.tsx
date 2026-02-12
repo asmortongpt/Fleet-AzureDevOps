@@ -12,6 +12,7 @@ import {
   type ReactNode,
   type Dispatch,
 } from 'react'
+
 import type { PanelWidth, ModuleCategory } from '@/config/module-registry'
 
 // ============================================================================

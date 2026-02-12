@@ -4,8 +4,9 @@
  */
 
 import type { Policy } from '../policy-engine/types'
-import logger from '@/utils/logger';
+
 import { secureFetch } from '@/hooks/use-api';
+import logger from '@/utils/logger';
 
 export interface AIGenerationRequest {
   type: 'policy' | 'sop' | 'training' | 'workflow'

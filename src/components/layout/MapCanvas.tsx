@@ -4,11 +4,12 @@
  * Renders the GoogleMap component directly (not LiveFleetDashboard).
  * Always fills the content area. Panels overlay on top.
  */
-import { Suspense, memo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { Suspense, memo } from 'react'
+
 import { GoogleMap } from '@/components/GoogleMap'
-import type { Vehicle } from '@/lib/types'
 import { secureFetch } from '@/hooks/use-api'
+import type { Vehicle } from '@/lib/types'
 
 function MapLoadingFallback() {
   return (
