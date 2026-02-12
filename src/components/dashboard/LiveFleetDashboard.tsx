@@ -254,26 +254,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       id: 'dispatch',
       label: 'Dispatch',
       icon: <Truck className="h-5 w-5" />,
-      onClick: () => console.log('Dispatch clicked')
+      onClick: () => {}
     },
     {
       id: 'maintenance',
       label: 'Maintenance',
       icon: <Wrench className="h-5 w-5" />,
-      onClick: () => console.log('Maintenance clicked')
+      onClick: () => {}
     },
     {
       id: 'alerts',
       label: 'Alerts',
       icon: <AlertCircle className="h-5 w-5" />,
-      onClick: () => console.log('Alerts clicked'),
+      onClick: () => {},
       badge: maintenanceCount
     },
     {
       id: 'fuel',
       label: 'Fuel',
       icon: <Fuel className="h-5 w-5" />,
-      onClick: () => console.log('Fuel clicked')
+      onClick: () => {}
     }
   ];
 
@@ -485,10 +485,10 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   // Map controls for mobile
   const mapControls = (
     <MobileMapControls
-      onZoomIn={() => console.log('Zoom in')}
-      onZoomOut={() => console.log('Zoom out')}
-      onLocate={() => console.log('Locate me')}
-      onToggleLayers={() => console.log('Toggle layers')}
+      onZoomIn={() => {}}
+      onZoomOut={() => {}}
+      onLocate={() => {}}
+      onToggleLayers={() => {}}
     />
   );
 

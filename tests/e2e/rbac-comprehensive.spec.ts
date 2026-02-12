@@ -196,6 +196,6 @@ test.describe('RBAC - Navigation Items', () => {
         const hasHubNav = await hubNavItems.first().isVisible().catch(() => false)
 
         // Should have at least some hub navigation
-        expect(hasHubNav || true).toBeTruthy() // Soft assertion for initial setup
+        expect(hasHubNav).toBeTruthy()
     })
 })

@@ -174,12 +174,12 @@ export default function AdminHub() {
             'Admin': 'bg-[#F0A000]/20 text-[#F0A000] border-[#F0A000]/30',
             'Manager': 'bg-[#41B2E3]/20 text-[#41B2E3] border-[#41B2E3]/30',
             'User': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-            'Read-Only': 'bg-gray-500/20 text-gray-400 border-gray-500/30',
+            'Read-Only': 'bg-muted/40 text-muted-foreground border-border/50',
           }
           return (
             <span className={cn(
               'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
-              roleColors[role] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+              roleColors[role] || 'bg-muted/40 text-muted-foreground border-border/50'
             )}>
               <Shield className="h-3 w-3 mr-1" />
               {role}
@@ -313,7 +313,7 @@ export default function AdminHub() {
           return (
             <span className={cn(
               'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border',
-              actionColors[action] || 'bg-gray-500/20 text-gray-400 border-gray-500/30'
+              actionColors[action] || 'bg-muted/40 text-muted-foreground border-border/50'
             )}>
               {action}
             </span>

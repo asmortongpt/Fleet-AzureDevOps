@@ -249,7 +249,7 @@ export function ChargesAndBilling() {
       { label: 'Paid Late', value: Math.round((paidLate / total) * 100), color: 'bg-yellow-500' },
       { label: 'Invoiced', value: Math.round((invoiced / total) * 100), color: 'bg-blue-500' },
       { label: 'Overdue', value: Math.round((overdue / total) * 100), color: 'bg-red-500' },
-      { label: 'Waived', value: Math.round((waived / total) * 100), color: 'bg-gray-500' },
+      { label: 'Waived', value: Math.round((waived / total) * 100), color: 'bg-muted-foreground' },
     ].filter((item) => item.value > 0)
   }, [filteredCharges])
 

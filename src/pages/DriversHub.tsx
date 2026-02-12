@@ -134,7 +134,7 @@ export default function DriversHub() {
               <span className="text-white text-sm">{vehicle}</span>
             </div>
           ) : (
-            <span className="text-gray-500 text-sm">Not assigned</span>
+            <span className="text-muted-foreground text-sm">Not assigned</span>
           )
         },
       },

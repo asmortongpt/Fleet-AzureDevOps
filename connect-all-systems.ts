@@ -7,7 +7,7 @@
  * Usage: ts-node connect-all-systems.ts
  */
 
-import { spawn, ChildProcess } from 'child_process'
+import { spawn, execFile, ChildProcess } from 'child_process'
 import { promises as fs, createWriteStream } from 'fs'
 import path from 'path'
 
@@ -443,9 +443,8 @@ class SystemOrchestrator {
 
   private async startProcess(command: string, logFile: string): Promise<ChildProcess> {
     return new Promise((resolve, reject) => {
-      const [cmd, ...args] = command.split(' ')
-      const proc = spawn(cmd, args, {
-        shell: true,
+      // Use /bin/sh -c to handle commands with shell syntax (cd, &&, pipes)
+      const proc = spawn('/bin/sh', ['-c', command], {
         detached: false,
         stdio: ['ignore', 'pipe', 'pipe']
       })
@@ -461,7 +460,7 @@ class SystemOrchestrator {
 
   private async runHealthCheck(command: string): Promise<boolean> {
     return new Promise((resolve) => {
-      const proc = spawn(command, { shell: true })
+      const proc = execFile('/bin/sh', ['-c', command])
       proc.on('close', (code) => resolve(code === 0))
       setTimeout(() => {
         proc.kill()

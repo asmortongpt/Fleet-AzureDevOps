@@ -176,7 +176,7 @@ const stationColumns: ColumnDef<ChargingStation>[] = [
       const isOnline = row.getValue('is_online') as boolean;
       return (
         <div className="flex items-center gap-1.5">
-          <div className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-gray-500'}`} />
+          <div className={`h-2 w-2 rounded-full ${isOnline ? 'bg-emerald-500 animate-pulse' : 'bg-muted-foreground'}`} />
           <span className={`text-xs ${isOnline ? 'text-emerald-400' : 'text-muted-foreground'}`}>
             {isOnline ? 'Online' : 'Offline'}
           </span>

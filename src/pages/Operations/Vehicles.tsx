@@ -663,7 +663,7 @@ export function VehiclesOperations() {
             <Button
               onClick={handleCreateNew}
               size="sm"
-              className="bg-cyan-400 hover:bg-cyan-300 text-slate-900 font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)]"
+              className="bg-cyan-400 hover:bg-cyan-300 text-primary-foreground font-bold shadow-[0_0_15px_rgba(34,211,238,0.3)]"
             >
               <Plus className="w-4 h-4" weight="bold" />
               <span className="ml-2">Add Vehicle</span>
