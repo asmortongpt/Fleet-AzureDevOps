@@ -21,8 +21,8 @@ import { UniversalMap } from '../UniversalMap'
 
 import type { Vehicle, GISFacility, TrafficCamera } from '@/lib/types'
 
-// Extend Vitest matchers
-// @ts-expect-error - toHaveNoViolations types don't match vitest expect signature
+// Extend Vitest matchers with jest-axe's toHaveNoViolations
+// @ts-expect-error - jest-axe types are designed for Jest's expect, not Vitest's expect.extend signature
 expect.extend(toHaveNoViolations)
 
 // ============================================================================

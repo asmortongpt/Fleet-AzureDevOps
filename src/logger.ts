@@ -3,7 +3,9 @@
  * @description Centralized logging configuration with sanitization.
  */
 
-// @ts-ignore - winston is a Node.js module, types may not be available in browser builds
+// WARNING: winston is a Node.js module and will NOT work in browser builds.
+// Type stubs provided by src/@types/missing-packages.d.ts allow compilation.
+// Consider using src/utils/logger.ts (browser-compatible ProductionLogger) instead.
 import { createLogger, format, transports } from 'winston';
 
 import { sanitizeForLogging } from './logSanitizer';

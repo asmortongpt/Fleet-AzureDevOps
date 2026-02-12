@@ -155,11 +155,6 @@ const PeopleCommunicationHub = lazy(() => import("@/pages/PeopleCommunicationHub
 const AdminConfigurationHub = lazy(() => import("@/pages/AdminConfigurationHub"))
 const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"))
 
-// ============================================================================
-// DEPRECATED: OLD INDIVIDUAL HUB PAGES removed in deep clean consolidate-hubs-v4
-// TODO: Clean up any remaining switch case references if they still point to removed files
-
-
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"))
@@ -193,9 +188,9 @@ function App() {
         // await initializePolicyEngine()  // DISABLED - missing dependencies
         logger.info('✅ App initialized without policy engine')
       } catch (error) {
-        logger.error('❌ Failed to initialize App:', error)
+        logger.error('Failed to initialize App policy engine:', error)
         // Application will continue but without policy enforcement
-        // TODO: Show admin notification
+        // Policy initialization failures are non-blocking but logged for admin review
       }
     }
 
@@ -420,7 +415,7 @@ function App() {
       case "safety-alerts":
         return <SafetyAlertsPage />
       case "heavy-equipment":
-        return <EquipmentDashboard /> // TODO: Replace with HeavyEquipmentPage when implemented
+        return <HeavyEquipmentPage />
 
       // DEPRECATED: Consolidated into FleetOperationsHub
       // case "assets-hub":

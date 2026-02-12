@@ -55,18 +55,16 @@ export const MultipleMonths: Story = {
 };
 
 const RangeCalendar = () => {
-    const [date, setDate] = React.useState({
+    const defaultRange = {
         from: new Date(2023, 0, 20),
         to: new Date(2023, 0, 20 + 20),
-    })
+    }
 
     return (
         <Calendar
             mode="range"
             defaultMonth={new Date(2023, 0, 20)}
-            selected={date}
-            // @ts-expect-error - DateRange type mismatch
-            onSelect={setDate}
+            selected={defaultRange}
             className="rounded-md border"
             numberOfMonths={2}
         />

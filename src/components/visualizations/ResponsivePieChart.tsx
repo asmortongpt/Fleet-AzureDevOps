@@ -227,7 +227,8 @@ export function ResponsivePieChart({
                   dataKey="value"
                   animationDuration={1200}
                   animationBegin={0}
-                  // @ts-ignore - activeIndex/activeShape are valid Recharts Pie props but missing from types
+                  // @ts-expect-error - activeIndex and activeShape are valid Recharts Pie props
+                  // but are missing from @types/recharts type definitions (known gap)
                   activeIndex={activeIndex}
                   activeShape={enableHover ? renderActiveShape : undefined}
                   onMouseEnter={onPieEnter}

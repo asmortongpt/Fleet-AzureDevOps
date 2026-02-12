@@ -51,12 +51,6 @@ export const msalConfig: Configuration = {
           case LogLevel.Warning:
             console.warn('[MSAL]', message)
             break
-          case LogLevel.Info:
-            if (import.meta.env.DEV) console.info('[MSAL]', message)
-            break
-          case LogLevel.Verbose:
-            if (import.meta.env.DEV) console.debug('[MSAL]', message)
-            break
         }
       },
       piiLoggingEnabled: false,

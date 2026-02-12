@@ -20,6 +20,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { captureException, addBreadcrumb } from '@/lib/sentry';
 import logger from '@/utils/logger';
 
 interface ErrorBoundaryProps {
@@ -115,7 +116,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   };
 
   logErrorToService = (error: Error, errorInfo: ErrorInfo) => {
-    // TODO: Integrate with error logging service (e.g., Sentry, LogRocket, Azure Application Insights)
+    // Add breadcrumb for Sentry context
+    addBreadcrumb({
+      category: 'error-boundary',
+      message: `ErrorBoundary caught: ${error.message}`,
+      level: 'error',
+      data: {
+        componentStack: errorInfo.componentStack,
+        componentName: this.props.componentName,
+        url: window.location.href,
+      },
+    });
+
+    // Report to Sentry error tracking
+    captureException(error);
+
+    // Also send to backend API for audit logging
     const errorData = {
       message: error.message,
       stack: error.stack,
@@ -123,16 +139,19 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       timestamp: new Date().toISOString(),
       userAgent: navigator.userAgent,
       url: window.location.href,
+      componentName: this.props.componentName,
     };
 
-    // Example: Send to API endpoint
-    // fetch('/api/log-error', {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(errorData),
-    // }).catch(console.error);
+    fetch('/api/log-error', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(errorData),
+    }).catch((fetchError) => {
+      // Silently fail - error already captured by Sentry
+      logger.warn('[ErrorBoundary] Failed to send error to API:', fetchError);
+    });
 
-    logger.info('[ErrorBoundary] Would log to service:', errorData);
+    logger.error('[ErrorBoundary] Error reported to monitoring:', errorData);
   };
 
   render() {

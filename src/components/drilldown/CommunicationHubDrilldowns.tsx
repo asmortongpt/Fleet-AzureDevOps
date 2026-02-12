@@ -16,11 +16,6 @@ import { useDrilldown } from '@/contexts/DrilldownContext'
 import { swrFetcher } from '@/lib/fetcher'
 
 // ============================================================================
-// TODO: Replace with real API calls
-// All data should come from the useReactiveCommunicationData hook
-// ============================================================================
-
-// ============================================================================
 // HELPER COMPONENTS
 // ============================================================================
 
@@ -224,8 +219,13 @@ export function AiAgentDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
-  // TODO: Replace with real API call - useReactiveCommunicationData hook
-  const conversations: ConversationListItemProps['conversation'][] = []
+  // Fetch AI conversations from backend API
+  const { data: conversationsData } = useSWR<ConversationListItemProps['conversation'][]>(
+    '/api/communications/ai-conversations',
+    swrFetcher,
+    { fallbackData: [] }
+  )
+  const conversations = conversationsData || []
 
   const filteredConversations = filterType === 'satisfaction'
     ? conversations.filter(c => c.satisfaction && c.satisfaction >= 4)
@@ -334,10 +334,21 @@ export function MessagesDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
-  // TODO: Replace with real API call - useReactiveCommunicationData hook
-  const messages: MessageListItemProps['message'][] = []
+  // Fetch messages from backend API
+  const { data: messagesData } = useSWR<MessageListItemProps['message'][]>(
+    '/api/communications/messages',
+    swrFetcher,
+    { fallbackData: [] }
+  )
+  const messages = messagesData || []
 
-  const channelActivity = [
+  // Fetch channel activity from backend API
+  const { data: channelData } = useSWR<Array<{ channel: string; messages: number; active: boolean; unread: number }>>(
+    '/api/communications/channels',
+    swrFetcher,
+    { fallbackData: [] }
+  )
+  const channelActivity = channelData && channelData.length > 0 ? channelData : [
     { channel: '#dispatch', messages: 0, active: false, unread: 0 },
     { channel: '#maintenance', messages: 0, active: false, unread: 0 },
     { channel: '#drivers', messages: 0, active: false, unread: 0 },

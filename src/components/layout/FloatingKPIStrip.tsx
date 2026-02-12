@@ -147,9 +147,9 @@ export function FloatingKPIStrip() {
                 onClick={() => handleChipClick(kpi)}
                 className={cn(
                   'group relative flex items-center gap-2 sm:gap-3 px-3 py-2 sm:px-4 sm:py-2.5 rounded-xl sm:rounded-2xl',
-                  'bg-[#0A0E27]/80 backdrop-blur-2xl',
-                  'border border-white/10',
-                  'hover:border-white/20 hover:bg-[#0A0E27]/90 transition-all duration-300 shadow-2xl',
+                  'bg-background/80 backdrop-blur-2xl',
+                  'border border-border/50',
+                  'hover:border-border/80 hover:bg-background/90 transition-all duration-300 shadow-2xl',
                   'active:scale-95 shrink-0 sm:shrink'
                 )}
               >
@@ -159,17 +159,17 @@ export function FloatingKPIStrip() {
                 />
 
                 <div
-                  className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white/[0.03] border border-white/[0.05] transition-transform group-hover:scale-110"
+                  className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-muted/40 border border-border/50 transition-transform group-hover:scale-110"
                   style={{ color: kpi.color }}
                 >
                   {kpi.icon}
                 </div>
 
                 <div className="flex flex-col items-start">
-                  <span className="text-[8px] sm:text-[9px] font-black text-white/30 uppercase tracking-[0.15em] leading-none mb-0.5">
+                  <span className="text-[8px] sm:text-[9px] font-black text-muted-foreground uppercase tracking-[0.15em] leading-none mb-0.5">
                     {kpi.label}
                   </span>
-                  <span className="text-xs sm:text-sm font-bold text-white tabular-nums leading-none">
+                  <span className="text-xs sm:text-sm font-bold text-foreground tabular-nums leading-none">
                     {kpi.value}
                   </span>
                 </div>

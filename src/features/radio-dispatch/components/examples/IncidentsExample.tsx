@@ -45,9 +45,7 @@ export function IncidentsExample() {
       // Refetch when filter changes
       dependencies: [filter],
       // Optional: callbacks for success/error
-      onSuccess: (data: Incident[]) => {
-        console.log(`Loaded ${data.length} incidents`);
-      },
+      onSuccess: () => {},
       onError: (error: Error) => {
         console.error('Failed to load incidents:', error);
       },
@@ -85,7 +83,6 @@ export function IncidentsExample() {
           label: "Create Incident",
           onClick: () => {
             // Navigate to create page or open modal
-            console.log('Create incident');
           }
         }}
         secondaryAction={

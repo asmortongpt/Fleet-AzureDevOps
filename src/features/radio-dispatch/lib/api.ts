@@ -79,10 +79,6 @@ class ApiClient {
         if (typeof window !== 'undefined' && csrfToken) {
           sessionStorage.setItem(CSRF_TOKEN_KEY, csrfToken);
         }
-
-        console.log('[API] CSRF token initialized');
-      } else {
-        console.warn('[API] Failed to initialize CSRF token');
       }
     } catch (error) {
       console.error('[API] Error initializing CSRF token:', error);
@@ -140,8 +136,6 @@ class ApiClient {
           ...headers,
           [CSRF_HEADER_NAME]: token,
         };
-      } else {
-        console.warn('[API] CSRF token not available for state-changing request');
       }
     }
 
@@ -176,11 +170,6 @@ class ApiClient {
 
     const url = `${this.baseUrl}${endpoint}`;
 
-    // Log request for debugging (only in development)
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[API] ${method} ${url}`);
-    }
-
     let lastError: Error | null = null;
     const maxAttempts = skipRetry ? 1 : retries + 1;
 
@@ -189,9 +178,6 @@ class ApiClient {
         // Add delay before retry (except first attempt)
         if (attempt > 0) {
           await delay(attempt - 1);
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`[API] Retry attempt ${attempt} for ${url}`);
-          }
         }
 
         // Create fetch request with timeout
