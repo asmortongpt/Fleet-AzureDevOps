@@ -191,7 +191,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       errorRecovery.reset()
 
       onProviderSwitch?.(oldProvider, newProvider)
-      toast(`Switched to ${newProvider === 'google' ? 'Google Maps' : 'OpenStreetMap'}`)
+      toast.info(`Switched to ${newProvider === 'google' ? 'Google Maps' : 'OpenStreetMap'}`)
     },
     [currentProvider, errorRecovery, onProviderSwitch]
   )
@@ -318,7 +318,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
                   {provider === 'google' ? 'Google' : 'OSM'}
                 </span>
                 {stats && (
-                  <span className="text-gray-500 dark:text-gray-400">
+                  <span className="text-gray-700 dark:text-gray-700">
                     {Math.round(stats.averageResponseTime)}ms
                   </span>
                 )}

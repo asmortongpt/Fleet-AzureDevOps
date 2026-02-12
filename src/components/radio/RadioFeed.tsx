@@ -57,7 +57,7 @@ export function RadioFeed({ channelId, onChannelSelect, transmissions }: RadioFe
           <ScrollArea className="h-[400px]">
             <div className="space-y-2">
               {[
-                { id: '1', name: 'Fire Dispatch Channel 1', talkgroup: 'FD-01', active: true },
+                { id: '1', name: 'Flame Dispatch Channel 1', talkgroup: 'FD-01', active: true },
                 { id: '2', name: 'Police Channel A', talkgroup: 'PD-A', active: true },
                 { id: '3', name: 'EMS Primary', talkgroup: 'EMS-01', active: false },
               ].map((channel) => (

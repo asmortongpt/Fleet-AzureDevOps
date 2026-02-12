@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { damageReportsApi, DamageReport } from '@/services/damageReportsApi'
+import logger from '@/utils/logger';
 
 interface DamageReportListProps {
   vehicleId?: string
@@ -53,7 +54,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
       setTotal(response.pagination.total)
     } catch (err) {
       setError('Failed to load damage reports')
-      console.error('Error fetching damage reports:', err)
+      logger.error('Error fetching damage reports:', err)
     } finally {
       setLoading(false)
     }
@@ -275,7 +276,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
                       {report.vehicle_id && (
                         <div className="flex items-center gap-1">
                           <Car className="h-4 w-4" />
-                          <span>Vehicle {report.vehicle_id.slice(0, 8)}</span>
+                          <span>Vehicle {String(report.vehicle_id).slice(0, 8)}</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1">

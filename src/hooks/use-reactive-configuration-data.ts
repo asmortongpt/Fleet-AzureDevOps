@@ -54,14 +54,24 @@ export function useReactiveConfigurationData() {
     queryKey: ['config-items', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/admin/config`)
+        const response = await fetch(`${API_BASE}/admin/config`, { credentials: 'include' })
         if (!response.ok) {
-          // Return mock data if API fails
-          return generateMockConfigItems()
+          return []
         }
-        return response.json()
+        const payload = await response.json()
+        const configs = payload?.data?.configs ?? []
+        return configs.map((config: any) => ({
+          id: config.id || config.key,
+          category: config.category || 'system',
+          key: config.key,
+          label: config.label || config.key,
+          value: config.value,
+          lastModified: config.updatedAt || config.lastModified || new Date().toISOString(),
+          modifiedBy: config.modifiedBy || 'System',
+          status: config.status || 'active'
+        }))
       } catch (error) {
-        return generateMockConfigItems()
+        return []
       }
     },
     refetchInterval: 30000, // 30 seconds
@@ -73,13 +83,36 @@ export function useReactiveConfigurationData() {
     queryKey: ['system-status', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/system/status`)
+        const response = await fetch(`${API_BASE}/system-health/metrics`, { credentials: 'include' })
         if (!response.ok) {
-          return generateMockSystemStatus()
+          return {
+            uptime: 0,
+            memory: 0,
+            cpu: 0,
+            diskSpace: 0,
+            activeConnections: 0,
+            requestsPerMinute: 0,
+          }
         }
-        return response.json()
+        const payload = await response.json()
+        const data = payload?.data || {}
+        return {
+          uptime: data.uptime || 0,
+          memory: data.memory?.percentage || 0,
+          cpu: data.cpu?.user || 0,
+          diskSpace: 0,
+          activeConnections: data.connections || 0,
+          requestsPerMinute: 0,
+        }
       } catch (error) {
-        return generateMockSystemStatus()
+        return {
+          uptime: 0,
+          memory: 0,
+          cpu: 0,
+          diskSpace: 0,
+          activeConnections: 0,
+          requestsPerMinute: 0,
+        }
       }
     },
     refetchInterval: 10000, // 10 seconds
@@ -91,13 +124,22 @@ export function useReactiveConfigurationData() {
     queryKey: ['integrations-status', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/integrations/status`)
+        const response = await fetch(`${API_BASE}/integrations/health`, { credentials: 'include' })
         if (!response.ok) {
-          return generateMockIntegrations()
+          return []
         }
-        return response.json()
+        const payload = await response.json()
+        const integrations = payload?.integrations || []
+        return integrations.map((integration: any) => ({
+          id: integration.name,
+          name: integration.name,
+          type: 'external',
+          status: integration.status === 'healthy' ? 'connected' : integration.status === 'down' ? 'error' : 'disconnected',
+          lastSync: integration.lastSuccess,
+          errorCount: integration.errorMessage ? 1 : 0
+        }))
       } catch (error) {
-        return generateMockIntegrations()
+        return []
       }
     },
     refetchInterval: 20000, // 20 seconds
@@ -109,17 +151,45 @@ export function useReactiveConfigurationData() {
     queryKey: ['security-events', realTimeUpdate],
     queryFn: async () => {
       try {
-        const response = await fetch(`${API_BASE}/security/events?limit=20`)
+        const response = await fetch(`${API_BASE}/security/events?limit=20`, { credentials: 'include' })
         if (!response.ok) {
-          return generateMockSecurityEvents()
+          return []
         }
-        return response.json()
+        const payload = await response.json()
+        const rows = payload?.data ?? payload ?? []
+        return rows.map((row: any) => ({
+          id: row.id,
+          type: row.event_type || 'alert',
+          severity: row.severity || 'low',
+          message: row.message,
+          timestamp: row.created_at || new Date().toISOString(),
+          userId: row.metadata?.user_id
+        }))
       } catch (error) {
-        return generateMockSecurityEvents()
+        return []
       }
     },
     refetchInterval: 15000, // 15 seconds
     staleTime: 7500,
+  })
+
+  // Fetch system performance trend (history)
+  const { data: systemTrend = [] } = useQuery<Array<{ time: string; cpu?: number; memory?: number; requests?: number }>>({
+    queryKey: ['system-metrics-history', realTimeUpdate],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`${API_BASE}/system/metrics/history?hours=24`, { credentials: 'include' })
+        if (!response.ok) {
+          return []
+        }
+        const payload = await response.json()
+        return payload?.data ?? []
+      } catch (error) {
+        return []
+      }
+    },
+    refetchInterval: 30000,
+    staleTime: 15000
   })
 
   // Calculate metrics
@@ -150,15 +220,13 @@ export function useReactiveConfigurationData() {
     return acc
   }, {} as Record<string, number>)
 
-  // System performance trend (mock data for charts)
-  const systemPerformanceTrend = [
-    { name: '00:00', cpu: 45, memory: 62, requests: 120 },
-    { name: '04:00', cpu: 38, memory: 58, requests: 85 },
-    { name: '08:00', cpu: 65, memory: 72, requests: 340 },
-    { name: '12:00', cpu: 72, memory: 78, requests: 450 },
-    { name: '16:00', cpu: 58, memory: 68, requests: 380 },
-    { name: '20:00', cpu: 52, memory: 65, requests: 220 },
-  ]
+  // System performance trend (derived from metrics history)
+  const systemPerformanceTrend = systemTrend.map((row) => ({
+    name: new Date(row.time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+    cpu: row.cpu || 0,
+    memory: row.memory || 0,
+    requests: row.requests || 0
+  }))
 
   // Integration status distribution
   const integrationStatusData = integrations.reduce((acc, integration) => {
@@ -190,7 +258,14 @@ export function useReactiveConfigurationData() {
 
   return {
     configItems,
-    systemStatus: systemStatus || generateMockSystemStatus(),
+    systemStatus: systemStatus || {
+      uptime: 0,
+      memory: 0,
+      cpu: 0,
+      diskSpace: 0,
+      activeConnections: 0,
+      requestsPerMinute: 0,
+    },
     integrations,
     securityEvents,
     metrics,
@@ -205,181 +280,4 @@ export function useReactiveConfigurationData() {
     lastUpdate: new Date(),
     refresh: () => setRealTimeUpdate((prev) => prev + 1),
   }
-}
-
-// ============================================================================
-// Mock Data Generators (for development/fallback)
-// ============================================================================
-
-function generateMockConfigItems(): ConfigItem[] {
-  const categories: Array<'system' | 'integration' | 'security' | 'features' | 'branding'> = [
-    'system', 'integration', 'security', 'features', 'branding'
-  ]
-
-  return [
-    {
-      id: '1',
-      category: 'system',
-      key: 'app.name',
-      label: 'Application Name',
-      value: 'Fleet Management System',
-      lastModified: new Date().toISOString(),
-      modifiedBy: 'admin@example.com',
-      status: 'active',
-    },
-    {
-      id: '2',
-      category: 'system',
-      key: 'app.timezone',
-      label: 'Default Timezone',
-      value: 'America/New_York',
-      lastModified: new Date(Date.now() - 86400000).toISOString(),
-      modifiedBy: 'admin@example.com',
-      status: 'active',
-    },
-    {
-      id: '3',
-      category: 'integration',
-      key: 'api.rate_limit',
-      label: 'API Rate Limit',
-      value: 1000,
-      lastModified: new Date(Date.now() - 172800000).toISOString(),
-      modifiedBy: 'system@example.com',
-      status: 'active',
-    },
-    {
-      id: '4',
-      category: 'security',
-      key: 'auth.session_timeout',
-      label: 'Session Timeout (minutes)',
-      value: 30,
-      lastModified: new Date(Date.now() - 259200000).toISOString(),
-      modifiedBy: 'admin@example.com',
-      status: 'active',
-    },
-    {
-      id: '5',
-      category: 'features',
-      key: 'feature.gps_tracking',
-      label: 'GPS Tracking',
-      value: true,
-      lastModified: new Date(Date.now() - 345600000).toISOString(),
-      modifiedBy: 'admin@example.com',
-      status: 'active',
-    },
-    {
-      id: '6',
-      category: 'branding',
-      key: 'theme.primary_color',
-      label: 'Primary Color',
-      value: '#3b82f6',
-      lastModified: new Date(Date.now() - 432000000).toISOString(),
-      modifiedBy: 'admin@example.com',
-      status: 'active',
-    },
-  ]
-}
-
-function generateMockSystemStatus(): SystemStatus {
-  return {
-    uptime: 345600, // 4 days in seconds
-    memory: 65 + Math.random() * 15, // 65-80%
-    cpu: 45 + Math.random() * 25, // 45-70%
-    diskSpace: 55 + Math.random() * 20, // 55-75%
-    activeConnections: Math.floor(150 + Math.random() * 100),
-    requestsPerMinute: Math.floor(300 + Math.random() * 200),
-  }
-}
-
-function generateMockIntegrations(): IntegrationStatus[] {
-  return [
-    {
-      id: '1',
-      name: 'Google Maps API',
-      type: 'api',
-      status: 'connected',
-      lastSync: new Date().toISOString(),
-      errorCount: 0,
-    },
-    {
-      id: '2',
-      name: 'PostgreSQL Database',
-      type: 'database',
-      status: 'connected',
-      lastSync: new Date().toISOString(),
-      errorCount: 0,
-    },
-    {
-      id: '3',
-      name: 'Azure AD',
-      type: 'service',
-      status: 'connected',
-      lastSync: new Date(Date.now() - 60000).toISOString(),
-      errorCount: 0,
-    },
-    {
-      id: '4',
-      name: 'Weather Service',
-      type: 'external',
-      status: 'error',
-      lastSync: new Date(Date.now() - 300000).toISOString(),
-      errorCount: 3,
-    },
-    {
-      id: '5',
-      name: 'SMTP Server',
-      type: 'service',
-      status: 'connected',
-      lastSync: new Date(Date.now() - 120000).toISOString(),
-      errorCount: 0,
-    },
-  ]
-}
-
-function generateMockSecurityEvents(): SecurityEvent[] {
-  const types: Array<'login' | 'access' | 'config_change' | 'alert'> = ['login', 'access', 'config_change', 'alert']
-  const severities: Array<'low' | 'medium' | 'high' | 'critical'> = ['low', 'medium', 'high', 'critical']
-
-  return [
-    {
-      id: '1',
-      type: 'login',
-      severity: 'low',
-      message: 'Successful login from 192.168.1.100',
-      timestamp: new Date(Date.now() - 60000).toISOString(),
-      userId: 'user@example.com',
-    },
-    {
-      id: '2',
-      type: 'alert',
-      severity: 'high',
-      message: 'Multiple failed login attempts detected',
-      timestamp: new Date(Date.now() - 120000).toISOString(),
-      userId: 'unknown',
-    },
-    {
-      id: '3',
-      type: 'config_change',
-      severity: 'medium',
-      message: 'Configuration setting updated: auth.session_timeout',
-      timestamp: new Date(Date.now() - 180000).toISOString(),
-      userId: 'admin@example.com',
-    },
-    {
-      id: '4',
-      type: 'access',
-      severity: 'low',
-      message: 'Resource accessed: /api/vehicles',
-      timestamp: new Date(Date.now() - 240000).toISOString(),
-      userId: 'user@example.com',
-    },
-    {
-      id: '5',
-      type: 'alert',
-      severity: 'critical',
-      message: 'Unauthorized access attempt blocked',
-      timestamp: new Date(Date.now() - 300000).toISOString(),
-      userId: 'attacker@malicious.com',
-    },
-  ]
 }

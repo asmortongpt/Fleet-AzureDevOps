@@ -18,6 +18,8 @@ import express, { Request, Response } from 'express';
 import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
 import { getErrorMessage } from '../utils/error-handler';
+import { authenticateJWT } from '../middleware/auth';
+import { requireRole, Role } from '../middleware/rbac';
 
 
 const router = express.Router();
@@ -44,7 +46,10 @@ interface HealthCheckResult {
 /**
  * GET /api/health/microsoft - Comprehensive Microsoft integration health check
  */
-router.get('/microsoft', async (req: Request, res: Response) => {
+router.get('/microsoft',
+  authenticateJWT,
+  requireRole([Role.ADMIN, Role.SECURITY_ADMIN, Role.COMPLIANCE_OFFICER, Role.ANALYST]),
+  async (req: Request, res: Response) => {
   const startTime = Date.now();
   const results: HealthCheckResult = {
     status: 'healthy',

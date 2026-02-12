@@ -9,6 +9,7 @@
  */
 
 import { EncryptionService } from '../encryption/EncryptionService'
+import logger from '@/utils/logger';
 
 export enum AuditEventType {
   // Authentication
@@ -166,7 +167,7 @@ class AuditLoggerService {
       }
     } catch (error) {
       // Audit logging failure is critical - log to console and alert
-      console.error('AUDIT LOGGING FAILURE:', error)
+      logger.error('AUDIT LOGGING FAILURE:', error)
       await this.sendCriticalAlert('Audit logging failure', error)
     }
   }
@@ -228,7 +229,7 @@ class AuditLoggerService {
 
     // For now, also log to console in development
     if (process.env.NODE_ENV === 'development') {
-      console.log('[AUDIT]', {
+      logger.info('[AUDIT]', {
         type: entry.eventType,
         user: entry.userEmail,
         resource: entry.resource,
@@ -282,7 +283,7 @@ class AuditLoggerService {
         body: JSON.stringify(entry),
       })
     } catch (error) {
-      console.error('Failed to send to SIEM:', error)
+      logger.error('Failed to send to SIEM:', error)
       // Don't throw - SIEM failure should not break audit logging
     }
   }
@@ -297,7 +298,7 @@ class AuditLoggerService {
     // 3. Send Slack/Teams notification
     // 4. Trigger automated response workflows
 
-    console.warn('[SECURITY ALERT]', {
+    logger.warn('[SECURITY ALERT]', {
       type: event.eventType,
       severity: event.severity,
       user: event.userEmail,
@@ -310,7 +311,7 @@ class AuditLoggerService {
    * Send critical alert for audit system failures
    */
   private async sendCriticalAlert(message: string, error: any): Promise<void> {
-    console.error('[CRITICAL AUDIT FAILURE]', message, error)
+    logger.error('[CRITICAL AUDIT FAILURE]', message, error)
     // In production: Send to PagerDuty, security team, etc.
   }
 

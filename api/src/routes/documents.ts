@@ -69,7 +69,7 @@ router.get(
         SELECT d.*,
                uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
         FROM documents d
-        LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+        LEFT JOIN users uploader ON d.uploaded_by = uploader.id
         WHERE uploader.tenant_id = $1 OR uploader.tenant_id IS NULL
       `
       const params: any[] = [req.user!.tenant_id]
@@ -101,9 +101,9 @@ router.get(
 
       if (search) {
         query += ` AND (
-          d.filename ILIKE $${paramIndex} OR
+          d.file_name ILIKE $${paramIndex} OR
           d.description ILIKE $${paramIndex} OR
-          d.extracted_text ILIKE $${paramIndex}
+          d.ocr_text ILIKE $${paramIndex}
         )`
         params.push(`%${search}%`)
         paramIndex++
@@ -117,7 +117,7 @@ router.get(
       const countQuery = `
         SELECT COUNT(*)
         FROM documents d
-        LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+        LEFT JOIN users uploader ON d.uploaded_by = uploader.id
         WHERE uploader.tenant_id = $1 OR uploader.tenant_id IS NULL
       `
       const countResult = await pool.query(countQuery, [req.user!.tenant_id])
@@ -255,7 +255,7 @@ router.get(
 // POST /documents/upload
 router.post(
   '/upload',
-  csrfProtection, csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
+  csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
   requirePermission('document:create:fleet'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
@@ -343,7 +343,7 @@ router.post(
 // POST /documents/camera-capture
 router.post(
   '/camera-capture',
-  csrfProtection, csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
+  csrfProtection, fileUploadLimiter, // Rate limit: 5 uploads per minute
   requirePermission('document:create:fleet'),
   upload.single('photo'),
   auditLog({ action: 'CREATE', resourceType: 'documents' }),
@@ -464,7 +464,7 @@ router.post(
 // PUT /documents/:id
 router.put(
   '/:id',
-  csrfProtection, csrfProtection, requirePermission('document:update:fleet'),
+  csrfProtection, requirePermission('document:update:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
@@ -512,7 +512,7 @@ router.put(
 // DELETE /documents/:id
 router.delete(
   '/:id',
-  csrfProtection, csrfProtection, requirePermission('document:delete:fleet'),
+  csrfProtection, requirePermission('document:delete:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'DELETE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
@@ -557,7 +557,7 @@ router.delete(
 // POST /documents/:id/ocr
 router.post(
   '/:id/ocr',
-  csrfProtection, csrfProtection, requirePermission('document:create:fleet'),
+  csrfProtection, requirePermission('document:create:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
@@ -608,7 +608,7 @@ router.post(
 // POST /documents/:id/parse-receipt
 router.post(
   '/:id/parse-receipt',
-  csrfProtection, csrfProtection, requirePermission('document:create:fleet'),
+  csrfProtection, requirePermission('document:create:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'CREATE', resourceType: 'receipt_parsing' }),
   async (req: AuthRequest, res: Response) => {
@@ -646,7 +646,7 @@ router.post(
 // PUT /documents/:id/receipt-items
 router.put(
   '/:id/receipt-items',
-  csrfProtection, csrfProtection, requirePermission('document:update:fleet'),
+  csrfProtection, requirePermission('document:update:fleet'),
   validateScope('document'), // BOLA protection: validate user has access to this document
   auditLog({ action: 'UPDATE', resourceType: 'receipt_line_items' }),
   async (req: AuthRequest, res: Response) => {

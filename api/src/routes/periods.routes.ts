@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { AccountingPeriodsRepository } from "../repositories/accounting-periods.repository";
+
 import { db } from "../db";
+import { AccountingPeriodsRepository } from "../repositories/accounting-periods.repository";
 import { calculateAssetDepreciation } from "../services/depreciation/depreciation.service";
 
 export const periodsRouter = Router();

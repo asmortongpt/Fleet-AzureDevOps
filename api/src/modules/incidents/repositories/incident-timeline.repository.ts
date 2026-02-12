@@ -1,7 +1,7 @@
+import { injectable } from 'inversify';
 import { Pool } from 'pg'
 
 
-import { injectable } from 'inversify';
 
 import { pool } from '../../../db';
 import { BaseRepository } from '../../../repositories/base/BaseRepository';

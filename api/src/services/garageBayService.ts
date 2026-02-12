@@ -2,7 +2,6 @@
  * Garage Bay Service
  *
  * Provides business logic and data access for garage bay operations
- * Includes comprehensive mock data for testing
  */
 
 import { Pool, PoolClient } from 'pg'
@@ -34,7 +33,7 @@ export interface WorkOrder {
   description: string
   type: 'preventive' | 'corrective' | 'inspection' | 'emergency'
   priority: 'low' | 'medium' | 'high' | 'critical'
-  status: 'open' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled'
+  status: 'pending' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled' | 'failed'
   vehicle: Vehicle
   primary_technician: Technician
   parts: Part[]
@@ -199,9 +198,153 @@ export class GarageBayService {
     bayId: string,
     tenantId: string
   ): Promise<WorkOrder[]> {
-    // This would be implemented with actual database queries
-    // For now, returning mock data structure
-    return []
+    const workOrdersResult = await client.query(
+      `SELECT
+          wo.id,
+          wo.work_order_number as wo_number,
+          wo.title,
+          wo.description,
+          wo.type,
+          wo.priority,
+          wo.status,
+          wo.created_date,
+          wo.scheduled_start,
+          wo.scheduled_end,
+          wo.estimated_completion,
+          wo.actual_start,
+          wo.actual_end,
+          wo.progress_percentage,
+          wo.estimated_cost,
+          wo.actual_cost,
+          wo.notes,
+          wo.vehicle_id,
+          v.number as vehicle_number,
+          v.make as vehicle_make,
+          v.model as vehicle_model,
+          v.year as vehicle_year,
+          v.vin,
+          v.license_plate,
+          v.odometer as odometer_reading,
+          v.engine_hours,
+          t.id as technician_id,
+          t.first_name || ' ' || t.last_name as technician_name,
+          t.email as technician_email,
+          t.phone as technician_phone,
+          t.avatar as technician_avatar,
+          t.role as technician_role,
+          t.certifications as technician_certifications
+        FROM work_orders wo
+        LEFT JOIN vehicles v ON wo.vehicle_id = v.id
+        LEFT JOIN users t ON wo.assigned_technician_id = t.id
+        WHERE wo.garage_bay_id = $1
+          AND wo.tenant_id = $2
+          AND wo.status IN ('pending', 'in_progress', 'on_hold')
+        ORDER BY
+          CASE wo.priority
+            WHEN 'critical' THEN 1
+            WHEN 'high' THEN 2
+            WHEN 'medium' THEN 3
+            WHEN 'low' THEN 4
+          END,
+          wo.created_date ASC`,
+      [bayId, tenantId]
+    )
+
+    const workOrders: WorkOrder[] = []
+    for (const wo of workOrdersResult.rows) {
+      const partsResult = await client.query(
+        `SELECT
+            p.id,
+            p.name,
+            p.part_number,
+            wop.quantity,
+            wop.quantity_in_stock,
+            wop.unit_cost,
+            s.name as supplier,
+            s.contact_name as supplier_contact,
+            s.contact_phone as supplier_phone,
+            s.contact_email as supplier_email,
+            wop.delivery_date,
+            wop.status
+          FROM work_order_parts wop
+          JOIN parts_inventory p ON wop.part_id = p.id
+          LEFT JOIN suppliers s ON wop.supplier_id = s.id
+          WHERE wop.work_order_id = $1
+          ORDER BY p.name ASC`,
+        [wo.id]
+      )
+
+      const laborResult = await client.query(
+        `SELECT
+            wol.id,
+            wol.technician_id,
+            u.first_name || ' ' || u.last_name as technician_name,
+            u.avatar as technician_avatar,
+            wol.hours_logged,
+            wol.hours_estimated,
+            wol.rate,
+            wol.date,
+            wol.task_description,
+            wol.status
+          FROM work_order_labor wol
+          LEFT JOIN users u ON wol.technician_id = u.id
+          WHERE wol.work_order_id = $1
+          ORDER BY wol.date DESC`,
+        [wo.id]
+      )
+
+      const notesResult = await client.query(
+        `SELECT note
+         FROM work_order_notes
+         WHERE work_order_id = $1
+         ORDER BY created_at DESC`,
+        [wo.id]
+      )
+
+      workOrders.push({
+        id: wo.id,
+        wo_number: wo.wo_number,
+        title: wo.title,
+        description: wo.description,
+        type: wo.type,
+        priority: wo.priority,
+        status: wo.status,
+        vehicle: {
+          id: wo.vehicle_id,
+          vehicle_number: wo.vehicle_number,
+          make: wo.vehicle_make,
+          model: wo.vehicle_model,
+          year: wo.vehicle_year,
+          vin: wo.vin,
+          license_plate: wo.license_plate,
+          odometer_reading: wo.odometer_reading,
+          engine_hours: wo.engine_hours,
+        },
+        primary_technician: {
+          id: wo.technician_id,
+          name: wo.technician_name,
+          email: wo.technician_email,
+          phone: wo.technician_phone,
+          avatar: wo.technician_avatar,
+          role: wo.technician_role,
+          certifications: wo.technician_certifications || [],
+        },
+        parts: partsResult.rows,
+        labor: laborResult.rows,
+        created_date: wo.created_date,
+        scheduled_start: wo.scheduled_start,
+        scheduled_end: wo.scheduled_end,
+        estimated_completion: wo.estimated_completion,
+        actual_start: wo.actual_start,
+        actual_end: wo.actual_end,
+        progress_percentage: wo.progress_percentage,
+        estimated_cost: wo.estimated_cost,
+        actual_cost: wo.actual_cost,
+        notes: notesResult.rows.map((r) => r.note).filter(Boolean),
+      })
+    }
+
+    return workOrders
   }
 
   /**
@@ -316,447 +459,6 @@ export class GarageBayService {
     }
   }
 
-  /**
-   * Get mock data for testing
-   */
-  static getMockData(): GarageBayWithWorkOrders[] {
-    return MOCK_GARAGE_BAYS
-  }
 }
-
-/**
- * Mock Data for Testing
- * Comprehensive realistic data for development and testing
- */
-export const MOCK_GARAGE_BAYS: GarageBayWithWorkOrders[] = [
-  {
-    id: 'bay-001',
-    tenant_id: 'tenant-001',
-    bay_number: '1',
-    bay_name: 'Bay 1 - Heavy Duty',
-    location: 'Building A - North Wing',
-    capacity: 2,
-    status: 'occupied',
-    equipment: [
-      'Hydraulic Lift (20 ton)',
-      'Alignment Machine',
-      'Tire Changer',
-      'Wheel Balancer',
-      'Diagnostic Computer',
-      'Air Compressor',
-      'Parts Washer',
-      'Welding Equipment'
-    ],
-    created_at: new Date('2024-01-01'),
-    updated_at: new Date('2024-12-01'),
-    work_orders: [
-      {
-        id: 'wo-001',
-        wo_number: 'WO-2024-001',
-        title: 'Preventive Maintenance - PM-A Service',
-        description: 'Complete PM-A service including oil change, filter replacements, brake inspection, tire rotation, and 150-point inspection. Vehicle has 45,000 miles and is due for scheduled maintenance per manufacturer specifications.',
-        type: 'preventive',
-        priority: 'medium',
-        status: 'in_progress',
-        created_date: '2024-12-01T08:00:00Z',
-        scheduled_start: '2024-12-01T08:00:00Z',
-        scheduled_end: '2024-12-01T16:00:00Z',
-        estimated_completion: '2024-12-01T15:30:00Z',
-        actual_start: '2024-12-01T08:15:00Z',
-        progress_percentage: 65,
-        estimated_cost: 850.00,
-        actual_cost: 763.50,
-        notes: [
-          'Customer reported slight vibration at highway speeds - investigating during service',
-          'Brake pads at 40% - recommend monitoring',
-          'Found small oil leak from valve cover gasket - quoted separately'
-        ],
-        vehicle: {
-          id: 'veh-101',
-          vehicle_number: 'FLEET-2401',
-          make: 'Ford',
-          model: 'F-550',
-          year: 2022,
-          vin: '1FDUF5HT8NEA12345',
-          license_plate: 'FLT2401',
-          odometer_reading: 45237,
-          engine_hours: 1823
-        },
-        primary_technician: {
-          id: 'tech-001',
-          name: 'John Martinez',
-          email: 'john.martinez@fleet.com',
-          phone: '555-0101',
-          avatar: 'https://i.pravatar.cc/150?img=12',
-          role: 'Senior Diesel Mechanic',
-          certifications: ['ASE Master Technician', 'Ford Certified', 'Diesel Specialist', 'EPA 609']
-        },
-        parts: [
-          {
-            id: 'part-001',
-            name: 'Engine Oil Filter',
-            part_number: 'FL-2016',
-            quantity: 2,
-            quantity_in_stock: 15,
-            unit_cost: 24.99,
-            supplier: 'Fleet Parts Direct',
-            supplier_contact: 'Sarah Johnson',
-            supplier_phone: '555-0200',
-            supplier_email: 'sarah.j@fleetparts.com',
-            status: 'in_stock'
-          },
-          {
-            id: 'part-002',
-            name: 'Motorcraft 15W-40 Diesel Oil',
-            part_number: 'MC-DPF15W40',
-            quantity: 4,
-            quantity_in_stock: 24,
-            unit_cost: 28.50,
-            supplier: 'Fleet Parts Direct',
-            supplier_contact: 'Sarah Johnson',
-            supplier_phone: '555-0200',
-            supplier_email: 'sarah.j@fleetparts.com',
-            status: 'in_stock'
-          },
-          {
-            id: 'part-003',
-            name: 'Air Filter',
-            part_number: 'FA-1927',
-            quantity: 1,
-            quantity_in_stock: 8,
-            unit_cost: 45.99,
-            supplier: 'Fleet Parts Direct',
-            supplier_contact: 'Sarah Johnson',
-            supplier_phone: '555-0200',
-            supplier_email: 'sarah.j@fleetparts.com',
-            status: 'in_stock'
-          },
-          {
-            id: 'part-004',
-            name: 'Cabin Air Filter',
-            part_number: 'CF-1234',
-            quantity: 1,
-            quantity_in_stock: 6,
-            unit_cost: 32.99,
-            supplier: 'Fleet Parts Direct',
-            supplier_contact: 'Sarah Johnson',
-            supplier_phone: '555-0200',
-            supplier_email: 'sarah.j@fleetparts.com',
-            status: 'in_stock'
-          },
-          {
-            id: 'part-005',
-            name: 'Fuel Filter',
-            part_number: 'FD-4616',
-            quantity: 2,
-            quantity_in_stock: 12,
-            unit_cost: 38.75,
-            supplier: 'Fleet Parts Direct',
-            supplier_contact: 'Sarah Johnson',
-            supplier_phone: '555-0200',
-            supplier_email: 'sarah.j@fleetparts.com',
-            status: 'in_stock'
-          }
-        ],
-        labor: [
-          {
-            id: 'labor-001',
-            technician_id: 'tech-001',
-            technician_name: 'John Martinez',
-            technician_avatar: 'https://i.pravatar.cc/150?img=12',
-            hours_logged: 5.5,
-            hours_estimated: 8.0,
-            rate: 95.00,
-            date: '2024-12-01',
-            task_description: 'PM-A Service - Oil/filter change, inspections, tire rotation',
-            status: 'in_progress'
-          },
-          {
-            id: 'labor-002',
-            technician_id: 'tech-002',
-            technician_name: 'Mike Thompson',
-            technician_avatar: 'https://i.pravatar.cc/150?img=33',
-            hours_logged: 0.5,
-            hours_estimated: 1.0,
-            rate: 85.00,
-            date: '2024-12-01',
-            task_description: 'Brake inspection and measurement',
-            status: 'in_progress'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'bay-002',
-    tenant_id: 'tenant-001',
-    bay_number: '2',
-    bay_name: 'Bay 2 - Transmission & Drivetrain',
-    location: 'Building A - North Wing',
-    capacity: 1,
-    status: 'occupied',
-    equipment: [
-      'Hydraulic Lift (15 ton)',
-      'Transmission Jack',
-      'Diagnostic Scanner',
-      'Pressure Washer',
-      'Parts Washer',
-      'Air Tools'
-    ],
-    created_at: new Date('2024-01-01'),
-    updated_at: new Date('2024-12-01'),
-    work_orders: [
-      {
-        id: 'wo-002',
-        wo_number: 'WO-2024-002',
-        title: 'Transmission Repair - Slipping in 3rd Gear',
-        description: 'Driver reported transmission slipping between 2nd and 3rd gear under load. Diagnostic scan shows P0730 code (incorrect gear ratio). Transmission fluid dark and has burnt smell. Recommend full transmission rebuild.',
-        type: 'corrective',
-        priority: 'high',
-        status: 'in_progress',
-        created_date: '2024-11-28T10:00:00Z',
-        scheduled_start: '2024-11-30T07:00:00Z',
-        scheduled_end: '2024-12-02T17:00:00Z',
-        estimated_completion: '2024-12-02T16:00:00Z',
-        actual_start: '2024-11-30T07:30:00Z',
-        progress_percentage: 45,
-        estimated_cost: 4850.00,
-        actual_cost: 3920.00,
-        notes: [
-          'Transmission removed - found metal shavings in pan',
-          'Torque converter needs replacement',
-          '3-4 clutch pack severely worn',
-          'Parts on order - arriving Dec 2nd morning',
-          'Customer authorized full rebuild'
-        ],
-        vehicle: {
-          id: 'veh-102',
-          vehicle_number: 'FLEET-2315',
-          make: 'Chevrolet',
-          model: 'Silverado 2500HD',
-          year: 2021,
-          vin: '1GC4YVEY2MF123456',
-          license_plate: 'FLT2315',
-          odometer_reading: 87459,
-          engine_hours: 3245
-        },
-        primary_technician: {
-          id: 'tech-003',
-          name: 'Robert Chen',
-          email: 'robert.chen@fleet.com',
-          phone: '555-0102',
-          avatar: 'https://i.pravatar.cc/150?img=68',
-          role: 'Transmission Specialist',
-          certifications: ['ASE Master Technician', 'ATRA Certified', 'GM Certified']
-        },
-        parts: [
-          {
-            id: 'part-006',
-            name: 'Transmission Rebuild Kit',
-            part_number: 'TRK-6L80E',
-            quantity: 1,
-            quantity_in_stock: 0,
-            unit_cost: 1250.00,
-            supplier: 'Advanced Transmission Parts',
-            supplier_contact: 'Mike Stevens',
-            supplier_phone: '555-0300',
-            supplier_email: 'mike.s@atparts.com',
-            delivery_date: '2024-12-02T08:00:00Z',
-            status: 'ordered'
-          },
-          {
-            id: 'part-007',
-            name: 'Torque Converter',
-            part_number: 'TC-6L80-HD',
-            quantity: 1,
-            quantity_in_stock: 0,
-            unit_cost: 485.00,
-            supplier: 'Advanced Transmission Parts',
-            supplier_contact: 'Mike Stevens',
-            supplier_phone: '555-0300',
-            supplier_email: 'mike.s@atparts.com',
-            delivery_date: '2024-12-02T08:00:00Z',
-            status: 'ordered'
-          },
-          {
-            id: 'part-008',
-            name: 'Transmission Fluid (ATF)',
-            part_number: 'DEXVI-QT',
-            quantity: 12,
-            quantity_in_stock: 48,
-            unit_cost: 14.99,
-            supplier: 'Fleet Parts Direct',
-            supplier_contact: 'Sarah Johnson',
-            supplier_phone: '555-0200',
-            supplier_email: 'sarah.j@fleetparts.com',
-            status: 'in_stock'
-          },
-          {
-            id: 'part-009',
-            name: 'Transmission Filter',
-            part_number: 'TF-6L80E',
-            quantity: 1,
-            quantity_in_stock: 3,
-            unit_cost: 67.50,
-            supplier: 'Fleet Parts Direct',
-            supplier_contact: 'Sarah Johnson',
-            supplier_phone: '555-0200',
-            supplier_email: 'sarah.j@fleetparts.com',
-            status: 'in_stock'
-          }
-        ],
-        labor: [
-          {
-            id: 'labor-003',
-            technician_id: 'tech-003',
-            technician_name: 'Robert Chen',
-            technician_avatar: 'https://i.pravatar.cc/150?img=68',
-            hours_logged: 12.5,
-            hours_estimated: 28.0,
-            rate: 110.00,
-            date: '2024-11-30',
-            task_description: 'Transmission removal, disassembly, inspection, and rebuild',
-            status: 'in_progress'
-          },
-          {
-            id: 'labor-004',
-            technician_id: 'tech-004',
-            technician_name: 'David Lopez',
-            technician_avatar: 'https://i.pravatar.cc/150?img=52',
-            hours_logged: 2.0,
-            hours_estimated: 4.0,
-            rate: 95.00,
-            date: '2024-11-30',
-            task_description: 'Assist with transmission removal and installation',
-            status: 'in_progress'
-          }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'bay-003',
-    tenant_id: 'tenant-001',
-    bay_number: '3',
-    bay_name: 'Bay 3 - Light Duty Service',
-    location: 'Building A - South Wing',
-    capacity: 2,
-    status: 'available',
-    equipment: [
-      'Hydraulic Lift (10 ton)',
-      'Tire Changer',
-      'Wheel Balancer',
-      'Brake Lathe',
-      'Diagnostic Scanner'
-    ],
-    created_at: new Date('2024-01-01'),
-    updated_at: new Date('2024-12-01'),
-    work_orders: []
-  },
-  {
-    id: 'bay-004',
-    tenant_id: 'tenant-001',
-    bay_number: '4',
-    bay_name: 'Bay 4 - Emergency/Express',
-    location: 'Building B - East Wing',
-    capacity: 1,
-    status: 'occupied',
-    equipment: [
-      'Quick Lift',
-      'Diagnostic Computer',
-      'Air Tools',
-      'Parts Washer'
-    ],
-    created_at: new Date('2024-01-01'),
-    updated_at: new Date('2024-12-01'),
-    work_orders: [
-      {
-        id: 'wo-003',
-        wo_number: 'WO-2024-003',
-        title: 'Emergency - No Start Condition',
-        description: 'Vehicle towed in - will not start. Driver reports it died while driving and would not restart. No warning lights prior to failure. Battery tested good. Investigating fuel delivery and ignition systems.',
-        type: 'emergency',
-        priority: 'critical',
-        status: 'in_progress',
-        created_date: '2024-12-01T14:00:00Z',
-        scheduled_start: '2024-12-01T14:30:00Z',
-        scheduled_end: '2024-12-01T18:00:00Z',
-        estimated_completion: '2024-12-01T17:00:00Z',
-        actual_start: '2024-12-01T14:35:00Z',
-        progress_percentage: 30,
-        estimated_cost: 650.00,
-        actual_cost: 285.00,
-        notes: [
-          'No fuel pressure - fuel pump relay clicking',
-          'Fuel pump fuse intact',
-          'Testing fuel pump operation - likely failed pump',
-          'High priority - vehicle needed for route tomorrow'
-        ],
-        vehicle: {
-          id: 'veh-103',
-          vehicle_number: 'FLEET-1807',
-          make: 'Ram',
-          model: 'ProMaster 2500',
-          year: 2023,
-          vin: '3C6TRVDG8PE123456',
-          license_plate: 'FLT1807',
-          odometer_reading: 28934,
-          engine_hours: 987
-        },
-        primary_technician: {
-          id: 'tech-005',
-          name: 'Lisa Anderson',
-          email: 'lisa.anderson@fleet.com',
-          phone: '555-0103',
-          avatar: 'https://i.pravatar.cc/150?img=45',
-          role: 'Diagnostic Specialist',
-          certifications: ['ASE Master Technician', 'L1 Advanced Diagnostics', 'Stellantis Certified']
-        },
-        parts: [
-          {
-            id: 'part-010',
-            name: 'Fuel Pump Assembly',
-            part_number: 'FP-PM2500',
-            quantity: 1,
-            quantity_in_stock: 1,
-            unit_cost: 385.00,
-            supplier: 'Auto Parts Warehouse',
-            supplier_contact: 'Tom Bradley',
-            supplier_phone: '555-0400',
-            supplier_email: 'tom.b@apwarehouse.com',
-            status: 'in_stock'
-          },
-          {
-            id: 'part-011',
-            name: 'Fuel Filter',
-            part_number: 'FF-2500',
-            quantity: 1,
-            quantity_in_stock: 4,
-            unit_cost: 42.50,
-            supplier: 'Fleet Parts Direct',
-            supplier_contact: 'Sarah Johnson',
-            supplier_phone: '555-0200',
-            supplier_email: 'sarah.j@fleetparts.com',
-            status: 'in_stock'
-          }
-        ],
-        labor: [
-          {
-            id: 'labor-005',
-            technician_id: 'tech-005',
-            technician_name: 'Lisa Anderson',
-            technician_avatar: 'https://i.pravatar.cc/150?img=45',
-            hours_logged: 1.5,
-            hours_estimated: 4.5,
-            rate: 105.00,
-            date: '2024-12-01',
-            task_description: 'Diagnostic and fuel pump replacement',
-            status: 'in_progress'
-          }
-        ]
-      }
-    ]
-  }
-]
 
 export default GarageBayService

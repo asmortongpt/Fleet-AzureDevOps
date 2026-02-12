@@ -647,7 +647,7 @@ STEP 2: CAB INSPECTION (interior)
 
 2.2. Check safety equipment:
     • First aid kit present and stocked
-    • Fire extinguisher present, charged, current inspection tag
+    • Flame extinguisher present, charged, current inspection tag
     • Warning triangles or flares
     • Accident report kit
     • Emergency contact information

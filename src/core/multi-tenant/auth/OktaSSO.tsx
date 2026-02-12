@@ -11,9 +11,110 @@
  * - Audit logging for compliance
  */
 
-import { Security } from '@okta/okta-react';
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+
+// Type declarations for Okta SDK (packages not installed - this is an optional enterprise feature)
+// These types provide compile-time safety without requiring the actual @okta packages
+
+interface OktaAuthOptions {
+  issuer: string;
+  clientId: string;
+  redirectUri: string;
+  scopes: string[];
+  pkce: boolean;
+  disableHttpsCheck?: boolean;
+  tokenManager?: {
+    autoRenew?: boolean;
+    autoRemove?: boolean;
+    expireEarlySeconds?: number;
+    storage?: string;
+    storageKey?: string;
+  };
+  cookies?: {
+    secure?: boolean;
+    sameSite?: string;
+  };
+  serviceWorker?: string;
+}
+
+interface OktaAuthInstance {
+  getUser: () => Promise<Record<string, unknown>>;
+  signInWithRedirect: (options: { originalUri: string }) => Promise<void>;
+  signOut: (options: { postLogoutRedirectUri: string }) => Promise<void>;
+  token: {
+    isLoginRedirect: () => boolean;
+  };
+  handleLoginRedirect: () => Promise<void>;
+  tokenManager: {
+    renew: (tokenType: string) => Promise<void>;
+  };
+  authStateManager: {
+    getAuthState: () => Promise<Record<string, unknown>>;
+    subscribe: (callback: (state: Record<string, unknown>) => void) => void;
+    unsubscribe: (callback: (state: Record<string, unknown>) => void) => void;
+  };
+}
+
+// Stub OktaAuth class - actual implementation requires @okta/okta-auth-js package
+class OktaAuth implements OktaAuthInstance {
+  constructor(_options: OktaAuthOptions) {
+    // Stub implementation - requires @okta/okta-auth-js package
+  }
+  getUser(): Promise<Record<string, unknown>> {
+    throw new Error('OktaAuth requires @okta/okta-auth-js package');
+  }
+  signInWithRedirect(_options: { originalUri: string }): Promise<void> {
+    throw new Error('OktaAuth requires @okta/okta-auth-js package');
+  }
+  signOut(_options: { postLogoutRedirectUri: string }): Promise<void> {
+    throw new Error('OktaAuth requires @okta/okta-auth-js package');
+  }
+  token = {
+    isLoginRedirect: (): boolean => false,
+  };
+  handleLoginRedirect(): Promise<void> {
+    throw new Error('OktaAuth requires @okta/okta-auth-js package');
+  }
+  tokenManager = {
+    renew: (_tokenType: string): Promise<void> => {
+      throw new Error('OktaAuth requires @okta/okta-auth-js package');
+    },
+  };
+  authStateManager = {
+    getAuthState: (): Promise<Record<string, unknown>> => {
+      throw new Error('OktaAuth requires @okta/okta-auth-js package');
+    },
+    subscribe: (_callback: (state: Record<string, unknown>) => void): void => {
+      // Stub
+    },
+    unsubscribe: (_callback: (state: Record<string, unknown>) => void): void => {
+      // Stub
+    },
+  };
+}
+
+// Stub Security component - actual implementation requires @okta/okta-react package
+interface SecurityProps {
+  oktaAuth: OktaAuthInstance;
+  onAuthRequired?: () => void;
+  restoreOriginalUri: (oktaAuth: OktaAuthInstance, originalUri: string) => Promise<void>;
+  children: React.ReactNode;
+}
+
+const Security: React.FC<SecurityProps> = ({ children }) => {
+  // Stub implementation - requires @okta/okta-react package
+  return <>{children}</>;
+};
+
+// Utility function stub - actual implementation from @okta/okta-auth-js
+function toRelativeUrl(uri: string, origin: string): string {
+  // Convert absolute URL to relative URL
+  if (uri.startsWith(origin)) {
+    return uri.substring(origin.length) || '/';
+  }
+  return uri;
+}
 
 import { logger } from '@/utils/logger';
 
@@ -330,7 +431,7 @@ export const OktaAuthProvider: React.FC<OktaAuthProviderProps> = ({
       if (isAuthenticated) {
         // Get user info and groups
         const userInfo = await oktaAuth.getUser();
-        const groups = userInfo.groups || [];
+        const groups = Array.isArray(userInfo.groups) ? userInfo.groups as string[] : [];
 
         // Process user profile with roles and permissions
         const userProfile = processUserProfile(userInfo, groups);
@@ -515,7 +616,7 @@ export const OktaAuthProvider: React.FC<OktaAuthProviderProps> = ({
       <Security
         oktaAuth={oktaAuth}
         onAuthRequired={onAuthRequired}
-        restoreOriginalUri={async (oktaAuth, originalUri) => {
+        restoreOriginalUri={async (_oktaAuth: OktaAuthInstance, originalUri: string) => {
           // Handle post-login redirect
           window.location.replace(
             toRelativeUrl(originalUri || '/', window.location.origin)
@@ -596,7 +697,7 @@ export const Login: React.FC = () => {
               </button>
             </div>
 
-            <div className="text-xs text-gray-500 text-center space-y-2">
+            <div className="text-xs text-gray-700 text-center space-y-2">
               <p>🔒 Secure authentication via Florida State Okta</p>
               <p>🛡️ Multi-factor authentication required</p>
               <p>📊 All access is logged for compliance</p>
@@ -615,7 +716,7 @@ export const LoginCallbackComponent: React.FC = () => {
   useEffect(() => {
     oktaAuth.handleLoginRedirect().then(() => {
       navigate('/', { replace: true });
-    }).catch(error => {
+    }).catch((error: unknown) => {
       logger.error('Login callback error:', error);
     });
   }, [navigate]);
@@ -727,7 +828,7 @@ const AccessDenied: React.FC<AccessDeniedProps> = ({
           </div>
         )}
 
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-700">
           Contact your administrator to request access to this feature.
         </p>
       </div>
@@ -762,27 +863,27 @@ export const UserProfile: React.FC = () => {
 
       <div className="space-y-3">
         <div>
-          <label className="text-sm font-medium text-gray-500">Name</label>
+          <label className="text-sm font-medium text-gray-700">Name</label>
           <p className="text-sm text-gray-900">{user.name}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">Email</label>
+          <label className="text-sm font-medium text-gray-700">Email</label>
           <p className="text-sm text-gray-900">{user.email}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">Department</label>
+          <label className="text-sm font-medium text-gray-700">Department</label>
           <p className="text-sm text-gray-900">{user.department}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">Employee ID</label>
+          <label className="text-sm font-medium text-gray-700">Employee ID</label>
           <p className="text-sm text-gray-900">{user.employee_id || 'N/A'}</p>
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">Roles</label>
+          <label className="text-sm font-medium text-gray-700">Roles</label>
           <div className="flex flex-wrap gap-1 mt-1">
             {user.roles.map(role => (
               <span key={role} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
@@ -793,7 +894,7 @@ export const UserProfile: React.FC = () => {
         </div>
 
         <div>
-          <label className="text-sm font-medium text-gray-500">MFA Status</label>
+          <label className="text-sm font-medium text-gray-700">MFA Status</label>
           <p className="text-sm text-gray-900">
             {user.mfa_enabled ? '✅ Enabled' : '❌ Not Enabled'}
           </p>
@@ -801,7 +902,7 @@ export const UserProfile: React.FC = () => {
 
         {sessionExpiry && (
           <div>
-            <label className="text-sm font-medium text-gray-500">Session Expiry</label>
+            <label className="text-sm font-medium text-gray-700">Session Expiry</label>
             <p className="text-sm text-gray-900">
               {minutesUntilExpiry > 0 ? `${minutesUntilExpiry} minutes remaining` : 'Expired'}
             </p>

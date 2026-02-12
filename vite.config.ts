@@ -3,7 +3,7 @@ import path from 'path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import { VitePWA } from 'vite-plugin-pwa';
 
 /**
@@ -16,16 +16,20 @@ export default defineConfig({
   envPrefix: 'VITE_', // Only load variables with VITE_ prefix
   envDir: './', // Load from project root
   server: {
+    port: 5173, // Default port for Azure AD SSO redirect
+    strictPort: false,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
-        changeOrigin: false,
+        target: 'http://localhost:3001',
+        changeOrigin: true,
         secure: false,
+        ws: true,
       },
       '/auth': {
-        target: 'http://localhost:3000',
-        changeOrigin: false,
+        target: 'http://localhost:3001',
+        changeOrigin: true,
         secure: false,
+        ws: true,
       },
     },
   },
@@ -39,6 +43,7 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
+      disable: true, // Disable PWA temporarily to fix TLS issues
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
@@ -114,5 +119,65 @@ export default defineConfig({
       '@tanstack/react-query',
       'ag-grid-react',
     ],
+  },
+  test: {
+    // Test environment configuration
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+
+    // Include only unit test files (exclude Playwright e2e tests)
+    include: [
+      'src/**/*.{test,spec}.{ts,tsx}',
+    ],
+
+    // Exclude Playwright e2e tests and other non-unit test files
+    exclude: [
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/e2e/**',
+      '**/playwright-report/**',
+      '**/test-results/**',
+      '**/*.spec.ts', // Playwright tests use .spec.ts at root level
+      '**/api/e2e/**',
+      '**/scripts/**',
+      '**/tests/**', // Root level tests directory (Playwright)
+      './test-*.spec.ts',
+      './check-*.spec.ts',
+      './inspect-*.spec.ts',
+    ],
+
+    // Coverage configuration
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      exclude: [
+        '**/node_modules/**',
+        '**/dist/**',
+        '**/*.d.ts',
+        '**/*.config.*',
+        '**/mockData/**',
+        '**/test/**',
+        '**/tests/**',
+        '**/__tests__/**',
+        '**/e2e/**',
+      ],
+      all: true,
+      lines: 50,
+      functions: 50,
+      branches: 50,
+      statements: 50,
+    },
+
+    // Test timeout
+    testTimeout: 10000,
+    hookTimeout: 10000,
+
+    // Display options
+    reporters: ['verbose'],
+
+    // Mock configuration
+    mockReset: true,
+    restoreMocks: true,
   },
 });

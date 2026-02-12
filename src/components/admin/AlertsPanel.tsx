@@ -148,12 +148,12 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
 
   const handleAcknowledge = (alertId: string) => {
     // This would call an API to acknowledge the alert
-    logger.debug({ alertId }, 'Acknowledge alert');
+    logger.debug('Acknowledge alert', { alertId });
   };
 
   const handleResolve = (alertId: string) => {
     // This would call an API to resolve the alert
-    logger.debug({ alertId }, 'Resolve alert');
+    logger.debug('Resolve alert', { alertId });
   };
 
   const formatTimestamp = (timestamp: string) => {

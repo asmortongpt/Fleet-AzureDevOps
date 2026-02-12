@@ -1,8 +1,9 @@
 /**
  * DriverFactory - Generates driver records with valid license data
  */
-import { BaseFactory } from './BaseFactory';
 import type { Driver, DriverStatus, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 export class DriverFactory extends BaseFactory {
   // US states for driver's licenses

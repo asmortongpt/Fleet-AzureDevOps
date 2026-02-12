@@ -206,14 +206,39 @@ return
     const { channelId, userId, username, deviceInfo } = message
 
     try {
+      // Resolve tenant + channel info (required for multi-tenant uniqueness).
+      const channelResult = await this.db.query(
+        `SELECT
+          id,
+          tenant_id,
+          name,
+          description,
+          channel_type,
+          is_active,
+          priority_level,
+          color_code,
+          created_at,
+          updated_at,
+          created_by
+        FROM dispatch_channels
+        WHERE id = $1`,
+        [channelId]
+      )
+
+      const channel = channelResult.rows[0]
+      if (!channel) {
+        ws.send(JSON.stringify({ type: 'error', message: 'Channel not found' }))
+        return
+      }
+
       // Record active listener in database
       await this.db.query(`
         INSERT INTO dispatch_active_listeners
-        (channel_id, user_id, connection_id, device_type, device_info)
-        VALUES ($1, $2, $3, $4, $5)
-        ON CONFLICT (channel_id, user_id, connection_id)
+        (tenant_id, channel_id, user_id, connection_id, device_type, device_info)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        ON CONFLICT (tenant_id, channel_id, user_id, connection_id)
         DO UPDATE SET last_heartbeat = CURRENT_TIMESTAMP
-      `, [channelId, userId, connectionId, deviceInfo?.type || 'web', deviceInfo])
+      `, [channel.tenant_id, channelId, userId, connectionId, deviceInfo?.type || 'web', deviceInfo])
 
       // Add to in-memory channel listeners
       if (!this.channelListeners.has(channelId)) {
@@ -221,26 +246,10 @@ return
       }
       this.channelListeners.get(channelId)!.add(connectionId)
 
-      // Get channel info
-      const channelResult = await this.db.query(
-        `SELECT 
-      id,
-      name,
-      description,
-      channel_type,
-      is_active,
-      priority_level,
-      color_code,
-      created_at,
-      updated_at,
-      created_by FROM dispatch_channels WHERE id = $1`,
-        [channelId]
-      )
-
       // Notify user
       ws.send(JSON.stringify({
         type: 'channel_joined',
-        channel: channelResult.rows[0],
+        channel,
         connectionId
       }))
 

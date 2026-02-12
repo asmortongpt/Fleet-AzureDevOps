@@ -21,7 +21,10 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 interface PerformanceMetric {
   id: string
@@ -63,176 +66,11 @@ interface RouteEfficiency {
   status: 'completed' | 'active' | 'planned'
 }
 
-// Demo data
-const demoMetrics: PerformanceMetric[] = [
-  {
-    id: 'metric-001',
-    name: 'Fleet Efficiency',
-    value: 92,
-    target: 90,
-    unit: '%',
-    trend: 'up',
-    changePercent: 3.5,
-    period: 'vs. last week'
-  },
-  {
-    id: 'metric-002',
-    name: 'Average MPG',
-    value: 18.5,
-    target: 17.0,
-    unit: 'MPG',
-    trend: 'up',
-    changePercent: 8.8,
-    period: 'vs. last month'
-  },
-  {
-    id: 'metric-003',
-    name: 'Route Optimization',
-    value: 87,
-    target: 85,
-    unit: '%',
-    trend: 'up',
-    changePercent: 2.3,
-    period: 'vs. last week'
-  },
-  {
-    id: 'metric-004',
-    name: 'On-Time Delivery',
-    value: 94,
-    target: 95,
-    unit: '%',
-    trend: 'down',
-    changePercent: -1.5,
-    period: 'vs. last week'
-  },
-  {
-    id: 'metric-005',
-    name: 'Fuel Cost per Mile',
-    value: 0.42,
-    target: 0.45,
-    unit: '$/mi',
-    trend: 'down',
-    changePercent: -6.7,
-    period: 'vs. last month'
-  },
-  {
-    id: 'metric-006',
-    name: 'Average Idle Time',
-    value: 12.5,
-    target: 15.0,
-    unit: 'min',
-    trend: 'down',
-    changePercent: -16.7,
-    period: 'vs. last week'
-  }
-]
-
-const demoVehiclePerformance: VehiclePerformance[] = [
-  {
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    vehicleNumber: 'V-1001',
-    efficiency: 95,
-    fuelEconomy: 19.2,
-    routeOptimization: 92,
-    onTimeDelivery: 97,
-    idleTime: 8,
-    avgSpeed: 42,
-    totalMiles: 145.5,
-    totalCost: 61.11
-  },
-  {
-    vehicleId: 'veh-demo-1002',
-    vehicleName: 'Chevrolet Silverado #1002',
-    vehicleNumber: 'V-1002',
-    efficiency: 88,
-    fuelEconomy: 17.8,
-    routeOptimization: 85,
-    onTimeDelivery: 91,
-    idleTime: 15,
-    avgSpeed: 38,
-    totalMiles: 98.3,
-    totalCost: 41.29
-  },
-  {
-    vehicleId: 'veh-demo-1003',
-    vehicleName: 'Mercedes Sprinter #1003',
-    vehicleNumber: 'V-1003',
-    efficiency: 93,
-    fuelEconomy: 20.1,
-    routeOptimization: 94,
-    onTimeDelivery: 96,
-    idleTime: 10,
-    avgSpeed: 45,
-    totalMiles: 128.7,
-    totalCost: 54.03
-  },
-  {
-    vehicleId: 'veh-demo-1005',
-    vehicleName: 'Ford Transit #1005',
-    vehicleNumber: 'V-1005',
-    efficiency: 90,
-    fuelEconomy: 18.5,
-    routeOptimization: 88,
-    onTimeDelivery: 95,
-    idleTime: 12,
-    avgSpeed: 40,
-    totalMiles: 87.2,
-    totalCost: 36.62
-  }
-]
-
-const demoRouteEfficiency: RouteEfficiency[] = [
-  {
-    routeId: 'route-001',
-    routeName: 'Downtown Morning Circuit',
-    routeNumber: 'RT-1001',
-    plannedDistance: 45.5,
-    actualDistance: 43.2,
-    plannedTime: 240,
-    actualTime: 225,
-    efficiency: 95,
-    fuelUsed: 2.25,
-    cost: 8.10,
-    optimization: 92,
-    status: 'active'
-  },
-  {
-    routeId: 'route-002',
-    routeName: 'Campus Delivery Loop',
-    routeNumber: 'RT-1002',
-    plannedDistance: 32.0,
-    actualDistance: 32.5,
-    plannedTime: 180,
-    actualTime: 175,
-    efficiency: 97,
-    fuelUsed: 1.62,
-    cost: 5.83,
-    optimization: 94,
-    status: 'completed'
-  },
-  {
-    routeId: 'route-003',
-    routeName: 'Airport Shuttle Route',
-    routeNumber: 'RT-1003',
-    plannedDistance: 28.0,
-    actualDistance: 0,
-    plannedTime: 120,
-    actualTime: 0,
-    efficiency: 0,
-    fuelUsed: 0,
-    cost: 0,
-    optimization: 88,
-    status: 'planned'
-  }
-]
-
 export function OperationsPerformanceDrilldown() {
   const { data: metrics } = useSWR<PerformanceMetric[]>(
     '/api/operations/metrics',
     fetcher,
     {
-      fallbackData: demoMetrics,
       shouldRetryOnError: false
     }
   )
@@ -241,7 +79,6 @@ export function OperationsPerformanceDrilldown() {
     '/api/vehicles/performance',
     fetcher,
     {
-      fallbackData: demoVehiclePerformance,
       shouldRetryOnError: false
     }
   )
@@ -250,7 +87,6 @@ export function OperationsPerformanceDrilldown() {
     '/api/routes/efficiency',
     fetcher,
     {
-      fallbackData: demoRouteEfficiency,
       shouldRetryOnError: false
     }
   )
@@ -416,9 +252,9 @@ export function OperationsPerformanceDrilldown() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <Zap className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-            <div className="text-sm font-bold text-blue-400">{summary.avgEfficiency}%</div>
-            <div className="text-xs text-slate-400">Avg Efficiency</div>
+            <Zap className="w-4 h-4 text-blue-700 mx-auto mb-1" />
+            <div className="text-sm font-bold text-blue-700">{summary.avgEfficiency}%</div>
+            <div className="text-xs text-slate-700">Avg Efficiency</div>
           </CardContent>
         </Card>
 
@@ -426,7 +262,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <Fuel className="w-4 h-4 text-green-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-green-400">{summary.avgFuelEconomy}</div>
-            <div className="text-xs text-slate-400">Avg MPG</div>
+            <div className="text-xs text-slate-700">Avg MPG</div>
           </CardContent>
         </Card>
 
@@ -434,7 +270,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <Navigation className="w-4 h-4 text-purple-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-purple-400">{summary.totalMiles}</div>
-            <div className="text-xs text-slate-400">Total Miles</div>
+            <div className="text-xs text-slate-700">Total Miles</div>
           </CardContent>
         </Card>
 
@@ -442,7 +278,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <DollarSign className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">${summary.totalCost}</div>
-            <div className="text-xs text-slate-400">Total Cost</div>
+            <div className="text-xs text-slate-700">Total Cost</div>
           </CardContent>
         </Card>
       </div>
@@ -451,7 +287,7 @@ export function OperationsPerformanceDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Target className="w-3 h-3 text-blue-400" />
+            <Target className="w-3 h-3 text-blue-700" />
             Key Performance Metrics
           </CardTitle>
         </CardHeader>

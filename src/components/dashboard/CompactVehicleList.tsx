@@ -1,5 +1,5 @@
-import { Car, BatteryMedium, Circle, ArrowRight } from "@phosphor-icons/react"
-import { motion } from "framer-motion"
+import { Car, BatteryMedium, Circle, ArrowRight } from "lucide-react"
+// motion removed - React 19 incompatible
 import { useMemo, useRef, useEffect, useState } from "react"
 
 import { Vehicle } from "@/lib/types"
@@ -24,11 +24,11 @@ export function CompactVehicleList({
   const getStatusColor = (status: Vehicle["status"]) => {
     const colors = {
       active: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900",
-      idle: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700",
-      charging: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-900",
+      idle: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700",
+      charging: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900",
       service: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
       emergency: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
-      offline: "bg-gray-100 text-gray-500 border-gray-200 dark:bg-gray-800 dark:text-gray-500 dark:border-gray-700"
+      offline: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700"
     }
     return colors[status]
   }
@@ -97,27 +97,22 @@ export function CompactVehicleList({
             const _actualIndex = visibleRange.start + index
 
             return (
-              <motion.div
+              <div
                 key={vehicle.id}
                 className={cn(
                   "compact-list-item",
                   wasRecentlyUpdated && "bg-blue-50 dark:bg-blue-950/20"
                 )}
                 onClick={() => onVehicleClick?.(vehicle)}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2, delay: Math.min(index * 0.03, 0.3) }}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
                 data-testid="vehicle-card"
                 data-vehicle-id={vehicle.id}
               >
                 <div className={cn("compact-list-item-icon", getStatusColor(vehicle.status))}>
-                  <Car className="w-3.5 h-3.5" weight="fill" />
+                  <Car className="w-3.5 h-3.5" />
                   {wasRecentlyUpdated && (
                     <Circle
                       className="absolute -top-0.5 -right-0.5 w-2 h-2 fill-blue-500 text-blue-800 animate-pulse"
-                      weight="fill"
+                     
                     />
                   )}
                 </div>
@@ -128,7 +123,7 @@ export function CompactVehicleList({
                       {vehicle.number}
                     </div>
                     {wasRecentlyUpdated && (
-                      <span className="inline-flex px-1.5 py-0.5 text-[8px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-400 rounded border border-blue-200 dark:border-blue-900">
+                      <span className="inline-flex px-1.5 py-0.5 text-[8px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-700 rounded border border-blue-200 dark:border-blue-900">
                         LIVE
                       </span>
                     )}
@@ -167,7 +162,7 @@ export function CompactVehicleList({
                     </button>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )
           })}
         </div>
@@ -187,11 +182,11 @@ export function CompactVehicleListMini({
   const getStatusColor = (status: Vehicle["status"]) => {
     const colors = {
       active: "text-green-600 dark:text-green-400",
-      idle: "text-gray-500 dark:text-gray-400",
-      charging: "text-blue-800 dark:text-blue-400",
+      idle: "text-gray-700 dark:text-gray-700",
+      charging: "text-blue-800 dark:text-blue-700",
       service: "text-amber-600 dark:text-amber-400",
       emergency: "text-red-600 dark:text-red-400",
-      offline: "text-gray-400 dark:text-gray-500"
+      offline: "text-gray-700 dark:text-gray-700"
     }
     return colors[status]
   }
@@ -199,16 +194,13 @@ export function CompactVehicleListMini({
   return (
     <div className="space-y-1">
       {displayVehicles.map((vehicle, index) => (
-        <motion.div
+        <div
           key={vehicle.id}
           className="flex items-center justify-between p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
           onClick={() => onVehicleClick?.(vehicle)}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2, delay: index * 0.05 }}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <Car className={cn("w-3.5 h-3.5", getStatusColor(vehicle.status))} weight="fill" />
+            <Car className={cn("w-3.5 h-3.5", getStatusColor(vehicle.status))} />
             <div className="min-w-0">
               <div className="text-xs font-semibold text-foreground truncate">
                 {vehicle.number}
@@ -222,7 +214,7 @@ export function CompactVehicleListMini({
             <BatteryMedium className="w-3 h-3 text-muted-foreground" />
             <span className="text-[10px] font-semibold">{vehicle.fuelLevel}%</span>
           </div>
-        </motion.div>
+        </div>
       ))}
       {vehicles.length > maxItems && (
         <div className="text-center pt-1">

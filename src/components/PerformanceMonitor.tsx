@@ -95,13 +95,13 @@ function MetricCard({
 
   return (
     <div className="bg-gray-50 dark:bg-gray-800 rounded-md p-2 min-w-[80px]">
-      <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">{label}</div>
+      <div className="text-xs text-gray-700 dark:text-gray-700 mb-1">{label}</div>
       <div className={`text-sm font-semibold ${statusColor}`}>
         {value}
         {unit && <span className="text-xs ml-1">{unit}</span>}
       </div>
       {subtitle && (
-        <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{subtitle}</div>
+        <div className="text-xs text-gray-700 dark:text-gray-700 mt-1">{subtitle}</div>
       )}
     </div>
   )
@@ -301,7 +301,7 @@ export function PerformanceMonitor({
           <div id="performance-monitor-content" className="p-3 space-y-3">
             {/* Component Info */}
             <div className="border-b border-gray-200 dark:border-gray-700 pb-2">
-              <div className="text-xs text-gray-500 dark:text-gray-400">Component</div>
+              <div className="text-xs text-gray-700 dark:text-gray-700">Component</div>
               <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                 {componentName}
               </div>
@@ -310,7 +310,7 @@ export function PerformanceMonitor({
             {/* FPS */}
             {showFPS && fpsData && (
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
                   Frames Per Second
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -337,7 +337,7 @@ export function PerformanceMonitor({
             {/* Memory */}
             {showMemory && metrics?.latestMemoryUsage && (
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
                   Memory Usage
                 </div>
                 <div className="grid grid-cols-2 gap-2">
@@ -364,7 +364,7 @@ export function PerformanceMonitor({
             {/* Render Metrics */}
             {metrics && (
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
                   Render Performance
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -396,7 +396,7 @@ export function PerformanceMonitor({
             {/* Web Vitals */}
             {showWebVitals && webVitals.length > 0 && (
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
                   Core Web Vitals
                 </div>
                 <div className="grid grid-cols-3 gap-2">
@@ -422,7 +422,7 @@ export function PerformanceMonitor({
             {/* Custom Metrics */}
             {metrics?.customMetrics && metrics.customMetrics.length > 0 && (
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
                   Custom Metrics (Last 5)
                 </div>
                 <div className="space-y-1">
@@ -444,7 +444,7 @@ export function PerformanceMonitor({
             {/* Warnings */}
             {metrics?.warnings && metrics.warnings.length > 0 && (
               <div>
-                <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                <div className="text-xs text-gray-700 dark:text-gray-700 mb-2">
                   Performance Warnings
                 </div>
                 <div className="space-y-1">
@@ -468,7 +468,7 @@ export function PerformanceMonitor({
 
             {/* Footer */}
             <div className="border-t border-gray-200 dark:border-gray-700 pt-2">
-              <div className="text-xs text-gray-400 dark:text-gray-500 text-center">
+              <div className="text-xs text-gray-700 dark:text-gray-700 text-center">
                 Dev Mode Only • Updates Every 1s
               </div>
             </div>

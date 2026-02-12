@@ -11,6 +11,7 @@ import {
   Grid
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import useSWR from "swr"
 import { toast, ToastOptions } from "react-hot-toast"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
@@ -24,7 +25,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
+import { swrFetcher } from "@/lib/fetcher"
 import { cn } from "@/lib/utils"
+
+/** Safely extract an array from an API response that may be nested as { data: [...] } or { data: { data: [...] } } */
+const safeArray = <T,>(value: unknown): T[] => {
+  if (Array.isArray(value)) return value as T[]
+  if (value && typeof value === 'object') {
+    const inner = (value as Record<string, unknown>).data
+    if (Array.isArray(inner)) return inner as T[]
+    if (inner && typeof inner === 'object') {
+      const nested = (inner as Record<string, unknown>).data
+      if (Array.isArray(nested)) return nested as T[]
+    }
+  }
+  return []
+}
 
 // Facility Panel Component
 const FacilityPanel = ({ facilities, onFacilitySelect }: { facilities: Facility[]; onFacilitySelect: (facility: Facility) => void }) => {
@@ -145,7 +161,7 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
                   <AlertTriangle className="h-4 w-4 text-yellow-500" />
                   Active Alerts
                 </h4>
-                {vehicle.alerts.map((alert: string, i: number) => (
+                {(Array.isArray(vehicle.alerts) ? vehicle.alerts : []).map((alert: string, i: number) => (
                   <div key={i} className="flex items-start gap-2 text-sm">
                     <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                     <span>{alert}</span>
@@ -185,7 +201,9 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
 }
 
 // Work Orders Panel
-const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOrder[]; onWorkOrderSelect: (order: WorkOrder) => void }) => {
+const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { workOrders: WorkOrder[]; onWorkOrderSelect: (order: WorkOrder) => void }) => {
+  const workOrders = Array.isArray(workOrdersProp) ? workOrdersProp : safeArray<WorkOrder>(workOrdersProp)
+
   const getStatusIcon = (status: string): React.ReactNode => {
     switch (status) {
       case 'completed':
@@ -195,7 +213,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
       case 'pending':
         return <AlertCircle className="h-4 w-4 text-yellow-500" />
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />
+        return <AlertCircle className="h-4 w-4 text-gray-700" />
     }
   }
 
@@ -262,7 +280,7 @@ const WorkOrdersPanel = ({ workOrders, onWorkOrderSelect }: { workOrders: WorkOr
   )
 }
 
-// Mock parts data
+// Parts data
 interface Part {
   id: string
   name: string
@@ -282,23 +300,11 @@ interface Technician {
   completedToday: number
 }
 
-const mockParts: Part[] = [
-  { id: 'p1', name: 'Oil Filter', partNumber: 'OF-2024A', quantity: 45, reorderPoint: 20, status: 'in_stock', location: 'Shelf A-1' },
-  { id: 'p2', name: 'Brake Pads (Front)', partNumber: 'BP-F100', quantity: 8, reorderPoint: 15, status: 'low_stock', location: 'Shelf B-3' },
-  { id: 'p3', name: 'Air Filter', partNumber: 'AF-2024B', quantity: 32, reorderPoint: 10, status: 'in_stock', location: 'Shelf A-2' },
-  { id: 'p4', name: 'Spark Plugs (4-pack)', partNumber: 'SP-4PK', quantity: 0, reorderPoint: 12, status: 'on_order', location: 'Shelf C-1' },
-  { id: 'p5', name: 'Transmission Fluid', partNumber: 'TF-ATF4', quantity: 24, reorderPoint: 8, status: 'in_stock', location: 'Shelf D-2' },
-]
-
-const mockTechnicians: Technician[] = [
-  { id: 't1', name: 'Mike Johnson', status: 'busy', currentTask: 'V-1042 Oil Change', completedToday: 3 },
-  { id: 't2', name: 'Sarah Chen', status: 'available', completedToday: 5 },
-  { id: 't3', name: 'James Wilson', status: 'busy', currentTask: 'V-1087 Brake Service', completedToday: 2 },
-  { id: 't4', name: 'Maria Garcia', status: 'break', completedToday: 4 },
-]
-
 // Parts Inventory Panel
-const PartsPanel = ({ _parts }: { _parts: unknown }) => {
+const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts: Part[]; technicians: Technician[] }) => {
+  const parts = Array.isArray(partsProp) ? partsProp : []
+  const technicians = Array.isArray(techniciansProp) ? techniciansProp : []
+
   const getStatusColor = (status: Part['status']) => {
     switch (status) {
       case 'in_stock': return 'bg-green-500'
@@ -326,22 +332,90 @@ const PartsPanel = ({ _parts }: { _parts: unknown }) => {
     }
   }
 
-  // Calculate stats
-  const openWorkOrders = 12
-  const avgCompletionTime = '2.4h'
-  const partsOnOrder = mockParts.filter(p => p.status === 'on_order').length
-  const lowStockItems = mockParts.filter(p => p.status === 'low_stock').length
+  const partsOnOrder = parts.filter(p => p.status === 'on_order').length
+  const lowStockItems = parts.filter(p => p.status === 'low_stock' || p.status === 'out_of_stock').length
+  const availableTechs = technicians.filter(t => t.status === 'available').length
+
+  const lowStockParts = parts
+    .filter(p => p.status === 'low_stock' || p.status === 'out_of_stock')
+    .slice(0, 6)
 
   return (
     <ScrollArea className="h-full">
-      <div className="p-2">
+      <div className="p-2 space-y-2">
         <h3 className="font-semibold mb-3">Parts Inventory</h3>
-        <div className="text-center text-muted-foreground py-3">
-          <Package className="h-9 w-12 mx-auto mb-2 opacity-50" />
-          <p>Parts inventory management</p>
+
+        <div className="grid grid-cols-2 gap-2">
+          <Card>
+            <CardContent className="p-2">
+              <div className="text-xs text-muted-foreground">Low Stock</div>
+              <div className="text-lg font-semibold text-yellow-600">{lowStockItems}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-2">
+              <div className="text-xs text-muted-foreground">On Order</div>
+              <div className="text-lg font-semibold text-blue-600">{partsOnOrder}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-2">
+              <div className="text-xs text-muted-foreground">Total Parts</div>
+              <div className="text-lg font-semibold">{parts.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-2">
+              <div className="text-xs text-muted-foreground">Techs Available</div>
+              <div className="text-lg font-semibold text-emerald-700">{availableTechs}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-medium mb-2">Low Stock Parts</h4>
           <div className="space-y-2">
-            <p className="text-sm text-muted-foreground">Maintenance schedules and work orders are displayed in the main workspace.</p>
-            <p className="text-sm text-muted-foreground">Use the tabs above to navigate between different views.</p>
+            {lowStockParts.length === 0 && (
+              <div className="text-xs text-muted-foreground">No low stock parts</div>
+            )}
+            {lowStockParts.map(part => (
+              <Card key={part.id}>
+                <CardContent className="p-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <div className="font-medium text-sm">{part.name}</div>
+                      <div className="text-xs text-muted-foreground">{part.partNumber}</div>
+                    </div>
+                    <Badge variant="outline" className="text-xs">
+                      {part.quantity} on hand
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h4 className="text-sm font-medium mb-2">Technicians</h4>
+          <div className="space-y-2">
+            {technicians.length === 0 && (
+              <div className="text-xs text-muted-foreground">No technicians found</div>
+            )}
+            {technicians.map(tech => (
+              <Card key={tech.id}>
+                <CardContent className="p-2 flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-medium">{tech.name}</div>
+                    <div className="text-xs text-muted-foreground">{tech.currentTask || 'No active task'}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${getTechStatusColor(tech.status)}`} />
+                    <span className="text-xs capitalize">{tech.status}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
       </div>
@@ -368,6 +442,8 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   const { data: facilities = [] } = useFacilities()
   const { data: workOrders = [] } = useWorkOrders()
   const { data: _maintenanceSchedule = [] } = useMaintenanceSchedules()
+  const { data: partsResponse } = useSWR<{ data: any[] }>('/api/parts?limit=200', swrFetcher)
+  const { data: usersResponse } = useSWR<{ data: any[] }>('/api/users?limit=500', swrFetcher)
 
   // Real-time telemetry
   const {
@@ -379,11 +455,64 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   })
 
   // Use real-time vehicles if available, otherwise use static data
-  const displayVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles
+  const safeRealtimeVehicles = Array.isArray(realtimeVehicles) ? realtimeVehicles : []
+  const safeVehicles = Array.isArray(vehicles) ? vehicles : safeArray<Vehicle>(vehicles)
+  const displayVehicles = safeRealtimeVehicles.length > 0 ? safeRealtimeVehicles : safeVehicles
+
+  const workOrderList: any[] = Array.isArray(workOrders) ? workOrders : safeArray<any>(workOrders)
+
+  const parts: Part[] = useMemo(() => {
+    const rawParts = safeArray<any>(partsResponse)
+    return rawParts.map((part: any) => {
+      const quantity = Number(part.quantity_on_hand ?? part.quantity ?? 0)
+      const reorderPoint = Number(part.reorder_point ?? part.reorderPoint ?? 0)
+      let status: Part['status'] = 'in_stock'
+      if (part.metadata?.on_order) status = 'on_order'
+      if (quantity <= 0) status = 'out_of_stock'
+      else if (quantity <= reorderPoint) status = 'low_stock'
+
+      return {
+        id: part.id,
+        name: part.name,
+        partNumber: part.part_number || part.partNumber || '',
+        quantity,
+        reorderPoint,
+        status,
+        location: part.location_in_warehouse || part.location || '',
+        lastUsed: part.updated_at || part.created_at
+      }
+    })
+  }, [partsResponse])
+
+  const technicians: Technician[] = useMemo(() => {
+    const users = safeArray<any>(usersResponse)
+    return users
+      .filter((user: any) => user.role === 'Mechanic')
+      .map((user: any) => {
+        const assigned = workOrderList.find((order: any) =>
+          order.assigned_to_id === user.id && order.status !== 'completed'
+        )
+        const completedToday = workOrderList.filter((order: any) => {
+          if (order.assigned_to_id !== user.id || !order.actual_end_date) return false
+          const endDate = new Date(order.actual_end_date)
+          const today = new Date()
+          return endDate.toDateString() === today.toDateString()
+        }).length
+
+        return {
+          id: user.id,
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email,
+          status: assigned ? 'busy' : 'available',
+          currentTask: assigned?.title,
+          completedToday
+        }
+      })
+  }, [usersResponse, workOrderList])
 
   // Filter vehicles that need maintenance
   const maintenanceVehicles = useMemo(() => {
-    return (displayVehicles as unknown as Vehicle[]).filter((v: Vehicle) => {
+    const safeDisplay: Vehicle[] = Array.isArray(displayVehicles) ? displayVehicles as Vehicle[] : []
+    return safeDisplay.filter((v: Vehicle) => {
       if (filterStatus === 'all') return true
       if (filterStatus === 'service') return v.status === 'service'
       if (filterStatus === 'alerts') return v.alerts && v.alerts.length > 0
@@ -396,7 +525,8 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   // Handle vehicle selection
   const handleVehicleSelect = useCallback((vehicleId: string) => {
-    const vehicle = (displayVehicles as Vehicle[]).find((v: Vehicle) => v.id === vehicleId)
+    const safeDisplay: Vehicle[] = Array.isArray(displayVehicles) ? displayVehicles as Vehicle[] : []
+    const vehicle = safeDisplay.find((v: Vehicle) => v.id === vehicleId)
     if (vehicle) {
       setSelectedEntity({ type: 'vehicle', data: vehicle })
       setActivePanel('vehicle')
@@ -404,14 +534,18 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   }, [displayVehicles])
 
   // Stats
-  const stats = useMemo(() => ({
-    inService: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.status === 'service').length,
-    alertsPending: (displayVehicles as Vehicle[]).filter((v: Vehicle) => v.alerts && v.alerts.length > 0).length,
-    serviceDue: (displayVehicles as Vehicle[]).filter((v: Vehicle) =>
-      v.nextService && (Number(v.nextService) - (v.mileage || 0)) < 500
-    ).length,
-    workOrdersPending: (workOrders as unknown as WorkOrder[]).filter((w: WorkOrder) => w.status === 'pending').length
-  }), [displayVehicles, workOrders])
+  const stats = useMemo(() => {
+    const safeDisplay: Vehicle[] = Array.isArray(displayVehicles) ? displayVehicles as Vehicle[] : []
+    const safeWO: any[] = Array.isArray(workOrders) ? workOrders : []
+    return {
+      inService: safeDisplay.filter((v: Vehicle) => v.status === 'service').length,
+      alertsPending: safeDisplay.filter((v: Vehicle) => v.alerts && v.alerts.length > 0).length,
+      serviceDue: safeDisplay.filter((v: Vehicle) =>
+        v.nextService && (Number(v.nextService) - (v.mileage || 0)) < 500
+      ).length,
+      workOrdersPending: safeWO.filter((w: WorkOrder) => w.status === 'pending').length
+    }
+  }, [displayVehicles, workOrders])
 
   return (
     <div className="h-screen grid grid-cols-[1fr_400px]" data-testid="maintenance-workspace">
@@ -524,7 +658,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
             />
           </TabsContent>
           <TabsContent value="parts" className="h-[calc(100vh-48px)] mt-0">
-            <PartsPanel _parts={null} />
+            <PartsPanel parts={parts} technicians={technicians} />
           </TabsContent>
         </Tabs>
       </div>

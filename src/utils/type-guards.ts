@@ -29,7 +29,7 @@ export function isObject(value: unknown): value is Record<string, unknown> {
 }
 
 // Type guard for checking if a value is a function
-export function isFunction(value: unknown): value is Function {
+export function isFunction(value: unknown): value is (...args: any[]) => any {
   return typeof value === 'function';
 }
 

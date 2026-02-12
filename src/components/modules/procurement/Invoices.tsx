@@ -1,4 +1,4 @@
-import { FileText, MagnifyingGlass, CurrencyDollar, Warning, CheckCircle } from "@phosphor-icons/react"
+import { FileText, Search, DollarSign, AlertTriangle, CheckCircle } from "lucide-react"
 import { useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -115,7 +115,7 @@ export function Invoices() {
           <CardContent>
             <div className="text-sm font-bold text-yellow-600">${totalOutstanding.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <CurrencyDollar className="w-3 h-3" />
+              <DollarSign className="w-3 h-3" />
               Balance due
             </div>
           </CardContent>
@@ -128,7 +128,7 @@ export function Invoices() {
           <CardContent>
             <div className="text-sm font-bold text-red-600">{overdueCount}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               Needs attention
             </div>
           </CardContent>
@@ -137,7 +137,7 @@ export function Invoices() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search invoices..."
             value={searchTerm}

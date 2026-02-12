@@ -5,7 +5,7 @@ export const emailSchema = z.string().email('Invalid email address');
 
 // Phone number validation (basic international format)
 export const phoneSchema = z.string().regex(
-  /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{4,6}$/,
+  /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{4,6}$/,
   'Invalid phone number'
 );
 
@@ -70,7 +70,7 @@ export const optionalOrNullSchema = <T extends z.ZodTypeAny>(schema: T) =>
 
 // Enum from array
 export const enumFromArray = <T extends readonly string[]>(values: T) =>
-  z.enum(values as [string, ...string[]]);
+  z.enum(values as unknown as [string, ...string[]]);
 
 // Numeric string (string that can be parsed to number)
 export const numericStringSchema = z.string().regex(/^\d+$/, 'Must be a numeric string');
@@ -153,7 +153,7 @@ export function omitFields<T extends z.ZodObject<any>, K extends keyof T['shape'
 ): z.ZodObject<Omit<T['shape'], K>> {
   const shape = { ...schema.shape };
   keys.forEach((key) => delete shape[key]);
-  return z.object(shape);
+  return z.object(shape) as z.ZodObject<Omit<T['shape'], K>>;
 }
 
 // Type-safe pick

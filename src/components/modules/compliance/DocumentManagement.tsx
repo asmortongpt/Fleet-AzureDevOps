@@ -1,15 +1,14 @@
 import {
   Plus,
-  MagnifyingGlass,
+  Search,
   Download,
-  Trash,
+  Trash2,
   Upload,
   Eye,
-  FilePdf,
-  FileDoc,
-  FileImage,
+  FileText,
+  Image,
   File
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { formatDistanceToNow } from "date-fns"
 import { useState, useRef } from "react"
@@ -211,10 +210,10 @@ export function DocumentManagement() {
   }
 
   const getFileIcon = (fileType: string) => {
-    if (fileType.includes('pdf')) return <FilePdf className="w-4 h-4 text-red-500" />
-    if (fileType.includes('word') || fileType.includes('document')) return <FileDoc className="w-4 h-4 text-blue-800" />
-    if (fileType.includes('image')) return <FileImage className="w-4 h-4 text-green-500" />
-    return <File className="w-4 h-4 text-gray-500" />
+    if (fileType.includes('pdf')) return <FileText className="w-4 h-4 text-red-500" />
+    if (fileType.includes('word') || fileType.includes('document')) return <FileText className="w-4 h-4 text-blue-800" />
+    if (fileType.includes('image')) return <Image className="w-4 h-4 text-green-500" />
+    return <File className="w-4 h-4 text-gray-700" />
   }
 
   const formatFileSize = (bytes: number): string => {
@@ -392,7 +391,7 @@ export function DocumentManagement() {
           <div className="flex gap-2">
             <div className="flex-1">
               <div className="relative">
-                <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   placeholder="Search documents..."
                   value={searchTerm}
@@ -485,7 +484,7 @@ export function DocumentManagement() {
                           size="sm"
                           onClick={() => handleDeleteDocument(doc.id)}
                         >
-                          <Trash className="w-4 h-4" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </TableCell>

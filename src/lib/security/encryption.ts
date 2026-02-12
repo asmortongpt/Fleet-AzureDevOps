@@ -12,6 +12,8 @@
  * SOC 2: CC6.1, CC6.7
  */
 
+import logger from '@/utils/logger';
+
 /**
  * Encryption Algorithm Configuration
  * Uses Web Crypto API (built into modern browsers)
@@ -134,12 +136,12 @@ class EncryptionService {
       } else {
         // Development: Generate temporary key (NOT for production!)
         this.masterKey = await this.generateMasterKey();
-        console.warn('[EncryptionService] Using temporary master key (development mode)');
+        logger.warn('[EncryptionService] Using temporary master key (development mode)');
       }
 
-      console.log('[EncryptionService] Initialized successfully');
+      logger.info('[EncryptionService] Initialized successfully');
     } catch (error) {
-      console.error('[EncryptionService] Initialization failed:', error);
+      logger.error('[EncryptionService] Initialization failed:', error);
       throw new Error('Failed to initialize encryption service');
     }
   }
@@ -199,13 +201,13 @@ class EncryptionService {
       // Return encrypted container
       return {
         ciphertext: this.arrayBufferToBase64(ciphertext),
-        iv: this.arrayBufferToBase64(iv),
+        iv: this.arrayBufferToBase64(iv.buffer),
         keyVersion: this.currentKeyVersion,
         algorithm: 'AES-256-GCM',
         encryptedAt: new Date().toISOString()
       };
     } catch (error) {
-      console.error('[EncryptionService] Encryption failed:', error);
+      logger.error('[EncryptionService] Encryption failed:', error);
       throw new Error('Encryption failed');
     }
   }
@@ -259,7 +261,7 @@ class EncryptionService {
       const decoder = new TextDecoder();
       return decoder.decode(decrypted);
     } catch (error) {
-      console.error('[EncryptionService] Decryption failed:', error);
+      logger.error('[EncryptionService] Decryption failed:', error);
       throw new Error('Decryption failed - data may be corrupted or tampered');
     }
   }
@@ -328,7 +330,7 @@ class EncryptionService {
    * Re-encrypts all data with new key version
    */
   async rotateKeys(): Promise<void> {
-    console.log('[EncryptionService] Starting key rotation...');
+    logger.info('[EncryptionService] Starting key rotation...');
 
     // Generate new key version
     const oldVersion = this.currentKeyVersion;
@@ -337,7 +339,7 @@ class EncryptionService {
     // Clear key cache to force re-derivation
     this.keyCache.clear();
 
-    console.log(`[EncryptionService] Key rotated: ${oldVersion} → ${this.currentKeyVersion}`);
+    logger.info(`[EncryptionService] Key rotated: ${oldVersion} → ${this.currentKeyVersion}`);
 
     // In production, trigger background job to re-encrypt all data
     // await this.reencryptAllData();
@@ -532,7 +534,7 @@ export async function initializeWithAzureKeyVault(): Promise<void> {
     // Initialize encryption service with fetched key
     await encryptionService.initialize(keyMaterial);
   } catch (error) {
-    console.error('[EncryptionService] Azure Key Vault initialization failed:', error);
+    logger.error('[EncryptionService] Azure Key Vault initialization failed:', error);
     throw error;
   }
 }

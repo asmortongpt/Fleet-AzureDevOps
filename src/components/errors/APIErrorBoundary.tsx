@@ -16,6 +16,7 @@ import { Component, ReactNode } from 'react'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import logger from '@/utils/logger';
 
 interface Props {
   children: ReactNode
@@ -56,7 +57,7 @@ export class APIErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error to console in development
     if (import.meta.env.DEV) {
-      console.error('APIErrorBoundary caught error:', error, errorInfo)
+      logger.error('APIErrorBoundary caught error:', error, errorInfo)
     }
 
     // Call custom error handler if provided

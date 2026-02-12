@@ -6,11 +6,20 @@ import { Toaster } from 'react-hot-toast'
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { ToastContainer } from "@/components/common/ToastContainer"
-import { RoleSwitcher } from "@/components/demo/RoleSwitcher"
 import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
 import { CommandCenterLayout } from "@/components/layout/CommandCenterLayout"
+import { SinglePageShell } from "@/components/layout/SinglePageShell"
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/contexts"
+import { useNavigation } from "@/contexts/NavigationContext"
+import { useFleetData } from "@/hooks/use-fleet-data"
+import { navigationItems } from "@/lib/navigation"
+import telemetryService from '@/lib/telemetry'
+import logger from '@/utils/logger'
+
+// Feature flag for new single-page layout
+const USE_NEW_LAYOUT = false // TEMPORARILY DISABLED to show redesigned FleetHub
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 // Modules now organized in feature-based folders for better maintainability
@@ -33,7 +42,7 @@ const AnalyticsDashboard = lazy(() => import("@/components/analytics/AnalyticsDa
 
 // ADMIN MODULES
 // const CommandCenter = lazy(() => import("@/pages/CommandCenter"))
-const AdminDashboard = lazy(() => import("@/pages/AdminDashboard"))
+
 
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
@@ -93,11 +102,17 @@ const DocumentQA = lazy(() => import("@/components/modules/compliance/DocumentQA
 // CHARGING MODULES
 const EVChargingManagement = lazy(() => import("@/components/modules/charging/EVChargingManagement").then(m => ({ default: m.EVChargingManagement })))
 
+// CHARGING & EV HUB PAGES
+const ChargingHub = lazy(() => import("@/pages/ChargingHub"))
+const EVHub = lazy(() => import("@/pages/EVHub"))
+
 // PERSONAL USE MODULES
 const PersonalUseDashboard = lazy(() => import("@/components/modules/personal-use/PersonalUseDashboard").then(m => ({ default: m.PersonalUseDashboard })))
 const PersonalUsePolicyConfig = lazy(() => import("@/components/modules/personal-use/PersonalUsePolicyConfig").then(m => ({ default: m.PersonalUsePolicyConfig })))
 const ReimbursementQueue = lazy(() => import("@/pages/PersonalUse/ReimbursementQueue").then(m => ({ default: m.ReimbursementQueue })))
 const ChargesAndBilling = lazy(() => import("@/pages/PersonalUse/ChargesAndBilling").then(m => ({ default: m.ChargesAndBilling })))
+
+// E2E TEST PAGE (DEVELOPMENT ONLY)
 
 // ASSETS MODULES
 const AssetManagement = lazy(() => import("@/components/modules/assets/AssetManagement").then(m => ({ default: m.AssetManagement })))
@@ -119,7 +134,8 @@ const AnalyticsWorkspace = lazy(() => import("@/components/workspaces/AnalyticsW
 const ComplianceWorkspace = lazy(() => import("@/components/workspaces/ComplianceWorkspace").then(m => ({ default: m.ComplianceWorkspace })))
 
 // HUB MODULES (Phase 2-3 Map-First UX Transformation)
-const ReportsHubPage = lazy(() => import("@/pages/ReportsHub"))
+
+
 const OperationsHub = lazy(() => import("@/components/hubs/operations/OperationsHub").then(m => ({ default: m.OperationsHub })))
 const MaintenanceHub = lazy(() => import("@/components/hubs/maintenance/MaintenanceHub").then(m => ({ default: m.MaintenanceHub })))
 const ProcurementHub = lazy(() => import("@/components/hubs/procurement/ProcurementHub").then(m => ({ default: m.ProcurementHub })))
@@ -127,25 +143,22 @@ const CommunicationHub = lazy(() => import("@/components/hubs/communication/Comm
 const SafetyHub = lazy(() => import("@/components/hubs/safety/SafetyHub").then(m => ({ default: m.SafetyHub })))
 const AssetsHub = lazy(() => import("@/components/hubs/assets/AssetsHub").then(m => ({ default: m.AssetsHub })))
 
-// NEW CONSOLIDATED HUB PAGES (Production Readiness Phase 3)
-const FleetHubPage = lazy(() => import("@/pages/FleetHub"))
-const OperationsHubPage = lazy(() => import("@/pages/OperationsHub"))
-const MaintenanceHubPage = lazy(() => import("@/pages/MaintenanceHub"))
-const DriversHubPage = lazy(() => import("@/pages/DriversHub"))
-const AnalyticsHubPage = lazy(() => import("@/pages/AnalyticsHub"))
-const ComplianceHubPage = lazy(() => import("@/pages/ComplianceHub"))
-const ProcurementHubPage = lazy(() => import("@/pages/ProcurementHub"))
-const AdminHubPage = lazy(() => import("@/pages/AdminHub"))
-const SafetyHubPage = lazy(() => import("@/pages/SafetyHub"))
-const AssetsHubPage = lazy(() => import("@/pages/AssetsHub"))
-const CommunicationHubPage = lazy(() => import("@/pages/CommunicationHub"))
-const FinancialHubPage = lazy(() => import("@/pages/FinancialHub"))
-const IntegrationsHubPage = lazy(() => import("@/pages/IntegrationsHub"))
-const PolicyHubPage = lazy(() => import("@/pages/PolicyHub"))
-const SafetyComplianceHubPage = lazy(() => import("@/pages/SafetyComplianceHub"))
-const CTAConfigurationHubPage = lazy(() => import("@/pages/CTAConfigurationHub"))
-const DataGovernanceHubPage = lazy(() => import("@/pages/DataGovernanceHub"))
-const DocumentsHubPage = lazy(() => import("@/pages/DocumentsHub"))
+// ============================================================================
+// CONSOLIDATED HUB PAGES (Screen Consolidation - Phase 4)
+// ============================================================================
+// These 5 hubs replace 24 individual hub pages for better UX
+
+const FleetOperationsHub = lazy(() => import("@/pages/FleetOperationsHub"))
+const ComplianceSafetyHub = lazy(() => import("@/pages/ComplianceSafetyHub"))
+const BusinessManagementHub = lazy(() => import("@/pages/BusinessManagementHub"))
+const PeopleCommunicationHub = lazy(() => import("@/pages/PeopleCommunicationHub"))
+const AdminConfigurationHub = lazy(() => import("@/pages/AdminConfigurationHub"))
+const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"))
+
+// ============================================================================
+// DEPRECATED: OLD INDIVIDUAL HUB PAGES removed in deep clean consolidate-hubs-v4
+// TODO: Clean up any remaining switch case references if they still point to removed files
+
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -164,15 +177,7 @@ const LoadingSpinner = () => (
   </div>
 )
 
-import { useAuth } from "@/contexts/AuthContext"
-import { useNavigation } from "@/contexts/NavigationContext"
-import { useFleetData } from "@/hooks/use-fleet-data"
-import { navigationItems } from "@/lib/navigation"
-// import { initializePolicyEngine } from '@/lib/policy-engine/global-policy-integration' // DISABLED - missing dependencies
-import telemetryService from '@/lib/telemetry'
-
-// ... existing imports
-
+// Main App Component
 function App() {
   const { canAccess } = useAuth()
   const { activeModule, setActiveModule } = useNavigation()
@@ -184,11 +189,11 @@ function App() {
   useEffect(() => {
     const initPolicies = async () => {
       try {
-        console.log('🔒 Policy Enforcement Engine disabled (missing dependencies)')
+        logger.info('🔒 Policy Enforcement Engine disabled (missing dependencies)')
         // await initializePolicyEngine()  // DISABLED - missing dependencies
-        console.log('✅ App initialized without policy engine')
+        logger.info('✅ App initialized without policy engine')
       } catch (error) {
-        console.error('❌ Failed to initialize App:', error)
+        logger.error('❌ Failed to initialize App:', error)
         // Application will continue but without policy enforcement
         // TODO: Show admin notification
       }
@@ -223,7 +228,7 @@ function App() {
           <p className="text-slate-700 mb-3">
             You do not have permission to view this module.
           </p>
-          <Button onClick={() => setActiveModule('live-fleet-dashboard')}>
+          <Button onClick={() => setActiveModule('fleet-hub-consolidated')}>
             Return to Dashboard
           </Button>
         </div>
@@ -238,7 +243,7 @@ function App() {
       case "executive-dashboard":
         return <ExecutiveDashboard />
       case "admin-dashboard":
-        return <AdminDashboard />
+        return <AdminConfigurationHub />
       case "operations-workspace":
         return <OperationsWorkspace />
       case "fleet-workspace":
@@ -252,19 +257,29 @@ function App() {
       case "compliance-workspace":
         return <ComplianceWorkspace />
 
-      case "reports-hub":
+      // DEPRECATED: Consolidated into BusinessManagementHub
+      // case "reports-hub":
       case "reports":
-        return <ReportsHubPage />
-      case "operations-hub":
-        return <OperationsHub />
-      case "procurement-hub":
-        return <ProcurementHub />
-      case "communication-hub":
-        return <CommunicationHub />
+        return <BusinessManagementHub />
+
+      // DEPRECATED: Consolidated into FleetOperationsHub
+      // case "operations-hub":
+      //   return <OperationsHub />
+
+      // DEPRECATED: Consolidated into BusinessManagementHub
+      // case "procurement-hub":
+      //   return <ProcurementHub />
+
+      // DEPRECATED: Consolidated into PeopleCommunicationHub
+      // case "communication-hub":
+      //   return <CommunicationHub />
+
       case "dispatch-console":
         return <DispatchConsole />
-      case "fleet-hub":
-        return <FleetHubPage />
+
+      // DEPRECATED: Consolidated into FleetOperationsHub
+      // case "fleet-hub":
+      //   return <FleetHubPage />
 
       case "garage":
         return <GarageService />
@@ -321,6 +336,12 @@ function App() {
         return <VideoTelematics />
       case "ev-charging":
         return <EVChargingManagement />
+      case "charging-hub":
+      case "charging":
+        return <ChargingHub />
+      case "ev-hub":
+      case "ev":
+        return <EVHub />
       case "vehicle-telemetry":
         return <VehicleTelemetry />
       case "map-layers":
@@ -362,6 +383,13 @@ function App() {
         return <DocumentQA />
       case "fuel-purchasing":
         return <FuelPurchasing />
+      case "fuel-management":
+        return <FleetOperationsHub />
+      case "hos":
+      case "hours-of-service":
+        return <ComplianceSafetyHub />
+      case "incidents":
+        return <ComplianceSafetyHub />
       case "endpoint-monitor":
         return <EndpointMonitor />
       case "driver-mgmt":
@@ -373,90 +401,93 @@ function App() {
         return <FleetOptimizer />
       case "cost-analysis":
         return <CostAnalysisCenter />
-      case "maintenance-hub":
-        return <MaintenanceHub />
+
+      // DEPRECATED: Consolidated into FleetOperationsHub
+      // case "maintenance-hub":
+      //   return <MaintenanceHub />
+
       case "custom-reports":
         return <CustomReportBuilder />
       case "analytics":
-        return <AnalyticsHubPage />
+        return <BusinessManagementHub />
       case "maintenance-request":
         return <MaintenanceRequest data={fleetData} />
-      case "safety-hub":
-        return <SafetyHub />
+
+      // DEPRECATED: Consolidated into ComplianceSafetyHub
+      // case "safety-hub":
+      //   return <SafetyHub />
+
       case "safety-alerts":
         return <SafetyAlertsPage />
       case "heavy-equipment":
         return <EquipmentDashboard /> // TODO: Replace with HeavyEquipmentPage when implemented
-      case "assets-hub":
-        return <AssetsHub />
+
+      // DEPRECATED: Consolidated into FleetOperationsHub
+      // case "assets-hub":
+      //   return <AssetsHub />
       case "settings":
         return <SettingsPage />
       case "profile":
         return <ProfilePage />
-      // NEW CONSOLIDATED HUB PAGES (Production Readiness Phase 3)
-      case "fleet-hub-consolidated":
-        return <FleetHubPage />
-      case "operations-hub-consolidated":
-        return <OperationsHubPage />
-      case "maintenance-hub-consolidated":
-        return <MaintenanceHubPage />
-      case "drivers-hub-consolidated":
-        return <DriversHubPage />
-      case "analytics-hub-consolidated":
-        return <AnalyticsHubPage />
-      case "compliance-hub-consolidated":
-        return <ComplianceHubPage />
-      case "procurement-hub-consolidated":
-        return <ProcurementHubPage />
-      case "admin-hub-consolidated":
-        return <AdminHubPage />
-      case "safety-hub-consolidated":
-        return <SafetyHubPage />
-      case "assets-hub-consolidated":
-        return <AssetsHubPage />
-      case "communication-hub-consolidated":
-        return <CommunicationHubPage />
-      case "financial-hub-consolidated":
-        return <FinancialHubPage />
-      case "integrations-hub-consolidated":
-        return <IntegrationsHubPage />
-      case "policy-hub":
-        return <PolicyHubPage />
-      case "safety-compliance-hub":
-        return <SafetyComplianceHubPage />
-      case "cta-configuration-hub":
-        return <CTAConfigurationHubPage />
-      case "data-governance-hub":
-        return <DataGovernanceHubPage />
-      case "documents-hub":
-        return <DocumentsHubPage />
+      // ============================================================================
+      // NEW CONSOLIDATED HUB PAGES (Screen Consolidation - 24 hubs → 5 hubs)
+      // ============================================================================
 
-      // SHORT URL HANDLERS - Fix routing mismatch (URLs use /financial but cases were -hub-consolidated)
-      // Issue: Navigation generates /financial, /fleet, etc. but switch only handled -hub-consolidated
-      // Result: All hubs fell through to default (CommandCenter map view) instead of proper hub pages
-      case "financial":
-        return <FinancialHubPage />
+      // FLEET OPERATIONS HUB - Consolidates: Fleet, Drivers, Operations, Maintenance, Assets
+      case "fleet-hub-consolidated":
+      case "operations-hub-consolidated":
+      case "maintenance-hub-consolidated":
+      case "drivers-hub-consolidated":
+      case "assets-hub-consolidated":
       case "fleet":
-        return <FleetHubPage />
-      case "maintenance":
-        return <MaintenanceHubPage />
-      case "procurement":
-        return <ProcurementHubPage />
       case "operations":
-        return <OperationsHubPage />
+      case "maintenance":
       case "drivers":
-        return <DriversHubPage />
+      case "assets":
+        return <FleetOperationsHub />
+
+      // COMPLIANCE & SAFETY HUB - Consolidates: Compliance, Safety, Policy
+      case "compliance-hub-consolidated":
+      case "safety-hub-consolidated":
+      case "safety-compliance-hub":
+      case "policy-hub":
       case "safety":
       case "compliance":
-        return <SafetyComplianceHubPage />
-      case "admin":
-        return <AdminHubPage />
-      case "assets":
-        return <AssetsHubPage />
+        return <ComplianceSafetyHub />
+
+      // BUSINESS MANAGEMENT HUB - Consolidates: Financial, Procurement, Analytics, Reports
+      case "financial-hub-consolidated":
+      case "procurement-hub-consolidated":
+      case "analytics-hub-consolidated":
+      case "reports-hub":
+      case "insights-hub":
+      case "financial":
+      case "procurement":
+        return <BusinessManagementHub />
+
+      // PEOPLE & COMMUNICATION HUB - Consolidates: People, Communication, Work
+      case "communication-hub-consolidated":
+      case "people-hub":
+      case "work-hub":
       case "communication":
-        return <CommunicationHubPage />
+        return <PeopleCommunicationHub />
+
+      // ADMIN & CONFIGURATION HUB - Consolidates: Admin, Integrations, Documents, CTA Config, Data Governance
+      case "admin-hub-consolidated":
+      case "integrations-hub-consolidated":
+      case "documents-hub":
+      case "cta-configuration-hub":
+      case "data-governance-hub":
+      case "configuration-hub":
+      case "admin":
       case "integrations":
-        return <IntegrationsHubPage />
+        return <AdminConfigurationHub />
+
+      // 3D GARAGE - Interactive Vehicle Showroom
+      case "3d-garage":
+      case "vehicle-showroom":
+      case "showroom":
+        return <VehicleShowroom3D />
 
       // DESIGN SYSTEM DEMO - No auth required
       //   case "fleet-design-demo":
@@ -464,19 +495,49 @@ function App() {
       //     return <Suspense fallback={<div>Loading...</div>}><FleetDesignDemo /></Suspense>
 
       default:
-        return <LiveFleetDashboard />
+        return <FleetOperationsHub />
     }
   }
 
 
 
+  // New single-page layout (feature-flagged)
+  if (USE_NEW_LAYOUT) {
+    return (
+      <DrilldownManager>
+        <SinglePageShell />
+
+        {/* Toast notifications */}
+        <div role="status" aria-live="polite" aria-label="Toast notifications">
+          <ToastContainer />
+        </div>
+        <div role="status" aria-live="polite" aria-label="Notifications">
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: 'hsl(var(--card))',
+                color: 'hsl(var(--card-foreground))',
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '0.75rem',
+                fontSize: '0.875rem',
+              },
+            }}
+          />
+        </div>
+      </DrilldownManager>
+    )
+  }
+
+  // Legacy layout (default)
   return (
     <DrilldownManager>
       <CommandCenterLayout>
         <EnhancedErrorBoundary
           showDetails={import.meta.env.DEV}
           onError={(error, errorInfo) => {
-            console.error('App Error Boundary:', error, errorInfo);
+            logger.error('App Error Boundary:', error, errorInfo);
           }}
         >
           <QueryErrorBoundary>
@@ -487,11 +548,6 @@ function App() {
         </EnhancedErrorBoundary>
       </CommandCenterLayout>
 
-      {/* Role Switcher FAB button - Floating UI with proper ARIA */}
-      <div role="complementary" aria-label="Role switcher">
-        <RoleSwitcher />
-      </div>
-
       {/* Toast notifications - Legacy */}
       <div role="status" aria-live="polite" aria-label="Toast notifications">
         <ToastContainer />
@@ -500,29 +556,29 @@ function App() {
       {/* React Hot Toast - Modern notifications */}
       <div role="status" aria-live="polite" aria-label="Notifications">
         <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 4000,
-          style: {
-            background: 'hsl(var(--card))',
-            color: 'hsl(var(--card-foreground))',
-            border: '1px solid hsl(var(--border))',
-            borderRadius: '0.75rem',
-            fontSize: '0.875rem',
-          },
-          success: {
-            iconTheme: {
-              primary: 'hsl(var(--primary))',
-              secondary: 'hsl(var(--primary-foreground))',
+          position="top-right"
+          toastOptions={{
+            duration: 4000,
+            style: {
+              background: 'hsl(var(--card))',
+              color: 'hsl(var(--card-foreground))',
+              border: '1px solid hsl(var(--border))',
+              borderRadius: '0.75rem',
+              fontSize: '0.875rem',
             },
-          },
-          error: {
-            iconTheme: {
-              primary: '#ef4444',
-              secondary: 'white',
+            success: {
+              iconTheme: {
+                primary: 'hsl(var(--primary))',
+                secondary: 'hsl(var(--primary-foreground))',
+              },
             },
-          },
-        }}
+            error: {
+              iconTheme: {
+                primary: '#ef4444',
+                secondary: 'white',
+              },
+            },
+          }}
         />
       </div>
 

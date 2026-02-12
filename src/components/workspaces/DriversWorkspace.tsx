@@ -46,19 +46,14 @@ export function DriversWorkspace() {
 
     const selectedDriverVehicle = useMemo(() => {
         if (!selectedDriver?.assignedVehicle) return null
-        // Assuming vehicle ID matches or we find by name/license. 
-        // In a real app, we'd have a direct link ID.
-        // For this mock, we'll try to find a vehicle that looks assigned.
+        // Match on vehicle ID or name when explicit assignment linkage is unavailable.
         return vehicles.find(v => v.id === selectedDriver.assignedVehicle || v.name === selectedDriver.assignedVehicle)
     }, [selectedDriver, vehicles])
 
     // Map drivers to vehicles for the map
     const mapVehicles = useMemo(() => {
         return drivers.map(d => {
-            // Find the vehicle this driver is assigned to, or create a mock position if they have a location string
-            // This is a bit of a hack for the visual transition, usually you'd plot vehicles.
-            // Here we want to see WHERE the drivers are.
-            // If the driver is assigned to a vehicle, we use that vehicle's position.
+            // If the driver is assigned to a vehicle, use that vehicle's position for the map layer.
             const vehicle = vehicles.find(v => v.id === d.assignedVehicle)
             if (vehicle) return { ...vehicle, driver: d.name } // Enrich with driver name
             return null

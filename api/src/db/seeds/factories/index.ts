@@ -13,3 +13,4 @@ export { FuelTransactionFactory } from './FuelTransactionFactory';
 export { RouteFactory } from './RouteFactory';
 export { IncidentFactory } from './IncidentFactory';
 export { ComplianceRecordFactory } from './ComplianceRecordFactory';
+export { OSHARecordFactory } from './OSHARecordFactory';

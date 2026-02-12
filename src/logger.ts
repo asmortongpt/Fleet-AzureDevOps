@@ -3,6 +3,7 @@
  * @description Centralized logging configuration with sanitization.
  */
 
+// @ts-ignore - winston is a Node.js module, types may not be available in browser builds
 import { createLogger, format, transports } from 'winston';
 
 import { sanitizeForLogging } from './logSanitizer';
@@ -14,7 +15,7 @@ export interface LogData {
   [key: string]: any;
 }
 
-const logger = createLogger({
+const loggerInstance = createLogger({
   level: 'info',
   format: format.combine(
     format.timestamp(),
@@ -30,4 +31,4 @@ const logger = createLogger({
   ],
 });
 
-export default logger;
+export default loggerInstance;

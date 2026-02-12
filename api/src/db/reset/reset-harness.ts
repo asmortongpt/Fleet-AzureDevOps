@@ -4,11 +4,14 @@
  * Target: < 10 seconds for reset + reseed
  */
 
-import { Pool } from 'pg';
-import { SnapshotManager, getSnapshotManager } from './snapshot-manager';
 import { exec } from 'child_process';
-import { promisify } from 'util';
 import path from 'path';
+import { promisify } from 'util';
+
+import { Pool } from 'pg';
+
+import { SnapshotManager, getSnapshotManager } from './snapshot-manager';
+
 
 const execAsync = promisify(exec);
 
@@ -221,8 +224,12 @@ export class DatabaseResetHarness {
    */
   private async dropAllTables(): Promise<void> {
     try {
-      // Disable triggers for faster drop
-      await this.pool.query('SET session_replication_role = replica;');
+      // Disable triggers for faster drop when permitted (requires elevated privileges).
+      try {
+        await this.pool.query('SET session_replication_role = replica;');
+      } catch (error) {
+        console.warn('⚠️  Insufficient privileges to set session_replication_role, continuing without it.');
+      }
 
       // Drop all tables in public schema
       await this.pool.query(`

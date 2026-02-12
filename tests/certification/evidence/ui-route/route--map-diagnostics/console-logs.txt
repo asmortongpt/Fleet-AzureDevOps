@@ -1,0 +1,61 @@
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] i18next: languageChanged en-US
+[log] i18next: initialized {debug: true, initAsync: true, ns: Array(1), defaultNS: Array(1), fallbackLng: Array(1)}
+[info] [INFO] Sentry monitoring initialized undefined
+[log] [Fleet] Starting application configuration validation...
+[log] [Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)
+[log] [Fleet] ⚠️  Secret validation must be implemented in backend API
+[log] [Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)
+[log] [Fleet] Starting application...
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: true, isAuthenticated: false, hasUser: false, userId: undefined, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] Showing loading state undefined
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: true, isAuthenticated: false, hasUser: false, userId: undefined, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] Showing loading state undefined
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1cnec4
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Registered event callback with id: '019c1a90-4fe8-7a4f-a3f3-9482278aab9a'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Removing event callback '019c1a90-4fe8-7a4f-a3f3-9482278aab9a'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 12zotd
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1cnec4
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Registered event callback with id: '019c1a90-4fea-77f5-b387-393442c8966a'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4fea-7f65-8e33-ae5e1c877d69] : @azure/msal-browser@5.0.2 : Verbose - 1qtz3l
+[warning] [WARN] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4fea-7f65-8e33-ae5e1c877d69] : @azure/msal-browser@5.0.2 : Warning - 1e88vg
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4fea-7f65-8e33-ae5e1c877d69] : @azure/msal-browser@5.0.2 : Info - 1wuc87
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 02l8bm
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Info - 0le6uv
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1wn9kp
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 02l8bm
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 0w0gm3
+[debug] [DEBUG] [CSRF] Token initialized successfully undefined
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Info - MsalProvider - handleRedirectPromise resolved, setting inProgress to 'none'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4fee-78f8-b694-49fefbc82049] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Info - MsalProvider - handleRedirectPromise resolved, setting inProgress to 'none'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4fee-7baa-9b98-f6145b666928] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4fee-7bfb-895e-b1c33d83c4a4] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4fee-7aac-a2a6-62d37c5ba418] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[startGroup] %cNew axe issues color:#d93251;font-weight:normal;
+[startGroupCollapsed] %c%s: %c%s %s color:#d24700;font-weight:bold; moderate font-color:black;font-weight:normal; Document should have one main landmark https://dequeuniversity.com/rules/axe/4.11/landmark-one-main?application=axeAPI
+[endGroup] console.groupEnd
+[startGroupCollapsed] %c%s: %c%s %s color:#d24700;font-weight:bold; moderate font-color:black;font-weight:normal; Page should contain a level-one heading https://dequeuniversity.com/rules/axe/4.11/page-has-heading-one?application=axeAPI
+[endGroup] console.groupEnd
+[endGroup] console.groupEnd
+[info] [INFO] %c[Accessibility] Axe-core initialized - WCAG 2.1 AA compliance checking enabled color: #16a34a; font-weight: bold;
+[debug] [DEBUG] [TokenRefresh] Activity listeners registered undefined
+[info] [INFO] [TokenRefresh] Starting token refresh mechanism {refreshInterval: 25 min, idleTimeout: 30 min}
+[debug] [DEBUG] [TokenRefresh] Next refresh scheduled {nextRefresh: 2026-02-01T19:21:31.587Z}
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: false, isAuthenticated: true, hasUser: true, userId: 00000000-0000-0000-0000-000000000001, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] All checks passed, rendering protected content {userId: 00000000-0000-0000-0000-000000000001, role: Admin}
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: false, isAuthenticated: true, hasUser: true, userId: 00000000-0000-0000-0000-000000000001, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] All checks passed, rendering protected content {userId: 00000000-0000-0000-0000-000000000001, role: Admin}
+[info] [INFO] Global search: 
+[debug] [DEBUG] [useVehicles] Using mock data undefined
+[info] [INFO] 🔒 Policy Enforcement Engine disabled (missing dependencies) undefined
+[info] [INFO] ✅ App initialized without policy engine undefined
+[info] [INFO] Global search: 
+[info] [INFO] 🔒 Policy Enforcement Engine disabled (missing dependencies) undefined
+[info] [INFO] ✅ App initialized without policy engine undefined

@@ -2,6 +2,7 @@
 // Implements various caching patterns for different data types
 
 import { cacheService } from './RedisService';
+import logger from '@/utils/logger';
 
 export class CacheStrategies {
   // Cache-aside pattern for vehicles
@@ -98,7 +99,7 @@ export class CacheStrategies {
       const data = await fetcher();
       await cacheService.set(key, { data, expiry: Date.now() / 1000 + ttl }, ttl);
     } catch (error) {
-      console.error('Background refresh failed:', error);
+      logger.error('Background refresh failed:', error);
     }
   }
 

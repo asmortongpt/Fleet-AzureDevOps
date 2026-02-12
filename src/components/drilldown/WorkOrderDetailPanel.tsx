@@ -19,6 +19,11 @@ import {
   CheckCircle2,
   XCircle,
   AlertTriangle,
+  ShieldAlert,
+  Timer,
+  Building2,
+  Hash,
+  FileSearch,
 } from 'lucide-react'
 import { useState } from 'react'
 import useSWR from 'swr'
@@ -211,13 +216,16 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
       case 'cancelled':
         return <XCircle className="h-5 w-5 text-red-500" />
       default:
-        return <AlertCircle className="h-5 w-5 text-gray-500" />
+        return <AlertCircle className="h-5 w-5 text-gray-700" />
     }
   }
 
-  const totalPartsCost = parts?.reduce((sum, part) => sum + (part.quantity * part.unit_cost || 0), 0) || 0
-  const totalLaborCost = labor?.reduce((sum, entry) => sum + (entry.hours * entry.rate || 0), 0) || 0
-  const totalCost = totalPartsCost + totalLaborCost
+  const calculatedPartsCost = parts?.reduce((sum, part) => sum + (part.quantity * part.unit_cost || 0), 0) || 0
+  const calculatedLaborCost = labor?.reduce((sum, entry) => sum + (entry.hours * entry.rate || 0), 0) || 0
+  // Prefer direct cost fields from the work order over calculated sums
+  const totalPartsCost = Number(workOrder?.parts_cost) || calculatedPartsCost
+  const totalLaborCost = Number(workOrder?.labor_cost) || calculatedLaborCost
+  const totalCost = Number(workOrder?.total_cost) || (totalPartsCost + totalLaborCost)
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
@@ -226,9 +234,17 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
           {/* Work Order Header */}
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <h3 className="text-sm font-bold">WO #{workOrder.wo_number}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold">WO #{workOrder.wo_number}</h3>
+                {workOrder.is_emergency && (
+                  <Badge variant="destructive" className="animate-pulse text-xs">
+                    <ShieldAlert className="w-3 h-3 mr-1" />
+                    EMERGENCY
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">{workOrder.title}</p>
-              <div className="flex items-center gap-2 mt-2">
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getStatusColor(workOrder.status)}>
                   {workOrder.status}
                 </Badge>
@@ -238,6 +254,15 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 {workOrder.work_type && (
                   <Badge variant="outline" className="capitalize">
                     {workOrder.work_type}
+                  </Badge>
+                )}
+                {workOrder.category && (
+                  <WOCategoryBadge category={workOrder.category} />
+                )}
+                {workOrder.quality_check_passed != null && (
+                  <Badge variant={workOrder.quality_check_passed ? 'default' : 'destructive'} className={workOrder.quality_check_passed ? 'bg-green-600' : ''}>
+                    {workOrder.quality_check_passed ? <CheckCircle2 className="w-3 h-3 mr-1" /> : <XCircle className="w-3 h-3 mr-1" />}
+                    QC {workOrder.quality_check_passed ? 'Pass' : 'Fail'}
                   </Badge>
                 )}
               </div>
@@ -354,6 +379,63 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                       <p className="text-sm text-muted-foreground">Created By</p>
                       <p className="font-medium">{workOrder.created_by || 'N/A'}</p>
                     </div>
+                    {workOrder.category && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Category</p>
+                        <WOCategoryBadge category={workOrder.category} />
+                      </div>
+                    )}
+                    {workOrder.subcategory && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Subcategory</p>
+                        <p className="font-medium capitalize">{workOrder.subcategory.replace(/_/g, ' ')}</p>
+                      </div>
+                    )}
+                    {workOrder.facility_id && (
+                      <div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          Facility
+                        </p>
+                        <p className="font-medium">{workOrder.facility_id}</p>
+                      </div>
+                    )}
+                    {workOrder.bay_number && (
+                      <div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Hash className="h-3 w-3" />
+                          Bay Number
+                        </p>
+                        <p className="font-medium">{workOrder.bay_number}</p>
+                      </div>
+                    )}
+                    {workOrder.downtime_hours != null && (
+                      <div>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Timer className="h-3 w-3" />
+                          Downtime
+                        </p>
+                        <p className="font-medium">{Number(workOrder.downtime_hours).toFixed(1)} hours</p>
+                      </div>
+                    )}
+                    {workOrder.driver_id && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Driver</p>
+                        <p className="font-medium">{workOrder.driver_id}</p>
+                      </div>
+                    )}
+                    {workOrder.vendor_id && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Vendor</p>
+                        <p className="font-medium">{workOrder.vendor_id}</p>
+                      </div>
+                    )}
+                    {workOrder.external_reference && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">External Reference</p>
+                        <p className="font-medium font-mono text-xs">{workOrder.external_reference}</p>
+                      </div>
+                    )}
                     {workOrder.location && (
                       <div className="col-span-2">
                         <p className="text-sm text-muted-foreground flex items-center gap-1">
@@ -403,9 +485,11 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Completed</span>
                     <span className="font-medium">
-                      {workOrder.completed_date
-                        ? new Date(workOrder.completed_date).toLocaleDateString()
-                        : 'Not completed'}
+                      {workOrder.completed_at
+                        ? new Date(workOrder.completed_at).toLocaleDateString()
+                        : workOrder.completed_date
+                          ? new Date(workOrder.completed_date).toLocaleDateString()
+                          : 'Not completed'}
                     </span>
                   </div>
                   {workOrder.due_date && (
@@ -457,6 +541,32 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm whitespace-pre-wrap">{workOrder.description}</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Root Cause & Resolution */}
+              {(workOrder.root_cause || workOrder.resolution_notes) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileSearch className="h-5 w-5" />
+                      Diagnosis & Resolution
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {workOrder.root_cause && (
+                      <div>
+                        <p className="text-sm font-semibold text-muted-foreground mb-1">Root Cause</p>
+                        <p className="text-sm bg-muted/50 rounded-md p-3 whitespace-pre-wrap">{workOrder.root_cause}</p>
+                      </div>
+                    )}
+                    {workOrder.resolution_notes && (
+                      <div>
+                        <p className="text-sm font-semibold text-muted-foreground mb-1">Resolution Notes</p>
+                        <p className="text-sm bg-muted/50 rounded-md p-3 whitespace-pre-wrap">{workOrder.resolution_notes}</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               )}
@@ -842,5 +952,24 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
         </div>
       )}
     </DrilldownContent>
+  )
+}
+
+function WOCategoryBadge({ category }: { category: string }) {
+  const colorMap: Record<string, string> = {
+    preventive: 'bg-blue-100 text-blue-800 border-blue-200',
+    corrective: 'bg-orange-100 text-orange-800 border-orange-200',
+    inspection: 'bg-purple-100 text-purple-800 border-purple-200',
+    body_work: 'bg-gray-100 text-gray-800 border-gray-200',
+    electrical: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+    tire_service: 'bg-green-100 text-green-800 border-green-200',
+  }
+  const colorClass = colorMap[category.toLowerCase()] || 'bg-slate-100 text-slate-700 border-slate-200'
+  const label = category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+
+  return (
+    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${colorClass}`}>
+      {label}
+    </span>
   )
 }

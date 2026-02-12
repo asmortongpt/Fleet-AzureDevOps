@@ -16,7 +16,6 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { GoogleMap } from '../GoogleMap'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
-import { Card } from '../ui/card'
 import { Label } from '../ui/label'
 import { Switch } from '../ui/switch'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
@@ -152,12 +151,14 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
   useEffect(() => {
     setLayers(prev => prev.map(layer => {
       switch (layer.id) {
-        case 'vehicles':
+        case 'vehicles': {
           const activeVehicles = vehicles.filter(v => v.status === 'active').length
           return { ...layer, count: `${activeVehicles}/${vehicles.length}` }
-        case 'facilities':
+        }
+        case 'facilities': {
           const operationalFacilities = facilities.filter(f => f.status === 'operational').length
           return { ...layer, count: `${operationalFacilities}/${facilities.length}` }
+        }
         case 'geofences':
           return { ...layer, count: geofences.length }
         default:
@@ -189,7 +190,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
         // Handle Google Maps layers
         if (mapInstance) {
           switch (layerId) {
-            case 'traffic':
+            case 'traffic': {
               if (newEnabled) {
                 const traffic = new google.maps.TrafficLayer()
                 traffic.setMap(mapInstance)
@@ -199,8 +200,9 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                 setTrafficLayer(null)
               }
               break
+            }
 
-            case 'transit':
+            case 'transit': {
               if (newEnabled) {
                 const transit = new google.maps.TransitLayer()
                 transit.setMap(mapInstance)
@@ -210,8 +212,9 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                 setTransitLayer(null)
               }
               break
+            }
 
-            case 'bicycling':
+            case 'bicycling': {
               if (newEnabled) {
                 const bicycling = new google.maps.BicyclingLayer()
                 bicycling.setMap(mapInstance)
@@ -221,6 +224,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                 setBicyclingLayer(null)
               }
               break
+            }
           }
         }
 
@@ -292,7 +296,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
       {/* Floating Layer Controls (Top Left, below Tabs) */}
       <div className="absolute top-14 left-2 z-10">
         {showControls ? (
-          <Card className="p-3 border rounded-lg shadow-sm bg-background/95 backdrop-blur w-[600px] animate-in slide-in-from-top-2 duration-200">
+        <div className="p-3 border rounded-lg shadow-sm bg-background/95 backdrop-blur w-[600px] animate-in slide-in-from-top-2 duration-200">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <div className="flex items-center gap-2">
@@ -356,7 +360,7 @@ export const UnifiedFleetMap: React.FC<UnifiedFleetMapProps> = ({
                 </Button>
               </div>
             </div>
-          </Card>
+        </div>
         ) : (
           <Button
             size="sm"

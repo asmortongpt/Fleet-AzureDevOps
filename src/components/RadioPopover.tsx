@@ -22,7 +22,7 @@ import {
   ExternalLink,
   Circle
 } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Badge } from "@/components/ui/badge"
@@ -33,59 +33,31 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useDispatchSocket } from '@/hooks/useDispatchSocket'
 
 interface RadioPopoverProps {
   className?: string
 }
 
-export function RadioPopover({ className }: RadioPopoverProps): JSX.Element {
+export function RadioPopover({ className }: RadioPopoverProps) {
   const navigate = useNavigate()
   const [isTransmitting, setIsTransmitting] = useState<boolean>(false)
-  const [selectedChannel, setSelectedChannel] = useState<number>(1)
+  const dispatch = useDispatchSocket()
 
-  // Mock data - replace with real data from your radio service
-  const channels: Array<{ id: number; name: string; active: boolean }> = [
-    { id: 1, name: 'Operations', active: true },
-    { id: 2, name: 'Emergency', active: false },
-    { id: 3, name: 'Maintenance', active: false },
-  ]
+  const recentTransmissions = useMemo(() => {
+    return dispatch.recentTransmissions.map((t: any) => ({
+      id: t.id,
+      user: t.username || t.userId,
+      message: t.isEmergency ? 'Emergency transmission' : 'Transmission received',
+      time: t.startedAt,
+      isEmergency: t.isEmergency
+    }))
+  }, [dispatch.recentTransmissions])
 
-  const recentTransmissions: Array<{
-    id: number;
-    user: string;
-    message: string;
-    time: string;
-    isEmergency: boolean;
-  }> = [
-    {
-      id: 1,
-      user: 'Unit 247',
-      message: 'En route to location B-12',
-      time: '2m ago',
-      isEmergency: false
-    },
-    {
-      id: 2,
-      user: 'Dispatch',
-      message: 'All units: Road closure on Highway 27',
-      time: '5m ago',
-      isEmergency: false
-    },
-    {
-      id: 3,
-      user: 'Unit 089',
-      message: 'Requesting backup at current location',
-      time: '12m ago',
-      isEmergency: true
-    },
-  ]
-
-  const emergencyCount: number = recentTransmissions.filter(t => t.isEmergency).length
+  const emergencyCount: number = recentTransmissions.filter((t: any) => t.isEmergency).length
 
   const handlePTT = (): void => {
     setIsTransmitting(true)
-    // Implement PTT logic here
-    setTimeout(() => setIsTransmitting(false), 2000) // Auto-release for demo
   }
 
   const openFullConsole = (): void => {
@@ -131,22 +103,12 @@ export function RadioPopover({ className }: RadioPopoverProps): JSX.Element {
             </Button>
           </div>
 
-          {/* Channel Selector */}
+          {/* Channel Info */}
           <div className="space-y-2">
             <label className="text-xs font-medium text-muted-foreground">Channel</label>
-            <div className="flex gap-2">
-              {channels.map(channel => (
-                <Button
-                  key={channel.id}
-                  variant={selectedChannel === channel.id ? "default" : "outline"}
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => setSelectedChannel(channel.id)}
-                >
-                  {channel.active && <Circle className="w-2 h-2 mr-1 fill-green-500 text-green-500" />}
-                  {channel.name}
-                </Button>
-              ))}
+            <div className="flex items-center gap-2 text-sm">
+              <Circle className={`w-2 h-2 ${dispatch.isConnected ? 'fill-green-500 text-green-500' : 'fill-gray-400 text-gray-400'}`} />
+              <span>{dispatch.currentChannel?.name || 'No channel connected'}</span>
             </div>
           </div>
 
@@ -187,24 +149,28 @@ export function RadioPopover({ className }: RadioPopoverProps): JSX.Element {
             <label className="text-xs font-medium text-muted-foreground">Recent Transmissions</label>
             <ScrollArea className="h-48 w-full rounded-md border p-2">
               <div className="space-y-2">
-                {recentTransmissions.map(transmission => (
-                  <div
-                    key={transmission.id}
-                    className={`p-2 rounded-md text-sm ${
-                      transmission.isEmergency
-                        ? 'bg-destructive/10 border border-destructive/50'
-                        : 'bg-muted'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-medium">{transmission.user}</span>
-                      <span className="text-xs text-muted-foreground">{transmission.time}</span>
+                {recentTransmissions.length === 0 ? (
+                  <div className="text-xs text-muted-foreground">No transmissions available.</div>
+                ) : (
+                  recentTransmissions.map((transmission: any) => (
+                    <div
+                      key={transmission.id}
+                      className={`p-2 rounded-md text-sm ${
+                        transmission.isEmergency
+                          ? 'bg-destructive/10 border border-destructive/50'
+                          : 'bg-muted'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium">{transmission.user}</span>
+                        <span className="text-xs text-muted-foreground">{transmission.time}</span>
+                      </div>
+                      <p className="text-muted-foreground text-xs">
+                        {transmission.message}
+                      </p>
                     </div>
-                    <p className="text-muted-foreground text-xs">
-                      {transmission.message}
-                    </p>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </ScrollArea>
           </div>

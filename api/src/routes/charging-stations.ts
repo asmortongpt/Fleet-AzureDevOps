@@ -23,19 +23,30 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT 
-      id,
-      tenant_id,
-      name,
-      location,
-      latitude,
-      longitude,
-      charger_type,
-      power_output,
-      status,
-      is_active,
-      created_at,
-      updated_at FROM charging_stations WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        `SELECT
+          id,
+          tenant_id,
+          name,
+          station_id,
+          type,
+          facility_id,
+          latitude,
+          longitude,
+          address,
+          number_of_ports,
+          available_ports,
+          max_power_kw,
+          cost_per_kwh,
+          is_public,
+          operating_hours,
+          status,
+          metadata,
+          created_at,
+          updated_at
+         FROM charging_stations
+         WHERE tenant_id = $1
+         ORDER BY created_at DESC
+         LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
@@ -69,18 +80,27 @@ router.get(
     try {
       const result = await pool.query(
         `SELECT
-      id,
-      tenant_id,
-      name,
-      location,
-      latitude,
-      longitude,
-      charger_type,
-      power_output,
-      status,
-      is_active,
-      created_at,
-      updated_at FROM charging_stations WHERE id = $1 AND tenant_id = $2`,
+          id,
+          tenant_id,
+          name,
+          station_id,
+          type,
+          facility_id,
+          latitude,
+          longitude,
+          address,
+          number_of_ports,
+          available_ports,
+          max_power_kw,
+          cost_per_kwh,
+          is_public,
+          operating_hours,
+          status,
+          metadata,
+          created_at,
+          updated_at
+         FROM charging_stations
+         WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 

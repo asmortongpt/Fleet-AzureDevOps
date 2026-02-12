@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useDrilldown } from '@/contexts/DrilldownContext';
-import { useVehicles, useDrivers, useWorkOrders } from '@/hooks/use-api';
+import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
 
 interface Vehicle {
   id: string;
@@ -39,11 +39,22 @@ interface WorkOrder {
   status: string;
   priority?: string;
   type?: string;
+  created_at?: string;
 }
 
 interface Driver {
   id: string;
   name?: string;
+  status?: string;
+}
+
+interface Route {
+  id: string;
+  status?: string;
+  assigned_vehicle_id?: string;
+  actual_end_time?: string;
+  updated_at?: string;
+  created_at?: string;
 }
 
 export function OperationsHub() {
@@ -51,6 +62,7 @@ export function OperationsHub() {
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
   const { data: drivers = [] } = useDrivers();
   const { data: workOrders = [] } = useWorkOrders();
+  const { data: routes = [] } = useRoutes();
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
@@ -58,12 +70,19 @@ export function OperationsHub() {
     push({ type: type as any, label, data: { filter } });
   };
 
+  const getVehicleLabel = (vehicle: Vehicle) =>
+    vehicle.vehicleNumber ||
+    (vehicle as any).vehicle_number ||
+    (vehicle as any).number ||
+    (vehicle as any).name ||
+    vehicle.id;
+
   const handleVehicleClick = (vehicle: Vehicle) => {
     setSelectedVehicleId(vehicle.id);
     push({
       type: 'vehicle',
-      label: vehicle.vehicleNumber,
-      data: { vehicleId: vehicle.id, vehicleNumber: vehicle.vehicleNumber }
+      label: getVehicleLabel(vehicle),
+      data: { vehicleId: vehicle.id, vehicleNumber: getVehicleLabel(vehicle) }
     });
   };
 
@@ -80,20 +99,42 @@ export function OperationsHub() {
 
   // Calculate operational metrics
   const metrics = useMemo(() => {
-    const activeVehicles = (vehicles as unknown as Vehicle[]).filter((v: Vehicle) => v.status === 'active');
-    const enRouteCount = Math.floor(activeVehicles.length * 0.6);
-    const completedToday = Math.floor((workOrders as unknown as WorkOrder[]).length * 0.3);
+    const vehicleRows = vehicles as unknown as Vehicle[];
+    const workOrderRows = workOrders as unknown as WorkOrder[];
+    const driverRows = drivers as unknown as Driver[];
+    const routeRows = routes as unknown as Route[];
+
+    const activeVehicles = vehicleRows.filter((v) => v.status === 'active');
+    const maintenanceVehicles = vehicleRows.filter((v) => v.status === 'maintenance');
+
+    const pendingRoutes = routeRows.filter((route) => route.status === 'pending');
+    const activeRoutes = routeRows.filter((route) => route.status === 'in_progress' || route.status === 'active');
+    const completedRoutesToday = routeRows.filter((route) => {
+      if (route.status !== 'completed') return false;
+      const completedAt = route.actual_end_time || route.updated_at || route.created_at;
+      if (!completedAt) return false;
+      const completedDate = new Date(completedAt);
+      const now = new Date();
+      return completedDate.toDateString() === now.toDateString();
+    });
+
+    const openWorkOrders = workOrderRows.filter((wo) => wo.status === 'open' || wo.status === 'pending');
+
+    const availableDrivers = driverRows.filter((driver) =>
+      driver.status === 'active' || driver.status === 'available'
+    );
 
     return {
-      activeJobs: enRouteCount,
-      pendingDispatch: Math.floor((workOrders as unknown as WorkOrder[]).length * 0.1),
-      enRoute: enRouteCount,
-      completed: completedToday,
-      totalVehicles: (vehicles as unknown as Vehicle[]).length,
+      activeJobs: activeRoutes.length,
+      pendingDispatch: pendingRoutes.length || openWorkOrders.length,
+      enRoute: activeRoutes.length,
+      completed: completedRoutesToday.length,
+      totalVehicles: vehicleRows.length,
       activeVehicles: activeVehicles.length,
-      availableDrivers: Math.floor((drivers as unknown as Driver[]).length * 0.4)
+      maintenanceVehicles: maintenanceVehicles.length,
+      availableDrivers: availableDrivers.length
     };
-  }, [vehicles, drivers, workOrders]);
+  }, [vehicles, drivers, workOrders, routes]);
 
   // Generate alerts from work orders and vehicles
   const alerts = useMemo(() => {
@@ -369,10 +410,28 @@ export function OperationsHub() {
     </div>
   );
 
+  const capacityLbs = selectedVehicle
+    ? Number(
+        (selectedVehicle as any).capacity_lbs ??
+          (selectedVehicle as any).payload_capacity_lbs ??
+          (selectedVehicle as any).metadata?.capacity_lbs ??
+          (selectedVehicle as any).metadata?.payload_capacity_lbs ??
+          0
+      )
+    : 0;
+  const currentLoadLbs = selectedVehicle
+    ? Number(
+        (selectedVehicle as any).current_load_lbs ??
+          (selectedVehicle as any).metadata?.current_load_lbs ??
+          0
+      )
+    : 0;
+  const loadPct = capacityLbs > 0 ? Math.round((currentLoadLbs / capacityLbs) * 100) : null;
+
   // Drawer Content for mobile
   const drawerContent = selectedVehicle && (
     <div className="space-y-2">
-      <h3 className="text-sm font-bold">Operations Details: {selectedVehicle.vehicleNumber}</h3>
+      <h3 className="text-sm font-bold">Operations Details: {getVehicleLabel(selectedVehicle)}</h3>
       <div className="space-y-3">
         <Card>
           <CardHeader>
@@ -399,17 +458,27 @@ export function OperationsHub() {
             <CardTitle className="text-sm">Current Load</CardTitle>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
-            <div className="flex justify-between">
-              <span className="text-slate-600">Capacity:</span>
-              <span className="font-medium">1,200 lbs</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-600">Current:</span>
-              <span className="font-medium text-green-600">850 lbs (71%)</span>
-            </div>
-            <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-2">
-              <div className="h-full bg-green-500" style={{ width: '71%' }}></div>
-            </div>
+            {capacityLbs > 0 ? (
+              <>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Capacity:</span>
+                  <span className="font-medium">{capacityLbs.toLocaleString()} lbs</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-600">Current:</span>
+                  <span className="font-medium text-green-600">
+                    {currentLoadLbs.toLocaleString()} lbs{loadPct != null ? ` (${loadPct}%)` : ''}
+                  </span>
+                </div>
+                <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-2">
+                  <div className="h-full bg-green-500" style={{ width: `${loadPct ?? 0}%` }}></div>
+                </div>
+              </>
+            ) : (
+              <div className="text-slate-500 text-xs">
+                Load telemetry not available for this vehicle.
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

@@ -4,6 +4,7 @@
  */
 
 import { Pool } from 'pg';
+
 import { AuditLogEntry } from '../permissions/types';
 
 export class AuditService {

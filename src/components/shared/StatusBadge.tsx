@@ -1,4 +1,4 @@
-import { Warning, CheckCircle, Clock, X } from "@phosphor-icons/react"
+import { AlertTriangle, CheckCircle, Clock, X } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -25,12 +25,12 @@ const statusConfig: Record<string, {
 }> = {
   active: {
     color: "bg-success/10 text-success border-success/20",
-    icon: <CheckCircle className="w-3 h-3" weight="fill" aria-hidden="true" />,
+    icon: <CheckCircle className="w-3 h-3" aria-hidden="true" />,
     label: "Active"
   },
   "in-transit": {
     color: "bg-blue-500/10 text-blue-800 border-blue-500/20",
-    icon: <CheckCircle className="w-3 h-3" weight="fill" aria-hidden="true" />,
+    icon: <CheckCircle className="w-3 h-3" aria-hidden="true" />,
     label: "In Transit"
   },
   parked: {
@@ -45,17 +45,17 @@ const statusConfig: Record<string, {
   },
   maintenance: {
     color: "bg-warning/10 text-warning border-warning/20",
-    icon: <Warning className="w-3 h-3" weight="fill" aria-hidden="true" />,
+    icon: <AlertTriangle className="w-3 h-3" aria-hidden="true" />,
     label: "Maintenance"
   },
   "out-of-service": {
     color: "bg-destructive/10 text-destructive border-destructive/20",
-    icon: <X className="w-3 h-3" weight="bold" aria-hidden="true" />,
+    icon: <X className="w-3 h-3" aria-hidden="true" />,
     label: "Out of Service"
   },
   emergency: {
     color: "bg-destructive/10 text-destructive border-destructive/20",
-    icon: <Warning className="w-3 h-3" weight="fill" aria-hidden="true" />,
+    icon: <AlertTriangle className="w-3 h-3" aria-hidden="true" />,
     label: "Emergency"
   }
 }

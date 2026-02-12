@@ -71,29 +71,43 @@ export function useEndpointMonitoring(
   }, [])
 
   // Monitor WebSocket connections
-  const checkSocketConnection = useCallback((socketInfo: SocketConnectionInfo): SocketStatus => {
-    // Try to determine socket status
-    // In a real implementation, you'd check actual WebSocket instances
-    // For now, return 'unknown' status with ability to test connectivity
-
-    // Check if URL contains localhost and port is accessible
+  const probeWebSocket = useCallback(async (socketInfo: SocketConnectionInfo): Promise<SocketStatus> => {
     try {
-      const url = new URL(socketInfo.url, window.location.origin)
+      const base = window.location.origin
+      const resolved = new URL(socketInfo.url, base)
+      const wsUrl = new URL(resolved.toString())
+      wsUrl.protocol = wsUrl.protocol === 'https:' ? 'wss:' : 'ws:'
 
-      // Simple heuristic: if it's a localhost URL, attempt to check if port responds
-      if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
-        // Port-specific checks
-        const port = url.port
-        if (port === '8081' || port === '8082' || port === '8083') {
-          // These are our emulator ports - mark as disconnected by default
-          // They'll show as connected when actually used
-          return 'disconnected'
+      // Probe with a short-lived connection.
+      // If the server accepts WS upgrade, we consider it "connected".
+      await new Promise<void>((resolve, reject) => {
+        let done = false
+        const timeout = window.setTimeout(() => {
+          if (done) return
+          done = true
+          reject(new Error('timeout'))
+        }, 2000)
+
+        const ws = new WebSocket(wsUrl.toString())
+        ws.onopen = () => {
+          if (done) return
+          done = true
+          window.clearTimeout(timeout)
+          try { ws.close() } catch { /* ignore */ }
+          resolve()
         }
-      }
+        ws.onerror = () => {
+          if (done) return
+          done = true
+          window.clearTimeout(timeout)
+          try { ws.close() } catch { /* ignore */ }
+          reject(new Error('error'))
+        }
+      })
 
+      return 'connected'
+    } catch {
       return 'disconnected'
-    } catch (error) {
-      return 'error'
     }
   }, [])
 
@@ -103,18 +117,17 @@ export function useEndpointMonitoring(
 
     const updatedSockets = new Map(sockets)
 
-    for (const [id, socket] of updatedSockets) {
-      const status = checkSocketConnection(socket)
-      updatedSockets.set(id, {
-        ...socket,
-        status
-      })
-    }
+    const entries = Array.from(updatedSockets.entries())
+    const results = await Promise.all(entries.map(async ([id, socket]) => {
+      const status = await probeWebSocket(socket)
+      return [id, { ...socket, status }] as const
+    }))
+    for (const [id, socket] of results) updatedSockets.set(id, socket)
 
     setSockets(updatedSockets)
     setSocketsLastCheck(new Date())
     setIsSocketsLoading(false)
-  }, [sockets, checkSocketConnection])
+  }, [sockets, probeWebSocket])
 
   // Poll socket status
   useEffect(() => {

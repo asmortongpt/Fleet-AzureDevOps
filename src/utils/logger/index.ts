@@ -1,13 +1,56 @@
-export const logger = {
-  info: (...args: unknown[]) => console.log(...args),
-  warn: (...args: unknown[]) => console.warn(...args),
-  error: (...args: unknown[]) => console.error(...args),
-  debug: (...args: unknown[]) => console.debug(...args),
-  logError: (...args: unknown[]) => console.error(...args),
-  logAudit: (...args: unknown[]) => console.log('[AUDIT]', ...args),
-  logWarning: (...args: unknown[]) => console.warn(...args),
-  logInfo: (...args: unknown[]) => console.log(...args),
-  logDebug: (...args: unknown[]) => console.debug(...args),
+// Simple console-based logger implementation
+// Provides consistent logging interface across the application
+
+export interface LogContext {
+  [key: string]: unknown;
 }
 
-export default logger
+const isDev = import.meta.env.DEV;
+
+export const logger = {
+  info: (message: string, ...args: unknown[]): void => {
+    if (isDev) {
+      console.log(`[INFO] ${message}`, ...args);
+    }
+  },
+
+  warn: (message: string, ...args: unknown[]): void => {
+    console.warn(`[WARN] ${message}`, ...args);
+  },
+
+  error: (message: string, ...args: unknown[]): void => {
+    console.error(`[ERROR] ${message}`, ...args);
+  },
+
+  debug: (message: string, ...args: unknown[]): void => {
+    if (isDev) {
+      console.debug(`[DEBUG] ${message}`, ...args);
+    }
+  },
+
+  logError: (message: string, ...args: unknown[]): void => {
+    console.error(`[ERROR] ${message}`, ...args);
+  },
+
+  logAudit: (message: string, ...args: unknown[]): void => {
+    console.log(`[AUDIT] ${message}`, ...args);
+  },
+
+  logWarning: (message: string, ...args: unknown[]): void => {
+    console.warn(`[WARN] ${message}`, ...args);
+  },
+
+  logInfo: (message: string, ...args: unknown[]): void => {
+    if (isDev) {
+      console.log(`[INFO] ${message}`, ...args);
+    }
+  },
+
+  logDebug: (message: string, ...args: unknown[]): void => {
+    if (isDev) {
+      console.debug(`[DEBUG] ${message}`, ...args);
+    }
+  },
+};
+
+export default logger;

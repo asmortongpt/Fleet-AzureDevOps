@@ -1,8 +1,9 @@
 /**
  * VehicleFactory - Generates fleet vehicles with realistic data
  */
-import { BaseFactory } from './BaseFactory';
 import type { Vehicle, VehicleStatus, VehicleType, FuelType, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 interface VehicleConfig {
   make: string;

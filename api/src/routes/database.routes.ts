@@ -9,9 +9,10 @@
  */
 
 import { Router, Request, Response } from 'express';
+
+import logger from '../config/logger';
 import { pool } from '../db/connection';
 import { asyncHandler } from '../middleware/async-handler';
-import logger from '../config/logger';
 
 const router = Router();
 

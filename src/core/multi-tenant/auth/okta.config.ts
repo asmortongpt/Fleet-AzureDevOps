@@ -18,8 +18,8 @@ export const oktaConfigs: Record<string, OktaEnvironmentConfig> = {
   development: {
     issuer: 'https://dev-dcf-florida.okta.com/oauth2/default',
     clientId: 'dcf-fleet-dev-client',
-    redirectUri: 'http://localhost:3001/login/callback',
-    postLogoutRedirectUri: 'http://localhost:3001',
+    redirectUri: `${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/login/callback`,
+    postLogoutRedirectUri: import.meta.env.VITE_API_URL || 'http://localhost:3001',
     scopes: ['openid', 'profile', 'email', 'groups', 'dcf.fleet.access'],
     environment: 'development'
   },
@@ -302,7 +302,7 @@ export const integrationEndpoints = {
 export const featureFlags = {
   development: {
     enableDebugLogging: true,
-    enableMockData: true,
+    enableMockData: false,
     enableExperimentalFeatures: true,
     skipCertificateValidation: true,
     allowHttpConnections: true

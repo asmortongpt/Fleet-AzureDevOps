@@ -4,7 +4,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts';
+import logger from '@/utils/logger';
 
 interface Message {
   id: string;
@@ -100,17 +101,16 @@ export function AIChatbot() {
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err) {
-      console.error('Chat error:', err);
+      logger.error('Chat error:', err);
 
-      // Mock response for demo
-      const mockResponse: Message = {
+      const errorResponse: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `I understand you're asking about: "${input}". Here's what I found:\n\n• Total records: 156\n• Average value: $12,450\n• Top category: Maintenance (45%)\n\nWould you like me to generate a detailed report on this?`,
+        content: 'AI service unavailable. Please try again.',
         timestamp: new Date()
       };
 
-      setMessages((prev) => [...prev, mockResponse]);
+      setMessages((prev) => [...prev, errorResponse]);
     } finally {
       setSending(false);
     }
@@ -253,7 +253,7 @@ export function AIChatbot() {
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-700">
             Press Enter to send
           </p>
           <Button

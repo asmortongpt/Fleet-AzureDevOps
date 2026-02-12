@@ -10,7 +10,7 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {photos.length === 0 ? (
-                <div className="col-span-full text-center p-3 bg-slate-900 rounded-lg text-slate-400">
+                <div className="col-span-full text-center p-3 bg-slate-900 rounded-lg text-slate-700">
                     No photos available. (Placeholder Gallery)
                 </div>
             ) : (

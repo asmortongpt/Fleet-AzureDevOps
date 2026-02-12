@@ -13,25 +13,25 @@ export function transformVehicle(apiVehicle: any): Vehicle {
   return {
     id: apiVehicle?.id?.toString() || '',
     tenantId: apiVehicle?.tenant_id?.toString() || '',
-    number: apiVehicle?.vehicle_number || apiVehicle?.unit_number || `V-${apiVehicle?.id}`,
+    number: apiVehicle?.vehicle_number || apiVehicle?.unit_number || apiVehicle?.id?.toString() || '',
     type: normalizeVehicleType(apiVehicle?.vehicle_type) || 'sedan',
-    make: apiVehicle?.make || 'Unknown',
-    model: apiVehicle?.model || 'Unknown',
-    year: apiVehicle?.year || new Date().getFullYear(),
+    make: apiVehicle?.make || '',
+    model: apiVehicle?.model || '',
+    year: apiVehicle?.year || 0,
     vin: apiVehicle?.vin || '',
     licensePlate: apiVehicle?.license_plate || '',
     status: normalizeStatus(apiVehicle?.status) || 'idle',
     location: parseLocation(apiVehicle),
-    region: apiVehicle?.region || 'Central',
-    department: apiVehicle?.department || 'General',
-    fuelLevel: apiVehicle?.fuel_level ?? 75,
-    fuelType: apiVehicle?.fuel_type || 'gasoline',
+    region: apiVehicle?.region || '',
+    department: apiVehicle?.department || '',
+    fuelLevel: apiVehicle?.fuel_level ?? apiVehicle?.fuelLevel ?? 0,
+    fuelType: apiVehicle?.fuel_type || apiVehicle?.fuelType || 'gasoline',
     mileage: apiVehicle?.current_mileage || apiVehicle?.odometer || apiVehicle?.mileage || 0,
     hoursUsed: apiVehicle?.hours_used,
     assignedDriver: apiVehicle?.assigned_driver_id?.toString(),
     ownership: apiVehicle?.ownership || 'owned',
-    lastService: apiVehicle?.last_service || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-    nextService: apiVehicle?.next_service || new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    lastService: apiVehicle?.last_service || apiVehicle?.last_service_date || apiVehicle?.lastServiceDate || '',
+    nextService: apiVehicle?.next_service || apiVehicle?.next_service_date || apiVehicle?.nextServiceDate || '',
     alerts: parseAlerts(apiVehicle?.alerts),
     tags: parseTags(apiVehicle?.tags) || []
   }
@@ -46,15 +46,15 @@ export function transformDriver(apiDriver: any): Driver {
   return {
     id: apiDriver?.id?.toString() || '',
     tenantId: apiDriver?.tenant_id?.toString() || '',
-    name: apiDriver?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'Unknown',
+    name: apiDriver?.name || `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || '',
     employeeId: apiDriver?.employee_id || apiDriver?.id?.toString() || '',
     email: apiDriver?.email || user?.email || '',
     phone: apiDriver?.phone || user?.phone || '',
-    licenseType: apiDriver?.cdl_class || apiDriver?.license_type || 'B',
+    licenseType: apiDriver?.cdl_class || apiDriver?.license_type || '',
     licenseExpiry: apiDriver?.license_expiry || '',
     status: apiDriver?.is_active === false ? 'off-duty' : (apiDriver?.status || 'active'),
-    safetyScore: apiDriver?.safety_score || Math.floor(Math.random() * 30 + 70),
-    department: apiDriver?.department || 'Operations',
+    safetyScore: Number(apiDriver?.safety_score ?? apiDriver?.safetyScore ?? 0),
+    department: apiDriver?.department || '',
     assignedVehicle: apiDriver?.assigned_vehicle_id?.toString(),
     certifications: parseCertifications(apiDriver?.certifications) || [],
   }
@@ -123,26 +123,48 @@ function normalizeStatus(status: string | undefined): Vehicle['status'] {
 }
 
 function parseLocation(apiVehicle: any) {
-  // Try to get lat/lng from dedicated fields
-  let lat = parseFloat(apiVehicle?.location_lat || '0')
-  let lng = parseFloat(apiVehicle?.location_lng || '0')
+  const toNumber = (value: any): number => {
+    if (value === null || value === undefined || value === '') return NaN
+    const num = typeof value === 'number' ? value : parseFloat(value)
+    return Number.isFinite(num) ? num : NaN
+  }
 
-  // If no GPS coordinates, generate some around Tallahassee, FL
-  if (!lat && !lng) {
-    lat = 30.4383 + (Math.random() * 0.2 - 0.1)
-    lng = -84.2807 + (Math.random() * 0.2 - 0.1)
+  // Try to get lat/lng from dedicated fields (support multiple schema variants)
+  const latCandidates = [
+    apiVehicle?.location_lat,
+    apiVehicle?.latitude,
+    apiVehicle?.lat,
+    apiVehicle?.location?.lat,
+    apiVehicle?.location?.latitude
+  ]
+  const lngCandidates = [
+    apiVehicle?.location_lng,
+    apiVehicle?.longitude,
+    apiVehicle?.lng,
+    apiVehicle?.location?.lng,
+    apiVehicle?.location?.longitude
+  ]
+
+  let lat = latCandidates.map(toNumber).find((val) => Number.isFinite(val)) ?? NaN
+  let lng = lngCandidates.map(toNumber).find((val) => Number.isFinite(val)) ?? NaN
+
+  const hasLat = Number.isFinite(lat) && lat !== 0
+  const hasLng = Number.isFinite(lng) && lng !== 0
+  if (!hasLat || !hasLng) {
+    lat = 0
+    lng = 0
   }
 
   // Get address
-  let address = apiVehicle?.location
+  let address = apiVehicle?.location_address || apiVehicle?.location
   if (typeof address !== 'string') {
-    address = apiVehicle?.address || `${apiVehicle?.city || 'Tallahassee'}, ${apiVehicle?.state || 'FL'}`
+    address = apiVehicle?.address || [apiVehicle?.city, apiVehicle?.state].filter(Boolean).join(', ')
   }
 
   return {
     lat,
     lng,
-    address: address || 'Unknown Location'
+    address: address || ''
   }
 }
 

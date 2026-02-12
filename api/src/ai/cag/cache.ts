@@ -1,4 +1,5 @@
 import Redis from "ioredis";
+
 import { AI_CONFIG } from "../config";
 
 let redis: Redis | null = null;

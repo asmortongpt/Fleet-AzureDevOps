@@ -1,0 +1,390 @@
+{
+  "startedAt": "2026-02-04T12:10:21.663Z",
+  "baseUrl": "http://127.0.0.1:5173",
+  "ok": [
+    {
+      "categoryId": "fleet",
+      "moduleId": "live-fleet-dashboard",
+      "moduleLabel": "Live Fleet Dashboard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "comprehensive",
+      "moduleLabel": "Fleet Analytics"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "virtual-garage",
+      "moduleLabel": "Virtual Garage"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "driver-mgmt",
+      "moduleLabel": "Driver Performance"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "asset-management",
+      "moduleLabel": "Asset Management"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet-workspace",
+      "moduleLabel": "Fleet Workspace"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "routes",
+      "moduleLabel": "Route Management"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "task-management",
+      "moduleLabel": "Task Management"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "fuel",
+      "moduleLabel": "Fuel Management"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "fuel-purchasing",
+      "moduleLabel": "Fuel Purchasing"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "fuel-management",
+      "moduleLabel": "Fuel Hub"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "operations-workspace",
+      "moduleLabel": "Operations Workspace"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "gis-map",
+      "moduleLabel": "GIS Command Center"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "ev-hub",
+      "moduleLabel": "EV Hub"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "personal-use",
+      "moduleLabel": "Personal Use"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "personal-use-policy",
+      "moduleLabel": "Personal Use Policy"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "reimbursement-queue",
+      "moduleLabel": "Reimbursement Queue"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "charges-billing",
+      "moduleLabel": "Charges & Billing"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "garage",
+      "moduleLabel": "Garage Service"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "predictive",
+      "moduleLabel": "Predictive Maintenance"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "maintenance-scheduling",
+      "moduleLabel": "Maintenance Scheduling"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "maintenance-request",
+      "moduleLabel": "Maintenance Request"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "osha-forms",
+      "moduleLabel": "OSHA Forms"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "video-telematics",
+      "moduleLabel": "Video Telematics"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "incident-management",
+      "moduleLabel": "Incident Management"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "incidents",
+      "moduleLabel": "Incidents Hub"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "policy-engine",
+      "moduleLabel": "Policy Engine"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "safety-hub",
+      "moduleLabel": "Safety Hub"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "safety-alerts",
+      "moduleLabel": "Safety Alerts"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "hos",
+      "moduleLabel": "Hours of Service"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "compliance-workspace",
+      "moduleLabel": "Compliance Workspace"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "documents",
+      "moduleLabel": "Document Management"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "document-qa",
+      "moduleLabel": "Document QA"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "financial",
+      "moduleLabel": "Business Management Hub"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "workbench",
+      "moduleLabel": "Data Workbench"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "cost-analysis",
+      "moduleLabel": "Cost Analysis"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "custom-reports",
+      "moduleLabel": "Custom Reports"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "analytics",
+      "moduleLabel": "Analytics Hub"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "analytics-workspace",
+      "moduleLabel": "Analytics Workspace"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "vendor-management",
+      "moduleLabel": "Vendor Management"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "parts-inventory",
+      "moduleLabel": "Parts Inventory"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "purchase-orders",
+      "moduleLabel": "Purchase Orders"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "invoices",
+      "moduleLabel": "Invoices"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "mileage",
+      "moduleLabel": "Mileage Reimbursement"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "receipt-processing",
+      "moduleLabel": "Receipt Processing"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "admin",
+      "moduleLabel": "Admin & Configuration"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "admin-dashboard",
+      "moduleLabel": "Admin Dashboard"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "communication",
+      "moduleLabel": "People & Communication"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "notifications",
+      "moduleLabel": "Notifications"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "teams-integration",
+      "moduleLabel": "Teams Integration"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "email-center",
+      "moduleLabel": "Email Center"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "communication-log",
+      "moduleLabel": "Communication Log"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "map-settings",
+      "moduleLabel": "Map Settings"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "map-layers",
+      "moduleLabel": "Map Layers"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "ai-assistant",
+      "moduleLabel": "AI Assistant"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "settings",
+      "moduleLabel": "Settings"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "profile",
+      "moduleLabel": "Profile"
+    }
+  ],
+  "failed": [],
+  "warnings": [],
+  "httpErrors": [],
+  "finishedAt": "2026-02-04T12:12:37.764Z"
+}

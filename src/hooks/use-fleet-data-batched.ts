@@ -9,15 +9,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 
 import { apiClient } from '@/lib/api-client'
-import { generateDemoVehicles, generateDemoDrivers, generateDemoWorkOrders, generateDemoFacilities } from '@/lib/demo-data'
 import logger from '@/utils/logger'
-
-// Check if demo mode is enabled (default: true)
-const isDemoMode = () => {
-  if (typeof window === 'undefined') return true
-  const demoMode = localStorage.getItem('demo_mode')
-  return demoMode !== 'false' // Default to demo mode unless explicitly disabled
-}
 
 // Debug flag
 const DEBUG_FLEET_DATA = typeof window !== 'undefined' && localStorage.getItem('debug_fleet_data') === 'true'
@@ -62,19 +54,6 @@ export function useFleetDataBatched() {
   const { data: batchData, isLoading, error } = useQuery<FleetBatchData>({
     queryKey: ['fleet-batch-data'],
     queryFn: async () => {
-      if (isDemoMode()) {
-        // In demo mode, return demo data immediately
-        return {
-          vehicles: { success: true, data: { data: generateDemoVehicles(50), total: 50 } },
-          drivers: { success: true, data: { data: generateDemoDrivers(20), total: 20 } },
-          workOrders: { success: true, data: { data: generateDemoWorkOrders(30), total: 30 } },
-          fuelTransactions: { success: true, data: { data: [], total: 0 } },
-          facilities: { success: true, data: { data: generateDemoFacilities(), total: 3 } },
-          maintenanceSchedules: { success: true, data: { data: [], total: 0 } },
-          routes: { success: true, data: { data: [], total: 0 } },
-        }
-      }
-
       // Use batch API to fetch all data in one request
       const results = await apiClient.batch([
         { method: 'GET', url: '/api/v1/vehicles' },
@@ -299,11 +278,7 @@ export function useFleetDataBatched() {
   }, [invalidateBatchData])
 
   const initializeData = useCallback(() => {
-    if (isDemoMode()) {
-      logger.info('✅ Using demo data mode')
-    } else {
-      logger.info('✅ Using batched API data')
-    }
+    logger.info('✅ Using batched API data')
   }, [])
 
   return {

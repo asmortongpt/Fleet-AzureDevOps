@@ -3,7 +3,7 @@
  * @module ArcGIS/components/LayerHealthBadge
  */
 
-import { CheckCircle, XCircle, Info } from "@phosphor-icons/react"
+import { CheckCircle, XCircle, Info } from "lucide-react"
 
 import type { LayerHealth } from "../types"
 
@@ -21,14 +21,14 @@ export function LayerHealthBadge({ health }: LayerHealthBadgeProps) {
     case "healthy":
       return (
         <Badge variant="default" className="text-xs bg-green-600">
-          <CheckCircle className="w-3 h-3 mr-1" weight="fill" />
+          <CheckCircle className="w-3 h-3 mr-1" />
           Healthy
         </Badge>
       )
     case "error":
       return (
         <Badge variant="destructive" className="text-xs">
-          <XCircle className="w-3 h-3 mr-1" weight="fill" />
+          <XCircle className="w-3 h-3 mr-1" />
           Error
         </Badge>
       )

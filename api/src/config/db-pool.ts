@@ -9,14 +9,27 @@ const poolConfig: PoolConfig = {
   query_timeout: 10000
 };
 
-export const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  ...poolConfig
-});
+const databaseUrl =
+  process.env.DATABASE_URL ||
+  // Safe local default for dev/demo environments.
+  // Matches other parts of the codebase that assume a local `fleet_dev` database.
+  (process.env.DB_HOST || process.env.DB_NAME || process.env.DB_USER
+    ? undefined
+    : 'postgresql://postgres:postgres@localhost:5432/fleet_dev');
+
+export const pool = databaseUrl
+  ? new Pool({
+      connectionString: databaseUrl,
+      ...poolConfig,
+    })
+  : new Pool({
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      database: process.env.DB_NAME || 'fleet_dev',
+      user: process.env.DB_USER || 'postgres',
+      password: process.env.DB_PASSWORD || 'postgres',
+      ...poolConfig,
+    });
 
 pool.on('error', (err) => {
   console.error('Unexpected error on idle client', err);

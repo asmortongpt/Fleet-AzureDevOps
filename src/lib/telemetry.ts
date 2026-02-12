@@ -130,7 +130,7 @@ class TelemetryService {
     // Mask API keys
     url = url.replace(/key=[^&]+/gi, 'key=***')
     // Mask user IDs in paths
-    url = url.replace(/\/users\/[^\/]+/gi, '/users/***')
+    url = url.replace(/\/users\/[^/]+/gi, '/users/***')
     // Mask email addresses
     url = url.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, '***@***.***')
 

@@ -4,8 +4,8 @@
 import { Activity, AlertCircle, TrendingUp, Zap } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
-import { performanceMonitor } from '../services/PerformanceMonitor';
-import { cacheService } from '../services/RedisService';
+import { performanceMonitor } from '@/services/PerformanceMonitor';
+import { cacheService } from '@/services/RedisService';
 
 export const MonitoringDashboard: React.FC = () => {
   const [metrics, setMetrics] = useState({

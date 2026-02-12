@@ -12,6 +12,7 @@ import { csrfProtection } from '../middleware/csrf'
 import { queueService } from '../services/queue.service';
 import { QueueName, JobStatus } from '../types/queue.types';
 import { getErrorMessage } from '../utils/error-handler'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router: Router = express.Router();

@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-02-04T15:39:19.014Z",
+  "baseUrl": "http://[::1]:5173",
+  "ok": [],
+  "failed": [
+    {
+      "categoryId": "global",
+      "moduleId": "bootstrap",
+      "moduleLabel": "bootstrap",
+      "error": "locator.waitFor: Timeout 90000ms exceeded.\nCall log:\n  - waiting for getByTestId('nav-cat-fleet') to be visible\n"
+    }
+  ],
+  "warnings": [],
+  "httpErrors": [],
+  "finishedAt": "2026-02-04T15:40:52.498Z"
+}

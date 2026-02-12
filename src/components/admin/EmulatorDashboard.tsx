@@ -13,32 +13,6 @@
  * CTA Owner access only
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  Box,
-  Typography,
-  Card,
-  CardContent,
-  Chip,
-  LinearProgress,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  IconButton,
-  Collapse,
-  Button,
-  Tooltip,
-  Alert,
-  Tabs,
-  Tab,
-  Badge,
-  Divider
-} from '@mui/material';
-import Grid from '@mui/material/Grid';
 import {
   PlayArrow,
   Stop,
@@ -64,9 +38,34 @@ import {
   TrendingUp,
   Security
 } from '@mui/icons-material';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  LinearProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Collapse,
+  Button,
+  Tooltip,
+  Alert,
+  Tabs,
+  Tab,
+  Divider
+} from '@mui/material';
+import Grid from '@mui/material/Grid';
+import React, { useState, useEffect, useCallback } from 'react';
 
-import logger from '@/utils/logger';
 import { apiClient } from '@/services/api';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPES

@@ -3,17 +3,13 @@
 import React from "react"
 import ReactDOM from "react-dom/client"
 
-// Initialize MSW API mocking in development mode (non-blocking)
-if (import.meta.env.DEV) {
-  // import('./mocks/browser').catch(console.error)  // Don't block app startup
-}
-
 // Initialize i18n BEFORE React renders - this is critical for SSR and proper language detection
 import './i18n/config'
 
 // Initialize axe-core accessibility testing in development
 import { initializeAxe } from './lib/accessibility/axe-init'
-if (import.meta.env.DEV) {
+// Only enable when explicitly requested; axe logs to console.error by design.
+if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_AXE === 'true') {
   initializeAxe()
 }
 
@@ -53,9 +49,11 @@ import { ThemeProvider } from "./components/providers/ThemeProvider"
 import { AuthProvider } from "./contexts/AuthContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
+import { PolicyProvider } from "./contexts/PolicyContext"
 import { TenantProvider } from "./contexts/TenantContext"
 import { initSentry } from "./lib/sentry"
 import { Login } from "./pages/Login"
+import { AuthCallback } from "./pages/AuthCallback"
 import { PublicClientApplication } from "@azure/msal-browser"
 import { MsalProvider } from "@azure/msal-react"
 import { msalConfig } from "./lib/msal-config"
@@ -81,6 +79,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
+import { PanelProvider } from "./contexts/PanelContext"
 import { BrandingProvider } from "./shared/branding/BrandingProvider"
 
 // Professional theme with high contrast colors - fixes green-on-green readability
@@ -89,11 +88,13 @@ import { BrandingProvider } from "./shared/branding/BrandingProvider"
 
 // Core Tailwind v4 + Enterprise Design System
 import "./index.css"
+import "./styles/pro-max.css"
 
 // Responsive Utilities
 import "./styles/design-tokens-responsive.css"
 import "./styles/responsive-utilities.css"
 import "./styles/dark-mode-enhancements.css"
+import "./styles/cta-hubs.css"
 
 // WCAG 2.1 AA Accessibility Styles
 import "./styles/accessibility.css"
@@ -232,8 +233,18 @@ async function validateStartupConfiguration(): Promise<void> {
 
 // P0-3: Run validation BEFORE rendering app
 // This ensures app only starts if all security requirements are met
-validateStartupConfiguration().then(() => {
+validateStartupConfiguration().then(async () => {
   console.log('[Fleet] Starting application...');
+
+  // Initialize MSAL before rendering - required for MSAL v2+
+  try {
+    await msalInstance.initialize();
+    // Handle any redirect promise from SSO callback
+    await msalInstance.handleRedirectPromise();
+    console.log('[Fleet] MSAL initialized successfully');
+  } catch (error) {
+    console.error('[Fleet] MSAL initialization failed:', error);
+  }
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
@@ -244,14 +255,19 @@ validateStartupConfiguration().then(() => {
               <BrandingProvider>
                 <AuthProvider>
                   <TenantProvider>
-                    <FeatureFlagProvider>
-                      <DrilldownProvider>
-                        <InspectProvider>
-                          <BrowserRouter>
+                    <PolicyProvider>
+                      <FeatureFlagProvider>
+                        <DrilldownProvider>
+                          <InspectProvider>
+                            <PanelProvider>
+                            <BrowserRouter>
                             {/* <GlobalCommandPalette /> */}
                             <SentryRoutes>
                               {/* Public Login Route */}
                               <Route path="/login" element={<Login />} />
+
+                              {/* OAuth Callback Route - Public (no auth required) */}
+                              <Route path="/auth/callback" element={<AuthCallback />} />
 
                               {/* Protected Application Routes - Require SSO Authentication */}
                               <Route
@@ -268,12 +284,14 @@ validateStartupConfiguration().then(() => {
                               />
                             </SentryRoutes>
                           </BrowserRouter>
+                          </PanelProvider>
                         </InspectProvider>
                       </DrilldownProvider>
                     </FeatureFlagProvider>
-                  </TenantProvider>
-                </AuthProvider>
-              </BrandingProvider>
+                  </PolicyProvider>
+                </TenantProvider>
+              </AuthProvider>
+            </BrandingProvider>
             </SentryErrorBoundary>
           </ThemeProvider>
         </MsalProvider>

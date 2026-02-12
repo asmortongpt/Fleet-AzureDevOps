@@ -8,13 +8,14 @@
 
 // import * as tf from '@tensorflow/tfjs-node' // Removed for build compatibility
 // import * as cv from '@techstark/opencv-js' // Removed for build compatibility
-import { OpenAI } from 'openai'
+import crypto from 'crypto'
+import { EventEmitter } from 'events'
+
 import { ComputerVisionClient } from '@azure/cognitiveservices-computervision'
 import { ApiKeyCredentials } from '@azure/ms-rest-js'
-import sharp from 'sharp'
-import { EventEmitter } from 'events'
+import { OpenAI } from 'openai'
 import pLimit from 'p-limit'
-import crypto from 'crypto'
+import sharp from 'sharp'
 
 // Types and Interfaces
 interface DamageAssessmentInput {

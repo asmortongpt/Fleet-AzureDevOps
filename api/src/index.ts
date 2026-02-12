@@ -1,6 +1,13 @@
 import express from 'express';
 import pg from 'pg';
 
+// This file is a legacy/experimental entrypoint and is not part of the supported server runtime.
+// Prevent accidental deployment by requiring explicit opt-in in *all* environments.
+if (process.env.ENABLE_LEGACY_API !== 'true') {
+  console.error('Legacy API entrypoint disabled. Set ENABLE_LEGACY_API=true to run.');
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 

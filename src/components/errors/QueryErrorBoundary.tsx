@@ -97,7 +97,7 @@ export const QueryErrorFallback: React.FC<QueryErrorFallbackProps> = ({
 
         {import.meta.env.DEV && (
           <details className="mt-2">
-            <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-gray-400">
+            <summary className="cursor-pointer text-sm font-semibold text-slate-700 dark:text-gray-700">
               Technical Details
             </summary>
             <pre className="mt-2 text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto">
@@ -138,12 +138,12 @@ export const QueryErrorBoundary: React.FC<QueryErrorBoundaryProps> = ({
           onError={(error, errorInfo) => {
             logger.error('Query Error Boundary caught:', error, errorInfo);
           }}
-          fallbackRender={({ error: actualError, resetErrorBoundary }) => 
+          fallbackRender={({ error, resetErrorBoundary }) =>
             fallback ? (
               <>{fallback}</>
             ) : (
               <QueryErrorFallback
-                error={actualError || new Error('An unknown error occurred')}
+                error={error}
                 resetErrorBoundary={() => {
                   resetErrorBoundary();
                   reset();

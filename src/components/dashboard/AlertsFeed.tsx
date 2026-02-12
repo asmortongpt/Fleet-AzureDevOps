@@ -1,5 +1,5 @@
-import { Warning, Lightning, Wrench, Info, Circle, Clock } from "@phosphor-icons/react"
-import { motion } from "framer-motion"
+import { AlertTriangle, Zap, Wrench, Info, Circle, Clock } from "lucide-react"
+// motion removed - React 19 incompatible
 import { useMemo } from "react"
 
 import { cn } from "@/lib/utils"
@@ -36,13 +36,13 @@ export function AlertsFeed({
   const getAlertIcon = (type: Alert["type"]) => {
     switch (type) {
       case "critical":
-        return <Warning className="w-3.5 h-3.5" weight="fill" />
+        return <AlertTriangle className="w-3.5 h-3.5" />
       case "warning":
-        return <Lightning className="w-3.5 h-3.5" weight="fill" />
+        return <Zap className="w-3.5 h-3.5" />
       case "maintenance":
-        return <Wrench className="w-3.5 h-3.5" weight="fill" />
+        return <Wrench className="w-3.5 h-3.5" />
       default:
-        return <Info className="w-3.5 h-3.5" weight="fill" />
+        return <Info className="w-3.5 h-3.5" />
     }
   }
 
@@ -50,8 +50,8 @@ export function AlertsFeed({
     const styles = {
       critical: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
       warning: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
-      maintenance: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-400 dark:border-blue-900",
-      info: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700"
+      maintenance: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900",
+      info: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700"
     }
     return styles[type]
   }
@@ -81,7 +81,7 @@ export function AlertsFeed({
     <div className="compact-card h-full">
       <div className="compact-card-header">
         <div className="compact-card-title">
-          <Warning className="w-4 h-4" />
+          <AlertTriangle className="w-4 h-4" />
           Alerts & Notifications
         </div>
         <div className="flex items-center gap-2">
@@ -91,7 +91,7 @@ export function AlertsFeed({
             </span>
           )}
           {stats.unread > 0 && (
-            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-400 rounded-full border border-blue-200 dark:border-blue-900">
+            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold text-blue-700 bg-blue-100 dark:bg-blue-950 dark:text-blue-700 rounded-full border border-blue-200 dark:border-blue-900">
               {stats.unread} New
             </span>
           )}
@@ -107,7 +107,7 @@ export function AlertsFeed({
             </div>
           ) : (
             sortedAlerts.map((alert, index) => (
-              <motion.div
+              <div
                 key={alert.id}
                 className={cn(
                   "p-2 rounded-md border cursor-pointer transition-all duration-200 hover:shadow-sm",
@@ -115,11 +115,6 @@ export function AlertsFeed({
                   alert.isRead && "opacity-80 hover:opacity-100"
                 )}
                 onClick={() => onAlertClick?.(alert)}
-                initial={{ opacity: 0, y: -5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2, delay: Math.min(index * 0.05, 0.5) }}
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
               >
                 <div className="flex items-start gap-2">
                   <div className={cn("compact-list-item-icon mt-0.5", getAlertStyle(alert.type))}>
@@ -133,7 +128,7 @@ export function AlertsFeed({
                       {!alert.isRead && (
                         <Circle
                           className="w-2 h-2 fill-blue-500 text-blue-800 flex-shrink-0 mt-1"
-                          weight="fill"
+                         
                         />
                       )}
                     </div>
@@ -156,7 +151,7 @@ export function AlertsFeed({
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))
           )}
         </div>
@@ -199,7 +194,7 @@ export function ActivityFeed({ activities, maxHeight = "100%", maxItems }: Activ
     <div className="compact-card h-full">
       <div className="compact-card-header">
         <div className="compact-card-title">
-          <Circle className="w-4 h-4 animate-pulse" weight="fill" />
+          <Circle className="w-4 h-4 animate-pulse" />
           Live Activity
         </div>
         <div className="text-xs text-muted-foreground">
@@ -214,16 +209,13 @@ export function ActivityFeed({ activities, maxHeight = "100%", maxItems }: Activ
             </div>
           ) : (
             displayActivities.map((activity, index) => (
-              <motion.div
+              <div
                 key={activity.id}
                 className="flex items-start gap-2 p-1.5 rounded hover:bg-muted/30 transition-colors"
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.15, delay: index * 0.03 }}
               >
                 <Circle
                   className="w-1.5 h-1.5 mt-1.5 fill-blue-500 text-blue-800 flex-shrink-0"
-                  weight="fill"
+                 
                 />
                 <div className="flex-1 min-w-0">
                   <div className="text-[10px] font-medium text-foreground leading-tight mb-0.5">
@@ -236,7 +228,7 @@ export function ActivityFeed({ activities, maxHeight = "100%", maxItems }: Activ
                 <span className="text-[9px] text-muted-foreground flex-shrink-0">
                   {formatTimestamp(activity.timestamp)}
                 </span>
-              </motion.div>
+              </div>
             ))
           )}
         </div>

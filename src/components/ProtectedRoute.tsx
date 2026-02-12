@@ -21,6 +21,21 @@ import { Navigate } from 'react-router-dom';
 import { useAuth, UserRole } from '@/hooks/useAuth';
 import logger from '@/utils/logger';
 
+// Development auth bypass flag (reads from Vite environment variable)
+// WARNING: ONLY set VITE_SKIP_AUTH=true in .env.local for local development/testing
+// NEVER enable in production - enforced by production safety check below
+const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true';
+
+// Safety check: NEVER allow auth bypass in production
+if (SKIP_AUTH && import.meta.env.PROD) {
+  console.error('[SECURITY] Auth bypass attempted in production environment - BLOCKED');
+  throw new Error('Auth bypass is not allowed in production');
+}
+
+if (SKIP_AUTH) {
+  console.log('[ProtectedRoute] SKIP_AUTH enabled - all routes will bypass authentication');
+}
+
 interface ProtectedRouteProps {
   children: ReactNode;
   requireAuth?: boolean; // Default: true
@@ -73,8 +88,19 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, isLoading, isAuthenticated, canAccess } = useAuth();
 
+  // CRITICAL DEBUG: Log auth state on every render
+  logger.debug('[ProtectedRoute] Render check:', {
+    isLoading,
+    isAuthenticated,
+    hasUser: !!user,
+    userId: user?.id,
+    requireAuth,
+    timestamp: new Date().toISOString()
+  });
+
   // Show loading state while auth is initializing
   if (isLoading) {
+    logger.debug('[ProtectedRoute] Showing loading state');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
@@ -82,9 +108,19 @@ export function ProtectedRoute({
     );
   }
 
+  // DEV: Skip authentication if VITE_SKIP_AUTH=true in .env.local
+  if (SKIP_AUTH) {
+    logger.info('[ProtectedRoute] SKIP_AUTH enabled - auto-authorizing');
+    return <>{children}</>;
+  }
+
   // Check authentication requirement
   if (requireAuth && !isAuthenticated) {
-    logger.warn('ProtectedRoute: User not authenticated, redirecting to login');
+    logger.warn('[ProtectedRoute] User not authenticated, redirecting to login', {
+      hasUser: !!user,
+      isAuthenticated,
+      redirectTo
+    });
     return <Navigate to={redirectTo} replace />;
   }
 
@@ -106,6 +142,10 @@ export function ProtectedRoute({
   }
 
   // All checks passed, render the protected content
+  logger.debug('[ProtectedRoute] All checks passed, rendering protected content', {
+    userId: user?.id,
+    role: user?.role
+  });
   return <>{children}</>;
 }
 

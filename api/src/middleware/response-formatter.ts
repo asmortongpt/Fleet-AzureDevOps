@@ -17,12 +17,13 @@ export function formatResponse(req: Request, res: Response, next: NextFunction) 
 
   res.json = function(body: any) {
     if (body && typeof body === 'object' && !body.success && !body.error) {
+      const requestId = (req as any).requestId || req.headers['x-request-id'] || '';
       const formatted: ApiResponse<any> = {
         success: true,
         data: body,
         meta: {
           timestamp: new Date().toISOString(),
-          requestId: req.id || '',
+          requestId: requestId as string,
           version: req.apiVersion || '1.0'
         }
       };

@@ -1,6 +1,7 @@
 // OBD-II Device Integration
 // Direct vehicle diagnostics via Bluetooth/WiFi OBD-II adapters
 
+import logger from '@/utils/logger';
 interface OBDConfig {
   protocol: 'bluetooth' | 'wifi';
   deviceAddress?: string;
@@ -43,12 +44,12 @@ export class OBDService {
         }
 
         socket.onopen = () => {
-          console.log('✅ OBD-II device connected');
+          logger.info('✅ OBD-II device connected');
           resolve(true);
         };
 
         socket.onerror = (error) => {
-          console.error('❌ OBD-II connection error:', error);
+          logger.error('❌ OBD-II connection error:', error);
           reject(false);
         };
 
@@ -57,7 +58,7 @@ export class OBDService {
         };
       });
     } catch (error) {
-      console.error('OBD connection failed:', error);
+      logger.error('OBD connection failed:', error);
       return false;
     }
   }

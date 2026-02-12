@@ -5,11 +5,8 @@
  * each vehicle uses. Supports adding, removing, testing, and managing provider configurations.
  */
 
-import React, { useState, useEffect } from 'react'
 import {
   Cpu,
-  Wifi,
-  WifiOff,
   Settings,
   Trash2,
   Plus,
@@ -20,30 +17,11 @@ import {
   Car,
   Smartphone,
   AlertCircle,
-  Check,
   Loader2,
   ExternalLink
 } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
 
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter
-} from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -54,6 +32,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
+import { Badge, StatusBadge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
+} from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -61,12 +60,10 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge, StatusBadge } from '@/components/ui/badge'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
+import { cn } from '@/lib/utils'
 
+import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -191,7 +188,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
               )}
             </div>
           </div>
-          <StatusBadge status={provider.status === 'error' ? 'offline' : provider.status} />
+          <StatusBadge status={provider.status === 'error' ? 'offline' : provider.status === 'connected' ? 'online' : provider.status} />
         </div>
       </CardHeader>
 
@@ -300,13 +297,15 @@ interface AddProviderDialogProps {
   onOpenChange: (open: boolean) => void
   onAdd: (type: ProviderType, config: ProviderConfig) => Promise<void>
   isAdding: boolean
+  vehicleId: number
 }
 
 const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
   open,
   onOpenChange,
   onAdd,
-  isAdding
+  isAdding,
+  vehicleId
 }) => {
   const [selectedProvider, setSelectedProvider] = useState<ProviderType | ''>('')
   const [config, setConfig] = useState<ProviderConfig>({})
@@ -451,7 +450,7 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
                     <p>1. Download the OBD2 Fleet app from your app store</p>
                     <p>2. Plug the OBD2 adapter into the vehicle's diagnostic port</p>
                     <p>3. Open the app and follow the pairing wizard</p>
-                    <p>4. Enter this vehicle ID when prompted: <code className="bg-muted px-1 py-0.5 rounded">VEH-{Math.random().toString(36).substring(7).toUpperCase()}</code></p>
+                    <p>4. Enter this vehicle ID when prompted: <code className="bg-muted px-1 py-0.5 rounded">VEH-{String(vehicleId).toUpperCase()}</code></p>
                   </div>
                 </div>
               </div>
@@ -567,7 +566,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       setProviders(data.providers || [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load providers')
-      console.error('Error fetching providers:', err)
+      logger.error('Error fetching providers:', err)
     } finally {
       setIsLoading(false)
     }
@@ -591,7 +590,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       setIsAddDialogOpen(false)
       onProviderAdded?.(type)
     } catch (err) {
-      console.error('Error adding provider:', err)
+      logger.error('Error adding provider:', err)
       alert(err instanceof Error ? err.message : 'Failed to add provider')
     } finally {
       setIsAdding(false)
@@ -614,7 +613,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       setProviderToRemove(null)
       onProviderRemoved?.(removedProvider?.type || '')
     } catch (err) {
-      console.error('Error removing provider:', err)
+      logger.error('Error removing provider:', err)
       alert(err instanceof Error ? err.message : 'Failed to remove provider')
     }
   }
@@ -642,7 +641,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
         ))
       }
     } catch (err) {
-      console.error('Error testing connection:', err)
+      logger.error('Error testing connection:', err)
       alert('Connection test failed')
     } finally {
       setTestingConnectionId(null)
@@ -733,6 +732,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
         onOpenChange={setIsAddDialogOpen}
         onAdd={handleAddProvider}
         isAdding={isAdding}
+        vehicleId={vehicleId}
       />
 
       {/* Remove Confirmation Dialog */}

@@ -66,6 +66,28 @@ class TeamsService {
   }
 
   /**
+   * Get a single team by ID
+   */
+  async getTeam(teamId: string): Promise<Team> {
+    try {
+      logger.info(`Fetching team from Microsoft Graph`, { teamId })
+
+      const team = await microsoftGraphService.makeGraphRequest<Team>(
+        `/teams/${teamId}`,
+        `GET`
+      )
+
+      return team
+    } catch (error) {
+      logger.error(`Failed to get team`, {
+        teamId,
+        error: error instanceof Error ? error.message : 'Unknown error'
+      })
+      throw new Error(`Failed to retrieve team ${teamId} from Microsoft Graph`)
+    }
+  }
+
+  /**
    * Get all channels in a team
    */
   async getChannels(teamId: string): Promise<Channel[]> {

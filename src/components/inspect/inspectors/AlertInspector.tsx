@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { apiClient } from '@/lib/api';
+import { apiClient } from "@/lib/api-client";
 import logger from '@/utils/logger';
 interface AlertInspectorProps {
   id: string;
@@ -140,7 +140,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
 
   if (!alert) {
     return (
-      <div className="p-3 text-gray-500">
+      <div className="p-3 text-gray-700">
         No alert data available
       </div>
     );
@@ -159,7 +159,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
               <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                 {alert.type}
               </h2>
-              <p className="text-sm text-slate-700 dark:text-gray-400">
+              <p className="text-sm text-slate-700 dark:text-gray-700">
                 {new Date(alert.timestamp).toLocaleString()}
               </p>
             </div>
@@ -347,7 +347,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                   <div className="flex-1 pb-2">
                     <p className="font-medium">Alert Created</p>
                     <p className="text-sm text-slate-700">{new Date(alert.timestamp).toLocaleString()}</p>
-                    <p className="text-sm text-gray-500">System detected {alert.type.toLowerCase()}</p>
+                    <p className="text-sm text-gray-700">System detected {alert.type.toLowerCase()}</p>
                   </div>
                 </div>
                 {alert.status !== 'active' && (

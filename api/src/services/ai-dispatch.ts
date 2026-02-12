@@ -15,8 +15,8 @@
 
 import { OpenAIClient, AzureKeyCredential } from '@azure/openai'
 
-import logger from '../config/logger'
 import { pool } from '../config/database'
+import logger from '../config/logger'
 
 // ============================================================================
 // Types and Interfaces
@@ -92,33 +92,47 @@ export interface DispatchAnalytics {
 // ============================================================================
 
 class AIDispatchService {
-  private openaiClient: OpenAIClient
+  private openaiClient: OpenAIClient | null = null
   private deploymentName: string = 'gpt-4.5-preview'
   private maxTokens: number = 1500
   private temperature: number = 0.3 // Lower for consistent dispatch decisions
 
   constructor() {
-    const endpoint = process.env.AZURE_OPENAI_ENDPOINT
-    const apiKey = process.env.OPENAI_API_KEY
+    const isTest =
+      process.env.NODE_ENV === 'test' ||
+      process.env.VITEST === 'true' ||
+      Boolean(process.env.VITEST)
 
-    if (!endpoint) {
-      throw new Error('AZURE_OPENAI_ENDPOINT environment variable is not set')
+    const endpoint =
+      process.env.AZURE_OPENAI_ENDPOINT ||
+      (isTest ? 'https://example.openai.azure.com/' : undefined)
+
+    const apiKey =
+      process.env.OPENAI_API_KEY ||
+      (isTest ? 'test-openai-key' : undefined)
+
+    // In production, AI features should degrade gracefully if not configured.
+    if (!endpoint || !apiKey) {
+      logger.warn('AI Dispatch Service disabled (missing Azure OpenAI config)', {
+        hasEndpoint: Boolean(endpoint),
+        hasApiKey: Boolean(apiKey),
+        deployment: this.deploymentName
+      })
+      return
     }
 
-    if (!apiKey) {
-      throw new Error('OPENAI_API_KEY environment variable is not set')
-    }
-
-    // Initialize Azure OpenAI client
-    this.openaiClient = new OpenAIClient(
-      endpoint,
-      new AzureKeyCredential(apiKey)
-    )
+    this.openaiClient = new OpenAIClient(endpoint, new AzureKeyCredential(apiKey))
 
     logger.info('AI Dispatch Service initialized with Azure OpenAI', {
-      endpoint,
       deployment: this.deploymentName
     })
+  }
+
+  private requireOpenAIClient(): OpenAIClient {
+    if (!this.openaiClient) {
+      throw new Error('AI Dispatch is not configured')
+    }
+    return this.openaiClient
   }
 
   // ============================================================================
@@ -166,7 +180,7 @@ Respond ONLY with valid JSON in this exact format:
   }
 }`
 
-      const response = await this.openaiClient.getChatCompletions(
+      const response = await this.requireOpenAIClient().getChatCompletions(
         this.deploymentName,
         [
           { role: 'system', content: systemPrompt },
@@ -594,7 +608,7 @@ ${recommendation.reasoning.join('\n')}
 
 Alternatives: ${recommendation.alternativeVehicles.length} vehicles available`
 
-      const response = await this.openaiClient.getChatCompletions(
+      const response = await this.requireOpenAIClient().getChatCompletions(
         this.deploymentName,
         [
           { role: 'system', content: systemPrompt },

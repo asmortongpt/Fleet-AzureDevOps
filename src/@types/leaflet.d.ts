@@ -184,22 +184,22 @@ declare namespace L {
   }
 
   export class Evented extends Class {
-    on(type: string, fn: Function, context?: any): this;
+    on(type: string, fn: (...args: any[]) => void, context?: any): this;
     on(eventMap: LeafletEventHandlerFnMap): this;
-    off(type?: string, fn?: Function, context?: any): this;
+    off(type?: string, fn?: (...args: any[]) => void, context?: any): this;
     off(eventMap?: LeafletEventHandlerFnMap): this;
     fire(type: string, data?: any, propagate?: boolean): this;
     listens(type: string): boolean;
-    once(type: string, fn: Function, context?: any): this;
+    once(type: string, fn: (...args: any[]) => void, context?: any): this;
     once(eventMap: LeafletEventHandlerFnMap): this;
     addEventParent(obj: Evented): this;
     removeEventParent(obj: Evented): this;
-    addEventListener(type: string, fn: Function, context?: any): this;
+    addEventListener(type: string, fn: (...args: any[]) => void, context?: any): this;
     addEventListener(eventMap: LeafletEventHandlerFnMap): this;
-    removeEventListener(type?: string, fn?: Function, context?: any): this;
+    removeEventListener(type?: string, fn?: (...args: any[]) => void, context?: any): this;
     removeEventListener(eventMap?: LeafletEventHandlerFnMap): this;
     clearAllEventListeners(): this;
-    addOneTimeEventListener(type: string, fn: Function, context?: any): this;
+    addOneTimeEventListener(type: string, fn: (...args: any[]) => void, context?: any): this;
     addOneTimeEventListener(eventMap: LeafletEventHandlerFnMap): this;
     fireEvent(type: string, data?: any, propagate?: boolean): this;
     hasEventListeners(type: string): boolean;
@@ -215,7 +215,7 @@ declare namespace L {
     protected _map: Map;
     onAdd(map: Map): this;
     onRemove(map: Map): this;
-    getEvents?(): { [name: string]: Function };
+    getEvents?(): { [name: string]: (...args: any[]) => void };
     beforeAdd?(map: Map): this;
     bindPopup(content: ((layer: Layer) => string) | string | HTMLElement | Popup, options?: PopupOptions): this;
     unbindPopup(): this;

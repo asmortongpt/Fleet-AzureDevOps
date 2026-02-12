@@ -12,7 +12,7 @@ export const API_ENDPOINT_CATEGORIES: EndpointCategory[] = [
       { id: 'auth-login', category: 'Authentication', path: '/api/auth/login', method: 'POST', description: 'User login' },
       { id: 'auth-register', category: 'Authentication', path: '/api/auth/register', method: 'POST', description: 'User registration' },
       { id: 'auth-logout', category: 'Authentication', path: '/api/auth/logout', method: 'POST', description: 'User logout', requiresAuth: true },
-      { id: 'auth-csrf', category: 'Authentication', path: '/api/csrf', method: 'GET', description: 'Get CSRF token' },
+      { id: 'auth-csrf', category: 'Authentication', path: '/api/csrf-token', method: 'GET', description: 'Get CSRF token' },
     ]
   },
   {
@@ -261,7 +261,9 @@ export const WEBSOCKET_CONNECTIONS: SocketConnectionInfo[] = [
   {
     id: 'obd2-emulator',
     category: 'OBD2 Emulator',
-    url: 'ws://localhost:8000/ws/obd2/',
+    // Uses API server upgrade handler from `api/src/routes/obd2-emulator.routes.ts`.
+    // Use a stable "no-subscribe" session id so monitors can connect without starting a session.
+    url: '/ws/obd2/obd2',
     description: 'Real-time OBD2 telemetry data',
     status: 'disconnected',
     lastMessageTime: null,
@@ -271,7 +273,9 @@ export const WEBSOCKET_CONNECTIONS: SocketConnectionInfo[] = [
   {
     id: 'radio-socket',
     category: 'Radio Dispatch',
-    url: import.meta.env.VITE_RADIO_SOCKET_URL || 'http://localhost:8000',
+    // Radio dispatch currently streams via the dispatch websocket service.
+    // If a dedicated radio WS is introduced later, set `VITE_RADIO_SOCKET_URL` to override.
+    url: import.meta.env.VITE_RADIO_SOCKET_URL || '/api/dispatch/ws',
     description: 'Radio transmissions and policy triggers',
     status: 'disconnected',
     lastMessageTime: null,
@@ -281,7 +285,7 @@ export const WEBSOCKET_CONNECTIONS: SocketConnectionInfo[] = [
   {
     id: 'dispatch-socket',
     category: 'Dispatch System',
-    url: import.meta.env.VITE_DISPATCH_SOCKET_URL || 'http://localhost:8000',
+    url: import.meta.env.VITE_DISPATCH_SOCKET_URL || '/api/dispatch/ws',
     description: 'Dispatch events and unit status',
     status: 'disconnected',
     lastMessageTime: null,

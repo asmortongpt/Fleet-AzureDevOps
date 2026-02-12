@@ -1,19 +1,19 @@
 import {
   Plus,
-  MagnifyingGlass,
-  Robot,
+  Search,
+  Bot,
   Play,
   Pause,
   CheckCircle,
-  Warning,
+  AlertTriangle,
   Brain,
-  Lightning,
+  Zap,
   Eye,
   ShieldCheck,
-  FlowArrow,
+  ArrowRight,
   Database as DatabaseIcon,
   GitBranch
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -53,14 +53,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { usePolicies } from "@/contexts/PolicyContext"
+import { useAuth } from "@/hooks/useAuth"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
-
-// Check if demo mode is enabled (default: true)
-const isDemoMode = () => {
-  if (typeof window === 'undefined') return true
-  const demoMode = localStorage.getItem('demo_mode')
-  return demoMode !== 'false' // Default to demo mode unless explicitly disabled
-}
+import logger from '@/utils/logger';
 
 export function PolicyEngineWorkbench() {
   // Use PolicyContext for backend integration
@@ -73,8 +68,10 @@ export function PolicyEngineWorkbench() {
     deletePolicy,
     activatePolicy,
     deactivatePolicy,
-    fetchPolicies
+    fetchPolicies,
+    evaluatePolicy
   } = usePolicies()
+  const { user } = useAuth()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [filterStatus, setFilterStatus] = useState<string>("all")
@@ -115,8 +112,13 @@ export function PolicyEngineWorkbench() {
     }
 
     try {
+      if (!user?.tenantId) {
+        toast.error("No tenant context available. Please re-authenticate.")
+        return
+      }
+
       const policyData = {
-        tenantId: "tenant-demo",
+        tenantId: user.tenantId,
         name: newPolicy.name,
         description: newPolicy.description,
         type: newPolicy.type as PolicyType,
@@ -129,11 +131,11 @@ export function PolicyEngineWorkbench() {
         confidenceScore: newPolicy.confidenceScore || 0.85,
         requiresDualControl: newPolicy.requiresDualControl || false,
         requiresMFAForExecution: newPolicy.requiresMFAForExecution || false,
-        createdBy: "Current User",
+        createdBy: user.email || user.id,
         tags: newPolicy.tags || [],
         category: newPolicy.category || "general",
         relatedPolicies: newPolicy.relatedPolicies || [],
-        lastModifiedBy: "Current User",
+        lastModifiedBy: user.email || user.id,
         lastModifiedAt: new Date().toISOString()
       }
 
@@ -146,7 +148,7 @@ export function PolicyEngineWorkbench() {
       setIsAddDialogOpen(false)
       resetForm()
     } catch (error) {
-      console.error('Error saving policy:', error)
+      logger.error('Error saving policy:', error)
     }
   }
 
@@ -154,7 +156,7 @@ export function PolicyEngineWorkbench() {
     try {
       await activatePolicy(policyId)
     } catch (error) {
-      console.error('Error activating policy:', error)
+      logger.error('Error activating policy:', error)
     }
   }
 
@@ -162,22 +164,28 @@ export function PolicyEngineWorkbench() {
     try {
       await deactivatePolicy(policyId)
     } catch (error) {
-      console.error('Error deactivating policy:', error)
+      logger.error('Error deactivating policy:', error)
     }
   }
 
   const handleTest = async (policyId: string) => {
-    toast("Starting policy simulation in sandbox environment...")
-    // Simulate testing
-    setTimeout(async () => {
-      try {
-        await updatePolicy(policyId, { status: "testing" as PolicyStatus })
-        toast.success("Policy test completed successfully")
-      } catch (error) {
-        console.error('Error testing policy:', error)
-        toast.error("Policy test failed")
+    try {
+      toast("Running policy evaluation...")
+      const result = await evaluatePolicy(policyId, {
+        employee_id: user?.id,
+        employee_role: user?.role,
+        tenant_id: user?.tenantId
+      })
+
+      if (result.allowed) {
+        toast.success("Policy evaluation completed: compliant")
+      } else {
+        toast.error(result.reason || "Policy evaluation failed")
       }
-    }, 2000)
+    } catch (error) {
+      logger.error('Error testing policy:', error)
+      toast.error("Policy test failed")
+    }
   }
 
   const handleEdit = (policy: Policy) => {
@@ -256,7 +264,7 @@ export function PolicyEngineWorkbench() {
     const icons = {
       monitor: <Eye className="w-4 h-4" />,
       "human-in-loop": <ShieldCheck className="w-4 h-4" />,
-      autonomous: <Lightning className="w-4 h-4" />
+      autonomous: <Zap className="w-4 h-4" />
     }
     return icons[mode]
   }
@@ -491,7 +499,7 @@ export function PolicyEngineWorkbench() {
           <CardContent>
             <div className="text-sm font-bold">{totalPolicies}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Robot className="w-3 h-3" />
+              <Bot className="w-3 h-3" />
               All policies
             </div>
           </CardContent>
@@ -536,7 +544,7 @@ export function PolicyEngineWorkbench() {
           <CardContent>
             <div className="text-sm font-bold text-orange-600">{totalViolations}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               Flagged
             </div>
           </CardContent>
@@ -545,7 +553,7 @@ export function PolicyEngineWorkbench() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search policies..."
             value={searchTerm}
@@ -582,11 +590,11 @@ export function PolicyEngineWorkbench() {
       <Tabs defaultValue="policies" className="space-y-2">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="policies">
-            <Robot className="w-4 h-4 mr-2" />
+            <Bot className="w-4 h-4 mr-2" />
             Policies
           </TabsTrigger>
           <TabsTrigger value="flow">
-            <FlowArrow className="w-4 h-4 mr-2" />
+            <ArrowRight className="w-4 h-4 mr-2" />
             Policy Flow
           </TabsTrigger>
           <TabsTrigger value="database">

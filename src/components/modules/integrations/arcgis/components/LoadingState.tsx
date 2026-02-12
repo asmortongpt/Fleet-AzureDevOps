@@ -3,7 +3,7 @@
  * @module ArcGIS/components/LoadingState
  */
 
-import { ArrowClockwise } from "@phosphor-icons/react"
+import { RotateCw } from "lucide-react"
 
 import { Card, CardContent } from "@/components/ui/card"
 
@@ -14,7 +14,7 @@ export function LoadingState() {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center py-12">
-        <ArrowClockwise className="w-16 h-16 text-muted-foreground mb-2 animate-spin" />
+        <RotateCw className="w-16 h-16 text-muted-foreground mb-2 animate-spin" />
         <h3 className="text-sm font-semibold mb-2">Loading Layers...</h3>
       </CardContent>
     </Card>

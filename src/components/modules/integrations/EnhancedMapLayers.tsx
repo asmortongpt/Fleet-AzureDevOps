@@ -20,11 +20,11 @@
 
 import {
   CloudRain,
-  TrafficSign,
-  VideoCamera,
-  Lightning,
-  Warning
-} from "@phosphor-icons/react"
+  Construction,
+  Video,
+  Zap,
+  AlertTriangle
+} from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 import { useState, useCallback, useMemo } from "react"
 
@@ -139,7 +139,7 @@ const INITIAL_LAYERS: MapLayer[] = [
     name: "Live Traffic",
     type: "traffic",
     enabled: true,
-    icon: TrafficSign,
+    icon: Construction,
     description: "Real-time traffic conditions and congestion",
     dataSource: "Google Traffic / HERE Maps",
     requiresData: false
@@ -159,7 +159,7 @@ const INITIAL_LAYERS: MapLayer[] = [
     name: "Traffic Cameras",
     type: "camera",
     enabled: false,
-    icon: VideoCamera,
+    icon: Video,
     description: "DOT traffic camera feeds",
     dataSource: "State DOT APIs",
     requiresData: true
@@ -169,7 +169,7 @@ const INITIAL_LAYERS: MapLayer[] = [
     name: "Traffic Incidents",
     type: "incident",
     enabled: true,
-    icon: Warning,
+    icon: AlertTriangle,
     description: "Accidents, construction, road closures",
     dataSource: "Safety Incidents API",
     requiresData: true
@@ -179,7 +179,7 @@ const INITIAL_LAYERS: MapLayer[] = [
     name: "EV Charging Stations",
     type: "charging",
     enabled: false,
-    icon: Lightning,
+    icon: Zap,
     description: "Public charging network locations",
     dataSource: "OCPI / ChargePoint",
     requiresData: true

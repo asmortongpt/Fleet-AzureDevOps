@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 
-import { ApiError } from '@/lib/api';
+import { APIError as ApiError } from "@/lib/api-client";
 
 export interface UseApiDataState<T> {
   data: T | null;
@@ -78,7 +78,7 @@ export function useApiData<T>(
     } catch (err) {
       const apiError = err instanceof ApiError
         ? err
-        : new ApiError(500, 'An unexpected error occurred');
+        : new ApiError('An unexpected error occurred', 500);
 
       setError(apiError);
       setData(null);

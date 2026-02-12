@@ -164,7 +164,7 @@ export function ThreeDViewer({ document }: ThreeDViewerProps) {
       </div>
 
       {/* Instructions */}
-      <div className="p-2 bg-slate-800 border-t border-slate-700 text-xs text-slate-400 text-center">
+      <div className="p-2 bg-slate-800 border-t border-slate-700 text-xs text-slate-700 text-center">
         Left-click drag to rotate • Scroll to zoom • Right-click drag to pan
       </div>
     </div>

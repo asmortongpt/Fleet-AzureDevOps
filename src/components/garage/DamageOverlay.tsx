@@ -101,7 +101,7 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                 ref={markerRef}
                 args={[0.08, 16, 16]}
                 scale={scale}
-                onClick={(e) => {
+                onClick={(e: any) => {
                     e.stopPropagation()
                     onSelect()
                 }}
@@ -158,10 +158,10 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                             ${point.estimatedCost.toLocaleString()}
                         </p>
                         {point.zone && (
-                            <p className="text-slate-400 text-xs mt-1">Zone: {point.zone}</p>
+                            <p className="text-slate-700 text-xs mt-1">Zone: {point.zone}</p>
                         )}
                         {point.photos.length > 0 && (
-                            <p className="text-slate-400 text-xs mt-1">📷 {point.photos.length} photo(s)</p>
+                            <p className="text-slate-700 text-xs mt-1">📷 {point.photos.length} photo(s)</p>
                         )}
                     </div>
                 </Html>
@@ -255,7 +255,7 @@ export function DamageSummaryPanel({
 
     if (damagePoints.length === 0) {
         return (
-            <div className="p-2 text-center text-slate-400">
+            <div className="p-2 text-center text-slate-700">
                 <p className="text-sm">No damage recorded</p>
                 <p className="text-xs mt-1">Click on vehicle to add damage points</p>
             </div>
@@ -268,11 +268,11 @@ export function DamageSummaryPanel({
             <div className="grid grid-cols-2 gap-2">
                 <div className="bg-slate-800/50 rounded-lg p-3 text-center">
                     <p className="text-sm font-bold text-white">{damagePoints.length}</p>
-                    <p className="text-xs text-slate-400">Damage Points</p>
+                    <p className="text-xs text-slate-700">Damage Points</p>
                 </div>
                 <div className="bg-slate-800/50 rounded-lg p-3 text-center">
                     <p className="text-sm font-bold text-green-400">${totalCost.toLocaleString()}</p>
-                    <p className="text-xs text-slate-400">Est. Total Cost</p>
+                    <p className="text-xs text-slate-700">Est. Total Cost</p>
                 </div>
             </div>
 
@@ -297,7 +297,7 @@ export function DamageSummaryPanel({
 
             {/* Damage Point List */}
             <div className="space-y-2 max-h-64 overflow-y-auto" tabIndex={0} role="region" aria-label="Damage points list">
-                <p className="text-xs text-slate-400 uppercase tracking-wider">Damage Points</p>
+                <p className="text-xs text-slate-700 uppercase tracking-wider">Damage Points</p>
                 {damagePoints.map((point) => (
                     <button
                         key={point.id}
@@ -318,64 +318,11 @@ export function DamageSummaryPanel({
                             <span className="text-xs text-green-400">${point.estimatedCost.toLocaleString()}</span>
                         </div>
                         {point.zone && (
-                            <p className="text-xs text-slate-400 mt-0.5 ml-2">{point.zone}</p>
+                            <p className="text-xs text-slate-700 mt-0.5 ml-2">{point.zone}</p>
                         )}
                     </button>
                 ))}
             </div>
         </div>
     )
-}
-
-// =============================================================================
-// UTILITY: Generate Demo Damage Points
-// =============================================================================
-
-export function generateDemoDamagePoints(): DamagePoint[] {
-    return [
-        {
-            id: 'dmg-1',
-            position: [1.2, 0.6, 0.6],
-            normal: [1, 0, 0],
-            severity: 'minor',
-            description: 'Front bumper scuff',
-            estimatedCost: 350,
-            photos: [],
-            createdAt: new Date().toISOString(),
-            zone: 'Front Bumper'
-        },
-        {
-            id: 'dmg-2',
-            position: [-0.8, 0.8, 0.7],
-            normal: [0, 0, 1],
-            severity: 'moderate',
-            description: 'Driver door dent',
-            estimatedCost: 1200,
-            photos: [],
-            createdAt: new Date().toISOString(),
-            zone: 'Driver Door'
-        },
-        {
-            id: 'dmg-3',
-            position: [0.3, 1.4, 0],
-            normal: [0, 1, 0],
-            severity: 'severe',
-            description: 'Roof hail damage',
-            estimatedCost: 3500,
-            photos: [],
-            createdAt: new Date().toISOString(),
-            zone: 'Roof'
-        },
-        {
-            id: 'dmg-4',
-            position: [-1.4, 0.5, 0],
-            normal: [-1, 0, 0],
-            severity: 'critical',
-            description: 'Rear collision damage',
-            estimatedCost: 8500,
-            photos: [],
-            createdAt: new Date().toISOString(),
-            zone: 'Rear Bumper'
-        }
-    ]
 }

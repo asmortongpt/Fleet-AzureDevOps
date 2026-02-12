@@ -1,0 +1,663 @@
+{
+  "info": {
+    "name": "Fleet Management API - Complete Test Suite",
+    "description": "Comprehensive API endpoint collection for testing across all environments",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "prod_url",
+      "value": "http://68.220.148.2",
+      "type": "string"
+    },
+    {
+      "key": "staging_url",
+      "value": "http://20.161.88.59",
+      "type": "string"
+    },
+    {
+      "key": "dev_url",
+      "value": "http://48.211.228.97",
+      "type": "string"
+    },
+    {
+      "key": "base_url",
+      "value": "{{dev_url}}",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/health",
+              "host": ["{{base_url}}"],
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "API Documentation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/docs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "docs"]
+            }
+          }
+        },
+        {
+          "name": "OpenAPI Spec",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/openapi.json",
+              "host": ["{{base_url}}"],
+              "path": ["api", "openapi.json"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Core Fleet Management",
+      "item": [
+        {
+          "name": "List Vehicles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vehicles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vehicles"]
+            }
+          }
+        },
+        {
+          "name": "Get Vehicle by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vehicles/:id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vehicles", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Vehicle",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"vin\": \"1HGBH41JXMN109186\",\n  \"make\": \"Honda\",\n  \"model\": \"Accord\",\n  \"year\": 2024,\n  \"license_plate\": \"ABC1234\",\n  \"status\": \"active\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/vehicles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vehicles"]
+            }
+          }
+        },
+        {
+          "name": "List Drivers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/drivers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "drivers"]
+            }
+          }
+        },
+        {
+          "name": "List Work Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/work-orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "work-orders"]
+            }
+          }
+        },
+        {
+          "name": "List Maintenance Schedules",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/maintenance-schedules",
+              "host": ["{{base_url}}"],
+              "path": ["api", "maintenance-schedules"]
+            }
+          }
+        },
+        {
+          "name": "List Fuel Transactions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/fuel-transactions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "fuel-transactions"]
+            }
+          }
+        },
+        {
+          "name": "List Routes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/routes",
+              "host": ["{{base_url}}"],
+              "path": ["api", "routes"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Location & Geofencing",
+      "item": [
+        {
+          "name": "List Geofences",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/geofences",
+              "host": ["{{base_url}}"],
+              "path": ["api", "geofences"]
+            }
+          }
+        },
+        {
+          "name": "List ArcGIS Layers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/arcgis-layers",
+              "host": ["{{base_url}}"],
+              "path": ["api", "arcgis-layers"]
+            }
+          }
+        },
+        {
+          "name": "List Traffic Cameras",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/traffic-cameras",
+              "host": ["{{base_url}}"],
+              "path": ["api", "traffic-cameras"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Safety & Compliance",
+      "item": [
+        {
+          "name": "List Inspections",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/inspections",
+              "host": ["{{base_url}}"],
+              "path": ["api", "inspections"]
+            }
+          }
+        },
+        {
+          "name": "List Damage Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/damage-reports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "damage-reports"]
+            }
+          }
+        },
+        {
+          "name": "Damage Management",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/damage",
+              "host": ["{{base_url}}"],
+              "path": ["api", "damage"]
+            }
+          }
+        },
+        {
+          "name": "List Safety Incidents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/safety-incidents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "safety-incidents"]
+            }
+          }
+        },
+        {
+          "name": "OSHA Compliance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/osha-compliance",
+              "host": ["{{base_url}}"],
+              "path": ["api", "osha-compliance"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Video & Telematics",
+      "item": [
+        {
+          "name": "List Video Events",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/video-events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "video-events"]
+            }
+          }
+        },
+        {
+          "name": "Video Telematics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/video",
+              "host": ["{{base_url}}"],
+              "path": ["api", "video"]
+            }
+          }
+        },
+        {
+          "name": "Telemetry Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/telemetry",
+              "host": ["{{base_url}}"],
+              "path": ["api", "telemetry"]
+            }
+          }
+        },
+        {
+          "name": "Telematics Data",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/telematics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "telematics"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "EV & Charging",
+      "item": [
+        {
+          "name": "List Charging Stations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/charging-stations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "charging-stations"]
+            }
+          }
+        },
+        {
+          "name": "List Charging Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/charging-sessions",
+              "host": ["{{base_url}}"],
+              "path": ["api", "charging-sessions"]
+            }
+          }
+        },
+        {
+          "name": "EV Management",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/ev",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ev"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Procurement & Vendors",
+      "item": [
+        {
+          "name": "List Purchase Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/purchase-orders",
+              "host": ["{{base_url}}"],
+              "path": ["api", "purchase-orders"]
+            }
+          }
+        },
+        {
+          "name": "List Facilities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/facilities",
+              "host": ["{{base_url}}"],
+              "path": ["api", "facilities"]
+            }
+          }
+        },
+        {
+          "name": "List Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/vendors",
+              "host": ["{{base_url}}"],
+              "path": ["api", "vendors"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Communications & Policies",
+      "item": [
+        {
+          "name": "Communication Logs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/communication-logs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "communication-logs"]
+            }
+          }
+        },
+        {
+          "name": "Communications Management",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/communications",
+              "host": ["{{base_url}}"],
+              "path": ["api", "communications"]
+            }
+          }
+        },
+        {
+          "name": "List Policies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/policies",
+              "host": ["{{base_url}}"],
+              "path": ["api", "policies"]
+            }
+          }
+        },
+        {
+          "name": "Policy Templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/policy-templates",
+              "host": ["{{base_url}}"],
+              "path": ["api", "policy-templates"]
+            }
+          }
+        },
+        {
+          "name": "Documents",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/documents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "documents"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Personal Use & Billing",
+      "item": [
+        {
+          "name": "Mileage Reimbursement",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/mileage-reimbursement",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mileage-reimbursement"]
+            }
+          }
+        },
+        {
+          "name": "Trip Usage",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/trip-usage",
+              "host": ["{{base_url}}"],
+              "path": ["api", "trip-usage"]
+            }
+          }
+        },
+        {
+          "name": "Personal Use Policies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/personal-use-policies",
+              "host": ["{{base_url}}"],
+              "path": ["api", "personal-use-policies"]
+            }
+          }
+        },
+        {
+          "name": "Personal Use Charges",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/personal-use-charges",
+              "host": ["{{base_url}}"],
+              "path": ["api", "personal-use-charges"]
+            }
+          }
+        },
+        {
+          "name": "Billing Reports",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/billing-reports",
+              "host": ["{{base_url}}"],
+              "path": ["api", "billing-reports"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dispatch & Routing",
+      "item": [
+        {
+          "name": "Dispatch Management",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/dispatch",
+              "host": ["{{base_url}}"],
+              "path": ["api", "dispatch"]
+            }
+          }
+        },
+        {
+          "name": "Route Optimization",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/route-optimization",
+              "host": ["{{base_url}}"],
+              "path": ["api", "route-optimization"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "DevOps & Quality",
+      "item": [
+        {
+          "name": "Quality Gates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/quality-gates",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quality-gates"]
+            }
+          }
+        },
+        {
+          "name": "Deployments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/deployments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deployments"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "External Integrations",
+      "item": [
+        {
+          "name": "Smartcar Integration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/smartcar",
+              "host": ["{{base_url}}"],
+              "path": ["api", "smartcar"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mobile & Emulator",
+      "item": [
+        {
+          "name": "Mobile Integration",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/mobile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "mobile"]
+            }
+          }
+        },
+        {
+          "name": "Emulator",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/emulator",
+              "host": ["{{base_url}}"],
+              "path": ["api", "emulator"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

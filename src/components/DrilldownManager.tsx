@@ -122,12 +122,7 @@ function ConversationDetailDrilldown() {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
 
-  const mockMessages = [
-    { id: 1, sender: 'user', content: data.topic || 'How can I help you?', time: data.time },
-    { id: 2, sender: 'ai', content: 'I can help you with that. Let me look up the information.', time: data.time },
-    { id: 3, sender: 'user', content: 'Thanks, that would be great!', time: data.time },
-    { id: 4, sender: 'ai', content: 'Based on my analysis, here is the information you requested...', time: data.time },
-  ]
+  const messages = Array.isArray(data.messages) ? data.messages : []
 
   return (
     <div className="space-y-2">
@@ -145,18 +140,22 @@ function ConversationDetailDrilldown() {
         </span>
       </div>
       <div className="space-y-3 max-h-80 overflow-y-auto">
-        {mockMessages.map(msg => (
-          <div key={msg.id} className={`flex ${msg.sender === 'ai' ? 'justify-start' : 'justify-end'}`}>
-            <div className={`max-w-[80%] p-3 rounded-lg ${
-              msg.sender === 'ai' ? 'bg-muted' : 'bg-primary text-primary-foreground'
-            }`}>
-              <p className="text-sm">{msg.content}</p>
+        {messages.length === 0 ? (
+          <div className="text-sm text-muted-foreground">No messages available.</div>
+        ) : (
+          messages.map((msg: any) => (
+            <div key={msg.id || msg.timestamp} className={`flex ${msg.sender === 'ai' ? 'justify-start' : 'justify-end'}`}>
+              <div className={`max-w-[80%] p-3 rounded-lg ${
+                msg.sender === 'ai' ? 'bg-muted' : 'bg-primary text-primary-foreground'
+              }`}>
+                <p className="text-sm">{msg.content}</p>
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <span>{data.messages || 0} messages</span>
+        <span>{messages.length || data.messages || 0} messages</span>
         {data.satisfaction && <span>• Satisfaction: {data.satisfaction}/5 ⭐</span>}
       </div>
     </div>
@@ -176,15 +175,16 @@ function EmailTemplateDrilldown() {
       <div className="border rounded-lg p-2">
         <div className="mb-2">
           <label className="text-sm font-medium text-muted-foreground">Subject Line</label>
-          <p className="mt-1">[{data.name}] - [Date]</p>
+          <p className="mt-1">{data.subject || data.name || 'N/A'}</p>
         </div>
         <div>
           <label className="text-sm font-medium text-muted-foreground">Template Body</label>
           <div className="mt-1 p-3 bg-muted/30 rounded text-sm">
-            <p>Dear [Recipient],</p>
-            <p className="mt-2">This is the template content for {data.name}.</p>
-            <p className="mt-2">Please review the attached information and respond at your earliest convenience.</p>
-            <p className="mt-2">Best regards,<br/>Fleet Management Team</p>
+            {data.body ? (
+              <p>{data.body}</p>
+            ) : (
+              <p className="text-muted-foreground">No template content available.</p>
+            )}
           </div>
         </div>
       </div>
@@ -225,12 +225,16 @@ function CampaignDetailDrilldown() {
       <div>
         <h3 className="font-medium mb-2">Recipients</h3>
         <div className="space-y-2">
-          {['fleet-managers@company.com', 'drivers@company.com', 'operations@company.com'].map((email, i) => (
-            <div key={i} className="flex items-center justify-between p-2 bg-muted/20 rounded">
-              <span className="text-sm">{email}</span>
-              <span className="text-xs text-green-600">Opened</span>
-            </div>
-          ))}
+          {(campaign.recipients || data.recipients || []).length === 0 ? (
+            <div className="text-sm text-muted-foreground">No recipients available.</div>
+          ) : (
+            (campaign.recipients || data.recipients || []).map((recipient: any, i: number) => (
+              <div key={recipient.email || i} className="flex items-center justify-between p-2 bg-muted/20 rounded">
+                <span className="text-sm">{recipient.email || recipient}</span>
+                {recipient.status && <span className="text-xs text-green-600">{recipient.status}</span>}
+              </div>
+            ))
+          )}
         </div>
       </div>
       <div className="flex gap-2">
@@ -248,21 +252,23 @@ function MaintenanceRequestsDrilldown() {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
 
-  const mockRequests = [
-    { id: 'req-1', vehicle: 'VH-1234', type: 'Brake Inspection', requestedBy: 'John Smith', date: new Date().toISOString(), status: data.filter || 'new', priority: 'high' },
-    { id: 'req-2', vehicle: 'VH-5678', type: 'Oil Change', requestedBy: 'Jane Doe', date: new Date().toISOString(), status: data.filter || 'new', priority: 'normal' },
-    { id: 'req-3', vehicle: 'VH-9012', type: 'Tire Rotation', requestedBy: 'Bob Wilson', date: new Date().toISOString(), status: data.filter || 'new', priority: 'low' },
-    { id: 'req-4', vehicle: 'VH-3456', type: 'Engine Diagnostic', requestedBy: 'Alice Brown', date: new Date().toISOString(), status: data.filter || 'new', priority: 'high' },
-  ]
+  const requests = Array.isArray(data.requests)
+    ? data.requests
+    : Array.isArray(data.workOrders)
+      ? data.workOrders
+      : []
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold">{data.title || 'Maintenance Requests'}</h2>
-        <span className="px-2 py-1 text-xs rounded bg-primary/20 text-primary">{mockRequests.length} requests</span>
+        <span className="px-2 py-1 text-xs rounded bg-primary/20 text-primary">{requests.length} requests</span>
       </div>
       <div className="space-y-2">
-        {mockRequests.map(req => (
+        {requests.length === 0 ? (
+          <div className="text-sm text-muted-foreground">No maintenance requests available.</div>
+        ) : (
+          requests.map((req: any) => (
           <div
             key={req.id}
             className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
@@ -283,7 +289,8 @@ function MaintenanceRequestsDrilldown() {
               </div>
             </div>
           </div>
-        ))}
+        ))
+        )}
       </div>
     </div>
   )
@@ -296,18 +303,17 @@ function SafetyAlertsDrilldown() {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
 
-  const mockAlerts = [
-    { id: 'alert-1', type: 'Speeding', vehicle: 'VH-1234', driver: 'John Smith', severity: 'critical', time: new Date().toISOString() },
-    { id: 'alert-2', type: 'Hard Braking', vehicle: 'VH-5678', driver: 'Jane Doe', severity: 'warning', time: new Date().toISOString() },
-    { id: 'alert-3', type: 'Lane Departure', vehicle: 'VH-9012', driver: 'Bob Wilson', severity: 'warning', time: new Date().toISOString() },
-    { id: 'alert-4', type: 'Fatigue Detected', vehicle: 'VH-3456', driver: 'Alice Brown', severity: 'critical', time: new Date().toISOString() },
-  ]
+  const alerts = Array.isArray(data.alerts)
+    ? data.alerts
+    : Array.isArray(data.incidents)
+      ? data.incidents
+      : []
 
   const filtered = data.filter === 'critical'
-    ? mockAlerts.filter(a => a.severity === 'critical')
+    ? alerts.filter((a: any) => a.severity === 'critical')
     : data.filter === 'acknowledged'
-    ? mockAlerts.slice(0, 2)
-    : mockAlerts
+    ? alerts.filter((a: any) => a.status === 'acknowledged')
+    : alerts
 
   return (
     <div className="space-y-2">
@@ -316,7 +322,10 @@ function SafetyAlertsDrilldown() {
         <span className="px-2 py-1 text-xs rounded bg-warning/20 text-warning">{filtered.length} alerts</span>
       </div>
       <div className="space-y-2">
-        {filtered.map(alert => (
+        {filtered.length === 0 ? (
+          <div className="text-sm text-muted-foreground">No alerts available.</div>
+        ) : (
+          filtered.map((alert: any) => (
           <div
             key={alert.id}
             className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
@@ -330,10 +339,13 @@ function SafetyAlertsDrilldown() {
                   <p className="text-sm text-muted-foreground">{alert.vehicle} • {alert.driver}</p>
                 </div>
               </div>
-              <span className="text-xs text-muted-foreground">{new Date(alert.time).toLocaleTimeString()}</span>
+              <span className="text-xs text-muted-foreground">
+                {alert.time ? new Date(alert.time).toLocaleTimeString() : 'N/A'}
+              </span>
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   )
@@ -346,21 +358,19 @@ function OperationsCalendarDrilldown() {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
 
-  const mockEvents = [
-    { id: 'evt-1', title: 'Route 45 - Chicago', type: 'delivery', driver: 'John Smith', time: '08:00 AM', status: 'scheduled' },
-    { id: 'evt-2', title: 'Route 67 - Detroit', type: 'pickup', driver: 'Jane Doe', time: '09:30 AM', status: 'in-progress' },
-    { id: 'evt-3', title: 'Route 12 - Milwaukee', type: 'delivery', driver: 'Bob Wilson', time: '11:00 AM', status: 'scheduled' },
-    { id: 'evt-4', title: 'Route 89 - Indianapolis', type: 'delivery', driver: 'Alice Brown', time: '02:00 PM', status: 'scheduled' },
-  ]
+  const events = Array.isArray(data.events) ? data.events : []
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold">{data.title || 'Operations Calendar'}</h2>
-        <span className="text-sm text-muted-foreground">{mockEvents.length} scheduled</span>
+        <span className="text-sm text-muted-foreground">{events.length} scheduled</span>
       </div>
       <div className="space-y-2">
-        {mockEvents.map(evt => (
+        {events.length === 0 ? (
+          <div className="text-sm text-muted-foreground">No events scheduled.</div>
+        ) : (
+          events.map((evt: any) => (
           <div
             key={evt.id}
             className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
@@ -379,7 +389,8 @@ function OperationsCalendarDrilldown() {
               }`}>{evt.status}</span>
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   )
@@ -392,21 +403,19 @@ function DriverShiftsDrilldown() {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
 
-  const mockShifts = [
-    { id: 'shift-1', driver: 'John Smith', driverId: 'drv-1', startTime: '06:00 AM', endTime: '02:00 PM', status: 'active', vehicle: 'VH-1234' },
-    { id: 'shift-2', driver: 'Jane Doe', driverId: 'drv-2', startTime: '07:00 AM', endTime: '03:00 PM', status: 'active', vehicle: 'VH-5678' },
-    { id: 'shift-3', driver: 'Bob Wilson', driverId: 'drv-3', startTime: '08:00 AM', endTime: '04:00 PM', status: 'scheduled', vehicle: 'VH-9012' },
-    { id: 'shift-4', driver: 'Alice Brown', driverId: 'drv-4', startTime: '02:00 PM', endTime: '10:00 PM', status: 'scheduled', vehicle: 'VH-3456' },
-  ]
+  const shifts = Array.isArray(data.shifts) ? data.shifts : []
 
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold">Driver Shifts</h2>
-        <span className="text-sm text-muted-foreground">{mockShifts.length} shifts today</span>
+        <span className="text-sm text-muted-foreground">{shifts.length} shifts today</span>
       </div>
       <div className="space-y-2">
-        {mockShifts.map(shift => (
+        {shifts.length === 0 ? (
+          <div className="text-sm text-muted-foreground">No shifts available.</div>
+        ) : (
+          shifts.map((shift: any) => (
           <div
             key={shift.id}
             className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
@@ -415,7 +424,7 @@ function DriverShiftsDrilldown() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold">
-                  {shift.driver.split(' ').map(n => n[0]).join('')}
+                  {shift.driver.split(' ').map((n: string) => n[0]).join('')}
                 </div>
                 <div>
                   <p className="font-medium">{shift.driver}</p>
@@ -427,7 +436,8 @@ function DriverShiftsDrilldown() {
               }`}>{shift.status}</span>
             </div>
           </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   )

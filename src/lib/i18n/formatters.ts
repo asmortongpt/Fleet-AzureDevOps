@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import logger from '@/utils/logger';
 
 /**
  * Custom hook providing locale-aware formatting utilities
@@ -50,7 +51,7 @@ export function useFormatters() {
     try {
       return new Intl.DateTimeFormat(locale, options[format]).format(d);
     } catch (error) {
-      console.error('Date formatting error:', error);
+      logger.error('Date formatting error:', error);
       return d.toLocaleDateString();
     }
   };
@@ -77,7 +78,7 @@ export function useFormatters() {
     try {
       return new Intl.DateTimeFormat(locale, options).format(d);
     } catch (error) {
-      console.error('Time formatting error:', error);
+      logger.error('Time formatting error:', error);
       return d.toLocaleTimeString();
     }
   };
@@ -109,7 +110,7 @@ export function useFormatters() {
         maximumFractionDigits: minimumFractionDigits ?? 2,
       }).format(amount);
     } catch (error) {
-      console.error('Currency formatting error:', error);
+      logger.error('Currency formatting error:', error);
       return `${currency} ${amount.toFixed(2)}`;
     }
   };
@@ -129,7 +130,7 @@ export function useFormatters() {
         ...options,
       }).format(num);
     } catch (error) {
-      console.error('Number formatting error:', error);
+      logger.error('Number formatting error:', error);
       return num.toFixed(decimals);
     }
   };
@@ -191,7 +192,7 @@ export function useFormatters() {
       const diffYears = Math.round(diffMonths / 12);
       return rtf.format(diffYears, 'year');
     } catch (error) {
-      console.error('Relative time formatting error:', error);
+      logger.error('Relative time formatting error:', error);
       return formatDate(d, 'short');
     }
   };
@@ -220,7 +221,7 @@ export function useFormatters() {
         maximumFractionDigits: decimals,
       }).format(value);
     } catch (error) {
-      console.error('Percentage formatting error:', error);
+      logger.error('Percentage formatting error:', error);
       return `${(value * 100).toFixed(decimals)}%`;
     }
   };
@@ -235,7 +236,7 @@ export function useFormatters() {
         compactDisplay: 'short',
       }).format(num);
     } catch (error) {
-      console.error('Compact number formatting error:', error);
+      logger.error('Compact number formatting error:', error);
       return formatNumber(num);
     }
   };
@@ -269,12 +270,13 @@ export function useFormatters() {
     type: 'conjunction' | 'disjunction' = 'conjunction'
   ): string => {
     try {
+      // @ts-expect-error Intl.ListFormat is not yet in all TS lib versions
       return new Intl.ListFormat(locale, {
         style: 'long',
         type,
       }).format(items);
     } catch (error) {
-      console.error('List formatting error:', error);
+      logger.error('List formatting error:', error);
       return items.join(', ');
     }
   };

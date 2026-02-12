@@ -24,12 +24,11 @@ export const appInsights = new ApplicationInsights({
 });
 
 export function initAppInsights(history: any) {
-  reactPlugin.setAppInsightsConfig({
-    ...appInsights.config,
-    extensionConfig: {
-      [reactPlugin.identifier]: { history },
-    },
-  });
+  // Configure history in the extension config before loading
+  appInsights.config.extensionConfig = {
+    ...appInsights.config.extensionConfig,
+    [reactPlugin.identifier]: { history },
+  };
 
   appInsights.loadAppInsights();
 

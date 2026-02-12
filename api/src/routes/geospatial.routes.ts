@@ -7,9 +7,14 @@
  */
 
 import { Router } from 'express';
+
 import { geospatialController } from '../controllers/geospatial.controller';
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * @route   POST /api/geospatial/calculate-distance

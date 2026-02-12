@@ -7,6 +7,7 @@ import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute } from 'workbox-precaching';
 import { registerRoute } from 'workbox-routing';
 import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
+import logger from '@/utils/logger';
 
 declare const self: ServiceWorkerGlobalScope;
 
@@ -111,21 +112,21 @@ async function syncVehicleLocations() {
     });
 
     if (response.ok) {
-      console.log('Vehicle locations synced');
+      logger.info('Vehicle locations synced');
     }
   } catch (error) {
-    console.error('Background sync failed:', error);
+    logger.error('Background sync failed:', error);
   }
 }
 
 // Install event
 self.addEventListener('install', (_event: any) => {
-  console.log('Service Worker installing...');
+  logger.info('Service Worker installing...');
   self.skipWaiting();
 });
 
 // Activate event
 self.addEventListener('activate', (event: any) => {
-  console.log('Service Worker activating...');
+  logger.info('Service Worker activating...');
   event.waitUntil(self.clients.claim());
 });

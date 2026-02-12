@@ -127,7 +127,8 @@ export interface Vehicle {
   max_speed_kph?: number
   is_off_road_only?: boolean
 
-  // Operational Status
+  // Health & Operational Status
+  health_score?: number
   operational_status?: 'AVAILABLE' | 'IN_USE' | 'MAINTENANCE' | 'RESERVED'
 
   // Asset Organization
@@ -183,6 +184,92 @@ export interface Driver {
     phone: string
     relationship: string
   }
+
+  // Snake_case backwards compatibility
+  first_name?: string
+  last_name?: string
+  license_number?: string
+  employee_number?: string
+
+  // Personal details (expanded from DB)
+  middle_name?: string
+  suffix?: string
+  preferred_name?: string
+  avatar_url?: string
+  profile_photo_url?: string
+  gender?: string
+  date_of_birth?: string
+
+  // Address
+  address_line1?: string
+  address_line2?: string
+  city?: string
+  state?: string
+  zip_code?: string
+  country?: string
+
+  // Employment (expanded from DB)
+  position_title?: string
+  region?: string
+  employment_type?: string
+  supervisor_id?: string
+  cost_center?: string
+  pay_rate?: number
+  pay_type?: string
+  facility_id?: string
+  hire_date?: string
+  hireDate?: string
+
+  // License & compliance (expanded from DB)
+  license_class?: string
+  cdl?: string
+  cdl_class?: string
+  endorsements?: string[]
+  restrictions?: string[]
+  medical_card_number?: string
+  medical_card_expiry?: string
+  medical_card_status?: string
+  twic_card_number?: string
+  twic_card_expiry?: string
+  hazmat_endorsement?: boolean
+  tanker_endorsement?: boolean
+  doubles_triples?: boolean
+  passenger_endorsement?: boolean
+
+  // Safety & testing (expanded from DB)
+  safety_score?: number
+  drug_test_date?: string
+  drug_test_result?: string
+  alcohol_test_date?: string
+  alcohol_test_result?: string
+  background_check_date?: string
+  background_check_status?: string
+  mvr_check_date?: string
+  mvr_check_status?: string
+  total_incidents?: number
+  total_violations?: number
+  performance_score?: number
+
+  // Assignment (expanded from DB)
+  assigned_vehicle_id?: string
+  home_terminal?: string
+  dispatch_zone?: string
+
+  // Hours of Service (expanded from DB)
+  hos_status?: string
+  hours_available?: number
+  cycle_hours_used?: number
+  last_rest_start?: string
+
+  // Emergency contact (snake_case)
+  emergency_contact_name?: string
+  emergency_contact_phone?: string
+
+  // Timestamps
+  createdAt?: string
+  updatedAt?: string
+  created_at?: string
+  updated_at?: string
 }
 
 export interface Staff {
@@ -231,6 +318,65 @@ export interface WorkOrder {
   parts?: { partId: string; quantity: number; cost: number }[]
   createdBy: string
   approvedBy?: string
+
+  // Snake_case backwards compatibility
+  vehicle_id?: string
+  due_date?: string
+  number?: string
+
+  // Facility & classification (expanded from DB)
+  facility_id?: string
+  category?: string
+  subcategory?: string
+
+  // Root cause & resolution
+  root_cause?: string
+  resolution_notes?: string
+
+  // Vendor & external reference
+  vendor_id?: string
+  external_reference?: string
+
+  // Cost breakdown (expanded from DB)
+  downtime_hours?: number
+  parts_cost?: number
+  labor_cost?: number
+  total_cost?: number
+  tax_amount?: number
+  estimated_cost?: number
+  actual_cost?: number
+
+  // Scheduling (expanded from DB)
+  completed_at?: string
+  scheduled_start_date?: string
+  scheduled_end_date?: string
+  actual_start_date?: string
+  actual_end_date?: string
+
+  // Assignment & tracking
+  driver_id?: string
+  bay_number?: string
+  labor_hours?: number
+  odometer_at_start?: number
+  odometer_at_end?: number
+
+  // Flags (expanded from DB)
+  is_emergency?: boolean
+  customer_complaint?: string
+  technician_notes?: string
+  quality_check_passed?: boolean
+  quality_check_by?: string
+  quality_check_at?: string
+
+  // Recurrence
+  recurring?: boolean
+  recurrence_pattern?: Record<string, any>
+
+  // Timestamps
+  createdAt?: string
+  updatedAt?: string
+  created_at?: string
+  updated_at?: string
 }
 
 export interface Technician {
@@ -252,6 +398,7 @@ export interface Technician {
 export interface FuelTransaction {
   id: string
   vehicleId: string
+  vehicle_id?: string
   vehicleNumber: string
   vehicleType?: string
   date: string
@@ -269,6 +416,59 @@ export interface FuelTransaction {
     lng: number
     address?: string
   }
+
+  // Efficiency & fill details
+  mpg_calculated?: number
+  is_full_fill?: boolean
+  miles_since_last_fill?: number
+  tank_level_before?: number
+  tank_level_after?: number
+
+  // Station details
+  station_name?: string
+  station_brand?: string
+
+  // Driver & receipt
+  driver_id?: string
+  driverId?: string
+  receipt_number?: string
+  receipt_url?: string
+  receiptUrl?: string
+
+  // Payment details
+  payment_method?: string
+  card_last4?: string
+  fleet_card_number?: string
+
+  // Tax & discounts
+  state_tax?: number
+  federal_tax?: number
+  discount_amount?: number
+
+  // Flagging & reconciliation
+  is_flagged?: boolean
+  flag_reason?: string
+  is_reconciled?: boolean
+
+  // IFTA compliance
+  ifta_jurisdiction?: string
+  pump_number?: string
+
+  // Odometer (snake_case alias)
+  odometer_reading?: number
+
+  // Notes
+  notes?: string
+
+  // Aliases for backwards compatibility
+  quantity?: number       // Alias for gallons
+  pricePerUnit?: number   // Alias for pricePerGallon
+  cost_per_gallon?: number // Alias for pricePerGallon
+  price_per_gallon?: number // DB column name
+
+  // Timestamps
+  createdAt?: string
+  created_at?: string
 }
 
 export interface MaintenanceRequest {

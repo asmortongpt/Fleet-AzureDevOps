@@ -1,5 +1,5 @@
-import { conventionMonths } from "../conventions";
 import { Convention } from "../../../types";
+import { conventionMonths } from "../conventions";
 
 export function straightLine(params: {
   costBasis: number;

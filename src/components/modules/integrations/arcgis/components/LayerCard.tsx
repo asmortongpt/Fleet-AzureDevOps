@@ -3,7 +3,7 @@
  * @module ArcGIS/components/LayerCard
  */
 
-import { Eye, EyeSlash, DotsThree, Copy, Trash, CaretUp, CaretDown } from "@phosphor-icons/react"
+import { Eye, EyeOff, MoreHorizontal, Copy, Trash2, ChevronUp, ChevronDown } from "lucide-react"
 
 import type { LayerWithStatus, LayerOperationState } from "../types"
 
@@ -84,7 +84,7 @@ export function LayerCard({
                 onClick={onMoveUp}
                 disabled={index === 0 || isLoading}
                aria-label="Action button">
-                <CaretUp className="w-3 h-3" />
+                <ChevronUp className="w-3 h-3" />
               </Button>
               <Button
                 variant="ghost"
@@ -93,16 +93,16 @@ export function LayerCard({
                 onClick={onMoveDown}
                 disabled={index === totalLayers - 1 || isLoading}
                aria-label="Action button">
-                <CaretDown className="w-3 h-3" />
+                <ChevronDown className="w-3 h-3" />
               </Button>
             </div>
             <Button variant="ghost" size="icon" onClick={onToggle} disabled={isLoading} aria-label="Action button">
-              {layer.enabled ? <Eye className="w-4 h-4" /> : <EyeSlash className="w-4 h-4" />}
+              {layer.enabled ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" disabled={isLoading} aria-label="Action button">
-                  <DotsThree className="w-4 h-4" />
+                  <MoreHorizontal className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -112,7 +112,7 @@ export function LayerCard({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
-                  <Trash className="w-4 h-4 mr-2" />
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>

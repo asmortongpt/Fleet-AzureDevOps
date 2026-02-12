@@ -3,10 +3,12 @@
  * Real-time video frame processing, multi-camera stream handling, and event-triggered recording
  */
 
-import { Pool } from 'pg';
 import { EventEmitter } from 'events';
 
+import { Pool } from 'pg';
+
 import logger from '../config/logger';
+
 import DriverSafetyAIService from './driver-safety-ai.service';
 import VideoTelematicsService from './video-telematics.service';
 

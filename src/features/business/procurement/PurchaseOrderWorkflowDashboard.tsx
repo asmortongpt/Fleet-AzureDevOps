@@ -7,7 +7,7 @@ import {
   Assessment as AssessmentIcon,
   AttachMoney as AttachMoneyIcon,
   Comment as CommentIcon,
-  Delegate as DelegateIcon,
+  Forward as DelegateIcon,
   AccessTime as AccessTimeIcon,
   TrendingUp as TrendingUpIcon
 } from '@mui/icons-material';
@@ -54,12 +54,101 @@ import {
 import { format, parseISO, differenceInHours } from 'date-fns';
 import React, { useState, useEffect } from 'react';
 
-import PurchaseOrderWorkflowService, {
-  PurchaseOrder,
-  POStatus,
-  ApprovalStep,
-  WorkflowAnalytics
-} from '../../services/procurement/PurchaseOrderWorkflowService';
+import { useAuth } from '@/contexts';
+import purchaseOrderWorkflowService from '@/features/services/procurement/PurchaseOrderWorkflowService';
+
+// Types for Purchase Order Workflow
+type POStatus = 'DRAFT' | 'SUBMITTED' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'ON_HOLD' | 'CANCELLED' | 'ISSUED' | 'RECEIVED' | 'CLOSED';
+
+interface LineItem {
+  id: string;
+  partNumber: string;
+  description: string;
+  quantity: number;
+  unitOfMeasure: string;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+interface POComment {
+  id: string;
+  userId: string;
+  userName: string;
+  comment: string;
+  timestamp: string;
+}
+
+interface ApprovalStep {
+  id: string;
+  stepNumber: number;
+  approverId: string;
+  approverName: string;
+  approverRole: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'DELEGATED' | 'SKIPPED';
+  approvalDate?: string;
+  comments?: string;
+}
+
+interface Workflow {
+  currentStep: number;
+  totalSteps: number;
+  slaDeadline?: string;
+}
+
+interface PurchaseOrder {
+  id: string;
+  poNumber: string;
+  title: string;
+  description: string;
+  requesterId: string;
+  requesterName: string;
+  department: string;
+  totalAmount: number;
+  priority: string;
+  status: POStatus;
+  createdDate: string;
+  requestedDeliveryDate: string;
+  lineItems: LineItem[];
+  approvalChain: ApprovalStep[];
+  comments: POComment[];
+  workflow: Workflow;
+}
+
+interface ApprovalRateStep {
+  step: string;
+  rate: number;
+  approved: number;
+  rejected: number;
+}
+
+interface Bottleneck {
+  step: string;
+  backlogCount: number;
+  averageWaitTime: number;
+}
+
+interface BudgetUtilization {
+  department: string;
+  budgetAllocated: number;
+  budgetUsed: number;
+  utilizationRate: number;
+}
+
+interface ComplianceMetrics {
+  slaCompliance: number;
+  budgetCompliance: number;
+  procurementCompliance: number;
+}
+
+interface WorkflowAnalytics {
+  totalPOs: number;
+  averageApprovalTime: number;
+  approvalRateByStep: ApprovalRateStep[];
+  bottlenecks: Bottleneck[];
+  budgetUtilization: BudgetUtilization[];
+  complianceMetrics: ComplianceMetrics;
+}
+
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -98,21 +187,30 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
   const [delegateToUser, setDelegateToUser] = useState('');
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(true);
-  const [currentUserId] = useState('user004'); // Mock current user
+  const { user } = useAuth();
+  const currentUserId = user?.id || '';
 
   useEffect(() => {
     initializeData();
-  }, []);
+  }, [currentUserId]);
 
   const initializeData = async () => {
+    if (!currentUserId) {
+      setPurchaseOrders([]);
+      setPendingApprovals([]);
+      setAnalytics(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      await PurchaseOrderWorkflowService.initializeData();
+      await purchaseOrderWorkflowService.initializeData();
 
       const [allPOs, pendingPOs, analyticsData] = await Promise.all([
-        PurchaseOrderWorkflowService.getPurchaseOrdersByStatus('PENDING_APPROVAL'),
-        PurchaseOrderWorkflowService.getPendingApprovals(currentUserId),
-        PurchaseOrderWorkflowService.getWorkflowAnalytics()
+        purchaseOrderWorkflowService.getPurchaseOrdersByStatus('PENDING_APPROVAL'),
+        purchaseOrderWorkflowService.getPendingApprovals(currentUserId),
+        purchaseOrderWorkflowService.getWorkflowAnalytics()
       ]);
 
       setPurchaseOrders(allPOs);
@@ -170,7 +268,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
     if (!selectedPO) return;
 
     try {
-      await PurchaseOrderWorkflowService.approvePurchaseOrder(
+      await purchaseOrderWorkflowService.approvePurchaseOrder(
         selectedPO.id,
         currentUserId,
         actionComments
@@ -187,7 +285,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
     if (!selectedPO) return;
 
     try {
-      await PurchaseOrderWorkflowService.rejectPurchaseOrder(
+      await purchaseOrderWorkflowService.rejectPurchaseOrder(
         selectedPO.id,
         currentUserId,
         rejectionReason
@@ -204,11 +302,11 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
     if (!selectedPO || !delegateToUser) return;
 
     try {
-      await PurchaseOrderWorkflowService.delegateApproval(
+      await purchaseOrderWorkflowService.delegateApproval(
         selectedPO.id,
         currentUserId,
         delegateToUser,
-        'Delegated User'
+        (user as any)?.name || user?.email || 'Delegated User'
       );
       setDelegationDialogOpen(false);
       setDelegateToUser('');
@@ -222,16 +320,16 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
     if (!selectedPO || !newComment.trim()) return;
 
     try {
-      await PurchaseOrderWorkflowService.addComment(
+      await purchaseOrderWorkflowService.addComment(
         selectedPO.id,
         currentUserId,
-        'Current User',
+        (user as any)?.name || user?.email || 'Current User',
         newComment.trim()
       );
       setCommentDialogOpen(false);
       setNewComment('');
       await initializeData();
-      const updatedPO = await PurchaseOrderWorkflowService.getPurchaseOrder(selectedPO.id);
+      const updatedPO = await purchaseOrderWorkflowService.getPurchaseOrder(selectedPO.id);
       if (updatedPO) setSelectedPO(updatedPO);
     } catch (error) {
       console.error('Error adding comment:', error);
@@ -308,7 +406,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
 
       {analytics && (
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -316,13 +414,13 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6">Total POs</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.totalPOs}</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {pendingApprovals.length} pending approval
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -330,13 +428,13 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6">Avg Approval Time</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.averageApprovalTime.toFixed(1)} days</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {analytics.complianceMetrics.slaCompliance.toFixed(1)}% SLA compliance
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -344,13 +442,13 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6">Budget Compliance</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.complianceMetrics.budgetCompliance.toFixed(1)}%</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   Procurement compliance: {analytics.complianceMetrics.procurementCompliance.toFixed(1)}%
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -358,8 +456,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   <Typography variant="h6">Bottlenecks</Typography>
                 </Box>
                 <Typography variant="h4">{analytics.bottlenecks.length}</Typography>
-                <Typography variant="body2" color="text: secondary">
-                  {analytics.bottlenecks.reduce((sum, b) => sum + b.backlogCount, 0)} items in backlog
+                <Typography variant="body2" color="text.secondary">
+                  {analytics.bottlenecks.reduce((sum: number, b: Bottleneck) => sum + b.backlogCount, 0)} items in backlog
                 </Typography>
               </CardContent>
             </Card>
@@ -378,7 +476,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
         <TabPanel value={tabValue} index={0}>
           <Box sx={{ mb: 2 }}>
             <Typography variant="h6">Pending Approvals</Typography>
-            <Typography variant="body2" color="text: secondary">
+            <Typography variant="body2" color="text.secondary">
               Purchase orders awaiting your approval
             </Typography>
           </Box>
@@ -392,13 +490,13 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                 const slaProgress = calculateSLAProgress(po);
 
                 return (
-                  <Grid item xs={12} key={po.id}>
+                  <Grid size={{ xs: 12 }} key={po.id}>
                     <Card>
                       <CardContent>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
                           <Box>
                             <Typography variant="h6">{po.title}</Typography>
-                            <Typography variant="body2" color="text: secondary">
+                            <Typography variant="body2" color="text.secondary">
                               {po.poNumber} • Requested by {po.requesterName}
                             </Typography>
                             <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
@@ -423,14 +521,14 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             <Typography variant="h6" color="primary">
                               ${po.totalAmount.toLocaleString()}
                             </Typography>
-                            <Typography variant="caption" color="text: secondary">
+                            <Typography variant="caption" color="text.secondary">
                               Due: {format(parseISO(po.requestedDeliveryDate), 'MMM dd, yyyy')}
                             </Typography>
                           </Box>
                         </Box>
 
                         <Box sx={{ mb: 2 }}>
-                          <Typography variant="body2" color="text: secondary" gutterBottom>
+                          <Typography variant="body2" color="text.secondary" gutterBottom>
                             SLA Progress
                           </Typography>
                           <LinearProgress
@@ -439,7 +537,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             color={slaProgress > 80 ? 'error' : slaProgress > 60 ? 'warning' : 'primary'}
                             sx={{ height: 8, borderRadius: 4 }}
                           />
-                          <Typography variant="caption" color="text: secondary">
+                          <Typography variant="caption" color="text.secondary">
                             {slaProgress.toFixed(1)}% of SLA time elapsed
                           </Typography>
                         </Box>
@@ -521,14 +619,14 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                       <Typography variant="body2" fontWeight="medium">
                         {po.title}
                       </Typography>
-                      <Typography variant="caption" color="text: secondary">
+                      <Typography variant="caption" color="text.secondary">
                         {po.description}
                       </Typography>
                     </TableCell>
                     <TableCell>
                       <Box>
                         <Typography variant="body2">{po.requesterName}</Typography>
-                        <Typography variant="caption" color="text: secondary">
+                        <Typography variant="caption" color="text.secondary">
                           {po.department}
                         </Typography>
                       </Box>
@@ -595,11 +693,11 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
 
           {analytics && (
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Approval Rate by Step</Typography>
-                    {analytics.approvalRateByStep.map((step, index) => (
+                    {analytics.approvalRateByStep.map((step: ApprovalRateStep, index: number) => (
                       <Box key={index} sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                           <Typography variant="body2">{step.step}</Typography>
@@ -611,7 +709,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           sx={{ height: 6, borderRadius: 3 }}
                           color={step.rate >= 90 ? 'success' : step.rate >= 80 ? 'warning' : 'error'}
                         />
-                        <Typography variant="caption" color="text: secondary">
+                        <Typography variant="caption" color="text.secondary">
                           {step.approved} approved, {step.rejected} rejected
                         </Typography>
                       </Box>
@@ -620,11 +718,11 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid size={{ xs: 12, md: 6 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Workflow Bottlenecks</Typography>
-                    {analytics.bottlenecks.map((bottleneck, index) => (
+                    {analytics.bottlenecks.map((bottleneck: Bottleneck, index: number) => (
                       <Box key={index} sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="body2">{bottleneck.step}</Typography>
@@ -634,7 +732,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             color="warning"
                           />
                         </Box>
-                        <Typography variant="caption" color="text: secondary">
+                        <Typography variant="caption" color="text.secondary">
                           Average wait time: {bottleneck.averageWaitTime.toFixed(1)} days
                         </Typography>
                       </Box>
@@ -643,7 +741,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Budget Utilization by Department</Typography>
@@ -659,7 +757,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {analytics.budgetUtilization.map((dept, index) => (
+                          {analytics.budgetUtilization.map((dept: BudgetUtilization, index: number) => (
                             <TableRow key={index}>
                               <TableCell>{dept.department}</TableCell>
                               <TableCell>${dept.budgetAllocated.toLocaleString()}</TableCell>
@@ -759,27 +857,27 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
             </DialogTitle>
             <DialogContent>
               <Grid container spacing={3}>
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                   <Typography variant="h6" gutterBottom>Purchase Order Details</Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text: secondary">PO Number</Typography>
+                    <Grid size={{ xs: 6 }}>
+                      <Typography variant="body2" color="text.secondary">PO Number</Typography>
                       <Typography variant="body1">{selectedPO.poNumber}</Typography>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text: secondary">Total Amount</Typography>
+                    <Grid size={{ xs: 6 }}>
+                      <Typography variant="body2" color="text.secondary">Total Amount</Typography>
                       <Typography variant="h6" color="primary">
                         ${selectedPO.totalAmount.toLocaleString()}
                       </Typography>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text: secondary">Requester</Typography>
+                    <Grid size={{ xs: 6 }}>
+                      <Typography variant="body2" color="text.secondary">Requester</Typography>
                       <Typography variant="body1">
                         {selectedPO.requesterName} ({selectedPO.department})
                       </Typography>
                     </Grid>
-                    <Grid item xs={6}>
-                      <Typography variant="body2" color="text: secondary">Delivery Date</Typography>
+                    <Grid size={{ xs: 6 }}>
+                      <Typography variant="body2" color="text.secondary">Delivery Date</Typography>
                       <Typography variant="body1">
                         {format(parseISO(selectedPO.requestedDeliveryDate), 'MMM dd, yyyy')}
                       </Typography>
@@ -814,7 +912,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
 
                   <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Comments</Typography>
                   {selectedPO.comments.length === 0 ? (
-                    <Typography variant="body2" color="text: secondary">No comments yet</Typography>
+                    <Typography variant="body2" color="text.secondary">No comments yet</Typography>
                   ) : (
                     <List>
                       {selectedPO.comments.map((comment) => (
@@ -829,7 +927,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             secondary={
                               <>
                                 <Typography variant="body2">{comment.comment}</Typography>
-                                <Typography variant="caption" color="text: secondary">
+                                <Typography variant="caption" color="text.secondary">
                                   {format(parseISO(comment.timestamp), 'MMM dd, yyyy HH:mm')}
                                 </Typography>
                               </>
@@ -841,13 +939,13 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                   )}
                 </Grid>
 
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Typography variant="h6" gutterBottom>Approval Workflow</Typography>
                   <Stepper
                     activeStep={selectedPO.workflow.currentStep - 1}
                     orientation="vertical"
                   >
-                    {selectedPO.approvalChain.map((step) => (
+                    {selectedPO.approvalChain.map((step: ApprovalStep) => (
                       <Step key={step.id}>
                         <StepLabel
                           StepIconComponent={() => (
@@ -871,12 +969,12 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           )}
                         >
                           <Typography variant="body2">{step.approverRole}</Typography>
-                          <Typography variant="caption" color="text: secondary">
+                          <Typography variant="caption" color="text.secondary">
                             {step.approverName}
                           </Typography>
                         </StepLabel>
                         <StepContent>
-                          <Typography variant="body2" color="text: secondary">
+                          <Typography variant="body2" color="text.secondary">
                             Status: {step.status}
                           </Typography>
                           {step.approvalDate && (

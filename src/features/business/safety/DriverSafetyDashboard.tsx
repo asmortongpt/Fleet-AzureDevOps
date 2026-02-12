@@ -3,24 +3,113 @@
  * Real-time behavior monitoring with coaching recommendations
  */
 
-import { motion, AnimatePresence } from 'framer-motion';
+// motion removed - React 19 incompatible
 import { AlertTriangle, Shield, Eye, Brain, Zap, TrendingUp, Clock, Phone, Car, Activity, Target, BookOpen, Award, Bell, Gauge, Coffee, AlertCircle, CheckCircle, Timer, Users, BarChart3, LineChart } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 
-import type {
-  AIDriverBehaviorAnalysis,
-  DriverFatigueAnalysis,
-  DistractionAnalysis,
-  AccidentPrediction,
-  SafetyIntervention,
-  SafetyDashboardMetrics,
-  Driver,
-  Vehicle
-} from '../../types';
-import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
-import { Progress } from '../ui/Progress';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+
+// Local type definitions for safety dashboard
+interface Driver {
+  id: string;
+  firstName: string;
+  lastName: string;
+  department: string;
+}
+
+interface Vehicle {
+  id: string;
+  make: string;
+  model: string;
+}
+
+interface DrivingEvent {
+  timestamp: Date;
+  severity: number;
+  location?: { lat: number; lng: number };
+}
+
+interface GoalProgress {
+  goal: string;
+  title: string;
+  progress: number;
+  currentValue: number;
+  targetValue: number;
+}
+
+interface AIDriverBehaviorAnalysis {
+  driverId: string;
+  vehicleId: string;
+  safetyScore: number;
+  attentionScore: number;
+  aggressionScore: number;
+  efficiencyScore: number;
+  risk: {
+    prediction?: {
+      timeToIntervention?: number;
+      accidentRisk: number;
+    };
+  };
+  events: {
+    harshBraking: DrivingEvent[];
+    harshAcceleration: DrivingEvent[];
+    speedingViolations: DrivingEvent[];
+    distractedDriving: DrivingEvent[];
+  };
+  coaching: {
+    improvements: string[];
+    goalProgress: GoalProgress[];
+    trainingRecommendations: string[];
+  };
+}
+
+interface DriverFatigueAnalysis {
+  driverId: string;
+  fatigueLevel: number;
+  timestamp: Date;
+}
+
+interface DistractionAnalysis {
+  driverId: string;
+  riskLevel: number;
+  timestamp: Date;
+}
+
+interface AccidentPrediction {
+  driverId: string;
+  risk: {
+    overall: number;
+  };
+  timestamp: Date;
+}
+
+interface SafetyIntervention {
+  type: string;
+  severity: string;
+  trigger: string;
+}
+
+interface SafetyDashboardMetrics {
+  realTime: {
+    activeDrivers: number;
+    criticalAlerts: number;
+    activeSafetyInterventions: number;
+    averageFleetSafetyScore: number;
+    fatigueAlerts: number;
+    distractionAlerts: number;
+  };
+  coaching: {
+    driversInProgram: number;
+    averageImprovement: number;
+    completionRate: number;
+  };
+  predictions: {
+    accidentRisks: AccidentPrediction[];
+  };
+}
 
 interface DriverSafetyDashboardProps {
   drivers: Driver[];
@@ -83,7 +172,14 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
 
   // Calculate critical alerts
   const criticalAlerts = useMemo(() => {
-    const alerts: any[] = [];
+    const alerts: Array<{
+      id: string;
+      type: string;
+      driverId: string;
+      severity: 'critical' | 'high' | 'medium';
+      message: string;
+      timestamp: Date;
+    }> = [];
 
     // High-risk accident predictions
     accidentPredictions.forEach((prediction) => {
@@ -235,10 +331,8 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
     if (!driver) return null;
 
     return (
-      <motion.div
+      <div
         key={analysis.driverId}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
         className="mb-2"
       >
         <Card
@@ -276,7 +370,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
               </div>
               <div className="text-right">
                 <div className="text-base font-bold">{Math.round(analysis.safetyScore)}</div>
-                <div className="text-xs text-gray-500">Safety Score</div>
+                <div className="text-xs text-gray-700">Safety Score</div>
               </div>
             </div>
           </CardHeader>
@@ -347,14 +441,14 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
               )}
 
               {/* Accident risk */}
-              {analysis.risk.prediction?.accidentRisk > 0.7 && (
+              {(analysis.risk.prediction?.accidentRisk ?? 0) > 0.7 && (
                 <div className="flex items-center justify-between p-2 bg-red-50 rounded border border-red-200">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4 text-red-600" />
                     <span className="text-sm font-medium">High Accident Risk</span>
                   </div>
                   <div className="text-sm">
-                    {Math.round(analysis.risk.prediction.accidentRisk * 100)}%
+                    {Math.round((analysis.risk.prediction?.accidentRisk ?? 0) * 100)}%
                   </div>
                 </div>
               )}
@@ -470,7 +564,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
             </div>
           </CardContent>
         </Card>
-      </motion.div>
+      </div>
     );
   };
 
@@ -503,10 +597,8 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
             }[alert.severity];
 
             return (
-              <motion.div
+              <div
                 key={alert.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
               >
                 <Card
                   className={`border-l-4 ${riskColors[alert.severity as keyof typeof riskColors]}`}
@@ -520,7 +612,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                           <div className="text-sm text-slate-700">
                             Driver: {driver?.firstName} {driver?.lastName}
                           </div>
-                          <div className="text-xs text-gray-500 flex items-center gap-1 mt-1">
+                          <div className="text-xs text-gray-700 flex items-center gap-1 mt-1">
                             <Clock className="w-3 h-3" />
                             {alert.timestamp.toLocaleTimeString()}
                           </div>
@@ -549,7 +641,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                     </div>
                   </CardContent>
                 </Card>
-              </motion.div>
+              </div>
             );
           })
         ) : (
@@ -678,7 +770,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="text-sm text-gray-500 flex items-center gap-1">
+          <div className="text-sm text-gray-700 flex items-center gap-1">
             <Timer className="w-4 h-4" />
             Last updated: {lastUpdate.toLocaleTimeString()}
           </div>
@@ -714,14 +806,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
       </div>
 
       {/* Content based on selected view */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={selectedView}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.2 }}
-        >
+        <div>
           {selectedView === 'overview' && (
             <div>
               {renderOverviewCards()}
@@ -734,7 +819,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="h-64 flex items-center justify-center text-gray-500">
+                    <div className="h-64 flex items-center justify-center text-gray-700">
                       Safety score trend chart would go here
                     </div>
                   </CardContent>
@@ -780,7 +865,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                 ) : (
                   <Card>
                     <CardContent className="p-3 text-center">
-                      <Car className="w-12 h-9 mx-auto mb-2 text-gray-400" />
+                      <Car className="w-12 h-9 mx-auto mb-2 text-gray-600" />
                       <h3 className="text-sm font-semibold mb-2">No Active Drivers</h3>
                       <p className="text-slate-700">No drivers are currently being monitored.</p>
                     </CardContent>
@@ -793,8 +878,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
           {selectedView === 'alerts' && renderAlertsView()}
 
           {selectedView === 'coaching' && renderCoachingView()}
-        </motion.div>
-      </AnimatePresence>
+        </div>
     </div>
   );
 };

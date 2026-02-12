@@ -15,6 +15,7 @@ import path from 'path'
 
 import { Pool } from 'pg'
 
+import pool from '../config/database'
 import logger from '../config/logger'
 
 import outlookService from './outlook.service'
@@ -930,7 +931,6 @@ export class SchedulingNotificationService {
 }
 
 // Import pool for singleton instance
-import pool from '../config/database'
 
 // Export singleton instance
 export const schedulingNotificationService = new SchedulingNotificationService(pool)

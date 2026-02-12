@@ -6,6 +6,7 @@ import { auditLog } from '../middleware/audit';
 import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import { requirePermission } from '../middleware/permissions';
+import { setTenantContext } from '../middleware/tenant-context';
 import { QueryContext } from '../repositories/BaseRepository';
 import { PersonalUsePoliciesRepository } from '../repositories/PersonalUsePoliciesRepository';
 import { TYPES } from '../types';
@@ -13,9 +14,26 @@ import { ApprovalWorkflow, DriverUsageLimits } from '../types/trip-usage';
 
 const router = express.Router();
 router.use(authenticateJWT);
+router.use(setTenantContext);
 
 // Get repository from DI container
 const repository = container.get<PersonalUsePoliciesRepository>(TYPES.PersonalUsePoliciesRepository);
+
+function getTenantId(req: AuthRequest): string {
+  const tenantId = (req.user as any)?.tenant_id || (req.user as any)?.tenantId || (req as any)?.tenantId;
+  if (!tenantId || typeof tenantId !== 'string') return '';
+  return tenantId;
+}
+
+function requireTenantDbClient(req: AuthRequest) {
+  const client = (req as any).dbClient;
+  if (!client) {
+    // setTenantContext should always attach a tenant-scoped transaction client.
+    // If it's missing, we must fail closed to avoid RLS casting errors on pooled connections.
+    throw new Error('Tenant DB client not initialized. Ensure setTenantContext middleware runs before queries.');
+  }
+  return client;
+}
 
 // Validation schemas
 const createPolicySchema = z.object({
@@ -51,49 +69,57 @@ const createPolicySchema = z.object({
 router.get(
   '/',
   requirePermission('policy:view:global'),
-  async (req: AuthRequest, res: Response) => {
-    try {
-      const context: QueryContext = {
-        userId: req.user!.id,
-        tenantId: req.user!.tenant_id
-      };
+	async (req: AuthRequest, res: Response) => {
+	    try {
+	      const tenantId = getTenantId(req);
+	      if (!tenantId) {
+	        return res.status(403).json({ error: 'Invalid authentication token', code: 'MISSING_TENANT_ID' });
+	      }
+	      const client = requireTenantDbClient(req);
+	      const result = await client.query(
+	        `SELECT *
+	         FROM personal_use_policies
+	         WHERE tenant_id = $1 AND is_active = true
+	         ORDER BY effective_date DESC NULLS LAST, created_at DESC
+	         LIMIT 1`,
+	        [tenantId]
+	      );
+	      const policy = result.rows[0] || null;
 
-      const policy = await repository.getPolicyByTenant(context);
+	      if (!policy) {
+	        // Return default policy if none exists
+	        return res.json({
+	          success: true,
+	          data: {
+	            tenant_id: tenantId,
+	            allow_personal_use: false,
+	            require_approval: true,
+	            charge_personal_use: false,
+	            reporting_required: true,
+	            approval_workflow: ApprovalWorkflow.MANAGER,
+	            notification_settings: {
+	              notify_at_percentage: 80,
+	              notify_manager_on_exceed: true,
+	              notify_driver_on_limit: true,
+	              email_notifications: true
+	            },
+	            effective_date: new Date().toISOString().split('T')[0],
+	            is_default: true
+	          },
+	          message: 'No policy configured - using defaults. Create a policy to customize.'
+	        });
+	      }
 
-      if (!policy) {
-        // Return default policy if none exists
-        return res.json({
-          success: true,
-          data: {
-            tenant_id: req.user!.tenant_id,
-            allow_personal_use: false,
-            require_approval: true,
-            charge_personal_use: false,
-            reporting_required: true,
-            approval_workflow: ApprovalWorkflow.MANAGER,
-            notification_settings: {
-              notify_at_percentage: 80,
-              notify_manager_on_exceed: true,
-              notify_driver_on_limit: true,
-              email_notifications: true
-            },
-            effective_date: new Date().toISOString().split('T')[0],
-            is_default: true
-          },
-          message: 'No policy configured - using defaults. Create a policy to customize.'
-        });
-      }
-
-      res.json({
-        success: true,
-        data: policy
-      });
-    } catch (error: any) {
-      console.error('Get policy error:', error);
-      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
-    }
-  }
-);
+	      res.json({
+	        success: true,
+	        data: policy
+	      });
+	    } catch (error: any) {
+	      console.error('Get policy error:', error);
+	      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
+	    }
+	  }
+	);
 
 /**
  * PUT /api/personal-use-policies/:tenant_id
@@ -107,8 +133,10 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'personal_use_policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const tenantId = getTenantId(req);
+
       // Verify tenant_id matches user's tenant
-      if (req.params.tenant_id !== req.user!.tenant_id) {
+      if (!tenantId || req.params.tenant_id !== tenantId) {
         return res.status(403).json({ error: 'Cannot modify policy for another tenant' });
       }
 
@@ -132,7 +160,8 @@ router.put(
 
       const context: QueryContext = {
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id
+        tenantId,
+        pool: requireTenantDbClient(req)
       };
 
       // Check if policy exists
@@ -176,9 +205,14 @@ router.get(
     try {
       const { driver_id } = req.params;
 
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return res.status(403).json({ error: 'Invalid authentication token', code: 'MISSING_TENANT_ID' });
+      }
       const context: QueryContext = {
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id
+        tenantId,
+        pool: requireTenantDbClient(req)
       };
 
       // Verify driver belongs to tenant
@@ -201,7 +235,7 @@ router.get(
       // Build response
       const response: DriverUsageLimits = {
         driver_id,
-        tenant_id: req.user!.tenant_id,
+        tenant_id: tenantId,
         current_month: {
           period: currentMonth,
           personal_miles: monthlyPersonalMiles,

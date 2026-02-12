@@ -9,7 +9,6 @@ import {
   DollarSign,
   Activity,
   Clock,
-  AlertCircle,
   BarChart3,
 } from 'lucide-react'
 import useSWR from 'swr'

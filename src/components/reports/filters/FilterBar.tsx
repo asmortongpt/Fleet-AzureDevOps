@@ -136,7 +136,7 @@ export function FilterBar({
               <option value="Fleet">Fleet</option>
               <option value="StarMetro">StarMetro</option>
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-700 pointer-events-none" />
           </div>
         </div>
 
@@ -160,7 +160,7 @@ export function FilterBar({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-700 pointer-events-none" />
           </div>
         </div>
 
@@ -184,7 +184,7 @@ export function FilterBar({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-700 pointer-events-none" />
           </div>
         </div>
 
@@ -208,7 +208,7 @@ export function FilterBar({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-700 pointer-events-none" />
           </div>
         </div>
       </div>

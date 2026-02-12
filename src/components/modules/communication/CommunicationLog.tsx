@@ -1,16 +1,17 @@
-import { 
-  Plus, 
-  MagnifyingGlass, 
-  Envelope, 
-  Phone, 
-  ChatsCircle,
-  DeviceMobile,
+import {
+  Plus,
+  Search,
+  Mail,
+  Phone,
+  MessageCircle,
+  Smartphone,
   Users,
   Calendar,
   CheckCircle,
   Clock
-} from "@phosphor-icons/react"
-import { useState } from "react"
+} from "lucide-react"
+import { useMemo, useState } from "react"
+import useSWR from "swr"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
@@ -45,10 +46,21 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { CommunicationLog as CommunicationLogType } from "@/lib/types"
+import { useAuth } from "@/contexts"
+
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 
 export function CommunicationLog() {
-  const [logs, setLogs] = useState<CommunicationLogType[]>([])
+  const { user } = useAuth()
+  const { data: rawLogs, mutate } = useSWR<any[]>(
+    "/api/communication-logs?limit=200",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
@@ -62,6 +74,29 @@ export function CommunicationLog() {
   })
 
   const [participantInput, setParticipantInput] = useState("")
+
+  const logs = useMemo<CommunicationLogType[]>(() => {
+    return (rawLogs || []).map((log: any) => {
+      const metadata = log.metadata || {}
+      const participants = metadata.participants || [log.from_address, log.to_address].filter(Boolean)
+      return {
+        id: log.id,
+        tenantId: log.tenant_id,
+        type: log.communication_type || "email",
+        date: log.sent_at || log.created_at,
+        participants,
+        subject: log.subject || "(No Subject)",
+        summary: log.message_body || metadata.summary || "",
+        relatedVehicleId: metadata.related_vehicle_id,
+        relatedVendorId: metadata.related_vendor_id,
+        relatedWorkOrderId: metadata.related_work_order_id,
+        followUpRequired: Boolean(metadata.follow_up_required),
+        followUpDate: metadata.follow_up_date,
+        attachments: metadata.attachments || [],
+        createdBy: metadata.created_by || log.from_address || "System"
+      } as CommunicationLogType
+    })
+  }, [rawLogs])
 
   const filteredLogs = (logs || []).filter(log => {
     const matchesSearch = 
@@ -90,43 +125,70 @@ export function CommunicationLog() {
     }))
   }
 
-  const handleSaveLog = () => {
+  const handleSaveLog = async () => {
     if (!newLog.subject || !newLog.summary || (newLog.participants || []).length === 0) {
       toast.error("Please fill in required fields")
       return
     }
 
-    const log: CommunicationLogType = {
-      id: `log-${Date.now()}`,
-      tenantId: "tenant-demo",
-      type: newLog.type as CommunicationLogType["type"],
-      date: new Date().toISOString(),
+    const metadata = {
       participants: newLog.participants || [],
-      subject: newLog.subject,
-      summary: newLog.summary,
-      relatedVehicleId: newLog.relatedVehicleId,
-      relatedVendorId: newLog.relatedVendorId,
-      relatedWorkOrderId: newLog.relatedWorkOrderId,
-      followUpRequired: newLog.followUpRequired || false,
-      followUpDate: newLog.followUpDate,
-      createdBy: "Current User"
+      follow_up_required: newLog.followUpRequired || false,
+      follow_up_date: newLog.followUpDate,
+      related_vehicle_id: newLog.relatedVehicleId,
+      related_vendor_id: newLog.relatedVendorId,
+      related_work_order_id: newLog.relatedWorkOrderId,
+      created_by: user?.email
     }
 
-    setLogs(current => [...(current || []), log])
-    toast.success("Communication logged successfully")
-    setIsAddDialogOpen(false)
-    resetForm()
+    const payload = {
+      communication_type: newLog.type,
+      direction: "outbound",
+      from_address: user?.email,
+      to_address: (newLog.participants || []).join(", "),
+      subject: newLog.subject,
+      message_body: newLog.summary,
+      status: "sent",
+      metadata
+    }
+
+    try {
+      const response = await fetch("/api/communication-logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(payload)
+      })
+      if (!response.ok) {
+        throw new Error("Failed to save communication log")
+      }
+      toast.success("Communication logged successfully")
+      setIsAddDialogOpen(false)
+      resetForm()
+      mutate()
+    } catch {
+      toast.error("Failed to save communication log")
+    }
   }
 
-  const handleMarkFollowUpComplete = (logId: string) => {
-    setLogs(current =>
-      (current || []).map(log =>
-        log.id === logId
-          ? { ...log, followUpRequired: false }
-          : log
-      )
-    )
-    toast.success("Follow-up marked as complete")
+  const handleMarkFollowUpComplete = async (logId: string) => {
+    try {
+      await fetch(`/api/communication-logs/${logId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          metadata: {
+            follow_up_required: false,
+            follow_up_completed_at: new Date().toISOString()
+          }
+        })
+      })
+      toast.success("Follow-up marked as complete")
+      mutate()
+    } catch {
+      toast.error("Failed to update follow-up status")
+    }
   }
 
   const resetForm = () => {
@@ -142,10 +204,10 @@ export function CommunicationLog() {
 
   const getTypeIcon = (type: CommunicationLogType["type"]) => {
     const icons = {
-      email: <Envelope className="w-4 h-4" />,
-      teams: <ChatsCircle className="w-4 h-4" />,
+      email: <Mail className="w-4 h-4" />,
+      teams: <MessageCircle className="w-4 h-4" />,
       phone: <Phone className="w-4 h-4" />,
-      sms: <DeviceMobile className="w-4 h-4" />,
+      sms: <Smartphone className="w-4 h-4" />,
       "in-person": <Users className="w-4 h-4" />
     }
     return icons[type]
@@ -337,7 +399,7 @@ export function CommunicationLog() {
           <CardContent>
             <div className="text-sm font-bold">{(logs || []).length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <ChatsCircle className="w-3 h-3" />
+              <MessageCircle className="w-3 h-3" />
               All time
             </div>
           </CardContent>
@@ -385,7 +447,7 @@ export function CommunicationLog() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search communications..."
             value={searchTerm}

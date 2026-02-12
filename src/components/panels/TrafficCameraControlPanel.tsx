@@ -1,9 +1,9 @@
 import {
-    MagnifyingGlass,
-    ArrowsClockwise,
-    VideoCamera,
+    Search,
+    RefreshCw,
+    Video,
     X
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useQuery, useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 
@@ -63,7 +63,7 @@ export function TrafficCameraControlPanel({
                 <div>
                     <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800">
                         <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-                            <VideoCamera weight="fill" className="text-blue-800 w-4 h-4" />
+                            <Video className="text-blue-800 w-4 h-4" />
                         </div>
                         Traffic Feed
                     </CardTitle>
@@ -72,7 +72,7 @@ export function TrafficCameraControlPanel({
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                         </div>
-                        <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">Live Monitoring</span>
+                        <span className="text-[10px] uppercase tracking-wider text-gray-800 font-semibold">Live Monitoring</span>
                     </div>
                 </div>
                 <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close traffic camera panel">
@@ -91,7 +91,7 @@ export function TrafficCameraControlPanel({
                         onClick={() => syncMutation.mutate()}
                         disabled={syncMutation.isPending}
                     >
-                        <ArrowsClockwise className={`w-3 h-3 mr-1 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
+                        <RefreshCw className={`w-3 h-3 mr-1 ${syncMutation.isPending ? 'animate-spin' : ''}`} />
                         Sync
                     </Button>
                 </div>
@@ -99,7 +99,7 @@ export function TrafficCameraControlPanel({
                 {/* Filters */}
                 <div className="space-y-3">
                     <div className="relative">
-                        <MagnifyingGlass className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
+                        <Search className="absolute left-2.5 top-2.5 w-3.5 h-3.5 text-muted-foreground" />
                         <Input
                             placeholder="Search cameras..."
                             value={filters.search}

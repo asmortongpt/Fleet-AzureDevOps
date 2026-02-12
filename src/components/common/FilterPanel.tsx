@@ -28,7 +28,7 @@
  * ```
  */
 
-import { MagnifyingGlass, FunnelSimple, X } from "@phosphor-icons/react"
+import { Search, Filter, X } from "lucide-react"
 import { ReactNode } from "react"
 
 import { Badge } from "@/components/ui/badge"
@@ -149,7 +149,7 @@ export function FilterPanel({
           {filter.label && <Label htmlFor={filter.key}>{filter.label}</Label>}
           <div className="relative">
             {filter.showSearchIcon && (
-              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             )}
             <Input
               id={filter.key}
@@ -257,7 +257,7 @@ export function FilterPanel({
       <CardContent className="p-2">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <FunnelSimple className="w-3 h-3 text-muted-foreground" />
+            <Filter className="w-3 h-3 text-muted-foreground" />
             <span className="font-medium">Filters</span>
             {activeFilterCount > 0 && (
               <Badge variant="secondary" className="ml-2">

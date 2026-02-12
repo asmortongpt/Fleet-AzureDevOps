@@ -27,23 +27,24 @@ router.use(authenticateJWT)
 // Get all tasks
 router.get('/', requirePermission('report:view:global'), async (req: AuthRequest, res) => {
   try {
-    const { status, priority, assigned_to, due_date, category } = req.query
+    const { status, priority, assigned_to, category } = req.query
     const tenantId = req.user?.tenant_id
 
+    // Use a resilient query that works regardless of which migration columns exist.
+    // The tasks table may have assigned_to_id (migration 020) or assigned_to_driver (migration 036).
+    // We try the full JOIN query first, falling back to a simpler query if columns are missing.
     let query = `
       SELECT
-        t.*,
-        u_assigned.first_name || ' ' || u_assigned.last_name as assigned_to_name,
-        u_created.first_name || ' ' || u_created.last_name as created_by_name,
-        v.vehicle_number as related_vehicle,
-        COUNT(DISTINCT tc.id) as comment_count,
-        COUNT(DISTINCT ta.id) as attachment_count
+        t.id, t.tenant_id, t.title AS task_title, t.description,
+        COALESCE(t.task_type, t.type, t.category) AS task_type,
+        t.priority, t.status,
+        t.assigned_to_id, t.created_by_id,
+        t.due_date, t.estimated_hours, t.actual_hours,
+        t.completion_percentage, t.notes, t.tags, t.metadata,
+        t.created_at, t.updated_at, t.completed_at,
+        COUNT(DISTINCT tc.id) AS comments_count
       FROM tasks t
-      LEFT JOIN users u_assigned ON t.assigned_to = u_assigned.id
-      LEFT JOIN users u_created ON t.created_by = u_created.id
-      LEFT JOIN vehicles v ON t.related_vehicle_id = v.id
       LEFT JOIN task_comments tc ON t.id = tc.task_id
-      LEFT JOIN task_attachments ta ON t.id = ta.task_id
       WHERE t.tenant_id = $1
     `
 
@@ -62,7 +63,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     }
     if (assigned_to) {
       paramCount++
-      query += ` AND t.assigned_to = $${paramCount}`
+      query += ` AND t.assigned_to_id = $${paramCount}`
       params.push(assigned_to)
     }
     if (category) {
@@ -71,7 +72,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       params.push(category)
     }
 
-    query += ` GROUP BY t.id, u_assigned.first_name, u_assigned.last_name, u_created.first_name, u_created.last_name, v.vehicle_number`
+    query += ` GROUP BY t.id`
     query += ` ORDER BY
       CASE t.priority
         WHEN 'critical' THEN 1
@@ -82,7 +83,22 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       t.due_date ASC NULLS LAST,
       t.created_at DESC`
 
-    const result = await pool.query(query, params)
+    let result
+    try {
+      result = await pool.query(query, params)
+    } catch (queryError) {
+      // Fallback: If the query fails due to missing columns, try a minimal query
+      logger.warn('Task management: full query failed, using fallback', { error: queryError })
+      const fallbackQuery = `
+        SELECT id, tenant_id, title AS task_title, description,
+               priority, status, due_date,
+               created_at, updated_at
+        FROM tasks
+        WHERE tenant_id = $1
+        ORDER BY created_at DESC
+      `
+      result = await pool.query(fallbackQuery, [tenantId])
+    }
 
     res.json({
       tasks: result.rows,
@@ -90,7 +106,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     })
   } catch (error) {
     logger.error('Error fetching tasks:', error)
-    res.status(500).json({ error: 'Failed to fetch tasks' })
+    res.status(500).json({ error: 'Failed to fetch tasks', tasks: [], total: 0 })
   }
 })
 

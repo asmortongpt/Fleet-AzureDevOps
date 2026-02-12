@@ -1,8 +1,9 @@
 /**
  * WorkOrderFactory - Generates maintenance work orders
  */
-import { BaseFactory } from './BaseFactory';
 import type { WorkOrder, MaintenanceType, Priority, Status, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 export class WorkOrderFactory extends BaseFactory {
   /**

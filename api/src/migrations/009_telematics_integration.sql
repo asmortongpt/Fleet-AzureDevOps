@@ -336,13 +336,28 @@ CREATE INDEX IF NOT EXISTS idx_webhook_events_provider_type ON telematics_webhoo
 -- ============================================================================
 
 -- Function to update updated_at timestamp
-CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+DO $do$
 BEGIN
-  NEW.updated_at = NOW();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+  -- If this helper already exists (created by an earlier migration/user), avoid
+  -- CREATE OR REPLACE which can fail when the current role is not the owner.
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_proc p
+    JOIN pg_namespace n ON n.oid = p.pronamespace
+    WHERE p.proname = 'update_updated_at_column'
+      AND n.nspname = 'public'
+  ) THEN
+    EXECUTE $$
+      CREATE FUNCTION update_updated_at_column()
+      RETURNS TRIGGER AS $body$
+      BEGIN
+        NEW.updated_at = NOW();
+        RETURN NEW;
+      END;
+      $body$ LANGUAGE plpgsql;
+    $$;
+  END IF;
+END $do$;
 
 -- Trigger for vehicle_telematics_connections
 CREATE TRIGGER update_vehicle_telematics_updated_at

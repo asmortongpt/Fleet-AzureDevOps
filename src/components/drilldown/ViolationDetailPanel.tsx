@@ -39,6 +39,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import logger from '@/utils/logger';
 
 interface ViolationDetailPanelProps {
   violationId: string
@@ -206,7 +207,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
       setNewComment('')
       mutate()
     } catch (error) {
-      console.error('Failed to add comment:', error)
+      logger.error('Failed to add comment:', error)
     }
   }
 

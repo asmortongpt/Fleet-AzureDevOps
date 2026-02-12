@@ -2,21 +2,25 @@ import { Router, Request, Response } from "express"
 
 import { cacheService } from '../config/cache';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
+import pool from '../config/database';
 import { container } from '../container'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { authenticateJWT } from '../middleware/auth';
 import { doubleCsrfProtection as csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
 import { policyEnforcement } from '../middleware/policy-enforcement';
+import { requirePermission } from '../middleware/permissions';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody, validateQuery, validateParams, validateAll } from '../middleware/validate';
 import { VehicleService } from '../modules/fleet/services/vehicle.service'
+import { createTelemetrySchema } from '../schemas/telemetry.schema';
 import {
   vehicleCreateSchema,
   vehicleUpdateSchema,
   vehicleQuerySchema,
   vehicleIdSchema
 } from '../schemas/vehicles.schema';
+import { buildInsertClause } from '../utils/sql-safety';
 import { TYPES } from '../types'
 
 const router = Router()
@@ -35,7 +39,12 @@ router.get("/",
   }),
   validateQuery(vehicleQuerySchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const { page = 1, pageSize = 20, search, status } = req.query
+    // Support both `limit` (current API schema) and `pageSize` (legacy UI).
+    const page = Number((req.query as any).page ?? 1)
+    const rawLimit = (req.query as any).pageSize ?? (req.query as any).limit ?? 20
+    const limit = Math.min(Number(rawLimit) || 20, 200)
+    const search = (req.query as any).search
+    const status = (req.query as any).status
     const tenantId = (req as any).user?.tenant_id
 
     if (!tenantId) {
@@ -43,45 +52,23 @@ router.get("/",
     }
 
     // Wave 12 (Revised): Cache-aside pattern
-    const cacheKey = `vehicles:list:${tenantId}:${page}:${pageSize}:${search || ''}:${status || ''}`
+    // Version cache keys so response shape changes don't serve stale payloads.
+    // v3: vehicles now include `location` and `locationAddress` fields (avoid serving stale v2 payloads)
+    const cacheKey = `vehicles:v3:list:${tenantId}:${page}:${limit}:${search || ''}:${status || ''}`
     const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey)
 
     if (cached) {
       return res.json(cached)
     }
 
-    // Use DI-resolved VehicleService instead of emulator
+    // Use DI-resolved VehicleService
     const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
-
-    // Get all vehicles for this tenant
-    let vehicles = await vehicleService.getAllVehicles(tenantId)
-
-    // Apply filters (in future, move this to service layer)
-    if (search && typeof search === 'string') {
-      const searchLower = search.toLowerCase()
-      vehicles = vehicles.filter((v: any) =>
-        v.make?.toLowerCase().includes(searchLower) ||
-        v.model?.toLowerCase().includes(searchLower) ||
-        v.vin?.toLowerCase().includes(searchLower) ||
-        v.license_plate?.toLowerCase().includes(searchLower)
-      )
-    }
-
-    if (status && typeof status === 'string') {
-      vehicles = vehicles.filter((v: any) => v.status === status)
-    }
-
-    // Apply pagination
-    const total = vehicles.length
-    const offset = (Number(page) - 1) * Number(pageSize)
-    const data = vehicles.slice(offset, offset + Number(pageSize))
-
-    const result = { data, total }
+    const result = await vehicleService.listVehicles(tenantId, { page, limit, search, status })
 
     // Cache for 5 minutes (300 seconds)
     await cacheService.set(cacheKey, result, 300)
 
-    logger.info('Fetched vehicles', { tenantId, count: data.length, total })
+    logger.info('Fetched vehicles', { tenantId, count: result.data.length, total: result.total })
     res.json(result)
   })
 )
@@ -181,40 +168,70 @@ router.get("/:id/trips",
       return res.json(cached)
     }
 
-    // TODO: Implement actual trip fetching from database
-    // For now, return demo data to match frontend expectations
-    const demoTrips = [
-      {
-        id: `trip-${vehicleId}-1`,
-        status: 'completed',
-        driver_name: 'John Doe',
-        start_time: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-        duration: '2h 30m',
-        start_location: '123 Main St, City, State',
-        end_location: '456 Oak Ave, City, State',
-        distance: 45.2,
-        avg_speed: 35.5,
-        fuel_used: 3.2
-      },
-      {
-        id: `trip-${vehicleId}-2`,
-        status: 'completed',
-        driver_name: 'Jane Smith',
-        start_time: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-        duration: '1h 45m',
-        start_location: '789 Elm St, City, State',
-        end_location: '321 Pine Rd, City, State',
-        distance: 28.7,
-        avg_speed: 32.1,
-        fuel_used: 2.1
+    const tripsResult = await pool.query(
+      `SELECT
+        mt.id,
+        mt.status,
+        mt.start_time,
+        mt.end_time,
+        mt.duration_minutes,
+        mt.start_location,
+        mt.end_location,
+        mt.distance_miles,
+        mt.metadata,
+        d.first_name,
+        d.last_name
+      FROM mobile_trips mt
+      LEFT JOIN drivers d ON mt.driver_id = d.id
+      WHERE mt.tenant_id = $1 AND mt.vehicle_id = $2
+      ORDER BY mt.start_time DESC
+      LIMIT 200`,
+      [tenantId, vehicleId]
+    )
+
+    const trips = tripsResult.rows.map((row: any) => {
+      const metadata = row.metadata && typeof row.metadata === 'object'
+        ? row.metadata
+        : row.metadata
+          ? (() => {
+              try {
+                return JSON.parse(row.metadata)
+              } catch {
+                return {}
+              }
+            })()
+          : {}
+      const durationMinutes = row.duration_minutes ? Number(row.duration_minutes) : null
+      const distanceMiles = row.distance_miles ? Number(row.distance_miles) : null
+      const avgSpeed = durationMinutes && distanceMiles
+        ? distanceMiles / (durationMinutes / 60)
+        : null
+      const fuelUsed = metadata?.fuelUsed ?? metadata?.fuel_used ?? null
+
+      const durationString = durationMinutes !== null
+        ? `${Math.floor(durationMinutes / 60)}h ${Math.round(durationMinutes % 60)}m`
+        : null
+
+      return {
+        id: row.id,
+        status: row.status,
+        driver_name: row.first_name ? `${row.first_name} ${row.last_name || ''}`.trim() : undefined,
+        start_time: row.start_time,
+        end_time: row.end_time,
+        duration: durationString || undefined,
+        start_location: row.start_location,
+        end_location: row.end_location,
+        distance: distanceMiles ?? undefined,
+        avg_speed: avgSpeed ?? undefined,
+        fuel_used: fuelUsed ?? undefined
       }
-    ]
+    })
 
     // Cache for 5 minutes
-    await cacheService.set(cacheKey, demoTrips, 300)
+    await cacheService.set(cacheKey, trips, 300)
 
-    logger.info('Fetched vehicle trips', { vehicleId, tenantId, count: demoTrips.length })
-    res.json(demoTrips)
+    logger.info('Fetched vehicle trips', { vehicleId, tenantId, count: trips.length })
+    res.json(trips)
   })
 )
 
@@ -307,6 +324,46 @@ router.put("/:id",
       }
       throw error
     }
+  })
+)
+
+// POST vehicle telemetry - Lightweight ingestion endpoint
+router.post(
+  "/:id/telemetry",
+  csrfProtection,
+  requirePermission('telemetry:create:fleet'),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = (req as any).user?.tenant_id
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const payload = {
+      ...req.body,
+      vehicle_id: req.params.id,
+      timestamp: req.body.timestamp || new Date().toISOString()
+    }
+
+    const validation = createTelemetrySchema.safeParse(payload)
+    if (!validation.success) {
+      return res.status(400).json({
+        error: 'Invalid telemetry data',
+        details: validation.error.issues
+      })
+    }
+
+    const { columnNames, placeholders, values } = buildInsertClause(
+      validation.data,
+      ['tenant_id'],
+      1
+    )
+
+    const result = await pool.query(
+      `INSERT INTO telemetry_data (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+      [tenantId, ...values]
+    )
+
+    res.status(201).json({ data: result.rows[0] })
   })
 )
 

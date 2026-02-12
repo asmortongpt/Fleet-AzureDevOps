@@ -220,7 +220,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
           if (colIndex < totalCols - 1) setFocusedCell({ row: rowIndex, col: colIndex + 1 })
           break
         case 'Enter':
-        case ' ':
+        case ' ': {
           e.preventDefault()
           const column = columns[colIndex]
           if (column.drilldown) {
@@ -229,6 +229,7 @@ export function DrilldownMatrix<T extends Record<string, any>>({
             handleRowDrilldown(row, e as unknown as MouseEvent)
           }
           break
+        }
         case 'Home':
           e.preventDefault()
           setFocusedCell({ row: e.ctrlKey ? 0 : rowIndex, col: 0 })

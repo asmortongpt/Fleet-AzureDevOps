@@ -1,7 +1,8 @@
 import { AssetComponentsRepository } from "../../repositories/asset-components.repository";
 import { PoliciesRepository } from "../../repositories/policies.repository";
-import { straightLine } from "./methods/straight-line";
 import { Convention } from "../../types";
+
+import { straightLine } from "./methods/straight-line";
 
 export interface DepreciationItem {
   type: "BASE_ASSET" | "COMPONENT";

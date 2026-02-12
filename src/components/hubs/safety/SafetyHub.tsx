@@ -11,15 +11,15 @@
  */
 
 import {
-  FirstAid,
-  Warning,
+  Cross,
+  AlertTriangle,
   MapPin,
-  TrendUp,
+  TrendingUp,
   CheckCircle,
   XCircle,
   FileText,
   Calendar
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { GoogleMap, LoadScript, Marker, Circle } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
 
@@ -309,7 +309,7 @@ export function SafetyHub() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-sm font-bold flex items-center gap-2">
-              <FirstAid className="w-4 h-4 text-red-500" />
+              <Cross className="w-4 h-4 text-red-500" />
               Safety Hub
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -322,7 +322,7 @@ export function SafetyHub() {
               Export Report
             </Button>
             <Button>
-              <Warning className="w-4 h-4 mr-2" />
+              <AlertTriangle className="w-4 h-4 mr-2" />
               Report Incident
             </Button>
           </div>
@@ -359,7 +359,7 @@ export function SafetyHub() {
                 <div className="text-base font-bold">
                   {oshaMetrics.complianceScore}%
                 </div>
-                <TrendUp className="w-3 h-3 text-green-500" />
+                <TrendingUp className="w-3 h-3 text-green-500" />
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 +3% from last month

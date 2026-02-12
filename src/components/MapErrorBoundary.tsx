@@ -515,19 +515,19 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
                     </Badge>
                   </div>
                   {provider && (
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-gray-700 dark:text-gray-700">
                       Provider: {provider === 'google' ? 'Google Maps' : 'Leaflet/OpenStreetMap'}
                     </div>
                   )}
                 </div>
                 <div className="ml-2">
                   {isRetrying ? (
-                    <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-400">
+                    <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-700">
                       <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
                       Retrying...
                     </div>
                   ) : retryCount > 0 ? (
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-700">
                       Attempt {retryCount}/{maxRetries}
                     </div>
                   ) : null}
@@ -554,7 +554,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               {/* Technical Details (Development Only) */}
               {process.env.NODE_ENV === 'development' && (
                 <details className="text-sm">
-                  <summary className="cursor-pointer text-slate-700 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+                  <summary className="cursor-pointer text-slate-700 dark:text-gray-700 hover:text-gray-900 dark:hover:text-gray-100">
                     Technical Details
                   </summary>
                   <pre className="mt-2 p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs overflow-auto">

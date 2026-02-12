@@ -1,5 +1,5 @@
-import { TrendUp, TrendDown, Minus } from "@phosphor-icons/react"
-import { motion } from "framer-motion"
+import { TrendingUp, TrendingDown, Minus } from "lucide-react"
+// motion removed - React 19 incompatible
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,9 +24,9 @@ export function MetricCard({
   status
 }: MetricCardProps) {
   const getTrendIcon = () => {
-    if (trend === "up") return <TrendUp className="w-2.5 h-2.5" weight="bold" />
-    if (trend === "down") return <TrendDown className="w-2.5 h-2.5" weight="bold" />
-    return <Minus className="w-2.5 h-2.5" weight="bold" />
+    if (trend === "up") return <TrendingUp className="w-2.5 h-2.5" />
+    if (trend === "down") return <TrendingDown className="w-2.5 h-2.5" />
+    return <Minus className="w-2.5 h-2.5" />
   }
 
   const getTrendColor = () => {
@@ -56,15 +56,12 @@ export function MetricCard({
         )}
       </CardHeader>
       <CardContent className="px-2 pb-2">
-        <motion.div
+        <div
           className="text-base font-semibold metric-number truncate"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
           title={String(value)}
         >
           {value}
-        </motion.div>
+        </div>
         <div className="flex items-center gap-1 mt-0.5">
           {change !== undefined && (
             <Badge

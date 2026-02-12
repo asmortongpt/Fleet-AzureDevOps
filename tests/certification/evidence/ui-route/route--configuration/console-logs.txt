@@ -1,0 +1,112 @@
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] i18next: languageChanged en-US
+[log] i18next: initialized {debug: true, initAsync: true, ns: Array(1), defaultNS: Array(1), fallbackLng: Array(1)}
+[info] [INFO] Sentry monitoring initialized undefined
+[log] [Fleet] Starting application configuration validation...
+[log] [Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)
+[log] [Fleet] ⚠️  Secret validation must be implemented in backend API
+[log] [Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)
+[log] [Fleet] Starting application...
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: true, isAuthenticated: false, hasUser: false, userId: undefined, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] Showing loading state undefined
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: true, isAuthenticated: false, hasUser: false, userId: undefined, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] Showing loading state undefined
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1cnec4
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Registered event callback with id: '019c1a90-4f89-7d66-94af-35b9969b42eb'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Removing event callback '019c1a90-4f89-7d66-94af-35b9969b42eb'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 12zotd
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1cnec4
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Registered event callback with id: '019c1a90-4f8b-77b2-8c8e-a5840b019e1c'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4f8b-7015-b44e-40cd49bc0f96] : @azure/msal-browser@5.0.2 : Verbose - 1qtz3l
+[warning] [WARN] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4f8b-7015-b44e-40cd49bc0f96] : @azure/msal-browser@5.0.2 : Warning - 1e88vg
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4f8b-7015-b44e-40cd49bc0f96] : @azure/msal-browser@5.0.2 : Info - 1wuc87
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 02l8bm
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Info - 0le6uv
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1wn9kp
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 02l8bm
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 0w0gm3
+[debug] [DEBUG] [CSRF] Token initialized successfully undefined
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Info - MsalProvider - handleRedirectPromise resolved, setting inProgress to 'none'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4f8f-77af-971d-96c26e9df29e] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [] : @azure/msal-react@5.0.2 : Info - MsalProvider - handleRedirectPromise resolved, setting inProgress to 'none'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4f8f-7edb-96b9-935f17059e58] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4f8f-78e4-9745-9550ea1c4d59] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:56:31 GMT] : [019c1a90-4f8f-79ca-8a9e-a83db86fc050] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[debug] [DEBUG] [TokenRefresh] Activity listeners registered undefined
+[info] [INFO] [TokenRefresh] Starting token refresh mechanism {refreshInterval: 25 min, idleTimeout: 30 min}
+[debug] [DEBUG] [TokenRefresh] Next refresh scheduled {nextRefresh: 2026-02-01T19:21:31.222Z}
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: false, isAuthenticated: true, hasUser: true, userId: 00000000-0000-0000-0000-000000000001, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] All checks passed, rendering protected content {userId: 00000000-0000-0000-0000-000000000001, role: Admin}
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: false, isAuthenticated: true, hasUser: true, userId: 00000000-0000-0000-0000-000000000001, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] All checks passed, rendering protected content {userId: 00000000-0000-0000-0000-000000000001, role: Admin}
+[info] [INFO] Global search: 
+[debug] [DEBUG] [useVehicles] Using mock data undefined
+[info] [INFO] 🔒 Policy Enforcement Engine disabled (missing dependencies) undefined
+[info] [INFO] ✅ App initialized without policy engine undefined
+[info] [INFO] Global search: 
+[info] [INFO] 🔒 Policy Enforcement Engine disabled (missing dependencies) undefined
+[info] [INFO] ✅ App initialized without policy engine undefined
+[startGroup] %cNew axe issues color:#d93251;font-weight:normal;
+[startGroupCollapsed] %c%s: %c%s %s color:#d93251;font-weight:normal; serious font-color:black;font-weight:normal; Elements must meet minimum color contrast ratio thresholds https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=axeAPI
+[startGroupCollapsed] Element: %o JSHandle@node
+[log] HTML: %c%s font-weight:bold;font-family:Courier; <div class="px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary/70">Hubs</div>
+[error] Fix any of the following:
+  Element has insufficient color contrast of 1.51 (foreground color: #1d3687, background color: #1a1f29, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1
+[startGroupCollapsed] Related nodes
+[log] Element: %o JSHandle@node
+[log] HTML: %c%s font-weight:bold;font-family:Courier; <aside class="z-20 flex flex-col h-full bg-minimalist-secondary border-r border-minimalist-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] w-44">
+[endGroup] console.groupEnd
+[endGroup] console.groupEnd
+[startGroupCollapsed] Element: %o JSHandle@node
+[log] HTML: %c%s font-weight:bold;font-family:Courier; <span class="text-[10px] text-minimalist-secondary leading-none mt-0.5">Fleet Manager</span>
+[error] Fix any of the following:
+  Element has insufficient color contrast of 2.53 (foreground color: #9ca3af, background color: #ffffff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1
+[startGroupCollapsed] Related nodes
+[log] Element: %o JSHandle@node
+[log] HTML: %c%s font-weight:bold;font-family:Courier; <div class="h-11 border-b border-border/50 bg-card/95 backdrop-blur-sm z-30 flex items-center justify-between transition-all duration-200 px-2">
+[log] Element: %o JSHandle@node
+[log] HTML: %c%s font-weight:bold;font-family:Courier; <main id="main-content" class="flex-1 flex flex-col relative z-10 overflow-hidden bg-background min-w-0">
+[endGroup] console.groupEnd
+[endGroup] console.groupEnd
+[startGroupCollapsed] Element: %o JSHandle@node
+[log] HTML: %c%s font-weight:bold;font-family:Courier; <p class="text-sm text-muted-foreground">Loading module...</p>
+[error] Fix any of the following:
+  Element has insufficient color contrast of 1.32 (foreground color: #dee0e3, background color: #ffffff, font size: 14.6pt (19.44px), font weight: normal). Expected contrast ratio of 4.5:1
+[startGroupCollapsed] Related nodes
+[log] Element: %o JSHandle@node
+[log] HTML: %c%s font-weight:bold;font-family:Courier; <main id="main-content" class="flex-1 flex flex-col relative z-10 overflow-hidden bg-background min-w-0">
+[endGroup] console.groupEnd
+[endGroup] console.groupEnd
+[endGroup] console.groupEnd
+[startGroupCollapsed] %c%s: %c%s %s color:#d24700;font-weight:bold; moderate font-color:black;font-weight:normal; Aside should not be contained in another landmark https://dequeuniversity.com/rules/axe/4.11/landmark-complementary-is-top-level?application=axeAPI
+[startGroupCollapsed] Element: %o JSHandle@node
+[log] HTML: %c%s font-weight:bold;font-family:Courier; <aside class="z-20 flex flex-col h-full bg-minimalist-secondary border-r border-minimalist-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] w-44">
+[error] Fix any of the following:
+  The null landmark is contained in another landmark.
+[endGroup] console.groupEnd
+[endGroup] console.groupEnd
+[startGroupCollapsed] %c%s: %c%s %s color:#d24700;font-weight:bold; moderate font-color:black;font-weight:normal; Page should contain a level-one heading https://dequeuniversity.com/rules/axe/4.11/page-has-heading-one?application=axeAPI
+[endGroup] console.groupEnd
+[endGroup] console.groupEnd
+[info] [INFO] %c[Accessibility] Axe-core initialized - WCAG 2.1 AA compliance checking enabled color: #16a34a; font-weight: bold;
+[error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[warning] [WARN] Notifications unavailable, running in offline mode undefined
+[error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[warning] [WARN] Notifications unavailable, running in offline mode undefined
+[error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[error] Failed to load resource: the server responded with a status of 404 (Not Found)
+[warning] [WARN] [TokenRefresh] Manager already initialized undefined
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: false, isAuthenticated: true, hasUser: true, userId: 00000000-0000-0000-0000-000000000001, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] All checks passed, rendering protected content {userId: 00000000-0000-0000-0000-000000000001, role: Admin}
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: false, isAuthenticated: true, hasUser: true, userId: 00000000-0000-0000-0000-000000000001, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] All checks passed, rendering protected content {userId: 00000000-0000-0000-0000-000000000001, role: Admin}
+[error] Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[error] Failed to load resource: the server responded with a status of 500 (Internal Server Error)
+[info] [INFO] [LiveFleetDashboard] API data loaded successfully: 5 vehicles undefined
+[info] [INFO] [LiveFleetDashboard] API data loaded successfully: 5 vehicles undefined

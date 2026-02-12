@@ -3,7 +3,7 @@
  * Theme, colors, fonts, and display density
  */
 
-import { Moon, Sun, MagicWand, Palette, TextAa, Sidebar } from '@phosphor-icons/react'
+import { Moon, Sun, Wand2, Palette, Type, Sidebar } from 'lucide-react'
 import { useAtom } from 'jotai'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -98,7 +98,7 @@ export function AppearanceSettings() {
                   htmlFor="theme-auto"
                   className="flex flex-col items-center gap-3 p-2 border-2 rounded-lg cursor-pointer hover:border-primary peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5"
                 >
-                  <MagicWand className="w-4 h-4" />
+                  <Wand2 className="w-4 h-4" />
                   <div className="text-center">
                     <div className="font-medium">Auto</div>
                     <div className="text-xs text-muted-foreground">Follow system</div>
@@ -150,7 +150,7 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <TextAa className="w-3 h-3" />
+            <Type className="w-3 h-3" />
             <CardTitle>Font Size</CardTitle>
           </div>
           <CardDescription>Adjust text size for better readability</CardDescription>
@@ -186,7 +186,7 @@ export function AppearanceSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <TextAa className="w-3 h-3" />
+            <Type className="w-3 h-3" />
             <CardTitle>Display Density</CardTitle>
           </div>
           <CardDescription>Control spacing and information density</CardDescription>

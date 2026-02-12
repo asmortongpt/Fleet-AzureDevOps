@@ -15,14 +15,15 @@ const AZURE_AD_CONFIG = {
   clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '80fe6628-1dc4-41fe-894f-919b12ecc994',
   clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.MICROSOFT_CLIENT_SECRET || '',
   tenantId: process.env.AZURE_AD_TENANT_ID || process.env.MICROSOFT_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
-  redirectUri: process.env.AZURE_AD_REDIRECT_URI || process.env.MICROSOFT_REDIRECT_URI || 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback'
+  redirectUri: process.env.AZURE_AD_REDIRECT_URI || process.env.MICROSOFT_REDIRECT_URI || (process.env.NODE_ENV === 'development' ? 'http://localhost:3001/api/auth/microsoft/callback' : 'https://fleet.capitaltechalliance.com/api/auth/microsoft/callback')
 }
 
 /**
- * GET /api/auth/microsoft/callback
- * OAuth2 callback endpoint - exchanges authorization code for access token
+ * OAuth2 callback handler - processes authorization code from Microsoft
+ * @param req - Express request with code and state query params
+ * @param res - Express response
  */
-router.get('/microsoft/callback', async (req: Request, res: Response) => {
+const handleOAuthCallback = async (req: Request, res: Response) => {
   try {
     const { code, state } = req.query
 
@@ -254,7 +255,19 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     })
     res.redirect(safeErrorUrl)
   }
-})
+}
+
+/**
+ * GET /api/auth/microsoft/callback
+ * OAuth2 callback endpoint - exchanges authorization code for access token
+ */
+router.get('/microsoft/callback', handleOAuthCallback)
+
+/**
+ * GET /api/auth/callback
+ * Alias for Microsoft OAuth callback (for frontend compatibility)
+ */
+router.get('/callback', handleOAuthCallback)
 
 /**
  * GET /api/auth/microsoft

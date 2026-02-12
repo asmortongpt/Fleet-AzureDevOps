@@ -3,17 +3,7 @@
  * Uses HLS.js for adaptive bitrate streaming
  */
 
-import {
-  Play,
-  Pause,
-  SpeakerHigh,
-  SpeakerSlash,
-  CornersOut,
-  CornersIn,
-  Record,
-  Camera,
-  Warning
-} from '@phosphor-icons/react'
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Circle, Camera, AlertTriangle } from 'lucide-react'
 import Hls from 'hls.js'
 import { useRef, useState, useEffect, useCallback } from 'react'
 
@@ -265,7 +255,7 @@ export function VideoPlayer({
       {error && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/80">
           <div className="text-center">
-            <Warning className="w-4 h-4 text-red-400 mx-auto mb-2" />
+            <AlertTriangle className="w-4 h-4 text-red-400 mx-auto mb-2" />
             <p className="text-sm text-white/80">{error}</p>
           </div>
         </div>
@@ -300,7 +290,7 @@ export function VideoPlayer({
       {/* Recording Indicator */}
       {status === 'recording' && (
         <div className="absolute top-2 right-2 z-10">
-          <Record className="w-4 h-4 text-red-500 animate-pulse" weight="fill" />
+          <Circle className="w-4 h-4 text-red-500 animate-pulse" />
         </div>
       )}
 
@@ -317,7 +307,7 @@ export function VideoPlayer({
               className="absolute inset-0 flex items-center justify-center"
             >
               <div className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors">
-                <Play className="w-4 h-4 text-white ml-1" weight="fill" />
+                <Play className="w-4 h-4 text-white ml-1" />
               </div>
             </button>
           )}
@@ -345,7 +335,7 @@ export function VideoPlayer({
                     className="h-8 w-8 text-white hover:bg-white/20"
                     onClick={(e) => { e.stopPropagation(); togglePlay() }}
                   >
-                    {isPlaying ? <Pause weight="fill" /> : <Play weight="fill" />}
+                    {isPlaying ? <Pause /> : <Play />}
                   </Button>
 
                   <Button
@@ -354,7 +344,7 @@ export function VideoPlayer({
                     className="h-8 w-8 text-white hover:bg-white/20"
                     onClick={(e) => { e.stopPropagation(); toggleMute() }}
                   >
-                    {isMuted ? <SpeakerSlash /> : <SpeakerHigh />}
+                    {isMuted ? <VolumeX /> : <Volume2 />}
                   </Button>
 
                   {!live && duration > 0 && (
@@ -372,7 +362,7 @@ export function VideoPlayer({
                       className="h-8 w-8 text-white hover:bg-white/20"
                       onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
                     >
-                      {isFullscreen ? <CornersIn /> : <CornersOut />}
+                      {isFullscreen ? <Minimize /> : <Maximize />}
                     </Button>
                   )}
                 </div>

@@ -3,7 +3,7 @@
  * Features: MPG trends, utilization rates, idle time, efficiency scores
  */
 
-import { Gauge, Lightning, Clock, Pulse } from '@phosphor-icons/react'
+import { Gauge, Zap, Clock, Activity } from 'lucide-react'
 import { memo, useMemo } from 'react'
 import {
     ComposedChart,
@@ -87,7 +87,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: entry.color }}
                             />
-                            <span className="text-slate-400">{entry.name}:</span>
+                            <span className="text-slate-700">{entry.name}:</span>
                         </span>
                         <span className="font-semibold text-white">
                             {entry.dataKey === 'mpg' ? `${entry.value} MPG` :
@@ -152,7 +152,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
     const renderRadarChart = () => {
         if (!radarData || radarData.length === 0) {
             return (
-                <div className="flex items-center justify-center h-full text-slate-400">
+                <div className="flex items-center justify-center h-full text-slate-700">
                     <p>No radar data available</p>
                 </div>
             )
@@ -177,7 +177,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex items-center justify-center h-full text-slate-400">
+            <div className="flex items-center justify-center h-full text-slate-700">
                 <p>No efficiency data available</p>
             </div>
         )
@@ -189,7 +189,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
             {stats && type === 'trend' && (
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
                             <Gauge className="w-4 h-4" />
                             <span>Avg MPG</span>
                         </div>
@@ -198,8 +198,8 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                         </p>
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                            <Pulse className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                            <Activity className="w-4 h-4" />
                             <span>Utilization</span>
                         </div>
                         <p className="text-sm font-bold text-white">
@@ -207,7 +207,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                         </p>
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
                             <Clock className="w-4 h-4" />
                             <span>Idle Time</span>
                         </div>
@@ -216,8 +216,8 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                         </p>
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                            <Lightning className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                            <Zap className="w-4 h-4" />
                             <span>Efficiency</span>
                         </div>
                         <p className="text-sm font-bold text-white">
@@ -225,7 +225,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                         </p>
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
                             <span>Improvement</span>
                         </div>
                         <p className={`text-sm font-bold ${parseFloat(stats.improvement) >= 0 ? 'text-green-400' : 'text-red-400'}`}>

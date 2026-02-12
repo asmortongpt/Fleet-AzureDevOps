@@ -5,6 +5,8 @@
  * @module security/csp
  */
 
+import logger from '@/utils/logger';
+
 export interface CSPDirectives {
   'default-src': string[];
   'script-src': string[];
@@ -213,7 +215,7 @@ export function handleCSPViolation(event: SecurityPolicyViolationEvent): void {
 
   // Log to console in development
   if (import.meta.env.DEV) {
-    console.warn('[CSP Violation]', report);
+    logger.warn('[CSP Violation]', report);
   }
 
   // Send to monitoring service in production
@@ -239,7 +241,7 @@ async function sendCSPViolationReport(report: CSPViolationReport): Promise<void>
       }),
     });
   } catch (error) {
-    console.error('Failed to send CSP violation report:', error);
+    logger.error('Failed to send CSP violation report:', error);
   }
 }
 

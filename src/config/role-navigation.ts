@@ -13,6 +13,8 @@
  * - VIEWER (viewer): Read-only access
  */
 
+import logger from '@/utils/logger';
+
 export type RBACRole =
   | 'super_admin'
   | 'admin'
@@ -71,8 +73,7 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'work-hub',
     'people-hub',
     'insights-hub',
-    'configuration-hub',
-    'meta-glasses-hub'
+    'configuration-hub'
   ],
   'SuperAdmin': [ // Alias
     'fleet-hub-consolidated',
@@ -96,8 +97,7 @@ export const ROLE_NAVIGATION_CONFIG: Record<string, string[]> = {
     'work-hub',
     'people-hub',
     'insights-hub',
-    'configuration-hub',
-    'meta-glasses-hub'
+    'configuration-hub'
   ],
 
   // ==================== ADMIN / TENANT ADMIN ====================
@@ -365,7 +365,7 @@ export function getNavigationItemsForRole(userRole: string): string[] {
   }
 
   // Fallback to viewer access if role not found
-  console.warn(`[Navigation] Unknown role "${userRole}", falling back to viewer access`);
+  logger.warn(`[Navigation] Unknown role "${userRole}", falling back to viewer access`);
   return ROLE_NAVIGATION_CONFIG.viewer;
 }
 

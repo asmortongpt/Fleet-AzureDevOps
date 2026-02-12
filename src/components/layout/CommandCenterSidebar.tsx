@@ -44,8 +44,8 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 variant="ghost"
                 onClick={handleClick}
                 className={cn(
-                    "w-full justify-start h-7 rounded-md transition-all duration-200 group/navbtn relative overflow-hidden",
-                    isSidebarOpen ? "px-1.5 gap-1.5" : "px-0 justify-center",
+                    "w-full justify-start h-10 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden",
+                    isSidebarOpen ? "px-3 gap-3" : "px-0 justify-center",
                     isActive
                         ? "bg-primary/10 text-primary"
                         : "text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary"
@@ -61,16 +61,16 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 )} />
 
                 <div className={cn(
-                    "w-3 h-3 flex items-center justify-center shrink-0 transition-colors duration-200",
+                    "w-4 h-4 flex items-center justify-center shrink-0 transition-colors duration-200",
                     isActive ? "text-primary" : "text-minimalist-secondary group-hover/navbtn:text-foreground"
                 )}>
                     {item.icon}
                 </div>
                 {isSidebarOpen && (
                     <>
-                        <span className="font-medium text-xs truncate flex-1 text-left">{item.label}</span>
+                        <span className="font-medium text-sm truncate flex-1 text-left">{item.label}</span>
                         <ChevronRight className={cn(
-                            "w-2.5 h-2.5 opacity-0 -translate-x-1 transition-all duration-200",
+                            "w-3.5 h-3.5 opacity-0 -translate-x-1 transition-all duration-200",
                             "group-hover/navbtn:opacity-50 group-hover/navbtn:translate-x-0",
                             isActive && "opacity-30"
                         )} />
@@ -103,16 +103,16 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
         if (items.length === 0) return null;
 
         return (
-            <div className="space-y-0.5">
+            <div className="space-y-1">
                 {isSidebarOpen && (
-                    <div className={cn(
-                        "px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider",
-                        accentColor === "primary" ? "text-primary/70" : "text-minimalist-tertiary"
+                    <h3 className={cn(
+                        "px-3 py-1.5 text-xs font-bold uppercase tracking-wider",
+                        accentColor === "primary" ? "text-primary/80" : "text-minimalist-tertiary"
                     )}>
                         {title}
-                    </div>
+                    </h3>
                 )}
-                <ul className="space-y-0">
+                <ul className="space-y-1">
                     {items.map((item, index) => <NavButton key={item.id} item={item} index={index} />)}
                 </ul>
             </div>
@@ -121,33 +121,34 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
 
     return (
         <TooltipProvider>
-            <aside
+            <div
+                aria-label="Application sidebar"
                 className={cn(
-                    "z-20 flex flex-col h-full bg-minimalist-secondary border-r border-minimalist-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                    isSidebarOpen ? "w-44" : "w-14"
+                    "z-20 flex flex-col h-full backdrop-blur-xl bg-white/80 dark:bg-slate-900/80 border-r border-white/20 dark:border-slate-800/20 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] shadow-pro",
+                    isSidebarOpen ? "w-56" : "w-16"
                 )}
             >
-                {/* Logo Area - Ultra Compact */}
-                <div className="h-8 flex items-center justify-between px-1.5 border-b border-minimalist-subtle shrink-0">
-                    <div className="flex items-center gap-1 min-w-0">
+                {/* Logo Area */}
+                <div className="h-14 flex items-center justify-between px-4 border-b border-minimalist-subtle shrink-0">
+                    <div className="flex items-center gap-2 min-w-0">
                         {isSidebarOpen ? (
                             <img
                                 src="/logos/logo-horizontal.svg"
                                 alt="Fleet Management"
-                                className="h-5 w-auto object-contain"
+                                className="h-7 w-auto object-contain"
                             />
                         ) : (
                             <img
                                 src="/logos/logo-horizontal.svg"
                                 alt="Fleet Management"
-                                className="h-6 w-6 object-contain"
+                                className="h-8 w-8 object-contain"
                             />
                         )}
                     </div>
                 </div>
 
                 {/* Nav Links */}
-                <nav className="flex-1 py-0.5 px-0.5 space-y-0.5 overflow-y-auto no-scrollbar" aria-label="Main navigation">
+                <nav className="flex-1 py-3 px-2 space-y-3 overflow-y-auto no-scrollbar" aria-label="Primary sidebar navigation">
                     <NavSection title="Hubs" items={groupedItems.hubs} accentColor="primary" />
                     <NavSection title="Command Center" items={groupedItems.main} />
                     <NavSection title="Management" items={groupedItems.management} />
@@ -155,7 +156,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 </nav>
 
                 {/* Bottom Actions */}
-                <div className="p-0.5 border-t border-minimalist-subtle shrink-0 space-y-0.5">
+                <div className="p-2 border-t border-minimalist-subtle shrink-0 space-y-2">
                     {/* Settings Button */}
                     {!isSidebarOpen ? (
                         <Tooltip delayDuration={0}>
@@ -166,10 +167,10 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                         navigate('/settings');
                                         onNavigate?.();
                                     }}
-                                    className="w-full justify-center h-7 rounded-md text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary"
+                                    className="w-full justify-center h-10 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary"
                                     aria-label="Settings"
                                 >
-                                    <Settings className="w-3 h-3" />
+                                    <Settings className="w-4 h-4" />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent side="right" sideOffset={8}>
@@ -183,16 +184,16 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                 navigate('/settings');
                                 onNavigate?.();
                             }}
-                            className="w-full justify-start h-7 rounded-md text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary px-1.5 gap-1.5"
+                            className="w-full justify-start h-10 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary px-3 gap-3"
                             aria-label="Settings"
                         >
-                            <Settings className="w-3 h-3 shrink-0" />
-                            <span className="font-medium text-xs">Settings</span>
+                            <Settings className="w-4 h-4 shrink-0" />
+                            <span className="font-medium text-sm">Settings</span>
                         </Button>
                     )}
 
                     {/* Collapse/Expand Toggle - Hidden on mobile */}
-                    <div className="hidden lg:block pt-0.5">
+                    <div className="hidden lg:block pt-1">
                         <Tooltip delayDuration={0}>
                             <TooltipTrigger asChild>
                                 <Button
@@ -200,18 +201,18 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                     size="sm"
                                     onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                                     className={cn(
-                                        "w-full h-6 rounded-md text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary transition-all duration-200",
-                                        isSidebarOpen ? "justify-start px-1.5 gap-1" : "justify-center"
+                                        "w-full h-9 rounded-lg text-minimalist-secondary hover:text-foreground hover:bg-minimalist-tertiary transition-all duration-200",
+                                        isSidebarOpen ? "justify-start px-3 gap-2" : "justify-center"
                                     )}
                                     aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
                                 >
                                     {isSidebarOpen ? (
                                         <>
-                                            <PanelLeftClose className="w-2.5 h-2.5 shrink-0" />
-                                            <span className="text-[9px]">Collapse</span>
+                                            <PanelLeftClose className="w-3.5 h-3.5 shrink-0" />
+                                            <span className="text-sm">Collapse</span>
                                         </>
                                     ) : (
-                                        <PanelLeft className="w-2.5 h-2.5" />
+                                        <PanelLeft className="w-3.5 h-3.5" />
                                     )}
                                 </Button>
                             </TooltipTrigger>
@@ -223,7 +224,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                         </Tooltip>
                     </div>
                 </div>
-            </aside>
+            </div>
         </TooltipProvider>
     );
 }

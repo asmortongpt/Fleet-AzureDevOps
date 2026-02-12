@@ -1,0 +1,136 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap");
+
+.cta-hub {
+  --background: 227 44% 8%;
+  --foreground: 210 40% 98%;
+  --card: 227 44% 12%;
+  --card-foreground: 210 40% 98%;
+  --popover: 227 44% 12%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 199 78% 56%;
+  --primary-foreground: 220 30% 10%;
+  --secondary: 225 35% 18%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 224 30% 16%;
+  --muted-foreground: 215 20% 75%;
+  --accent: 36 92% 58%;
+  --accent-foreground: 220 30% 12%;
+  --destructive: 0 75% 60%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 220 28% 28%;
+  --input: 220 28% 28%;
+  --ring: 199 78% 56%;
+  --cta-bg: radial-gradient(120% 120% at 10% 0%, rgba(64, 204, 255, 0.08), transparent 55%),
+    radial-gradient(120% 120% at 90% 0%, rgba(255, 186, 77, 0.08), transparent 50%),
+    linear-gradient(180deg, #0e1322 0%, #0b1020 100%);
+  --cta-surface: rgba(16, 23, 43, 0.72);
+  --cta-surface-strong: rgba(17, 26, 51, 0.92);
+  --cta-border: rgba(97, 156, 255, 0.2);
+  --cta-text: #ecf1ff;
+  --cta-muted: rgba(236, 241, 255, 0.58);
+  --cta-accent: #41b2e3;
+  --cta-accent-2: #f0a000;
+  --cta-success: #27d17f;
+  --cta-danger: #ff6b6b;
+  --cta-shadow: 0 18px 40px rgba(6, 12, 26, 0.55);
+  font-family: "Sora", "SF Pro Display", "Segoe UI", sans-serif;
+  color: var(--cta-text);
+  background: var(--cta-bg);
+  min-height: 100%;
+}
+
+.cta-hub [data-testid="hub-header"] {
+  background: linear-gradient(120deg, rgba(34, 45, 84, 0.94) 0%, rgba(23, 32, 61, 0.92) 70%);
+  border-bottom: 1px solid rgba(81, 132, 255, 0.35);
+  box-shadow: var(--cta-shadow);
+}
+
+.cta-hub .cta-hero {
+  background: var(--cta-surface-strong);
+  border: 1px solid var(--cta-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: var(--cta-shadow);
+}
+
+.cta-hub .cta-card {
+  background: var(--cta-surface);
+  border: 1px solid var(--cta-border);
+  border-radius: 14px;
+  padding: 14px;
+  box-shadow: 0 16px 32px rgba(6, 12, 26, 0.35);
+  backdrop-filter: blur(14px);
+}
+
+.cta-hub .cta-stat {
+  background: rgba(18, 30, 56, 0.75);
+  border: 1px solid rgba(90, 147, 255, 0.2);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.cta-hub .cta-subtitle {
+  color: var(--cta-muted);
+  font-size: 0.9rem;
+}
+
+.cta-hub [data-slot="tabs-list"] {
+  background: rgba(11, 17, 34, 0.7);
+  border-color: rgba(90, 147, 255, 0.2);
+  box-shadow: inset 0 0 0 1px rgba(90, 147, 255, 0.08);
+}
+
+.cta-hub .cta-tabs {
+  border: 1px solid rgba(90, 147, 255, 0.2);
+  background: rgba(11, 17, 34, 0.7);
+}
+
+.cta-hub .cta-tab {
+  border: 1px solid transparent;
+  color: var(--cta-muted);
+}
+
+.cta-hub .cta-tab:hover {
+  color: var(--cta-text);
+}
+
+.cta-hub .cta-tab--active {
+  border-color: rgba(65, 178, 227, 0.45);
+  color: var(--cta-text);
+}
+
+.cta-hub [data-slot="tabs-trigger"][data-state="active"] {
+  background: rgba(65, 178, 227, 0.15);
+  border-color: rgba(65, 178, 227, 0.4);
+  color: var(--cta-text);
+  box-shadow: 0 8px 18px rgba(65, 178, 227, 0.2);
+}
+
+.cta-hub .cta-map-shell {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(65, 178, 227, 0.25);
+  box-shadow: 0 20px 36px rgba(6, 12, 26, 0.4);
+}
+
+.cta-hub .cta-pill {
+  background: rgba(65, 178, 227, 0.15);
+  color: var(--cta-text);
+  border: 1px solid rgba(65, 178, 227, 0.3);
+}
+
+.cta-hub .cta-danger {
+  color: var(--cta-danger);
+}
+
+.cta-hub .cta-success {
+  color: var(--cta-success);
+}
+
+.cta-hub .cta-accent {
+  color: var(--cta-accent);
+}
+
+.cta-hub .cta-accent-2 {
+  color: var(--cta-accent-2);
+}

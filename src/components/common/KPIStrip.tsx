@@ -35,7 +35,7 @@ export const KPIStrip: React.FC<KPIStripProps> = ({
       ? "text-green-500"
       : trend.isPositive === false
         ? "text-red-500"
-        : "text-gray-500";
+        : "text-gray-700";
 
     switch (trend.direction) {
       case "up":
@@ -88,7 +88,7 @@ export const KPIStrip: React.FC<KPIStripProps> = ({
                         ? "text-green-500"
                         : metric.trend.isPositive === false
                           ? "text-red-500"
-                          : "text-gray-500"
+                          : "text-gray-700"
                     )}>
                       {Math.abs(metric.trend.value)}%
                     </span>

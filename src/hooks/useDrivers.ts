@@ -1,24 +1,124 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { api } from '@/lib/api'
+import { api } from "@/lib/api"
 
 export interface Driver {
-  id: number
+  id: number | string
   name: string
   email: string
   phone: string
   licenseNumber: string
-  licenseExpiry: Date
-  licenseClass: string
+  licenseExpiry?: Date | string
+  licenseClass?: string
+  licenseState?: string
   status: 'active' | 'inactive' | 'suspended'
   photoUrl?: string
   azureAdId?: string
   assignedVehicleId?: number
-  rating: number
-  totalTrips: number
-  totalMiles: number
-  safetyScore: number
-  hireDate: Date
+  department?: string
+  region?: string
+  positionTitle?: string
+  employmentType?: string
+  employeeId?: string
+  rating?: number
+  totalTrips?: number
+  totalMiles?: number
+  safetyScore?: number
+  hireDate?: Date | string
+  medicalCardExpiry?: string
+  drugTestDate?: string
+  drugTestResult?: string
+  alcoholTestDate?: string
+  alcoholTestResult?: string
+  backgroundCheckDate?: string
+  backgroundCheckStatus?: string
+  mvrCheckDate?: string
+  mvrCheckStatus?: string
+  hosStatus?: string
+  hoursAvailable?: number
+  cycleHoursUsed?: number
+  endorsements?: string
+  avatarUrl?: string
+  addressLine1?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  supervisorId?: number
+  costCenter?: string
+  facilityId?: number
+}
+
+const mapDriverRow = (row: any): Driver => {
+  const metadata = row?.metadata && typeof row.metadata === 'object'
+    ? row.metadata
+    : row?.metadata
+      ? (() => {
+          try {
+            return JSON.parse(row.metadata)
+          } catch {
+            return {}
+          }
+        })()
+      : {}
+
+  const fullName = row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim()
+
+  const status =
+    row.status === 'on_leave'
+      ? 'inactive'
+      : row.status === 'terminated'
+        ? 'inactive'
+        : row.status || 'active'
+
+  return {
+    id: row.id,
+    name: fullName || row.email || 'Unknown Driver',
+    email: row.email,
+    phone: row.phone,
+    licenseNumber: row.license_number || row.licenseNumber || '',
+    licenseExpiry: row.license_expiry_date,
+    licenseClass: row.cdl ? 'CDL' : 'Standard',
+    licenseState: row.license_state,
+    status,
+    department: row.department || metadata.department,
+    region: row.region || metadata.region,
+    positionTitle: row.position_title || metadata.position_title,
+    employmentType: row.employment_type || metadata.employment_type,
+    employeeId: row.employee_number,
+    rating: metadata.rating,
+    totalTrips: metadata.totalTrips,
+    totalMiles: metadata.totalMiles,
+    safetyScore: row.safety_score ? Number(row.safety_score) : (row.performance_score ? Number(row.performance_score) : undefined),
+    hireDate: row.hire_date,
+    medicalCardExpiry: row.medical_card_expiry,
+    drugTestDate: row.drug_test_date,
+    drugTestResult: row.drug_test_result,
+    alcoholTestDate: row.alcohol_test_date,
+    alcoholTestResult: row.alcohol_test_result,
+    backgroundCheckDate: row.background_check_date,
+    backgroundCheckStatus: row.background_check_status,
+    mvrCheckDate: row.mvr_check_date,
+    mvrCheckStatus: row.mvr_check_status,
+    hosStatus: row.hos_status || metadata.hos_status,
+    hoursAvailable: row.hours_available != null ? Number(row.hours_available) : undefined,
+    cycleHoursUsed: row.cycle_hours_used != null ? Number(row.cycle_hours_used) : undefined,
+    endorsements: row.endorsements,
+    avatarUrl: row.avatar_url,
+    addressLine1: row.address_line1,
+    city: row.city,
+    state: row.state,
+    zipCode: row.zip_code,
+    supervisorId: row.supervisor_id,
+    costCenter: row.cost_center,
+    facilityId: row.facility_id
+  }
+}
+
+const normalizeStatusForApi = (status?: string) => {
+  if (!status) return status
+  if (status === 'off-duty') return 'inactive'
+  if (status === 'on-leave') return 'on_leave'
+  return status
 }
 
 export function useDrivers(params?: {
@@ -30,8 +130,9 @@ export function useDrivers(params?: {
   return useQuery({
     queryKey: ['drivers', params],
     queryFn: async () => {
-      const response = await api.get<Driver[]>('/drivers', { params })
-      return response ?? []
+      const response = await api.get('/drivers', params)
+      const rows = Array.isArray(response) ? response : (response?.data || [])
+      return rows.map(mapDriverRow)
     },
   })
 }
@@ -40,8 +141,8 @@ export function useDriver(id: number) {
   return useQuery({
     queryKey: ['driver', id],
     queryFn: async () => {
-      const response = await api.get<Driver>(`/drivers/${id}`)
-      return response
+      const response = await (api.get as <T>(endpoint: string) => Promise<T>)(`/drivers/${id}`)
+      return mapDriverRow(response)
     },
     enabled: !!id,
   })
@@ -52,8 +153,21 @@ export function useCreateDriver() {
 
   return useMutation({
     mutationFn: async (data: Partial<Driver>) => {
-      const response = await api.post<Driver>('/drivers', data)
-      return response
+      const [firstName, ...lastParts] = (data.name || '').trim().split(' ')
+      const payload = {
+        name: data.name,
+        first_name: firstName || undefined,
+        last_name: lastParts.join(' ').trim() || undefined,
+        email: data.email,
+        phone: data.phone,
+        license_number: data.licenseNumber,
+        license_state: data.licenseState,
+        license_expiry_date: data.licenseExpiry,
+        status: normalizeStatusForApi(data.status),
+        department: data.department
+      }
+      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>('/drivers', payload)
+      return mapDriverRow(response)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
@@ -66,8 +180,21 @@ export function useUpdateDriver() {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<Driver> }) => {
-      const response = await api.put<Driver>(`/drivers/${id}`, data)
-      return response
+      const [firstName, ...lastParts] = (data.name || '').trim().split(' ')
+      const payload = {
+        name: data.name,
+        first_name: data.name ? (firstName || undefined) : undefined,
+        last_name: data.name ? (lastParts.join(' ').trim() || undefined) : undefined,
+        email: data.email,
+        phone: data.phone,
+        license_number: data.licenseNumber,
+        license_state: data.licenseState,
+        license_expiry_date: data.licenseExpiry,
+        status: normalizeStatusForApi(data.status),
+        department: data.department
+      }
+      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>(`/drivers/${id}`, payload)
+      return mapDriverRow(response)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })

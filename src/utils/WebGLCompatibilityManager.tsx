@@ -224,8 +224,8 @@ export function CompatibleCanvas({ children, fallback, ...props }: CompatibleCan
       <div className="flex items-center justify-center h-full bg-gray-100">
         {fallback || (
           <div className="text-center">
-            <div className="text-gray-500 mb-2">3D View Unavailable</div>
-            <div className="text-sm text-gray-400">WebGL is not supported</div>
+            <div className="text-gray-700 mb-2">3D View Unavailable</div>
+            <div className="text-sm text-gray-600">WebGL is not supported</div>
           </div>
         )}
       </div>
@@ -320,7 +320,7 @@ export function QualitySettingsPanel() {
         </div>
       </div>
       
-      <div className="mt-2 text-xs text-gray-500">
+      <div className="mt-2 text-xs text-gray-700">
         WebGL Version: {capabilities?.webgl2 ? '2.0' : '1.0'} | 
         Max Texture Size: {capabilities?.maxTextureSize}px
       </div>

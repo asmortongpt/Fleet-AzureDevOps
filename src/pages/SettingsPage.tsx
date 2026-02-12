@@ -3,17 +3,7 @@
  * Tabbed interface with left sidebar navigation on desktop, top tabs on mobile
  */
 
-import {
-  Gear,
-  Palette,
-  Bell,
-  Car,
-  ShieldCheck,
-  Lock,
-  Code,
-  FloppyDisk,
-  Check,
-} from '@phosphor-icons/react'
+import { Settings, Palette, Bell, Car, ShieldCheck, Lock, Code, Save, Check } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useState, useEffect } from 'react'
 
@@ -36,7 +26,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Section } from '@/components/ui/section'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { hasUnsavedChangesAtom } from '@/lib/reactive-state'
@@ -61,7 +51,7 @@ const settingsCategories: SettingsCategory[] = [
   {
     id: 'general',
     label: 'General',
-    icon: <Gear className="w-4 h-4" />,
+    icon: <Settings className="w-4 h-4" />,
     description: 'Language, timezone, and format preferences',
   },
   {
@@ -198,7 +188,7 @@ export default function SettingsPage() {
         {/* Save Button */}
         {hasUnsavedChanges && (
           <Button onClick={handleSave} className="gap-2">
-            <FloppyDisk className="w-4 h-4" />
+            <Save className="w-4 h-4" />
             Save Changes
           </Button>
         )}
@@ -215,42 +205,41 @@ export default function SettingsPage() {
       {/* Desktop Layout: Sidebar + Content */}
       <div className="hidden md:flex gap-2">
         {/* Sidebar Navigation */}
-        <Card className="w-64 h-fit">
-          <CardHeader>
-            <CardTitle className="text-sm">Categories</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
-            <ScrollArea className="h-[calc(100vh-300px)]">
-              <div className="space-y-1 p-2">
-                {settingsCategories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => handleTabChange(category.id)}
-                    className={`w-full flex items-start gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
-                      activeTab === category.id
-                        ? 'bg-primary text-primary-foreground'
-                        : 'hover:bg-accent hover:text-accent-foreground'
-                    }`}
-                  >
-                    <span className="mt-0.5">{category.icon}</span>
-                    <div className="flex-1 text-left">
-                      <div className="font-medium">{category.label}</div>
-                      <div
-                        className={`text-xs mt-0.5 ${
-                          activeTab === category.id
-                            ? 'text-primary-foreground/80'
-                            : 'text-muted-foreground'
-                        }`}
-                      >
-                        {category.description}
-                      </div>
+        <Section
+          title="Categories"
+          className="w-64 h-fit"
+          contentClassName="p-0"
+        >
+          <ScrollArea className="h-[calc(100vh-300px)]">
+            <div className="space-y-1 p-2">
+              {settingsCategories.map((category) => (
+                <button
+                  key={category.id}
+                  onClick={() => handleTabChange(category.id)}
+                  className={`w-full flex items-start gap-3 px-3 py-2 rounded-md text-sm transition-colors ${
+                    activeTab === category.id
+                      ? 'bg-primary text-primary-foreground'
+                      : 'hover:bg-accent hover:text-accent-foreground'
+                  }`}
+                >
+                  <span className="mt-0.5">{category.icon}</span>
+                  <div className="flex-1 text-left">
+                    <div className="font-medium">{category.label}</div>
+                    <div
+                      className={`text-xs mt-0.5 ${
+                        activeTab === category.id
+                          ? 'text-primary-foreground/80'
+                          : 'text-muted-foreground'
+                      }`}
+                    >
+                      {category.description}
                     </div>
-                  </button>
-                ))}
-              </div>
-            </ScrollArea>
-          </CardContent>
-        </Card>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+        </Section>
 
         {/* Content Area */}
         <div className="flex-1">

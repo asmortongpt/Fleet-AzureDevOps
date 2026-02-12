@@ -175,7 +175,7 @@ export function useVehicleScheduleWithUtils(
       if (!query.data) return []
 
       const events = [
-        ...query.data?.reservations.map(reservation => ({
+        ...(query.data.reservations || []).map(reservation => ({
           id: reservation.id,
           type: 'reservation' as const,
           start: new Date(reservation.start_time),
@@ -183,7 +183,7 @@ export function useVehicleScheduleWithUtils(
           status: reservation.status,
           data: reservation,
         })),
-        ...query.data?.maintenance.map(appointment => ({
+        ...(query.data.maintenance || []).map(appointment => ({
           id: appointment.id,
           type: 'maintenance' as const,
           start: new Date(appointment.scheduled_start),
@@ -201,7 +201,7 @@ export function useVehicleScheduleWithUtils(
       if (!query.data) return []
 
       const events = [
-        ...query.data?.reservations
+        ...(query.data.reservations || [])
           .filter(
             reservation =>
               new Date(reservation.start_time) < end &&
@@ -215,7 +215,7 @@ export function useVehicleScheduleWithUtils(
             status: reservation.status,
             data: reservation,
           })),
-        ...query.data?.maintenance
+        ...(query.data.maintenance || [])
           .filter(
             appointment =>
               new Date(appointment.scheduled_start) < end &&

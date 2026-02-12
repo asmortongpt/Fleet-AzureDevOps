@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+// motion removed - React 19 incompatible
 import { X, ChevronRight, Home } from 'lucide-react';
 import React from 'react';
 
@@ -21,19 +21,11 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
   const showBreadcrumbs = levels.length > 1;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
+      <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-2"
         onClick={onClose}
       >
-        <motion.div
-          initial={{ scale: 0.95, y: 20 }}
-          animate={{ scale: 1, y: 0 }}
-          exit={{ scale: 0.95, y: 20 }}
-          transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        <div
           className={`w-full h-full max-w-[95vw] max-h-[95vh] flex flex-col backdrop-blur-2xl bg-slate-900/98 border-2 border-slate-700/60 rounded-lg shadow-sm ${className}`}
           onClick={e => e.stopPropagation()}
         >
@@ -45,7 +37,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
                   <nav className="flex items-center gap-2 text-sm overflow-x-auto">
                     <button
                       onClick={() => onNavigateToLevel(0)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-700/50 text-slate-400 hover:text-slate-200 transition-colors whitespace-nowrap"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-slate-700/50 text-slate-700 hover:text-slate-200 transition-colors whitespace-nowrap"
                     >
                       <Home className="w-4 h-4" />
                       Home
@@ -59,7 +51,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
                           className={`px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap ${
                             index === levels.length - 1
                               ? 'bg-blue-600 text-white font-medium'
-                              : 'hover:bg-slate-700/50 text-slate-400 hover:text-slate-200'
+                              : 'hover:bg-slate-700/50 text-slate-700 hover:text-slate-200'
                           }`}
                         >
                           {level.breadcrumb || level.title}
@@ -76,7 +68,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
 
               <button
                 onClick={onClose}
-                className="flex-shrink-0 p-2 hover:bg-slate-700/50 rounded-lg text-slate-400 hover:text-slate-200 transition-all ml-2"
+                className="flex-shrink-0 p-2 hover:bg-slate-700/50 rounded-lg text-slate-700 hover:text-slate-200 transition-all ml-2"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -85,23 +77,17 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
 
           {/* Content */}
           <div className="flex-1 overflow-hidden p-3">
-            <AnimatePresence mode="wait">
-              <motion.div
+              <div
                 key={currentLevel.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
                 className="h-full"
               >
                 {currentLevel.component}
-              </motion.div>
-            </AnimatePresence>
+              </div>
           </div>
 
           {/* Footer */}
           <div className="flex-shrink-0 px-3 py-2 border-t border-slate-700/60 bg-slate-800/40">
-            <div className="flex items-center justify-between text-sm text-slate-400">
+            <div className="flex items-center justify-between text-sm text-slate-700">
               <div>Level {levels.length} of drilldown</div>
               <div className="flex gap-2">
                 {levels.length > 1 && (
@@ -121,8 +107,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
               </div>
             </div>
           </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        </div>
+      </div>
   );
 }

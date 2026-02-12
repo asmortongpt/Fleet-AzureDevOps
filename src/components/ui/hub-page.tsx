@@ -1,14 +1,10 @@
 /**
  * HubPage Component
  *
- * Standardized layout wrapper for all hub pages in the consolidated architecture.
+ * Standardized layout wrapper for all hub pages.
  * Provides consistent header, tab navigation, and content area.
- * Enhanced with glassmorphism effects and smooth animations.
- *
- * Part of Phase 2 UI consolidation: 79 screens → 18 hubs
  */
 
-import { motion } from 'framer-motion'
 import React, { ReactNode, useState } from 'react'
 
 import { DrilldownBreadcrumbs } from '@/components/drilldown/DrilldownBreadcrumbs'
@@ -22,17 +18,11 @@ export interface HubTabConfig {
     content: ReactNode
     disabled?: boolean
     badge?: string | number
-    /** Accessible label for screen readers */
     ariaLabel?: string
 }
 
-// Backward compatibility alias
 export type HubTab = HubTabConfig
 
-/**
- * HubTabItem - Component version for child-based API
- * This is a "marker" component that gets processed by HubPage
- */
 export interface HubTabItemProps {
     value: string
     label: string
@@ -42,43 +32,25 @@ export interface HubTabItemProps {
 }
 
 export function HubTabItem({ children }: HubTabItemProps) {
-    // This component is a "marker" - its props are extracted by parent
-    // It just renders children directly when used standalone
     return <>{children}</>
 }
 
 export interface HubPageProps {
-    /** Hub title displayed in header */
     title: string
-    /** Hub icon displayed next to title */
-    icon?: ReactNode
-    /** Hub description/subtitle */
+    icon?: ReactNode | React.ComponentType<{ className?: string }>
     description?: string
-    /** Array of tab configurations */
     tabs?: HubTab[]
-    /** Default active tab id */
     defaultTab?: string
-    /** Action buttons in header */
     headerActions?: ReactNode
-    /** Callback when tab changes */
     onTabChange?: (tabId: string) => void
-    /** Additional className for container */
     className?: string
-    /** Full height mode */
     fullHeight?: boolean
-    /** HubTabItems as children */
     children?: ReactNode
-    /** Custom gradient CSS class for header */
     gradient?: string
-    /** Restrict access to CTA owners only */
     ctaOwnerOnly?: boolean
-    /** Restrict access to super admins only */
     superAdminOnly?: boolean
 }
 
-/**
- * HubPage provides a consistent layout for all major hub screens.
- */
 export function HubPage({
     title,
     icon,
@@ -91,12 +63,9 @@ export function HubPage({
     fullHeight = true,
     children
 }: HubPageProps) {
-    // Parse children to convert HubTabItems into tabs
     const childTabs: HubTab[] = []
     React.Children.forEach(children, (child) => {
         if (React.isValidElement(child)) {
-            // We assume valid elements are intended as tabs if they have value/label
-            // Strictly checking for HubTabItem type can be brittle with HMR/bundlers
             const props = child.props as HubTabItemProps
             if (props.value && props.label) {
                 childTabs.push({
@@ -122,133 +91,86 @@ export function HubPage({
     return (
         <div
             className={cn(
-                'flex flex-col bg-gradient-to-b from-background to-background/95',
+                'flex flex-col bg-background',
                 fullHeight && 'h-full',
                 className
             )}
             data-testid="hub-page"
         >
-            {/* Hub Header - Enhanced with glassmorphism */}
-            <motion.header
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-                className={cn(
-                    "flex items-center justify-between px-3 py-2 border-b",
-                    "bg-gradient-to-r from-slate-900/80 via-slate-800/60 to-slate-900/80",
-                    "backdrop-blur-md border-slate-700/50",
-                    "shadow-sm"
-                )}
+            {/* Hub Header */}
+            <header
+                className="flex items-center justify-between px-5 py-3 border-b border-border/50 bg-card/50"
                 data-testid="hub-header"
             >
-                <div className="flex items-center gap-3 sm:gap-2 min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
                     {icon && (
-                        <motion.div
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
-                            className={cn(
-                                "flex items-center justify-center w-10 h-8 rounded-lg",
-                                "bg-primary/20 backdrop-blur-sm border border-primary/30",
-                                "text-primary shadow-sm"
-                            )}
-                        >
-                            {icon}
-                        </motion.div>
+                        <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary">
+                            {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType<{ className: string }>, { className: 'h-5 w-5' })}
+                        </div>
                     )}
-                    <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.15 }}
-                    >
-                        <h1 className="text-sm font-semibold text-foreground">{title}</h1>
+                    <div>
+                        <h1 className="text-base font-semibold text-foreground">{title}</h1>
                         {description && (
-                            <p className="text-sm text-muted-foreground mt-0.5 truncate">{description}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-md">{description}</p>
                         )}
-                    </motion.div>
+                    </div>
                 </div>
                 {headerActions && (
-                    <motion.div
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.2 }}
-                        className="flex items-center gap-2"
-                        data-testid="hub-actions"
-                    >
+                    <div className="flex items-center gap-2" data-testid="hub-actions">
                         {headerActions}
-                    </motion.div>
+                    </div>
                 )}
-            </motion.header>
+            </header>
 
             {/* Breadcrumb Navigation */}
             <DrilldownBreadcrumbs />
 
-            {/* Tab Navigation */}
-            <Tabs
-                value={activeTab}
-                onValueChange={handleTabChange}
-                className="flex flex-col flex-1 min-h-0"
-            >
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.25, duration: 0.3 }}
+            {/* Tab Navigation or Direct Children */}
+            {allTabs.length > 0 ? (
+                <Tabs
+                    value={activeTab}
+                    onValueChange={handleTabChange}
+                    className="flex flex-col flex-1 min-h-0"
                 >
                     <TabsList
-                        className={cn(
-                            "w-full justify-start rounded-none border-b px-3 h-9",
-                            "bg-gradient-to-b from-slate-900/60 to-slate-900/40",
-                            "backdrop-blur-sm border-slate-700/50",
-                            "shadow-md"
-                        )}
+                        className="w-full justify-start rounded-none border-b px-4 h-10 bg-card/30"
                         data-testid="hub-tabs"
                     >
-                        {allTabs.map((tab, index) => (
-                            <motion.div
+                        {allTabs.map((tab) => (
+                            <TabsTrigger
                                 key={tab.id}
-                                initial={{ opacity: 0, y: -5 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.3 + index * 0.05, duration: 0.2 }}
+                                value={tab.id}
+                                disabled={tab.disabled}
+                                aria-label={tab.ariaLabel || tab.label}
+                                className="gap-2 rounded-none px-3 data-[state=active]:border-b-2 data-[state=active]:border-primary transition-all duration-150"
+                                data-testid={`hub-tab-${tab.id}`}
                             >
-                                <TabsTrigger
-                                    value={tab.id}
-                                    disabled={tab.disabled}
-                                    aria-label={tab.ariaLabel || tab.label}
-                                    className={cn(
-                                        "gap-2 rounded-none px-2",
-                                        "data-[state=active]:bg-gradient-to-b data-[state=active]:from-primary/10 data-[state=active]:to-transparent",
-                                        "data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary",
-                                        "transition-all duration-200"
-                                    )}
-                                    data-testid={`hub-tab-${tab.id}`}
-                                >
-                                    {tab.icon}
-                                    {tab.label}
-                                </TabsTrigger>
-                            </motion.div>
+                                {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : typeof tab.icon === 'function' ? React.createElement(tab.icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' }) : null)}
+                                {tab.label}
+                            </TabsTrigger>
                         ))}
                     </TabsList>
-                </motion.div>
 
-                {/* Tab Content */}
-                {allTabs.map((tab) => (
-                    <TabsContent
-                        key={tab.id}
-                        value={tab.id}
-                        className="flex-1 min-h-0 m-0 outline-none animate-fade-in"
-                        data-testid={`hub-content-${tab.id}`}
-                    >
-                        {tab.content}
-                    </TabsContent>
-                ))}
-            </Tabs>
+                    {allTabs.map((tab) => (
+                        <TabsContent
+                            key={tab.id}
+                            value={tab.id}
+                            className="flex-1 min-h-0 m-0 outline-none"
+                            data-testid={`hub-content-${tab.id}`}
+                        >
+                            {tab.content}
+                        </TabsContent>
+                    ))}
+                </Tabs>
+            ) : (
+                <div className="flex flex-col flex-1 min-h-0 p-4 overflow-y-auto">
+                    {children}
+                </div>
+            )}
         </div>
     )
 }
 
-/**
- * HubSection provides consistent content sections within hub tabs.
- */
 export interface HubSectionProps {
     title?: string
     description?: string
@@ -272,20 +194,19 @@ export function HubSection({
         <section
             className={cn(
                 'flex flex-col',
-                padding && 'p-2 sm:p-3',
-                animate && 'animate-fade-in-up',
+                padding && 'p-3',
                 className
             )}
             data-testid="hub-section"
         >
             {(title || actions) && (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-2 sm:mb-3 gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
                     <div className="min-w-0">
                         {title && (
-                            <h2 className="text-sm sm:text-base font-semibold text-foreground">{title}</h2>
+                            <h2 className="text-sm font-semibold text-foreground">{title}</h2>
                         )}
                         {description && (
-                            <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{description}</p>
                         )}
                     </div>
                     {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
@@ -296,9 +217,6 @@ export function HubSection({
     )
 }
 
-/**
- * HubGrid provides responsive grid layout for hub content
- */
 export interface HubGridProps {
     children: ReactNode
     className?: string
@@ -314,7 +232,7 @@ export function HubGrid({ children, className, columns = 4 }: HubGridProps) {
     }
 
     return (
-        <div className={cn('grid gap-2 sm:gap-2', gridCols[columns], className)}>
+        <div className={cn('grid gap-3', gridCols[columns], className)}>
             {children}
         </div>
     )

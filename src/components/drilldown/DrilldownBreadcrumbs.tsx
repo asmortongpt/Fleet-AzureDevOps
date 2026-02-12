@@ -3,7 +3,7 @@
  * Shows current location in navigation hierarchy and enables quick navigation back
  */
 
-import { CaretRight, House } from '@phosphor-icons/react'
+import { ChevronRight, Home } from 'lucide-react'
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
@@ -23,25 +23,25 @@ export function DrilldownBreadcrumbs() {
       {/* Home button */}
       <button
         onClick={reset}
-        className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors whitespace-nowrap shrink-0"
+        className="flex items-center gap-2 text-slate-700 hover:text-white transition-colors whitespace-nowrap shrink-0"
         data-testid="breadcrumb-0"
         aria-label="Go to home"
       >
-        <House className="w-4 h-4" weight="fill" />
+        <Home className="w-4 h-4" />
         <span className="text-sm font-medium">Home</span>
       </button>
 
       {/* Breadcrumb trail */}
       {levels.map((level, index) => (
         <div key={level.id} className="flex items-center gap-2 shrink-0">
-          <CaretRight className="w-4 h-4 text-slate-600" />
+          <ChevronRight className="w-4 h-4 text-slate-600" />
           <button
             onClick={() => goToLevel(index)}
             className={cn(
               "text-sm whitespace-nowrap transition-colors",
               index === levels.length - 1
                 ? "text-white font-semibold"
-                : "text-slate-400 hover:text-white font-medium"
+                : "text-slate-700 hover:text-white font-medium"
             )}
             data-testid={`breadcrumb-${index + 1}`}
             aria-current={index === levels.length - 1 ? "page" : undefined}

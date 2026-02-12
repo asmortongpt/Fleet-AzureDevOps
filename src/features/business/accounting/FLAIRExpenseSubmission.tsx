@@ -6,8 +6,69 @@
 
 import React, { useState } from 'react';
 
-import { useAuth } from '../../contexts/AuthContext';
-import { flairIntegrationService, FLAIRExpenseEntry, FLAIRDocument } from '../../services/FLAIRIntegration';
+import { useAuth } from '@/contexts';
+import { secureFetch } from '@/hooks/use-api';
+
+// FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
+export interface FLAIRExpenseEntry {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  expenseType: string;
+  amount: number;
+  transactionDate: string;
+  description: string;
+  accountCodes: {
+    fundCode: string;
+    appUnitCode: string;
+    objectCode: string;
+    locationCode: string;
+  };
+  supportingDocuments: FLAIRDocument[];
+  travelDetails?: {
+    originAddress: string;
+    destinationAddress: string;
+    mileage: number;
+    mileageRate: number;
+    purposeCode: string;
+  };
+  approvalStatus: 'pending' | 'supervisor_approved' | 'finance_approved' | 'submitted_to_flair' | 'processed' | 'rejected';
+  approvalHistory: Array<{
+    approverEmployeeId: string;
+    approverName: string;
+    approverTitle: string;
+    approvalLevel: string;
+    approvedAt: string;
+    comments?: string;
+  }>;
+}
+
+export interface FLAIRDocument {
+  id: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  uploadedAt: string;
+  documentType: string;
+  base64Content: string;
+  checksum: string;
+}
+
+const submitFlairExpense = async (payload: Record<string, any>): Promise<FLAIRExpenseEntry> => {
+  const response = await secureFetch('/api/flair/expenses', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'FLAIR expense submission failed');
+  }
+
+  const result = await response.json();
+  return result.data || result;
+};
 
 // Component props interface
 interface FLAIRExpenseSubmissionProps {
@@ -1101,7 +1162,7 @@ const DocumentUpload: React.FC<{
               />
             </label>
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-gray-700">
             Supports PDF, images, and Office documents (max 10MB each)
           </div>
         </div>
@@ -1119,7 +1180,7 @@ const DocumentUpload: React.FC<{
                 <span className="text-sm">📄</span>
                 <div>
                   <div className="font-medium text-sm">{doc.fileName}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-gray-700">
                     {(doc.fileSize / 1024).toFixed(1)} KB • Uploaded{' '}
                     {new Date(doc.uploadedAt).toLocaleString()}
                   </div>
@@ -1194,91 +1255,89 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
     setError('');
 
     try {
-      let expenseEntry: FLAIRExpenseEntry;
+      const employeeName = `${user.firstName} ${user.lastName}`.trim();
+      const department = user.tenantName || 'Fleet Management';
+      const basePayload = {
+        employee_id: user.id,
+        employee_name: employeeName,
+        department,
+        expense_type: selectedType,
+        supporting_documents: documents,
+        account_codes: formData.accountCodes || {},
+      } as Record<string, any>;
+
+      let payload: Record<string, any> = { ...basePayload };
 
       if (selectedType === 'travel_mileage') {
-        expenseEntry = await flairIntegrationService.submitTravelMileageExpense({
-          employeeId: user.employeeId,
-          employeeName: user.fullName,
-          department: user.department,
-          originAddress: formData.originAddress,
-          destinationAddress: formData.destinationAddress,
-          mileage: formData.mileage,
-          mileageRate: formData.mileageRate,
-          travelDate: formData.travelDate,
-          purposeCode: formData.purposeCode,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.mileage || 0) * Number(formData.mileageRate || 0),
+          transaction_date: formData.travelDate,
+          description: `Travel from ${formData.originAddress} to ${formData.destinationAddress}`,
+          travel_details: {
+            originAddress: formData.originAddress,
+            destinationAddress: formData.destinationAddress,
+            mileage: formData.mileage,
+            mileageRate: formData.mileageRate,
+            purposeCode: formData.purposeCode
+          }
+        };
       } else if (selectedType === 'fuel') {
-        expenseEntry = await flairIntegrationService.submitFuelExpense({
-          employeeId: user.employeeId,
-          employeeName: user.fullName,
-          department: user.department,
-          vehicleId: formData.vehicleId,
-          fuelAmount: formData.fuelAmount,
-          fuelCost: formData.fuelCost,
-          transactionDate: formData.transactionDate,
-          vendorName: formData.vendorName,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.fuelCost || 0),
+          transaction_date: formData.transactionDate,
+          description: `Fuel purchase: ${formData.fuelAmount} gallons at ${formData.vendorName}`,
+          travel_details: {},
+        };
       } else if (selectedType === 'maintenance') {
-        expenseEntry = await flairIntegrationService.submitMaintenanceExpense({
-          employeeId: user.employeeId,
-          employeeName: user.fullName,
-          department: user.department,
-          vehicleId: formData.vehicleId,
-          maintenanceType: formData.maintenanceType,
-          amount: formData.amount,
-          transactionDate: formData.transactionDate,
-          vendorName: formData.vendorName,
-          workOrderNumber: formData.workOrderNumber,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.amount || 0),
+          transaction_date: formData.transactionDate,
+          description: `${formData.maintenanceType} - ${formData.vendorName}`,
+          travel_details: {},
+        };
       } else if (selectedType === 'vehicle_rental') {
-        expenseEntry = await flairIntegrationService.submitVehicleRentalExpense({
-          employeeId: user.employeeId,
-          employeeName: user.fullName,
-          department: user.department,
-          rentalCompany: formData.rentalCompany,
-          vehicleType: formData.vehicleType,
-          rentalPeriodStart: formData.rentalPeriodStart,
-          rentalPeriodEnd: formData.rentalPeriodEnd,
-          dailyRate: formData.dailyRate,
-          totalCost: formData.totalCost,
-          pickupLocation: formData.pickupLocation,
-          dropoffLocation: formData.dropoffLocation,
-          purposeCode: formData.purposeCode,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.totalCost || 0),
+          transaction_date: formData.rentalPeriodStart,
+          description: `Vehicle rental from ${formData.rentalCompany}`,
+          travel_details: {
+            pickupLocation: formData.pickupLocation,
+            dropoffLocation: formData.dropoffLocation,
+            purposeCode: formData.purposeCode
+          }
+        };
       } else if (selectedType === 'parking') {
-        expenseEntry = await flairIntegrationService.submitParkingExpense({
-          employeeId: user.employeeId,
-          employeeName: user.fullName,
-          department: user.department,
-          location: formData.location,
-          amount: formData.amount,
-          transactionDate: formData.transactionDate,
-          duration: formData.duration,
-          purposeCode: formData.purposeCode,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.amount || 0),
+          transaction_date: formData.transactionDate,
+          description: `Parking at ${formData.location} for ${formData.duration}`,
+          travel_details: {
+            purposeCode: formData.purposeCode
+          }
+        };
       } else if (selectedType === 'tolls') {
-        expenseEntry = await flairIntegrationService.submitTollExpense({
-          employeeId: user.employeeId,
-          employeeName: user.fullName,
-          department: user.department,
-          tollRoad: formData.tollRoad,
-          amount: formData.amount,
-          transactionDate: formData.transactionDate,
-          transponderNumber: formData.transponderNumber,
-          originLocation: formData.originLocation,
-          destinationLocation: formData.destinationLocation,
-          purposeCode: formData.purposeCode,
-          supportingDocuments: documents
-        });
+        payload = {
+          ...basePayload,
+          amount: Number(formData.amount || 0),
+          transaction_date: formData.transactionDate,
+          description: `Toll on ${formData.tollRoad} from ${formData.originLocation} to ${formData.destinationLocation}`,
+          travel_details: {
+            originLocation: formData.originLocation,
+            destinationLocation: formData.destinationLocation,
+            transponderNumber: formData.transponderNumber,
+            purposeCode: formData.purposeCode
+          }
+        };
       } else {
         throw new Error('Unsupported expense type');
       }
+
+      const expenseEntry = await submitFlairExpense(payload);
 
       onSubmissionComplete?.(expenseEntry);
 
@@ -1354,7 +1413,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
         }
         return <div>Unsupported expense type</div>;
 
-      case 'documents':
+      case 'documents': {
         const config = EXPENSE_TYPES[selectedType!];
         return (
           <div className="space-y-2">
@@ -1381,8 +1440,9 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             </div>
           </div>
         );
+      }
 
-      case 'review':
+      case 'review': {
         const expenseConfig = EXPENSE_TYPES[selectedType!];
         const totalAmount = (() => {
           switch (selectedType) {
@@ -1413,11 +1473,11 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
               <div className="grid grid-cols-2 gap-2 text-sm">
                 <div>
                   <span className="font-medium text-gray-700">Employee:</span>
-                  <div>{user?.fullName}</div>
+                  <div>{user ? `${user.firstName} ${user.lastName}` : ''}</div>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Department:</span>
-                  <div>{user?.department}</div>
+                  <div>{user?.tenantName || 'Fleet Management'}</div>
                 </div>
                 <div>
                   <span className="font-medium text-gray-700">Amount:</span>
@@ -1461,6 +1521,7 @@ export const FLAIRExpenseSubmission: React.FC<FLAIRExpenseSubmissionProps> = ({
             </div>
           </div>
         );
+      }
 
       default:
         return null;

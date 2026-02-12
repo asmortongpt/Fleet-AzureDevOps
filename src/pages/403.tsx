@@ -72,7 +72,7 @@ export function Forbidden403Page() {
           </div>
 
           {/* Additional Info */}
-          <p className="text-xs text-gray-500 mt-3">
+          <p className="text-xs text-gray-700 mt-3">
             If you believe this is an error, please contact support with error code: 403
           </p>
         </div>

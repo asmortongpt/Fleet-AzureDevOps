@@ -73,7 +73,7 @@ export function DocumentMapFilter({
         >
           <div className="flex items-center gap-2">
             <svg
-              className="w-3 h-3 text-slate-700 dark:text-gray-400"
+              className="w-3 h-3 text-slate-700 dark:text-gray-700"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -97,13 +97,13 @@ export function DocumentMapFilter({
 
           <div className="flex items-center gap-2">
             {/* Document count */}
-            <span className="text-sm text-slate-700 dark:text-gray-400">
+            <span className="text-sm text-slate-700 dark:text-gray-700">
               {filteredDocuments} / {totalDocuments}
             </span>
 
             {/* Expand/collapse icon */}
             <svg
-              className={`w-3 h-3 text-gray-400 transition-transform ${
+              className={`w-3 h-3 text-gray-700 transition-transform ${
                 isExpanded ? 'rotate-180' : ''
               }`}
               fill="none"
@@ -137,7 +137,7 @@ export function DocumentMapFilter({
                   className="w-full px-3 py-2 pl-10 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <svg
-                  className="absolute left-3 top-2.5 w-3 h-3 text-gray-400"
+                  className="absolute left-3 top-2.5 w-3 h-3 text-gray-700"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -178,7 +178,7 @@ export function DocumentMapFilter({
                         {category.categoryName}
                       </span>
                       {category.documentCount !== undefined && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                        <span className="text-xs text-gray-700 dark:text-gray-700">
                           {category.documentCount}
                         </span>
                       )}

@@ -9,7 +9,6 @@
  * - Parts inventory tracking
  */
 
-import React, { useState, useEffect } from 'react';
 import {
   Wrench,
   Calendar,
@@ -17,19 +16,18 @@ import {
   Warning,
   CheckCircle,
   Clock,
-  Users,
-  TrendUp,
-  Gauge,
   ListChecks,
-  CarSimple,
-  Toolbox
+  CarSimple
 } from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
+// motion removed - React 19 incompatible
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
+import { AlertTriangle, Car } from 'lucide-react';
 interface WorkOrderStats {
   open: number;
   in_progress: number;
@@ -151,7 +149,7 @@ export function MaintenanceManagerDashboard() {
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h1 className="text-sm font-bold text-white mb-1">Maintenance Dashboard</h1>
-          <p className="text-sm text-slate-400">Work Order Management & Preventive Maintenance</p>
+          <p className="text-sm text-slate-700">Work Order Management & Preventive Maintenance</p>
         </div>
         <Button size="sm"
           onClick={handleViewCalendar}
@@ -172,8 +170,7 @@ export function MaintenanceManagerDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Open Work Orders */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-red-950/30 rounded-md p-2 border border-red-500/30 hover:border-red-400/50 transition-all cursor-pointer"
             onClick={handleViewQueue}
           >
@@ -192,23 +189,21 @@ export function MaintenanceManagerDashboard() {
             >
               Assign Now
             </Button>
-          </motion.div>
+          </div>
 
           {/* In Progress */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-4 h-4 text-blue-400" />
+              <Wrench className="w-4 h-4 text-blue-700" />
               <span className="text-sm font-black text-white">{workOrderStats.in_progress}</span>
             </div>
             <p className="text-blue-300 font-semibold">In Progress</p>
-          </motion.div>
+          </div>
 
           {/* Completed This Week */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-green-950/30 rounded-md p-2 border border-green-500/30 hover:border-green-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
@@ -217,11 +212,10 @@ export function MaintenanceManagerDashboard() {
             </div>
             <p className="text-green-300 font-semibold">Completed</p>
             <p className="text-xs text-green-400/70 mt-1">This Week</p>
-          </motion.div>
+          </div>
 
           {/* Avg Repair Time */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-violet-950/30 rounded-md p-2 border border-violet-500/30 hover:border-violet-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
@@ -230,7 +224,7 @@ export function MaintenanceManagerDashboard() {
             </div>
             <p className="text-violet-300 font-semibold">Avg Hours</p>
             <p className="text-xs text-violet-400/70 mt-1">Per Repair</p>
-          </motion.div>
+          </div>
         </div>
       </Card>
 
@@ -264,7 +258,7 @@ export function MaintenanceManagerDashboard() {
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Warning className="w-4 h-4 text-red-400" />
+              <AlertTriangle className="w-4 h-4 text-red-400" />
               <h2 className="text-sm font-bold text-white">
                 Overdue Maintenance ({overdueMaintenanceItems.length} Vehicles)
               </h2>
@@ -273,14 +267,13 @@ export function MaintenanceManagerDashboard() {
 
           <div className="space-y-3">
             {overdueMaintenanceItems.map((item) => (
-              <motion.div
+              <div
                 key={item.id}
-                whileHover={{ scale: 1.01 }}
                 className="bg-red-950/20 rounded-lg p-2 border border-red-500/30 hover:border-red-400/50 transition-all"
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex items-center gap-3">
-                    <CarSimple className="w-4 h-4 text-red-400" />
+                    <Car className="w-4 h-4 text-red-400" />
                     <div>
                       <p className="font-bold text-white">{item.vehicle_name}</p>
                       <p className="text-sm text-slate-300">{item.maintenance_type}</p>
@@ -301,7 +294,7 @@ export function MaintenanceManagerDashboard() {
                   <Wrench className="w-4 h-4 mr-2" />
                   Create Work Order
                 </Button>
-              </motion.div>
+              </div>
             ))}
           </div>
         </Card>
@@ -327,7 +320,7 @@ export function MaintenanceManagerDashboard() {
                     </div>
                     <div>
                       <p className="font-bold text-white">{schedule.date}</p>
-                      <p className="text-sm text-slate-400">{schedule.count} vehicles scheduled</p>
+                      <p className="text-sm text-slate-700">{schedule.count} vehicles scheduled</p>
                     </div>
                   </div>
                   <Button size="sm"
@@ -358,8 +351,7 @@ export function MaintenanceManagerDashboard() {
 
             <div className="space-y-3">
               {/* Below Reorder Level */}
-              <motion.div
-                whileHover={{ scale: 1.02 }}
+              <div
                 className={cn(
                   "rounded-lg p-2 border transition-all cursor-pointer",
                   partsInventory.below_reorder > 0
@@ -370,7 +362,7 @@ export function MaintenanceManagerDashboard() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
-                    <Warning className="w-4 h-4 text-amber-400" />
+                    <AlertTriangle className="w-4 h-4 text-amber-400" />
                     <span className="text-sm text-slate-300">Below Reorder Level</span>
                   </div>
                   <span className="text-sm font-bold text-white">
@@ -388,7 +380,7 @@ export function MaintenanceManagerDashboard() {
                     View & Reorder
                   </Button>
                 )}
-              </motion.div>
+              </div>
 
               {/* In Stock */}
               <div className="bg-green-950/30 rounded-lg p-2 border border-green-500/30">
@@ -406,7 +398,7 @@ export function MaintenanceManagerDashboard() {
               {/* Total Items */}
               <div className="bg-slate-900/50 rounded-lg p-3 border border-slate-700">
                 <div className="flex items-center justify-between">
-                  <span className="text-slate-400 text-sm">Total Inventory Items</span>
+                  <span className="text-slate-700 text-sm">Total Inventory Items</span>
                   <span className="text-sm font-bold text-white">
                     {partsInventory.total_items}
                   </span>

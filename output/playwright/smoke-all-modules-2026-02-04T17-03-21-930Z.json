@@ -1,0 +1,2379 @@
+{
+  "startedAt": "2026-02-04T17:03:21.931Z",
+  "baseUrl": "http://[::1]:5173",
+  "ok": [
+    {
+      "categoryId": "fleet",
+      "moduleId": "live-fleet-dashboard",
+      "moduleLabel": "Live Fleet Dashboard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "comprehensive",
+      "moduleLabel": "Fleet Analytics"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "virtual-garage",
+      "moduleLabel": "Virtual Garage"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "driver-mgmt",
+      "moduleLabel": "Driver Performance"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "asset-management",
+      "moduleLabel": "Asset Management"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet-workspace",
+      "moduleLabel": "Fleet Workspace"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "routes",
+      "moduleLabel": "Route Management"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "task-management",
+      "moduleLabel": "Task Management"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "fuel",
+      "moduleLabel": "Fuel Management"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "fuel-purchasing",
+      "moduleLabel": "Fuel Purchasing"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "fuel-management",
+      "moduleLabel": "Fuel Hub"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "operations-workspace",
+      "moduleLabel": "Operations Workspace"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "gis-map",
+      "moduleLabel": "GIS Command Center"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "ev-hub",
+      "moduleLabel": "EV Hub"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "personal-use",
+      "moduleLabel": "Personal Use"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "personal-use-policy",
+      "moduleLabel": "Personal Use Policy"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "reimbursement-queue",
+      "moduleLabel": "Reimbursement Queue"
+    },
+    {
+      "categoryId": "operations",
+      "moduleId": "charges-billing",
+      "moduleLabel": "Charges & Billing"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "garage",
+      "moduleLabel": "Garage Service"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "predictive",
+      "moduleLabel": "Predictive Maintenance"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "maintenance-scheduling",
+      "moduleLabel": "Maintenance Scheduling"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "maintenance-request",
+      "moduleLabel": "Maintenance Request"
+    },
+    {
+      "categoryId": "maintenance",
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "osha-forms",
+      "moduleLabel": "OSHA Forms"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "video-telematics",
+      "moduleLabel": "Video Telematics"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "incident-management",
+      "moduleLabel": "Incident Management"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "incidents",
+      "moduleLabel": "Incidents Hub"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "policy-engine",
+      "moduleLabel": "Policy Engine"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "safety-alerts",
+      "moduleLabel": "Safety Alerts"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "hos",
+      "moduleLabel": "Hours of Service"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "compliance-workspace",
+      "moduleLabel": "Compliance Workspace"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "documents",
+      "moduleLabel": "Document Management"
+    },
+    {
+      "categoryId": "safety",
+      "moduleId": "document-qa",
+      "moduleLabel": "Document QA"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "financial",
+      "moduleLabel": "Business Management Hub"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "workbench",
+      "moduleLabel": "Data Workbench"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "cost-analysis",
+      "moduleLabel": "Cost Analysis"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "custom-reports",
+      "moduleLabel": "Custom Reports"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "analytics",
+      "moduleLabel": "Analytics Hub"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "analytics-workspace",
+      "moduleLabel": "Analytics Workspace"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "vendor-management",
+      "moduleLabel": "Vendor Management"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "parts-inventory",
+      "moduleLabel": "Parts Inventory"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "purchase-orders",
+      "moduleLabel": "Purchase Orders"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "invoices",
+      "moduleLabel": "Invoices"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "mileage",
+      "moduleLabel": "Mileage Reimbursement"
+    },
+    {
+      "categoryId": "analytics",
+      "moduleId": "receipt-processing",
+      "moduleLabel": "Receipt Processing"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "admin",
+      "moduleLabel": "Admin & Configuration"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "admin-dashboard",
+      "moduleLabel": "Admin Dashboard"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "communication",
+      "moduleLabel": "People & Communication"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "notifications",
+      "moduleLabel": "Notifications"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "teams-integration",
+      "moduleLabel": "Teams Integration"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "email-center",
+      "moduleLabel": "Email Center"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "communication-log",
+      "moduleLabel": "Communication Log"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "map-settings",
+      "moduleLabel": "Map Settings"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "map-layers",
+      "moduleLabel": "Map Layers"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "ai-assistant",
+      "moduleLabel": "AI Assistant"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "settings",
+      "moduleLabel": "Settings"
+    },
+    {
+      "categoryId": "admin",
+      "moduleId": "profile",
+      "moduleLabel": "Profile"
+    }
+  ],
+  "failed": [],
+  "warnings": [
+    {
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "virtual-garage",
+      "moduleLabel": "Virtual Garage",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: vehicles.filter is not a function\n    at VirtualGarage (http://[::1]:5173/src/components/modules/fleet/VirtualGarage.tsx:156:141)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) The above error occurred in the <VirtualGarage> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "virtual-garage",
+      "moduleLabel": "Virtual Garage",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: vehicles.filter is not a function\n    at VirtualGarage (http://[::1]:5173/src/components/modules/fleet/VirtualGarage.tsx:156:141)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) {componentStack: \n    at VirtualGarage (http://[::1]:5173/src/compo…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "driver-mgmt",
+      "moduleLabel": "Driver Performance",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "asset-management",
+      "moduleLabel": "Asset Management",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: assets.filter is not a function\n    at http://[::1]:5173/src/components/modules/assets/AssetManagement/hooks/useAssetFilters.ts:7:19\n    at updateMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6277:21)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18701:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at useAssetFilters (http://[::1]:5173/src/components/modules/assets/AssetManagement/hooks/useAssetFilters.ts:6:26)\n    at AssetManagement (http://[::1]:5173/src/components/modules/assets/AssetManagement.tsx:55:7)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20) The above error occurred in the <AssetManagement> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "asset-management",
+      "moduleLabel": "Asset Management",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: assets.filter is not a function\n    at http://[::1]:5173/src/components/modules/assets/AssetManagement/hooks/useAssetFilters.ts:7:19\n    at updateMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6277:21)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18701:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at useAssetFilters (http://[::1]:5173/src/components/modules/assets/AssetManagement/hooks/useAssetFilters.ts:6:26)\n    at AssetManagement (http://[::1]:5173/src/components/modules/assets/AssetManagement.tsx:55:7)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20) {componentStack: \n    at AssetManagement (http://[::1]:5173/src/com…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 1.14 (foreground color: #191d35, background color: #0a0e27, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.17 (foreground color: #474a5d, background color: #0a0e27, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "[ERROR] Error fetching dashboard data: APIError: Failed to fetch maintenance schedules\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async Promise.all (index 1)\n    at async fetchDashboardData (http://[::1]:5173/src/components/modules/assets/EquipmentDashboard.tsx:60:11) undefined"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "[ERROR] Error fetching dashboard data: APIError: Failed to fetch maintenance schedules\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async Promise.all (index 1)\n    at async fetchDashboardData (http://[::1]:5173/src/components/modules/assets/EquipmentDashboard.tsx:60:11) undefined"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "fleet-workspace",
+      "moduleLabel": "Fleet Workspace",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: initialVehicles.map is not a function\n    at useVehicleTelemetry (http://[::1]:5173/src/hooks/useVehicleTelemetry.ts:13:35)\n    at FleetWorkspace (http://[::1]:5173/src/components/workspaces/FleetWorkspace.tsx:772:7)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8216:199)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13) The above error occurred in the <FleetWorkspace> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "fleet-workspace",
+      "moduleLabel": "Fleet Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: initialVehicles.map is not a function\n    at useVehicleTelemetry (http://[::1]:5173/src/hooks/useVehicleTelemetry.ts:13:35)\n    at FleetWorkspace (http://[::1]:5173/src/components/workspaces/FleetWorkspace.tsx:772:7)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8216:199)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13) {componentStack: \n    at FleetWorkspace (http://[::1]:5173/src/comp…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: vehiclesData.map is not a function\n    at http://[::1]:5173/src/pages/VehicleShowroom3D.tsx:69:25\n    at updateMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6277:21)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18701:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at VehicleShowroom3D (http://[::1]:5173/src/pages/VehicleShowroom3D.tsx:67:28)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72) The above error occurred in the <VehicleShowroom3D> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: vehiclesData.map is not a function\n    at http://[::1]:5173/src/pages/VehicleShowroom3D.tsx:69:25\n    at updateMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6277:21)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18701:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at VehicleShowroom3D (http://[::1]:5173/src/pages/VehicleShowroom3D.tsx:67:28)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72) {componentStack: \n    at VehicleShowroom3D (http://[::1]:5173/src/p…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render."
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "kind": "console.error",
+      "text": "Maximum update depth exceeded. This can happen when a component calls setState inside useEffect, but useEffect either doesn't have a dependency array, or one of the dependencies changes on every render."
+    },
+    {
+      "moduleId": "routes",
+      "moduleLabel": "Route Management",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n ReferenceError: mapStyle is not defined\n    at UniversalMap (http://[::1]:5173/src/components/UniversalMap.tsx:373:5)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) The above error occurred in the <UniversalMap> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "routes",
+      "moduleLabel": "Route Management",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: ReferenceError: mapStyle is not defined\n    at UniversalMap (http://[::1]:5173/src/components/UniversalMap.tsx:373:5)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) {componentStack: \n    at UniversalMap (http://[::1]:5173/src/compon…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "task-management",
+      "moduleLabel": "Task Management",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "task-management",
+      "moduleLabel": "Task Management",
+      "kind": "console.error",
+      "text": "[ERROR] Error fetching tasks: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async fetchTasks (http://[::1]:5173/src/components/modules/operations/TaskManagement.tsx:91:24) undefined"
+    },
+    {
+      "moduleId": "task-management",
+      "moduleLabel": "Task Management",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "task-management",
+      "moduleLabel": "Task Management",
+      "kind": "console.error",
+      "text": "[ERROR] Error fetching tasks: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async fetchTasks (http://[::1]:5173/src/components/modules/operations/TaskManagement.tsx:91:24) undefined"
+    },
+    {
+      "moduleId": "fuel-management",
+      "moduleLabel": "Fuel Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "gis-map",
+      "moduleLabel": "GIS Command Center",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: filteredFacilities.filter is not a function\n    at http://[::1]:5173/src/components/modules/integrations/GISCommandCenter.tsx:69:54\n    at mountMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6259:25)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18441:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at GISCommandCenter (http://[::1]:5173/src/components/modules/integrations/GISCommandCenter.tsx:67:19)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8216:199)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72) The above error occurred in the <GISCommandCenter> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "gis-map",
+      "moduleLabel": "GIS Command Center",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: filteredFacilities.filter is not a function\n    at http://[::1]:5173/src/components/modules/integrations/GISCommandCenter.tsx:69:54\n    at mountMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6259:25)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18441:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at GISCommandCenter (http://[::1]:5173/src/components/modules/integrations/GISCommandCenter.tsx:67:19)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8216:199)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72) {componentStack: \n    at GISCommandCenter (http://[::1]:5173/src/co…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: (rawStations || []).map is not a function\n    at http://[::1]:5173/src/components/modules/charging/EVChargingManagement.tsx?t=1770223081510:130:32\n    at updateMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6277:21)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18701:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at EVChargingManagement (http://[::1]:5173/src/components/modules/charging/EVChargingManagement.tsx?t=1770223081510:129:20)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72) The above error occurred in the <EVChargingManagement> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: (rawStations || []).map is not a function\n    at http://[::1]:5173/src/components/modules/charging/EVChargingManagement.tsx?t=1770223081510:130:32\n    at updateMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6277:21)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18701:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at EVChargingManagement (http://[::1]:5173/src/components/modules/charging/EVChargingManagement.tsx?t=1770223081510:129:20)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72) {componentStack: \n    at EVChargingManagement (http://[::1]:5173/sr…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 1.04 (foreground color: #10142d, background color: #0a0e27, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.17 (foreground color: #474a5d, background color: #0a0e27, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "ev-hub",
+      "moduleLabel": "EV Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "personal-use",
+      "moduleLabel": "Personal Use",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "personal-use-policy",
+      "moduleLabel": "Personal Use Policy",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "reimbursement-queue",
+      "moduleLabel": "Reimbursement Queue",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "charges-billing",
+      "moduleLabel": "Charges & Billing",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "moduleId": "charges-billing",
+      "moduleLabel": "Charges & Billing",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "moduleId": "maintenance-request",
+      "moduleLabel": "Maintenance Request",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: Cannot read properties of undefined (reading 'maintenanceRequests')\n    at MaintenanceRequest (http://[::1]:5173/src/components/modules/maintenance/MaintenanceRequest.tsx:55:25)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8216:199)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) The above error occurred in the <MaintenanceRequest> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "maintenance-request",
+      "moduleLabel": "Maintenance Request",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: Cannot read properties of undefined (reading 'maintenanceRequests')\n    at MaintenanceRequest (http://[::1]:5173/src/components/modules/maintenance/MaintenanceRequest.tsx:55:25)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8216:199)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) {componentStack: \n    at MaintenanceRequest (http://[::1]:5173/src/…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: initialVehicles.map is not a function\n    at useVehicleTelemetry (http://[::1]:5173/src/hooks/useVehicleTelemetry.ts:13:35)\n    at MaintenanceWorkspace (http://[::1]:5173/src/components/workspaces/MaintenanceWorkspace.tsx:822:7)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8216:199)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13) The above error occurred in the <MaintenanceWorkspace> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: initialVehicles.map is not a function\n    at useVehicleTelemetry (http://[::1]:5173/src/hooks/useVehicleTelemetry.ts:13:35)\n    at MaintenanceWorkspace (http://[::1]:5173/src/components/workspaces/MaintenanceWorkspace.tsx:822:7)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8216:199)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13) {componentStack: \n    at MaintenanceWorkspace (http://[::1]:5173/sr…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "osha-forms",
+      "moduleLabel": "OSHA Forms",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "osha-forms",
+      "moduleLabel": "OSHA Forms",
+      "kind": "console.error",
+      "text": "[ERROR] OSHA forms load failed Error: Failed to load OSHA forms (500)\n    at loadForms (http://[::1]:5173/src/components/modules/compliance/OSHAForms.tsx:165:15) undefined"
+    },
+    {
+      "moduleId": "osha-forms",
+      "moduleLabel": "OSHA Forms",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "osha-forms",
+      "moduleLabel": "OSHA Forms",
+      "kind": "console.error",
+      "text": "[ERROR] OSHA forms load failed Error: Failed to load OSHA forms (500)\n    at loadForms (http://[::1]:5173/src/components/modules/compliance/OSHAForms.tsx:165:15) undefined"
+    },
+    {
+      "moduleId": "video-telematics",
+      "moduleLabel": "Video Telematics",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "incident-management",
+      "moduleLabel": "Incident Management",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "incident-management",
+      "moduleLabel": "Incident Management",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "incident-management",
+      "moduleLabel": "Incident Management",
+      "kind": "console.error",
+      "text": "[ERROR] Error fetching incidents: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async fetchIncidents (http://[::1]:5173/src/components/modules/compliance/IncidentManagement.tsx:112:24) undefined"
+    },
+    {
+      "moduleId": "incident-management",
+      "moduleLabel": "Incident Management",
+      "kind": "console.error",
+      "text": "[ERROR] Error fetching incidents: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async fetchIncidents (http://[::1]:5173/src/components/modules/compliance/IncidentManagement.tsx:112:24) undefined"
+    },
+    {
+      "moduleId": "incidents",
+      "moduleLabel": "Incidents Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "incidents",
+      "moduleLabel": "Incidents Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "hos",
+      "moduleLabel": "Hours of Service",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "hos",
+      "moduleLabel": "Hours of Service",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "financial",
+      "moduleLabel": "Business Management Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "financial",
+      "moduleLabel": "Business Management Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "financial",
+      "moduleLabel": "Business Management Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "workbench",
+      "moduleLabel": "Data Workbench",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: Cannot read properties of undefined (reading 'toLocaleString')\n    at http://[::1]:5173/src/components/modules/analytics/DataWorkbench.bak/OverviewTab.tsx:298:29\n    at Array.map (<anonymous>)\n    at OverviewTab (http://[::1]:5173/src/components/modules/analytics/DataWorkbench.bak/OverviewTab.tsx:264:81)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43) The above error occurred in the <OverviewTab> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "workbench",
+      "moduleLabel": "Data Workbench",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: Cannot read properties of undefined (reading 'toLocaleString')\n    at http://[::1]:5173/src/components/modules/analytics/DataWorkbench.bak/OverviewTab.tsx:298:29\n    at Array.map (<anonymous>)\n    at OverviewTab (http://[::1]:5173/src/components/modules/analytics/DataWorkbench.bak/OverviewTab.tsx:264:81)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43) {componentStack: \n    at OverviewTab (http://[::1]:5173/src/compone…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "cost-analysis",
+      "moduleLabel": "Cost Analysis",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "analytics",
+      "moduleLabel": "Analytics Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "analytics",
+      "moduleLabel": "Analytics Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "analytics",
+      "moduleLabel": "Analytics Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "analytics-workspace",
+      "moduleLabel": "Analytics Workspace",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: workOrders?.filter is not a function\n    at ExecutiveDashboard (http://[::1]:5173/src/components/workspaces/AnalyticsWorkspace.tsx:47:37)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) The above error occurred in the <ExecutiveDashboard> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "analytics-workspace",
+      "moduleLabel": "Analytics Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: workOrders?.filter is not a function\n    at ExecutiveDashboard (http://[::1]:5173/src/components/workspaces/AnalyticsWorkspace.tsx:47:37)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) {componentStack: \n    at ExecutiveDashboard (http://[::1]:5173/src/…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "admin",
+      "moduleLabel": "Admin & Configuration",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "admin",
+      "moduleLabel": "Admin & Configuration",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+    },
+    {
+      "moduleId": "communication",
+      "moduleLabel": "People & Communication",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 403 (Forbidden)"
+    },
+    {
+      "moduleId": "communication-log",
+      "moduleLabel": "Communication Log",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: (rawLogs || []).map is not a function\n    at http://[::1]:5173/src/components/modules/communication/CommunicationLog.tsx:86:28\n    at updateMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6277:21)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18701:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at CommunicationLog (http://[::1]:5173/src/components/modules/communication/CommunicationLog.tsx:85:16)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72) The above error occurred in the <CommunicationLog> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "communication-log",
+      "moduleLabel": "Communication Log",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: (rawLogs || []).map is not a function\n    at http://[::1]:5173/src/components/modules/communication/CommunicationLog.tsx:86:28\n    at updateMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:6277:21)\n    at Object.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18701:20)\n    at exports.useMemo (http://[::1]:5173/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=334bcd67:947:36)\n    at CommunicationLog (http://[::1]:5173/src/components/modules/communication/CommunicationLog.tsx:85:16)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72) {componentStack: \n    at CommunicationLog (http://[::1]:5173/src/co…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 1.11 (foreground color: #161a32, background color: #0a0e27, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 1.61 (foreground color: #33374b, background color: #0a0e27, font size: 13.3pt (17.76px), font weight: bold). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.17 (foreground color: #474a5d, background color: #0a0e27, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to load ArcGIS layers: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async http://[::1]:5173/src/components/modules/integrations/ArcGISIntegration.tsx:111:26 undefined"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to load ArcGIS layers: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async http://[::1]:5173/src/components/modules/integrations/ArcGISIntegration.tsx:111:26 undefined"
+    },
+    {
+      "moduleId": "map-settings",
+      "moduleLabel": "Map Settings",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "map-settings",
+      "moduleLabel": "Map Settings",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to load ArcGIS layers: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async http://[::1]:5173/src/components/modules/integrations/ArcGISIntegration.tsx:111:26 undefined"
+    },
+    {
+      "moduleId": "map-settings",
+      "moduleLabel": "Map Settings",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "map-settings",
+      "moduleLabel": "Map Settings",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to load ArcGIS layers: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async http://[::1]:5173/src/components/modules/integrations/ArcGISIntegration.tsx:111:26 undefined"
+    },
+    {
+      "moduleId": "map-layers",
+      "moduleLabel": "Map Layers",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n ReferenceError: mapStyle is not defined\n    at UniversalMap (http://[::1]:5173/src/components/UniversalMap.tsx:373:5)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) The above error occurred in the <UniversalMap> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "map-layers",
+      "moduleLabel": "Map Layers",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: ReferenceError: mapStyle is not defined\n    at UniversalMap (http://[::1]:5173/src/components/UniversalMap.tsx:373:5)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) {componentStack: \n    at UniversalMap (http://[::1]:5173/src/compon…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to load ArcGIS layers: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async http://[::1]:5173/src/components/modules/integrations/ArcGISIntegration.tsx:111:26 undefined"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to load ArcGIS layers: APIError: ROUTE_NOT_FOUND\n    at APIClient.request (http://[::1]:5173/src/lib/api-client.ts:128:15)\n    at async http://[::1]:5173/src/components/modules/integrations/ArcGISIntegration.tsx:111:26 undefined"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 3.2 (foreground color: #666978, background color: #141830, font size: 13.3pt (17.76px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Element has insufficient color contrast of 2.24 (foreground color: #505264, background color: #161931, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "profile",
+      "moduleLabel": "Profile",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: Cannot read properties of undefined (reading 'charAt')\n    at ProfilePage (http://[::1]:5173/src/pages/ProfilePage.tsx:894:46)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) The above error occurred in the <ProfilePage> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "profile",
+      "moduleLabel": "Profile",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: Cannot read properties of undefined (reading 'charAt')\n    at ProfilePage (http://[::1]:5173/src/pages/ProfilePage.tsx:894:46)\n    at Object.react_stack_bottom_frame (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:18241:20)\n    at renderWithHooks (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:5386:24)\n    at updateFunctionComponent (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:7207:21)\n    at beginWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:8257:20)\n    at runWithFiberInDEV (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:729:72)\n    at performUnitOfWork (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12293:98)\n    at workLoopSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12156:43)\n    at renderRootSync (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:12140:13)\n    at performWorkOnRoot (http://[::1]:5173/node_modules/.vite/deps/chunk-SRFLUWJ2.js?v=334bcd67:11559:37) {componentStack: \n    at ProfilePage (http://[::1]:5173/src/pages/P…/deps/@tanstack_react-query.js?v=334bcd67:3090:3)}"
+    }
+  ],
+  "httpErrors": [
+    {
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/fleet/metrics"
+    },
+    {
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/emulator/vehicles"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "driver-mgmt",
+      "moduleLabel": "Driver Performance",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/driver-scorecard/leaderboard?limit=200"
+    },
+    {
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/driver-scorecard/leaderboard"
+    },
+    {
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/driver-scorecard/leaderboard"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/heavy-equipment/maintenance/schedules"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/heavy-equipment/certifications/expiring?days=60"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/heavy-equipment/certifications/matrix"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/heavy-equipment/maintenance/schedules"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/heavy-equipment/certifications/expiring?days=60"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/heavy-equipment/certifications/matrix"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/heavy-equipment"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/heavy-equipment"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/dispatch/channels"
+    },
+    {
+      "moduleId": "dispatch-console",
+      "moduleLabel": "Dispatch Console",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/dispatch/channels"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "route-optimization",
+      "moduleLabel": "Route Optimization",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "task-management",
+      "moduleLabel": "Task Management",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/task-management?"
+    },
+    {
+      "moduleId": "task-management",
+      "moduleLabel": "Task Management",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/task-management?"
+    },
+    {
+      "moduleId": "fuel-management",
+      "moduleLabel": "Fuel Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/fleet/metrics"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "ev-charging",
+      "moduleLabel": "EV Charging",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/ev/chargers"
+    },
+    {
+      "moduleId": "charging-hub",
+      "moduleLabel": "Charging Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/ev/sessions/active"
+    },
+    {
+      "moduleId": "ev-hub",
+      "moduleLabel": "EV Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/ev/vehicles"
+    },
+    {
+      "moduleId": "personal-use",
+      "moduleLabel": "Personal Use",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/personal-use-policies"
+    },
+    {
+      "moduleId": "personal-use-policy",
+      "moduleLabel": "Personal Use Policy",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/personal-use-policies"
+    },
+    {
+      "moduleId": "reimbursement-queue",
+      "moduleLabel": "Reimbursement Queue",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/v1/me/permissions"
+    },
+    {
+      "moduleId": "charges-billing",
+      "moduleLabel": "Charges & Billing",
+      "status": 403,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/personal-use-charges?"
+    },
+    {
+      "moduleId": "charges-billing",
+      "moduleLabel": "Charges & Billing",
+      "status": 403,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/personal-use-charges/summary"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "maintenance-workspace",
+      "moduleLabel": "Maintenance Workspace",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/safety-training/compliance-stats"
+    },
+    {
+      "moduleId": "safety",
+      "moduleLabel": "Safety & Compliance Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/safety-training/expiring?days=30"
+    },
+    {
+      "moduleId": "osha-forms",
+      "moduleLabel": "OSHA Forms",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/osha-compliance/300-log"
+    },
+    {
+      "moduleId": "osha-forms",
+      "moduleLabel": "OSHA Forms",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/osha-compliance/300-log"
+    },
+    {
+      "moduleId": "video-telematics",
+      "moduleLabel": "Video Telematics",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/video-events?limit=200"
+    },
+    {
+      "moduleId": "incident-management",
+      "moduleLabel": "Incident Management",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/incident-management?"
+    },
+    {
+      "moduleId": "incident-management",
+      "moduleLabel": "Incident Management",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/incident-management?"
+    },
+    {
+      "moduleId": "incidents",
+      "moduleLabel": "Incidents Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/safety-training/compliance-stats"
+    },
+    {
+      "moduleId": "incidents",
+      "moduleLabel": "Incidents Hub",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/safety-training/expiring?days=30"
+    },
+    {
+      "moduleId": "hos",
+      "moduleLabel": "Hours of Service",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/safety-training/compliance-stats"
+    },
+    {
+      "moduleId": "hos",
+      "moduleLabel": "Hours of Service",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/safety-training/expiring?days=30"
+    },
+    {
+      "moduleId": "financial",
+      "moduleLabel": "Business Management Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/trends?months=6"
+    },
+    {
+      "moduleId": "financial",
+      "moduleLabel": "Business Management Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/summary?startDate=2025-09-01T16%3A04%3A37.408Z&endDate=2026-02-04T17%3A04%3A37.408Z"
+    },
+    {
+      "moduleId": "financial",
+      "moduleLabel": "Business Management Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/budget-status"
+    },
+    {
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/executive-dashboard/kpis"
+    },
+    {
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/executive-dashboard/fleet-health"
+    },
+    {
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/executive-dashboard/cost-analysis"
+    },
+    {
+      "moduleId": "executive-dashboard",
+      "moduleLabel": "Executive Dashboard",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/executive-dashboard/trends"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 404,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/auth/login"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/safety-incidents"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/calendar/events"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/arcgis-layers"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 404,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/auth/login"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/safety-incidents"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/calendar/events"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/arcgis-layers"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/teams"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/outlook/messages"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/outlook/messages"
+    },
+    {
+      "moduleId": "endpoint-monitor",
+      "moduleLabel": "Endpoint Monitor",
+      "status": 500,
+      "method": "HEAD",
+      "url": "http://[::1]:5173/api/teams"
+    },
+    {
+      "moduleId": "cost-analysis",
+      "moduleLabel": "Cost Analysis",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/v1/me/permissions"
+    },
+    {
+      "moduleId": "analytics",
+      "moduleLabel": "Analytics Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/summary?startDate=2025-09-01T16%3A04%3A46.713Z&endDate=2026-02-04T17%3A04%3A46.713Z"
+    },
+    {
+      "moduleId": "analytics",
+      "moduleLabel": "Analytics Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/trends?months=6"
+    },
+    {
+      "moduleId": "analytics",
+      "moduleLabel": "Analytics Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/budget-status"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/summary?startDate=2025-09-01T16%3A04%3A51.182Z&endDate=2026-02-04T17%3A04%3A51.182Z"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/budget-status"
+    },
+    {
+      "moduleId": "reports",
+      "moduleLabel": "Reports Hub",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/cost-analysis/trends?months=6"
+    },
+    {
+      "moduleId": "admin",
+      "moduleLabel": "Admin & Configuration",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/storage/stats"
+    },
+    {
+      "moduleId": "admin",
+      "moduleLabel": "Admin & Configuration",
+      "status": 503,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/health"
+    },
+    {
+      "moduleId": "communication",
+      "moduleLabel": "People & Communication",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/internal-teams"
+    },
+    {
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin",
+      "status": 403,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/push-notifications/stats"
+    },
+    {
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin",
+      "status": 403,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/push-notifications/history?limit=50"
+    },
+    {
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin",
+      "status": 403,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/push-notifications/templates"
+    },
+    {
+      "moduleId": "push-notification-admin",
+      "moduleLabel": "Push Notification Admin",
+      "status": 403,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/users"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/arcgis/layers"
+    },
+    {
+      "moduleId": "arcgis-integration",
+      "moduleLabel": "ArcGIS Integration",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/arcgis/layers"
+    },
+    {
+      "moduleId": "map-settings",
+      "moduleLabel": "Map Settings",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/arcgis/layers"
+    },
+    {
+      "moduleId": "map-settings",
+      "moduleLabel": "Map Settings",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/arcgis/layers"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/arcgis/layers"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "status": 404,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/arcgis/layers"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    },
+    {
+      "moduleId": "form-builder",
+      "moduleLabel": "Form Builder",
+      "status": 500,
+      "method": "GET",
+      "url": "http://[::1]:5173/api/policies"
+    }
+  ],
+  "finishedAt": "2026-02-04T17:05:20.937Z"
+}

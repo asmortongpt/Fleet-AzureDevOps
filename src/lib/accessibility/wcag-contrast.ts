@@ -126,9 +126,8 @@ export function findCompliantColor(
   if (!rgb) return foreground;
 
   const targetRatio = WCAG_REQUIREMENTS[`${level}-${textSize}`].ratio;
-  const bgLuminance = getLuminance(
-    ...Object.values(hexToRgb(background) || { r: 0, g: 0, b: 0 })
-  );
+  const bgRgb = hexToRgb(background) || { r: 0, g: 0, b: 0 };
+  const bgLuminance = getLuminance(bgRgb.r, bgRgb.g, bgRgb.b);
 
   // Try darkening or lightening the color
   for (let factor = 0.9; factor > 0; factor -= 0.1) {

@@ -12,16 +12,8 @@
  * - Group and location filtering
  */
 
-import {
-  Funnel,
-  X,
-  Truck,
-  Engine,
-  Wrench,
-  CheckCircle,
-  Calendar
-} from '@phosphor-icons/react'
 import React, { useState } from 'react'
+import { Truck, Settings, Wrench, Filter, CheckCircle, Calendar, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 
@@ -62,9 +54,9 @@ export interface FilterState {
 // Filter options derived from type definitions
 const assetCategories: { value: AssetCategory; label: string; icon: typeof Truck }[] = [
   { value: 'PASSENGER_VEHICLE', label: 'Passenger Vehicle', icon: Truck },
-  { value: 'HEAVY_EQUIPMENT', label: 'Heavy Equipment', icon: Engine },
+  { value: 'HEAVY_EQUIPMENT', label: 'Heavy Equipment', icon: Settings },
   { value: 'TRAILER', label: 'Trailer', icon: Truck },
-  { value: 'TRACTOR', label: 'Tractor', icon: Engine },
+  { value: 'TRACTOR', label: 'Tractor', icon: Settings },
   { value: 'SPECIALTY_EQUIPMENT', label: 'Specialty Equipment', icon: Wrench },
   { value: 'NON_POWERED', label: 'Non-Powered Asset', icon: Truck }
 ]
@@ -136,7 +128,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
       {/* Filter Header */}
       <div className="flex items-center justify-between p-2 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <Funnel className="w-3 h-3 text-slate-700" />
+          <Filter className="w-3 h-3 text-slate-700" />
           <h3 className="font-semibold text-gray-900">Asset Filters</h3>
           {activeFilterCount > 0 && (
             <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
@@ -159,9 +151,9 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
             variant="ghost"
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-400 hover:text-slate-700 transition-colors"
+            className="text-gray-600 hover:text-slate-700 transition-colors"
           >
-            {isExpanded ? <X className="w-3 h-3" /> : <Funnel className="w-3 h-3" />}
+            {isExpanded ? <X className="w-3 h-3" /> : <Filter className="w-3 h-3" />}
           </Button>
         </div>
       </div>
@@ -235,7 +227,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           {filters.asset_category && availableAssetTypes.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                <Engine className="w-4 h-4 inline mr-1" />
+                <Settings className="w-4 h-4 inline mr-1" />
                 Asset Type
               </label>
               <select
@@ -256,7 +248,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           {/* Power Type */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              <Engine className="w-4 h-4 inline mr-1" />
+              <Settings className="w-4 h-4 inline mr-1" />
               Power Type
             </label>
             <select

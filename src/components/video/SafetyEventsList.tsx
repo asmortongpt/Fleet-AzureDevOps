@@ -3,7 +3,7 @@
  * Displays video safety events with filtering, sorting, and bulk actions
  */
 
-import { AlertCircle, Play, Eye, CheckCircle, XCircle, Users, Download, Lock } from 'lucide-react';
+import { Play, Eye, CheckCircle, XCircle, Users, Download, Lock } from 'lucide-react';
 import { useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
 import { cn } from '@/lib/utils';
 
 interface SafetyEvent {
@@ -263,7 +262,7 @@ export default function SafetyEventsList({
                       />
                     ) : (
                       <div className="w-40 h-24 bg-gray-200 rounded border flex items-center justify-center">
-                        <Play className="h-8 w-8 text-gray-400" />
+                        <Play className="h-8 w-8 text-gray-700" />
                       </div>
                     )}
                   </div>

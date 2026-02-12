@@ -144,11 +144,11 @@ export function CodeViewer({ document: docMetadata }: CodeViewerProps) {
     // Comments
     highlighted = highlighted.replace(
       /(\/\/.*$)/gm,
-      '<span class="text-gray-500 dark:text-gray-400 italic">$1</span>'
+      '<span class="text-gray-700 dark:text-gray-700 italic">$1</span>'
     );
     highlighted = highlighted.replace(
       /(\/\*[\s\S]*?\*\/)/g,
-      '<span class="text-gray-500 dark:text-gray-400 italic">$1</span>'
+      '<span class="text-gray-700 dark:text-gray-700 italic">$1</span>'
     );
 
     // Numbers

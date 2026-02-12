@@ -1,8 +1,9 @@
 /**
  * IncidentFactory - Generates incident/accident records
  */
-import { BaseFactory } from './BaseFactory';
 import type { Incident, IncidentSeverity, Status, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 export class IncidentFactory extends BaseFactory {
   private readonly INCIDENT_TYPES = [

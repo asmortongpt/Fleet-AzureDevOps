@@ -89,7 +89,7 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
         <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
           <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
           <h3 className="text-base font-bold text-white mb-2">Failed to Load Vehicles</h3>
-          <p className="text-sm text-slate-400 mb-2">
+          <p className="text-sm text-slate-700 mb-2">
             {error instanceof Error ? error.message : 'An unknown error occurred'}
           </p>
           <Button onClick={handleRefresh} variant="outline" size="sm">
@@ -107,7 +107,7 @@ export const LiveFleetMap: React.FC<LiveFleetMapProps> = ({
         <div className="text-center max-w-md p-3 bg-slate-800/60 border border-slate-700/50 rounded-lg">
           <Filter className="w-12 h-9 text-slate-500 mx-auto mb-2" />
           <h3 className="text-base font-bold text-white mb-2">No Vehicles Found</h3>
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-700">
             {filterStatus || filterType
               ? 'Try adjusting your filters to see more vehicles.'
               : 'No vehicles are currently available in your fleet.'}

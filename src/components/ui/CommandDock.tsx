@@ -3,8 +3,8 @@ import {
     Truck,
     Wrench,
     Radio,
-    GasPump
-} from "@phosphor-icons/react";
+    Fuel
+} from "lucide-react";
 import React, { useState } from "react";
 
 import { cn } from "@/lib/utils";
@@ -22,7 +22,7 @@ export const CommandDock: React.FC<CommandDockProps> = ({ activePanel, onPanelSe
         { id: "team", icon: Users, label: "Team" },
         { id: "comms", icon: Radio, label: "Comms" },
         { id: "service", icon: Wrench, label: "Service" },
-        { id: "fuel", icon: GasPump, label: "Fuel" },
+        { id: "fuel", icon: Fuel, label: "Fuel" },
     ];
 
     return (
@@ -68,10 +68,9 @@ export const CommandDock: React.FC<CommandDockProps> = ({ activePanel, onPanelSe
                                 <Icon
                                     className={cn(
                                         "transition-all duration-300",
-                                        isHovered ? "w-4 h-4 text-white" : "w-4 h-4 text-slate-400",
-                                        isActive && "text-emerald-400"
+                                        isHovered ? "w-4 h-4 text-white" : "w-4 h-4 text-slate-700",
+                                        isActive && "text-emerald-700"
                                     )}
-                                    weight={isActive ? "fill" : "regular"}
                                 />
 
                                 {/* Reflection/Glass Effect */}

@@ -29,7 +29,14 @@ export interface Asset {
 }
 
 interface ApiResponse<T> {
-  data?: T;
+  data?: T | { data: T };
+  success?: boolean;
+}
+
+function unwrapData<T>(response: ApiResponse<T> | undefined): T | undefined {
+  if (!response) return undefined;
+  const d: any = response.data;
+  return (d && typeof d === 'object' && 'data' in d) ? (d.data as T) : (d as T);
 }
 
 export function useAssets() {
@@ -44,9 +51,8 @@ export function useAssets() {
     try {
       setLoading(true)
       const response: ApiResponse<Asset[]> = await apiClient.get("/api/assets")
-      if (response?.data) {
-        setAssets(response.data)
-      }
+      const rows = unwrapData(response) || []
+      setAssets(Array.isArray(rows) ? rows : [])
     } catch (error) {
       logger.error("Failed to fetch assets:", error)
       toast.error("Failed to load assets")
@@ -58,16 +64,11 @@ export function useAssets() {
   const addAsset = async (asset: Partial<Asset>) => {
     try {
       const response: ApiResponse<Asset> = await apiClient.post("/api/assets", asset)
-      if (response?.data) {
-        setAssets((prev) => {
-          const newAsset = response.data;
-          if (newAsset) {
-            return [...prev, newAsset];
-          }
-          return prev;
-        })
+      const newAsset = unwrapData(response)
+      if (newAsset) {
+        setAssets((prev) => [...prev, newAsset])
         toast.success("Asset added successfully")
-        return response.data
+        return newAsset
       }
     } catch (error) {
       logger.error("Failed to add asset:", error)
@@ -79,10 +80,11 @@ export function useAssets() {
   const updateAsset = async (id: string, updates: Partial<Asset>) => {
     try {
       const response: ApiResponse<Asset> = await apiClient.put(`/api/assets/${id}`, updates)
-      if (response?.data) {
+      const updated = unwrapData(response)
+      if (updated) {
         setAssets((prev) => prev.map((a) => (a.id === id ? { ...a, ...updates } : a)))
         toast.success("Asset updated successfully")
-        return response.data
+        return updated
       }
     } catch (error) {
       logger.error("Failed to update asset:", error)

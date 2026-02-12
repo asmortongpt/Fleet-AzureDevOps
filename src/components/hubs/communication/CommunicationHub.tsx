@@ -8,6 +8,7 @@ import {
   Megaphone
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import useSWR from "swr"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
@@ -18,75 +19,53 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuth } from "@/contexts"
+import { swrFetcher } from "@/lib/fetcher"
 import { cn } from "@/lib/utils"
-import type { Vehicle } from "@/types"
+import type { Vehicle } from "@/lib/types"
+import logger from '@/utils/logger';
 
-// Mock communication data
-const mockMessages = [
-  {
-    id: "msg-1",
-    from: "Driver 001",
-    fromLocation: { lat: 38.9072, lng: -77.0369 },
-    subject: "Route delay",
-    content: "Traffic on I-66, ETA +15 mins",
-    timestamp: "2 min ago",
-    priority: "normal",
-    status: "read",
-    type: "direct"
-  },
-  {
-    id: "msg-2",
-    from: "Dispatcher",
-    fromLocation: { lat: 38.9369, lng: -77.0899 },
-    subject: "Weather Alert",
-    content: "Heavy rain expected in zone 3",
-    timestamp: "5 min ago",
-    priority: "high",
-    status: "unread",
-    type: "broadcast"
-  },
-  {
-    id: "msg-3",
-    from: "Driver 007",
-    fromLocation: { lat: 38.8816, lng: -77.0910 },
-    subject: "Delivery confirmed",
-    content: "Package delivered successfully at Gate B",
-    timestamp: "12 min ago",
-    priority: "normal",
-    status: "read",
-    type: "direct"
-  },
-  {
-    id: "msg-4",
-    from: "Maintenance",
-    fromLocation: { lat: 38.9216, lng: -77.0147 },
-    subject: "Service reminder",
-    content: "Vehicle #45 due for inspection",
-    timestamp: "1 hour ago",
-    priority: "low",
-    status: "read",
-    type: "notification"
-  }
-] as const;
+interface CommunicationLog {
+  id: string;
+  from_user_id?: string;
+  to_user_id?: string;
+  from_address?: string;
+  to_address?: string;
+  subject?: string;
+  message_body?: string;
+  status?: string;
+  communication_type?: string;
+  sent_at?: string;
+  created_at?: string;
+  metadata?: Record<string, any>;
+}
 
-const mockChatThreads = [
-  { id: "thread-1", participant: "Fleet Supervisor", lastMessage: "Copy that, will route around", unread: 0, active: true },
-  { id: "thread-2", participant: "Driver 005", lastMessage: "On my way to pickup", unread: 2, active: true },
-  { id: "thread-3", participant: "Maintenance Team", lastMessage: "Scheduled for tomorrow", unread: 0, active: false },
-  { id: "thread-4", participant: "Dispatch Center", lastMessage: "New route assigned", unread: 1, active: true }
-] as const;
+interface ApiUser {
+  id: string;
+  first_name: string;
+  last_name: string;
+  email: string;
+}
 
-const mockBroadcastZones = [
-  { id: "zone-1", name: "Downtown", radius: 5, center: { lat: 38.9072, lng: -77.0369 }, vehicles: 12, active: true },
-  { id: "zone-2", name: "North District", radius: 8, center: { lat: 38.9369, lng: -77.0899 }, vehicles: 8, active: true },
-  { id: "zone-3", name: "South District", radius: 6, center: { lat: 38.8816, lng: -77.0910 }, vehicles: 15, active: false }
-] as const;
+interface AlertRow {
+  id: string;
+  alert_type: string;
+  description?: string;
+  severity?: string;
+  created_at?: string;
+  expires_at?: string;
+}
 
-const mockAlerts = [
-  { id: "alert-1", type: "weather", message: "Heavy rain in Zone 3", severity: "warning", activeUntil: "6:00 PM" },
-  { id: "alert-2", type: "traffic", message: "Accident on I-495", severity: "critical", activeUntil: "4:30 PM" },
-  { id: "alert-3", type: "maintenance", message: "Fleet inspection tomorrow", severity: "info", activeUntil: "Tomorrow" }
-] as const;
+interface GeofenceRow {
+  id: string;
+  name: string;
+  radius?: number;
+  centerLat?: number;
+  centerLng?: number;
+  isActive?: boolean;
+  type?: string;
+  metadata?: Record<string, any>;
+}
 
 // Types
 interface Message {
@@ -223,20 +202,20 @@ const ChatPanel = ({ threads, onThreadSelect }: { threads: ChatThread[]; onThrea
   )
 }
 
-// Broadcast Panel Component
-const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
+// Radio Panel Component
+const BroadcastPanel = ({ zones, alerts }: { zones: BroadcastZone[]; alerts: AlertRow[] }) => {
   const [selectedZone, setSelectedZone] = useState<string>("")
   const [broadcastMessage, setBroadcastMessage] = useState("")
 
   const handleBroadcast = () => {
-    console.log("Broadcasting to zone:", selectedZone, "Message:", broadcastMessage)
+    logger.info("Broadcasting to zone:", { selectedZone, message: broadcastMessage })
     setBroadcastMessage("")
   }
 
   return (
     <ScrollArea className="h-full">
       <div className="p-2 space-y-2">
-        <h3 className="font-semibold mb-3">Broadcast Control</h3>
+        <h3 className="font-semibold mb-3">Radio Control</h3>
 
         <Card className="p-2">
           <div className="space-y-3">
@@ -274,13 +253,13 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
               disabled={!selectedZone || !broadcastMessage}
             >
               <Megaphone className="h-4 w-4 mr-2" />
-              Send Broadcast
+              Send Radio
             </Button>
           </div>
         </Card>
 
         <div>
-          <h4 className="text-sm font-medium mb-2">Broadcast Zones</h4>
+          <h4 className="text-sm font-medium mb-2">Radio Zones</h4>
           <div className="space-y-2">
             {zones.map(zone => (
               <Card key={zone.id} className="p-3">
@@ -303,7 +282,7 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
         <div>
           <h4 className="text-sm font-medium mb-2">Active Alerts</h4>
           <div className="space-y-2">
-            {mockAlerts.map(alert => (
+            {alerts.map(alert => (
               <Card key={alert.id} className={cn(
                 "p-3",
                 alert.severity === 'critical' && "border-red-500 bg-red-50 dark:bg-red-950/20",
@@ -317,9 +296,9 @@ const BroadcastPanel = ({ zones }: { zones: BroadcastZone[] }) => {
                     alert.severity === 'info' && "text-blue-800"
                   )} />
                   <div className="flex-1">
-                    <div className="font-medium text-sm">{alert.message}</div>
+                    <div className="font-medium text-sm">{alert.description || alert.alert_type}</div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      Active until {alert.activeUntil}
+                      Active until {alert.expires_at ? new Date(alert.expires_at).toLocaleString() : 'N/A'}
                     </div>
                   </div>
                 </div>
@@ -408,14 +387,104 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
 
 // Main Communication Hub Component
 export function CommunicationHub() {
+  const { user } = useAuth()
   const [selectedEntity, setSelectedEntity] = useState<{ type: string; data: Message | ChatThread | null } | null>(null)
   const [activePanel, setActivePanel] = useState('messages')
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('all')
 
+  const { data: logsResponse } = useSWR<{ data: CommunicationLog[] }>(`/api/communication-logs?limit=200`, swrFetcher)
+  const { data: usersResponse } = useSWR<{ data: ApiUser[] }>(`/api/users?limit=500`, swrFetcher)
+  const { data: geofencesResponse } = useSWR<{ data: GeofenceRow[] }>(`/api/geofences?limit=200`, swrFetcher)
+  const { data: alertsResponse } = useSWR<{ alerts: AlertRow[] }>(`/api/alerts?limit=20`, swrFetcher)
+
+  const logs = logsResponse?.data || []
+  const users = usersResponse?.data || []
+  const geofences = geofencesResponse?.data || []
+  const alerts = alertsResponse?.alerts || []
+
+  const userMap = useMemo(() => {
+    return new Map(users.map((u) => [u.id, `${u.first_name} ${u.last_name}`.trim()]))
+  }, [users])
+
+  const formatTimestamp = (timestamp?: string) => {
+    if (!timestamp) return ''
+    const date = new Date(timestamp)
+    return isNaN(date.getTime()) ? '' : date.toLocaleString()
+  }
+
+  const messages: Message[] = useMemo(() => {
+    return logs.map((log) => {
+      const location = log.metadata?.location || {}
+      const lat = Number(location.lat ?? location.latitude)
+      const lng = Number(location.lng ?? location.longitude)
+      return {
+        id: log.id,
+        from: userMap.get(log.from_user_id || '') || log.from_address || 'Unknown',
+        fromLocation: {
+          lat: Number.isFinite(lat) ? lat : 0,
+          lng: Number.isFinite(lng) ? lng : 0
+        },
+        subject: log.subject || 'Message',
+        content: log.message_body || '',
+        timestamp: formatTimestamp(log.sent_at || log.created_at),
+        priority: log.metadata?.priority || 'normal',
+        status: log.status === 'read' ? 'read' : 'unread',
+        type: log.communication_type || 'direct'
+      }
+    })
+  }, [logs, userMap])
+
+  const chatThreads: ChatThread[] = useMemo(() => {
+    const threadMap = new Map<string, ChatThread & { lastTime?: string }>()
+    logs.forEach((log) => {
+      const fromId = log.from_user_id
+      const toId = log.to_user_id
+      const currentUserId = user?.id
+      const counterpartId = currentUserId && fromId === currentUserId ? toId : fromId
+      if (!counterpartId) return
+      const key = counterpartId
+      const existing = threadMap.get(key)
+      const lastMessage = log.message_body || log.subject || ''
+      const timestamp = log.sent_at || log.created_at || ''
+      const unread = log.status === 'unread' && log.to_user_id === currentUserId ? 1 : 0
+
+      if (!existing || (timestamp && existing.lastTime && new Date(timestamp) > new Date(existing.lastTime))) {
+        threadMap.set(key, {
+          id: key,
+          participant: userMap.get(key) || log.from_address || 'Unknown',
+          lastMessage,
+          unread: (existing?.unread || 0) + unread,
+          active: true,
+          lastTime: timestamp
+        })
+      } else if (existing) {
+        existing.unread += unread
+        threadMap.set(key, existing)
+      }
+    })
+    return Array.from(threadMap.values()).map(({ lastTime, ...thread }) => thread)
+  }, [logs, user?.id, userMap])
+
+  const broadcastZones: BroadcastZone[] = useMemo(() => {
+    return geofences
+      .filter((zone) => zone.type === 'broadcast')
+      .map((zone) => ({
+        id: zone.id,
+        name: zone.name,
+        radius: zone.radius ? Number(zone.radius) / 1609.34 : 0,
+        center: {
+          lat: Number(zone.centerLat) || 0,
+          lng: Number(zone.centerLng) || 0
+        },
+        vehicles: Number(zone.metadata?.vehicles || 0),
+        active: zone.isActive ?? true
+      }))
+  }, [geofences])
+
   // Convert messages to map markers
   const messageMarkers = useMemo(() => {
-    return mockMessages
+    return messages
       .filter(msg => {
         const matchesSearch = !searchQuery ||
           msg.from.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -433,11 +502,11 @@ export function CommunicationHub() {
         location: msg.fromLocation,
         fuelLevel: msg.priority === 'high' ? 100 : msg.priority === 'low' ? 30 : 60
       }))
-  }, [searchQuery, priorityFilter])
+  }, [messages, searchQuery, priorityFilter])
 
   // Convert broadcast zones to map markers
   const zoneMarkers = useMemo(() => {
-    return mockBroadcastZones.map(zone => ({
+    return broadcastZones.map(zone => ({
       id: zone.id,
       name: zone.name,
       location: zone.center,
@@ -447,14 +516,14 @@ export function CommunicationHub() {
       category: 'zone',
       status: zone.active ? 'active' : 'inactive'
     } as unknown as GISFacility))
-  }, [])
+  }, [broadcastZones])
 
   const handleMessageSelect = useCallback((messageId: string) => {
-    const message = mockMessages.find(m => m.id === messageId);
+    const message = messages.find(m => m.id === messageId);
     if (message) {
       setSelectedEntity({ type: 'message', data: message });
     }
-  }, []);
+  }, [messages]);
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -467,7 +536,7 @@ export function CommunicationHub() {
             <TabsList className="grid grid-cols-3 m-2">
               <TabsTrigger value="messages">Messages</TabsTrigger>
               <TabsTrigger value="chats">Chats</TabsTrigger>
-              <TabsTrigger value="broadcast">Broadcast</TabsTrigger>
+              <TabsTrigger value="broadcast">Radio</TabsTrigger>
             </TabsList>
             <TabsContent value="messages" className="h-[calc(100%-60px)]">
               <div className="flex h-full">
@@ -491,7 +560,7 @@ export function CommunicationHub() {
                     </Select>
                   </div>
                   <MessagePanel 
-                    messages={mockMessages as unknown as Message[]} 
+                    messages={messages as unknown as Message[]} 
                     onMessageSelect={(msg) => handleMessageSelect(msg.id)} 
                   />
                 </div>
@@ -504,7 +573,7 @@ export function CommunicationHub() {
               <div className="flex h-full">
                 <div className="w-1/3 border-r">
                   <ChatPanel 
-                    threads={mockChatThreads as unknown as ChatThread[]} 
+                    threads={chatThreads as unknown as ChatThread[]} 
                     onThreadSelect={(thread) => setSelectedEntity({ type: 'chat', data: thread })} 
                   />
                 </div>
@@ -516,14 +585,14 @@ export function CommunicationHub() {
               </div>
             </TabsContent>
             <TabsContent value="broadcast" className="h-[calc(100%-60px)]">
-              <BroadcastPanel zones={mockBroadcastZones as unknown as BroadcastZone[]} />
+              <BroadcastPanel zones={broadcastZones as unknown as BroadcastZone[]} alerts={alerts} />
             </TabsContent>
           </Tabs>
         </div>
       </div>
       <div className="w-1/3 border-l">
         <ProfessionalFleetMap
-          vehicles={messageMarkers as unknown as Vehicle[]}
+          vehicles={messageMarkers as Vehicle[]}
           facilities={zoneMarkers}
         />
       </div>

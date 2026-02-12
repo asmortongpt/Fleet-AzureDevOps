@@ -1,10 +1,10 @@
 import {
     Phone,
-    EnvelopeSimple,
-    MagnifyingGlass,
+    Mail,
+    Search,
     User,
     Plus
-} from "@phosphor-icons/react";
+} from "lucide-react";
 import React, { useState } from "react";
 
 import { Badge } from "../../ui/badge";
@@ -90,7 +90,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                         </div>
 
                         <div className="relative">
-                            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                             <Input
                                 placeholder={`Search ${activeTab}...`}
                                 value={searchQuery}
@@ -128,7 +128,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                                 <Badge variant="outline" className="h-5 px-1.5">
                                                     {driver.licenseType || 'N/A'}
                                                 </Badge>
-                                                <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-gray-500'
+                                                <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-gray-700'
                                                     }`}>
                                                     • {driver.status}
                                                 </span>
@@ -153,7 +153,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                             onClick={() => window.location.href = `mailto:${driver.email}`}
                                             title="Email"
                                         >
-                                            <EnvelopeSimple className="w-4 h-4" />
+                                            <Mail className="w-4 h-4" />
                                         </Button>
                                     </div>
                                 </div>
@@ -193,7 +193,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                         onClick={() => window.location.href = `mailto:${member.email}`}
                                         title="Email"
                                     >
-                                        <EnvelopeSimple className="w-4 h-4" />
+                                        <Mail className="w-4 h-4" />
                                     </Button>
                                 </div>
                             </div>

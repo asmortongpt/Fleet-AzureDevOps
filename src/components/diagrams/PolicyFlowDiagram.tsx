@@ -1,17 +1,18 @@
 import {
   Play,
   Pause,
-  ArrowsClockwise,
+  RefreshCw,
   Info,
   CheckCircle,
   Clock
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import mermaid from "mermaid"
 import { useEffect, useRef, useState } from "react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import logger from '@/utils/logger';
 
 interface PolicyFlowNode {
   id: string
@@ -151,7 +152,7 @@ flowchart TB
       mermaid.run({
         nodes: mermaidRef.current.querySelectorAll(".mermaid")
       }).catch(error => {
-        console.error("Mermaid rendering error:", error)
+        logger.error("Mermaid rendering error:", error)
       })
     }
   }, [flowMode])
@@ -251,7 +252,7 @@ flowchart TB
                 size="sm"
                 onClick={() => window.location.reload()}
               >
-                <ArrowsClockwise className="w-4 h-4" />
+                <RefreshCw className="w-4 h-4" />
               </Button>
             </div>
           </div>

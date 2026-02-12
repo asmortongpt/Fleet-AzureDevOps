@@ -1,7 +1,8 @@
 import { Router } from "express";
+
 import { AssetComponentsRepository } from "../repositories/asset-components.repository";
-import { validateComponent } from "../services/accounting/validation";
 import { assertNotAffectingClosedPeriods } from "../services/accounting/period-lock";
+import { validateComponent } from "../services/accounting/validation";
 
 export const componentsRouter = Router();
 

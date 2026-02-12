@@ -1,6 +1,7 @@
 import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel, Video, Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import useSWR from 'swr';
 
 import { MapFirstLayout } from '../layout/MapFirstLayout';
 import { ProfessionalFleetMap } from '../map/ProfessionalFleetMap';
@@ -33,6 +34,61 @@ interface LiveFleetDashboardProps {
 
 // ... existing imports
 
+const geofenceFetcher = (url: string) =>
+  fetch(url, { credentials: 'include' }).then((res) => res.json());
+
+const normalizeGeofence = (row: any): Geofence => {
+  const metadata = row?.metadata && typeof row.metadata === 'object'
+    ? row.metadata
+    : row?.metadata
+      ? (() => {
+          try {
+            return JSON.parse(row.metadata);
+          } catch {
+            return {};
+          }
+        })()
+      : {};
+
+  const centerLat = row.centerLat ?? row.center_lat ?? row.center_latitude;
+  const centerLng = row.centerLng ?? row.center_lng ?? row.center_longitude;
+  const polygon = row.polygon ?? row.polygon_coordinates ?? metadata?.polygon;
+
+  const triggers = metadata.triggers || {
+    onEnter: row.notifyOnEntry ?? row.notify_on_entry ?? false,
+    onExit: row.notifyOnExit ?? row.notify_on_exit ?? false,
+    onDwell: metadata?.onDwell ?? false,
+    dwellTimeMinutes: metadata?.dwellTimeMinutes
+  };
+
+  return {
+    id: row.id,
+    tenantId: row.tenant_id,
+    name: row.name,
+    description: row.description || '',
+    type: row.type || row.geofence_type || 'circle',
+    center: centerLat != null && centerLng != null
+      ? { lat: Number(centerLat), lng: Number(centerLng) }
+      : undefined,
+    radius: row.radius != null ? Number(row.radius) : row.radius_meters != null ? Number(row.radius_meters) : undefined,
+    coordinates: Array.isArray(polygon) ? polygon : polygon?.coordinates,
+    color: row.color || '#3B82F6',
+    active: row.isActive ?? row.is_active ?? true,
+    triggers: {
+      onEnter: !!triggers.onEnter,
+      onExit: !!triggers.onExit,
+      onDwell: !!triggers.onDwell,
+      dwellTimeMinutes: triggers.dwellTimeMinutes
+    },
+    notifyUsers: metadata.notifyUsers || [],
+    notifyRoles: metadata.notifyRoles || [],
+    alertPriority: metadata.alertPriority || 'medium',
+    createdBy: metadata.createdBy || 'system',
+    createdAt: row.createdAt || row.created_at || new Date().toISOString(),
+    lastModified: row.updatedAt || row.updated_at || new Date().toISOString()
+  };
+};
+
 export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
 
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useVehicles();
@@ -49,7 +105,44 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       const driversArray = Array.isArray(driversData)
         ? driversData
         : ((driversData as any)?.data || []);
-      setDrivers(driversArray as unknown as Driver[]);
+      const normalized = driversArray.map((row: any) => {
+        const metadata = row?.metadata && typeof row.metadata === 'object'
+          ? row.metadata
+          : row?.metadata
+            ? (() => {
+                try {
+                  return JSON.parse(row.metadata);
+                } catch {
+                  return {};
+                }
+              })()
+            : {};
+        const status =
+          row.status === 'inactive'
+            ? 'off-duty'
+            : row.status === 'on_leave'
+              ? 'on-leave'
+              : row.status === 'suspended'
+                ? 'suspended'
+                : 'active';
+        return {
+          id: row.id,
+          tenantId: row.tenant_id,
+          employeeId: row.employee_number || '',
+          name: row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim() || row.email,
+          firstName: row.first_name,
+          lastName: row.last_name,
+          email: row.email,
+          phone: row.phone,
+          department: metadata.department || '',
+          licenseType: row.cdl ? 'CDL' : 'Standard',
+          licenseExpiry: row.license_expiry_date,
+          safetyScore: row.performance_score ? Number(row.performance_score) : 100,
+          certifications: metadata.certifications || [],
+          status
+        } as Driver;
+      });
+      setDrivers(normalized);
     }
   }, [driversData]);
 
@@ -62,31 +155,25 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     source: "all"
   });
   const [selectedCameraId, setSelectedCameraId] = useState<string>();
+  const { data: trafficCamerasResponse } = useSWR(showTrafficCameras ? '/api/traffic-cameras' : null, geofenceFetcher);
+  const trafficCameraRows = Array.isArray(trafficCamerasResponse)
+    ? trafficCamerasResponse
+    : (trafficCamerasResponse?.data || []);
+  const trafficCameraCount = trafficCameraRows.length;
 
   // -- Geofence State --
   const [showGeofences, setShowGeofences] = useState(false);
   const [selectedGeofenceForIntelligence, setSelectedGeofenceForIntelligence] = useState<Geofence | null>(null);
-  const [geofences, setGeofences] = useState<Geofence[]>([
-    // Pre-seed with a demo geofence so users see something immediately
-    {
-      id: 'demo-1',
-      tenantId: 'demo',
-      name: 'Main HQ',
-      description: 'Headquarters geofence',
-      type: 'circle',
-      active: true,
-      color: '#3B82F6',
-      center: { lat: 30.4383, lng: -84.2807 }, // Tallahassee
-      radius: 1000,
-      triggers: { onEnter: true, onExit: true, onDwell: false },
-      notifyUsers: [],
-      notifyRoles: [],
-      alertPriority: 'medium',
-      createdBy: 'system',
-      createdAt: new Date().toISOString(),
-      lastModified: new Date().toISOString()
-    }
-  ]);
+  const [geofences, setGeofences] = useState<Geofence[]>([]);
+  const { data: geofencesResponse } = useSWR(showGeofences ? '/api/geofences' : null, geofenceFetcher);
+
+  useEffect(() => {
+    if (!geofencesResponse) return;
+    const rows = Array.isArray(geofencesResponse)
+      ? geofencesResponse
+      : (geofencesResponse?.data || []);
+    setGeofences(rows.map(normalizeGeofence));
+  }, [geofencesResponse]);
 
   // -- Driver State --
   const [showDrivers, setShowDrivers] = useState(false);
@@ -115,13 +202,6 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   // Timeout fallback - removed to comply with "no mock data" policy
   useEffect(() => {
-    // Check for test data injection first
-    if (typeof window !== 'undefined' && (window as any).__TEST_DATA__?.vehicles) {
-      setVehicles((window as any).__TEST_DATA__.vehicles);
-      setIsLoading(false);
-      return;
-    }
-
     const timeoutId = setTimeout(() => {
       if (isLoading && vehicles.length === 0) {
         logger.warn('[LiveFleetDashboard] API timeout - checked for data');
@@ -134,11 +214,6 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   // Handle API data updates
   useEffect(() => {
-    // Check for test data injection first (priority)
-    if (typeof window !== 'undefined' && (window as any).__TEST_DATA__?.vehicles) {
-      return; // Skip API updates if test data is present
-    }
-
     if (!apiLoading) {
       if (apiError) {
         logger.error('[LiveFleetDashboard] API error:', apiError);
@@ -154,7 +229,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         }
 
         if (vehicleArray.length > 0) {
-          logger.info('[LiveFleetDashboard] API data loaded successfully:', vehicleArray.length, 'vehicles');
+          logger.info(`[LiveFleetDashboard] API data loaded successfully: ${vehicleArray.length} vehicles`);
           setVehicles(vehicleArray);
           setIsLoading(false);
         } else {
@@ -207,27 +282,27 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     <div className="space-y-2">
       <div>
         <h2 className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1">Real-time vehicle monitoring</p>
+        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-700 mt-1">Real-time vehicle monitoring</p>
       </div>
 
       {/* Quick Stats - Responsive Grid */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
-            <div className="text-base sm:text-sm font-bold text-emerald-600 dark:text-emerald-400">{activeCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Active</div>
+            <div className="text-base sm:text-sm font-bold text-emerald-600 dark:text-emerald-700">{activeCount}</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Active</div>
           </CardContent>
         </Card>
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-amber-600 dark:text-amber-400">{maintenanceCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Maint.</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Maint.</div>
           </CardContent>
         </Card>
         <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">{totalVehicles}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wide">Total</div>
+            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Total</div>
           </CardContent>
         </Card>
       </div>
@@ -248,7 +323,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           <CardContent className="space-y-3 pt-3">
             <div className="flex items-center text-sm">
               <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
-                <Truck className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                <Truck className="h-4 w-4 text-slate-500 dark:text-slate-700" />
               </div>
               <span className="font-medium text-slate-700 dark:text-slate-200">
                 {selectedVehicle.name ||
@@ -258,7 +333,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             </div>
             <div className="flex items-center text-sm">
               <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
-                <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-400" />
+                <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-700" />
               </div>
               <span className="font-mono text-slate-600 dark:text-slate-300">
                 {Number(selectedVehicle.location?.lat ?? selectedVehicle.latitude ?? 0).toFixed(4)},
@@ -335,7 +410,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           ))}
         </div>
         {/* Desktop: Original design */}
-        <div className="hidden md:block space-y-2 max-h-64 overflow-y-auto">
+        <div className="hidden md:block space-y-2 max-h-64 overflow-y-auto" tabIndex={0} role="region" aria-label="Fleet vehicle list">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <div
               key={vehicle.id}
@@ -486,7 +561,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             label: 'Traffic Cameras',
             icon: <Video className="w-4 h-4" />,
             active: showTrafficCameras,
-            count: 12, // Demo count
+            count: trafficCameraCount,
             onToggle: setShowTrafficCameras
           },
           {

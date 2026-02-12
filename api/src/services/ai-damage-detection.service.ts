@@ -14,6 +14,7 @@
  */
 
 import { Pool } from 'pg';
+
 import logger from '../config/logger';
 import {
   getDamageDetectionModel,

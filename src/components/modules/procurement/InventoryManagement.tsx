@@ -19,20 +19,20 @@
 
 import {
   Plus,
-  MagnifyingGlass,
+  Search,
   Package,
-  TrendUp,
-  TrendDown,
-  Warning,
+  TrendingUp,
+  TrendingDown,
+  AlertTriangle,
   Barcode,
-  DownloadSimple,
-  DotsThreeVertical,
-  PencilSimple,
-  Trash,
+  Download,
+  MoreVertical,
+  Pencil,
+  Trash2,
   ShoppingCart,
-  ArrowsClockwise,
-  FunnelSimple
-} from "@phosphor-icons/react"
+  RefreshCw,
+  Filter
+} from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
 import { toast } from "sonner"
 
@@ -385,7 +385,7 @@ export function InventoryManagement() {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
-          <ArrowsClockwise className="w-4 h-4 animate-spin mx-auto mb-2" />
+          <RefreshCw className="w-4 h-4 animate-spin mx-auto mb-2" />
           <p className="text-muted-foreground">Loading permissions...</p>
         </div>
       </div>
@@ -424,7 +424,7 @@ export function InventoryManagement() {
             Scan Barcode
           </Button>
           <Button variant="outline" onClick={handleExport}>
-            <DownloadSimple className="w-4 h-4 mr-2" />
+            <Download className="w-4 h-4 mr-2" />
             Export
           </Button>
           <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -609,7 +609,7 @@ export function InventoryManagement() {
           <CardContent>
             <div className="text-sm font-bold">${metrics.totalValue.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 mt-1">
-              <TrendUp className="w-3 h-3" />
+              <TrendingUp className="w-3 h-3" />
               Asset value
             </div>
           </CardContent>
@@ -622,7 +622,7 @@ export function InventoryManagement() {
           <CardContent>
             <div className="text-sm font-bold text-yellow-600 dark:text-yellow-400">{metrics.lowStock}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               Below reorder
             </div>
           </CardContent>
@@ -635,7 +635,7 @@ export function InventoryManagement() {
           <CardContent>
             <div className="text-sm font-bold text-red-600 dark:text-red-400">{metrics.outOfStock}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <TrendDown className="w-3 h-3" />
+              <TrendingDown className="w-3 h-3" />
               Critical
             </div>
           </CardContent>
@@ -646,9 +646,9 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Overstocked</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800 dark:text-blue-400">{metrics.overstocked}</div>
+            <div className="text-sm font-bold text-blue-800 dark:text-blue-700">{metrics.overstocked}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <TrendUp className="w-3 h-3" />
+              <TrendingUp className="w-3 h-3" />
               Over max
             </div>
           </CardContent>
@@ -671,7 +671,7 @@ export function InventoryManagement() {
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px]">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search parts..."
             value={filters.searchTerm}
@@ -720,7 +720,7 @@ export function InventoryManagement() {
           onValueChange={value => setFilters({ ...filters, sortBy: value as InventoryFilters["sortBy"] })}
         >
           <SelectTrigger className="w-[180px]">
-            <FunnelSimple className="w-4 h-4 mr-2" />
+            <Filter className="w-4 h-4 mr-2" />
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -739,7 +739,7 @@ export function InventoryManagement() {
           })}
           title={`Sort ${filters.sortOrder === "asc" ? "Descending" : "Ascending"}`}
         >
-          <ArrowsClockwise className={`w-4 h-4 transition-transform ${filters.sortOrder === "desc" ? "rotate-180" : ""}`} />
+          <RefreshCw className={`w-4 h-4 transition-transform ${filters.sortOrder === "desc" ? "rotate-180" : ""}`} />
         </Button>
       </div>
 
@@ -752,7 +752,7 @@ export function InventoryManagement() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <ArrowsClockwise className="w-4 h-4 animate-spin text-muted-foreground" />
+              <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
             </div>
           ) : (
             <Table>
@@ -818,7 +818,7 @@ export function InventoryManagement() {
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" size="sm">
-                                <DotsThreeVertical className="w-4 h-4" />
+                                <MoreVertical className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -830,7 +830,7 @@ export function InventoryManagement() {
                                   setIsEditDialogOpen(true)
                                 }}
                               >
-                                <PencilSimple className="w-4 h-4 mr-2" />
+                                <Pencil className="w-4 h-4 mr-2" />
                                 Edit
                               </DropdownMenuItem>
                               <DropdownMenuItem
@@ -847,7 +847,7 @@ export function InventoryManagement() {
                                 onClick={() => handleDeletePart(part.id)}
                                 className="text-red-600 dark:text-red-400"
                               >
-                                <Trash className="w-4 h-4 mr-2" />
+                                <Trash2 className="w-4 h-4 mr-2" />
                                 Delete
                               </DropdownMenuItem>
                             </DropdownMenuContent>

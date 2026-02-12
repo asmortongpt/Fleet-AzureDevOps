@@ -18,16 +18,16 @@ import {
 import { useState } from 'react'
 import useSWR from 'swr'
 
+import type { PreventiveMaintenanceSchedule, ServiceHistoryRecord } from './types'
+
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { DrilldownCard, DrilldownCardGrid } from '@/components/drilldown/DrilldownCard'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-import type { PreventiveMaintenanceSchedule, ServiceHistoryRecord } from './types'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 

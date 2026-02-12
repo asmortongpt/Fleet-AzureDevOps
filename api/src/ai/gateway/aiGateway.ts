@@ -1,9 +1,11 @@
+import { getCache, setCache } from "../cag/cache";
 import { AI_CONFIG } from "../config";
-import { redactPII } from "./redaction";
+import { runRagPipeline } from "../rag/ragPipeline";
+
 import { auditLog } from "./audit";
 import { enforceAIPolicy, UserContext } from "./policy";
-import { runRagPipeline } from "../rag/ragPipeline";
-import { getCache, setCache } from "../cag/cache";
+import { redactPII } from "./redaction";
+
 
 export async function chatWithAI(params: {
   user: UserContext;

@@ -14,8 +14,8 @@ import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { MapFirstLayout } from "@/components/layout/MapFirstLayout"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Section } from "@/components/ui/section"
 import {
   Select,
   SelectContent,
@@ -82,11 +82,11 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
       case "active":
         return <Activity className="h-3 w-3 text-green-500" />
       case "off-duty":
-        return <Clock className="h-3 w-3 text-gray-500" />
+        return <Clock className="h-3 w-3 text-gray-700" />
       case "on-leave":
         return <Moon className="h-3 w-3 text-blue-800" />
       default:
-        return <User className="h-3 w-3 text-gray-500" />
+        return <User className="h-3 w-3 text-gray-700" />
     }
   }
 
@@ -179,19 +179,16 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
 
       {/* Selected Driver Details */}
       {selectedDriver ? (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-sm">{selectedDriver.name}</CardTitle>
-                <p className="text-sm text-muted-foreground">{selectedDriver.employeeId}</p>
-              </div>
-              <Badge variant={getStatusBadgeVariant(selectedDriver.status)}>
-                {selectedDriver.status}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <Section
+          title={selectedDriver.name}
+          description={selectedDriver.employeeId}
+          actions={
+            <Badge variant={getStatusBadgeVariant(selectedDriver.status)}>
+              {selectedDriver.status}
+            </Badge>
+          }
+        >
+          <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <div className="text-xs text-muted-foreground">Department</div>
@@ -251,59 +248,55 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
                 Call {selectedDriver.phone}
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </Section>
       ) : (
-        <Card>
-          <CardContent className="p-3 text-center text-muted-foreground">
+        <Section title="Driver Details" description="Select a driver to view details">
+          <div className="p-3 text-center text-muted-foreground">
             <User className="h-9 w-12 mx-auto mb-2 opacity-50" />
             <p>Select a driver to view details</p>
-          </CardContent>
-        </Card>
+          </div>
+        </Section>
       )}
 
       {/* Driver List */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium">
-            All Drivers ({filteredDrivers.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-[400px]">
-            <div className="space-y-1 p-3">
-              {filteredDrivers.map(driver => (
-                <div
-                  key={driver.id}
-                  className={cn(
-                    "p-2 rounded-lg cursor-pointer transition-colors hover:bg-accent",
-                    selectedDriver?.id === driver.id && "bg-accent"
-                  )}
-                  onClick={() => handleDriverSelect(driver)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(driver.status)}
-                      <div>
-                        <div className="text-sm font-medium">{driver.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {driver.department}
-                        </div>
+      <Section
+        title={`All Drivers (${filteredDrivers.length})`}
+        contentClassName="p-0"
+      >
+        <ScrollArea className="h-[400px]">
+          <div className="space-y-1 p-3">
+            {filteredDrivers.map(driver => (
+              <div
+                key={driver.id}
+                className={cn(
+                  "p-2 rounded-lg cursor-pointer transition-colors hover:bg-accent",
+                  selectedDriver?.id === driver.id && "bg-accent"
+                )}
+                onClick={() => handleDriverSelect(driver)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {getStatusIcon(driver.status)}
+                    <div>
+                      <div className="text-sm font-medium">{driver.name}</div>
+                      <div className="text-xs text-muted-foreground">
+                        {driver.department}
                       </div>
-                    </div>
-                    <div className="text-right">
-                      <div className={cn("text-sm font-semibold", getSafetyScoreColor(driver.safetyScore))}>
-                        {driver.safetyScore}
-                      </div>
-                      <div className="text-xs text-muted-foreground">Score</div>
                     </div>
                   </div>
+                  <div className="text-right">
+                    <div className={cn("text-sm font-semibold", getSafetyScoreColor(driver.safetyScore))}>
+                      {driver.safetyScore}
+                    </div>
+                    <div className="text-xs text-muted-foreground">Score</div>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </CardContent>
-      </Card>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+      </Section>
     </div>
   )
 

@@ -55,7 +55,7 @@ export class FleetAPI {
     // Initialize database connection
     this.pool = new Pool({
       connectionString: process.env.DATABASE_URL,
-      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+      ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: true, ca: process.env.DB_SSL_CA } : (process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : false),
       max: 20,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 2000,
@@ -103,9 +103,35 @@ export class FleetAPI {
     }));
 
     // CORS
+    const corsOrigin = process.env.CORS_ORIGIN;
+    const allowedOrigins = corsOrigin
+      ? corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean)
+      : [];
+
+    const defaultDevOrigins = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173',
+      'http://localhost:4173',
+      'http://127.0.0.1:4173',
+    ];
+
+    const isDevelopment = process.env.NODE_ENV !== 'production';
+    const allowlist = [...allowedOrigins, ...(isDevelopment ? defaultDevOrigins : [])];
+
+    if (!isDevelopment && allowlist.length === 0) {
+      throw new Error('CORS_ORIGIN must be set in production to at least one allowed origin (no wildcard allowed when credentials=true)');
+    }
+
+    logger.info('[CORS] Allowlist configured', { allowlist, isDevelopment });
+
     this.app.use(cors({
-      origin: process.env.CORS_ORIGIN || '*',
-      credentials: true,
+      origin: (origin, callback) => {
+        // Allow same-origin or non-browser requests with no Origin header
+        if (!origin) return callback(null, true);
+        if (allowlist.includes(origin)) return callback(null, true);
+        return callback(new Error(`CORS: Origin ${origin} not allowed`), false);
+      },
+      credentials: true, // requires explicit allowlist (no wildcard)
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID']
     }));

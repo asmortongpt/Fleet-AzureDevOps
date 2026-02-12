@@ -41,6 +41,99 @@ interface TelemetryRequest extends Request {
 }
 
 /**
+ * JWT Error Types
+ */
+interface JWTError extends Error {
+  name: 'JsonWebTokenError' | 'TokenExpiredError' | 'NotBeforeError'
+}
+
+/**
+ * Check if error is a JWT error
+ */
+function isJWTError(err: Error): err is JWTError {
+  return (
+    err.name === 'JsonWebTokenError' ||
+    err.name === 'TokenExpiredError' ||
+    err.name === 'NotBeforeError'
+  )
+}
+
+/**
+ * Map JWT error to user-friendly response
+ */
+function mapJWTError(err: JWTError): { statusCode: number; errorCode: string; message: string } {
+  switch (err.name) {
+    case 'TokenExpiredError':
+      return {
+        statusCode: 401,
+        errorCode: 'TOKEN_EXPIRED',
+        message: 'Your session has expired. Please log in again.'
+      }
+    case 'NotBeforeError':
+      return {
+        statusCode: 401,
+        errorCode: 'TOKEN_NOT_ACTIVE',
+        message: 'Token is not yet valid. Check your system clock.'
+      }
+    case 'JsonWebTokenError':
+      // Check specific JWT error messages
+      if (err.message.includes('invalid signature')) {
+        return {
+          statusCode: 401,
+          errorCode: 'INVALID_SIGNATURE',
+          message: 'Token signature verification failed.'
+        }
+      }
+      if (err.message.includes('invalid token')) {
+        return {
+          statusCode: 401,
+          errorCode: 'INVALID_TOKEN',
+          message: 'Token is malformed or invalid.'
+        }
+      }
+      if (err.message.includes('jwt malformed')) {
+        return {
+          statusCode: 401,
+          errorCode: 'MALFORMED_TOKEN',
+          message: 'Token format is invalid.'
+        }
+      }
+      if (err.message.includes('invalid algorithm')) {
+        return {
+          statusCode: 401,
+          errorCode: 'INVALID_ALGORITHM',
+          message: 'Token uses an unsupported algorithm.'
+        }
+      }
+      if (err.message.includes('invalid audience')) {
+        return {
+          statusCode: 401,
+          errorCode: 'INVALID_AUDIENCE',
+          message: 'Token is not intended for this application.'
+        }
+      }
+      if (err.message.includes('invalid issuer')) {
+        return {
+          statusCode: 401,
+          errorCode: 'INVALID_ISSUER',
+          message: 'Token issuer is not trusted.'
+        }
+      }
+      return {
+        statusCode: 401,
+        errorCode: 'INVALID_TOKEN',
+        message: 'Token validation failed.'
+      }
+    default:
+      return {
+        statusCode: 401,
+        errorCode: 'AUTH_ERROR',
+        message: 'Authentication failed.'
+      }
+  }
+}
+
+/**
  * Global error handler middleware
  * Must be registered LAST in the middleware chain
  */
@@ -52,6 +145,38 @@ export function errorHandler(
 ): void {
   // Get correlation ID for tracing
   const correlationId = req.telemetry?.correlationId || 'unknown';
+
+  // Handle JWT errors specifically
+  if (isJWTError(err)) {
+    const jwtError = mapJWTError(err)
+
+    console.warn('JWT authentication error', {
+      correlationId,
+      errorCode: jwtError.errorCode,
+      errorName: err.name,
+      message: sanitizeForLog(err.message),
+      path: req.path,
+      method: req.method
+    })
+
+    // Track JWT error in Application Insights
+    telemetryService.trackError(err, {
+      correlationId,
+      errorType: 'JWTError',
+      errorCode: jwtError.errorCode,
+      statusCode: jwtError.statusCode,
+      method: req.method,
+      path: req.path
+    })
+
+    res.status(jwtError.statusCode).json({
+      error: jwtError.message,
+      errorCode: jwtError.errorCode,
+      correlationId,
+      details: process.env.NODE_ENV === 'development' ? err.message : undefined
+    })
+    return
+  }
 
   // Handle ApplicationError (custom errors with proper status codes)
   if (isApplicationError(err)) {

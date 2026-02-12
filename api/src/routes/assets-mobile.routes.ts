@@ -16,9 +16,13 @@ import { z } from 'zod'
 import logger from '../config/logger' // Wave 33: Add Winston logger (FINAL WAVE!)
 import { pool } from '../db'
 import { csrfProtection } from '../middleware/csrf'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 const upload = multer({ storage: multer.memoryStorage() })
 
 // Schema for checkout/checkin request validation

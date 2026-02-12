@@ -19,6 +19,8 @@ export const TYPES = {
   FacilityController: Symbol.for("FacilityController"),
   FacilityRepository: Symbol.for("FacilityRepository"),
   FacilityService: Symbol.for("FacilityService"),
+  FuelCardReconciliationService: Symbol.for("FuelCardReconciliationService"),
+  FuelCardService: Symbol.for("FuelCardService"),
   FuelTransactionService: Symbol.for("FuelTransactionService"),
   IncidentController: Symbol.for("IncidentController"),
   IncidentRepository: Symbol.for("IncidentRepository"),
@@ -28,6 +30,7 @@ export const TYPES = {
   InspectionService: Symbol.for("InspectionService"),
   MaintenanceController: Symbol.for("MaintenanceController"),
   MaintenanceRepository: Symbol.for("MaintenanceRepository"),
+  MaintenanceScheduleRepository: Symbol.for("MaintenanceScheduleRepository"),
   MaintenanceService: Symbol.for("MaintenanceService"),
   PermissionsRepository: Symbol.for("PermissionsRepository"),
   PersonalUsePoliciesRepository: Symbol.for("PersonalUsePoliciesRepository"),
@@ -39,6 +42,8 @@ export const TYPES = {
   VehiclesRepository: Symbol.for("VehiclesRepository"),
   VehiclesService: Symbol.for("VehiclesService"),
   WorkOrderController: Symbol.for("WorkOrderController"),
+  WorkOrderLaborRepository: Symbol.for("WorkOrderLaborRepository"),
+  WorkOrderPartsRepository: Symbol.for("WorkOrderPartsRepository"),
   WorkOrderRepository: Symbol.for("WorkOrderRepository"),
   WorkOrderService: Symbol.for("WorkOrderService")
 };

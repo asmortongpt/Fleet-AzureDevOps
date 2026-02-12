@@ -1,10 +1,4 @@
-import {
-  Wrench,
-  MapPin,
-  Clock,
-  CheckCircle,
-  Warning
-} from '@phosphor-icons/react';
+import { Wrench, MapPin, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { useMemo, useState } from 'react';
 
@@ -58,91 +52,9 @@ export function MaintenanceHubMap({
   const [selectedLocation, setSelectedLocation] = useState<ServiceLocation | null>(null);
   const [_map, setMap] = useState<google.maps.Map | null>(null);
 
-  // Sample work orders - would come from props/API in production
-  const sampleWorkOrders: WorkOrder[] = useMemo(() => [
-    {
-      id: 'WO-001',
-      vehicleId: 'V-45',
-      vehicleUnit: 'Unit 45',
-      type: 'active',
-      description: 'Oil change and tire rotation',
-      location: {
-        lat: 28.5383,
-        lng: -81.3792,
-        address: '123 Service Way, Orlando, FL'
-      },
-      estimatedCompletion: '2:00 PM'
-    },
-    {
-      id: 'WO-002',
-      vehicleId: 'V-23',
-      vehicleUnit: 'Unit 23',
-      type: 'urgent',
-      description: 'Brake repair - urgent',
-      location: {
-        lat: 28.5500,
-        lng: -81.3700,
-        address: '456 Repair Blvd, Orlando, FL'
-      },
-      estimatedCompletion: 'ASAP'
-    },
-    {
-      id: 'WO-003',
-      vehicleId: 'V-67',
-      vehicleUnit: 'Unit 67',
-      type: 'scheduled',
-      description: 'Preventive maintenance inspection',
-      location: {
-        lat: 28.5200,
-        lng: -81.3900,
-        address: '789 Fleet St, Orlando, FL'
-      },
-      scheduledDate: 'Tomorrow 9:00 AM'
-    }
-  ], []);
-
-  // Sample service locations
-  const sampleServiceLocations: ServiceLocation[] = useMemo(() => [
-    {
-      id: 'SL-001',
-      name: 'Main Service Center',
-      type: 'service_center',
-      location: {
-        lat: 28.5383,
-        lng: -81.3792,
-        address: '123 Service Way, Orlando, FL'
-      },
-      services: ['Oil Change', 'Tire Service', 'Brake Repair', 'Engine Diagnostics'],
-      phone: '(407) 555-0100'
-    },
-    {
-      id: 'SL-002',
-      name: 'Parts Warehouse North',
-      type: 'parts_warehouse',
-      location: {
-        lat: 28.5600,
-        lng: -81.3600,
-        address: '456 Industrial Pkwy, Orlando, FL'
-      },
-      services: ['Parts Inventory', 'Emergency Parts'],
-      phone: '(407) 555-0200'
-    },
-    {
-      id: 'SL-003',
-      name: 'Certified Vendor - AutoCare',
-      type: 'vendor',
-      location: {
-        lat: 28.5100,
-        lng: -81.4000,
-        address: '789 Vendor Lane, Orlando, FL'
-      },
-      services: ['Transmission Repair', 'AC Service', 'Electrical'],
-      phone: '(407) 555-0300'
-    }
-  ], []);
-
-  const displayWorkOrders = workOrders.length > 0 ? workOrders : sampleWorkOrders;
-  const displayLocations = serviceLocations.length > 0 ? serviceLocations : sampleServiceLocations;
+  const displayWorkOrders = workOrders;
+  const displayLocations = serviceLocations;
+  const hasMapData = displayWorkOrders.length > 0 || displayLocations.length > 0;
 
   // Calculate center point from all markers
   const center = useMemo(() => {
@@ -152,7 +64,7 @@ export function MaintenanceHubMap({
     ];
 
     if (allPoints.length === 0) {
-      return { lat: 28.5383, lng: -81.3792 }; // Orlando, FL default
+      return null;
     }
 
     const avgLat = allPoints.reduce((sum, p) => sum + p.lat, 0) / allPoints.length;
@@ -182,7 +94,7 @@ export function MaintenanceHubMap({
 
   const getWorkOrderIcon = (type: WorkOrder['type']) => {
     switch (type) {
-      case 'urgent': return <Warning className="w-4 h-4 text-red-500" />;
+      case 'urgent': return <AlertTriangle className="w-4 h-4 text-red-500" />;
       case 'active': return <Wrench className="w-4 h-4 text-blue-800" />;
       case 'scheduled': return <Clock className="w-4 h-4 text-amber-500" />;
       case 'completed': return <CheckCircle className="w-4 h-4 text-green-500" />;
@@ -202,9 +114,14 @@ export function MaintenanceHubMap({
 
   return (
     <div style={{ height, width: '100%' }} data-testid="maintenance-hub-map">
+      {!hasMapData ? (
+        <div className="h-full w-full flex items-center justify-center text-sm text-muted-foreground">
+          No maintenance map data available.
+        </div>
+      ) : (
       <GoogleMap
         mapContainerStyle={{ width: '100%', height: '100%' }}
-        center={center}
+        center={center || { lat: 0, lng: 0 }}
         zoom={12}
         onLoad={(mapInstance) => setMap(mapInstance)}
         options={{
@@ -273,13 +190,13 @@ export function MaintenanceHubMap({
                   <p className="text-xs text-slate-700 mt-1">{selectedWorkOrder.description}</p>
                 </div>
 
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-gray-700">
                   <MapPin className="w-3 h-3" />
                   <span>{selectedWorkOrder.location.address}</span>
                 </div>
 
                 {selectedWorkOrder.estimatedCompletion && (
-                  <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <div className="flex items-center gap-1 text-xs text-gray-700">
                     <Clock className="w-3 h-3" />
                     <span>ETA: {selectedWorkOrder.estimatedCompletion}</span>
                   </div>
@@ -313,7 +230,7 @@ export function MaintenanceHubMap({
                   </Badge>
                 </div>
 
-                <div className="flex items-center gap-1 text-xs text-gray-500">
+                <div className="flex items-center gap-1 text-xs text-gray-700">
                   <MapPin className="w-3 h-3" />
                   <span>{selectedLocation.location.address}</span>
                 </div>
@@ -346,6 +263,7 @@ export function MaintenanceHubMap({
           </InfoWindow>
         )}
       </GoogleMap>
+      )}
     </div>
   );
 }

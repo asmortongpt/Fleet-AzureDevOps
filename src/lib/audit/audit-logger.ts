@@ -13,6 +13,7 @@
  */
 
 import { createHash } from 'crypto';
+import logger from '@/utils/logger';
 
 /**
  * Audit Event Types
@@ -225,9 +226,9 @@ class AuditLogger {
       }
 
       this.isInitialized = true;
-      console.log(`[AuditLogger] Initialized. Last hash: ${this.lastRecordHash.substring(0, 16)}...`);
+      logger.info(`[AuditLogger] Initialized. Last hash: ${this.lastRecordHash.substring(0, 16)}...`);
     } catch (error) {
-      console.error('[AuditLogger] Initialization failed:', error);
+      logger.error('[AuditLogger] Initialization failed:', error);
       throw error;
     }
   }
@@ -311,7 +312,7 @@ class AuditLogger {
 
       return record;
     } catch (error) {
-      console.error('[AuditLogger] Failed to log event:', error);
+      logger.error('[AuditLogger] Failed to log event:', error);
       throw error;
     }
   }
@@ -366,7 +367,7 @@ class AuditLogger {
         throw new Error(`Database storage failed: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('[AuditLogger] Database storage failed:', error);
+      logger.error('[AuditLogger] Database storage failed:', error);
       throw error;
     }
   }
@@ -402,7 +403,7 @@ class AuditLogger {
         throw new Error(`Azure Blob storage failed: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('[AuditLogger] Azure Blob storage failed:', error);
+      logger.error('[AuditLogger] Azure Blob storage failed:', error);
       throw error;
     }
   }
@@ -434,7 +435,7 @@ class AuditLogger {
         throw new Error(`SIEM integration failed: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('[AuditLogger] SIEM integration failed:', error);
+      logger.error('[AuditLogger] SIEM integration failed:', error);
       throw error;
     }
   }
@@ -454,7 +455,7 @@ class AuditLogger {
       // Verify that previousRecordHash matches last record
       return record.previousRecordHash === this.lastRecordHash;
     } catch (error) {
-      console.error('[AuditLogger] Hash chain verification failed:', error);
+      logger.error('[AuditLogger] Hash chain verification failed:', error);
       return false;
     }
   }
@@ -470,7 +471,7 @@ class AuditLogger {
       const data = await response.json();
       return data as ImmutableAuditRecord;
     } catch (error) {
-      console.error('[AuditLogger] Failed to fetch last record:', error);
+      logger.error('[AuditLogger] Failed to fetch last record:', error);
       return null;
     }
   }

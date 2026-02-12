@@ -66,7 +66,7 @@ const TREND_STYLES = {
   },
   neutral: {
     icon: Minus,
-    color: 'text-slate-700 dark:text-gray-400',
+    color: 'text-slate-700 dark:text-gray-600',
     bgColor: 'bg-gray-50 dark:bg-gray-950',
   },
 }

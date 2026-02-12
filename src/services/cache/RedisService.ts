@@ -3,6 +3,7 @@
 
 import { LRUCache } from 'lru-cache';
 import { createClient, RedisClientType } from 'redis';
+import logger from '@/utils/logger';
 
 interface CacheConfig {
   redis: {
@@ -52,7 +53,7 @@ export class RedisService {
         socket: {
           reconnectStrategy: (retries) => {
             if (retries > this.config.redis.maxRetries) {
-              console.error('Redis max retries exceeded, falling back to LRU');
+              logger.error('Redis max retries exceeded, falling back to LRU');
               return new Error('Max retries exceeded');
             }
             return this.config.redis.retryDelay;
@@ -61,24 +62,24 @@ export class RedisService {
       });
 
       this.redisClient.on('connect', () => {
-        console.log('✅ Redis connected');
+        logger.info('✅ Redis connected');
         this.isRedisConnected = true;
         this.reconnectAttempts = 0;
       });
 
       this.redisClient.on('error', (err) => {
-        console.error('❌ Redis error:', err.message);
+        logger.error('❌ Redis error:', err.message);
         this.isRedisConnected = false;
       });
 
       this.redisClient.on('reconnecting', () => {
         this.reconnectAttempts++;
-        console.log(`🔄 Redis reconnecting (attempt ${this.reconnectAttempts})...`);
+        logger.info(`🔄 Redis reconnecting (attempt ${this.reconnectAttempts})...`);
       });
 
       await this.redisClient.connect();
     } catch (error) {
-      console.error('Failed to initialize Redis, using LRU only:', error);
+      logger.error('Failed to initialize Redis, using LRU only:', error);
       this.isRedisConnected = false;
     }
   }
@@ -101,7 +102,7 @@ export class RedisService {
           return parsed;
         }
       } catch (error) {
-        console.error(`Redis GET error for key ${key}:`, error);
+        logger.error(`Redis GET error for key ${key}:`, error);
       }
     }
 
@@ -118,7 +119,7 @@ export class RedisService {
         await this.redisClient.setEx(key, ttl, JSON.stringify(value));
         return true;
       } catch (error) {
-        console.error(`Redis SET error for key ${key}:`, error);
+        logger.error(`Redis SET error for key ${key}:`, error);
         return false;
       }
     }
@@ -136,7 +137,7 @@ export class RedisService {
         await this.redisClient.del(key);
         return true;
       } catch (error) {
-        console.error(`Redis DELETE error for key ${key}:`, error);
+        logger.error(`Redis DELETE error for key ${key}:`, error);
         return false;
       }
     }
@@ -164,7 +165,7 @@ export class RedisService {
           count += keys.length;
         }
       } catch (error) {
-        console.error(`Redis pattern invalidation error:`, error);
+        logger.error(`Redis pattern invalidation error:`, error);
       }
     }
 

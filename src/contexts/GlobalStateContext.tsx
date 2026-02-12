@@ -1,5 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+// Export type for GlobalStateContextType for barrel export compatibility
+export interface GlobalStateContextType {
+  currentTenant: Tenant | null;
+  switchTenant: (tenantId: number) => Promise<void>;
+  isLoading: boolean;
+}
+
 // TenantContext
 interface Tenant {
   id: number;
@@ -225,3 +232,7 @@ export function useTheme() {
   }
   return context;
 }
+
+// Aliases for barrel export compatibility
+export { TenantProvider as GlobalStateProvider };
+export { useTenant as useGlobalState };

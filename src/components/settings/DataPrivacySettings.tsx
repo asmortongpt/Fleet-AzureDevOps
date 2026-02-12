@@ -3,15 +3,7 @@
  * Data retention, export, deletion, and privacy preferences
  */
 
-import {
-  Lock,
-  Download,
-  Trash,
-  Cookie,
-  ChartLine,
-  FileText,
-  Warning
-} from '@phosphor-icons/react'
+import { Lock, Download, Trash2, Cookie, LineChart, FileText, AlertTriangle } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useState } from 'react'
 
@@ -190,7 +182,7 @@ export function DataPrivacySettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <ChartLine className="w-3 h-3" />
+            <LineChart className="w-3 h-3" />
             <CardTitle>Analytics & Tracking</CardTitle>
           </div>
           <CardDescription>Control how your data is used for analytics</CardDescription>
@@ -258,14 +250,14 @@ export function DataPrivacySettings() {
       <Card className="border-destructive">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Trash className="w-3 h-3 text-destructive" />
+            <Trash2 className="w-3 h-3 text-destructive" />
             <CardTitle className="text-destructive">Danger Zone</CardTitle>
           </div>
           <CardDescription>Permanently delete your account and all data</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           <div className="flex items-start gap-3 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-            <Warning className="w-3 h-3 text-destructive mt-0.5" />
+            <AlertTriangle className="w-3 h-3 text-destructive mt-0.5" />
             <div className="flex-1 text-sm">
               <p className="font-medium text-destructive">This action cannot be undone!</p>
               <p className="text-muted-foreground mt-1">
@@ -278,7 +270,7 @@ export function DataPrivacySettings() {
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="destructive" className="gap-2">
-                <Trash className="w-4 h-4" />
+                <Trash2 className="w-4 h-4" />
                 Delete Account
               </Button>
             </AlertDialogTrigger>

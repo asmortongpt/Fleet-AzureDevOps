@@ -20,6 +20,9 @@ import { getErrorMessage } from '../utils/error-handler'
 
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 const vehicleModelsService = new VehicleModelsService(pool)
 
 // Optional authentication - allow public access for some endpoints
@@ -36,7 +39,7 @@ const optionalAuth = (req: AuthRequest, res: Response, next: any) => {
  */
 router.get('/:id/3d-model', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const vehicleId = parseInt(req.params.id)
+    const vehicleId = req.params.id
 
     const modelData = await vehicleModelsService.getVehicle3DModel(vehicleId)
 
@@ -57,7 +60,7 @@ router.get('/:id/3d-model', optionalAuth, async (req: AuthRequest, res: Response
  */
 router.get('/:id/ar-model', optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const vehicleId = parseInt(req.params.id)
+    const vehicleId = req.params.id
     const platform = req.query.platform as string // 'ios' or 'android'
 
     const modelData = await vehicleModelsService.getVehicle3DModel(vehicleId)
@@ -99,7 +102,7 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'vehicle_customization' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const vehicleId = parseInt(req.params.id)
+      const vehicleId = req.params.id
 
       const schema = z.object({
         exteriorColorHex: z.string().optional(),
@@ -176,7 +179,7 @@ router.get(
   optionalAuth,
   async (req: AuthRequest, res: Response) => {
     try {
-      const model3dId = parseInt(req.params.id)
+      const model3dId = req.params.id
       const category = req.query.category as string
 
       const options = await vehicleModelsService.getCustomizationOptions(model3dId, category)
@@ -203,7 +206,7 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'vehicle_damage' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const vehicleId = parseInt(req.params.id)
+      const vehicleId = req.params.id
 
       const schema = z.array(
         z.object({
@@ -243,7 +246,7 @@ router.post(
  */
 router.post('/:id/ar-session',csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const vehicleId = parseInt(req.params.id)
+    const vehicleId = req.params.id
 
     const schema = z.object({
       platform: z.enum(['iOS', 'Android', 'WebXR']),
@@ -261,7 +264,7 @@ router.post('/:id/ar-session',csrfProtection, optionalAuth, async (req: AuthRequ
 
     const sessionId = await vehicleModelsService.trackARSession({
       vehicleId,
-      userId: req.user?.id ? parseInt(req.user.id) : undefined,
+      userId: req.user?.id,
       ...sessionData,
     })
 
@@ -284,7 +287,7 @@ router.post('/:id/ar-session',csrfProtection, optionalAuth, async (req: AuthRequ
  */
 router.put('/ar-sessions/:sessionId',csrfProtection, optionalAuth, async (req: AuthRequest, res: Response) => {
   try {
-    const sessionId = parseInt(req.params.sessionId)
+    const sessionId = req.params.sessionId
 
     const schema = z.object({
       placementAttempts: z.number().optional(),

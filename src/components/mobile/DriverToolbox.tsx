@@ -13,10 +13,12 @@
  * Security: Role-based access, validated inputs
  */
 
+import { Clipboard, AlertTriangle, Wrench, MapPin, FileText, Clock, CheckCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { Camera, Clipboard, AlertTriangle, Wrench, MapPin, FileText, Clock, CheckCircle } from 'lucide-react';
+
 import { offlineSyncService } from '../../services/offline-sync.service';
 import { pushNotificationService } from '../../services/push-notifications.service';
+import logger from '@/utils/logger';
 
 interface Vehicle {
   id: string;
@@ -62,7 +64,7 @@ export const DriverToolbox: React.FC = () => {
       try {
         setActiveVehicle(JSON.parse(savedVehicle));
       } catch (error) {
-        console.error('Failed to parse active vehicle:', error);
+        logger.error('Failed to parse active vehicle:', error);
       }
     }
   }, []);
@@ -85,7 +87,7 @@ export const DriverToolbox: React.FC = () => {
         pendingSyncCount: pendingCount,
       });
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      logger.error('Failed to load dashboard data:', error);
     }
   };
 
@@ -152,7 +154,7 @@ export const DriverToolbox: React.FC = () => {
       await offlineSyncService.syncWhenOnline();
       setLastSyncTime(new Date());
     } catch (error) {
-      console.error('Manual sync failed:', error);
+      logger.error('Manual sync failed:', error);
       alert('Sync failed. Please check your connection.');
     }
   };
@@ -268,19 +270,19 @@ export const DriverToolbox: React.FC = () => {
       <div className="px-3 py-3">
         <div className="grid grid-cols-2 gap-2">
           <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-500 text-sm">Assigned Vehicles</p>
+            <p className="text-gray-700 text-sm">Assigned Vehicles</p>
             <p className="text-sm font-bold text-gray-800">{stats.assignedVehicles}</p>
           </div>
           <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-500 text-sm">Active Work Orders</p>
+            <p className="text-gray-700 text-sm">Active Work Orders</p>
             <p className="text-sm font-bold text-orange-600">{stats.activeWorkOrders}</p>
           </div>
           <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-500 text-sm">Pending Inspections</p>
+            <p className="text-gray-700 text-sm">Pending Inspections</p>
             <p className="text-sm font-bold text-blue-800">{stats.pendingInspections}</p>
           </div>
           <div className="bg-white rounded-md p-2 shadow-sm">
-            <p className="text-gray-500 text-sm">Pending Sync</p>
+            <p className="text-gray-700 text-sm">Pending Sync</p>
             <p className="text-sm font-bold text-purple-600">{stats.pendingSyncCount}</p>
           </div>
         </div>

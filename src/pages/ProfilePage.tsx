@@ -4,21 +4,21 @@
  */
 
 import { zodResolver } from '@hookform/resolvers/zod'
-import { User, Check, X, Upload, LinkedinLogo, GithubLogo, TwitterLogo } from '@phosphor-icons/react'
+import { User, Check, X, Upload, Linkedin, Github, Twitter } from 'lucide-react'
 import { useAtom } from 'jotai'
 import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { toast } from 'react-hot-toast'
+import toast from 'react-hot-toast'
 import { z } from 'zod'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import { Textarea } from '@/components/ui/textarea'
+import { Section } from '@/components/ui/section'
 import { currentUserAtom } from '@/lib/reactive-state'
 import { fetchCurrentUser } from '@/services/userService'
 import logger from '@/utils/logger';
@@ -213,49 +213,47 @@ export default function ProfilePage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-2">
         {/* Avatar Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Profile Picture</CardTitle>
-            <CardDescription>Upload a profile picture (max 5MB)</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Avatar className="h-24 w-24">
-                <AvatarImage src={avatarPreview || currentUser.avatar} alt={currentUser.displayName} />
-                <AvatarFallback className="text-sm">{getUserInitials()}</AvatarFallback>
-              </Avatar>
+        <Section
+          title="Profile Picture"
+          description="Upload a profile picture (max 5MB)"
+          icon={<User className="h-5 w-5" />}
+        >
+          <div className="flex items-center gap-2">
+            <Avatar className="h-24 w-24">
+              <AvatarImage src={avatarPreview || currentUser.avatar} alt={currentUser.displayName} />
+              <AvatarFallback className="text-sm">{getUserInitials()}</AvatarFallback>
+            </Avatar>
 
-              {isEditing && (
-                <div>
-                  <Label htmlFor="avatar" className="cursor-pointer">
-                    <div className="flex items-center gap-2 px-2 py-2 bg-secondary rounded-md hover:bg-secondary/80 transition-colors">
-                      <Upload className="h-4 w-4" />
-                      <span className="text-sm font-medium">Upload Photo</span>
-                    </div>
-                    <Input
-                      id="avatar"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleAvatarChange}
-                      className="hidden"
-                    />
-                  </Label>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    JPG, PNG or GIF (max 5MB)
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            {isEditing && (
+              <div>
+                <Label htmlFor="avatar" className="cursor-pointer">
+                  <div className="flex items-center gap-2 px-2 py-2 bg-secondary rounded-md hover:bg-secondary/80 transition-colors">
+                    <Upload className="h-4 w-4" />
+                    <span className="text-sm font-medium">Upload Photo</span>
+                  </div>
+                  <Input
+                    id="avatar"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </Label>
+                <p className="text-xs text-muted-foreground mt-2">
+                  JPG, PNG or GIF (max 5MB)
+                </p>
+              </div>
+            )}
+          </div>
+        </Section>
 
         {/* Personal Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Personal Information</CardTitle>
-            <CardDescription>Your basic profile information</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <Section
+          title="Personal Information"
+          description="Your basic profile information"
+          icon={<User className="h-5 w-5" />}
+          contentClassName="space-y-2"
+        >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="firstName">First Name</Label>
@@ -333,16 +331,15 @@ export default function ProfilePage() {
                 <p className="text-sm text-destructive">{errors.phone.message}</p>
               )}
             </div>
-          </CardContent>
-        </Card>
+        </Section>
 
         {/* Professional Information */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Professional Information</CardTitle>
-            <CardDescription>Your job title and department</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <Section
+          title="Professional Information"
+          description="Your job title and department"
+          icon={<User className="h-5 w-5" />}
+          contentClassName="space-y-2"
+        >
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="space-y-2">
                 <Label htmlFor="jobTitle">Job Title</Label>
@@ -379,19 +376,18 @@ export default function ProfilePage() {
                 <p className="text-sm text-destructive">{errors.bio.message}</p>
               )}
             </div>
-          </CardContent>
-        </Card>
+        </Section>
 
         {/* Social Links */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Social Links</CardTitle>
-            <CardDescription>Connect your social media profiles</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <Section
+          title="Social Links"
+          description="Connect your social media profiles"
+          icon={<User className="h-5 w-5" />}
+          contentClassName="space-y-2"
+        >
             <div className="space-y-2">
               <Label htmlFor="linkedin" className="flex items-center gap-2">
-                <LinkedinLogo className="h-4 w-4" />
+                <Linkedin className="h-4 w-4" />
                 LinkedIn
               </Label>
               <Input
@@ -409,7 +405,7 @@ export default function ProfilePage() {
 
             <div className="space-y-2">
               <Label htmlFor="github" className="flex items-center gap-2">
-                <GithubLogo className="h-4 w-4" />
+                <Github className="h-4 w-4" />
                 GitHub
               </Label>
               <Input
@@ -427,7 +423,7 @@ export default function ProfilePage() {
 
             <div className="space-y-2">
               <Label htmlFor="twitter" className="flex items-center gap-2">
-                <TwitterLogo className="h-4 w-4" />
+                <Twitter className="h-4 w-4" />
                 Twitter
               </Label>
               <Input
@@ -442,18 +438,17 @@ export default function ProfilePage() {
                 <p className="text-sm text-destructive">{errors.twitter.message}</p>
               )}
             </div>
-          </CardContent>
-        </Card>
+        </Section>
 
         <Separator />
 
         {/* Account Information (Read-only) */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Account Information</CardTitle>
-            <CardDescription>Account status and metadata</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <Section
+          title="Account Information"
+          description="Account status and metadata"
+          icon={<User className="h-5 w-5" />}
+          contentClassName="space-y-3"
+        >
             <div className="flex justify-between items-center">
               <span className="text-sm font-medium">User ID</span>
               <span className="text-sm text-muted-foreground font-mono">{currentUser.id}</span>
@@ -501,8 +496,7 @@ export default function ProfilePage() {
                 </div>
               </>
             )}
-          </CardContent>
-        </Card>
+        </Section>
       </form>
     </div>
   )

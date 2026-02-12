@@ -1,8 +1,9 @@
 /**
  * RouteFactory - Generates route data with GeoJSON waypoints
  */
-import { BaseFactory } from './BaseFactory';
 import type { Route, Status, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 interface Location {
   name: string;

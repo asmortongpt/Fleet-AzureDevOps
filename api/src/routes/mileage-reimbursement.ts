@@ -6,9 +6,13 @@ import { pool } from '../db/connection';
 import { ValidationError } from '../errors/app-error'
 import { csrfProtection } from '../middleware/csrf'
 import { getErrorMessage } from '../utils/error-handler'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * Federal Mileage Reimbursement Rate Configuration

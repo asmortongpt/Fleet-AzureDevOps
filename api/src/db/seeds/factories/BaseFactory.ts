@@ -1,8 +1,9 @@
 /**
  * Base Factory with deterministic UUID generation and seeded Faker
  */
-import { faker } from '@faker-js/faker';
 import { createHash } from 'crypto';
+
+import { faker } from '@faker-js/faker';
 
 // UUIDv5 namespace for fleet-test deterministic IDs
 const FLEET_NAMESPACE = '6ba7b810-9dad-11d1-80b4-00c04fd430c8';

@@ -1,0 +1,292 @@
+import { Meta } from "@storybook/blocks"
+
+<Meta title="Introduction" />
+
+# Fleet Management System - Storybook Documentation
+
+Welcome to the comprehensive component library for the Fleet Management System. This Storybook provides interactive documentation, live examples, and testing environments for all map components and page layouts.
+
+## What's Inside
+
+### Map Components
+
+Our fleet management system uses a sophisticated dual-provider mapping system:
+
+#### 🗺️ **UniversalMap**
+The intelligent map component that automatically selects the best provider:
+- Automatic fallback from Google Maps to Leaflet
+- Error boundaries and recovery
+- Configurable provider forcing
+- Marker clustering support
+- React 19 compatible
+
+#### 🍃 **LeafletMap**
+100% free OpenStreetMap implementation:
+- No API keys required
+- 4 map styles (OSM, Dark, Topo, Satellite)
+- Full accessibility (WCAG 2.2 AA)
+- Performance optimized
+- Comprehensive error handling
+
+#### 🌍 **GoogleMap**
+Premium Google Maps Platform integration:
+- 4 map types (Roadmap, Satellite, Hybrid, Terrain)
+- Professional appearance
+- Free tier: $200/month credit
+- Robust error handling
+- Loading states and retry logic
+
+### Page Components
+
+Full-page implementations showcasing real-world usage:
+
+- **GPS Tracking**: Real-time vehicle monitoring
+- **Fleet Dashboard**: Overview and analytics
+- **Route Management**: Route planning and optimization
+- **GIS Command Center**: Comprehensive operations view
+- **Geofence Management**: Geographic boundary management
+- **Traffic Cameras**: Live camera feed integration
+
+## Getting Started
+
+### Prerequisites
+
+```bash
+# Install dependencies
+npm install
+
+# For Google Maps (optional):
+# Add to .env file:
+VITE_GOOGLE_MAPS_API_KEY=your_api_key_here
+```
+
+### Running Storybook
+
+```bash
+# Start Storybook development server
+npm run storybook
+
+# Build static Storybook
+npm run build-storybook
+```
+
+## Component Features
+
+### Interactive Controls
+
+All stories include interactive controls to:
+- Toggle visibility of different marker types
+- Change map styles and providers
+- Adjust zoom levels and center points
+- Test different data scenarios
+- Simulate loading and error states
+
+### Accessibility
+
+All components meet WCAG 2.2 AA standards:
+- Proper ARIA labels
+- Keyboard navigation support
+- Screen reader compatible
+- Focus management
+- Color contrast compliance
+
+### Performance
+
+Optimized for production use:
+- Marker clustering for large datasets
+- Debounced updates
+- Lazy loading
+- Efficient memory management
+- Proper cleanup on unmount
+
+### TypeScript Support
+
+Full type safety throughout:
+- Strict null checks
+- Comprehensive interfaces
+- Type inference
+- JSDoc documentation
+
+## Map Styles Overview
+
+### Leaflet Styles
+
+| Style | Description | Use Case |
+|-------|-------------|----------|
+| **OSM** | Standard OpenStreetMap | Default, general purpose |
+| **Dark** | Dark theme by CartoDB | Night mode, dark UIs |
+| **Topo** | Topographic with terrain | Route planning, elevation |
+| **Satellite** | Esri aerial imagery | Visual confirmation |
+
+### Google Maps Types
+
+| Type | Description | Use Case |
+|------|-------------|----------|
+| **Roadmap** | Standard road view | Navigation, addresses |
+| **Satellite** | Aerial imagery | Site verification |
+| **Hybrid** | Satellite + roads | Best of both worlds |
+| **Terrain** | Topographic features | Route planning |
+
+## Marker Types
+
+### Vehicle Markers
+Color-coded by status:
+- 🟢 **Active**: Green - Vehicle in operation
+- ⚫ **Idle**: Gray - Stationary but operational
+- 🔵 **Charging**: Blue - Electric vehicle charging
+- 🟡 **Service**: Amber - Under maintenance
+- 🔴 **Emergency**: Red - Requires immediate attention
+- ⚫ **Offline**: Dark gray - No connection
+
+### Facility Markers
+Distinct icons by type:
+- 🏢 **Office**: Administrative buildings
+- 🏭 **Depot**: Vehicle storage facilities
+- 🔧 **Service Center**: Maintenance facilities
+- ⛽ **Fueling Station**: Refueling locations
+
+### Camera Markers
+Traffic camera locations:
+- 📹 **Operational**: Live feed available
+- 📹 **Offline**: Camera not responding
+
+## Best Practices
+
+### Choosing a Map Provider
+
+**Use Leaflet when:**
+- No budget for mapping services
+- Privacy is a concern (no tracking)
+- Need dark mode support
+- Operating in regions with limited Google Maps coverage
+
+**Use Google Maps when:**
+- Budget allows ($200/month free tier)
+- Need professional appearance
+- Customers familiar with Google Maps
+- Want best mobile experience
+- Need Street View integration (future)
+
+### Performance Optimization
+
+```tsx
+// Enable clustering for large datasets
+<UniversalMap
+  vehicles={largeVehicleArray}
+  enableClustering={true}
+  clusterThreshold={100}
+/>
+
+// Disable auto-fit for static views
+<LeafletMap
+  vehicles={vehicles}
+  autoFitBounds={false}
+  center={[30.4383, -84.2807]}
+  zoom={13}
+/>
+```
+
+### Error Handling
+
+All components include:
+- Loading states with progress indicators
+- Error boundaries with recovery options
+- User-friendly error messages
+- Retry logic for transient failures
+
+### Accessibility
+
+```tsx
+// Components automatically include:
+// - ARIA labels on markers
+// - Keyboard navigation
+// - Focus management
+// - Screen reader support
+
+<UniversalMap
+  vehicles={vehicles}
+  // Markers automatically get proper ARIA labels
+  // Example: "Vehicle FL-001, sedan, Status: Active"
+/>
+```
+
+## Testing
+
+### Interactive Testing
+
+Use Storybook's controls to:
+1. Test different data volumes (5, 50, 500, 1000+ markers)
+2. Simulate network errors
+3. Test edge cases (empty data, invalid coordinates)
+4. Verify mobile responsiveness
+5. Check dark mode compatibility
+
+### Accessibility Testing
+
+Use the a11y addon to:
+- Verify ARIA labels
+- Check color contrast
+- Test keyboard navigation
+- Validate focus order
+
+## Common Scenarios
+
+### Scenario 1: Real-time Vehicle Tracking
+
+```tsx
+<GPSTracking
+  vehicles={liveVehicleData}
+  facilities={facilities}
+  isLoading={false}
+  onVehicleSelect={(id) => showVehicleDetails(id)}
+/>
+```
+
+### Scenario 2: Route Planning
+
+```tsx
+<LeafletMap
+  vehicles={vehiclesOnRoute}
+  mapStyle="topo"
+  showRoutes={true}
+  autoFitBounds={true}
+/>
+```
+
+### Scenario 3: Emergency Response
+
+```tsx
+<UniversalMap
+  vehicles={emergencyVehicles}
+  facilities={emergencyFacilities}
+  center={incidentLocation}
+  zoom={15}
+  forceProvider="google" // For best detail
+/>
+```
+
+## Support & Resources
+
+- **API Documentation**: See individual component stories
+- **Source Code**: Review component implementations
+- **Examples**: Explore story variations
+- **Controls**: Interact with live components
+
+## Contributing
+
+When adding new stories:
+
+1. Include comprehensive examples
+2. Document all props in argTypes
+3. Add accessibility notes
+4. Provide usage examples
+5. Test with various data sizes
+6. Include error states
+7. Document performance considerations
+
+---
+
+**Version**: 1.0.0  
+**Last Updated**: November 2025  
+**React**: 19.0.0  
+**TypeScript**: 5.7.2

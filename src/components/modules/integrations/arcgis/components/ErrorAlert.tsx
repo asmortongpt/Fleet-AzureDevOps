@@ -3,7 +3,7 @@
  * @module ArcGIS/components/ErrorAlert
  */
 
-import { Warning } from "@phosphor-icons/react"
+import { AlertTriangle } from "lucide-react"
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 
@@ -17,7 +17,7 @@ interface ErrorAlertProps {
 export function ErrorAlert({ error }: ErrorAlertProps) {
   return (
     <Alert variant="destructive">
-      <Warning className="w-4 h-4" />
+      <AlertTriangle className="w-4 h-4" />
       <AlertTitle>Error</AlertTitle>
       <AlertDescription>{error}</AlertDescription>
     </Alert>

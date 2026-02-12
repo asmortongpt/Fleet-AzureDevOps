@@ -138,7 +138,7 @@ export function DrilldownCard({
               </SmartTooltip>
             )}
 
-            <nav aria-label="Drilldown breadcrumb" className="flex items-center gap-1">
+            <nav aria-label="Drilldown navigation breadcrumb" className="flex items-center gap-1">
               {levelHistory.map((historyLevelId, index) => {
                 const level = levels.find((l) => l.id === historyLevelId)
                 if (!level) return null

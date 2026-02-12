@@ -46,7 +46,7 @@ export function EmptyState({
             </div>
             <h3 className="text-sm font-semibold text-slate-200 mb-2">{title}</h3>
             {description && (
-                <p className="text-sm text-slate-400 max-w-sm mb-3">{description}</p>
+                <p className="text-sm text-slate-700 max-w-sm mb-3">{description}</p>
             )}
             {action && (
                 <Button onClick={action.onClick} className="gap-2">

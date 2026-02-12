@@ -3,6 +3,8 @@
  * Unified fetcher with retry logic, error handling, and proper typing
  */
 
+import logger from '@/utils/logger';
+
 export class FetchError extends Error {
   constructor(
     message: string,
@@ -116,7 +118,7 @@ export async function fetcher<T = unknown>(
         if (attempt < retries && isRetryableError(error, response.status)) {
           lastError = error;
           const delay = calculateBackoffDelay(attempt, retryDelay);
-          console.warn(
+          logger.warn(
             `[Fetcher] Retry ${attempt + 1}/${retries} for ${url} after ${delay}ms (status: ${response.status})`
           );
           await new Promise(resolve => setTimeout(resolve, delay));
@@ -156,7 +158,7 @@ export async function fetcher<T = unknown>(
       // Check if we should retry
       if (attempt < retries && isRetryableError(lastError)) {
         const delay = calculateBackoffDelay(attempt, retryDelay);
-        console.warn(
+        logger.warn(
           `[Fetcher] Retry ${attempt + 1}/${retries} for ${url} after ${delay}ms (error: ${lastError.message})`
         );
         await new Promise(resolve => setTimeout(resolve, delay));

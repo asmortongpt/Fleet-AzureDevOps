@@ -1,0 +1,23 @@
+{
+  "testId": "route--",
+  "itemType": "ui-route",
+  "runDate": "2026-02-01T18:56:23.757Z",
+  "status": "PASS",
+  "evidencePaths": {
+    "screenshots": [
+      "screenshot-before-navigation-1769972183759.png",
+      "screenshot-after-navigation-1769972186009.png"
+    ],
+    "videos": [],
+    "traces": [],
+    "logs": [
+      "console-logs.txt"
+    ],
+    "har": []
+  },
+  "metrics": {
+    "loadTime": 2178,
+    "contentLength": 244,
+    "consoleMessages": 61
+  }
+}

@@ -7,6 +7,27 @@ import React, { createContext, useContext, ReactNode } from 'react';
 
 import { usePermissions, UserPermissions, UserRole } from '../hooks/usePermissions';
 
+export interface PermissionContextType {
+  permissions: UserPermissions | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  can: (action: string, resource?: any) => boolean;
+  hasModule: (moduleName: string) => boolean;
+  hasRole: (role: UserRole) => boolean;
+  hasAnyRole: (...roles: UserRole[]) => boolean;
+  canAccessField: (resourceType: string, fieldName: string) => boolean;
+  visibleModules: string[];
+  checkPermissionServer: (request: any) => Promise<boolean>;
+  isAdmin: boolean;
+  isFleetManager: boolean;
+  isDriver: boolean;
+  isAuditor: boolean;
+  canViewFinancial: boolean;
+  canManageMaintenance: boolean;
+  canViewSafety: boolean;
+  refetch: () => void;
+}
+
 interface PermissionContextValue {
   permissions: UserPermissions | undefined;
   isLoading: boolean;
@@ -61,6 +82,9 @@ export function usePermissionContext(): PermissionContextValue {
 
   return context;
 }
+
+// Alias for compatibility with barrel export
+export const usePermission = usePermissionContext;
 
 /**
  * Optional: Hook with graceful fallback for contexts where permissions might not be loaded

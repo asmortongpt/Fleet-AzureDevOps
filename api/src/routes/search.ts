@@ -41,7 +41,7 @@ router.use(authenticateJWT)
  */
 router.post(
   '/',
-  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   auditLog({ action: 'SEARCH', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -203,7 +203,7 @@ router.get(
  */
 router.post(
   '/click',
-  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
@@ -270,7 +270,7 @@ router.get(
  */
 router.post(
   '/saved',
-  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
       const schema = z.object({
@@ -318,7 +318,7 @@ router.post(
  */
 router.delete(
   '/saved/:id',
-  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   async (req: AuthRequest, res: Response) => {
     try {
       await DocumentSearchService.deleteSavedSearch(
@@ -418,7 +418,7 @@ router.get(
  */
 router.post(
   '/index/document/:id',
-  csrfProtection, authorize('admin', 'fleet_manager'),
+  authorize('admin', 'fleet_manager'),
   auditLog({ action: 'CREATE' as any, resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -450,7 +450,7 @@ router.post(
  */
 router.post(
   '/index/reindex',
-  csrfProtection, authorize('admin'),
+  authorize('admin'),
   auditLog({ action: 'UPDATE' as any, resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -528,7 +528,7 @@ router.get(
  */
 router.post(
   '/index/optimize',
-  csrfProtection, authorize('admin'),
+  authorize('admin'),
   auditLog({ action: 'UPDATE' as any, resourceType: 'search_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -579,7 +579,7 @@ router.get(
  */
 router.post(
   '/cache/clear',
-  csrfProtection, authorize('admin'),
+  authorize('admin'),
   auditLog({ action: 'DELETE' as any, resourceType: 'search_cache' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -605,7 +605,7 @@ router.post(
  */
 router.post(
   '/cache/warm',
-  csrfProtection, authorize('admin'),
+  authorize('admin'),
   async (req: AuthRequest, res: Response) => {
     try {
       await SearchIndexService.warmCache(req.user!.tenant_id)

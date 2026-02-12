@@ -4,11 +4,12 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import DOMPurify from 'dompurify'
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
-import DOMPurify from 'dompurify'
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+import logger from '@/utils/logger';
+import { secureFetch } from '@/hooks/use-api';
 
 // Enhanced Zod schemas with comprehensive validation
 const SafetyIncidentSchema = z.object({
@@ -121,43 +122,27 @@ const sanitizeInput = (input: string): string => {
   })
 }
 
-// Get CSRF token from meta tag
-const getCSRFToken = (): string => {
-  return document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
-}
-
 export function useReactiveSafetyComplianceData() {
   const [realTimeUpdate, setRealTimeUpdate] = useState(0)
   const [wsConnection, setWsConnection] = useState<WebSocket | null>(null)
   const queryClient = useQueryClient()
 
-  // Enhanced fetch with security headers
-  const secureFetch = useCallback(async (endpoint: string, options?: RequestInit) => {
-    const token = localStorage.getItem('authToken')
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token ? `Bearer ${token}` : '',
-        'X-CSRF-Token': getCSRFToken(),
-        'X-Requested-With': 'XMLHttpRequest',
-        ...options?.headers
-      }
-    })
-
+  const requestJson = useCallback(async (endpoint: string, options?: RequestInit) => {
+    const path = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+    const response = await secureFetch(path, options);
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`)
+      const message = await response.text();
+      throw new Error(message || `HTTP error! status: ${response.status}`);
     }
-
-    const data = await response.json()
-    return data
-  }, [])
+    const payload = await response.json();
+    return payload?.data ?? payload;
+  }, []);
 
   // Fetch safety incidents with validation
   const { data: incidents = [], isLoading: incidentsLoading } = useQuery<SafetyIncident[]>({
     queryKey: ['safety-incidents', realTimeUpdate],
     queryFn: async () => {
-      const data = await secureFetch('/safety/incidents')
+      const data = await requestJson('/safety/incidents')
       return z.array(SafetyIncidentSchema).parse(data)
     },
     refetchInterval: 10000,
@@ -168,7 +153,7 @@ export function useReactiveSafetyComplianceData() {
   const { data: inspections = [], isLoading: inspectionsLoading } = useQuery<SafetyInspection[]>({
     queryKey: ['safety-inspections', realTimeUpdate],
     queryFn: async () => {
-      const data = await secureFetch('/safety/inspections')
+      const data = await requestJson('/safety/inspections')
       return z.array(SafetyInspectionSchema).parse(data)
     },
     refetchInterval: 10000,
@@ -179,7 +164,7 @@ export function useReactiveSafetyComplianceData() {
   const { data: certifications = [], isLoading: certificationsLoading } = useQuery<Certification[]>({
     queryKey: ['certifications', realTimeUpdate],
     queryFn: async () => {
-      const data = await secureFetch('/safety/certifications')
+      const data = await requestJson('/safety/certifications')
       return z.array(CertificationSchema).parse(data)
     },
     refetchInterval: 10000,
@@ -190,7 +175,7 @@ export function useReactiveSafetyComplianceData() {
   const { data: violations = [], isLoading: violationsLoading } = useQuery<Violation[]>({
     queryKey: ['violations', realTimeUpdate],
     queryFn: async () => {
-      const data = await secureFetch('/safety/violations')
+      const data = await requestJson('/safety/violations')
       return z.array(ViolationSchema).parse(data)
     },
     refetchInterval: 10000,
@@ -201,7 +186,7 @@ export function useReactiveSafetyComplianceData() {
   const { data: oshaMetrics } = useQuery<OSHAMetrics>({
     queryKey: ['osha-metrics', realTimeUpdate],
     queryFn: async () => {
-      const data = await secureFetch('/safety/osha-metrics')
+      const data = await requestJson('/safety/osha-metrics')
       return OSHAMetricsSchema.parse(data)
     },
     refetchInterval: 30000,
@@ -212,7 +197,7 @@ export function useReactiveSafetyComplianceData() {
   const { data: riskAssessments = [] } = useQuery<RiskAssessment[]>({
     queryKey: ['risk-assessments', realTimeUpdate],
     queryFn: async () => {
-      const data = await secureFetch('/safety/risk-assessments')
+      const data = await requestJson('/safety/risk-assessments')
       return z.array(RiskAssessmentSchema).parse(data)
     },
     refetchInterval: 30000,
@@ -223,7 +208,7 @@ export function useReactiveSafetyComplianceData() {
   const { data: trainings = [] } = useQuery<SafetyTraining[]>({
     queryKey: ['safety-training', realTimeUpdate],
     queryFn: async () => {
-      const data = await secureFetch('/safety/training')
+      const data = await requestJson('/safety/training')
       return z.array(SafetyTrainingSchema).parse(data)
     },
     refetchInterval: 30000,
@@ -251,8 +236,19 @@ export function useReactiveSafetyComplianceData() {
       : 999
   }, [incidents])
 
-  // Enhanced compliance score calculation
-  const complianceScore = useMemo(() => {
+  // Active violations (defined early as it's used in complianceScore)
+  const activeViolations = useMemo(() =>
+    violations.filter((v) => v.status === 'open' || v.status === 'appealed'),
+    [violations]
+  )
+
+  const calculateComplianceScore = useCallback((
+    inputInspections: SafetyInspection[],
+    inputCertifications: Certification[],
+    inputIncidents: SafetyIncident[],
+    inputTrainings: SafetyTraining[],
+    inputViolations: Violation[]
+  ) => {
     let score = 100
     const weights = {
       inspections: 0.25,
@@ -262,36 +258,38 @@ export function useReactiveSafetyComplianceData() {
       violations: 0.15
     }
 
-    // Inspection compliance
-    const passedInspections = inspections.filter(i => i.status === 'completed').length
-    const inspectionScore = inspections.length > 0
-      ? (passedInspections / inspections.length) * 100
+    const passedInspections = inputInspections.filter(i => i.status === 'completed').length
+    const inspectionScore = inputInspections.length > 0
+      ? (passedInspections / inputInspections.length) * 100
       : 100
     score *= (inspectionScore / 100) * weights.inspections
 
-    // Certification compliance
-    const validCerts = certifications.filter(c => c.status === 'current').length
-    const certScore = certifications.length > 0
-      ? (validCerts / certifications.length) * 100
+    const validCerts = inputCertifications.filter(c => c.status === 'current').length
+    const certScore = inputCertifications.length > 0
+      ? (validCerts / inputCertifications.length) * 100
       : 100
     score *= (certScore / 100) * weights.certifications
 
-    // Incident impact
-    const incidentPenalty = Math.min(criticalIncidents.length * 5, 50)
+    const criticalCount = inputIncidents.filter((i) => i.severity === 'critical' || i.severity === 'high').length
+    const incidentPenalty = Math.min(criticalCount * 5, 50)
     score -= incidentPenalty * weights.incidents
 
-    // Training completion
-    const avgTrainingCompletion = trainings.length > 0
-      ? trainings.reduce((sum, t) => sum + t.completionRate, 0) / trainings.length
+    const avgTrainingCompletion = inputTrainings.length > 0
+      ? inputTrainings.reduce((sum, t) => sum + t.completionRate, 0) / inputTrainings.length
       : 100
     score *= (avgTrainingCompletion / 100) * weights.training
 
-    // Violation impact
-    const violationPenalty = Math.min(activeViolations.length * 10, 50)
+    const activeViolationCount = inputViolations.filter((v) => v.status === 'open' || v.status === 'appealed').length
+    const violationPenalty = Math.min(activeViolationCount * 10, 50)
     score -= violationPenalty * weights.violations
 
     return Math.max(0, Math.min(100, Math.round(score)))
-  }, [inspections, certifications, incidents, trainings, activeViolations])
+  }, [])
+
+  // Enhanced compliance score calculation
+  const complianceScore = useMemo(() => {
+    return calculateComplianceScore(inspections, certifications, incidents, trainings, violations)
+  }, [calculateComplianceScore, inspections, certifications, incidents, trainings, violations])
 
   // OSHA compliance calculation
   const oshaCompliance = useMemo(() => {
@@ -323,12 +321,6 @@ export function useReactiveSafetyComplianceData() {
   const expiredCertifications = useMemo(() =>
     certifications.filter((c) => c.status === 'expired'),
     [certifications]
-  )
-
-  // Active violations
-  const activeViolations = useMemo(() =>
-    violations.filter((v) => v.status === 'open' || v.status === 'appealed'),
-    [violations]
   )
 
   // Total fines
@@ -476,53 +468,82 @@ export function useReactiveSafetyComplianceData() {
     return events.slice(0, 20) // Return last 20 events
   }, [incidents, inspections, violations])
 
-  // Trend data for compliance score
   const getComplianceTrendData = useCallback(() => {
-    // Generate mock trend data for last 12 months
-    const months = []
+    const months: { month: string; score: number; target: number }[] = []
+    const today = new Date()
+
     for (let i = 11; i >= 0; i--) {
-      const date = new Date()
-      date.setMonth(date.getMonth() - i)
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1)
       const monthName = date.toLocaleDateString('en-US', { month: 'short' })
 
-      // Simulate historical scores with slight variations
-      const baseScore = complianceScore
-      const variation = Math.sin(i) * 10
-      const score = Math.max(0, Math.min(100, baseScore + variation))
+      const inMonth = (value?: string | null) => {
+        if (!value) return false
+        const parsed = new Date(value)
+        return parsed.getFullYear() === date.getFullYear() && parsed.getMonth() === date.getMonth()
+      }
+
+      const monthInspections = inspections.filter((i) =>
+        inMonth(i.completedDate || i.scheduledDate)
+      )
+      const monthIncidents = incidents.filter((i) => inMonth(i.reportedDate))
+      const monthViolations = violations.filter((v) => inMonth(v.dateIssued))
+
+      const monthTrainings = trainings.map((training) => {
+        if (!training.participants?.length) return training
+        const completedInMonth = training.participants.filter((p) => inMonth(p.completedDate)).length
+        const completionRate = completedInMonth > 0
+          ? (completedInMonth / training.participants.length) * 100
+          : training.completionRate
+        return { ...training, completionRate }
+      })
+
+      const score = calculateComplianceScore(
+        monthInspections,
+        certifications,
+        monthIncidents,
+        monthTrainings,
+        monthViolations
+      )
 
       months.push({
         month: monthName,
-        score: Math.round(score),
+        score,
         target: 90
       })
     }
 
     return months
-  }, [complianceScore])
+  }, [calculateComplianceScore, certifications, incidents, inspections, trainings, violations])
 
-  // Department compliance data
   const getDepartmentComplianceData = useCallback(() => {
-    const departments = ['Operations', 'Maintenance', 'Transportation', 'Warehouse', 'Administration']
+    const departmentMap = new Map<string, { incidents: number; violations: number }>()
 
-    return departments.map(dept => {
-      // Simulate department-specific scores
-      const baseScore = complianceScore
-      const variation = Math.random() * 20 - 10
-      const score = Math.max(0, Math.min(100, baseScore + variation))
-
-      return {
-        department: dept,
-        score: Math.round(score),
-        openIssues: Math.floor(Math.random() * 5)
-      }
+    incidents.forEach((incident) => {
+      const key = (incident as any).department || incident.location?.zone || 'Unassigned'
+      const entry = departmentMap.get(key) || { incidents: 0, violations: 0 }
+      entry.incidents += 1
+      departmentMap.set(key, entry)
     })
-  }, [complianceScore])
+
+    violations.forEach((violation) => {
+      const key = (violation as any).department || 'Unassigned'
+      const entry = departmentMap.get(key) || { incidents: 0, violations: 0 }
+      entry.violations += 1
+      departmentMap.set(key, entry)
+    })
+
+    return Array.from(departmentMap.entries()).map(([department, stats]) => {
+      const openIssues = stats.incidents + stats.violations
+      const score = Math.max(0, Math.min(100, 100 - openIssues * 5))
+      return { department, score, openIssues }
+    })
+  }, [incidents, violations])
 
   // Mutations for updating data
   const updateIncidentMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<SafetyIncident> }) => {
       const sanitizedId = sanitizeInput(id)
-      const response = await secureFetch(`/safety/incidents/${sanitizedId}`, {
+      const response = await requestJson(`/safety/incidents/${sanitizedId}`, {
         method: 'PATCH',
         body: JSON.stringify(data)
       })
@@ -535,7 +556,7 @@ export function useReactiveSafetyComplianceData() {
 
   const addRiskAssessmentMutation = useMutation({
     mutationFn: async (assessment: Omit<RiskAssessment, 'id'>) => {
-      const response = await secureFetch('/safety/risk-assessments', {
+      const response = await requestJson('/safety/risk-assessments', {
         method: 'POST',
         body: JSON.stringify(assessment)
       })
@@ -548,7 +569,7 @@ export function useReactiveSafetyComplianceData() {
 
   const scheduleTrainingMutation = useMutation({
     mutationFn: async (training: Omit<SafetyTraining, 'id'>) => {
-      const response = await secureFetch('/safety/training', {
+      const response = await requestJson('/safety/training', {
         method: 'POST',
         body: JSON.stringify(training)
       })
@@ -561,14 +582,14 @@ export function useReactiveSafetyComplianceData() {
 
   // WebSocket connection for real-time updates
   useEffect(() => {
-    const token = localStorage.getItem('authToken')
-    if (!token) return
+    const wsEnabled = import.meta.env.VITE_ENABLE_SAFETY_WS === 'true'
+    if (!wsEnabled || typeof window === 'undefined') return
 
-    const wsUrl = `${API_BASE.replace('http', 'ws')}/ws/safety-compliance`
+    const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws'
+    const wsUrl = `${protocol}://${window.location.host}/ws/safety-compliance`
     const ws = new WebSocket(wsUrl)
 
     ws.onopen = () => {
-      ws.send(JSON.stringify({ type: 'auth', token }))
       setWsConnection(ws)
     }
 
@@ -582,12 +603,12 @@ export function useReactiveSafetyComplianceData() {
           setRealTimeUpdate(prev => prev + 1) // Trigger refetch
         }
       } catch (error) {
-        console.error('WebSocket message error:', error)
+        logger.error('WebSocket message error:', error)
       }
     }
 
     ws.onerror = (error) => {
-      console.error('WebSocket error:', error)
+      logger.error('WebSocket error:', error)
     }
 
     ws.onclose = () => {

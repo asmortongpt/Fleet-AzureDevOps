@@ -1,9 +1,11 @@
 /**
  * Queue Processors
  * Implements processing logic for each queue type
+ * Production implementation using Microsoft Graph API
  */
 
 import { pool } from '../config/database';
+import microsoftGraphService from '../services/microsoft-graph.service';
 import {
   TeamsMessagePayload,
   OutlookEmailPayload,
@@ -24,9 +26,6 @@ export async function processTeamsOutbound(job: any): Promise<any> {
   console.log(`📤 Processing Teams outbound message: ${job.id}`);
 
   try {
-    // In production, this would call the Microsoft Graph API
-    // For now, we`ll simulate the API call and store in database
-
     // Determine the endpoint based on chat type
     let endpoint = ``;
     if (payload.chatId) {
@@ -48,23 +47,9 @@ export async function processTeamsOutbound(job: any): Promise<any> {
       importance: payload.importance || 'normal'
     };
 
-    // TODO: Replace with actual Microsoft Graph API call
-    // const graphClient = getGraphClient();
-    // const result = await graphClient.api(endpoint).post(messageBody);
-
-    // Simulate successful send
-    const result = {
-      id: `msg_${Date.now()}`,
-      createdDateTime: new Date().toISOString(),
-      from: {
-        user: {
-          id: 'system',
-          displayName: 'Fleet System'
-        }
-      },
-      body: messageBody.body,
-      sentAt: new Date()
-    };
+    // Send message via Microsoft Graph API
+    const graphClient = await microsoftGraphService.getClientForApp();
+    const result = await graphClient.api(endpoint).post(messageBody);
 
     // Store sent message in database
     await pool.query(
@@ -145,11 +130,10 @@ export async function processOutlookOutbound(job: any): Promise<any> {
       saveToSentItems: true
     };
 
-    // TODO: Replace with actual Microsoft Graph API call
-    // const graphClient = getGraphClient();
-    // const result = await graphClient.api(`/me/sendMail`).post(emailMessage);
+    // Send email via Microsoft Graph API
+    const graphClient = await microsoftGraphService.getClientForApp();
+    await graphClient.api(`/users/${data.metadata?.fromUserId || 'me'}/sendMail`).post(emailMessage);
 
-    // Simulate successful send
     const result = {
       id: `email_${Date.now()}`,
       sentAt: new Date(),

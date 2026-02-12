@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { languages, type LanguageCode } from '@/i18n/config';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 interface LanguageSwitcherProps {
   variant?: 'default' | 'outline' | 'ghost';
@@ -95,7 +96,7 @@ export function LanguageSwitcher({
       // Uncomment if you need a full page reload for complex layouts
       // window.location.reload();
     } catch (error) {
-      console.error('Failed to change language:', error);
+      logger.error('Failed to change language:', error);
     } finally {
       setIsChanging(false);
     }

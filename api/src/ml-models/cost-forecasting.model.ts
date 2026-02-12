@@ -63,7 +63,7 @@ export class CostForecastingModel {
         `SELECT
            DATE_TRUNC('month', transaction_date) as month,
            SUM(amount) as total_amount
-         FROM cost_tracking
+         FROM unified_costs
          WHERE tenant_id = $1 ${whereClause}
          AND transaction_date >= CURRENT_DATE - INTERVAL '12 months'
          GROUP BY DATE_TRUNC('month', transaction_date)
@@ -136,7 +136,7 @@ export class CostForecastingModel {
       // Get historical data for this category
       const result = await pool.query(
         `SELECT amount
-         FROM cost_tracking
+         FROM unified_costs
          WHERE tenant_id = $1
          AND cost_category = $2
          AND transaction_date >= CURRENT_DATE - INTERVAL '90 days'
@@ -222,7 +222,7 @@ export class CostForecastingModel {
         `SELECT
            cost_category,
            SUM(amount) as total_amount
-         FROM cost_tracking
+         FROM unified_costs
          WHERE tenant_id = $1
          AND transaction_date BETWEEN $2 AND $3
          GROUP BY cost_category
@@ -248,7 +248,7 @@ export class CostForecastingModel {
         `SELECT
            cost_category,
            SUM(amount) as total_amount
-         FROM cost_tracking
+         FROM unified_costs
          WHERE tenant_id = $1
          AND transaction_date BETWEEN $2 AND $3
          GROUP BY cost_category`,
@@ -317,7 +317,7 @@ trend = 'decreasing'
       // Get total costs
       const costResult = await pool.query(
         `SELECT SUM(amount) as total_cost
-         FROM cost_tracking
+         FROM unified_costs
          WHERE tenant_id = $1
          AND vehicle_id = $2
          AND transaction_date BETWEEN $3 AND $4`,
@@ -400,33 +400,36 @@ return 0
     isOverBudget: boolean
   }> {
     try {
-      const result = await pool.query(
-        `SELECT
-           allocated_amount,
-           spent_amount,
-           remaining_amount
-         FROM budget_allocations
+      const q = Math.min(4, Math.max(1, fiscalQuarter))
+      const startMonth = (q - 1) * 3
+      const quarterStart = new Date(Date.UTC(fiscalYear, startMonth, 1, 0, 0, 0))
+      const quarterEnd = new Date(Date.UTC(fiscalYear, startMonth + 3, 0, 23, 59, 59, 999))
+
+      const allocRes = await pool.query(
+        `SELECT COALESCE(SUM(budgeted_amount), 0) as allocated
+         FROM budgets
          WHERE tenant_id = $1
-         AND budget_category = $2
-         AND fiscal_year = $3
-         AND fiscal_quarter = $4`,
-        [tenantId, category, fiscalYear, fiscalQuarter]
+         AND fiscal_year = $2
+         AND budget_category = $3
+         AND status IN ('active', 'draft')
+         AND period_end >= $4
+         AND period_start <= $5`,
+        [tenantId, fiscalYear, category, quarterStart, quarterEnd]
       )
 
-      if (result.rows.length === 0) {
-        return {
-          allocated: 0,
-          spent: 0,
-          remaining: 0,
-          percentageUsed: 0,
-          isOverBudget: false
-        }
-      }
+      const allocated = parseFloat(allocRes.rows[0]?.allocated || '0')
 
-      const row = result.rows[0]
-      const allocated = parseFloat(row.allocated_amount)
-      const spent = parseFloat(row.spent_amount)
-      const remaining = parseFloat(row.remaining_amount)
+      const spentRes = await pool.query(
+        `SELECT COALESCE(SUM(amount), 0) as spent
+         FROM unified_costs
+         WHERE tenant_id = $1
+         AND cost_category = $2
+         AND transaction_date BETWEEN $3 AND $4`,
+        [tenantId, category, quarterStart, quarterEnd]
+      )
+
+      const spent = parseFloat(spentRes.rows[0]?.spent || '0')
+      const remaining = allocated - spent
       const percentageUsed = allocated > 0 ? (spent / allocated) * 100 : 0
       const isOverBudget = spent > allocated
 

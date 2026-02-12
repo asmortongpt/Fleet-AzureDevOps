@@ -5,42 +5,78 @@
 import type { ValueFormatterParams, CellValueChangedEvent, ColDef, CellClassParams } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { Download, Filter } from 'lucide-react';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
+import useSWR from 'swr';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
+import logger from '@/utils/logger';
+import { secureFetch } from '@/hooks/use-api';
 
 interface RowData {
-  vehicle: string;
-  vin: string;
+  id: string;
+  vehicleNumber: string;
+  make: string;
+  model: string;
+  year: number;
   mileage: number;
   status: string;
-  fuel: number;
+  fuelType: string;
 }
 
 export const DataWorkbench: React.FC = () => {
-  const [rowData] = useState([
-    { vehicle: 'Toyota Camry', vin: 'VIN001', mileage: 45000, status: 'Active', fuel: 32.5 },
-    { vehicle: 'Honda Accord', vin: 'VIN002', mileage: 52000, status: 'Maintenance', fuel: 28.3 },
-    { vehicle: 'Ford F-150', vin: 'VIN003', mileage: 38000, status: 'Active', fuel: 18.7 },
-    // ... add more sample data
-  ]);
+  const { data: rawVehicles = [] } = useSWR<any[]>(
+    '/api/vehicles?limit=200',
+    (url: string) =>
+      fetch(url, { credentials: 'include' })
+        .then(res => res.json())
+        .then((data) => data?.data?.data ?? data?.data ?? data),
+    { shouldRetryOnError: false }
+  );
+
+  const rowData = useMemo<RowData[]>(() => {
+    return (rawVehicles || []).map((vehicle: any) => ({
+      id: vehicle.id,
+      vehicleNumber: vehicle.vehicleNumber || vehicle.vehicle_number || vehicle.name || '',
+      make: vehicle.make || '',
+      model: vehicle.model || '',
+      year: Number(vehicle.year || 0),
+      mileage: Number(vehicle.mileage || vehicle.odometer_reading || 0),
+      status: String(vehicle.status || ''),
+      fuelType: String(vehicle.fuelType || vehicle.fuel_type || '')
+    }));
+  }, [rawVehicles]);
 
   const [columnDefs] = useState<ColDef<RowData>[]>([
     {
-      field: 'vehicle',
-      headerName: 'Vehicle',
+      field: 'vehicleNumber',
+      headerName: 'Vehicle #',
       editable: true,
       filter: true,
       sortable: true,
       flex: 1
     },
     {
-      field: 'vin',
-      headerName: 'VIN',
+      field: 'make',
+      headerName: 'Make',
       editable: true,
       filter: true,
       sortable: true,
-      cellStyle: { fontFamily: 'monospace' }
+      flex: 1
+    },
+    {
+      field: 'model',
+      headerName: 'Model',
+      editable: true,
+      filter: true,
+      sortable: true,
+      flex: 1
+    },
+    {
+      field: 'year',
+      headerName: 'Year',
+      editable: true,
+      filter: 'agNumberColumnFilter',
+      sortable: true
     },
     {
       field: 'mileage',
@@ -48,7 +84,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: 'agNumberColumnFilter',
       sortable: true,
-      valueFormatter: (params: ValueFormatterParams<RowData>) => params.value?.toLocaleString()
+      valueFormatter: (params: ValueFormatterParams<RowData>) => (params.value ?? 0).toLocaleString()
     },
     {
       field: 'status',
@@ -57,17 +93,16 @@ export const DataWorkbench: React.FC = () => {
       filter: true,
       sortable: true,
       cellStyle: (params: CellClassParams<RowData>) => ({
-        color: params.value === 'Active' ? '#10b981' : '#eab308',
+        color: String(params.value || '').toLowerCase() === 'active' ? '#10b981' : '#eab308',
         fontWeight: '500'
       })
     },
     {
-      field: 'fuel',
-      headerName: 'Fuel (MPG)',
+      field: 'fuelType',
+      headerName: 'Fuel Type',
       editable: true,
-      filter: 'agNumberColumnFilter',
-      sortable: true,
-      valueFormatter: (params: ValueFormatterParams<RowData>) => params.value?.toFixed(1)
+      filter: true,
+      sortable: true
     }
   ]);
 
@@ -76,8 +111,30 @@ export const DataWorkbench: React.FC = () => {
     minWidth: 100,
   };
 
-  const onCellValueChanged = useCallback((params: CellValueChangedEvent<RowData>) => {
-    console.log('Cell changed:', params.data);
+  const onCellValueChanged = useCallback(async (params: CellValueChangedEvent<RowData>) => {
+    const payload: Record<string, any> = {};
+    if (params.colDef.field === 'vehicleNumber') payload.vehicleNumber = params.data.vehicleNumber;
+    if (params.colDef.field === 'make') payload.make = params.data.make;
+    if (params.colDef.field === 'model') payload.model = params.data.model;
+    if (params.colDef.field === 'year') payload.year = Number(params.data.year || 0);
+    if (params.colDef.field === 'mileage') payload.mileage = Number(params.data.mileage || 0);
+    if (params.colDef.field === 'status') payload.status = params.data.status;
+    if (params.colDef.field === 'fuelType') payload.fuelType = params.data.fuelType;
+
+    if (!params.data.id || Object.keys(payload).length === 0) return;
+
+    try {
+      const response = await secureFetch(`/api/vehicles/${params.data.id}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error?.error || 'Failed to update vehicle');
+      }
+    } catch (error) {
+      logger.error('Failed to update vehicle from workbench', error);
+    }
   }, []);
 
   const exportToExcel = () => {

@@ -1,13 +1,40 @@
 import express, { Request, Response } from 'express';
 
+import { pool } from '../db/connection';
 import { microsoftGraphService } from '../services/microsoft-graph.service';
 import { queueService } from '../services/queue.service';
 import { getErrorMessage } from '../utils/error-handler';
 
-// Placeholder MicrosoftHealthRepository class
+/**
+ * MicrosoftHealthRepository - performs a real database health check
+ * by executing a lightweight SELECT 1 query and measuring latency.
+ */
 class MicrosoftHealthRepository {
-  async checkDatabaseConnection(): Promise<{ healthy: boolean; details?: any }> {
-    return { healthy: true, details: {} }
+  async checkDatabaseConnection(): Promise<{ healthy: boolean; latencyMs?: number; details?: any }> {
+    const start = Date.now();
+    try {
+      const result = await pool.query('SELECT 1 AS health_check, NOW() AS server_time');
+      const latencyMs = Date.now() - start;
+      return {
+        healthy: true,
+        latencyMs,
+        details: {
+          serverTime: result.rows[0]?.server_time,
+          poolTotalCount: (pool as any).totalCount,
+          poolIdleCount: (pool as any).idleCount,
+          poolWaitingCount: (pool as any).waitingCount,
+        }
+      };
+    } catch (error: unknown) {
+      const latencyMs = Date.now() - start;
+      return {
+        healthy: false,
+        latencyMs,
+        details: {
+          error: getErrorMessage(error),
+        }
+      };
+    }
   }
 }
 
@@ -66,7 +93,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
     results.services.microsoft_graph = {
       status: 'down',
       message: getErrorMessage(error),
-      details: { error: error.toString() }
+      details: { error: getErrorMessage(error) }
     };
   }
 

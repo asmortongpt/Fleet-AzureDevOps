@@ -46,3 +46,35 @@ declare module 'expo-location' {
   export const requestForegroundPermissionsAsync: any;
   export const getCurrentPositionAsync: any;
 }
+
+// AI SDK packages
+declare module '@anthropic-ai/sdk' {
+  class Anthropic {
+    constructor(options: { apiKey: string });
+    messages: {
+      create(params: any): Promise<any>;
+    };
+  }
+  export default Anthropic;
+}
+
+declare module '@google/generative-ai' {
+  export class GoogleGenerativeAI {
+    constructor(apiKey: string);
+    getGenerativeModel(options: { model: string }): {
+      generateContent(prompt: string): Promise<{ response: { text(): string } }>;
+    };
+  }
+}
+
+declare module 'openai' {
+  class OpenAI {
+    constructor(options: { apiKey: string });
+    chat: {
+      completions: {
+        create(params: any): Promise<{ choices: Array<{ message: { content: string | null } }> }>;
+      };
+    };
+  }
+  export default OpenAI;
+}

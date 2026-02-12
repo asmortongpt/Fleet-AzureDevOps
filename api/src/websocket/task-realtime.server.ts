@@ -34,9 +34,34 @@ interface DecodedToken {
 export function initializeWebSocketServer(httpServer: HttpServer): void {
   console.log('🔌 Initializing Task Real-Time WebSocket Server...');
 
+  // Socket.IO CORS (credentials require an explicit allowlist; do not allow `*`).
+  const corsOriginsRaw = (process.env.CORS_ORIGIN || '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+  const isDevelopment = process.env.NODE_ENV !== 'production';
+  const defaultDevOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:4173',
+    'http://127.0.0.1:4173',
+  ];
+  const corsAllowlist = [...corsOriginsRaw, ...(isDevelopment ? defaultDevOrigins : [])];
+
+  if (corsAllowlist.includes('*')) {
+    throw new Error('Invalid CORS_ORIGIN: `*` is not allowed when credentials are enabled.');
+  }
+
   io = new Server(httpServer, {
     cors: {
-      origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
+      origin: (origin, callback) => {
+        // Allow same-origin / non-browser clients with no Origin header.
+        if (!origin) return callback(null, true);
+        if (corsAllowlist.length === 0 && isDevelopment) return callback(null, true);
+        if (corsAllowlist.includes(origin)) return callback(null, true);
+        return callback(new Error(`CORS: Origin ${origin} not allowed`), false);
+      },
       credentials: true,
     },
     path: '/socket.io/tasks',

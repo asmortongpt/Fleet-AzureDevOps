@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
+import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { MapPin, AlertCircle } from 'lucide-react';
@@ -36,16 +36,15 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
       return;
     }
 
-    const loader = new Loader({
-      apiKey: GOOGLE_MAPS_API_KEY,
-      version: 'weekly',
+    setOptions({
+      key: GOOGLE_MAPS_API_KEY,
+      v: 'weekly',
+      libraries: ['places', 'geometry'],
     });
 
     const initMap = async () => {
       try {
-        await loader.importLibrary('maps');
-        await loader.importLibrary('places');
-        await loader.importLibrary('geometry');
+        await importLibrary('maps');
 
         if (mapRef.current) {
           const newMap = new google.maps.Map(mapRef.current, {

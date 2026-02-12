@@ -6,6 +6,7 @@
 import express from 'express';
 
 import logger from '../config/logger';
+import { pool } from '../db/connection';
 import { authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
@@ -240,28 +241,69 @@ router.post('/send-to-user',csrfProtection, authenticateJWT, async (req, res) =>
  */
 router.get('/preferences', authenticateJWT, async (req, res) => {
   try {
-    // TODO: Implement notification preferences
-    // For now, return default preferences
-    res.json({
-      success: true,
-      data: {
-        pushEnabled: true,
-        smsEnabled: true,
-        categories: {
-          critical_alert: true,
-          maintenance_reminder: true,
-          task_assignment: true,
-          driver_alert: true,
-          administrative: true,
-          performance: true,
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId || req.user?.tenant_id;
+
+    // Query notification_preferences table for this user
+    const result = await pool.query(
+      `SELECT
+        push_enabled,
+        sms_enabled,
+        email_enabled,
+        categories,
+        quiet_hours_enabled,
+        quiet_hours_start,
+        quiet_hours_end
+      FROM notification_preferences
+      WHERE user_id = $1 AND tenant_id = $2`,
+      [userId, tenantId]
+    );
+
+    if (result.rows.length > 0) {
+      const prefs = result.rows[0];
+      res.json({
+        success: true,
+        data: {
+          pushEnabled: prefs.push_enabled,
+          smsEnabled: prefs.sms_enabled,
+          categories: prefs.categories || {
+            critical_alert: true,
+            maintenance_reminder: true,
+            task_assignment: true,
+            driver_alert: true,
+            administrative: true,
+            performance: true,
+          },
+          quietHours: {
+            enabled: prefs.quiet_hours_enabled,
+            start: prefs.quiet_hours_start || '22:00',
+            end: prefs.quiet_hours_end || '08:00',
+          },
         },
-        quietHours: {
-          enabled: false,
-          start: '22:00',
-          end: '08:00',
+      });
+    } else {
+      // No preferences saved yet - return defaults
+      res.json({
+        success: true,
+        data: {
+          pushEnabled: true,
+          smsEnabled: true,
+          categories: {
+            critical_alert: true,
+            maintenance_reminder: true,
+            task_assignment: true,
+            driver_alert: true,
+            administrative: true,
+            performance: true,
+          },
+          quietHours: {
+            enabled: false,
+            start: '22:00',
+            end: '08:00',
+          },
         },
-      },
-    });
+      });
+    }
   } catch (error) {
     logger.error('Error getting preferences:', error) // Wave 21: Winston logger;
     res.status(500).json({
@@ -277,13 +319,60 @@ router.get('/preferences', authenticateJWT, async (req, res) => {
  */
 router.put('/preferences',csrfProtection, authenticateJWT, async (req, res) => {
   try {
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenantId || req.user?.tenant_id;
     const preferences = req.body;
 
-    // TODO: Save preferences to database
-    // For now, just acknowledge
+    // Upsert notification preferences into the database
+    const result = await pool.query(
+      `INSERT INTO notification_preferences (
+        user_id,
+        tenant_id,
+        push_enabled,
+        sms_enabled,
+        email_enabled,
+        categories,
+        quiet_hours_enabled,
+        quiet_hours_start,
+        quiet_hours_end,
+        updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, tenant_id) DO UPDATE SET
+        push_enabled = EXCLUDED.push_enabled,
+        sms_enabled = EXCLUDED.sms_enabled,
+        email_enabled = EXCLUDED.email_enabled,
+        categories = EXCLUDED.categories,
+        quiet_hours_enabled = EXCLUDED.quiet_hours_enabled,
+        quiet_hours_start = EXCLUDED.quiet_hours_start,
+        quiet_hours_end = EXCLUDED.quiet_hours_end,
+        updated_at = CURRENT_TIMESTAMP
+      RETURNING *`,
+      [
+        userId,
+        tenantId,
+        preferences.pushEnabled !== undefined ? preferences.pushEnabled : true,
+        preferences.smsEnabled !== undefined ? preferences.smsEnabled : true,
+        preferences.emailEnabled !== undefined ? preferences.emailEnabled : true,
+        preferences.categories ? JSON.stringify(preferences.categories) : '{"critical_alert": true, "maintenance_reminder": true, "task_assignment": true, "driver_alert": true, "administrative": true, "performance": true}',
+        preferences.quietHours?.enabled !== undefined ? preferences.quietHours.enabled : false,
+        preferences.quietHours?.start || null,
+        preferences.quietHours?.end || null
+      ]
+    );
+
+    const saved = result.rows[0];
     res.json({
       success: true,
-      data: preferences,
+      data: {
+        pushEnabled: saved.push_enabled,
+        smsEnabled: saved.sms_enabled,
+        categories: saved.categories,
+        quietHours: {
+          enabled: saved.quiet_hours_enabled,
+          start: saved.quiet_hours_start || '22:00',
+          end: saved.quiet_hours_end || '08:00',
+        },
+      },
       message: 'Preferences updated successfully',
     });
   } catch (error) {

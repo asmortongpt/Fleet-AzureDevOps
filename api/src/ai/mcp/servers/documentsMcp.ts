@@ -1,5 +1,5 @@
-import { MCPServer } from "../types";
 import { pool } from "../../../db"; // adjust
+import { MCPServer } from "../types";
 
 export const documentsMcpServer: MCPServer = {
   namespace: "docs",

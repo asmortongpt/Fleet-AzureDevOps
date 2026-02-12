@@ -3,10 +3,9 @@
  * Generates comprehensive compliance reports for FedRAMP, NIST 800-53, and other frameworks
  */
 
-import { Pool } from 'pg'
 
-import logger from '../config/logger'
 import pool from '../config/database'
+import logger from '../config/logger'
 
 export interface ComplianceReport {
   id: string

@@ -55,9 +55,11 @@ router.get('/', requirePermission('geofence:view:fleet'), async (req: AuthReques
 
   try {
     const result = await pool.query(
-      `SELECT id, tenant_id, layer_name, layer_type, layer_config, is_active, created_at FROM arcgis_layers
+      `SELECT id, tenant_id, layer_name, layer_type, service_url, layer_id, refresh_interval_seconds,
+              is_enabled, display_order, default_visible, metadata, created_at, updated_at
+       FROM arcgis_layers
        WHERE tenant_id = $1
-       ORDER BY created_at DESC`,
+       ORDER BY display_order ASC, created_at DESC`,
       [tenantId]
     )
 
@@ -84,9 +86,11 @@ router.get('/enabled/list', requirePermission('geofence:view:fleet'), async (req
 
   try {
     const result = await pool.query(
-      `SELECT id, tenant_id, layer_name, layer_type, layer_config, is_active, created_at FROM arcgis_layers
-       WHERE tenant_id = $1 AND enabled = true
-       ORDER BY created_at ASC`,
+      `SELECT id, tenant_id, layer_name, layer_type, service_url, layer_id, refresh_interval_seconds,
+              is_enabled, display_order, default_visible, metadata, created_at, updated_at
+       FROM arcgis_layers
+       WHERE tenant_id = $1 AND is_enabled = true
+       ORDER BY display_order ASC, created_at ASC`,
       [tenantId]
     )
 
@@ -113,7 +117,9 @@ router.get('/:id', requirePermission('geofence:view:fleet'), async (req: AuthReq
 
   try {
     const result = await pool.query(
-      `SELECT id, tenant_id, layer_name, layer_type, layer_config, is_active, created_at FROM arcgis_layers
+      `SELECT id, tenant_id, layer_name, layer_type, service_url, layer_id, refresh_interval_seconds,
+              is_enabled, display_order, default_visible, metadata, created_at, updated_at
+       FROM arcgis_layers
        WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )

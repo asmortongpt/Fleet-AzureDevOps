@@ -82,17 +82,19 @@ router.get(
       id,
       tenant_id,
       vehicle_id,
-      reporter_id,
+      reported_by as reporter_id,
       incident_date,
-      description,
-      severity,
+      damage_summary as description,
+      COALESCE(metadata->>'severity', 'unknown') as severity,
       location,
       photos,
-      estimated_cost,
+      estimated_total_cost as estimated_cost,
       status,
-      notes,
+      metadata->>'notes' as notes,
       created_at,
-      updated_at FROM damage_reports WHERE tenant_id = $1`
+      updated_at
+      FROM damage_reports
+      WHERE tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]
 
       if (vehicle_id) {
@@ -139,17 +141,19 @@ router.get(
       id,
       tenant_id,
       vehicle_id,
-      reporter_id,
+      reported_by as reporter_id,
       incident_date,
-      description,
-      severity,
+      damage_summary as description,
+      COALESCE(metadata->>'severity', 'unknown') as severity,
       location,
       photos,
-      estimated_cost,
+      estimated_total_cost as estimated_cost,
       status,
-      notes,
+      metadata->>'notes' as notes,
       created_at,
-      updated_at FROM damage_reports WHERE id = $1 AND tenant_id = $2`,
+      updated_at
+      FROM damage_reports
+      WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 

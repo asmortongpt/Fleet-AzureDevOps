@@ -2,9 +2,9 @@ import {
   Wrench,
   User,
   Clock,
-  Warning,
+  AlertTriangle,
   Plus
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from "react"
 
 import { MetricCard } from "@/components/MetricCard"
@@ -167,7 +167,7 @@ export function GarageService() {
               title="Overdue Maintenance"
               value={metrics.overdueJobs}
               subtitle="requires attention"
-              icon={<Warning className="w-3 h-3" />}
+              icon={<AlertTriangle className="w-3 h-3" />}
               status={metrics.overdueJobs > 5 ? "warning" : "success"}
             />
           </div>

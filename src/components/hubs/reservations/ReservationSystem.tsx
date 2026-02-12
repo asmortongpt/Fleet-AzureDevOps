@@ -45,7 +45,7 @@ interface Vehicle {
   make: string;
   model: string;
   year: number;
-  status: 'active' | 'maintenance' | 'inactive';
+  status: 'active' | 'idle' | 'charging' | 'service' | 'emergency' | 'offline';
   available: boolean;
 }
 

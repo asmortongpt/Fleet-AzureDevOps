@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-02-04T17:02:33.337Z",
+  "baseUrl": "http://[::1]:5173",
+  "ok": [],
+  "failed": [
+    {
+      "categoryId": "admin",
+      "moduleId": "notifications",
+      "moduleLabel": "Notifications",
+      "error": "locator.waitFor: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('dialog').first().getByRole('button', { name: 'Notifications' }).first() to be visible\n"
+    }
+  ],
+  "warnings": [],
+  "httpErrors": [],
+  "finishedAt": "2026-02-04T17:02:51.803Z"
+}

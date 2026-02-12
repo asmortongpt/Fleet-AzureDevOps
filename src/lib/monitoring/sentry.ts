@@ -6,7 +6,12 @@
  */
 
 import * as Sentry from '@sentry/react';
-import { BrowserTracing } from '@sentry/tracing';
+import {
+  browserTracingIntegration,
+  replayIntegration,
+  getClient,
+} from '@sentry/react';
+import type { Span } from '@sentry/core';
 
 import type { User } from '@/types';
 
@@ -60,24 +65,13 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
 
       // Performance Monitoring
       integrations: [
-        new BrowserTracing({
-          // Set custom tracing origins
-          tracingOrigins: [
-            'localhost',
-            /^https:\/\/api\.fleet-management\.com/,
-            /^https:\/\/.*\.azurewebsites\.net/,
-          ],
-          // Enable automatic route tracking
-          routingInstrumentation: Sentry.reactRouterV6Instrumentation(
-            React.useEffect,
-            // @ts-ignore - useLocation and useNavigationType will be provided by React Router
-            window.location,
-            window.history
-          ),
+        browserTracingIntegration({
+          // Enable automatic route tracking for SPA navigation
+          enableInp: true,
         }),
 
         // Session Replay
-        new Sentry.Replay({
+        replayIntegration({
           maskAllText: true, // Mask all text for privacy
           blockAllMedia: true, // Block all media (images, videos) for privacy
           maskAllInputs: true, // Mask all input values
@@ -314,13 +308,13 @@ export function addBreadcrumb(
 }
 
 /**
- * Start a transaction for performance monitoring
+ * Start a span for performance monitoring
  */
-export function startTransaction(
+export function startSpanForOperation(
   name: string,
   op: string
-): Sentry.Transaction | undefined {
-  return Sentry.startTransaction({
+): Span | undefined {
+  return Sentry.startInactiveSpan({
     name,
     op,
   });
@@ -333,7 +327,7 @@ export function measurePerformance<T>(
   name: string,
   fn: () => T | Promise<T>
 ): T | Promise<T> {
-  const transaction = startTransaction(name, 'function');
+  const span = startSpanForOperation(name, 'function');
 
   try {
     const result = fn();
@@ -341,15 +335,15 @@ export function measurePerformance<T>(
     // Handle async functions
     if (result instanceof Promise) {
       return result.finally(() => {
-        transaction?.finish();
+        span?.end();
       }) as T;
     }
 
-    transaction?.finish();
+    span?.end();
     return result;
   } catch (error) {
-    transaction?.setStatus('internal_error');
-    transaction?.finish();
+    span?.setStatus({ code: 2, message: 'internal_error' });
+    span?.end();
     throw error;
   }
 }
@@ -397,7 +391,7 @@ export async function closeSentry(timeout: number = 2000): Promise<boolean> {
  * Check if Sentry is enabled
  */
 export function isSentryEnabled(): boolean {
-  const client = Sentry.getCurrentHub().getClient();
+  const client = getClient();
   return !!client;
 }
 
@@ -405,7 +399,7 @@ export function isSentryEnabled(): boolean {
  * Get Sentry DSN (for reporting to backend)
  */
 export function getSentryDSN(): string | undefined {
-  const client = Sentry.getCurrentHub().getClient();
+  const client = getClient();
   return client?.getDsn()?.toString();
 }
 

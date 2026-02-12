@@ -1,13 +1,13 @@
 import {
   Play,
   Pause,
-  ArrowsClockwise,
+  RefreshCw,
   Database,
   CheckCircle,
-  Warning,
-  Lightning,
-  ChartLine
-} from "@phosphor-icons/react"
+  AlertTriangle,
+  Zap,
+  LineChart
+} from "lucide-react"
 import mermaid from "mermaid"
 import { useEffect, useRef, useState } from "react"
 
@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
+import logger from '@/utils/logger';
 
 interface DataFlowMetric {
   label: string
@@ -183,7 +184,7 @@ flowchart LR
       mermaid.run({
         nodes: mermaidRef.current.querySelectorAll(".mermaid")
       }).catch(error => {
-        console.error("Mermaid rendering error:", error)
+        logger.error("Mermaid rendering error:", error)
       })
     }
   }, [])
@@ -284,11 +285,11 @@ flowchart LR
   const getStepIcon = (status: FlowStep["status"]) => {
     switch (status) {
       case "processing":
-        return <Lightning className="w-4 h-4 text-blue-800 animate-pulse" />
+        return <Zap className="w-4 h-4 text-blue-800 animate-pulse" />
       case "complete":
         return <CheckCircle className="w-4 h-4 text-green-500" />
       case "error":
-        return <Warning className="w-4 h-4 text-red-500" />
+        return <AlertTriangle className="w-4 h-4 text-red-500" />
       default:
         return <div className="w-4 h-4 rounded-full border-2 border-gray-300" />
     }
@@ -318,7 +319,7 @@ flowchart LR
             variant="outline"
             onClick={() => window.location.reload()}
           >
-            <ArrowsClockwise className="w-4 h-4" />
+            <RefreshCw className="w-4 h-4" />
           </Button>
         </div>
         <div className="flex items-center gap-2">
@@ -350,8 +351,8 @@ flowchart LR
               </div>
               {metric.trend && (
                 <div className="flex items-center gap-1 mt-1">
-                  {metric.trend === "up" && <ChartLine className="w-3 h-3 text-green-500" />}
-                  {metric.trend === "down" && <ChartLine className="w-3 h-3 text-red-500 rotate-180" />}
+                  {metric.trend === "up" && <LineChart className="w-3 h-3 text-green-500" />}
+                  {metric.trend === "down" && <LineChart className="w-3 h-3 text-red-500 rotate-180" />}
                   <span className="text-xs text-muted-foreground">
                     {metric.trend === "up" ? "Increasing" : metric.trend === "down" ? "Decreasing" : "Stable"}
                   </span>
@@ -491,7 +492,7 @@ flowchart LR
               <span className="text-sm">Execution</span>
             </div>
             <div className="flex items-center gap-2">
-              <Database className="w-4 h-4 text-gray-500" />
+              <Database className="w-4 h-4 text-gray-700" />
               <span className="text-sm">Data Store</span>
             </div>
           </div>

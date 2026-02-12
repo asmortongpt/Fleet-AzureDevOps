@@ -169,7 +169,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
         <div className="flex items-center gap-2 flex-1">
           {showSearch && (
             <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" />
               <Input
                 type="text"
                 placeholder={searchPlaceholder}
@@ -203,7 +203,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
               variant="ghost"
               size="sm"
               onClick={clearFilters}
-              className="text-slate-400 hover:text-white"
+              className="text-slate-700 hover:text-white"
             >
               <X className="w-4 h-4 mr-2" />
               Clear
@@ -212,7 +212,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="text-sm text-slate-400">
+          <div className="text-sm text-slate-700">
             Showing {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, filteredData.length)} of {filteredData.length}
             {filteredData.length !== data.length && ` (filtered from ${data.length})`}
           </div>
@@ -255,8 +255,8 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                       <span>{column.label}</span>
                       {column.sortable !== false && sortConfig?.key === column.key && (
                         sortConfig.direction === 'asc'
-                          ? <ArrowUp className="w-3 h-3 text-blue-400" />
-                          : <ArrowDown className="w-3 h-3 text-blue-400" />
+                          ? <ArrowUp className="w-3 h-3 text-blue-700" />
+                          : <ArrowDown className="w-3 h-3 text-blue-700" />
                       )}
                     </div>
                   </th>
@@ -312,7 +312,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                 <tr>
                   <td
                     colSpan={columns.length}
-                    className="px-2 py-12 text-center text-slate-400"
+                    className="px-2 py-12 text-center text-slate-700"
                   >
                     {hasActiveFilters ? 'No matching results found' : 'No data available'}
                   </td>

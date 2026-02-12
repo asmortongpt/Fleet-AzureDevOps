@@ -12,12 +12,13 @@
  *   npm run db:cleanup            # Cleanup test databases
  */
 
+import chalk from 'chalk';
 import { Command } from 'commander';
+import ora from 'ora';
+
 import { getResetHarness } from './reset-harness';
 import { getSnapshotManager } from './snapshot-manager';
 import { getIsolationManager } from './test-isolation';
-import chalk from 'chalk';
-import ora from 'ora';
 
 const program = new Command();
 

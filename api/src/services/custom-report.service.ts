@@ -5,9 +5,12 @@
  * Supports multiple data sources, joins, filters, grouping, and aggregations
  */
 
-import nodemailer from 'nodemailer'
 import path from 'path'
+
+import nodemailer from 'nodemailer'
 import { Pool } from 'pg'
+
+import pool from '../config/database'
 
 import excelExportService, { ExportOptions } from './excel-export.service'
 
@@ -932,7 +935,6 @@ export class CustomReportService {
 }
 
 // Import pool for singleton instance
-import pool from '../config/database'
 
 // Export singleton instance
 export const customReportService = new CustomReportService(pool)

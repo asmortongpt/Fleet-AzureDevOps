@@ -143,12 +143,25 @@ function defaultKeyGenerator(req: Request): string {
 export function rateLimit(config: RateLimitConfig) {
   const {
     windowMs,
-    maxRequests,
+    maxRequests: maxRequestsRaw,
     message = `Too many requests, please try again later`,
     keyGenerator = defaultKeyGenerator,
     skip,
     handler
   } = config
+
+  // Hardening: misconfigured routes should not crash the request pipeline.
+  // Some legacy call sites pass an undefined `maxRequests`, which previously caused
+  // `toString()` exceptions and 500s on unrelated endpoints.
+  const maxRequests =
+    typeof maxRequestsRaw === 'number' && Number.isFinite(maxRequestsRaw) && maxRequestsRaw > 0
+      ? maxRequestsRaw
+      : 60
+
+  const windowMsSafe =
+    typeof windowMs === 'number' && Number.isFinite(windowMs) && windowMs > 0
+      ? windowMs
+      : 60_000
 
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -161,17 +174,18 @@ export function rateLimit(config: RateLimitConfig) {
       const key = keyGenerator(req)
 
       // Increment counter
-      const { count, resetAt } = rateLimitStore.increment(key, windowMs)
+      const { count, resetAt } = rateLimitStore.increment(key, windowMsSafe)
+      const resetAtSafe = Number.isFinite(resetAt) ? resetAt : Date.now() + windowMsSafe
 
       // Set rate limit headers
       const remaining = Math.max(0, maxRequests - count)
       res.setHeader('X-RateLimit-Limit', maxRequests.toString())
       res.setHeader('X-RateLimit-Remaining', remaining.toString())
-      res.setHeader('X-RateLimit-Reset', new Date(resetAt).toISOString())
+      res.setHeader('X-RateLimit-Reset', new Date(resetAtSafe).toISOString())
 
       // Check if limit exceeded
       if (count > maxRequests) {
-        const retryAfter = Math.ceil((resetAt - Date.now()) / 1000)
+        const retryAfter = Math.ceil((resetAtSafe - Date.now()) / 1000)
         res.setHeader('Retry-After', retryAfter.toString())
 
         // Log rate limit incident

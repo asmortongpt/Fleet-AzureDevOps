@@ -6,6 +6,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import logger from '@/utils/logger';
 
 interface DamageReport3DViewerProps {
   modelUrl: string
@@ -144,10 +145,10 @@ export function DamageReport3DViewer({ modelUrl }: DamageReport3DViewerProps) {
       (progress) => {
         // Loading progress (optional)
         const percentComplete = (progress.loaded / progress.total) * 100
-        console.log(`Loading: ${percentComplete.toFixed(2)}%`)
+        logger.info(`Loading: ${percentComplete.toFixed(2)}%`)
       },
       (error) => {
-        console.error('Error loading 3D model:', error)
+        logger.error('Error loading 3D model:', error)
         setError('Failed to load 3D model')
         setLoading(false)
       }

@@ -71,7 +71,8 @@ interface ActiveListener {
 }
 
 export default function DispatchConsole() {
-  const { user, isAuthenticated: _isAuthenticated } = useAuth()
+  const auth = useAuth()
+  const { user, isAuthenticated: _isAuthenticated } = auth
   const { openInspect } = useInspect()
   const [channels, setChannels] = useState<DispatchChannel[]>([])
   const [selectedChannel, setSelectedChannel] = useState<number | null>(null)

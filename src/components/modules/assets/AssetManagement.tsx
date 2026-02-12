@@ -1,9 +1,9 @@
-import { Plus, MagnifyingGlass } from "@phosphor-icons/react"
+import { Plus, Search } from "lucide-react"
 
 import { AssetStatsBar } from "./AssetManagement/components/AssetStatsBar"
 import { useAssetFilters } from "./AssetManagement/hooks/useAssetFilters"
 import { useAssets } from "./AssetManagement/hooks/useAssets"
-import { useAuth } from "@/contexts/AuthContext"
+
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -24,6 +24,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
+import { useAuth } from "@/contexts"
 
 
 
@@ -107,7 +108,7 @@ export function AssetManagement() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search by name, tag, or serial number..."
             value={searchTerm}

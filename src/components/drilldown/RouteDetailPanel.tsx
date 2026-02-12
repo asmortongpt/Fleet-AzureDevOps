@@ -47,92 +47,10 @@ interface RouteMatrixData {
   status: 'active' | 'planned' | 'completed' | 'cancelled'
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
-// Demo data for fallback
-const demoRoutes: RouteMatrixData[] = [
-  {
-    id: 'route-001',
-    number: 'RT-1001',
-    name: 'Downtown Morning Circuit',
-    driverId: 'drv-001',
-    driverName: 'John Smith',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    startTime: '2026-01-03T08:00:00',
-    endTime: '2026-01-03T12:00:00',
-    totalStops: 12,
-    completedStops: 8,
-    remainingStops: 4,
-    distance: 45.5,
-    eta: '2026-01-03T11:45:00',
-    status: 'active'
-  },
-  {
-    id: 'route-002',
-    number: 'RT-1002',
-    name: 'Airport Express Route',
-    driverId: 'drv-002',
-    driverName: 'Sarah Johnson',
-    vehicleId: 'veh-demo-1002',
-    vehicleName: 'Chevrolet Silverado #1002',
-    startTime: '2026-01-03T10:00:00',
-    endTime: '2026-01-03T12:00:00',
-    totalStops: 2,
-    completedStops: 1,
-    remainingStops: 1,
-    distance: 28.0,
-    eta: '2026-01-03T12:00:00',
-    status: 'active'
-  },
-  {
-    id: 'route-003',
-    number: 'RT-1003',
-    name: 'University Campus Loop',
-    driverId: 'drv-003',
-    driverName: 'Mike Davis',
-    vehicleId: 'veh-demo-1003',
-    vehicleName: 'Mercedes Sprinter #1003',
-    startTime: '2026-01-03T06:00:00',
-    endTime: '2026-01-03T09:45:00',
-    totalStops: 8,
-    completedStops: 8,
-    remainingStops: 0,
-    distance: 32.5,
-    eta: '2026-01-03T09:45:00',
-    status: 'completed'
-  },
-  {
-    id: 'route-004',
-    number: 'RT-1004',
-    name: 'Medical District Route',
-    driverId: 'drv-004',
-    driverName: 'Lisa Chen',
-    vehicleId: 'veh-demo-1005',
-    vehicleName: 'Ford Transit #1005',
-    startTime: '2026-01-03T14:00:00',
-    endTime: '2026-01-03T18:00:00',
-    totalStops: 15,
-    completedStops: 0,
-    remainingStops: 15,
-    distance: 52.3,
-    eta: '2026-01-03T18:00:00',
-    status: 'planned'
-  },
-  {
-    id: 'route-005',
-    number: 'RT-1005',
-    name: 'Industrial Park Circuit',
-    startTime: '2026-01-03T13:00:00',
-    endTime: '2026-01-03T16:00:00',
-    totalStops: 10,
-    completedStops: 0,
-    remainingStops: 10,
-    distance: 38.7,
-    eta: '2026-01-03T16:00:00',
-    status: 'planned'
-  }
-]
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 export function RouteDetailPanel({ routeId }: { routeId?: string }) {
   const [statusFilter, setStatusFilter] = useState<string>('all')
@@ -143,7 +61,6 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
     '/api/routes',
     fetcher,
     {
-      fallbackData: demoRoutes,
       shouldRetryOnError: false,
       refreshInterval: 30000 // Real-time updates every 30 seconds
     }

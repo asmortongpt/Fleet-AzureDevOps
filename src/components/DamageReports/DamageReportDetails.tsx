@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { damageReportsApi, DamageReport } from '@/services/damageReportsApi'
+import logger from '@/utils/logger';
 
 export function DamageReportDetails() {
   const { id } = useParams<{ id: string }>()
@@ -51,7 +52,7 @@ export function DamageReportDetails() {
       setReport(data)
     } catch (err) {
       setError('Failed to load damage report details')
-      console.error('Error fetching damage report:', err)
+      logger.error('Error fetching damage report:', err)
     } finally {
       setLoading(false)
     }
@@ -72,7 +73,7 @@ export function DamageReportDetails() {
       alert('3D model generation started. This may take several minutes.')
       fetchReportDetails()
     } catch (err) {
-      console.error('Error generating 3D model:', err)
+      logger.error('Error generating 3D model:', err)
       alert('Failed to start 3D model generation')
     }
   }

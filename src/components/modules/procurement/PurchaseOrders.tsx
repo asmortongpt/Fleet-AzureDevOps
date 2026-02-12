@@ -1,4 +1,4 @@
-import { ShoppingCart, Plus, MagnifyingGlass, Package, TrendUp, Trash } from "@phosphor-icons/react"
+import { ShoppingCart, Plus, Search, Package, TrendingUp, Trash2 } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -24,8 +24,8 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuth } from "@/contexts"
 import { useDrilldown } from "@/contexts/DrilldownContext"
-import { useAuth } from "@/contexts/AuthContext"
 import { PurchaseOrder } from "@/lib/types"
 
 interface POItem {
@@ -259,7 +259,7 @@ export function PurchaseOrders() {
           <CardContent>
             <div className="text-sm font-bold">${totalSpend.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
-              <TrendUp className="w-3 h-3" />
+              <TrendingUp className="w-3 h-3" />
               Cumulative
             </div>
           </CardContent>
@@ -294,7 +294,7 @@ export function PurchaseOrders() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search purchase orders..."
             value={searchTerm}
@@ -640,7 +640,7 @@ export function PurchaseOrders() {
                         onClick={() => removeItem(index)}
                         disabled={newPO.items.length === 1}
                       >
-                        <Trash className="w-4 h-4 text-destructive" />
+                        <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>
                     </div>
                   </div>

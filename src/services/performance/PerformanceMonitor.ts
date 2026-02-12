@@ -1,6 +1,7 @@
 // Performance Monitoring
 // Tracks Web Vitals, custom metrics, and performance budgets
 
+import logger from '@/utils/logger';
 interface PerformanceMetric {
   name: string;
   value: number;
@@ -103,7 +104,7 @@ export class PerformanceMonitor {
       // Clear reported metrics
       this.metrics = [];
     } catch (error) {
-      console.error('Failed to report performance metrics:', error);
+      logger.error('Failed to report performance metrics:', error);
     }
   }
 

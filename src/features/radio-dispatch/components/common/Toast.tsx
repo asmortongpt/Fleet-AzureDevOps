@@ -9,4 +9,4 @@ export {
   ToastAction,
   type ToastProps,
   type ToastActionElement,
-} from '@/components/ui/toast';
+} from '../ui/toast';

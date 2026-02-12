@@ -75,11 +75,11 @@ class SMSService {
       const accountSid = process.env.TWILIO_ACCOUNT_SID;
       const authToken = process.env.TWILIO_AUTH_TOKEN;
 
-      if (!this.isDevelopment && accountSid && authToken) {
+      if (accountSid && authToken) {
         this.client = twilio(accountSid, authToken);
         console.log('Twilio client initialized');
       } else {
-        console.log('Twilio running in mock mode (development)');
+        console.warn('Twilio credentials not configured, SMS functionality disabled');
       }
     } catch (error) {
       console.error('Failed to initialize Twilio:', error);
@@ -475,13 +475,10 @@ class SMSService {
    * Send via Twilio API
    */
   private async sendViaTwilio(message: SMSMessage, from: string): Promise<any> {
-    if (this.isDevelopment || !this.client) {
-      // Mock mode
-      console.log(`[MOCK SMS] To: ${message.to}, From: ${from}, Body: ${message.body}`);
-      return {
-        sid: `MOCK_${Date.now()}`,
-        status: 'sent',
-      };
+    if (!this.client) {
+      const error = 'Twilio not initialized - SMS functionality is disabled';
+      console.error(error);
+      throw new Error(error);
     }
 
     try {

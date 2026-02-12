@@ -30,7 +30,10 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 // ============ TYPE DEFINITIONS ============
 
@@ -74,186 +77,6 @@ interface SafetyIncident {
   root_cause?: string
 }
 
-// ============ DEMO DATA ============
-
-const demoViolations: ComplianceViolation[] = [
-  {
-    id: 'viol-001',
-    violation_number: 'DOT-2025-FL-00124',
-    date: '2025-11-20',
-    type: 'dot',
-    severity: 'major',
-    category: 'Hours of Service',
-    description: 'Driver exceeded 11-hour driving limit by 2.5 hours on 2025-11-15',
-    regulation_reference: '49 CFR 395.3(a)(1)',
-    vehicle_id: 'veh-demo-1001',
-    vehicle_name: 'Ford F-150 #1001',
-    driver_id: 'drv-001',
-    driver_name: 'John Smith',
-    citation_number: 'FHP-2025-118821',
-    fine_amount: 1250.00,
-    paid: false,
-    due_date: '2026-01-20',
-    status: 'remediation-in-progress',
-    responsible_person: 'Robert Chen',
-  },
-  {
-    id: 'viol-002',
-    violation_number: 'OSHA-2025-FL-00056',
-    date: '2025-12-01',
-    type: 'osha',
-    severity: 'critical',
-    category: 'Fall Protection',
-    description: 'Worker observed on elevated platform without proper fall protection equipment',
-    regulation_reference: '29 CFR 1926.501',
-    fine_amount: 14502.00,
-    paid: false,
-    due_date: '2026-01-15',
-    status: 'under-review',
-    responsible_person: 'Amanda Rodriguez',
-  },
-  {
-    id: 'viol-003',
-    violation_number: 'FMCSA-2025-FL-00392',
-    date: '2025-11-25',
-    type: 'fmcsa',
-    severity: 'major',
-    category: 'Vehicle Maintenance',
-    description: 'Commercial vehicle operated with defective brakes (less than 50% effectiveness)',
-    regulation_reference: '49 CFR 396.3(a)(1)',
-    vehicle_id: 'veh-demo-1002',
-    vehicle_name: 'Chevrolet Silverado #1002',
-    driver_id: 'drv-002',
-    driver_name: 'Sarah Johnson',
-    citation_number: 'FMCSA-CV-2025-3821',
-    fine_amount: 2500.00,
-    paid: true,
-    status: 'resolved',
-    responsible_person: 'Robert Chen',
-  },
-  {
-    id: 'viol-004',
-    violation_number: 'EPA-2025-FL-00018',
-    date: '2025-11-30',
-    type: 'epa',
-    severity: 'minor',
-    category: 'Hazardous Waste Storage',
-    description: 'Improper labeling of hazardous waste containers in storage area',
-    regulation_reference: '40 CFR 262.34',
-    fine_amount: 500.00,
-    paid: false,
-    due_date: '2026-01-30',
-    status: 'remediation-in-progress',
-    responsible_person: 'Dr. Jennifer Liu',
-  },
-  {
-    id: 'viol-005',
-    violation_number: 'STATE-2025-FL-00821',
-    date: '2025-12-05',
-    type: 'state',
-    severity: 'minor',
-    category: 'Weight Limits',
-    description: 'Vehicle exceeded gross vehicle weight rating by 450 pounds',
-    regulation_reference: 'Florida Statute 316.545',
-    vehicle_id: 'veh-demo-1015',
-    vehicle_name: 'Mercedes Sprinter #1015',
-    driver_id: 'drv-015',
-    driver_name: 'Tom Wilson',
-    citation_number: 'FDOT-WT-2025-5521',
-    fine_amount: 250.00,
-    paid: true,
-    status: 'resolved',
-    responsible_person: 'Robert Chen',
-  },
-]
-
-const demoIncidents: SafetyIncident[] = [
-  {
-    id: 'inc-001',
-    incident_number: 'INC-2025-001',
-    date: '2025-12-10',
-    time: '14:30',
-    location: 'I-10 West, Mile Marker 112',
-    type: 'accident',
-    severity: 'major',
-    injured: 1,
-    vehicle_id: 'veh-demo-1003',
-    vehicle_name: 'Ram 1500 #1003',
-    driver_id: 'drv-003',
-    driver_name: 'Michael Davis',
-    description: 'Rear-end collision at traffic light. Driver sustained minor injuries.',
-    status: 'investigating',
-    cost: 8500.00,
-    root_cause: 'Following too closely in wet conditions',
-  },
-  {
-    id: 'inc-002',
-    incident_number: 'INC-2025-002',
-    date: '2025-12-08',
-    time: '09:15',
-    location: 'North Service Center - Garage Bay 3',
-    type: 'injury',
-    severity: 'minor',
-    injured: 1,
-    description: 'Technician cut hand while removing sharp metal panel',
-    status: 'resolved',
-    cost: 450.00,
-    root_cause: 'Improper PPE - gloves not worn',
-  },
-  {
-    id: 'inc-003',
-    incident_number: 'INC-2025-003',
-    date: '2025-12-05',
-    time: '11:45',
-    location: 'US-27 North, Parking Area',
-    type: 'near-miss',
-    severity: 'critical',
-    injured: 0,
-    vehicle_id: 'veh-demo-1008',
-    vehicle_name: 'Ford Transit #1008',
-    driver_id: 'drv-008',
-    driver_name: 'Lisa Chen',
-    description: 'Vehicle brake failure narrowly avoided collision with pedestrian',
-    status: 'investigating',
-    cost: 0,
-    root_cause: 'Missed preventive maintenance - brake inspection overdue',
-  },
-  {
-    id: 'inc-004',
-    incident_number: 'INC-2025-004',
-    date: '2025-11-28',
-    time: '16:20',
-    location: 'South Facility - Loading Dock',
-    type: 'property-damage',
-    severity: 'minor',
-    injured: 0,
-    vehicle_id: 'veh-demo-1015',
-    vehicle_name: 'Mercedes Sprinter #1015',
-    driver_id: 'drv-015',
-    driver_name: 'Tom Wilson',
-    description: 'Vehicle backed into loading dock post, minor damage to rear bumper',
-    status: 'resolved',
-    cost: 1200.00,
-    root_cause: 'Inadequate spotter assistance during backing maneuver',
-  },
-  {
-    id: 'inc-005',
-    incident_number: 'INC-2025-005',
-    date: '2025-11-22',
-    time: '07:30',
-    location: 'East Facility - Fuel Area',
-    type: 'environmental',
-    severity: 'major',
-    injured: 0,
-    description: 'Diesel fuel spill during refueling - approximately 15 gallons',
-    status: 'closed',
-    cost: 3200.00,
-    root_cause: 'Faulty fuel nozzle automatic shutoff',
-  },
-]
-
-// ============ VIOLATIONS MATRIX ============
-
 export function ViolationsMatrixView() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [severityFilter, setSeverityFilter] = useState<string>('all')
@@ -264,7 +87,6 @@ export function ViolationsMatrixView() {
     '/api/compliance/violations',
     fetcher,
     {
-      fallbackData: demoViolations,
       shouldRetryOnError: false,
     }
   )
@@ -481,7 +303,7 @@ export function ViolationsMatrixView() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalViolations}</div>
-            <div className="text-xs text-slate-400">Total Violations</div>
+            <div className="text-xs text-slate-700">Total Violations</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -490,7 +312,7 @@ export function ViolationsMatrixView() {
               <AlertOctagon className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{openCount}</div>
             </div>
-            <div className="text-xs text-slate-400">Open/In Progress</div>
+            <div className="text-xs text-slate-700">Open/In Progress</div>
           </CardContent>
         </Card>
         <Card className="bg-orange-900/30 border-orange-700/50">
@@ -499,13 +321,13 @@ export function ViolationsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-orange-400" />
               <div className="text-sm font-bold text-orange-400">{criticalCount}</div>
             </div>
-            <div className="text-xs text-slate-400">Critical Severity</div>
+            <div className="text-xs text-slate-700">Critical Severity</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-amber-400">${unpaidFines.toFixed(0)}</div>
-            <div className="text-xs text-slate-400">Unpaid Fines</div>
+            <div className="text-xs text-slate-700">Unpaid Fines</div>
           </CardContent>
         </Card>
       </div>
@@ -519,7 +341,7 @@ export function ViolationsMatrixView() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex justify-between text-xs text-slate-400 mb-2">
+          <div className="flex justify-between text-xs text-slate-700 mb-2">
             <span>Paid: ${(totalFines - unpaidFines).toFixed(2)}</span>
             <span>Unpaid: ${unpaidFines.toFixed(2)}</span>
           </div>
@@ -616,7 +438,6 @@ export function IncidentsMatrixView() {
     '/api/safety/incidents',
     fetcher,
     {
-      fallbackData: demoIncidents,
       shouldRetryOnError: false,
     }
   )
@@ -805,7 +626,7 @@ export function IncidentsMatrixView() {
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalIncidents}</div>
-            <div className="text-xs text-slate-400">Total Incidents</div>
+            <div className="text-xs text-slate-700">Total Incidents</div>
           </CardContent>
         </Card>
         <Card className="bg-red-900/30 border-red-700/50">
@@ -814,7 +635,7 @@ export function IncidentsMatrixView() {
               <AlertOctagon className="w-3 h-3 text-red-400" />
               <div className="text-sm font-bold text-red-400">{openCount}</div>
             </div>
-            <div className="text-xs text-slate-400">Open/Investigating</div>
+            <div className="text-xs text-slate-700">Open/Investigating</div>
           </CardContent>
         </Card>
         <Card className="bg-orange-900/30 border-orange-700/50">
@@ -823,13 +644,13 @@ export function IncidentsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-orange-400" />
               <div className="text-sm font-bold text-orange-400">{totalInjured}</div>
             </div>
-            <div className="text-xs text-slate-400">Total Injuries</div>
+            <div className="text-xs text-slate-700">Total Injuries</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-amber-400">${totalCost.toFixed(0)}</div>
-            <div className="text-xs text-slate-400">Total Cost</div>
+            <div className="text-xs text-slate-700">Total Cost</div>
           </CardContent>
         </Card>
       </div>
@@ -894,7 +715,7 @@ export function IncidentsMatrixView() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Shield className="w-3 h-3 text-blue-400" />
+            <Shield className="w-3 h-3 text-blue-700" />
             All Safety Incidents - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>

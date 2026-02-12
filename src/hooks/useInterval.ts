@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react"
 
+import logger from '@/utils/logger';
 /**
  * Custom hook for managing intervals with proper cleanup
  * Prevents memory leaks and handles stale closures

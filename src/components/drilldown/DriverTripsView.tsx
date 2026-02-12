@@ -96,7 +96,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                                 {trip.status}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
-                                Trip #{trip.id.slice(0, 8)}
+                                Trip #{String(trip.id).slice(0, 8)}
                               </span>
                             </div>
                             {trip.vehicle_name && (

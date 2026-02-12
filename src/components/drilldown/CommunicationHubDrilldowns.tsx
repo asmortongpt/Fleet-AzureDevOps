@@ -4,152 +4,48 @@
  * Each stat card in CommunicationHub drills down to a filtered list of actual records.
  * From the list, users can click individual items to view full details.
  */
-import {
-  ChatCircle,
-  EnvelopeSimple,
-  Robot,
-  Bell,
-  Archive,
-  Envelope,
-  PaperPlaneTilt,
-  Clock,
-  CheckCircle,
-  Warning,
-  Star,
-  Paperclip,
-  Eye,
-  Flag,
-  Calendar,
-  TrendUp,
-  Hash,
-  Users,
-  Sparkle,
-  ArrowRight,
-} from '@phosphor-icons/react'
+import { MessageCircle, Mail, Bot, Bell, Archive, Send, Clock, CheckCircle, AlertTriangle, Star, Paperclip, Eye, Flag, Calendar, TrendingUp, Hash, Users, Sparkles, ArrowRight } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { swrFetcher } from '@/lib/fetcher'
 
 // ============================================================================
-// MOCK DATA - In production, this would come from API
+// TODO: Replace with real API calls
+// All data should come from the useReactiveCommunicationData hook
 // ============================================================================
-
-const mockEmails = [
-  {
-    id: 'email-1',
-    subject: 'Weekly Fleet Performance Report',
-    from: 'reports@fleetops.io',
-    fromName: 'Fleet Reports',
-    to: ['fleet-managers@company.com'],
-    date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-    body: 'Dear Fleet Managers,\n\nPlease find attached the weekly fleet performance report for your review. Key highlights include...',
-    isRead: true,
-    hasAttachments: true,
-    attachments: [{ id: 'att-1', name: 'Fleet_Report_Week52.pdf', size: 245000, type: 'application/pdf' }],
-    folder: 'Inbox',
-    labels: ['Reports', 'Weekly'],
-  },
-  {
-    id: 'email-2',
-    subject: 'Urgent: Maintenance Required - VH-1234',
-    from: 'maintenance@fleetops.io',
-    fromName: 'Maintenance Alerts',
-    to: ['dispatch@company.com'],
-    date: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
-    body: 'Vehicle VH-1234 requires immediate brake inspection. The vehicle has been flagged by the predictive maintenance system.',
-    isRead: false,
-    priority: 'high',
-    relatedVehicleId: 'VH-1234',
-    folder: 'Inbox',
-    labels: ['Maintenance', 'Urgent'],
-  },
-  {
-    id: 'email-3',
-    subject: 'Invoice #INV-2024-0892 - Parts Supply',
-    from: 'billing@autoparts-supplier.com',
-    fromName: 'AutoParts Supplier',
-    to: ['accounts@company.com'],
-    date: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
-    body: 'Please find attached invoice for recent parts order. Payment due within 30 days.',
-    isRead: true,
-    hasReceipt: true,
-    hasAttachments: true,
-    attachments: [{ id: 'att-2', name: 'Invoice_INV-2024-0892.pdf', size: 89000, type: 'application/pdf' }],
-    relatedVendorId: 'vendor-1',
-    relatedVendorName: 'AutoParts Supplier',
-    relatedInvoiceId: 'INV-2024-0892',
-    folder: 'Inbox',
-    labels: ['Invoice', 'Vendor'],
-  },
-  {
-    id: 'email-4',
-    subject: 'Driver Certification Renewal - John Smith',
-    from: 'hr@company.com',
-    fromName: 'HR Department',
-    to: ['fleet-ops@company.com'],
-    date: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
-    body: 'Driver John Smith\'s CDL certification is due for renewal in 30 days. Please ensure compliance.',
-    isRead: true,
-    relatedDriverId: 'driver-js-001',
-    folder: 'Inbox',
-    labels: ['Compliance', 'Driver'],
-  },
-  {
-    id: 'email-5',
-    subject: 'New Safety Bulletin - Winter Driving Guidelines',
-    from: 'safety@fleetops.io',
-    fromName: 'Safety Department',
-    to: ['all-drivers@company.com'],
-    date: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-    body: 'Please review the attached winter driving safety guidelines. All drivers must acknowledge receipt.',
-    isRead: false,
-    hasAttachments: true,
-    attachments: [{ id: 'att-3', name: 'Winter_Safety_Guide_2024.pdf', size: 1250000, type: 'application/pdf' }],
-    folder: 'Inbox',
-    labels: ['Safety', 'Training'],
-  },
-  {
-    id: 'email-6',
-    subject: 'Fuel Card Transaction Summary',
-    from: 'fuelcard@provider.com',
-    fromName: 'Fuel Card Provider',
-    to: ['fleet-finance@company.com'],
-    date: new Date(Date.now() - 28 * 60 * 60 * 1000).toISOString(),
-    body: 'Your weekly fuel card transaction summary is ready for review. Total spend: $4,567.89',
-    isRead: true,
-    hasReceipt: true,
-    folder: 'Inbox',
-    labels: ['Fuel', 'Finance'],
-  },
-]
-
-const mockConversations = [
-  { id: 'conv-1', user: 'John Smith', topic: 'Vehicle location query', status: 'resolved', time: new Date(Date.now() - 2 * 60 * 1000).toISOString(), messages: 5, satisfaction: 5 },
-  { id: 'conv-2', user: 'Jane Doe', topic: 'Fuel card PIN reset', status: 'active', time: new Date(Date.now() - 5 * 60 * 1000).toISOString(), messages: 3, satisfaction: null },
-  { id: 'conv-3', user: 'Bob Wilson', topic: 'Route optimization request', status: 'resolved', time: new Date(Date.now() - 12 * 60 * 1000).toISOString(), messages: 8, satisfaction: 4 },
-  { id: 'conv-4', user: 'Alice Brown', topic: 'Maintenance ETA inquiry', status: 'resolved', time: new Date(Date.now() - 18 * 60 * 1000).toISOString(), messages: 4, satisfaction: 5 },
-  { id: 'conv-5', user: 'Mike Johnson', topic: 'DOT compliance question', status: 'escalated', time: new Date(Date.now() - 45 * 60 * 1000).toISOString(), messages: 12, satisfaction: 3 },
-  { id: 'conv-6', user: 'Sarah Davis', topic: 'Schedule change request', status: 'resolved', time: new Date(Date.now() - 60 * 60 * 1000).toISOString(), messages: 6, satisfaction: 5 },
-]
-
-const mockTeamsMessages = [
-  { id: 'msg-1', channel: '#dispatch', author: 'John Smith', content: 'Route 45 completed ahead of schedule', time: new Date(Date.now() - 5 * 60 * 1000).toISOString(), reactions: 3 },
-  { id: 'msg-2', channel: '#maintenance', author: 'Mike Tech', content: 'VH-5678 brake service completed', time: new Date(Date.now() - 15 * 60 * 1000).toISOString(), reactions: 2 },
-  { id: 'msg-3', channel: '#drivers', author: 'Jane Driver', content: 'Traffic delay on I-95, ETA updated', time: new Date(Date.now() - 25 * 60 * 1000).toISOString(), reactions: 0 },
-  { id: 'msg-4', channel: '#safety', author: 'Safety Team', content: 'New incident reported - details pending', time: new Date(Date.now() - 45 * 60 * 1000).toISOString(), reactions: 5 },
-  { id: 'msg-5', channel: '#general', author: 'HR Dept', content: 'Holiday schedule reminder', time: new Date(Date.now() - 60 * 60 * 1000).toISOString(), reactions: 12 },
-]
 
 // ============================================================================
 // HELPER COMPONENTS
 // ============================================================================
 
 interface EmailListItemProps {
-  email: typeof mockEmails[0]
+  email: {
+    id: string
+    subject: string
+    from: string
+    fromName?: string
+    to: string[]
+    date: string
+    body: string
+    isRead: boolean
+    hasAttachments?: boolean
+    attachments?: Array<{ id: string; name: string; size: number; type: string }>
+    folder: string
+    labels?: string[]
+    priority?: string
+    hasReceipt?: boolean
+    relatedVehicleId?: string
+    relatedDriverId?: string
+    relatedVendorId?: string
+    relatedVendorName?: string
+    relatedInvoiceId?: string
+  }
   onClick: () => void
 }
 
@@ -163,11 +59,11 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
     >
       <div className="flex-shrink-0 mt-1">
         {email.priority === 'high' ? (
-          <Warning className="w-3 h-3 text-red-400" />
+          <AlertTriangle className="w-3 h-3 text-red-400" />
         ) : email.hasReceipt ? (
-          <CheckCircle className="w-3 h-3 text-emerald-400" />
+          <CheckCircle className="w-3 h-3 text-emerald-700" />
         ) : (
-          <Envelope className={`w-3 h-3 ${!email.isRead ? 'text-blue-400' : 'text-slate-500'}`} />
+          <Mail className={`w-3 h-3 ${!email.isRead ? 'text-blue-700' : 'text-slate-500'}`} />
         )}
       </div>
       <div className="flex-1 min-w-0">
@@ -179,7 +75,7 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
             {formatDistanceToNow(new Date(email.date), { addSuffix: true })}
           </span>
         </div>
-        <div className={`text-sm truncate ${!email.isRead ? 'font-semibold text-white' : 'text-slate-400'}`}>
+        <div className={`text-sm truncate ${!email.isRead ? 'font-semibold text-white' : 'text-slate-700'}`}>
           {email.subject}
         </div>
         <div className="text-xs text-slate-500 truncate mt-1">
@@ -187,7 +83,7 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
         </div>
         <div className="flex items-center gap-2 mt-2">
           {!email.isRead && (
-            <Badge className="bg-blue-500/20 text-blue-400 text-[10px]">Unread</Badge>
+            <Badge className="bg-blue-500/20 text-blue-700 text-[10px]">Unread</Badge>
           )}
           {email.hasAttachments && (
             <Paperclip className="w-3 h-3 text-slate-500" />
@@ -205,14 +101,46 @@ function EmailListItem({ email, onClick }: EmailListItemProps) {
 }
 
 interface ConversationListItemProps {
-  conversation: typeof mockConversations[0]
+  conversation: {
+    id: string
+    user: string
+    topic: string
+    status: string
+    time: string
+    messages: number
+    satisfaction: number | null
+  }
   onClick: () => void
+}
+
+interface OutlookMessage {
+  id: string
+  subject?: string
+  from_email?: string
+  from_name?: string
+  to_emails?: string[]
+  received_at?: string
+  sent_at?: string
+  body_preview?: string
+  is_read?: boolean
+  metadata?: Record<string, any>
+}
+
+interface CommunicationLogRow {
+  id: string
+  subject?: string
+  message_body?: string
+  status?: string
+  sent_at?: string
+  created_at?: string
+  to_address?: string
+  metadata?: Record<string, any>
 }
 
 function ConversationListItem({ conversation, onClick }: ConversationListItemProps) {
   const statusColors = {
-    resolved: 'text-emerald-400 border-emerald-500',
-    active: 'text-blue-400 border-blue-500',
+    resolved: 'text-emerald-700 border-emerald-500',
+    active: 'text-blue-700 border-blue-500',
     escalated: 'text-amber-400 border-amber-500',
   }
 
@@ -227,7 +155,7 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
         </div>
         <div className="min-w-0">
           <div className="font-medium text-white truncate">{conversation.user}</div>
-          <div className="text-xs text-slate-400 truncate">{conversation.topic}</div>
+          <div className="text-xs text-slate-700 truncate">{conversation.topic}</div>
           <div className="text-xs text-slate-500 mt-1">
             {conversation.messages} messages • {formatDistanceToNow(new Date(conversation.time), { addSuffix: true })}
           </div>
@@ -239,7 +167,7 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
         </Badge>
         {conversation.satisfaction && (
           <div className="flex items-center gap-1 text-xs text-slate-500">
-            <Star className="w-3 h-3 text-yellow-500" weight="fill" />
+            <Star className="w-3 h-3 text-yellow-500" />
             {conversation.satisfaction}/5
           </div>
         )}
@@ -249,7 +177,14 @@ function ConversationListItem({ conversation, onClick }: ConversationListItemPro
 }
 
 interface MessageListItemProps {
-  message: typeof mockTeamsMessages[0]
+  message: {
+    id: string
+    channel: string
+    author: string
+    content: string
+    time: string
+    reactions: number
+  }
   onClick: () => void
 }
 
@@ -289,11 +224,14 @@ export function AiAgentDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
+  // TODO: Replace with real API call - useReactiveCommunicationData hook
+  const conversations: ConversationListItemProps['conversation'][] = []
+
   const filteredConversations = filterType === 'satisfaction'
-    ? mockConversations.filter(c => c.satisfaction && c.satisfaction >= 4)
+    ? conversations.filter(c => c.satisfaction && c.satisfaction >= 4)
     : filterType === 'active'
-    ? mockConversations.filter(c => c.status === 'active')
-    : mockConversations
+    ? conversations.filter(c => c.status === 'active')
+    : conversations
 
   return (
     <div className="space-y-2">
@@ -302,23 +240,23 @@ export function AiAgentDrilldown() {
         <Card className="bg-emerald-900/30 border-emerald-700/50 cursor-pointer hover:border-emerald-500/50 transition-colors"
               onClick={() => push({ type: 'ai-satisfaction', data: { filter: 'satisfaction', title: 'High Satisfaction' } } as any)}>
           <CardContent className="p-2 text-center">
-            <Robot className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
+            <Bot className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
             <div className="text-sm font-bold text-white">94%</div>
-            <div className="text-xs text-slate-400">Satisfaction</div>
+            <div className="text-xs text-slate-700">Satisfaction</div>
           </CardContent>
         </Card>
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <Clock className="w-4 h-4 text-blue-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-blue-400">1.2s</div>
-            <div className="text-xs text-slate-400">Avg Response</div>
+            <Clock className="w-4 h-4 text-blue-700 mx-auto mb-2" />
+            <div className="text-sm font-bold text-blue-700">1.2s</div>
+            <div className="text-xs text-slate-700">Avg Response</div>
           </CardContent>
         </Card>
         <Card className="bg-purple-900/30 border-purple-700/50">
           <CardContent className="p-2 text-center">
-            <ChatCircle className="w-4 h-4 text-purple-400 mx-auto mb-2" />
+            <MessageCircle className="w-4 h-4 text-purple-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-purple-400">{filteredConversations.length}</div>
-            <div className="text-xs text-slate-400">Conversations</div>
+            <div className="text-xs text-slate-700">Conversations</div>
           </CardContent>
         </Card>
       </div>
@@ -328,7 +266,7 @@ export function AiAgentDrilldown() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sparkle className="w-3 h-3 text-purple-400" />
+              <Sparkles className="w-3 h-3 text-purple-400" />
               AI Conversations
             </div>
             <Badge variant="outline" className="text-xs">
@@ -396,12 +334,15 @@ export function MessagesDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
+  // TODO: Replace with real API call - useReactiveCommunicationData hook
+  const messages: MessageListItemProps['message'][] = []
+
   const channelActivity = [
-    { channel: '#dispatch', messages: 89, active: true, unread: 5 },
-    { channel: '#maintenance', messages: 56, active: true, unread: 2 },
-    { channel: '#drivers', messages: 45, active: true, unread: 8 },
-    { channel: '#safety', messages: 28, active: false, unread: 0 },
-    { channel: '#general', messages: 16, active: false, unread: 0 },
+    { channel: '#dispatch', messages: 0, active: false, unread: 0 },
+    { channel: '#maintenance', messages: 0, active: false, unread: 0 },
+    { channel: '#drivers', messages: 0, active: false, unread: 0 },
+    { channel: '#safety', messages: 0, active: false, unread: 0 },
+    { channel: '#general', messages: 0, active: false, unread: 0 },
   ]
 
   return (
@@ -410,23 +351,23 @@ export function MessagesDrilldown() {
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <ChatCircle className="w-4 h-4 text-blue-400 mx-auto mb-2" />
+            <MessageCircle className="w-4 h-4 text-blue-700 mx-auto mb-2" />
             <div className="text-sm font-bold text-white">234</div>
-            <div className="text-xs text-slate-400">Messages Today</div>
+            <div className="text-xs text-slate-700">Messages Today</div>
           </CardContent>
         </Card>
         <Card className="bg-slate-800/50 border-slate-700">
           <CardContent className="p-2 text-center">
-            <Hash className="w-4 h-4 text-slate-400 mx-auto mb-2" />
+            <Hash className="w-4 h-4 text-slate-700 mx-auto mb-2" />
             <div className="text-sm font-bold text-slate-300">12</div>
-            <div className="text-xs text-slate-400">Channels</div>
+            <div className="text-xs text-slate-700">Channels</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <Users className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-emerald-400">48</div>
-            <div className="text-xs text-slate-400">Active Users</div>
+            <Users className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
+            <div className="text-sm font-bold text-emerald-700">48</div>
+            <div className="text-xs text-slate-700">Active Users</div>
           </CardContent>
         </Card>
       </div>
@@ -469,31 +410,35 @@ export function MessagesDrilldown() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             Recent Messages
-            <Badge variant="outline" className="text-xs">{mockTeamsMessages.length} shown</Badge>
+            <Badge variant="outline" className="text-xs">{messages.length} shown</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ScrollArea className="h-[300px] pr-2">
             <div className="space-y-2">
-              {mockTeamsMessages.map(msg => (
-                <MessageListItem
-                  key={msg.id}
-                  message={msg}
-                  onClick={() => push({
-                    id: msg.id,
-                    type: 'message-detail',
-                    label: `Message from ${msg.author}`,
-                    data: {
-                      messageId: msg.id,
-                      channel: msg.channel,
-                      author: msg.author,
-                      content: msg.content,
-                      time: msg.time,
-                      reactions: msg.reactions,
-                    }
-                  })}
-                />
-              ))}
+              {messages.length === 0 ? (
+                <div className="text-center text-slate-500 py-8">No messages available</div>
+              ) : (
+                messages.map(msg => (
+                  <MessageListItem
+                    key={msg.id}
+                    message={msg}
+                    onClick={() => push({
+                      id: msg.id,
+                      type: 'message-detail',
+                      label: `Message from ${msg.author}`,
+                      data: {
+                        messageId: msg.id,
+                        channel: msg.channel,
+                        author: msg.author,
+                        content: msg.content,
+                        time: msg.time,
+                        reactions: msg.reactions,
+                      }
+                    })}
+                  />
+                ))
+              )}
             </div>
           </ScrollArea>
         </CardContent>
@@ -506,23 +451,57 @@ export function EmailDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
+  const { data: emailsResponse } = useSWR<{ success: boolean; data: OutlookMessage[] }>(
+    `/api/outlook/messages?source=local&top=200`,
+    swrFetcher
+  )
+
+  const emails: EmailListItemProps['email'][] = (emailsResponse?.data || []).map((email) => ({
+    id: email.id,
+    subject: email.subject || 'Untitled',
+    from: email.from_email || 'unknown',
+    fromName: email.from_name || undefined,
+    to: email.to_emails || [],
+    date: email.received_at || email.sent_at || new Date().toISOString(),
+    body: email.body_preview || '',
+    isRead: !!email.is_read,
+    hasAttachments: !!email.metadata?.hasAttachments,
+    attachments: email.metadata?.attachments || [],
+    folder: email.metadata?.folder || 'inbox',
+    labels: email.metadata?.labels || [],
+    priority: email.metadata?.priority || 'normal',
+    hasReceipt: !!email.metadata?.hasReceipt,
+    relatedVehicleId: email.metadata?.relatedVehicleId,
+    relatedDriverId: email.metadata?.relatedDriverId,
+    relatedVendorId: email.metadata?.relatedVendorId,
+    relatedVendorName: email.metadata?.relatedVendorName,
+    relatedInvoiceId: email.metadata?.relatedInvoiceId
+  }))
+
   // Filter emails based on drilldown context
   const filteredEmails = filterType === 'sent'
-    ? mockEmails // In real app, filter to sent emails
+    ? emails // In real app, filter to sent emails
     : filterType === 'unread'
-    ? mockEmails.filter(e => !e.isRead)
+    ? emails.filter(e => !e.isRead)
     : filterType === 'receipts'
-    ? mockEmails.filter(e => e.hasReceipt)
+    ? emails.filter(e => e.hasReceipt)
     : filterType === 'scheduled'
-    ? mockEmails.slice(0, 3) // Mock scheduled emails
-    : mockEmails
+    ? emails.filter(e => e.labels?.includes('scheduled'))
+    : emails
 
-  const emailTemplates = [
-    { id: 'tpl-1', name: 'Weekly Fleet Report', usageCount: 156, lastUsed: '2 days ago' },
-    { id: 'tpl-2', name: 'Maintenance Reminder', usageCount: 89, lastUsed: '1 day ago' },
-    { id: 'tpl-3', name: 'Safety Bulletin', usageCount: 45, lastUsed: '3 days ago' },
-    { id: 'tpl-4', name: 'Driver Notification', usageCount: 234, lastUsed: 'Today' },
-  ]
+  const emailTemplates: Array<{ id: string; name: string; usageCount: number; lastUsed: string }> = []
+
+  const sentToday = emails.filter((email) => {
+    const date = new Date(email.date)
+    const today = new Date()
+    return date.toDateString() === today.toDateString()
+  }).length
+
+  const openRate = emails.length > 0
+    ? Math.round((emails.filter(e => e.isRead).length / emails.length) * 100)
+    : 0
+
+  const scheduledCount = emails.filter(e => e.labels?.includes('scheduled')).length
 
   return (
     <div className="space-y-2">
@@ -533,9 +512,9 @@ export function EmailDrilldown() {
           onClick={() => push({ type: 'email', data: { filter: 'sent', title: 'Sent Today' } } as any)}
         >
           <CardContent className="p-2 text-center">
-            <PaperPlaneTilt className="w-4 h-4 text-blue-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-white">156</div>
-            <div className="text-xs text-slate-400">Sent Today</div>
+            <Send className="w-4 h-4 text-blue-700 mx-auto mb-2" />
+            <div className="text-sm font-bold text-white">{sentToday}</div>
+            <div className="text-xs text-slate-700">Sent Today</div>
           </CardContent>
         </Card>
         <Card
@@ -543,16 +522,16 @@ export function EmailDrilldown() {
           onClick={() => push({ type: 'email-templates', data: { filter: 'templates', title: 'Templates' } } as any)}
         >
           <CardContent className="p-2 text-center">
-            <EnvelopeSimple className="w-4 h-4 text-slate-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-slate-300">24</div>
-            <div className="text-xs text-slate-400">Templates</div>
+            <Mail className="w-4 h-4 text-slate-700 mx-auto mb-2" />
+            <div className="text-sm font-bold text-slate-300">{emailTemplates.length}</div>
+            <div className="text-xs text-slate-700">Templates</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <Eye className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-emerald-400">42%</div>
-            <div className="text-xs text-slate-400">Open Rate</div>
+            <Eye className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
+            <div className="text-sm font-bold text-emerald-700">{openRate}%</div>
+            <div className="text-xs text-slate-700">Open Rate</div>
           </CardContent>
         </Card>
         <Card
@@ -561,8 +540,8 @@ export function EmailDrilldown() {
         >
           <CardContent className="p-2 text-center">
             <Calendar className="w-4 h-4 text-amber-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-amber-400">12</div>
-            <div className="text-xs text-slate-400">Scheduled</div>
+            <div className="text-sm font-bold text-amber-400">{scheduledCount}</div>
+            <div className="text-xs text-slate-700">Scheduled</div>
           </CardContent>
         </Card>
       </div>
@@ -572,7 +551,7 @@ export function EmailDrilldown() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Envelope className="w-3 h-3 text-blue-400" />
+              <Mail className="w-3 h-3 text-blue-700" />
               {filterType === 'sent' ? 'Sent Emails' :
                filterType === 'unread' ? 'Unread Emails' :
                filterType === 'receipts' ? 'Receipt Emails' :
@@ -640,7 +619,7 @@ export function EmailDrilldown() {
               })}
             >
               <div className="flex items-center gap-3">
-                <EnvelopeSimple className="w-3 h-3 text-slate-500" />
+                <Mail className="w-3 h-3 text-slate-500" />
                 <div>
                   <div className="font-medium text-white">{template.name}</div>
                   <div className="text-xs text-slate-500">Used {template.usageCount} times • Last: {template.lastUsed}</div>
@@ -656,7 +635,7 @@ export function EmailDrilldown() {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <TrendUp className="w-3 h-3 text-emerald-400" />
+            <TrendingUp className="w-3 h-3 text-emerald-700" />
             Campaign Performance
           </CardTitle>
         </CardHeader>
@@ -697,21 +676,54 @@ export function HistoryDrilldown() {
   const { push, currentLevel } = useDrilldown()
   const filterType = currentLevel?.data?.filter || 'all'
 
-  const history = [
-    { id: 'hist-1', type: 'email', subject: 'Weekly Fleet Report', recipients: 45, time: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-2', type: 'sms', subject: 'Route Update Alert', recipients: 12, time: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-3', type: 'push', subject: 'Maintenance Reminder', recipients: 8, time: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-4', type: 'email', subject: 'Safety Bulletin', recipients: 156, time: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-5', type: 'email', subject: 'Fuel Report', recipients: 23, time: new Date(Date.now() - 28 * 60 * 60 * 1000).toISOString(), status: 'delivered' },
-    { id: 'hist-6', type: 'sms', subject: 'Dispatch Update', recipients: 8, time: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(), status: 'failed' },
+  const { data: logsResponse } = useSWR<{ data: CommunicationLogRow[] }>(
+    '/api/communication-logs?limit=200',
+    swrFetcher
+  )
+  const { data: emailsResponse } = useSWR<{ success: boolean; data: OutlookMessage[] }>(
+    '/api/outlook/messages?source=local&top=200',
+    swrFetcher
+  )
+
+  const history: Array<{
+    id: string
+    type: string
+    subject: string
+    recipients: number
+    time: string
+    status: string
+  }> = [
+    ...(logsResponse?.data || []).map((log) => ({
+      id: log.id,
+      type: 'message',
+      subject: log.subject || 'Message',
+      recipients: log.to_address ? 1 : 0,
+      time: log.sent_at || log.created_at || new Date().toISOString(),
+      status: log.status || 'sent'
+    })),
+    ...(emailsResponse?.data || []).map((email) => ({
+      id: email.id,
+      type: 'email',
+      subject: email.subject || 'Email',
+      recipients: (email.to_emails || []).length,
+      time: email.received_at || email.sent_at || new Date().toISOString(),
+      status: email.is_read ? 'read' : 'unread'
+    }))
   ]
 
   const flaggedMessages = history.filter(h => h.status === 'failed')
+  const archivedMessages = history.filter(h => h.status === 'archived')
+  const thisWeekCount = history.filter(h => {
+    const date = new Date(h.time)
+    const now = new Date()
+    const diffDays = (now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24)
+    return diffDays <= 7
+  }).length
 
   const filteredHistory = filterType === 'flagged'
     ? flaggedMessages
     : filterType === 'archived'
-    ? history // Mock archived
+    ? archivedMessages
     : history
 
   return (
@@ -720,9 +732,9 @@ export function HistoryDrilldown() {
       <div className="grid grid-cols-3 gap-3">
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <CheckCircle className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-emerald-400">456</div>
-            <div className="text-xs text-slate-400">This Week</div>
+            <CheckCircle className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
+            <div className="text-sm font-bold text-emerald-700">{thisWeekCount}</div>
+            <div className="text-xs text-slate-700">This Week</div>
           </CardContent>
         </Card>
         <Card
@@ -732,7 +744,7 @@ export function HistoryDrilldown() {
           <CardContent className="p-2 text-center">
             <Flag className="w-4 h-4 text-amber-400 mx-auto mb-2" />
             <div className="text-sm font-bold text-amber-400">{flaggedMessages.length}</div>
-            <div className="text-xs text-slate-400">Flagged</div>
+            <div className="text-xs text-slate-700">Flagged</div>
           </CardContent>
         </Card>
         <Card
@@ -740,9 +752,9 @@ export function HistoryDrilldown() {
           onClick={() => push({ type: 'archived', data: { filter: 'archived', title: 'Archived' } } as any)}
         >
           <CardContent className="p-2 text-center">
-            <Archive className="w-4 h-4 text-slate-400 mx-auto mb-2" />
-            <div className="text-sm font-bold text-slate-300">3.2K</div>
-            <div className="text-xs text-slate-400">Archived</div>
+            <Archive className="w-4 h-4 text-slate-700 mx-auto mb-2" />
+            <div className="text-sm font-bold text-slate-300">{archivedMessages.length}</div>
+            <div className="text-xs text-slate-700">Archived</div>
           </CardContent>
         </Card>
       </div>
@@ -752,7 +764,7 @@ export function HistoryDrilldown() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ChatCircle className="w-3 h-3 text-blue-400" />
+              <MessageCircle className="w-3 h-3 text-blue-700" />
               {filterType === 'flagged' ? 'Flagged Messages' :
                filterType === 'archived' ? 'Archived Messages' :
                'Communication History'}
@@ -783,15 +795,15 @@ export function HistoryDrilldown() {
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {item.type === 'email' ? (
-                      <Envelope className="w-3 h-3 text-blue-400 flex-shrink-0" />
+                      <Mail className="w-3 h-3 text-blue-700 flex-shrink-0" />
                     ) : item.type === 'sms' ? (
-                      <ChatCircle className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                      <MessageCircle className="w-3 h-3 text-emerald-700 flex-shrink-0" />
                     ) : (
                       <Bell className="w-3 h-3 text-purple-400 flex-shrink-0" />
                     )}
                     <div className="min-w-0">
                       <div className="font-medium text-white truncate">{item.subject}</div>
-                      <div className="text-xs text-slate-400">
+                      <div className="text-xs text-slate-700">
                         {item.recipients} recipients • {formatDistanceToNow(new Date(item.time), { addSuffix: true })}
                       </div>
                     </div>
@@ -800,9 +812,9 @@ export function HistoryDrilldown() {
                     <Badge
                       variant="outline"
                       className={`text-xs ${
-                        item.status === 'delivered' ? 'text-emerald-400 border-emerald-500' :
+                        item.status === 'delivered' ? 'text-emerald-700 border-emerald-500' :
                         item.status === 'failed' ? 'text-red-400 border-red-500' :
-                        'text-slate-400 border-slate-500'
+                        'text-slate-700 border-slate-500'
                       }`}
                     >
                       {item.status}

@@ -65,7 +65,7 @@ const BudgetFinanceSystem: React.FC = () => {
 
       {tabValue === 0 && (
         <Grid container spacing={3}>
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>Monthly Budget</Typography>
@@ -76,7 +76,7 @@ const BudgetFinanceSystem: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>Total Spent</Typography>
@@ -86,7 +86,7 @@ const BudgetFinanceSystem: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>Cost per Mile</Typography>
@@ -96,7 +96,7 @@ const BudgetFinanceSystem: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          <Grid size={{ xs: 12, md: 3 }}>
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>YTD Savings</Typography>
@@ -106,7 +106,7 @@ const BudgetFinanceSystem: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={8}>
+          <Grid size={{ xs: 12, md: 8 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Budget vs Actual Trend</Typography>
@@ -125,7 +125,7 @@ const BudgetFinanceSystem: React.FC = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Expense Breakdown</Typography>
@@ -136,7 +136,7 @@ const BudgetFinanceSystem: React.FC = () => {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={(entry) => entry.category}
+                      label={(entry: any) => entry.category}
                       outerRadius={80}
                       fill="#8884d8"
                       dataKey="spent"

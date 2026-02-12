@@ -10,7 +10,7 @@
  */
 
 import React, { useState, useCallback, useMemo } from 'react';
-import { motion } from 'framer-motion';
+// motion removed - React 19 incompatible
 import {
   Car,
   Plus,
@@ -22,19 +22,19 @@ import {
   Trash,
   PencilSimple,
   X,
-  FuelPump,
+  GasPump,
   Wrench,
   Clock
 } from '@phosphor-icons/react';
 import { toast } from 'react-hot-toast';
 
-import { SplitView } from '@/components/operations/SplitView';
+import { SplitView } from "@/components/operations";
 import {
   ActionButton,
   InlineEditPanel,
   ConfirmDialog,
   StatusBadge
-} from '@/components/operations/InlineActions';
+} from "@/components/operations";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -235,11 +235,8 @@ export function VehiclesOperations() {
     const statusLabel = STATUS_OPTIONS.find(s => s.value === vehicle.status?.toLowerCase())?.label || 'Unknown';
 
     return (
-      <motion.div
+      <div
         key={vehicle.id}
-        layout
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
         onClick={() => handleSelectVehicle(vehicle.id)}
         className={cn(
           'border-b border-slate-700/50 cursor-pointer transition-all duration-200 hover:bg-cyan-400/5',
@@ -250,19 +247,19 @@ export function VehiclesOperations() {
           {/* Vehicle Number */}
           <div className="col-span-2">
             <p className="font-mono font-semibold text-white">{vehicle.vehicle_number || '-'}</p>
-            <p className="text-xs text-slate-400 mt-1">ID: {vehicle.id?.slice(0, 8) || 'N/A'}</p>
+            <p className="text-xs text-slate-700 mt-1">ID: {vehicle.id?.slice(0, 8) || 'N/A'}</p>
           </div>
 
           {/* Make/Model */}
           <div className="col-span-3">
             <p className="font-semibold text-white">{vehicle.year || '—'} {vehicle.make || '—'}</p>
-            <p className="text-xs text-slate-400 mt-1">{vehicle.model || 'Unknown Model'}</p>
+            <p className="text-xs text-slate-700 mt-1">{vehicle.model || 'Unknown Model'}</p>
           </div>
 
           {/* Status */}
           <div className="col-span-2">
             <StatusBadge status={getStatusBadgeType(vehicle.status)} size="sm" />
-            <p className="text-xs text-slate-400 mt-2">{statusLabel}</p>
+            <p className="text-xs text-slate-700 mt-2">{statusLabel}</p>
           </div>
 
           {/* Mileage */}
@@ -271,16 +268,16 @@ export function VehiclesOperations() {
               <Gauge className="w-4 h-4 text-cyan-400" weight="bold" />
               <span className="font-mono">{(vehicle.mileage || 0).toLocaleString()} mi</span>
             </div>
-            <p className="text-xs text-slate-400 mt-1">Current Mileage</p>
+            <p className="text-xs text-slate-700 mt-1">Current Mileage</p>
           </div>
 
           {/* Fuel Level */}
           <div className="col-span-2">
             <div className="flex items-center gap-2 text-slate-300">
-              <Drop className="w-4 h-4 text-blue-400" weight="bold" />
+              <Drop className="w-4 h-4 text-blue-700" weight="bold" />
               <span className="font-mono">{vehicle.fuelLevel || 0}%</span>
             </div>
-            <p className="text-xs text-slate-400 mt-1">Fuel Level</p>
+            <p className="text-xs text-slate-700 mt-1">Fuel Level</p>
           </div>
 
           {/* License Plate */}
@@ -288,7 +285,7 @@ export function VehiclesOperations() {
             <p className="font-mono font-semibold text-slate-300 text-xs">{vehicle.licensePlate || '—'}</p>
           </div>
         </div>
-      </motion.div>
+      </div>
     );
   };
 
@@ -456,11 +453,11 @@ export function VehiclesOperations() {
               {/* Header Row */}
               <div className="grid grid-cols-2 gap-4 pb-3 border-b border-slate-700/50">
                 <div>
-                  <span className="text-slate-400 text-xs">Vehicle Number</span>
+                  <span className="text-slate-700 text-xs">Vehicle Number</span>
                   <p className="text-white font-mono font-semibold mt-1">{selectedVehicle.vehicle_number || 'N/A'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-xs">Status</span>
+                  <span className="text-slate-700 text-xs">Status</span>
                   <p className="text-white font-semibold mt-1">{statusLabel}</p>
                 </div>
               </div>
@@ -468,15 +465,15 @@ export function VehiclesOperations() {
               {/* Make/Model/Year */}
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <span className="text-slate-400 text-xs">Make</span>
+                  <span className="text-slate-700 text-xs">Make</span>
                   <p className="text-white font-semibold mt-1">{selectedVehicle.make || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-xs">Model</span>
+                  <span className="text-slate-700 text-xs">Model</span>
                   <p className="text-white font-semibold mt-1">{selectedVehicle.model || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-xs">Year</span>
+                  <span className="text-slate-700 text-xs">Year</span>
                   <p className="text-white font-semibold mt-1">{selectedVehicle.year || '—'}</p>
                 </div>
               </div>
@@ -484,11 +481,11 @@ export function VehiclesOperations() {
               {/* IDs */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-slate-400 text-xs">VIN</span>
+                  <span className="text-slate-700 text-xs">VIN</span>
                   <p className="text-white font-mono text-xs mt-1">{selectedVehicle.vin || 'N/A'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-xs">License Plate</span>
+                  <span className="text-slate-700 text-xs">License Plate</span>
                   <p className="text-white font-mono font-semibold mt-1">{selectedVehicle.licensePlate || 'N/A'}</p>
                 </div>
               </div>
@@ -496,15 +493,15 @@ export function VehiclesOperations() {
               {/* Operational Data */}
               <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-700/50">
                 <div>
-                  <span className="text-slate-400 text-xs flex items-center gap-1">
+                  <span className="text-slate-700 text-xs flex items-center gap-1">
                     <Gauge className="w-3 h-3" weight="bold" />
                     Mileage
                   </span>
                   <p className="text-white font-mono font-semibold mt-1">{(selectedVehicle.mileage || 0).toLocaleString()} mi</p>
                 </div>
                 <div>
-                  <span className="text-slate-400 text-xs flex items-center gap-1">
-                    <FuelPump className="w-3 h-3" weight="bold" />
+                  <span className="text-slate-700 text-xs flex items-center gap-1">
+                    <GasPump className="w-3 h-3" weight="bold" />
                     Fuel Type
                   </span>
                   <p className="text-white font-semibold mt-1">{selectedVehicle.fuelType || 'N/A'}</p>
@@ -513,7 +510,7 @@ export function VehiclesOperations() {
 
               {/* Fuel Level */}
               <div>
-                <span className="text-slate-400 text-xs flex items-center gap-1">
+                <span className="text-slate-700 text-xs flex items-center gap-1">
                   <Drop className="w-3 h-3" weight="bold" />
                   Fuel Level
                 </span>
@@ -536,17 +533,17 @@ export function VehiclesOperations() {
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
               <Wrench className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
-              <p className="text-xs text-slate-400">Maintenance Due</p>
+              <p className="text-xs text-slate-700">Maintenance Due</p>
               <p className="text-white font-semibold text-sm mt-1">Soon</p>
             </div>
             <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
               <Clock className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
-              <p className="text-xs text-slate-400">Last Service</p>
+              <p className="text-xs text-slate-700">Last Service</p>
               <p className="text-white font-semibold text-sm mt-1">30 days ago</p>
             </div>
             <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
-              <FuelPump className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
-              <p className="text-xs text-slate-400">Efficiency</p>
+              <GasPump className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
+              <p className="text-xs text-slate-700">Efficiency</p>
               <p className="text-white font-semibold text-sm mt-1">18 MPG</p>
             </div>
           </div>
@@ -593,18 +590,18 @@ export function VehiclesOperations() {
       <div className="p-4 space-y-3 border-b border-slate-700/50">
         {/* Search */}
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" weight="bold" />
+          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" weight="bold" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by vehicle #, make, model, or plate..."
-            className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-400 text-sm"
+            className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-700 text-sm"
           />
         </div>
 
         {/* Status Filter */}
         <div className="flex items-center gap-2">
-          <Funnel className="w-4 h-4 text-slate-400 flex-shrink-0" weight="bold" />
+          <Funnel className="w-4 h-4 text-slate-700 flex-shrink-0" weight="bold" />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -619,7 +616,7 @@ export function VehiclesOperations() {
       </div>
 
       {/* Table Header */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-4 py-3 bg-slate-800/50 border-b border-slate-700/50 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+      <div className="hidden lg:grid grid-cols-12 gap-4 px-4 py-3 bg-slate-800/50 border-b border-slate-700/50 text-xs font-semibold text-slate-700 uppercase tracking-wider">
         <div className="col-span-2">Vehicle #</div>
         <div className="col-span-3">Make / Model</div>
         <div className="col-span-2">Status</div>
@@ -637,7 +634,7 @@ export function VehiclesOperations() {
         ) : filteredVehicles.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center p-4">
             <Car className="w-12 h-12 text-slate-600 mb-3" weight="bold" />
-            <p className="text-sm font-semibold text-slate-400">No vehicles found</p>
+            <p className="text-sm font-semibold text-slate-700">No vehicles found</p>
             <p className="text-xs text-slate-500 mt-1">
               {searchQuery || filterStatus !== 'all'
                 ? 'Try adjusting your search or filters'

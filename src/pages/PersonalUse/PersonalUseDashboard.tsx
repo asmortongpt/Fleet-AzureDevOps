@@ -1,14 +1,4 @@
-import {
-  Car,
-  CurrencyDollar,
-  Receipt,
-  CalendarDots,
-  Warning,
-  TrendUp,
-  Check,
-  Clock,
-  X
-} from '@phosphor-icons/react'
+import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, Clock, X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { useState, useEffect } from 'react'
@@ -18,7 +8,7 @@ import { TripMarker } from '@/components/PersonalUse/TripMarker'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Section } from '@/components/ui/section'
 import { Progress } from '@/components/ui/progress'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -185,10 +175,10 @@ export function PersonalUseDashboard() {
         </p>
       </div>
 
-      {/* Warning Alerts */}
+      {/* AlertTriangle Alerts */}
       {(monthlyExceeded || yearlyExceeded) && (
         <Alert variant="destructive">
-          <Warning className="h-4 w-4" />
+          <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
             {monthlyExceeded && (
               <p>You have exceeded your monthly personal use limit by {(monthlyPercentage - 100).toFixed(0)}%</p>
@@ -203,127 +193,107 @@ export function PersonalUseDashboard() {
       {/* Usage Meters */}
       <div className="grid gap-2 md:grid-cols-2">
         {/* Monthly Usage */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CalendarDots className="w-3 h-3" />
-              This Month
-            </CardTitle>
-            <CardDescription>
-              {dashboardData?.current_month}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Personal Miles</span>
-                <span className="font-semibold">
-                  {dashboardData?.month_personal_miles.toFixed(1) || '0.0'} / {dashboardData?.monthly_limit || '∞'} mi
-                </span>
-              </div>
-              <Progress
-                value={monthlyPercentage}
-                className={`h-2 ${getUsageColor(monthlyPercentage)}`}
-              />
-              <p className="text-xs text-muted-foreground">
-                {monthlyPercentage.toFixed(0)}% used
-              </p>
+        <Section
+          title="This Month"
+          description={dashboardData?.current_month}
+          icon={<Calendar className="w-3 h-3" />}
+          contentClassName="space-y-2"
+        >
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>Personal Miles</span>
+              <span className="font-semibold">
+                {dashboardData?.month_personal_miles.toFixed(1) || '0.0'} / {dashboardData?.monthly_limit || '∞'} mi
+              </span>
             </div>
-          </CardContent>
-        </Card>
+            <Progress
+              value={monthlyPercentage}
+              className={`h-2 ${getUsageColor(monthlyPercentage)}`}
+            />
+            <p className="text-xs text-muted-foreground">
+              {monthlyPercentage.toFixed(0)}% used
+            </p>
+          </div>
+        </Section>
 
         {/* Yearly Usage */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendUp className="w-3 h-3" />
-              This Year
-            </CardTitle>
-            <CardDescription>
-              Year-to-date usage
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span>Personal Miles</span>
-                <span className="font-semibold">
-                  {dashboardData?.year_personal_miles.toFixed(1) || '0.0'} / {dashboardData?.yearly_limit || '∞'} mi
-                </span>
-              </div>
-              <Progress
-                value={yearlyPercentage}
-                className={`h-2 ${getUsageColor(yearlyPercentage)}`}
-              />
-              <p className="text-xs text-muted-foreground">
-                {yearlyPercentage.toFixed(0)}% used
-              </p>
+        <Section
+          title="This Year"
+          description="Year-to-date usage"
+          icon={<TrendingUp className="w-3 h-3" />}
+          contentClassName="space-y-2"
+        >
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>Personal Miles</span>
+              <span className="font-semibold">
+                {dashboardData?.year_personal_miles.toFixed(1) || '0.0'} / {dashboardData?.yearly_limit || '∞'} mi
+              </span>
             </div>
-          </CardContent>
-        </Card>
+            <Progress
+              value={yearlyPercentage}
+              className={`h-2 ${getUsageColor(yearlyPercentage)}`}
+            />
+            <p className="text-xs text-muted-foreground">
+              {yearlyPercentage.toFixed(0)}% used
+            </p>
+          </div>
+        </Section>
       </div>
 
       {/* Summary Cards */}
       <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">{dashboardData?.pending_approvals || 0}</div>
-            <p className="text-xs text-muted-foreground">
-              Trips awaiting review
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Pending Approvals"
+          icon={<Clock className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">{dashboardData?.pending_approvals || 0}</div>
+          <p className="text-xs text-muted-foreground">
+            Trips awaiting review
+          </p>
+        </Section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Charges</CardTitle>
-            <CurrencyDollar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">
-              ${dashboardData?.pending_charges_amount.toFixed(2) || '0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData?.pending_charges_count || 0} charges
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Pending Charges"
+          icon={<DollarSign className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">
+            ${dashboardData?.pending_charges_amount.toFixed(2) || '0.00'}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {dashboardData?.pending_charges_count || 0} charges
+          </p>
+        </Section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Reimbursements</CardTitle>
-            <Receipt className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">
-              ${dashboardData?.pending_reimbursements_amount.toFixed(2) || '0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData?.pending_reimbursements_count || 0} requests
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Pending Reimbursements"
+          icon={<Receipt className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">
+            ${dashboardData?.pending_reimbursements_amount.toFixed(2) || '0.00'}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {dashboardData?.pending_reimbursements_count || 0} requests
+          </p>
+        </Section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Next Payment</CardTitle>
-            <CalendarDots className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">
-              ${dashboardData?.next_payment_amount?.toFixed(2) || '0.00'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData?.next_payment_date
-                ? format(new Date(dashboardData.next_payment_date), 'MMM dd, yyyy')
-                : 'No upcoming payments'}
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Next Payment"
+          icon={<Calendar className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">
+            ${dashboardData?.next_payment_amount?.toFixed(2) || '0.00'}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {dashboardData?.next_payment_date
+              ? format(new Date(dashboardData.next_payment_date), 'MMM dd, yyyy')
+              : 'No upcoming payments'}
+          </p>
+        </Section>
       </div>
 
       {/* Tabs for Details */}
@@ -334,7 +304,7 @@ export function PersonalUseDashboard() {
             Recent Trips
           </TabsTrigger>
           <TabsTrigger value="charges">
-            <CurrencyDollar className="w-4 h-4 mr-2" />
+            <DollarSign className="w-4 h-4 mr-2" />
             Pending Charges
           </TabsTrigger>
           <TabsTrigger value="reimbursements">
@@ -345,14 +315,11 @@ export function PersonalUseDashboard() {
 
         {/* Recent Trips Tab */}
         <TabsContent value="trips">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Personal Trips</CardTitle>
-              <CardDescription>
-                Last 10 personal or mixed trips
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Section
+            title="Recent Personal Trips"
+            description="Last 10 personal or mixed trips"
+            icon={<Car className="h-5 w-5" />}
+          >
               {recentTrips.length === 0 ? (
                 <div className="text-center py-3 text-muted-foreground">
                   No personal trips recorded
@@ -404,20 +371,16 @@ export function PersonalUseDashboard() {
                   </TableBody>
                 </Table>
               )}
-            </CardContent>
-          </Card>
+          </Section>
         </TabsContent>
 
         {/* Pending Charges Tab */}
         <TabsContent value="charges">
-          <Card>
-            <CardHeader>
-              <CardTitle>Pending Charges</CardTitle>
-              <CardDescription>
-                Charges awaiting payment
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Section
+            title="Pending Charges"
+            description="Charges awaiting payment"
+            icon={<DollarSign className="h-5 w-5" />}
+          >
               {pendingCharges.length === 0 ? (
                 <div className="text-center py-3 text-muted-foreground">
                   No pending charges
@@ -448,20 +411,16 @@ export function PersonalUseDashboard() {
                   </TableBody>
                 </Table>
               )}
-            </CardContent>
-          </Card>
+          </Section>
         </TabsContent>
 
         {/* Reimbursements Tab */}
         <TabsContent value="reimbursements">
-          <Card>
-            <CardHeader>
-              <CardTitle>Reimbursement Requests</CardTitle>
-              <CardDescription>
-                Your pending and recent reimbursement requests
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Section
+            title="Reimbursement Requests"
+            description="Your pending and recent reimbursement requests"
+            icon={<Receipt className="h-5 w-5" />}
+          >
               {reimbursements.length === 0 ? (
                 <div className="text-center py-3 text-muted-foreground">
                   No reimbursement requests
@@ -494,8 +453,7 @@ export function PersonalUseDashboard() {
                   </TableBody>
                 </Table>
               )}
-            </CardContent>
-          </Card>
+          </Section>
         </TabsContent>
       </Tabs>
 

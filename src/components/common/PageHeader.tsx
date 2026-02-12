@@ -25,7 +25,7 @@
  * ```
  */
 
-import { TrendUp, TrendDown } from "@phosphor-icons/react"
+import { TrendingUp, TrendingDown } from "lucide-react"
 import { ReactNode } from "react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -162,9 +162,9 @@ function StatCardComponent({
             {trend && (
               <div className="flex items-center gap-1 mt-1">
                 {trend.direction === "up" ? (
-                  <TrendUp className="w-4 h-4 text-green-600" />
+                  <TrendingUp className="w-4 h-4 text-green-600" />
                 ) : (
-                  <TrendDown className="w-4 h-4 text-red-600" />
+                  <TrendingDown className="w-4 h-4 text-red-600" />
                 )}
                 <span
                   className={`text-xs font-medium ${

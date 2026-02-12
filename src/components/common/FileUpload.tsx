@@ -1,4 +1,4 @@
-import { Upload, X, File, Image as ImageIcon } from "@phosphor-icons/react"
+import { Upload, X, File, Image as ImageIcon } from "lucide-react"
 import { useState, useCallback } from "react"
 import { useDropzone, Accept } from "react-dropzone"
 

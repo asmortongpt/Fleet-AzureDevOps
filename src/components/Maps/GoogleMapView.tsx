@@ -105,6 +105,30 @@ interface VehicleMarkerProps {
   onClick?: (vehicle: Vehicle) => void
 }
 
+const resolveVehiclePosition = (vehicle: Vehicle) => {
+  const lat =
+    (vehicle as any)?.location?.lat ??
+    (vehicle as any)?.location?.latitude ??
+    (vehicle as any)?.latitude ??
+    (vehicle as any)?.current_latitude ??
+    (vehicle as any)?.lat
+  const lng =
+    (vehicle as any)?.location?.lng ??
+    (vehicle as any)?.location?.longitude ??
+    (vehicle as any)?.longitude ??
+    (vehicle as any)?.current_longitude ??
+    (vehicle as any)?.lng
+
+  const latNum = typeof lat === 'string' ? parseFloat(lat) : Number(lat)
+  const lngNum = typeof lng === 'string' ? parseFloat(lng) : Number(lng)
+
+  if (!Number.isFinite(latNum) || !Number.isFinite(lngNum)) {
+    return null
+  }
+
+  return { lat: latNum, lng: lngNum }
+}
+
 const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) => {
   const markerRef = useRef<google.maps.Marker | null>(null)
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null)
@@ -155,10 +179,8 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
   useEffect(() => {
     if (!map || markerRef.current) return
 
-    const position = {
-      lat: vehicle.location.lat || vehicle.location.latitude || 0,
-      lng: vehicle.location.lng || vehicle.location.longitude || 0
-    }
+    const position = resolveVehiclePosition(vehicle)
+    if (!position) return
 
     // Create marker
     const marker = new google.maps.Marker({
@@ -182,7 +204,7 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
             <div><strong>Make:</strong> ${vehicle.make} ${vehicle.model}</div>
             <div><strong>Driver:</strong> ${vehicle.assignedDriver || vehicle.driver || 'Unassigned'}</div>
             <div><strong>Fuel:</strong> ${vehicle.fuelLevel}%</div>
-            <div><strong>Location:</strong> ${vehicle.location.address}</div>
+            <div><strong>Location:</strong> ${vehicle.location?.address || (vehicle as any).location_address || '—'}</div>
           </div>
         </div>
       `
@@ -206,14 +228,13 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
   // Update marker position when vehicle moves
   useEffect(() => {
     if (markerRef.current) {
-      const position = {
-        lat: vehicle.location.lat || vehicle.location.latitude || 0,
-        lng: vehicle.location.lng || vehicle.location.longitude || 0
+      const position = resolveVehiclePosition(vehicle)
+      if (position) {
+        markerRef.current.setPosition(position)
       }
-      markerRef.current.setPosition(position)
       markerRef.current.setIcon(createMarkerIcon(vehicle.status, vehicle.type))
     }
-  }, [vehicle.location.lat, vehicle.location.lng, vehicle.location.latitude, vehicle.location.longitude, vehicle.status, vehicle.type])
+  }, [vehicle])
 
   return null
 }
@@ -300,7 +321,7 @@ const LoadingComponent: React.FC = () => (
   <div className="flex items-center justify-center w-full h-full bg-slate-900">
     <div className="text-center">
       <Spinner className="w-4 h-4 text-blue-800 mb-2" />
-      <p className="text-slate-400">Loading Google Maps...</p>
+      <p className="text-slate-700">Loading Google Maps...</p>
     </div>
   </div>
 )
@@ -310,7 +331,7 @@ const ErrorComponent: React.FC<{ error: Error }> = ({ error }) => (
     <div className="text-center max-w-md p-3 bg-red-900/20 border border-red-500/30 rounded-lg">
       <AlertCircle className="w-12 h-9 text-red-500 mx-auto mb-2" />
       <h3 className="text-base font-bold text-white mb-2">Map Loading Error</h3>
-      <p className="text-sm text-slate-400 mb-2">{error.message}</p>
+      <p className="text-sm text-slate-700 mb-2">{error.message}</p>
       <p className="text-xs text-slate-500">
         Please check your Google Maps API key configuration.
       </p>

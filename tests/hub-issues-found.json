@@ -1,0 +1,17 @@
+{
+  "totalIssues": 1,
+  "bySeverity": {
+    "critical": 0,
+    "high": 0,
+    "medium": 1,
+    "low": 0
+  },
+  "issues": [
+    {
+      "hub": "FleetOperationsHub",
+      "tab": "Fleet",
+      "issue": "Map container exists but map may not be loading",
+      "severity": "medium"
+    }
+  ]
+}

@@ -3,17 +3,9 @@
  * Supports OSHA-required training, expiration alerts, and completion tracking
  */
 
-import {
-    GraduationCap,
-    Certificate,
-    Calendar,
-    CheckCircle,
-    Warning,
-    Clock,
-    TrendUp,
-    Download
-} from '@phosphor-icons/react'
-import { useState, useMemo } from 'react'
+import { GraduationCap, Award, Calendar, CheckCircle, AlertTriangle, Clock, TrendingUp, Download, Award as Certificate } from 'lucide-react'
+import { useMemo, useState } from 'react'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -34,6 +26,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
+import { swrFetcher } from '@/lib/fetcher'
 
 interface TrainingRecord {
     id: string
@@ -63,63 +56,81 @@ const OSHA_REQUIRED_TRAINING = [
     'Lockout/Tagout (29 CFR 1910.147)',
     'Personal Protective Equipment (29 CFR 1910.132)',
     'Emergency Action Plan (29 CFR 1910.38)',
-    'Fire Extinguisher Use (29 CFR 1910.157)',
+    'Flame Extinguisher Use (29 CFR 1910.157)',
     'Bloodborne Pathogens (29 CFR 1910.1030)',
     'Respiratory Protection (29 CFR 1910.134)',
     'Confined Space Entry (29 CFR 1910.146)',
     'Powered Industrial Trucks'
 ]
 
-const DEMO_TRAINING_DATA: TrainingRecord[] = [
-    {
-        id: '1',
-        employee_id: 'EMP-001',
-        employee_name: 'John Smith',
-        training_type: 'Forklift Operation (29 CFR 1910.178)',
-        completion_date: '2024-01-15',
-        expiration_date: '2027-01-15',
-        status: 'current',
-        certificate_number: 'CERT-2024-001',
-        instructor: 'Mike Johnson',
-        score: 95
-    },
-    {
-        id: '2',
-        employee_id: 'EMP-002',
-        employee_name: 'Sarah Williams',
-        training_type: 'Hazard Communication (29 CFR 1910.1200)',
-        completion_date: '2024-11-01',
-        expiration_date: '2025-02-15',
-        status: 'expiring_soon',
-        certificate_number: 'CERT-2024-045',
-        score: 88
-    },
-    {
-        id: '3',
-        employee_id: 'EMP-003',
-        employee_name: 'Mike Davis',
-        training_type: 'Lockout/Tagout (29 CFR 1910.147)',
-        completion_date: '2023-06-20',
-        expiration_date: '2024-11-20',
-        status: 'expired',
-        certificate_number: 'CERT-2023-089'
-    },
-    {
-        id: '4',
-        employee_id: 'EMP-004',
-        employee_name: 'Emily Brown',
-        training_type: 'Personal Protective Equipment (29 CFR 1910.132)',
-        completion_date: '',
-        expiration_date: '',
-        status: 'pending'
-    }
-]
+type SafetyTrainingApiRecord = {
+    id: string
+    driver_id: string
+    employee_name: string
+    training_type: string
+    completion_date: string | null
+    expiry_date: string | null
+    certificate_number?: string | null
+    instructor_name?: string | null
+    score?: number | null
+}
+
+type SafetyTrainingListPayload = {
+    data: SafetyTrainingApiRecord[]
+}
 
 export function SafetyTrainingTracker() {
     const [selectedFilter, setSelectedFilter] = useState<string>('all')
-    const [trainingData] = useState<TrainingRecord[]>(DEMO_TRAINING_DATA)
+
+    const { data: statsPayload } = useSWR<TrainingStats>('/api/safety-training/compliance-stats', swrFetcher, {
+        revalidateOnFocus: false
+    })
+
+    const { data: listPayload, isLoading: isLoadingList } = useSWR<SafetyTrainingListPayload>(
+        '/api/safety-training?limit=500',
+        swrFetcher,
+        { revalidateOnFocus: false }
+    )
+
+    const trainingData = useMemo<TrainingRecord[]>(() => {
+        const rows = listPayload?.data ?? []
+        const now = Date.now()
+        const soonCutoff = now + 30 * 24 * 60 * 60 * 1000
+
+        return rows.map((row) => {
+            const completion = row.completion_date || ''
+            const expiry = row.expiry_date || ''
+
+            let status: TrainingRecord['status'] = 'pending'
+            if (completion) {
+                if (expiry) {
+                    const expiryMs = new Date(expiry).getTime()
+                    if (Number.isFinite(expiryMs) && expiryMs <= now) status = 'expired'
+                    else if (Number.isFinite(expiryMs) && expiryMs <= soonCutoff) status = 'expiring_soon'
+                    else status = 'current'
+                } else {
+                    status = 'current'
+                }
+            }
+
+            return {
+                id: row.id,
+                employee_id: row.driver_id,
+                employee_name: row.employee_name,
+                training_type: row.training_type,
+                completion_date: completion,
+                expiration_date: expiry,
+                status,
+                certificate_number: row.certificate_number || undefined,
+                instructor: row.instructor_name || undefined,
+                score: row.score ?? undefined,
+            }
+        })
+    }, [listPayload?.data])
 
     const stats = useMemo<TrainingStats>(() => {
+        if (statsPayload) return statsPayload
+
         const total = trainingData.length
         const compliant = trainingData.filter(t => t.status === 'current').length
         const pending = trainingData.filter(t => t.status === 'pending').length
@@ -132,9 +143,9 @@ export function SafetyTrainingTracker() {
             pending_training: pending,
             expired_certifications: expired,
             expiring_soon: expiring,
-            compliance_rate: Math.round((compliant / total) * 100)
+            compliance_rate: total > 0 ? Math.round((compliant / total) * 100) : 0
         }
-    }, [trainingData])
+    }, [statsPayload, trainingData])
 
     const filteredData = useMemo(() => {
         if (selectedFilter === 'all') return trainingData
@@ -144,8 +155,8 @@ export function SafetyTrainingTracker() {
     const getStatusBadge = (status: TrainingRecord['status']) => {
         const variants = {
             current: { variant: 'default' as const, icon: <CheckCircle className="w-3 h-3" />, label: 'Current', color: 'bg-green-500' },
-            expiring_soon: { variant: 'secondary' as const, icon: <Warning className="w-3 h-3" />, label: 'Expiring Soon', color: 'bg-yellow-500' },
-            expired: { variant: 'destructive' as const, icon: <Warning className="w-3 h-3" />, label: 'Expired', color: 'bg-red-500' },
+            expiring_soon: { variant: 'secondary' as const, icon: <AlertTriangle className="w-3 h-3" />, label: 'Expiring Soon', color: 'bg-yellow-500' },
+            expired: { variant: 'destructive' as const, icon: <AlertTriangle className="w-3 h-3" />, label: 'Expired', color: 'bg-red-500' },
             pending: { variant: 'outline' as const, icon: <Clock className="w-3 h-3" />, label: 'Pending', color: 'bg-gray-500' }
         }
 
@@ -177,7 +188,7 @@ export function SafetyTrainingTracker() {
                         <GraduationCap className="w-4 h-4" />
                         Safety Training Compliance
                     </h2>
-                    <p className="text-slate-400 mt-1">Track OSHA-required training and certifications</p>
+                    <p className="text-slate-700 mt-1">Track OSHA-required training and certifications</p>
                 </div>
                 <Button variant="outline" className="gap-2">
                     <Download className="w-4 h-4" />
@@ -194,7 +205,7 @@ export function SafetyTrainingTracker() {
                     <CardContent>
                         <div className="flex items-baseline gap-2">
                             <span className="text-base font-bold text-white">{stats.compliance_rate}%</span>
-                            <TrendUp className="w-4 h-4 text-green-400" />
+                            <TrendingUp className="w-4 h-4 text-green-400" />
                         </div>
                         <Progress value={stats.compliance_rate} className="mt-2 h-2" />
                     </CardContent>
@@ -208,8 +219,9 @@ export function SafetyTrainingTracker() {
                         <div className="flex items-center gap-2">
                             <CheckCircle className="w-3 h-3 text-green-400" />
                             <span className="text-base font-bold text-white">{stats.compliant_employees}</span>
-                            <span className="text-slate-400">/ {stats.total_employees}</span>
+                            <span className="text-slate-700">/ {stats.total_employees}</span>
                         </div>
+                        {isLoadingList && <p className="text-xs text-slate-700 mt-1">Loading…</p>}
                     </CardContent>
                 </Card>
 
@@ -219,10 +231,10 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Warning className="w-3 h-3 text-yellow-400" />
+                            <AlertTriangle className="w-3 h-3 text-yellow-400" />
                             <span className="text-base font-bold text-white">{stats.expiring_soon}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">Within 30 days</p>
+                        <p className="text-xs text-slate-700 mt-1">Within 30 days</p>
                     </CardContent>
                 </Card>
 
@@ -232,10 +244,10 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Warning className="w-3 h-3 text-red-400" />
+                            <AlertTriangle className="w-3 h-3 text-red-400" />
                             <span className="text-base font-bold text-white">{stats.expired_certifications}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">Requires renewal</p>
+                        <p className="text-xs text-slate-700 mt-1">Requires renewal</p>
                     </CardContent>
                 </Card>
 
@@ -245,10 +257,10 @@ export function SafetyTrainingTracker() {
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2">
-                            <Clock className="w-3 h-3 text-slate-400" />
+                            <Clock className="w-3 h-3 text-slate-700" />
                             <span className="text-base font-bold text-white">{stats.pending_training}</span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-1">Not started</p>
+                        <p className="text-xs text-slate-700 mt-1">Not started</p>
                     </CardContent>
                 </Card>
             </div>
@@ -298,7 +310,7 @@ export function SafetyTrainingTracker() {
                                         <TableCell className="font-medium text-white">
                                             <div>
                                                 <div>{record.employee_name}</div>
-                                                <div className="text-xs text-slate-400">{record.employee_id}</div>
+                                                <div className="text-xs text-slate-700">{record.employee_id}</div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-slate-300 max-w-xs">
@@ -309,7 +321,7 @@ export function SafetyTrainingTracker() {
                                         <TableCell className="text-slate-300">
                                             {record.completion_date ? (
                                                 <div className="flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4 text-slate-400" />
+                                                    <Calendar className="w-4 h-4 text-slate-700" />
                                                     {new Date(record.completion_date).toLocaleDateString()}
                                                 </div>
                                             ) : (
@@ -324,7 +336,7 @@ export function SafetyTrainingTracker() {
                                                         <div className={`text-xs ${
                                                             daysUntilExpiration < 0 ? 'text-red-400' :
                                                             daysUntilExpiration < 30 ? 'text-yellow-400' :
-                                                            'text-slate-400'
+                                                            'text-slate-700'
                                                         }`}>
                                                             {daysUntilExpiration < 0 ?
                                                                 `Expired ${Math.abs(daysUntilExpiration)} days ago` :

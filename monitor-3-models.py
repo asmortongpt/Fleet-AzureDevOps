@@ -6,9 +6,15 @@ Monitor 3 Meshy.ai model generations and auto-download when complete
 import requests
 import json
 import time
+import os
 from pathlib import Path
 
-MESHY_API_KEY = "msy_aL4JDGCHF76THUL7Ko2WmLMSOG0VfXnLRlw3"
+MESHY_API_KEY = os.environ.get("MESHY_API_KEY")
+if not MESHY_API_KEY:
+    raise ValueError(
+        "MESHY_API_KEY environment variable is required. "
+        "Please set it before running this script."
+    )
 OUTPUT_DIR = Path(__file__).parent / "output"
 
 # Load task IDs

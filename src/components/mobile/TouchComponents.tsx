@@ -3,7 +3,7 @@
  * Swipeable cards, pull-to-refresh, infinite scroll, bottom sheets, and more
  */
 
-import { motion, PanInfo, useMotionValue, useTransform, AnimatePresence } from 'framer-motion'
+// motion removed - React 19 incompatible
 import React, { useState, useRef, useEffect, ReactNode } from 'react'
 
 /* ============================================================
@@ -27,56 +27,70 @@ export function SwipeableCard({
   rightAction,
   threshold = 100,
 }: SwipeableCardProps) {
-  const x = useMotionValue(0)
+  const [offsetX, setOffsetX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
+  const startXRef = useRef(0)
 
-  const leftOpacity = useTransform(x, [-threshold, 0], [1, 0])
-  const rightOpacity = useTransform(x, [0, threshold], [0, 1])
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0]
+    if (!touch) return
+    startXRef.current = touch.clientX
+    setIsDragging(true)
+  }
 
-  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging) return
+    const touch = e.touches[0]
+    if (!touch) return
+    const diff = touch.clientX - startXRef.current
+    setOffsetX(diff * 0.2) // Apply resistance
+  }
+
+  const handleTouchEnd = () => {
     setIsDragging(false)
-
-    if (info.offset.x < -threshold && onSwipeLeft) {
+    if (offsetX < -threshold && onSwipeLeft) {
       onSwipeLeft()
-    } else if (info.offset.x > threshold && onSwipeRight) {
+    } else if (offsetX > threshold && onSwipeRight) {
       onSwipeRight()
     }
+    setOffsetX(0)
   }
+
+  const leftOpacity = Math.min(Math.max(-offsetX / threshold, 0), 1)
+  const rightOpacity = Math.min(Math.max(offsetX / threshold, 0), 1)
 
   return (
     <div className="relative overflow-hidden rounded-lg">
       {/* Left action background */}
       {leftAction && (
-        <motion.div
+        <div
           className="absolute inset-0 bg-red-500 flex items-center justify-end px-3"
           style={{ opacity: leftOpacity }}
         >
           {leftAction}
-        </motion.div>
+        </div>
       )}
 
       {/* Right action background */}
       {rightAction && (
-        <motion.div
+        <div
           className="absolute inset-0 bg-green-500 flex items-center justify-start px-3"
           style={{ opacity: rightOpacity }}
         >
           {rightAction}
-        </motion.div>
+        </div>
       )}
 
       {/* Card content */}
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.2}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
-        style={{ x }}
-        className={`bg-white dark:bg-gray-800 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        style={{ transform: `translateX(${offsetX}px)` }}
+        className={`bg-white dark:bg-gray-800 transition-transform ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
       >
         {children}
-      </motion.div>
+      </div>
     </div>
   )
 }
@@ -138,29 +152,20 @@ export function PullToRefresh({ children, onRefresh, threshold = 80 }: PullToRef
   return (
     <div ref={containerRef} className="overflow-y-auto h-full">
       {/* Pull indicator */}
-      <motion.div
+      <div
         className="flex items-center justify-center"
-        style={{ height: pullDistance }}
-        animate={{ opacity: pullDistance > 0 ? 1 : 0 }}
+        style={{ height: pullDistance, opacity: pullDistance > 0 ? 1 : 0 }}
       >
-        <motion.div
+        <div
           className="text-sm"
-          animate={{
-            rotate: isRefreshing ? 360 : spinnerRotation,
+          style={{
+            transform: `rotate(${isRefreshing ? 360 : spinnerRotation}deg)`,
+            transition: isRefreshing ? 'transform 1s linear infinite' : undefined,
           }}
-          transition={
-            isRefreshing
-              ? {
-                  duration: 1,
-                  repeat: Infinity,
-                  ease: 'linear',
-                }
-              : {}
-          }
         >
           ↻
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* Content */}
       <div onTouchStart={handleTouchStart}>{children}</div>
@@ -251,13 +256,12 @@ export function TouchableHighlight({
   className = '',
 }: TouchableHighlightProps) {
   return (
-    <motion.div
-      whileTap={{ opacity: activeOpacity, scale: 0.98 }}
+    <div
       onClick={onPress}
-      className={`cursor-pointer ${className}`}
+      className={`cursor-pointer active:opacity-70 active:scale-[0.98] transition-all ${className}`}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -281,77 +285,35 @@ export function BottomSheet({
   defaultSnap = 0,
 }: BottomSheetProps) {
   const [snapIndex, setSnapIndex] = useState(defaultSnap)
-  const y = useMotionValue(0)
 
   const currentSnapPoint = snapPoints[snapIndex] ?? 90
 
-  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const velocity = info.velocity.y
-    const offset = info.offset.y
-
-    // If dragged down significantly, close
-    if (offset > 100 || velocity > 500) {
-      onClose()
-      return
-    }
-
-    // Find nearest snap point
-    const windowHeight = window.innerHeight
-    const currentPercent = ((windowHeight - offset) / windowHeight) * 100
-
-    let nearestIndex = 0
-    let nearestDistance = Math.abs(currentPercent - snapPoints[0])
-
-    snapPoints.forEach((point, index) => {
-      const distance = Math.abs(currentPercent - point)
-      if (distance < nearestDistance) {
-        nearestDistance = distance
-        nearestIndex = index
-      }
-    })
-
-    setSnapIndex(nearestIndex)
-  }
+  if (!isOpen) return null
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          />
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+      />
 
-          {/* Sheet */}
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: `${100 - currentSnapPoint}%` }}
-            exit={{ y: '100%' }}
-            drag="y"
-            dragConstraints={{ top: 0 }}
-            dragElastic={0.2}
-            onDragEnd={handleDragEnd}
-            style={{ y }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-sm overflow-hidden"
-          >
-            {/* Drag handle */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1 bg-gray-300 dark:bg-gray-700 rounded-full" />
-            </div>
+      {/* Sheet */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-sm overflow-hidden transition-transform duration-300"
+        style={{ transform: `translateY(${100 - currentSnapPoint}%)` }}
+      >
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-2">
+          <div className="w-12 h-1 bg-gray-300 dark:bg-gray-700 rounded-full" />
+        </div>
 
-            {/* Content */}
-            <div className="overflow-y-auto safe-bottom" style={{ maxHeight: '85vh' }}>
-              {children}
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        {/* Content */}
+        <div className="overflow-y-auto safe-bottom" style={{ maxHeight: '85vh' }}>
+          {children}
+        </div>
+      </div>
+    </>
   )
 }
 
@@ -381,72 +343,61 @@ export function ActionSheet({
   options,
   cancelLabel = 'Cancel',
 }: ActionSheetProps) {
+  if (!isOpen) return null
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity"
+      />
+
+      {/* Action Sheet */}
+      <div
+        className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-sm p-2 safe-bottom transition-transform duration-300"
+      >
+        {title && (
+          <div className="text-center mb-2">
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+              {title}
+            </h3>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          {options.map((option, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                option.onPress()
+                onClose()
+              }}
+              className={`
+                w-full flex items-center gap-3 px-2 py-3 rounded-lg
+                touch-target transition-colors duration-200 active:scale-[0.98]
+                ${
+                  option.destructive
+                    ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
+                    : 'text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+                }
+              `}
+            >
+              {option.icon && <div className="text-base">{option.icon}</div>}
+              <span className="flex-1 text-left font-medium">{option.label}</span>
+            </button>
+          ))}
+
+          {/* Cancel button */}
+          <button
             onClick={onClose}
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          />
-
-          {/* Action Sheet */}
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed inset-x-0 bottom-0 z-50 bg-white dark:bg-gray-900 rounded-t-3xl shadow-sm p-2 safe-bottom"
+            className="w-full px-2 py-3 rounded-lg touch-target bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700 active:scale-[0.98]"
           >
-            {title && (
-              <div className="text-center mb-2">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                  {title}
-                </h3>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              {options.map((option, index) => (
-                <motion.button
-                  key={index}
-                  onClick={() => {
-                    option.onPress()
-                    onClose()
-                  }}
-                  className={`
-                    w-full flex items-center gap-3 px-2 py-3 rounded-lg
-                    touch-target transition-colors duration-200
-                    ${
-                      option.destructive
-                        ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30'
-                        : 'text-gray-900 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
-                    }
-                  `}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {option.icon && <div className="text-base">{option.icon}</div>}
-                  <span className="flex-1 text-left font-medium">{option.label}</span>
-                </motion.button>
-              ))}
-
-              {/* Cancel button */}
-              <motion.button
-                onClick={onClose}
-                className="w-full px-2 py-3 rounded-lg touch-target bg-white dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 font-semibold hover:bg-gray-50 dark:hover:bg-gray-700"
-                whileTap={{ scale: 0.98 }}
-              >
-                {cancelLabel}
-              </motion.button>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+            {cancelLabel}
+          </button>
+        </div>
+      </div>
+    </>
   )
 }
 

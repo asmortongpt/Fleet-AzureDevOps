@@ -22,6 +22,7 @@ import { Pool } from 'pg'
 import sharp from 'sharp'
 
 
+import { pool } from '../db'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
 
 export interface FileMetadata {
@@ -818,7 +819,6 @@ export class AttachmentService {
 }
 
 // Export singleton instance
-import { pool } from '../db'
 const attachmentService = new AttachmentService(pool)
 
 export default attachmentService

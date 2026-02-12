@@ -11,11 +11,12 @@
 
 import { Router, Request, Response } from 'express';
 import { z } from 'zod';
-import { pool } from '../db/connection';
-import { authenticateJWT } from '../middleware/auth.middleware';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
-import { asyncHandler } from '../middleware/async-handler';
+
 import logger from '../config/logger';
+import { pool } from '../db/connection';
+import { asyncHandler } from '../middleware/async-handler';
+import { authenticateJWT } from '../middleware/auth';
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { cache } from '../utils/cache';
 
 const router = Router();
@@ -37,79 +38,27 @@ const router = Router();
  *   }
  * }
  */
-router.get('/',
+router.get(
+  '/',
   asyncHandler(async (req: Request, res: Response) => {
-    logger.info(`Fetching dashboard summary (public endpoint)`);
+    // SECURITY: Avoid leaking fleet size / operational status publicly.
+    // Return only a capability document here; the real stats are available at
+    // `/api/dashboard/stats` behind authentication + tenant isolation.
+    logger.info(`Fetching dashboard summary (capabilities endpoint)`);
 
-    try {
-      // Quick summary counts (public data) - gracefully handle missing tables
-      let vehicleCount = 0;
-      let driverCount = 0;
-      let workOrderCount = 0;
-
-      try {
-        const vehicleResult = await pool.query('SELECT COUNT(*)::integer as count FROM vehicles');
-        vehicleCount = vehicleResult.rows[0]?.count || 0;
-      } catch (e) {
-        logger.debug('vehicles table not found or inaccessible');
-      }
-
-      try {
-        const driverResult = await pool.query('SELECT COUNT(*)::integer as count FROM drivers');
-        driverCount = driverResult.rows[0]?.count || 0;
-      } catch (e) {
-        logger.debug('drivers table not found or inaccessible');
-      }
-
-      try {
-        const workOrderResult = await pool.query(`
-          SELECT COUNT(*)::integer as count
-          FROM maintenance_records
-          WHERE status IN ('in_progress', 'pending')
-        `);
-        workOrderCount = workOrderResult.rows[0]?.count || 0;
-      } catch (e) {
-        logger.debug('maintenance_records table not found or inaccessible');
-      }
-
-      res.json({
-        message: 'Fleet Management Dashboard API',
-        version: '1.0.0',
-        endpoints: [
-          '/api/dashboard/maintenance/alerts',
-          '/api/dashboard/fleet/stats',
-          '/api/dashboard/costs/summary',
-          '/api/dashboard/drivers/me/vehicle',
-          '/api/dashboard/drivers/me/trips/today'
-        ],
-        summary: {
-          total_vehicles: vehicleCount,
-          active_drivers: driverCount,
-          open_work_orders: workOrderCount
-        },
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      logger.error('Dashboard summary error:', error);
-      // Even if database fails, return the API info
-      res.json({
-        message: 'Fleet Management Dashboard API',
-        version: '1.0.0',
-        endpoints: [
-          '/api/dashboard/maintenance/alerts',
-          '/api/dashboard/fleet/stats',
-          '/api/dashboard/costs/summary',
-          '/api/dashboard/drivers/me/vehicle',
-          '/api/dashboard/drivers/me/trips/today'
-        ],
-        summary: {
-          total_vehicles: 0,
-          active_drivers: 0,
-          open_work_orders: 0
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
+    return res.json({
+      message: 'Fleet Management Dashboard API',
+      version: '1.0.0',
+      endpoints: [
+        '/api/dashboard/maintenance/alerts',
+        '/api/dashboard/fleet/stats',
+        '/api/dashboard/costs/summary',
+        '/api/dashboard/drivers/me/vehicle',
+        '/api/dashboard/drivers/me/trips/today',
+        '/api/dashboard/stats'
+      ],
+      timestamp: new Date().toISOString()
+    });
   })
 );
 
@@ -132,15 +81,127 @@ router.use(authenticateJWT);
  *   overdue_maintenance: number
  * }
  */
+// =============================================================================
+// GET /dashboard/fleet-metrics (Frontend compatibility)
+// =============================================================================
+router.get('/fleet-metrics',
+  authenticateJWT,
+  asyncHandler(async (req: Request, res: Response) => {
+    // @ts-ignore
+    const tenantId = req.user?.tenant_id;
+
+    // Default metrics structure
+    const metrics = {
+      totalVehicles: 0,
+      activeVehicles: 0,
+      maintenanceVehicles: 0,
+      totalDrivers: 0,
+      fleetUtilization: 0,
+      criticalAlerts: 0,
+      fuelEfficiency: 0,
+      totalCostThisMonth: 0,
+      costPerMile: 0
+    };
+
+    try {
+      // Get vehicle stats
+      const vehicleStats = await pool.query(`
+        SELECT 
+          COUNT(*) as total,
+          COUNT(*) FILTER (WHERE status = 'active') as active,
+          COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance
+        FROM vehicles 
+        WHERE tenant_id = $1
+      `, [tenantId]);
+
+      const vStats = vehicleStats.rows[0];
+      metrics.totalVehicles = parseInt(vStats.total) || 0;
+      metrics.activeVehicles = parseInt(vStats.active) || 0;
+      metrics.maintenanceVehicles = parseInt(vStats.maintenance) || 0;
+
+      // Calculate utilization
+      if (metrics.totalVehicles > 0) {
+        metrics.fleetUtilization = Math.round((metrics.activeVehicles / metrics.totalVehicles) * 100);
+      }
+
+      // Get driver count
+      const driverStats = await pool.query(
+        'SELECT COUNT(*) as total FROM drivers WHERE tenant_id = $1',
+        [tenantId]
+      );
+      metrics.totalDrivers = parseInt(driverStats.rows[0].total) || 0;
+
+      // Get critical alerts count
+      const alertStats = await pool.query(
+        "SELECT COUNT(*) as total FROM alerts WHERE tenant_id = $1 AND severity = 'critical' AND status = 'active'",
+        [tenantId]
+      );
+      metrics.criticalAlerts = parseInt(alertStats.rows[0].total) || 0;
+
+      // Financial data from fuel_transactions and vehicles
+      const [fuelResult, costResult] = await Promise.all([
+        // Average fuel efficiency from completed trips this month
+        pool.query(`
+          SELECT
+            COALESCE(AVG(t.fuel_efficiency_mpg), 0)::numeric as avg_mpg
+          FROM trips t
+          WHERE t.tenant_id = $1
+            AND t.status = 'completed'
+            AND t.fuel_efficiency_mpg IS NOT NULL
+            AND t.start_time >= date_trunc('month', CURRENT_DATE)
+        `, [tenantId]),
+        // Total cost this month from fuel_transactions
+        pool.query(`
+          SELECT
+            COALESCE(SUM(ft.total_cost), 0)::numeric as total_fuel_cost,
+            COALESCE(SUM(ft.gallons), 0)::numeric as total_gallons
+          FROM fuel_transactions ft
+          WHERE ft.tenant_id = $1
+            AND ft.transaction_date >= date_trunc('month', CURRENT_DATE)
+        `, [tenantId])
+      ]);
+
+      const avgMpg = parseFloat(fuelResult.rows[0]?.avg_mpg || '0');
+      const totalFuelCost = parseFloat(costResult.rows[0]?.total_fuel_cost || '0');
+
+      metrics.fuelEfficiency = parseFloat(avgMpg.toFixed(1));
+      metrics.totalCostThisMonth = parseFloat(totalFuelCost.toFixed(2));
+
+      // Cost per mile: total fuel cost / total fleet mileage this month
+      const mileageResult = await pool.query(`
+        SELECT COALESCE(SUM(t.distance_miles), 0)::numeric as total_miles
+        FROM trips t
+        WHERE t.tenant_id = $1
+          AND t.status = 'completed'
+          AND t.distance_miles IS NOT NULL
+          AND t.start_time >= date_trunc('month', CURRENT_DATE)
+      `, [tenantId]);
+      const totalMiles = parseFloat(mileageResult.rows[0]?.total_miles || '0');
+      metrics.costPerMile = totalMiles > 0
+        ? parseFloat((totalFuelCost / totalMiles).toFixed(2))
+        : 0;
+
+      res.json(metrics);
+    } catch (error) {
+      logger.error('Error fetching fleet metrics:', error);
+      res.status(500).json({ error: 'Failed to fetch fleet metrics' });
+    }
+  })
+);
+
+// =============================================================================
+// GET /dashboard/stats (Existing endpoint)
+// =============================================================================
 router.get('/stats',
   requireRBAC({
-    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
+    // The map-first UI uses these stats for top-level KPIs; allow read-only roles too.
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.VIEWER, Role.GUEST],
     permissions: [PERMISSIONS.VEHICLE_READ],
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
     // FIX: tenant_id is UUID, not integer - use proper fallback
-    const tenantId = (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
     const cacheKey = `dashboard:stats:tenant:${tenantId}`;
 
     logger.info(`Fetching dashboard stats for tenant ${tenantId}`);
@@ -164,7 +225,7 @@ router.get('/stats',
       // Set statement timeout to 5 seconds to prevent hanging
       await pool.query('SET statement_timeout = 5000');
 
-      const [vehicleStats, driverStats, workOrderStats] = await Promise.all([
+      const [vehicleStats, driverStats, staffStats, workOrderStats] = await Promise.all([
         // Vehicle stats - using index idx_vehicles_tenant_status
         pool.query(`
           SELECT
@@ -185,10 +246,20 @@ router.get('/stats',
           WHERE tenant_id = $1::uuid
         `, [tenantId]),
 
+        // Personnel/staff stats - users represent workforce accounts (not just drivers)
+        pool.query(
+          `
+          SELECT COUNT(*)::integer as total
+          FROM users
+          WHERE tenant_id = $1::uuid
+        `,
+          [tenantId]
+        ),
+
         // Work order stats - using index idx_work_orders_tenant_status
         pool.query(`
           SELECT
-            COUNT(*) FILTER (WHERE status IN ('open', 'pending'))::integer as open,
+            COUNT(*) FILTER (WHERE status IN ('pending', 'on_hold'))::integer as open,
             COUNT(*) FILTER (WHERE status = 'in_progress')::integer as in_progress
           FROM work_orders
           WHERE tenant_id = $1::uuid
@@ -205,6 +276,7 @@ router.get('/stats',
         idle_vehicles: vehicleStats.rows[0]?.idle || 0,
         total_drivers: driverStats.rows[0]?.total || 0,
         active_drivers: driverStats.rows[0]?.active || 0,
+        total_staff: staffStats.rows[0]?.total || 0,
         open_work_orders: workOrderStats.rows[0]?.open || 0,
         in_progress_work_orders: workOrderStats.rows[0]?.in_progress || 0
       };
@@ -266,48 +338,65 @@ router.get('/maintenance/alerts',
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const userId = (req as any).user?.id;
-    const tenantId = (req as any).user?.tenantId || 1;
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
 
     logger.info(`Fetching maintenance alerts for user ${userId}, tenant ${tenantId}`);
+    if (!tenantId) {
+      return res.status(401).json({ error: 'Tenant ID required' });
+    }
 
-    // Query overdue maintenance (past next_due date)
-    const overdueResult = await pool.query(`
+    // Query overdue maintenance based on production table `maintenance_schedules`.
+    const overdueResult = await pool.query(
+      `
       SELECT
-        mr.id,
-        mr.vehicle_id,
-        v.vehicle_number as vehicle_name,
-        mr.service_type as type,
-        EXTRACT(DAY FROM (NOW() - mr.next_due))::integer as days_overdue
-      FROM maintenance_records mr
-      JOIN vehicles v ON v.id = mr.vehicle_id
-      WHERE mr.next_due < NOW()
-        AND mr.status IN ('scheduled', 'pending')
-      ORDER BY mr.next_due ASC
+        ms.id,
+        ms.vehicle_id,
+        COALESCE(v.number, v.name) as vehicle_name,
+        ms.type as type,
+        EXTRACT(DAY FROM (NOW() - ms.next_service_date))::integer as days_overdue
+      FROM maintenance_schedules ms
+      JOIN vehicles v ON v.id = ms.vehicle_id
+      WHERE ms.tenant_id = $1::uuid
+        AND ms.is_active = true
+        AND ms.next_service_date IS NOT NULL
+        AND ms.next_service_date < NOW()
+      ORDER BY ms.next_service_date ASC
       LIMIT 10
-    `);
+    `,
+      [tenantId]
+    );
 
     // Query upcoming maintenance (next 7 days)
-    const upcomingResult = await pool.query(`
+    const upcomingResult = await pool.query(
+      `
       SELECT
-        mr.id,
-        mr.vehicle_id,
-        v.vehicle_number as vehicle_name,
-        mr.service_type as type,
-        mr.next_due as scheduled_date
-      FROM maintenance_records mr
-      JOIN vehicles v ON v.id = mr.vehicle_id
-      WHERE mr.next_due BETWEEN NOW() AND NOW() + INTERVAL '7 days'
-        AND mr.status IN ('scheduled', 'pending')
-      ORDER BY mr.next_due ASC
+        ms.id,
+        ms.vehicle_id,
+        COALESCE(v.number, v.name) as vehicle_name,
+        ms.type as type,
+        ms.next_service_date as scheduled_date
+      FROM maintenance_schedules ms
+      JOIN vehicles v ON v.id = ms.vehicle_id
+      WHERE ms.tenant_id = $1::uuid
+        AND ms.is_active = true
+        AND ms.next_service_date IS NOT NULL
+        AND ms.next_service_date BETWEEN NOW() AND NOW() + INTERVAL '7 days'
+      ORDER BY ms.next_service_date ASC
       LIMIT 20
-    `);
+    `,
+      [tenantId]
+    );
 
     // Query open work orders count
-    const workOrdersResult = await pool.query(`
+    const workOrdersResult = await pool.query(
+      `
       SELECT COUNT(*)::integer as count
-      FROM maintenance_records
-      WHERE status IN ('in_progress', 'pending')
-    `);
+      FROM work_orders
+      WHERE tenant_id = $1::uuid
+        AND status IN ('pending', 'in_progress', 'on_hold')
+    `,
+      [tenantId]
+    );
 
     res.json({
       overdue_count: overdueResult.rows.length,
@@ -338,7 +427,10 @@ router.get('/fleet/stats',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Tenant ID is required' });
+    }
 
     logger.info(`Fetching fleet stats for tenant ${tenantId}`);
 
@@ -366,7 +458,7 @@ router.get('/fleet/stats',
       });
     } catch (error) {
       logger.error('Fleet stats error:', error);
-      await pool.query('RESET statement_timeout').catch(() => {});
+      await pool.query('RESET statement_timeout').catch(() => { });
 
       res.json({
         active_vehicles: 0,
@@ -409,7 +501,10 @@ router.get('/costs/summary',
   // Note: Query validation is handled inline with Zod schema
   asyncHandler(async (req: Request, res: Response) => {
     const { period } = req.query as z.infer<typeof costsSummaryQuerySchema>;
-    const tenantId = (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
+    if (!tenantId) {
+      return res.status(400).json({ error: 'Tenant ID is required' });
+    }
 
     logger.info(`Fetching cost summary for period ${period}, tenant ${tenantId}`);
 
@@ -442,44 +537,58 @@ router.get('/costs/summary',
       }
 
       // Run all queries in parallel for performance
-      const [fuelCurrentResult, fuelPreviousResult, maintenanceCurrentResult, maintenancePreviousResult, milesResult] = await Promise.all([
+      const [fuelCurrentResult, fuelPreviousResult, maintenanceCurrentResult, maintenancePreviousResult, milesResult, budgetResult] = await Promise.all([
         // Fuel costs current period
         pool.query(`
           SELECT COALESCE(SUM(total_cost), 0)::numeric as total
           FROM fuel_transactions
-          WHERE date >= ${currentPeriodStart}
-        `),
+          WHERE tenant_id = $1::uuid
+            AND transaction_date >= ${currentPeriodStart}
+        `, [tenantId]),
 
         // Fuel costs previous period
         pool.query(`
           SELECT COALESCE(SUM(total_cost), 0)::numeric as total
           FROM fuel_transactions
-          WHERE date >= ${previousPeriodStart}
-            AND date < ${previousPeriodEnd}
-        `),
+          WHERE tenant_id = $1::uuid
+            AND transaction_date >= ${previousPeriodStart}
+            AND transaction_date < ${previousPeriodEnd}
+        `, [tenantId]),
 
-        // Maintenance costs current period
+        // Maintenance costs current period (use work_orders actual_cost)
         pool.query(`
-          SELECT COALESCE(SUM(actual_cost), 0)::numeric as total
-          FROM maintenance_records
-          WHERE service_date >= ${currentPeriodStart}
-            AND actual_cost IS NOT NULL
-        `),
+          SELECT COALESCE(SUM(COALESCE(actual_cost, estimated_cost)), 0)::numeric as total
+          FROM work_orders
+          WHERE tenant_id = $1::uuid
+            AND (actual_cost IS NOT NULL OR estimated_cost IS NOT NULL)
+            AND COALESCE(actual_end_date, actual_start_date, updated_at) >= ${currentPeriodStart}
+        `, [tenantId]),
 
         // Maintenance costs previous period
         pool.query(`
-          SELECT COALESCE(SUM(actual_cost), 0)::numeric as total
-          FROM maintenance_records
-          WHERE service_date >= ${previousPeriodStart}
-            AND service_date < ${previousPeriodEnd}
-            AND actual_cost IS NOT NULL
-        `),
+          SELECT COALESCE(SUM(COALESCE(actual_cost, estimated_cost)), 0)::numeric as total
+          FROM work_orders
+          WHERE tenant_id = $1::uuid
+            AND (actual_cost IS NOT NULL OR estimated_cost IS NOT NULL)
+            AND COALESCE(actual_end_date, actual_start_date, updated_at) >= ${previousPeriodStart}
+            AND COALESCE(actual_end_date, actual_start_date, updated_at) < ${previousPeriodEnd}
+        `, [tenantId]),
 
         // Total miles driven (for cost per mile)
         pool.query(`
-          SELECT COALESCE(SUM(v.mileage), 0)::integer as total_miles
+          SELECT COALESCE(SUM(v.odometer), 0)::integer as total_miles
           FROM vehicles v
           WHERE v.tenant_id = $1::uuid
+        `, [tenantId])
+        ,
+        // Active budget total for target cost-per-mile benchmark
+        pool.query(`
+          SELECT COALESCE(SUM(budgeted_amount), 0)::numeric as total_budget
+          FROM budgets
+          WHERE tenant_id = $1::uuid
+            AND status = 'active'
+            AND period_start <= CURRENT_DATE
+            AND period_end >= CURRENT_DATE
         `, [tenantId])
       ]);
 
@@ -489,7 +598,8 @@ router.get('/costs/summary',
       const fuelPrevious = parseFloat(fuelPreviousResult.rows[0]?.total || '0');
       const maintenanceCurrent = parseFloat(maintenanceCurrentResult.rows[0]?.total || '0');
       const maintenancePrevious = parseFloat(maintenancePreviousResult.rows[0]?.total || '0');
-      const totalMiles = milesResult.rows[0]?.total_miles || 1;
+      const totalMiles = milesResult.rows[0]?.total_miles || 0;
+      const totalBudget = parseFloat(budgetResult.rows[0]?.total_budget || '0');
 
       // Calculate trends (percentage change)
       const fuelTrend = fuelPrevious > 0
@@ -503,7 +613,7 @@ router.get('/costs/summary',
       // Calculate cost per mile
       const totalCost = fuelCurrent + maintenanceCurrent;
       const costPerMile = totalMiles > 0 ? parseFloat((totalCost / totalMiles).toFixed(2)) : 0;
-      const targetCostPerMile = 2.10; // Target benchmark
+      const targetCostPerMile = totalMiles > 0 ? parseFloat((totalBudget / totalMiles).toFixed(2)) : 0;
 
       res.json({
         fuel_cost: Math.round(fuelCurrent),
@@ -515,7 +625,7 @@ router.get('/costs/summary',
       });
     } catch (error) {
       logger.error('Cost summary error:', error);
-      await pool.query('RESET statement_timeout').catch(() => {});
+      await pool.query('RESET statement_timeout').catch(() => { });
 
       res.json({
         fuel_cost: 0,
@@ -523,7 +633,7 @@ router.get('/costs/summary',
         maintenance_cost: 0,
         maintenance_trend: 0,
         cost_per_mile: 0,
-        target_cost_per_mile: 2.10,
+        target_cost_per_mile: 0,
         error: 'Failed to load cost summary'
       });
     }
@@ -636,29 +746,24 @@ router.get('/drivers/me/trips/today',
 
     const driverId = driverResult.rows[0].id;
 
-    // Mock trips data (replace with actual trips table query when available)
-    const trips = [
-      {
-        id: 4523,
-        route_name: 'Downtown Delivery',
-        origin: '123 Main St',
-        destination: '456 Oak Ave',
-        scheduled_start: new Date(new Date().setHours(9, 0, 0)).toISOString(),
-        scheduled_end: new Date(new Date().setHours(11, 30, 0)).toISOString(),
-        status: 'scheduled'
-      },
-      {
-        id: 4524,
-        route_name: 'Supply Run',
-        origin: 'Warehouse',
-        destination: '789 Pine Rd',
-        scheduled_start: new Date(new Date().setHours(14, 0, 0)).toISOString(),
-        scheduled_end: new Date(new Date().setHours(16, 0, 0)).toISOString(),
-        status: 'scheduled'
-      }
-    ];
+    // Query today's trips from the trips table for this driver
+    const tripsResult = await pool.query(`
+      SELECT
+        t.id,
+        COALESCE(t.business_purpose, 'Trip') as route_name,
+        COALESCE(t.start_location->>'address', 'N/A') as origin,
+        COALESCE(t.end_location->>'address', 'N/A') as destination,
+        t.start_time as scheduled_start,
+        t.end_time as scheduled_end,
+        t.status
+      FROM trips t
+      WHERE t.driver_id = $1
+        AND t.start_time >= date_trunc('day', CURRENT_TIMESTAMP)
+        AND t.start_time < date_trunc('day', CURRENT_TIMESTAMP) + INTERVAL '1 day'
+      ORDER BY t.start_time ASC
+    `, [driverId]);
 
-    res.json(trips);
+    res.json(tripsResult.rows);
   })
 );
 
@@ -722,15 +827,47 @@ router.post('/inspections',
 
     const driverId = driverResult.rows[0].id;
 
-    // Insert inspection record (mock implementation - adapt to your schema)
-    // For now, we'll return success with a mock ID
-    const mockInspectionId = Math.floor(Math.random() * 10000);
+    const failedCount = inspection_items.filter((item: any) => item.status === 'fail').length;
+    const passedInspection = failedCount === 0;
 
-    logger.info(`Inspection ${mockInspectionId} created successfully`);
+    const insertResult = await pool.query(
+      `INSERT INTO inspections (
+        tenant_id,
+        vehicle_id,
+        driver_id,
+        type,
+        status,
+        started_at,
+        completed_at,
+        defects_found,
+        passed_inspection,
+        checklist_data,
+        notes
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+      ) RETURNING id`,
+      [
+        (req as any).user?.tenant_id,
+        vehicle_id,
+        driverId,
+        'safety',
+        passedInspection ? 'completed' : 'failed',
+        timestamp,
+        timestamp,
+        failedCount,
+        passedInspection,
+        JSON.stringify(inspection_items),
+        null
+      ]
+    );
+
+    const inspectionId = insertResult.rows[0]?.id;
+
+    logger.info(`Inspection ${inspectionId} created successfully`);
 
     res.json({
       success: true,
-      inspection_id: mockInspectionId
+      inspection_id: inspectionId
     });
   })
 );
@@ -771,12 +908,36 @@ router.post('/reports/daily',
 
     logger.info(`Generating daily report for ${date} by user ${userId}`);
 
-    // Mock PDF generation (implement actual PDF generation with PDFKit or similar)
-    const mockPdfBuffer = Buffer.from('Mock PDF content');
+    // Generate PDF summary with real data
+    const PDFDocument = (await import('pdfkit')).default;
+    const doc = new PDFDocument({ margin: 50 });
+
+    const [vehicleResult, driverResult, workOrderResult] = await Promise.all([
+      pool.query('SELECT COUNT(*)::integer as count FROM vehicles WHERE tenant_id = $1', [(req as any).user?.tenant_id]),
+      pool.query('SELECT COUNT(*)::integer as count FROM drivers WHERE tenant_id = $1', [(req as any).user?.tenant_id]),
+      pool.query('SELECT COUNT(*)::integer as count FROM work_orders WHERE tenant_id = $1', [(req as any).user?.tenant_id]),
+    ]);
 
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="fleet-report-${date}.pdf"`);
-    res.send(mockPdfBuffer);
+    doc.pipe(res);
+
+    doc.fontSize(18).text('Fleet Daily Report', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Report Date: ${date}`);
+    doc.text(`Generated By: ${userId}`);
+    doc.moveDown();
+
+    doc.fontSize(14).text('Summary', { underline: true });
+    doc.moveDown(0.5);
+    doc.fontSize(12).text(`Total Vehicles: ${vehicleResult.rows[0]?.count || 0}`);
+    doc.text(`Total Drivers: ${driverResult.rows[0]?.count || 0}`);
+    doc.text(`Total Work Orders: ${workOrderResult.rows[0]?.count || 0}`);
+    doc.moveDown();
+
+    doc.fontSize(10).text(`Generated at ${new Date().toISOString()}`);
+
+    doc.end();
   })
 );
 

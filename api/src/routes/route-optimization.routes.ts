@@ -172,8 +172,8 @@ router.post(
 
       // Run optimization
       const result = await routeOptimizationService.optimizeRoutes(
-        Number(req.user!.tenant_id),
-        Number(req.user!.id),
+        String(req.user!.tenant_id),
+        String(req.user!.id),
         validatedData.stops,
         vehicles,
         drivers,
@@ -289,8 +289,8 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const job = await routeOptimizationService.getOptimizationJob(
-        parseInt(req.params.id),
-        Number(req.user!.tenant_id)
+        req.params.id,
+        String(req.user!.tenant_id)
       )
 
       if (!job) {
@@ -299,8 +299,8 @@ router.get(
 
       // Get routes
       const routes = await routeOptimizationService.getRoutesForJob(
-        parseInt(req.params.id),
-        Number(req.user!.tenant_id)
+        req.params.id,
+        String(req.user!.tenant_id)
       )
 
       // Get stops

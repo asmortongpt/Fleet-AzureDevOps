@@ -6,6 +6,7 @@
  */
 
 import DOMPurify from 'dompurify';
+import logger from '@/utils/logger';
 
 /**
  * HTML Sanitization Options
@@ -63,7 +64,7 @@ export function sanitizeHTML(
   dirty: string,
   options: HTMLSanitizeOptions = {}
 ): string {
-  const config: DOMPurify.Config = {
+  const config = {
     ALLOWED_TAGS: options.allowedTags || DEFAULT_ALLOWED_TAGS,
     ALLOWED_ATTR: options.allowedAttributes || DEFAULT_ALLOWED_ATTRIBUTES,
     ALLOWED_URI_REGEXP: new RegExp(
@@ -71,8 +72,8 @@ export function sanitizeHTML(
       'i'
     ),
     KEEP_CONTENT: !options.stripIgnoreTagBody,
-    RETURN_DOM: false,
-    RETURN_DOM_FRAGMENT: false,
+    RETURN_DOM: false as const,
+    RETURN_DOM_FRAGMENT: false as const,
   };
 
   return DOMPurify.sanitize(dirty, config);
@@ -96,6 +97,7 @@ export function sanitizeInput(input: string, maxLength: number = 1000): string {
       // Remove event handlers
       .replace(/on\w+\s*=/gi, '')
       // Remove control characters
+      // eslint-disable-next-line no-control-regex
       .replace(/[\x00-\x1F\x7F-\x9F]/g, '')
       // Limit length
       .substring(0, maxLength)
@@ -169,7 +171,13 @@ export function sanitizeURL(url: string, allowedSchemes: string[] = DEFAULT_ALLO
       return '';
     }
 
-    return parsed.toString();
+    // URL#toString() normalizes bare origins to include a trailing "/".
+    // For consistency (and to avoid surprising UI diffs), strip it for origin-only URLs.
+    const normalized = parsed.toString();
+    if (parsed.pathname === '/' && !parsed.search && !parsed.hash) {
+      return normalized.replace(/\/$/, '');
+    }
+    return normalized;
   } catch {
     // Invalid URL
     return '';
@@ -182,7 +190,9 @@ export function sanitizeURL(url: string, allowedSchemes: string[] = DEFAULT_ALLO
 export function sanitizeEmail(email: string): string {
   if (!email) return '';
 
-  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+  // Require at least one dot in the domain part (e.g. example.com).
+  // This intentionally rejects single-label domains like "user@localhost".
+  const emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
   const sanitized = email.trim().toLowerCase();
 
@@ -210,6 +220,7 @@ export function sanitizeFilename(filename: string): string {
       // Remove directory separators
       .replace(/[/\\]/g, '')
       // Remove dangerous characters
+      // eslint-disable-next-line no-control-regex
       .replace(/[<>:"|?*\x00-\x1F]/g, '')
       // Remove leading/trailing dots and spaces
       .replace(/^[.\s]+|[.\s]+$/g, '')
@@ -225,9 +236,11 @@ export function sanitizeJSON(json: string): string {
   if (!json) return '';
 
   try {
-    // Parse and re-stringify to ensure valid JSON
-    const parsed = JSON.parse(json);
-    return JSON.stringify(parsed);
+    // Validate JSON without changing formatting (avoid surprising diffs in UI/exports).
+    // We still require that the payload parses cleanly.
+    const trimmed = json.trim();
+    JSON.parse(trimmed);
+    return trimmed;
   } catch {
     return '';
   }
@@ -291,7 +304,15 @@ export function sanitizeRegExp(pattern: string, flags?: string): RegExp | null {
       return null;
     }
 
-    // Disallow nested quantifiers
+    // Disallow nested quantifiers (common catastrophic backtracking patterns)
+    // Examples: (a+)+, (.*)+, (\\w{1,10}){2,}
+    const quant = '(?:\\*|\\+|\\?|\\{\\d+(?:,\\d*)?\\})';
+    const nestedQuantifier = new RegExp(`\\((?:[^\\\\)]|\\\\.)*${quant}(?:[^\\\\)]|\\\\.)*\\)\\s*${quant}`);
+    if (nestedQuantifier.test(pattern)) {
+      return null;
+    }
+
+    // Disallow consecutive quantifiers (e.g., a++ or a**)
     if (/[*+?{]\s*[*+?{]/.test(pattern)) {
       return null;
     }
@@ -306,9 +327,14 @@ export function sanitizeRegExp(pattern: string, flags?: string): RegExp | null {
  * Escape HTML entities
  */
 export function escapeHTML(text: string): string {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
+  // Escape a broader set of characters than the browser's default text-node escaping.
+  // This keeps behavior predictable across contexts (attributes, text nodes, logs).
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 /**
@@ -457,18 +483,18 @@ export function initSanitization(config: Partial<SanitizationConfig> = {}): void
   if (finalConfig.logViolations) {
     DOMPurify.addHook('uponSanitizeElement', (node, data) => {
       if (data.allowedTags && !data.allowedTags[data.tagName || '']) {
-        console.warn('[Sanitization] Removed disallowed tag:', data.tagName);
+        logger.warn('[Sanitization] Removed disallowed tag:', data.tagName);
       }
     });
 
     DOMPurify.addHook('uponSanitizeAttribute', (node, data) => {
       if (data.allowedAttributes && !data.allowedAttributes[data.attrName || '']) {
-        console.warn('[Sanitization] Removed disallowed attribute:', data.attrName);
+        logger.warn('[Sanitization] Removed disallowed attribute:', data.attrName);
       }
     });
   }
 
   if (import.meta.env.DEV) {
-    console.log('[Sanitization] Initialized with config:', finalConfig);
+    logger.info('[Sanitization] Initialized with config:', finalConfig);
   }
 }

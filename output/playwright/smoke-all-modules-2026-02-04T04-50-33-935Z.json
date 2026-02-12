@@ -1,0 +1,213 @@
+{
+  "startedAt": "2026-02-04T04:50:33.938Z",
+  "baseUrl": "http://localhost:5174",
+  "ok": [
+    {
+      "categoryId": "fleet",
+      "moduleId": "live-fleet-dashboard",
+      "moduleLabel": "Live Fleet Dashboard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "comprehensive",
+      "moduleLabel": "Fleet Analytics"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "virtual-garage",
+      "moduleLabel": "Virtual Garage"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "driver-mgmt",
+      "moduleLabel": "Driver Performance"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "asset-management",
+      "moduleLabel": "Asset Management"
+    }
+  ],
+  "failed": [
+    {
+      "categoryId": "global",
+      "moduleId": "bootstrap",
+      "moduleLabel": "bootstrap",
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByTestId('nav-cat-fleet')\n"
+    }
+  ],
+  "warnings": [
+    {
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub",
+      "kind": "api-error",
+      "status": 404,
+      "url": "http://localhost:5174/api/fleet/metrics"
+    },
+    {
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry",
+      "kind": "api-error",
+      "status": 404,
+      "url": "http://localhost:5174/api/emulator/vehicles"
+    },
+    {
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "moduleId": "virtual-garage",
+      "moduleLabel": "Virtual Garage",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: vehicles.filter is not a function\n    at VirtualGarage (http://localhost:5174/src/components/modules/fleet/VirtualGarage.tsx?t=1770168754377:156:141)\n    at Object.react_stack_bottom_frame (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:18509:20)\n    at renderWithHooks (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:5654:24)\n    at updateFunctionComponent (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:7475:21)\n    at beginWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:8525:20)\n    at runWithFiberInDEV (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:997:72)\n    at performUnitOfWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12561:98)\n    at workLoopSync (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12424:43)\n    at renderRootSync (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12408:13)\n    at performWorkOnRoot (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:11827:37) The above error occurred in the <VirtualGarage> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "virtual-garage",
+      "moduleLabel": "Virtual Garage",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: vehicles.filter is not a function\n    at VirtualGarage (http://localhost:5174/src/components/modules/fleet/VirtualGarage.tsx?t=1770168754377:156:141)\n    at Object.react_stack_bottom_frame (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:18509:20)\n    at renderWithHooks (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:5654:24)\n    at updateFunctionComponent (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:7475:21)\n    at beginWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:8525:20)\n    at runWithFiberInDEV (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:997:72)\n    at performUnitOfWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12561:98)\n    at workLoopSync (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12424:43)\n    at renderRootSync (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:12408:13)\n    at performWorkOnRoot (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:11827:37) {componentStack: \n    at VirtualGarage (http://localhost:5174/src/c…/deps/@tanstack_react-query.js?v=5edbfc0e:3090:3)}"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Fix any of the following:\n  Some page content is not contained by landmarks"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/policies"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/policies"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer",
+      "kind": "console.error",
+      "text": "[ERROR] Failed to fetch policies {error: Failed to fetch policies} undefined"
+    },
+    {
+      "moduleId": "driver-mgmt",
+      "moduleLabel": "Driver Performance",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/driver-scorecard/leaderboard?limit=200"
+    },
+    {
+      "moduleId": "driver-mgmt",
+      "moduleLabel": "Driver Performance",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/driver-scorecard/leaderboard"
+    },
+    {
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/driver-scorecard/leaderboard"
+    },
+    {
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "asset-management",
+      "moduleLabel": "Asset Management",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: assets.filter is not a function\n    at http://localhost:5174/src/components/modules/assets/AssetManagement/hooks/useAssetFilters.ts:7:19\n    at updateMemo (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:6545:21)\n    at Object.useMemo (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:18969:20)\n    at exports.useMemo (http://localhost:5174/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=5edbfc0e:947:36)\n    at useAssetFilters (http://localhost:5174/src/components/modules/assets/AssetManagement/hooks/useAssetFilters.ts:6:26)\n    at AssetManagement (http://localhost:5174/src/components/modules/assets/AssetManagement.tsx:55:7)\n    at Object.react_stack_bottom_frame (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:18509:20)\n    at renderWithHooks (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:5654:24)\n    at updateFunctionComponent (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:7475:21)\n    at beginWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:8525:20) The above error occurred in the <AssetManagement> component. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "asset-management",
+      "moduleLabel": "Asset Management",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: assets.filter is not a function\n    at http://localhost:5174/src/components/modules/assets/AssetManagement/hooks/useAssetFilters.ts:7:19\n    at updateMemo (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:6545:21)\n    at Object.useMemo (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:18969:20)\n    at exports.useMemo (http://localhost:5174/node_modules/.vite/deps/chunk-NKQYQQPA.js?v=5edbfc0e:947:36)\n    at useAssetFilters (http://localhost:5174/src/components/modules/assets/AssetManagement/hooks/useAssetFilters.ts:6:26)\n    at AssetManagement (http://localhost:5174/src/components/modules/assets/AssetManagement.tsx:55:7)\n    at Object.react_stack_bottom_frame (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:18509:20)\n    at renderWithHooks (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:5654:24)\n    at updateFunctionComponent (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:7475:21)\n    at beginWork (http://localhost:5174/node_modules/.vite/deps/chunk-EDR5XPFU.js?v=5edbfc0e:8525:20) {componentStack: \n    at AssetManagement (http://localhost:5174/src…/deps/@tanstack_react-query.js?v=5edbfc0e:3090:3)}"
+    }
+  ],
+  "finishedAt": "2026-02-04T04:51:43.411Z"
+}

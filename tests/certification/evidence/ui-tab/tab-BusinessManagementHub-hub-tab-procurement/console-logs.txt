@@ -1,0 +1,47 @@
+[debug] [vite] connecting...
+[debug] [vite] connected.
+[info] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[log] i18next: languageChanged en-US
+[log] i18next: initialized {debug: true, initAsync: true, ns: Array(1), defaultNS: Array(1), fallbackLng: Array(1)}
+[info] [INFO] Sentry monitoring initialized undefined
+[log] [Fleet] Starting application configuration validation...
+[log] [Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)
+[log] [Fleet] ⚠️  Secret validation must be implemented in backend API
+[log] [Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)
+[log] [Fleet] Starting application...
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: true, isAuthenticated: false, hasUser: false, userId: undefined, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] Showing loading state undefined
+[debug] [DEBUG] [ProtectedRoute] Render check: {isLoading: true, isAuthenticated: false, hasUser: false, userId: undefined, requireAuth: true}
+[debug] [DEBUG] [ProtectedRoute] Showing loading state undefined
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1cnec4
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Registered event callback with id: '019c1a93-497b-7a69-a244-335053b4fae6'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Removing event callback '019c1a93-497b-7a69-a244-335053b4fae6'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 12zotd
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1cnec4
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-react@5.0.2 : Verbose - MsalProvider - Registered event callback with id: '019c1a93-497e-7f07-a165-df8982dc5024'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [019c1a93-497e-7746-9a09-b803bfa07534] : @azure/msal-browser@5.0.2 : Verbose - 1qtz3l
+[warning] [WARN] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [019c1a93-497e-7746-9a09-b803bfa07534] : @azure/msal-browser@5.0.2 : Warning - 1e88vg
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [019c1a93-497e-7746-9a09-b803bfa07534] : @azure/msal-browser@5.0.2 : Info - 1wuc87
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 15jpwk
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 02l8bm
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Info - 0le6uv
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 1wn9kp
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 02l8bm
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-browser@5.0.2 : Verbose - 0w0gm3
+[debug] [DEBUG] [CSRF] Token initialized successfully undefined
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-react@5.0.2 : Info - MsalProvider - handleRedirectPromise resolved, setting inProgress to 'none'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [019c1a93-4983-75a0-ad3a-8b572ffff255] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[info] [INFO] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [] : @azure/msal-react@5.0.2 : Info - MsalProvider - handleRedirectPromise resolved, setting inProgress to 'none'
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [019c1a93-4983-7991-b346-768829d69829] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [019c1a93-4983-7979-922e-834a15e14193] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[debug] [DEBUG] [MSAL] [Sun, 01 Feb 2026 18:59:46 GMT] : [019c1a93-4983-7843-a1bf-19482659e79e] : @azure/msal-browser@5.0.2 : Verbose - 1yd030
+[startGroup] %cNew axe issues color:#d93251;font-weight:normal;
+[startGroupCollapsed] %c%s: %c%s %s color:#d24700;font-weight:bold; moderate font-color:black;font-weight:normal; Document should have one main landmark https://dequeuniversity.com/rules/axe/4.11/landmark-one-main?application=axeAPI
+[endGroup] console.groupEnd
+[startGroupCollapsed] %c%s: %c%s %s color:#d24700;font-weight:bold; moderate font-color:black;font-weight:normal; Page should contain a level-one heading https://dequeuniversity.com/rules/axe/4.11/page-has-heading-one?application=axeAPI
+[endGroup] console.groupEnd
+[endGroup] console.groupEnd
+[info] [INFO] %c[Accessibility] Axe-core initialized - WCAG 2.1 AA compliance checking enabled color: #16a34a; font-weight: bold;

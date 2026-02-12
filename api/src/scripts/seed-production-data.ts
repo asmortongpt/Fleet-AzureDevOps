@@ -89,8 +89,8 @@ async function main() {
     // 1. Create Tenant
     console.log('\n📦 Creating tenant...');
     const [tenant] = await db.insert(schema.tenants).values({
-      name: 'Capital Tech Alliance - Fleet Demo',
-      slug: 'cta-fleet-demo',
+      name: 'Capital Tech Alliance - Fleet Management',
+      slug: 'cta-fleet',
       domain: 'fleet.capitaltechalliance.com',
       settings: {
         timezone: 'America/New_York',

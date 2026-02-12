@@ -78,28 +78,21 @@ export const getPoolStats = () => connectionManager.getAllPoolStats()
 
 /**
  * Legacy pool export with lazy initialization for backward compatibility
- * Uses a Proxy to defer pool access until it's actually used
+ * Uses a Proxy to forward calls to the ConnectionManager write pool.
+ *
+ * IMPORTANT:
+ * - We MUST bind functions to the underlying `pg.Pool` instance.
+ *   Otherwise, calls like `pool.query(...)` execute with `this === proxy`,
+ *   which can lead to subtle runtime failures, connection leaks, and timeouts.
  *
  * DEPRECATED: Use getWritePool() for new code
  */
 const poolProxy = new Proxy({} as Pool, {
-  get(target, prop) {
-    if (process.env.USE_MOCK_DATA === 'true') {
-      // Lazy load mock pool to avoid circular dependencies
-      // Note: This is synchronous but imports mockPool at runtime
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { mockPool } = require('../middleware/mock-database')
-      const result = (mockPool as any)[prop]
-
-      // If the property is a function, bind it to the mockPool instance
-      if (typeof result === 'function') {
-        return result.bind(mockPool)
-      }
-      return result
-    }
+  get(_target, prop) {
     const pool = connectionManager.getWritePool()
-    return (pool as any)[prop]
-  }
+    const value = (pool as any)[prop]
+    return typeof value === 'function' ? value.bind(pool) : value
+  },
 })
 
 export const pool = poolProxy

@@ -1,10 +1,8 @@
 'use client';
 
-import { SessionProvider } from 'next-auth/react';
-
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { ToastProvider, ToastViewport } from '@/components/common/Toast';
-import { useCSRFProtection } from '@/lib/use-csrf';
+import { ToastProvider, ToastViewport } from '../components/common/Toast';
+import { useCSRFProtection } from '../lib/use-csrf';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // Initialize CSRF protection when app loads
@@ -23,12 +21,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <ErrorBoundary onError={handleError}>
-      <SessionProvider>
-        <ToastProvider>
-          {children}
-          <ToastViewport />
-        </ToastProvider>
-      </SessionProvider>
+      <ToastProvider>
+        {children}
+        <ToastViewport />
+      </ToastProvider>
     </ErrorBoundary>
   );
 }

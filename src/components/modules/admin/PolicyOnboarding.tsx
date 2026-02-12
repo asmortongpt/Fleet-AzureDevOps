@@ -37,6 +37,7 @@ import {
   type BottleneckAnalysis
 } from "@/lib/policy-engine/ai-policy-generator"
 import { cn } from "@/lib/utils"
+import logger from '@/utils/logger';
 
 type OnboardingStep = 'profile' | 'analysis' | 'recommendations' | 'implementation'
 
@@ -202,7 +203,7 @@ export function PolicyOnboarding() {
       toast.success('AI Analysis Complete!')
     } catch (error) {
       toast.error('Analysis failed. Please try again.')
-      console.error('Analysis error:', error)
+      logger.error('Analysis error:', error)
     } finally {
       setIsAnalyzing(false)
     }
@@ -225,7 +226,7 @@ export function PolicyOnboarding() {
       setCurrentStep('implementation')
     } catch (error) {
       toast.error('Failed to implement policies')
-      console.error('Implementation error:', error)
+      logger.error('Implementation error:', error)
     }
   }
 
@@ -282,7 +283,7 @@ export function PolicyOnboarding() {
                         ? "bg-blue-500 border-blue-500 text-white"
                         : arr.indexOf(currentStep) > idx
                         ? "bg-green-500 border-green-500 text-white"
-                        : "bg-white border-gray-300 text-gray-400"
+                        : "bg-white border-gray-300 text-gray-700"
                     )}
                   >
                     {arr.indexOf(currentStep) > idx ? (
@@ -883,7 +884,7 @@ export function PolicyOnboarding() {
                       <ol className="space-y-1">
                         {rec.implementationSteps.map((step, stepIdx) => (
                           <li key={stepIdx} className="flex items-start gap-2 text-sm text-slate-700">
-                            <span className="font-medium text-gray-500 flex-shrink-0">
+                            <span className="font-medium text-gray-700 flex-shrink-0">
                               {stepIdx + 1}.
                             </span>
                             {step}

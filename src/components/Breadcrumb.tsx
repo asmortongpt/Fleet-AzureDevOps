@@ -19,7 +19,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
           <li key={index} className="inline-flex items-center">
             {index > 0 && (
               <svg
-                className="w-4 h-4 text-gray-400"
+                className="w-4 h-4 text-gray-700"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -38,7 +38,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
                 {item.label}
               </Link>
             ) : (
-              <span className="inline-flex items-center text-sm font-medium text-gray-500">
+              <span className="inline-flex items-center text-sm font-medium text-gray-700">
                 {item.label}
               </span>
             )}

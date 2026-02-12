@@ -12,9 +12,7 @@
  * SOC 2: CC6.1, CC6.2, CC6.3
  */
 
-import Auth0Client from '@auth0/auth0-spa-js';
-
-// Define Auth0ClientOptions locally since package may not be installed
+// Define Auth0 types locally since package may not be installed
 type Auth0ClientOptions = {
   domain: string;
   clientId: string;
@@ -27,6 +25,11 @@ type Auth0ClientOptions = {
   useRefreshTokens?: boolean;
   useRefreshTokensFallback?: boolean;
 };
+
+// Stub Auth0Client class for when @auth0/auth0-spa-js is not installed
+class Auth0Client {
+  constructor(_options: Auth0ClientOptions) {}
+}
 import { PublicClientApplication, Configuration } from '@azure/msal-browser';
 
 /**
@@ -76,15 +79,12 @@ export const azureAdConfig: Configuration = {
     clientId: import.meta.env.VITE_AZURE_AD_CLIENT_ID || '',
     authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_AD_TENANT_ID || 'common'}`,
     redirectUri: typeof window !== 'undefined' ? window.location.origin : '',
-    postLogoutRedirectUri: typeof window !== 'undefined' ? window.location.origin : '',
-    navigateToLoginRequestUrl: true
+    postLogoutRedirectUri: typeof window !== 'undefined' ? window.location.origin : ''
   },
   cache: {
-    cacheLocation: 'localStorage',
-    storeAuthStateInCookie: false
+    cacheLocation: 'localStorage'
   },
   system: {
-    allowNativeBroker: false,
     loggerOptions: {
       logLevel: 3, // Error
       piiLoggingEnabled: false

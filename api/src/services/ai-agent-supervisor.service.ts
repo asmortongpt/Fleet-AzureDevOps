@@ -8,6 +8,9 @@ import { HumanMessage, SystemMessage } from '@langchain/core/messages'
 import { ChatOpenAI } from '@langchain/openai'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
+import { pool } from '../db'
+
 import langchainOrchestratorService from './langchain-orchestrator.service'
 
 export interface AgentDefinition {
@@ -635,8 +638,6 @@ Keep the response concise but thorough.`
 }
 
 // Export singleton instance
-import { pool } from '../db'
-import logger from '../config/logger'
 const aiAgentSupervisorService = new AIAgentSupervisorService(pool, logger)
 
 export default aiAgentSupervisorService

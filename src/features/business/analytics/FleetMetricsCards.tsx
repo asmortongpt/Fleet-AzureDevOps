@@ -4,7 +4,7 @@ import {
   Build as MaintenanceIcon,
   AttachMoney as MoneyIcon,
   Speed as SpeedIcon,
-  TrendingUp as TrendingUpIcon,
+  TrendingUp as TrendUpIcon,
   CheckCircle as ActiveIcon,
   Timeline as UtilizationIcon
 } from '@mui/icons-material';
@@ -155,7 +155,7 @@ const FleetMetricsCards: React.FC<FleetMetricsCardsProps> = ({ data, period }) =
       title: 'Total Operating Cost',
       value: `$${(totalFuelCost + totalMaintenanceCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       subtitle: periodLabel,
-      icon: TrendingUpIcon,
+      icon: TrendUpIcon,
       color: 'info.main',
       bgColor: 'info.light',
       chip: {
@@ -169,7 +169,7 @@ const FleetMetricsCards: React.FC<FleetMetricsCardsProps> = ({ data, period }) =
       {metrics.map((metric, index) => {
         const IconComponent = metric.icon;
         return (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
             <Card
               sx={{
                 height: '100%',

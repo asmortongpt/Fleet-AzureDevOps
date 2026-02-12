@@ -1,4 +1,4 @@
-import { MagnifyingGlass, X } from "@phosphor-icons/react"
+import { Search, X } from "lucide-react"
 import { useState, useEffect } from "react"
 
 import { Button } from "@/components/ui/button"
@@ -88,7 +88,7 @@ export function SearchInput({
 
   return (
     <div className={cn("relative flex-1", className)}>
-      <MagnifyingGlass
+      <Search
         className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none"
         aria-hidden="true"
       />

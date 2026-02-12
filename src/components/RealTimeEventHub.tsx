@@ -13,13 +13,9 @@
  * Created: 2025-11-23
  */
 
-import {
-  Bell, User, Wrench, GasPump, Warning,
-  Lightning, MapPin, ChatCircle, Funnel, Check,
-  Broadcast, Pulse
-} from '@phosphor-icons/react'
+import { Bell, User, Wrench, Fuel, AlertTriangle, Zap, MapPin, MessageCircle, Filter, Check, Radio, Activity } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { motion, AnimatePresence } from 'framer-motion'
+// motion removed - React 19 incompatible
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -84,13 +80,13 @@ const CATEGORY_CONFIG: Record<EventCategory, {
   label: string
   color: string
 }> = {
-  telemetry: { icon: Pulse, label: 'Telemetry', color: 'text-blue-800' },
+  telemetry: { icon: Activity, label: 'Telemetry', color: 'text-blue-800' },
   maintenance: { icon: Wrench, label: 'Maintenance', color: 'text-orange-500' },
   driver: { icon: User, label: 'Driver', color: 'text-green-500' },
-  fuel: { icon: GasPump, label: 'Fuel', color: 'text-amber-500' },
-  alert: { icon: Warning, label: 'Alert', color: 'text-red-500' },
-  system: { icon: Lightning, label: 'System', color: 'text-purple-500' },
-  communication: { icon: ChatCircle, label: 'Comms', color: 'text-cyan-500' },
+  fuel: { icon: Fuel, label: 'Fuel', color: 'text-amber-500' },
+  alert: { icon: AlertTriangle, label: 'Alert', color: 'text-red-500' },
+  system: { icon: Zap, label: 'System', color: 'text-purple-500' },
+  communication: { icon: MessageCircle, label: 'Comms', color: 'text-cyan-500' },
   dispatch: { icon: MapPin, label: 'Dispatch', color: 'text-indigo-500' }
 }
 
@@ -122,11 +118,7 @@ function EventItem({ event, compact, onAcknowledge, onClick }: EventItemProps) {
   const Icon = categoryConfig.icon
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, x: -100 }}
-      layout
+    <div
       onClick={onClick}
       className={cn(
         "p-3 rounded-lg border cursor-pointer transition-all",
@@ -197,7 +189,7 @@ function EventItem({ event, compact, onAcknowledge, onClick }: EventItemProps) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -327,7 +319,7 @@ export function RealTimeEventHub({
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Broadcast className={cn(
+            <Radio className={cn(
               "w-4 h-4",
               (telemetryConnected || wsConnected) ? "text-green-500 animate-pulse" : "text-muted-foreground"
             )} />
@@ -358,7 +350,7 @@ export function RealTimeEventHub({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="h-8">
-                    <Funnel className="w-4 h-4 mr-1" />
+                    <Filter className="w-4 h-4 mr-1" />
                     {filters.size > 0 && (
                       <Badge variant="secondary" className="text-xs ml-1">
                         {filters.size}
@@ -399,28 +391,24 @@ export function RealTimeEventHub({
       <CardContent className="p-0">
         <ScrollArea className={compact ? "h-[300px]" : "h-[500px]"}>
           <div className="p-2 space-y-2">
-            <AnimatePresence mode="popLayout">
-              {filteredEvents.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-center py-3 text-muted-foreground"
-                >
-                  <Bell className="w-4 h-4 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No events to display</p>
-                </motion.div>
-              ) : (
-                filteredEvents.map(event => (
-                  <EventItem
-                    key={event.id}
-                    event={event}
-                    compact={compact}
-                    onAcknowledge={acknowledgeEvent}
-                    onClick={() => handleEventClick(event)}
-                  />
-                ))
-              )}
-            </AnimatePresence>
+            {filteredEvents.length === 0 ? (
+              <div
+                className="text-center py-3 text-muted-foreground"
+              >
+                <Bell className="w-4 h-4 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No events to display</p>
+              </div>
+            ) : (
+              filteredEvents.map(event => (
+                <EventItem
+                  key={event.id}
+                  event={event}
+                  compact={compact}
+                  onAcknowledge={acknowledgeEvent}
+                  onClick={() => handleEventClick(event)}
+                />
+              ))
+            )}
           </div>
         </ScrollArea>
       </CardContent>

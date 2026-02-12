@@ -1,4 +1,4 @@
-import { Plus } from "@phosphor-icons/react"
+import { Plus } from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { getCsrfToken } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
 import {
   AssetCategory,
@@ -24,7 +25,7 @@ import {
 import logger from '@/utils/logger';
 
 interface AddVehicleDialogProps {
-  onAdd: (vehicle: Vehicle) => void
+  onAdd: (vehicle: Vehicle) => Promise<void> | void
 }
 
 export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
@@ -74,7 +75,12 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
     // Trailer Specs (NEW)
     axle_count: "",
     max_payload_kg: "",
-    tank_capacity_l: ""
+    tank_capacity_l: "",
+
+    // Location (required for fleet ops)
+    location_address: "",
+    location_lat: "",
+    location_lng: ""
   })
 
   // Available asset types based on selected category
@@ -94,11 +100,50 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
     }
   }, [formData.asset_category])
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate required fields
     if (!formData.number || !formData.make || !formData.model || !formData.vin || !formData.licensePlate) {
       toast.error("Please fill in all required fields")
       return
+    }
+
+    if (!formData.location_address) {
+      toast.error("Please enter a location address")
+      return
+    }
+
+    let latitude = Number(formData.location_lat)
+    let longitude = Number(formData.location_lng)
+
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      try {
+        const csrf = await getCsrfToken()
+        const response = await fetch("/api/documents/geo/geocode", {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": csrf
+          },
+          body: JSON.stringify({ address: formData.location_address })
+        })
+
+        if (!response.ok) {
+          throw new Error("Unable to geocode address")
+        }
+
+        const payload = await response.json()
+        const result = payload?.result
+        if (!result) {
+          throw new Error("No geocoding result")
+        }
+
+        latitude = Number(result.lat)
+        longitude = Number(result.lng)
+      } catch (error) {
+        toast.error("Location could not be geocoded. Please provide coordinates.")
+        return
+      }
     }
 
     // Build the new vehicle object with all fields
@@ -114,9 +159,9 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
       licensePlate: formData.licensePlate,
       status: "active",
       location: {
-        lat: 27.9506 + (Math.random() - 0.5) * 2,
-        lng: -82.4572 + (Math.random() - 0.5) * 2,
-        address: "Fleet Headquarters, FL"
+        lat: latitude,
+        lng: longitude,
+        address: formData.location_address
       },
       region: formData.region,
       department: formData.department,
@@ -167,9 +212,15 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
 
     logger.debug('Submitting new vehicle with asset data:', newVehicle)
 
-    onAdd(newVehicle)
-    toast.success(`Vehicle ${formData.number} added successfully`)
-    setOpen(false)
+    try {
+      await onAdd(newVehicle)
+      toast.success(`Vehicle ${formData.number} added successfully`)
+      setOpen(false)
+    } catch (error) {
+      logger.error("Failed to add vehicle:", error)
+      toast.error("Failed to add vehicle")
+      return
+    }
 
     // Reset form
     setFormData({
@@ -206,7 +257,10 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
       is_off_road_only: false,
       axle_count: "",
       max_payload_kg: "",
-      tank_capacity_l: ""
+      tank_capacity_l: "",
+      location_address: "",
+      location_lat: "",
+      location_lng: ""
     })
   }
 
@@ -374,6 +428,39 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
                   value={formData.licensePlate}
                   onChange={(e) => setFormData({ ...formData, licensePlate: e.target.value.toUpperCase() })}
                   placeholder="ABC1234"
+                />
+              </div>
+
+              <div className="space-y-2 col-span-2">
+                <Label htmlFor="locationAddress">Location Address *</Label>
+                <Input
+                  id="locationAddress"
+                  name="location_address"
+                  value={formData.location_address}
+                  onChange={(e) => setFormData({ ...formData, location_address: e.target.value })}
+                  placeholder="123 Main St, Tallahassee, FL"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="locationLat">Latitude (optional)</Label>
+                <Input
+                  id="locationLat"
+                  name="location_lat"
+                  value={formData.location_lat}
+                  onChange={(e) => setFormData({ ...formData, location_lat: e.target.value })}
+                  placeholder="30.4383"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="locationLng">Longitude (optional)</Label>
+                <Input
+                  id="locationLng"
+                  name="location_lng"
+                  value={formData.location_lng}
+                  onChange={(e) => setFormData({ ...formData, location_lng: e.target.value })}
+                  placeholder="-84.2807"
                 />
               </div>
 

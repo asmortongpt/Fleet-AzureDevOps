@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 
 
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/components/UniversalMap/utils/coordinates"
 import logger from '@/utils/logger';
 /**
  * Props for the GoogleMap component
@@ -45,6 +46,28 @@ export interface GoogleMapProps {
 interface MarkerWithInfo {
   marker: google.maps.Marker
   infoWindow?: google.maps.InfoWindow
+}
+
+function getVehicleLatLng(vehicle: any): { lat: number; lng: number } | null {
+  const latRaw =
+    vehicle?.location?.lat ??
+    vehicle?.location?.latitude ??
+    vehicle?.latitude ??
+    vehicle?.gps_latitude ??
+    vehicle?.coordinates?.lat ??
+    vehicle?.coordinates?.latitude
+  const lngRaw =
+    vehicle?.location?.lng ??
+    vehicle?.location?.longitude ??
+    vehicle?.longitude ??
+    vehicle?.gps_longitude ??
+    vehicle?.coordinates?.lng ??
+    vehicle?.coordinates?.longitude
+
+  const lat = Number(latRaw)
+  const lng = Number(lngRaw)
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  return { lat, lng }
 }
 
 /**
@@ -95,8 +118,8 @@ export function GoogleMap({
   showCameras = false,
   showRoutes: _showRoutes = false,
   mapStyle = "roadmap",
-  center = [-84.2807, 30.4383], // Tallahassee, FL [lng, lat]
-  zoom = 12, // Focused on Tallahassee area
+  center,
+  zoom,
   className = "",
   onReady,
   onError,
@@ -105,6 +128,8 @@ export function GoogleMap({
 }: GoogleMapProps) {
   // Refs for DOM and map instances
   const mapRef = useRef<HTMLDivElement>(null)
+  const resolvedCenter = center ?? (calculateDynamicCenter(vehicles, facilities, cameras).reverse() as [number, number]) ?? DEFAULT_CENTER
+  const resolvedZoom = Number.isFinite(zoom as number) ? (zoom as number) : DEFAULT_ZOOM
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const markersRef = useRef<MarkerWithInfo[]>([])
   const boundsListenerRef = useRef<google.maps.MapsEventListener | null>(null)
@@ -286,8 +311,8 @@ export function GoogleMap({
 
 
         mapInstanceRef.current = new google.maps.Map(mapRef.current, {
-          center: { lat: center[1], lng: center[0] },
-          zoom: zoom,
+          center: { lat: resolvedCenter[1], lng: resolvedCenter[0] },
+          zoom: resolvedZoom,
           mapTypeId: mapStyle as google.maps.MapTypeId,
           zoomControl: true,
           zoomControlOptions: {
@@ -360,11 +385,11 @@ export function GoogleMap({
       }
     } else {
       // Update existing map settings
-      mapInstanceRef.current.setCenter({ lat: center[1], lng: center[0] })
-      mapInstanceRef.current.setZoom(zoom)
+      mapInstanceRef.current.setCenter({ lat: resolvedCenter[1], lng: resolvedCenter[0] })
+      mapInstanceRef.current.setZoom(resolvedZoom)
       mapInstanceRef.current.setMapTypeId(mapStyle as google.maps.MapTypeId)
     }
-  }, [isLoading, error, center, zoom, mapStyle])
+  }, [isLoading, error, resolvedCenter, resolvedZoom, mapStyle])
 
   /**
    * Clear all markers and info windows
@@ -402,10 +427,11 @@ export function GoogleMap({
       // Add vehicle markers
       if (showVehicles && vehicles.length > 0) {
         vehicles.forEach(vehicle => {
-          if (!vehicle.location?.lat || !vehicle.location?.lng) return
+          const coords = getVehicleLatLng(vehicle)
+          if (!coords) return
 
           const marker = new google.maps.Marker({
-            position: { lat: vehicle.location?.lat, lng: vehicle.location?.lng },
+            position: coords,
             map: mapInstanceRef.current,
             title: vehicle.name,
             optimized: true,
@@ -439,7 +465,7 @@ export function GoogleMap({
           })
 
           newMarkers.push({ marker, infoWindow })
-          bounds.extend({ lat: vehicle.location?.lat, lng: vehicle.location?.lng })
+          bounds.extend(coords)
           hasMarkers = true
         })
       }
@@ -656,9 +682,9 @@ export function GoogleMap({
 
                 {/* Tooltip */}
                 <div className="absolute left-4 top-0 bg-slate-900 border border-emerald-500/30 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none backdrop-blur-md shadow-sm">
-                  <div className="text-emerald-400 font-bold">{v.name}</div>
-                  <div className="text-slate-400">{v.status.toUpperCase()}</div>
-                  <div className="text-[9px] text-slate-500 mt-1">
+                  <div className="text-emerald-700 font-bold">{v.name}</div>
+                  <div className="text-slate-700">{v.status.toUpperCase()}</div>
+                  <div className="text-[9px] text-gray-800 mt-1">
                     LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : 'N/A'}
                   </div>
                 </div>
@@ -755,10 +781,12 @@ function getVehicleColor(status: Vehicle["status"]): string {
  * @returns HTML string for info window
  */
 function createVehicleInfoHTML(vehicle: Vehicle): string {
-  const location = vehicle.location?.address ||
-    (vehicle.location?.lat && vehicle.location?.lng
-      ? `${vehicle.location?.lat.toFixed(4)}, ${vehicle.location?.lng.toFixed(4)}`
-      : "Unknown")
+  const coords = getVehicleLatLng(vehicle as any)
+  const location =
+    (vehicle as any)?.location?.address ||
+    (vehicle as any)?.location_address ||
+    (vehicle as any)?.locationAddress ||
+    (coords ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : "Unknown")
 
   return `
     <div data-testid="marker-popup" style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">

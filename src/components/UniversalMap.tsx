@@ -192,7 +192,7 @@ class MapErrorBoundary extends Component<
             <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-slate-700 dark:text-gray-400 mb-2">
+            <p className="text-slate-700 dark:text-gray-700 mb-2">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button
@@ -227,7 +227,7 @@ function safeGetLocalStorage(key: string, defaultValue: string | null = null): s
     }
     return localStorage.getItem(key) ?? defaultValue
   } catch (error) {
-    logger.warn("Failed to access localStorage:", error)
+    logger.warn("Failed to access localStorage:", { error: error instanceof Error ? error.message : String(error) })
     return defaultValue
   }
 }
@@ -246,7 +246,7 @@ function safeSetLocalStorage(key: string, value: string): boolean {
     localStorage.setItem(key, value)
     return true
   } catch (error) {
-    logger.warn("Failed to set localStorage:", error)
+    logger.warn("Failed to set localStorage:", { error: error instanceof Error ? error.message : String(error) })
     return false
   }
 }
@@ -260,7 +260,7 @@ function hasGoogleMapsApiKey(): boolean {
     const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
     return typeof key === "string" && key.length > 0
   } catch (error) {
-    logger.warn("Failed to check Google Maps API key:", error)
+    logger.warn("Failed to check Google Maps API key:", { error: error instanceof Error ? error.message : String(error) })
     return false
   }
 }
@@ -461,13 +461,12 @@ export function UniversalMap(props: UniversalMapProps) {
     clusterThreshold = DEFAULT_CLUSTER_THRESHOLD,
     enablePerformanceMonitoring = import.meta.env.DEV,
     showPerformanceMonitor = import.meta.env.DEV,
+    mapStyle,
   } = props
 
-  // Test environment data injection
-  const testData = (typeof window !== 'undefined' && (window as any).__TEST_DATA__) || {}
-  const vehicles = testData.vehicles || propVehicles
-  const facilities = testData.facilities || propFacilities
-  const cameras = testData.cameras || propCameras
+  const vehicles = propVehicles
+  const facilities = propFacilities
+  const cameras = propCameras
 
   // --------------------------------------------------------------------------
   // State Management
@@ -700,6 +699,7 @@ export function UniversalMap(props: UniversalMapProps) {
     showRoutes,
     center: validatedCenter,
     zoom: validatedZoom,
+    mapStyle: mapStyle as any,
     className,
   }
 
@@ -711,7 +711,7 @@ export function UniversalMap(props: UniversalMapProps) {
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
             <div className="flex flex-col items-center gap-3">
               <div className="w-12 h-9 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-slate-700 dark:text-gray-400">
+              <p className="text-sm text-slate-700 dark:text-gray-700">
                 Loading {provider === "google" ? "Google Maps" : "OpenStreetMap"}...
               </p>
             </div>

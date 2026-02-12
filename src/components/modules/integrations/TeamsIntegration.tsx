@@ -1,4 +1,4 @@
-import { ChatsCircle, PaperPlaneTilt, Users, Bell } from "@phosphor-icons/react"
+import { MessageCircle, Send, Users, Bell } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -94,7 +94,7 @@ export function TeamsIntegration() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <ChatsCircle className="w-3 h-3" />
+              <MessageCircle className="w-3 h-3" />
               Channels
             </CardTitle>
           </CardHeader>
@@ -138,7 +138,7 @@ export function TeamsIntegration() {
                   size="sm"
                   className="w-full justify-start gap-2"
                 >
-                  <PaperPlaneTilt className="w-4 h-4" />
+                  <Send className="w-4 h-4" />
                   Compose
                 </Button>
               </DialogTrigger>
@@ -190,7 +190,7 @@ export function TeamsIntegration() {
                     Cancel
                   </Button>
                   <Button onClick={handleSendMessage}>
-                    <PaperPlaneTilt className="w-4 h-4 mr-2" />
+                    <Send className="w-4 h-4 mr-2" />
                     Send Message
                   </Button>
                 </DialogFooter>
@@ -216,7 +216,7 @@ export function TeamsIntegration() {
             {channelMessages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center p-3">
                 <div className="p-2 bg-muted rounded-full mb-2">
-                  <ChatsCircle className="w-12 h-9 text-muted-foreground" />
+                  <MessageCircle className="w-12 h-9 text-muted-foreground" />
                 </div>
                 <h3 className="text-sm font-semibold mb-2">No messages yet</h3>
                 <p className="text-muted-foreground max-w-md">

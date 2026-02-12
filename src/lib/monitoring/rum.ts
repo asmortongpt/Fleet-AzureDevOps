@@ -6,6 +6,7 @@
  */
 
 import { telemetry , metrics } from './telemetry';
+import logger from '@/utils/logger';
 
 /**
  * RUM Event Types
@@ -90,11 +91,11 @@ class RUMService {
       this.initialized = true;
 
       if (import.meta.env.DEV) {
-        console.log('[RUM] Initialized successfully');
-        console.log('[RUM] Session ID:', this.sessionId);
+        logger.info('[RUM] Initialized successfully');
+        logger.info('[RUM] Session ID:', this.sessionId);
       }
     } catch (error) {
-      console.error('[RUM] Failed to initialize:', error);
+      logger.error('[RUM] Failed to initialize:', error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -122,7 +123,7 @@ class RUMService {
     try {
       sessionStorage.setItem('rum_session', JSON.stringify(this.session));
     } catch (error) {
-      console.warn('[RUM] Failed to store session:', error);
+      logger.warn('[RUM] Failed to store session:', { error });
     }
   }
 
@@ -371,7 +372,7 @@ class RUMService {
 
     // Log in dev
     if (import.meta.env.DEV) {
-      console.log('[RUM]', type, data);
+      logger.info('[RUM]', { type, ...data });
     }
   }
 
@@ -418,7 +419,7 @@ class RUMService {
     // Skip sending events in development - no endpoint available
     if (import.meta.env.DEV) {
       if (import.meta.env.DEV) {
-        console.debug('[RUM] Skipping event flush in development mode');
+        logger.debug('[RUM] Skipping event flush in development mode');
       }
       return;
     }
@@ -442,7 +443,7 @@ class RUMService {
     } catch (error) {
       // Only log error once, not repeatedly
       if (!this.flushErrorLogged) {
-        console.warn('[RUM] Event endpoint unavailable, events will be discarded');
+        logger.warn('[RUM] Event endpoint unavailable, events will be discarded');
         this.flushErrorLogged = true;
       }
       // Don't put events back - they'll accumulate forever if endpoint is down
@@ -509,7 +510,7 @@ class RUMService {
     this.trackingEnabled = enabled;
 
     if (import.meta.env.DEV) {
-      console.log('[RUM] Tracking', enabled ? 'enabled' : 'disabled');
+      logger.info('[RUM] Tracking', enabled ? 'enabled' : 'disabled');
     }
   }
 
@@ -572,7 +573,7 @@ export function initRUM(): void {
   if (!rum.isOptedOut()) {
     rum.init();
   } else {
-    console.log('[RUM] User opted out of tracking');
+    logger.info('[RUM] User opted out of tracking');
   }
 }
 

@@ -113,6 +113,14 @@ export interface Vehicle {
   vin: string
   status: string
   vehicle_type?: string
+  number?: string
+  tenantId?: string
+  tenant_id?: string | number
+  mileage?: number
+  odometer?: number
+  assignedDriver?: string
+  department?: string
+  metadata?: Record<string, any>
 }
 
 export interface ServiceBay {

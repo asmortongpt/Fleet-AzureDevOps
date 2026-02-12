@@ -8,11 +8,15 @@
 import { Router, Request, Response } from 'express';
 
 import { getPoolStats, getDatabaseHealth } from '../../config/database'
+import { csrfProtection } from '../../middleware/csrf';
 import { getDatabaseStats } from '../../utils/database';
 import { queryMonitor } from '../../utils/query-monitor';
-import { csrfProtection } from '../../middleware/csrf';
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * GET /api/monitoring/query-performance/stats

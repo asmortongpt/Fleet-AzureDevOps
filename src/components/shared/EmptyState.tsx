@@ -26,7 +26,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
   const defaultIcon = (
     <svg
-      className="mx-auto h-9 w-12 text-gray-400"
+      className="mx-auto h-9 w-12 text-gray-700"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -49,7 +49,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
       <h3 className="mt-2 text-sm font-semibold text-gray-900">
         {title}
       </h3>
-      <p className="mt-1 text-sm text-gray-500 font-normal">
+      <p className="mt-1 text-sm text-gray-700 font-normal">
         {description}
       </p>
       {action && (

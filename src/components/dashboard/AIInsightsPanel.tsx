@@ -5,13 +5,13 @@
 
 import {
   Lightbulb,
-  Warning,
-  TrendUp,
+  AlertTriangle,
+  TrendingUp,
   Bell,
   X,
-  Sparkle,
+  Sparkles,
   CheckCircle
-} from "@phosphor-icons/react"
+} from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -28,13 +28,13 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
     const iconClass = "w-4 h-4"
     switch (type) {
       case 'prediction':
-        return <Sparkle className={iconClass} weight="fill" />
+        return <Sparkles className={iconClass} />
       case 'recommendation':
         return <Lightbulb className={iconClass} />
       case 'alert':
-        return <Warning className={iconClass} weight="fill" />
+        return <AlertTriangle className={iconClass} />
       case 'optimization':
-        return <TrendUp className={iconClass} />
+        return <TrendingUp className={iconClass} />
       default:
         return <Bell className={iconClass} />
     }
@@ -62,7 +62,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'medium':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
       case 'low':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700'
     }
   }
 
@@ -71,7 +71,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'prediction':
         return 'text-purple-600 dark:text-purple-400'
       case 'recommendation':
-        return 'text-blue-800 dark:text-blue-400'
+        return 'text-blue-800 dark:text-blue-700'
       case 'alert':
         return 'text-red-600 dark:text-red-400'
       case 'optimization':
@@ -91,7 +91,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
     <Card className="shadow-sm border-border/50">
       <CardHeader className="px-2 py-3 border-b border-border/50 bg-muted/30">
         <CardTitle className="text-sm font-semibold flex items-center gap-2">
-          <Sparkle className="w-4 h-4 text-primary" weight="fill" />
+          <Sparkles className="w-4 h-4 text-primary" />
           AI Insights & Predictions
           {insights.length > 0 && (
             <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
@@ -103,7 +103,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       <CardContent className="px-2 pb-2 pt-3">
         {sortedInsights.length === 0 ? (
           <div className="text-center py-3">
-            <CheckCircle className="w-4 h-4 mx-auto mb-2 text-green-600 dark:text-green-400" weight="fill" />
+            <CheckCircle className="w-4 h-4 mx-auto mb-2 text-green-600 dark:text-green-400" />
             <p className="text-xs text-muted-foreground">
               No active insights
             </p>

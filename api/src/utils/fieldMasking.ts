@@ -184,9 +184,22 @@ const maskingRules: Record<string, MaskingRule[]> = {
 }
 
 /**
- * Get user roles
+ * Cache for user roles (in-memory, per-process)
+ * Prevents excessive database queries for the same user
+ */
+const userRolesCache = new Map<string, { roles: string[], timestamp: number }>()
+const CACHE_TTL_MS = 60000 // 1 minute
+
+/**
+ * Get user roles (with caching to prevent connection exhaustion)
  */
 async function getUserRoles(userId: string): Promise<string[]> {
+  // Check cache first
+  const cached = userRolesCache.get(userId)
+  if (cached && (Date.now() - cached.timestamp) < CACHE_TTL_MS) {
+    return cached.roles
+  }
+
   try {
     const result = await pool.query(`
       SELECT r.name
@@ -197,10 +210,16 @@ async function getUserRoles(userId: string): Promise<string[]> {
       AND (ur.expires_at IS NULL OR ur.expires_at > NOW())
     `, [userId])
 
-    return result.rows.map(row => row.name)
+    const roles = result.rows.map(row => row.name)
+
+    // Cache the result
+    userRolesCache.set(userId, { roles, timestamp: Date.now() })
+
+    return roles
   } catch (error) {
     console.error('Error fetching user roles:', error)
-    return []
+    // Return cached value if available, even if expired
+    return cached?.roles || []
   }
 }
 
@@ -318,6 +337,11 @@ export async function maskRecords(
 export function applyFieldMasking(resourceType: string) {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
+      return next()
+    }
+
+    // Skip field masking in development mode with auth bypass
+    if (process.env.NODE_ENV !== 'production' && (process.env.SKIP_AUTH === 'true' || process.env.NODE_ENV === 'development')) {
       return next()
     }
 

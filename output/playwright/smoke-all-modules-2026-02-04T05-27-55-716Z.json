@@ -1,0 +1,240 @@
+{
+  "startedAt": "2026-02-04T05:27:55.717Z",
+  "baseUrl": "http://localhost:5174",
+  "ok": [
+    {
+      "categoryId": "fleet",
+      "moduleId": "live-fleet-dashboard",
+      "moduleLabel": "Live Fleet Dashboard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet",
+      "moduleLabel": "Fleet Operations Hub"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "comprehensive",
+      "moduleLabel": "Fleet Analytics"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "vehicle-telemetry",
+      "moduleLabel": "Vehicle Telemetry"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "virtual-garage",
+      "moduleLabel": "Virtual Garage"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet-optimizer",
+      "moduleLabel": "Fleet Optimizer"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "driver-mgmt",
+      "moduleLabel": "Driver Performance"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "driver-scorecard",
+      "moduleLabel": "Driver Scorecard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "asset-management",
+      "moduleLabel": "Asset Management"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "fleet-workspace",
+      "moduleLabel": "Fleet Workspace"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "drivers-workspace",
+      "moduleLabel": "Drivers Workspace"
+    },
+    {
+      "categoryId": "fleet",
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom"
+    }
+  ],
+  "failed": [
+    {
+      "categoryId": "global",
+      "moduleId": "bootstrap",
+      "moduleLabel": "bootstrap",
+      "error": "locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for getByTestId('nav-cat-operations')\n"
+    }
+  ],
+  "warnings": [
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/heavy-equipment/maintenance/schedules"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "[ERROR] Error fetching dashboard data: APIError: Failed to fetch maintenance schedules\n    at APIClient.request (http://localhost:5174/src/lib/api-client.ts?t=1770180256244:159:15)\n    at async Promise.all (index 1)\n    at async fetchDashboardData (http://localhost:5174/src/components/modules/assets/EquipmentDashboard.tsx:60:11) undefined"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/heavy-equipment/certifications/expiring?days=60"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/heavy-equipment/certifications/matrix"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/heavy-equipment"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/heavy-equipment/maintenance/schedules"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "[ERROR] Error fetching dashboard data: APIError: Failed to fetch maintenance schedules\n    at APIClient.request (http://localhost:5174/src/lib/api-client.ts?t=1770180256244:159:15)\n    at async Promise.all (index 1)\n    at async fetchDashboardData (http://localhost:5174/src/components/modules/assets/EquipmentDashboard.tsx:60:11) undefined"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/heavy-equipment/certifications/expiring?days=60"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/heavy-equipment/certifications/matrix"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "api-error",
+      "status": 500,
+      "url": "http://localhost:5174/api/heavy-equipment"
+    },
+    {
+      "moduleId": "equipment-dashboard",
+      "moduleLabel": "Equipment Dashboard",
+      "kind": "console.error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)"
+    },
+    {
+      "moduleId": "fleet-workspace",
+      "moduleLabel": "Fleet Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] WebSocket error: {error: Event} undefined"
+    },
+    {
+      "moduleId": "fleet-workspace",
+      "moduleLabel": "Fleet Workspace",
+      "kind": "console.error",
+      "text": "WebSocket connection to 'ws://localhost:3001/' failed: Connection closed before receiving a handshake response"
+    },
+    {
+      "moduleId": "fleet-workspace",
+      "moduleLabel": "Fleet Workspace",
+      "kind": "console.error",
+      "text": "[ERROR] WebSocket error: {error: Event} undefined"
+    },
+    {
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom",
+      "kind": "console.error",
+      "text": "%o\n\n%s\n\n%s\n TypeError: Cannot read properties of undefined (reading 'ReactCurrentOwner')\n    at $$$reconciler (http://localhost:5174/node_modules/.vite/deps/chunk-MHSH4XFL.js?v=5edbfc0e:926:54)\n    at createRenderer (http://localhost:5174/node_modules/.vite/deps/chunk-MHSH4XFL.js?v=5edbfc0e:15895:59)\n    at http://localhost:5174/node_modules/.vite/deps/chunk-MHSH4XFL.js?v=5edbfc0e:17052:5 The above error occurred in one of your React components. React will try to recreate this component tree from scratch using the error boundary you provided, SentryErrorBoundary."
+    },
+    {
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom",
+      "kind": "console.error",
+      "text": "[ERROR] Error caught by boundary: TypeError: Cannot read properties of undefined (reading 'ReactCurrentOwner')\n    at $$$reconciler (http://localhost:5174/node_modules/.vite/deps/chunk-MHSH4XFL.js?v=5edbfc0e:926:54)\n    at createRenderer (http://localhost:5174/node_modules/.vite/deps/chunk-MHSH4XFL.js?v=5edbfc0e:15895:59)\n    at http://localhost:5174/node_modules/.vite/deps/chunk-MHSH4XFL.js?v=5edbfc0e:17052:5 {componentStack: \n    at Lazy (<anonymous>)\n    at div (<anonymous>…/deps/@tanstack_react-query.js?v=5edbfc0e:3090:3)}"
+    },
+    {
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom",
+      "kind": "console.error",
+      "text": "WebSocket connection to 'ws://localhost:3001/' failed: Connection closed before receiving a handshake response"
+    },
+    {
+      "moduleId": "3d-garage",
+      "moduleLabel": "3D Vehicle Showroom",
+      "kind": "console.error",
+      "text": "[ERROR] WebSocket error: {error: Event} undefined"
+    }
+  ],
+  "finishedAt": "2026-02-04T05:28:51.936Z"
+}

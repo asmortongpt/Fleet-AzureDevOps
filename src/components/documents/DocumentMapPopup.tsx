@@ -78,7 +78,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
                 className="inline-block w-2 h-2 rounded-full"
                 style={{ backgroundColor: document.categoryColor || '#3B82F6' }}
               />
-              <span className="text-xs text-slate-700 dark:text-gray-400">
+              <span className="text-xs text-slate-700 dark:text-gray-700">
                 {document.categoryName}
               </span>
             </div>
@@ -90,7 +90,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
       {document.location?.address && (
         <div className="flex items-start gap-2 mb-3 text-sm">
           <svg
-            className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0"
+            className="w-4 h-4 text-gray-700 mt-0.5 flex-shrink-0"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -116,7 +116,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
 
       {/* City, State */}
       {(document.location?.city || document.location?.state) && (
-        <div className="flex items-center gap-2 mb-3 text-xs text-slate-700 dark:text-gray-400">
+        <div className="flex items-center gap-2 mb-3 text-xs text-slate-700 dark:text-gray-700">
           <svg
             className="w-4 h-4"
             fill="none"
@@ -140,7 +140,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
 
       {/* Distance (if provided) */}
       {document.distanceMeters !== undefined && document.distanceMeters > 0 && (
-        <div className="flex items-center gap-2 mb-3 text-xs text-slate-700 dark:text-gray-400">
+        <div className="flex items-center gap-2 mb-3 text-xs text-slate-700 dark:text-gray-700">
           <svg
             className="w-4 h-4"
             fill="none"
@@ -160,7 +160,7 @@ export function DocumentMapPopup({ document, onView, onDownload }: DocumentMapPo
 
       {/* Coordinates */}
       {document.location && (
-        <div className="flex items-center gap-2 mb-3 text-xs text-gray-500 dark:text-gray-500 font-mono">
+        <div className="flex items-center gap-2 mb-3 text-xs text-gray-700 dark:text-gray-700 font-mono">
           <svg
             className="w-4 h-4"
             fill="none"

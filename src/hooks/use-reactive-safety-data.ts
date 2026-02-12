@@ -17,10 +17,11 @@
  */
 
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query'
+import DOMPurify from 'dompurify'
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
-import DOMPurify from 'dompurify'
 
+import logger from '@/utils/logger';
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 const WS_BASE = import.meta.env.VITE_WS_URL || 'ws://localhost:3000'
 
@@ -349,7 +350,7 @@ export function useReactiveSafetyData(options?: {
 
         ws.onopen = () => {
           setIsConnected(true)
-          console.log('[SafetyData] WebSocket connected')
+          logger.info('[SafetyData] WebSocket connected')
         }
 
         ws.onmessage = (event) => {
@@ -370,21 +371,21 @@ export function useReactiveSafetyData(options?: {
               queryClient.invalidateQueries({ queryKey: ['driver-safety'] })
             }
           } catch (error) {
-            console.error('[SafetyData] Failed to parse WebSocket message:', error)
+            logger.error('[SafetyData] Failed to parse WebSocket message:', error)
           }
         }
 
         ws.onclose = () => {
           setIsConnected(false)
-          console.log('[SafetyData] WebSocket disconnected, reconnecting...')
+          logger.info('[SafetyData] WebSocket disconnected, reconnecting...')
           reconnectTimeout = setTimeout(connect, 5000)
         }
 
         ws.onerror = (error) => {
-          console.error('[SafetyData] WebSocket error:', error)
+          logger.error('[SafetyData] WebSocket error:', error)
         }
       } catch (error) {
-        console.error('[SafetyData] Failed to establish WebSocket connection:', error)
+        logger.error('[SafetyData] Failed to establish WebSocket connection:', error)
         reconnectTimeout = setTimeout(connect, 10000)
       }
     }
@@ -489,10 +490,10 @@ export function useReactiveSafetyData(options?: {
 
   // Driver safety score ranges
   const driverSafetyRanges = {
-    excellent: driverSafety.filter((d) => d.safetyScore >= 90).length,
-    good: driverSafety.filter((d) => d.safetyScore >= 75 && d.safetyScore < 90).length,
-    fair: driverSafety.filter((d) => d.safetyScore >= 60 && d.safetyScore < 75).length,
-    poor: driverSafety.filter((d) => d.safetyScore < 60).length,
+    excellent: driverSafety.filter((d) => d.safetyScore.overall >= 90).length,
+    good: driverSafety.filter((d) => d.safetyScore.overall >= 75 && d.safetyScore.overall < 90).length,
+    fair: driverSafety.filter((d) => d.safetyScore.overall >= 60 && d.safetyScore.overall < 75).length,
+    poor: driverSafety.filter((d) => d.safetyScore.overall < 60).length,
   }
 
   // Incident trend data (last 7 days)
@@ -540,6 +541,18 @@ export function useReactiveSafetyData(options?: {
     .filter((a) => a.type === 'critical' && a.status === 'active')
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
 
+  // Additional computed properties for SafetyHub tabs
+  const openIncidents = incidents.filter((i) => i.status !== 'closed')
+  const criticalIncidents = incidents.filter((i) => i.severity === 'critical')
+
+  // Mock data for inspections (to be replaced with real data when backend is ready)
+  const inspections: Array<{ id: string; status: string; type: string }> = []
+
+  // Mock data for certifications (to be replaced with real data when backend is ready)
+  const certifications: Array<{ id: string; status: string; type: string }> = []
+  const expiringCertifications = certifications.filter((c) => c.status === 'expiring_soon')
+  const expiredCertifications = certifications.filter((c) => c.status === 'expired')
+
   // Refresh function
   const refresh = useCallback(() => {
     setRealTimeUpdate((prev) => prev + 1)
@@ -550,6 +563,14 @@ export function useReactiveSafetyData(options?: {
     queryClient.invalidateQueries({ queryKey: ['safety-incidents'] })
   }, [queryClient])
 
+  // Enhanced metrics with additional properties
+  const enhancedMetrics = useMemo(() => ({
+    ...metrics,
+    pendingInspections: inspections.filter((i) => i.status === 'pending' || i.status === 'scheduled').length,
+    expiringCertifications: expiringCertifications.length,
+    expiredCertifications: expiredCertifications.length,
+  }), [metrics, inspections, expiringCertifications, expiredCertifications])
+
   return {
     // Core data
     alerts,
@@ -557,9 +578,15 @@ export function useReactiveSafetyData(options?: {
     vehicleSafety,
     trainingRecords,
     incidents,
+    openIncidents,
+    criticalIncidents,
+    inspections,
+    certifications,
+    expiringCertifications,
+    expiredCertifications,
 
     // Metrics
-    metrics,
+    metrics: enhancedMetrics,
     alertsByType,
     driverSafetyRanges,
     incidentTrendData,
@@ -648,18 +675,21 @@ function calculateFMCSAScore(drivers: DriverSafety[], metric: 'speeding' | 'hos'
   if (drivers.length === 0) return 100
 
   switch (metric) {
-    case 'speeding':
+    case 'speeding': {
       const speedingScore = drivers.reduce((sum, d) => sum + d.safetyScore.speeding, 0) / drivers.length
       return Math.round(speedingScore)
+    }
 
-    case 'hos':
+    case 'hos': {
       const hosViolations = drivers.reduce((sum, d) => sum + d.hosViolations, 0)
       const maxViolations = drivers.length * 5 // Threshold for worst score
       return Math.round(Math.max(0, 100 - (hosViolations / maxViolations) * 100))
+    }
 
-    case 'training':
+    case 'training': {
       const compliantDrivers = drivers.filter(d => d.trainingCompliance >= 90).length
       return Math.round((compliantDrivers / drivers.length) * 100)
+    }
 
     default:
       return 100

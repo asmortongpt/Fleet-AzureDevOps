@@ -91,17 +91,6 @@ declare module 'bcryptjs' {
     export function genSaltSync(rounds?: number): string;
 }
 
-declare module '@tanstack/react-virtual' {
-    export function useVirtualizer(options: Record<string, unknown>): Record<string, unknown>;
-    export interface VirtualItem {
-        index: number;
-        start: number;
-        end: number;
-        size: number;
-        key: string | number;
-    }
-}
-
 declare module 'awilix' {
     export function createContainer(options?: Record<string, unknown>): AwilixContainer;
     export function asClass(ctor: unknown, options?: Record<string, unknown>): unknown;
@@ -113,15 +102,6 @@ declare module 'awilix' {
         resolve<T>(name: string): T;
         createScope(): AwilixContainer;
     }
-}
-
-declare module 'web-vitals' {
-    type MetricCallback = (metric: Record<string, unknown>) => void;
-    export function onCLS(callback: MetricCallback): void;
-    export function onFID(callback: MetricCallback): void;
-    export function onFCP(callback: MetricCallback): void;
-    export function onLCP(callback: MetricCallback): void;
-    export function onTTFB(callback: MetricCallback): void;
 }
 
 declare module '@auth0/auth0-spa-js' {

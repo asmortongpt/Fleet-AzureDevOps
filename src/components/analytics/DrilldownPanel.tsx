@@ -3,8 +3,8 @@
  * Features: Multi-level drilling, breadcrumb navigation, detail views
  */
 
-import { X, CaretRight, ArrowLeft, Download, Share } from '@phosphor-icons/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { X, ChevronRight, ArrowLeft, Download, Share } from 'lucide-react'
+// motion removed - React 19 incompatible
 import { memo, useState, useCallback } from 'react'
 
 import { CostAnalyticsChart } from './CostAnalyticsChart'
@@ -76,7 +76,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
     const renderContent = () => {
         if (!currentData) {
             return (
-                <div className="flex items-center justify-center h-full text-slate-400">
+                <div className="flex items-center justify-center h-full text-slate-700">
                     <p>No data selected</p>
                 </div>
             )
@@ -210,13 +210,9 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
     }
 
     return (
-        <AnimatePresence>
+        <>
             {isOpen && (
-                <motion.div
-                    initial={{ x: '100%' }}
-                    animate={{ x: 0 }}
-                    exit={{ x: '100%' }}
-                    transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+                <div
                     className="fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5 bg-slate-900 border-l border-slate-700 shadow-sm z-50 flex flex-col"
                 >
                     {/* Header */}
@@ -228,7 +224,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                                         onClick={() => handleDrillUp(breadcrumbs.length - 2)}
                                         className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
                                     >
-                                        <ArrowLeft className="w-3 h-3 text-slate-400" />
+                                        <ArrowLeft className="w-3 h-3 text-slate-700" />
                                     </button>
                                 )}
                                 <h2 className="text-sm font-bold text-white">
@@ -239,7 +235,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                                 onClick={onClose}
                                 className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
                             >
-                                <X className="w-4 h-4 text-slate-400" />
+                                <X className="w-4 h-4 text-slate-700" />
                             </button>
                         </div>
 
@@ -259,7 +255,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                                             {crumb.title}
                                         </button>
                                         {index < breadcrumbs.length - 1 && (
-                                            <CaretRight className="w-4 h-4 text-slate-500" />
+                                            <ChevronRight className="w-4 h-4 text-slate-500" />
                                         )}
                                     </div>
                                 ))}
@@ -268,7 +264,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
 
                         {/* Subtitle */}
                         {currentData?.subtitle && (
-                            <p className="text-slate-400 text-sm mt-2">{currentData.subtitle}</p>
+                            <p className="text-slate-700 text-sm mt-2">{currentData.subtitle}</p>
                         )}
 
                         {/* Actions */}
@@ -294,9 +290,9 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                     <div className="flex-1 overflow-y-auto p-3">
                         {renderContent()}
                     </div>
-                </motion.div>
+                </div>
             )}
-        </AnimatePresence>
+        </>
     )
 })
 
@@ -314,14 +310,14 @@ const CategoryCard = memo<{
         onClick={onClick}
         className="bg-slate-800/60 hover:bg-slate-700/60 border border-slate-700 rounded-lg p-3 text-left transition-colors group"
     >
-        <h3 className="text-slate-400 text-sm font-medium mb-2">{title}</h3>
+        <h3 className="text-slate-700 text-sm font-medium mb-2">{title}</h3>
         <p className="text-base font-bold text-white mb-1">{value}</p>
         <p className={`text-sm font-medium ${trend === 'up' ? 'text-green-400' : 'text-red-400'}`}>
             {change}
         </p>
-        <div className="flex items-center gap-2 mt-2 text-blue-400 text-sm group-hover:translate-x-1 transition-transform">
+        <div className="flex items-center gap-2 mt-2 text-blue-700 text-sm group-hover:translate-x-1 transition-transform">
             <span>View details</span>
-            <CaretRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4" />
         </div>
     </button>
 ))
@@ -343,11 +339,11 @@ const VehicleList = memo<{ onVehicleClick: (vehicle: any) => void }>(({ onVehicl
                     <div className="flex items-center justify-between">
                         <div>
                             <p className="text-white font-medium">{vehicle.name}</p>
-                            <p className="text-slate-400 text-sm">{vehicle.vin}</p>
+                            <p className="text-slate-700 text-sm">{vehicle.vin}</p>
                         </div>
                         <div className="text-right">
                             <p className="text-white font-semibold">{vehicle.cost}</p>
-                            <CaretRight className="w-4 h-4 text-slate-400 ml-auto" />
+                            <ChevronRight className="w-4 h-4 text-slate-700 ml-auto" />
                         </div>
                     </div>
                 </button>
@@ -361,11 +357,11 @@ const VehicleDetailCard = memo<{ vehicle: any }>(({ vehicle }) => (
         <h3 className="text-white font-semibold text-base mb-2">{vehicle.name}</h3>
         <div className="grid grid-cols-2 gap-2">
             <div>
-                <p className="text-slate-400 text-sm">VIN</p>
+                <p className="text-slate-700 text-sm">VIN</p>
                 <p className="text-white font-medium">{vehicle.vin}</p>
             </div>
             <div>
-                <p className="text-slate-400 text-sm">Total Cost</p>
+                <p className="text-slate-700 text-sm">Total Cost</p>
                 <p className="text-white font-medium">{vehicle.cost || '$12,450'}</p>
             </div>
         </div>

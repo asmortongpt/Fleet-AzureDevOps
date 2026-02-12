@@ -23,9 +23,13 @@ import teamsSync from '../jobs/teams-sync.job'
 import { csrfProtection } from '../middleware/csrf'
 import syncService from '../services/sync.service'
 import { getErrorMessage } from '../utils/error-handler'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * @openapi

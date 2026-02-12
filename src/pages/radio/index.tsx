@@ -4,19 +4,32 @@
  */
 
 import { Radio, Activity, FileText, Settings } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { PolicyQueue } from '@/components/radio/PolicyQueue';
 import { RadioFeed } from '@/components/radio/RadioFeed';
 import { TranscriptPanel } from '@/components/radio/TranscriptPanel';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Section } from '@/components/ui/section';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRadioSocket } from '@/hooks/useRadioSocket';
 
 export default function RadioDispatchPage() {
   const [selectedChannel, setSelectedChannel] = useState<string | null>(null);
   const { isConnected, transmissions, pendingApprovals } = useRadioSocket(selectedChannel);
+  const activeChannelCount = useMemo(() => {
+    const set = new Set(transmissions.map((t) => t.channel_id).filter(Boolean));
+    return set.size;
+  }, [transmissions]);
+
+  const transmissionsToday = useMemo(() => {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    return transmissions.filter((t) => {
+      const date = new Date(t.started_at);
+      return !Number.isNaN(date.getTime()) && date >= start;
+    }).length;
+  }, [transmissions]);
 
   return (
     <div className="flex flex-col gap-2 p-3">
@@ -38,50 +51,38 @@ export default function RadioDispatchPage() {
 
       {/* Stats Overview */}
       <div className="grid gap-2 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Channels
-            </CardTitle>
-            <Radio className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">3</div>
-            <p className="text-xs text-muted-foreground">
-              Monitoring in real-time
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Active Channels"
+          icon={<Radio className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">{activeChannelCount}</div>
+          <p className="text-xs text-muted-foreground">
+            Monitoring in real-time
+          </p>
+        </Section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Transmissions Today
-            </CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">{transmissions.length}</div>
-            <p className="text-xs text-muted-foreground">
-              +12% from yesterday
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Transmissions Today"
+          icon={<FileText className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">{transmissionsToday}</div>
+          <p className="text-xs text-muted-foreground">
+            Since midnight
+          </p>
+        </Section>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Pending Approvals
-            </CardTitle>
-            <Settings className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-sm font-bold">{pendingApprovals.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Awaiting HITL review
-            </p>
-          </CardContent>
-        </Card>
+        <Section
+          title="Pending Approvals"
+          icon={<Settings className="h-4 w-4" />}
+          contentClassName="space-y-1"
+        >
+          <div className="text-sm font-bold">{pendingApprovals.length}</div>
+          <p className="text-xs text-muted-foreground">
+            Awaiting HITL review
+          </p>
+        </Section>
       </div>
 
       {/* Main Content */}
@@ -110,32 +111,15 @@ export default function RadioDispatchPage() {
         </TabsContent>
 
         <TabsContent value="policies" className="space-y-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Automation Policies</CardTitle>
-              <CardDescription>
-                Configure dispatch automation rules and workflows
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {[
-                { name: 'Auto-Acknowledge Routine', description: 'Automatically acknowledge routine check-ins', enabled: true },
-                { name: 'Emergency Escalation', description: 'Escalate emergency keywords to supervisors', enabled: true },
-                { name: 'Fuel Request Auto-Dispatch', description: 'Auto-dispatch fuel requests to nearest driver', enabled: false },
-                { name: 'Break Request Approval', description: 'Auto-approve break requests under 30 minutes', enabled: true },
-              ].map((policy, i) => (
-                <div key={i} className="flex items-center justify-between p-2 border rounded-lg">
-                  <div>
-                    <p className="font-medium">{policy.name}</p>
-                    <p className="text-sm text-muted-foreground">{policy.description}</p>
-                  </div>
-                  <Badge variant={policy.enabled ? "default" : "secondary"}>
-                    {policy.enabled ? "Active" : "Inactive"}
-                  </Badge>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+          <Section
+            title="Automation Policies"
+            description="Configure dispatch automation rules and workflows"
+            icon={<Settings className="h-5 w-5" />}
+          >
+            <div className="text-sm text-muted-foreground">
+              No policies configured.
+            </div>
+          </Section>
         </TabsContent>
       </Tabs>
     </div>

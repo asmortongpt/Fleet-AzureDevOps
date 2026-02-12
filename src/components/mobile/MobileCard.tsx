@@ -1,9 +1,9 @@
-import { ComponentProps, ReactNode } from "react"
+import { ReactNode } from "react"
 
 import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 
-interface MobileCardProps extends ComponentProps<"div"> {
+interface MobileCardProps {
   title: string
   subtitle?: string
   badge?: ReactNode
@@ -14,6 +14,7 @@ interface MobileCardProps extends ComponentProps<"div"> {
   }>
   actions?: ReactNode
   onClick?: () => void
+  className?: string
 }
 
 export function MobileCard({
@@ -24,17 +25,14 @@ export function MobileCard({
   actions,
   onClick,
   className,
-  ...props
 }: MobileCardProps) {
-  return (
+  const content = (
     <Card
       className={cn(
         "md:hidden hover:shadow-md transition-shadow touch-target",
         onClick && "cursor-pointer",
         className
       )}
-      onClick={onClick}
-      {...props}
     >
       <CardContent className="p-2 space-y-2">
         {/* Header */}
@@ -78,4 +76,14 @@ export function MobileCard({
       </CardContent>
     </Card>
   )
+
+  if (onClick) {
+    return (
+      <div onClick={onClick} role="button" tabIndex={0} onKeyDown={(e) => e.key === 'Enter' && onClick()}>
+        {content}
+      </div>
+    )
+  }
+
+  return content
 }

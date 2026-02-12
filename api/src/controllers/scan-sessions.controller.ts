@@ -1,9 +1,11 @@
 
-import { Request, Response } from 'express';
 import crypto from 'crypto';
-import { scanSessionRepository } from '../repositories/scan-session.repository';
+
+import { Request, Response } from 'express';
+
 import { generateUploadSasUrl } from '../lib/azure/blob';
 import { enqueueScanProcessing } from '../lib/azure/serviceBus';
+import { scanSessionRepository } from '../repositories/scan-session.repository';
 
 function sha256(buf: Buffer) {
   return crypto.createHash('sha256').update(buf).digest('hex');

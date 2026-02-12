@@ -12,7 +12,7 @@ export class WorkOrderController {
   constructor(
     @inject(TYPES.WorkOrderService)
     private workOrderService: WorkOrderService
-  ) {}
+  ) { }
 
   async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -156,6 +156,38 @@ export class WorkOrderController {
       await cacheService.del(`work-order:${tenantId}:${id}`);
       logger.info('Work order deleted', { id, tenantId });
       res.json({ message: "Work order deleted successfully" });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getParts(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const tenantId = (req as any).user?.tenant_id;
+      const workOrderId = req.params.id;
+
+      if (!tenantId) {
+        throw new ValidationError('Tenant ID is required');
+      }
+
+      const parts = await this.workOrderService.getParts(workOrderId, tenantId);
+      res.json(parts);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getLabor(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const tenantId = (req as any).user?.tenant_id;
+      const workOrderId = req.params.id;
+
+      if (!tenantId) {
+        throw new ValidationError('Tenant ID is required');
+      }
+
+      const labor = await this.workOrderService.getLabor(workOrderId, tenantId);
+      res.json(labor);
     } catch (error) {
       next(error);
     }

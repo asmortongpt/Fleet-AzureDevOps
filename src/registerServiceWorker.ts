@@ -162,7 +162,7 @@ export async function unregisterServiceWorker(): Promise<boolean> {
     const registration = await navigator.serviceWorker.getRegistration();
     if (registration) {
       const success = await registration.unregister();
-      logger.debug('Unregistered:', success);
+      logger.debug(`Unregistered: ${success}`);
       swRegistration = null;
       return success;
     }

@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+// motion removed - React 19 incompatible
 import { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
@@ -81,19 +81,15 @@ export function HeatmapGradient({
   const backgroundColor = getColor();
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: intensity / 100 }}
-      transition={{ duration: 0.5 }}
+    <div
       className={cn("relative", className)}
       style={{
+        opacity: intensity / 100,
         background: `radial-gradient(circle, ${backgroundColor}80, ${backgroundColor}20)`,
       }}
     >
       {showLabel && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+        <div
           className={cn(
             "absolute inset-x-0 flex items-center justify-center",
             labelPosition === "top" && "top-2",
@@ -104,9 +100,9 @@ export function HeatmapGradient({
           <div className="bg-black/75 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold">
             {Math.round(intensity)}%
           </div>
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }
 
@@ -167,10 +163,7 @@ export function ZoneOverlay({
   const config = statusConfig[status];
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.95 }}
+    <div
       className={cn("relative", className)}
       style={{
         backgroundColor: `${config.color}${Math.round(opacity * 255).toString(16).padStart(2, "0")}`,
@@ -187,9 +180,7 @@ export function ZoneOverlay({
       )}
 
       {label && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           className="absolute top-2 left-2"
         >
           <div
@@ -198,11 +189,11 @@ export function ZoneOverlay({
           >
             {label}
           </div>
-        </motion.div>
+        </div>
       )}
 
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -243,14 +234,12 @@ export function MetricGradient({
 
   return (
     <div className={cn("relative overflow-hidden", className)}>
-      <motion.div
+      <div
         className="absolute inset-0"
         style={{
           background: getGradient(),
+          opacity: value / 100,
         }}
-        initial={animated ? { opacity: 0, scale: 0.8 } : false}
-        animate={animated ? { opacity: value / 100, scale: 1 } : { opacity: value / 100 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
       />
     </div>
   );
@@ -299,39 +288,27 @@ export function PerformanceGradient({
         style={{ height: `${height}px` }}
       >
         {/* Progress bar */}
-        <motion.div
-          className="h-full rounded-full relative overflow-hidden"
-          initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+        <div
+          className="h-full rounded-full relative overflow-hidden transition-all duration-700 ease-out"
           style={{
+            width: `${percentage}%`,
             background: `linear-gradient(to right, ${startColor}, ${endColor})`,
           }}
         >
           {/* Shine effect */}
-          <motion.div
+          <div
             className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30"
-            animate={{
-              x: ["-100%", "200%"],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "linear",
-            }}
           />
-        </motion.div>
+        </div>
       </div>
 
       {/* Label */}
       {showLabel && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+        <div
           className="absolute -top-6 right-0 text-xs font-semibold text-gray-700"
         >
           {Math.round(percentage)}%
-        </motion.div>
+        </div>
       )}
     </div>
   );
@@ -361,7 +338,7 @@ export function AnimatedBackground({
     <div className={cn("relative overflow-hidden", className)}>
       {/* Gradient blobs */}
       {colors.map((color, i) => (
-        <motion.div
+        <div
           key={i}
           className="absolute rounded-full"
           style={{
@@ -369,25 +346,6 @@ export function AnimatedBackground({
             height: `${40 + i * 10}%`,
             backgroundColor: color,
             filter: `blur(${blur}px)`,
-          }}
-          animate={{
-            x: [
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-            ],
-            y: [
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-              `${Math.random() * 100}%`,
-            ],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: speed,
-            repeat: Infinity,
-            ease: "easeInOut",
-            delay: i * 0.5,
           }}
         />
       ))}

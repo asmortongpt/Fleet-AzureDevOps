@@ -9,15 +9,19 @@ import { Router } from 'express'
 
 import { configurationService } from '../../services/configuration/configuration-service'
 import type { PolicyRule } from '../../services/configuration/types'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Middleware to check CTA Owner role
 const requireCTAOwner = (req: any, res: any, next: any) => {
   // TODO: Implement actual role check from JWT/session
-  const userRole = req.user?.role || req.headers['x-user-role']
+  const userRole = (req.user?.role || req.headers['x-user-role'] || '').toString().toUpperCase()
 
-  if (userRole !== 'CTA_OWNER' && userRole !== 'ADMIN') {
+  if (userRole !== 'CTA_OWNER' && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
     return res.status(403).json({
       error: 'Forbidden',
       message: 'This endpoint requires CTA Owner role'

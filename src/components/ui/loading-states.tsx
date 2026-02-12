@@ -9,7 +9,7 @@
  * - Memory-efficient animations
  */
 
-import { motion, AnimatePresence } from 'framer-motion'
+// motion removed - React 19 incompatible
 import { Loader2, Clock, CheckCircle, XCircle } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 
@@ -76,11 +76,8 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
 
       {/* Rows */}
       {Array.from({ length: rows }).map((_, rowIndex) => (
-        <motion.div
+        <div
           key={rowIndex}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: rowIndex * 0.05 }}
           className="flex gap-2 p-2 border-b border-slate-100 dark:border-slate-800"
         >
           {Array.from({ length: columns }).map((_, colIndex) => (
@@ -92,7 +89,7 @@ export const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
               )}
             />
           ))}
-        </motion.div>
+        </div>
       ))}
     </div>
   )
@@ -160,11 +157,8 @@ export const ListSkeleton: React.FC<{ items?: number }> = ({ items = 5 }) => {
   return (
     <div className="space-y-3">
       {Array.from({ length: items }).map((_, i) => (
-        <motion.div
+        <div
           key={i}
-          initial={{ opacity: 0, x: -10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.05 }}
           className="flex items-center gap-2 p-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800"
         >
           <Skeleton className="h-8 w-10" rounded="full" />
@@ -173,7 +167,7 @@ export const ListSkeleton: React.FC<{ items?: number }> = ({ items = 5 }) => {
             <Skeleton className="h-3 w-1/2" />
           </div>
           <Skeleton className="h-8 w-20" rounded="full" />
-        </motion.div>
+        </div>
       ))}
     </div>
   )
@@ -229,51 +223,39 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   blur = true,
   progress
 }) => {
+  if (!isLoading) return null
+
   return (
-    <AnimatePresence>
-      {isLoading && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className={cn(
-            'absolute inset-0 z-50 flex items-center justify-center',
-            fullScreen && 'fixed',
-            blur && 'backdrop-blur-sm',
-            'bg-white/80 dark:bg-slate-900/80'
-          )}
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-3 max-w-sm w-full mx-2"
-          >
-            <div className="flex flex-col items-center space-y-2">
-              <Spinner size="lg" />
-              <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {message}
-              </p>
-              {progress !== undefined && (
-                <div className="w-full">
-                  <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                    <motion.div
-                      className="h-full bg-primary rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${progress}%` }}
-                      transition={{ duration: 0.3 }}
-                    />
-                  </div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 text-center">
-                    {Math.round(progress)}% complete
-                  </p>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </motion.div>
+    <div
+      className={cn(
+        'absolute inset-0 z-50 flex items-center justify-center',
+        fullScreen && 'fixed',
+        blur && 'backdrop-blur-sm',
+        'bg-white/80 dark:bg-slate-900/80'
       )}
-    </AnimatePresence>
+    >
+      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm p-3 max-w-sm w-full mx-2">
+        <div className="flex flex-col items-center space-y-2">
+          <Spinner size="lg" />
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            {message}
+          </p>
+          {progress !== undefined && (
+            <div className="w-full">
+              <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-primary rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-700 mt-2 text-center">
+                {Math.round(progress)}% complete
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
 
@@ -337,7 +319,7 @@ export function AsyncState<T>({
 const DefaultLoadingState: React.FC = () => (
   <div className="flex flex-col items-center justify-center p-3 space-y-2">
     <Spinner size="lg" />
-    <p className="text-sm text-slate-500 dark:text-slate-400">Loading data...</p>
+    <p className="text-sm text-slate-500 dark:text-slate-700">Loading data...</p>
   </div>
 )
 
@@ -350,7 +332,7 @@ const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
         Failed to load data
       </p>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+      <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
         {error.message}
       </p>
     </div>
@@ -366,13 +348,13 @@ const DefaultErrorState: React.FC<{ error: Error }> = ({ error }) => (
 const DefaultEmptyState: React.FC = () => (
   <div className="flex flex-col items-center justify-center p-3 space-y-2">
     <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
-      <Clock className="w-4 h-4 text-slate-400" />
+      <Clock className="w-4 h-4 text-slate-700" />
     </div>
     <div className="text-center">
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100">
         No data available
       </p>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+      <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
         Check back later for updates
       </p>
     </div>
@@ -406,17 +388,10 @@ export const LoadingStatus: React.FC<LoadingStatusProps> = ({ status, message })
   if (status === 'idle') return null
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-        className={cn('flex items-center gap-2 text-sm', colors[status])}
-      >
-        {icons[status]}
-        {message && <span>{message}</span>}
-      </motion.div>
-    </AnimatePresence>
+    <div className={cn('flex items-center gap-2 text-sm', colors[status])}>
+      {icons[status]}
+      {message && <span>{message}</span>}
+    </div>
   )
 }
 

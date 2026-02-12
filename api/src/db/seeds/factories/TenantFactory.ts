@@ -1,8 +1,9 @@
 /**
  * TenantFactory - Generates multi-tenant organization data
  */
-import { BaseFactory } from './BaseFactory';
 import type { Tenant, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 export class TenantFactory extends BaseFactory {
   /**

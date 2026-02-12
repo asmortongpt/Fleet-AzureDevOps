@@ -215,8 +215,48 @@ export const workOrders = pgTable('work_orders', {
 }));
 
 /**
- * Maintenance Schedules - Recurring maintenance schedules
+ * Work Order Parts - Parts associated with a work order
  */
+export const workOrderParts = pgTable('work_order_parts', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+  workOrderId: uuid('work_order_id').references(() => workOrders.id).notNull(),
+  partId: uuid('part_id').references(() => partsInventory.id),
+  partNumber: varchar('part_number', { length: 100 }),
+  name: varchar('name', { length: 255 }).notNull(),
+  quantity: decimal('quantity', { precision: 10, scale: 2 }).notNull(),
+  unitCost: decimal('unit_cost', { precision: 12, scale: 2 }).notNull(),
+  totalCost: decimal('total_cost', { precision: 12, scale: 2 }).notNull(),
+  supplier: varchar('supplier', { length: 255 }),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  workOrderIdx: index('work_order_parts_work_order_idx').on(table.workOrderId),
+  tenantIdx: index('work_order_parts_tenant_idx').on(table.tenantId),
+}));
+
+/**
+ * Work Order Labor - Labor associated with a work order
+ */
+export const workOrderLabor = pgTable('work_order_labor', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
+  workOrderId: uuid('work_order_id').references(() => workOrders.id).notNull(),
+  technicianId: uuid('technician_id').references(() => users.id),
+  technicianName: varchar('technician_name', { length: 255 }).notNull(),
+  task: varchar('task', { length: 255 }).notNull(),
+  hours: decimal('hours', { precision: 8, scale: 2 }).notNull(),
+  rate: decimal('rate', { precision: 10, scale: 2 }).notNull(),
+  total: decimal('total', { precision: 12, scale: 2 }).notNull(),
+  date: timestamp('date').defaultNow().notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+}, (table) => ({
+  workOrderIdx: index('work_order_labor_work_order_idx').on(table.workOrderId),
+  tenantIdx: index('work_order_labor_tenant_idx').on(table.tenantId),
+}));
 export const maintenanceSchedules = pgTable('maintenance_schedules', {
   id: uuid('id').primaryKey().defaultRandom(),
   tenantId: uuid('tenant_id').references(() => tenants.id).notNull(),
@@ -964,6 +1004,8 @@ export const schema = {
   chargingSessions,
   auditLogs,
   tasks,
+  workOrderParts,
+  workOrderLabor,
 };
 
 // Export types
@@ -996,3 +1038,5 @@ export type ChargingStation = typeof chargingStations.$inferSelect;
 export type ChargingSession = typeof chargingSessions.$inferSelect;
 export type AuditLog = typeof auditLogs.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
+export type WorkOrderPart = typeof workOrderParts.$inferSelect;
+export type WorkOrderLabor = typeof workOrderLabor.$inferSelect;

@@ -1,20 +1,12 @@
 import {
-  MapTrifold,
-  Broadcast,
-  Wrench,
-  Users,
-  ChartLine,
+  Map,
   Shield,
-  Package,
-  Gear,
-  Barcode,
-  ChatsCircle,
-  CurrencyDollar,
-  Plugs,
-  BookOpen,
-  Database,
-  FileText
-} from "@phosphor-icons/react"
+  MessageCircle,
+  DollarSign,
+  Settings,
+  Box,
+  Clock
+} from "lucide-react"
 import { ReactNode } from "react"
 
 export interface NavigationItem {
@@ -28,77 +20,29 @@ export interface NavigationItem {
 }
 
 /**
- * Consolidated Hub Navigation
- * 
- * Production Readiness: 79 screens → 11 hubs
+ * Consolidated Hub Navigation - 5 Primary Hubs
+ *
+ * Screen Consolidation: 79 screens → 5 consolidated hubs
  * Each hub uses the HubPage component with tabbed navigation
- * 
- * Role Mapping (from database RBAC schema):
- * - FleetAdmin/Admin: Full access to all modules
- * - Manager/FleetManager: Operational oversight across most modules
- * - Supervisor: Team management, vehicles, drivers
- * - Dispatcher: Routes, vehicle locations, driver assignments
- * - Mechanic/Technician: Maintenance and work orders
- * - Driver: Own vehicle, routes, inspections
- * - SafetyOfficer: Safety incidents, compliance, video
- * - Finance: Financial reports, procurement, costs
- * - Analyst: Reports and analytics (read-only)
- * - Auditor: Audit logs and compliance (read-only)
+ *
+ * Hub Breakdown:
+ * 1. Fleet Hub - Fleet, Drivers, Operations, Maintenance, Assets (5 tabs)
+ * 2. Safety & Compliance - Compliance, Safety, Policies, Reports (4 tabs)
+ * 3. Financial Hub - Financial, Procurement, Analytics, Reports (4 tabs)
+ * 4. Communication Hub - People, Communication, Work (3 tabs)
+ * 5. Admin Hub - Admin, Config, Data, Integrations, Documents (5 tabs)
+ *
+ * Total: 21 tabs consolidating 79+ original screens
  */
 export const navigationItems: NavigationItem[] = [
-  // ==================== PRIMARY HUBS ====================
   {
     id: "fleet-hub-consolidated",
     label: "Fleet Hub",
-    icon: <MapTrifold className="w-3 h-3" />,
+    icon: <Map className="w-3 h-3" />,
     section: "hubs",
     category: "Operations",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'Driver', 'Analyst', 'Auditor']
   },
-  {
-    id: "operations-hub-consolidated",
-    label: "Operations Hub",
-    icon: <Broadcast className="w-3 h-3" />,
-    section: "hubs",
-    category: "Operations",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'Analyst', 'Auditor']
-  },
-  {
-    id: "maintenance-hub-consolidated",
-    label: "Maintenance Hub",
-    icon: <Wrench className="w-3 h-3" />,
-    section: "hubs",
-    category: "Operations",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Mechanic', 'Technician', 'Analyst', 'Auditor']
-  },
-  {
-    id: "drivers-hub-consolidated",
-    label: "Drivers Hub",
-    icon: <Users className="w-3 h-3" />,
-    section: "hubs",
-    category: "Operations",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'SafetyOfficer', 'Analyst', 'Auditor']
-  },
-
-  // ==================== ANALYTICS & REPORTING ====================
-  {
-    id: "analytics-hub-consolidated",
-    label: "Analytics Hub",
-    icon: <ChartLine className="w-3 h-3" />,
-    section: "hubs",
-    category: "Analytics",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
-  },
-  {
-    id: "reports-hub",
-    label: "Reports Hub",
-    icon: <ChartLine className="w-3 h-3" />,
-    section: "hubs",
-    category: "Analytics",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
-  },
-
-  // ==================== COMPLIANCE & SAFETY ====================
   {
     id: "safety-compliance-hub",
     label: "Safety & Compliance",
@@ -108,135 +52,45 @@ export const navigationItems: NavigationItem[] = [
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
   },
   {
-    id: "policy-hub",
-    label: "Policy Hub",
-    icon: <BookOpen className="w-3 h-3" />,
+    id: "hos",
+    label: "Hours of Service",
+    icon: <Clock className="w-3 h-3" />,
     section: "hubs",
-    category: "Governance",
-    roles: ['SuperAdmin', 'Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
+    category: "Safety & Compliance",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'Driver', 'SafetyOfficer', 'Auditor']
   },
-  {
-    id: "documents-hub",
-    label: "Documents Hub",
-    icon: <FileText className="w-3 h-3" />,
-    section: "hubs",
-    category: "Operations",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'SafetyOfficer', 'Analyst', 'Auditor']
-  },
-
-  // ==================== PROCUREMENT & ASSETS ====================
   {
     id: "procurement-hub-consolidated",
-    label: "Procurement Hub",
-    icon: <Package className="w-3 h-3" />,
-    section: "hubs",
-    category: "Procurement",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Auditor']
-  },
-  {
-    id: "assets-hub-consolidated",
-    label: "Assets Hub",
-    icon: <Barcode className="w-3 h-3" />,
-    section: "hubs",
-    category: "Procurement",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
-  },
-
-  // ==================== ADMIN & COMMUNICATION ====================
-  {
-    id: "admin-hub-consolidated",
-    label: "Admin Hub",
-    icon: <Gear className="w-3 h-3" />,
-    section: "hubs",
-    category: "Admin",
-    roles: ['SuperAdmin', 'Admin', 'FleetAdmin']
-  },
-  {
-    id: "communication-hub-consolidated",
-    label: "Communication Hub",
-    icon: <ChatsCircle className="w-3 h-3" />,
-    section: "hubs",
-    category: "Communication",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'SafetyOfficer']
-  },
-
-  // ==================== FINANCIAL & INTEGRATIONS ====================
-  {
-    id: "financial-hub-consolidated",
     label: "Financial Hub",
-    icon: <CurrencyDollar className="w-3 h-3" />,
+    icon: <DollarSign className="w-3 h-3" />,
     section: "hubs",
     category: "Financial",
     roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
   },
   {
-    id: "integrations-hub-consolidated",
-    label: "Integrations Hub",
-    icon: <Plugs className="w-3 h-3" />,
+    id: "communication-hub-consolidated",
+    label: "Communication Hub",
+    icon: <MessageCircle className="w-3 h-3" />,
     section: "hubs",
-    category: "Integrations",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'Finance']
-  },
-
-  // ==================== CTA SUPER ADMIN ====================
-  {
-    id: "cta-configuration-hub",
-    label: "CTA Configuration",
-    icon: <Gear className="w-3 h-3" />,
-    section: "hubs",
-    category: "CTA Admin",
-    roles: ['SuperAdmin', 'CTAOwner']
+    category: "Communication",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Dispatcher', 'SafetyOfficer']
   },
   {
-    id: "data-governance-hub",
-    label: "Data Governance",
-    icon: <Database className="w-3 h-3" />,
-    section: "hubs",
-    category: "CTA Admin",
-    roles: ['SuperAdmin']
-  },
-
-  // ==================== ADDITIONAL HUBS ====================
-  {
-    id: "work-hub",
-    label: "Work Hub",
-    icon: <Wrench className="w-3 h-3" />,
-    section: "hubs",
-    category: "Operations",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor', 'Mechanic', 'Technician']
-  },
-  {
-    id: "safety-hub",
-    label: "Safety Hub",
-    icon: <Shield className="w-3 h-3" />,
-    section: "hubs",
-    category: "Safety & Compliance",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'SafetyOfficer', 'Auditor']
-  },
-  {
-    id: "people-hub",
-    label: "People Hub",
-    icon: <Users className="w-3 h-3" />,
-    section: "hubs",
-    category: "Operations",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Supervisor']
-  },
-  {
-    id: "insights-hub",
-    label: "Insights Hub",
-    icon: <ChartLine className="w-3 h-3" />,
-    section: "hubs",
-    category: "Analytics",
-    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Finance', 'Analyst', 'Auditor']
-  },
-  {
-    id: "configuration-hub",
-    label: "Configuration Hub",
-    icon: <Gear className="w-3 h-3" />,
+    id: "admin-hub-consolidated",
+    label: "Admin Hub",
+    icon: <Settings className="w-3 h-3" />,
     section: "hubs",
     category: "Admin",
-    roles: ['Admin', 'FleetAdmin']
+    roles: ['SuperAdmin', 'Admin', 'FleetAdmin']
   },
+  {
+    id: "3d-garage",
+    label: "3D Garage",
+    icon: <Box className="w-3 h-3" />,
+    section: "tools",
+    category: "Tools",
+    roles: ['Admin', 'FleetAdmin', 'Manager', 'FleetManager', 'Mechanic', 'Viewer']
+  }
 ]
 
 

@@ -1,0 +1,41 @@
+{
+  "name": "@fleet-cta/mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Fleet CTA - Enterprise Fleet Management System",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "fleet-cta-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc && chmod +x dist/index.js",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "inspector": "mcp inspect dist/index.js"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "fleet-management",
+    "vehicle-tracking",
+    "telematics",
+    "maintenance",
+    "compliance"
+  ],
+  "author": "Capital Technology Alliance",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "axios": "^1.13.2",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

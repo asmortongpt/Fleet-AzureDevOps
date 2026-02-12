@@ -15,6 +15,33 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+
+// ============================================
+// Type Definitions
+// ============================================
+interface ScheduledItem {
+  id: string | number
+  title: string
+  type: string
+  item_number: string
+  status: string
+  start_time: string
+  end_time: string
+  description?: string
+  duration_hours?: number
+  priority?: string
+  created_by?: string
+  created_date?: string
+  assigned_driver?: string
+  driver_id?: string | number
+  assigned_vehicle?: string
+  vehicle_id?: string | number
+  start_location?: string
+  end_location?: string
+  distance?: number
+  notes?: string
+  special_instructions?: string
+}
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -33,7 +60,7 @@ interface ScheduledItemDetailPanelProps {
 
 export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: item, error, isLoading, mutate } = useSWR(
+  const { data: item, error, isLoading, mutate } = useSWR<ScheduledItem>(
     `/api/schedule/${itemId}`,
     fetcher
   )
@@ -343,7 +370,7 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
     return `/api/schedule?${params.toString()}`
   }
 
-  const { data: items, error, isLoading } = useSWR(buildUrl(), fetcher)
+  const { data: items, error, isLoading } = useSWR<ScheduledItem[]>(buildUrl(), fetcher)
 
   const timeframeLabels = {
     today: "Today's Schedule",
@@ -401,20 +428,20 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
         <div className="space-y-2">
           {items &&
             Object.entries(
-              items.reduce((groups: any, item: any) => {
+              items.reduce<Record<string, ScheduledItem[]>>((groups, item) => {
                 const date = new Date(item.start_time).toLocaleDateString()
                 if (!groups[date]) groups[date] = []
                 groups[date].push(item)
                 return groups
               }, {})
-            ).map(([date, dateItems]: [string, any]) => (
+            ).map(([date, dateItems]) => (
               <div key={date}>
                 <h4 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   {date}
                 </h4>
                 <div className="space-y-2">
-                  {dateItems.map((item: any) => (
+                  {dateItems.map((item) => (
                     <Card
                       key={item.id}
                       className="cursor-pointer hover:bg-accent transition-colors"

@@ -488,4 +488,10 @@ class AISafetyDetectionService {
           metrics.avgProcessingTime
         ]
       );
-    
+    } catch (error: any) {
+      logger.error('Failed to update model metrics:', error.message);
+    }
+  }
+}
+
+export { AISafetyDetectionService, DetectionResult, Detection };

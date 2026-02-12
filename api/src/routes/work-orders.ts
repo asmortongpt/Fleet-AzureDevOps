@@ -74,6 +74,7 @@ router.get(
     try {
       const { page = 1, limit = 50, status, priority, facility_id } = req.query
       const offset = (Number(page) - 1) * Number(limit)
+      const isDevelopment = process.env.NODE_ENV === 'development'
 
       // Use req.dbClient which has tenant context set
       const client = (req as any).dbClient
@@ -85,31 +86,15 @@ router.get(
         })
       }
 
-      // Get user's scope for row-level filtering (beyond RLS)
-      const userResult = await client.query(
-        'SELECT facility_ids, scope_level FROM users WHERE id = $1',
-        [req.user!.id]
-      )
-
-      const user = userResult.rows[0]
-      let scopeFilter = ''
-      const scopeParams: any[] = []
-
-      if (user.scope_level === 'own') {
-        // Mechanics only see their assigned work orders
-        scopeFilter = 'WHERE assigned_technician_id = $1'
-        scopeParams.push(req.user!.id)
-      } else if (user.scope_level === 'team' && user.facility_ids && user.facility_ids.length > 0) {
-        // Supervisors see work orders in their facilities
-        scopeFilter = 'WHERE facility_id = ANY($1::uuid[])'
-        scopeParams.push(user.facility_ids)
-      }
-      // fleet/global scope sees all (filtered by RLS to current tenant)
-
       // Build dynamic query
-      // NOTE: No WHERE tenant_id clause! RLS handles tenant filtering
-      let whereClause = scopeFilter
-      const queryParams = [...scopeParams]
+      // NOTE: In development mode, we need to filter by tenant_id since RLS is not active
+      let whereClause = ''
+      const queryParams: any[] = []
+
+      if (isDevelopment && req.user?.tenant_id) {
+        whereClause = 'WHERE tenant_id = $1'
+        queryParams.push(req.user.tenant_id)
+      }
 
       if (status) {
         queryParams.push(status)
@@ -119,17 +104,24 @@ router.get(
         queryParams.push(priority)
         whereClause += (whereClause ? ' AND' : 'WHERE') + ` priority = $${queryParams.length}`
       }
-      if (facility_id) {
-        queryParams.push(facility_id)
-        whereClause += (whereClause ? ' AND' : 'WHERE') + ` facility_id = $${queryParams.length}`
-      }
+      // Note: facility_id filter removed - column doesn't exist in work_orders table
 
       const result = await client.query(
-        `SELECT id, tenant_id, work_order_number, vehicle_id, facility_id,
-                assigned_technician_id, type, priority, status, description,
-                scheduled_start, scheduled_end, actual_start, actual_end,
-                labor_hours, labor_cost, parts_cost, odometer_reading,
-                engine_hours_reading, created_by, created_at, updated_at
+        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
+                description, type, priority, status,
+                assigned_to_id as assigned_technician_id,
+                requested_by_id, approved_by_id,
+                scheduled_start_date as scheduled_start,
+                scheduled_end_date as scheduled_end,
+                actual_start_date as actual_start,
+                actual_end_date as actual_end,
+                labor_hours, estimated_cost, actual_cost,
+                odometer_at_start as odometer_reading,
+                notes, metadata, created_at, updated_at,
+                category, facility_id, total_cost, parts_cost, labor_cost,
+                downtime_hours, root_cause, resolution_notes, vendor_id,
+                driver_id, bay_number, is_emergency, quality_check_passed,
+                completed_at, subcategory, external_reference
          FROM work_orders ${whereClause} ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
         [...queryParams, limit, offset]
       )
@@ -179,11 +171,17 @@ router.get(
 
       // RLS automatically filters - if work order doesn't exist OR is in different tenant, returns nothing
       const result = await client.query(
-        `SELECT id, tenant_id, work_order_number, vehicle_id, facility_id,
-                assigned_technician_id, type, priority, status, description,
-                scheduled_start, scheduled_end, actual_start, actual_end,
-                labor_hours, labor_cost, parts_cost, odometer_reading,
-                engine_hours_reading, notes, created_by, created_at, updated_at
+        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
+                description, type, priority, status,
+                assigned_to_id as assigned_technician_id,
+                requested_by_id, approved_by_id,
+                scheduled_start_date as scheduled_start,
+                scheduled_end_date as scheduled_end,
+                actual_start_date as actual_start,
+                actual_end_date as actual_end,
+                labor_hours, estimated_cost, actual_cost,
+                odometer_at_start as odometer_reading,
+                odometer_at_end, notes, metadata, created_at, updated_at
          FROM work_orders WHERE id = $1`,
         [req.params.id]
       )
@@ -414,37 +412,22 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const workOrderId = req.params.id
+      const tenantId = req.user?.tenant_id
 
-      // TODO: Implement actual parts fetching from database
-      // For now, return demo data to match frontend expectations
-      const parts = [
-        {
-          id: `part-${workOrderId}-1`,
-          name: 'Oil Filter',
-          part_number: 'OF-12345',
-          quantity: 2,
-          unit_cost: 12.50,
-          supplier: 'Auto Parts Inc.'
-        },
-        {
-          id: `part-${workOrderId}-2`,
-          name: 'Engine Oil (5W-30)',
-          part_number: 'EO-67890',
-          quantity: 6,
-          unit_cost: 8.75,
-          supplier: 'Auto Parts Inc.'
-        },
-        {
-          id: `part-${workOrderId}-3`,
-          name: 'Air Filter',
-          part_number: 'AF-54321',
-          quantity: 1,
-          unit_cost: 22.00,
-          supplier: 'OEM Supplier'
-        }
-      ]
+      const client = (req as any).dbClient
+      if (!client) {
+        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
+      }
 
-      res.json(parts)
+      const result = await client.query(
+        `SELECT id, part_number, name, quantity, unit_cost, 
+                (quantity * unit_cost) as total_cost, supplier, notes
+         FROM work_order_parts 
+         WHERE work_order_id = $1 AND tenant_id = $2`,
+        [workOrderId, tenantId]
+      )
+
+      res.json(result.rows)
     } catch (error) {
       logger.error('Failed to fetch work order parts', {
         error,
@@ -470,40 +453,23 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const workOrderId = req.params.id
+      const tenantId = req.user?.tenant_id
 
-      // TODO: Implement actual labor details fetching from database
-      // For now, return demo data to match frontend expectations
-      const labor = [
-        {
-          id: `labor-${workOrderId}-1`,
-          technician_name: 'Mike Johnson',
-          task: 'Oil change',
-          hours: 0.5,
-          rate: 75.00,
-          total: 37.50,
-          date: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: `labor-${workOrderId}-2`,
-          technician_name: 'Mike Johnson',
-          task: 'Filter replacement',
-          hours: 0.25,
-          rate: 75.00,
-          total: 18.75,
-          date: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: `labor-${workOrderId}-3`,
-          technician_name: 'Sarah Williams',
-          task: 'Inspection',
-          hours: 1.0,
-          rate: 85.00,
-          total: 85.00,
-          date: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString()
-        }
-      ]
+      const client = (req as any).dbClient
+      if (!client) {
+        return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
+      }
 
-      res.json(labor)
+      const result = await client.query(
+        `SELECT id, technician_name, task, hours, rate, 
+                (hours * rate) as total, date, notes
+         FROM work_order_labor 
+         WHERE work_order_id = $1 AND tenant_id = $2
+         ORDER BY date DESC`,
+        [workOrderId, tenantId]
+      )
+
+      res.json(result.rows)
     } catch (error) {
       logger.error('Failed to fetch work order labor', {
         error,

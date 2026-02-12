@@ -18,7 +18,7 @@ export const phoneValidator = z
   .string()
   .min(1, 'Phone number is required')
   .regex(
-    /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
+    /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
     'Invalid phone number format'
   );
 
@@ -300,7 +300,7 @@ export const fieldValidators = {
   phone: {
     required: 'Phone number is required',
     pattern: {
-      value: /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/,
+      value: /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/,
       message: 'Invalid phone number',
     },
   },

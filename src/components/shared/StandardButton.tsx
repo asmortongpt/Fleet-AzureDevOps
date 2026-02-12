@@ -49,28 +49,28 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
       hover:bg-blue-700 hover:shadow-md
       active:bg-blue-800 active:scale-98
       focus:ring-blue-500
-      disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:hover:shadow-none
+      disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     secondary: `
       bg-gray-100 text-gray-900 border border-gray-300
       hover:bg-gray-200 hover:border-gray-400 hover:shadow-sm
       active:bg-gray-300 active:scale-98
       focus:ring-gray-500
-      disabled:bg-gray-50 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed
+      disabled:bg-gray-50 disabled:text-gray-700 disabled:border-gray-200 disabled:cursor-not-allowed
     `,
     danger: `
       bg-red-600 text-white
       hover:bg-red-700 hover:shadow-md
       active:bg-red-800 active:scale-98
       focus:ring-red-500
-      disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:hover:shadow-none
+      disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     ghost: `
       bg-transparent text-gray-700
       hover:bg-gray-100 hover:text-gray-900
       active:bg-gray-200 active:scale-98
       focus:ring-gray-500
-      disabled:text-gray-400 disabled:cursor-not-allowed disabled:hover:bg-transparent
+      disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:bg-transparent
     `,
   };
 

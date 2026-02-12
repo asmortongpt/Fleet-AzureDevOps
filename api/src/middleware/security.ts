@@ -1,11 +1,11 @@
 import { createHash, randomBytes, timingSafeEqual } from 'crypto';
 
+import DOMPurify from 'dompurify';
 import { Request, Response, NextFunction } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import jwt from 'jsonwebtoken';
 import { JSDOM } from 'jsdom';
-import DOMPurify from 'dompurify';
+import jwt from 'jsonwebtoken';
 
 // Security headers middleware
 export const securityHeaders = helmet({

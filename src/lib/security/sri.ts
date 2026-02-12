@@ -5,6 +5,8 @@
  * @module security/sri
  */
 
+import logger from '@/utils/logger';
+
 export interface SRIHash {
   algorithm: 'sha256' | 'sha384' | 'sha512';
   hash: string;
@@ -66,7 +68,7 @@ export async function generateSRIHashFromURL(
     const content = await response.arrayBuffer();
     return await generateSRIHash(content, algorithm);
   } catch (error) {
-    console.error(`Failed to generate SRI hash for ${url}:`, error);
+    logger.error(`Failed to generate SRI hash for ${url}:`, error);
     throw error;
   }
 }
@@ -167,7 +169,7 @@ export function loadSecureScript(
     };
 
     script.onerror = (error) => {
-      console.error(`Failed to load script with SRI: ${src}`, error);
+      logger.error(`Failed to load script with SRI: ${src}`, error);
       reject(new Error(`SRI verification failed for ${src}`));
     };
 
@@ -191,7 +193,7 @@ export function loadSecureStylesheet(
     };
 
     link.onerror = (error) => {
-      console.error(`Failed to load stylesheet with SRI: ${href}`, error);
+      logger.error(`Failed to load stylesheet with SRI: ${href}`, error);
       reject(new Error(`SRI verification failed for ${href}`));
     };
 
@@ -298,7 +300,7 @@ export function monitorResourceSRI(): void {
 
           if (src && !src.startsWith('/') && !src.startsWith(window.location.origin)) {
             if (!script.getAttribute('integrity')) {
-              console.warn(`[SRI] Script loaded without integrity check: ${src}`);
+              logger.warn(`[SRI] Script loaded without integrity check: ${src}`);
             }
           }
         }
@@ -311,7 +313,7 @@ export function monitorResourceSRI(): void {
 
           if (rel === 'stylesheet' && href && !href.startsWith('/') && !href.startsWith(window.location.origin)) {
             if (!link.getAttribute('integrity')) {
-              console.warn(`[SRI] Stylesheet loaded without integrity check: ${href}`);
+              logger.warn(`[SRI] Stylesheet loaded without integrity check: ${href}`);
             }
           }
         }
@@ -338,7 +340,7 @@ export async function generateBuildAssetHashes(
       const hash = await generateSRIHashFromURL(path);
       hashes[path] = hash;
     } catch (error) {
-      console.error(`Failed to generate hash for ${path}:`, error);
+      logger.error(`Failed to generate hash for ${path}:`, error);
     }
   }
 
@@ -378,7 +380,7 @@ export function initSRI(config: Partial<SRIConfig> = {}): void {
   const auditResult = auditResourceSRI();
 
   if (auditResult.withoutSRI > 0) {
-    console.warn(
+    logger.warn(
       `[SRI] ${auditResult.withoutSRI} external resources loaded without integrity checks`,
       auditResult.violations
     );
@@ -391,7 +393,7 @@ export function initSRI(config: Partial<SRIConfig> = {}): void {
 
   // Log SRI status
   if (import.meta.env.DEV) {
-    console.log('[SRI] Initialized with config:', finalConfig);
-    console.log('[SRI] Audit result:', auditResult);
+    logger.info('[SRI] Initialized with config:', finalConfig);
+    logger.info('[SRI] Audit result:', auditResult);
   }
 }

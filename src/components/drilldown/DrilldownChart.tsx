@@ -128,7 +128,7 @@ export function DrilldownChart({
                                     ))}
                                 </Pie>
                                 <Tooltip
-                                    formatter={(value: number) => [`${value.toLocaleString()}${unit}`, '']}
+                                    formatter={(value) => `${(value as number)?.toLocaleString?.() ?? value}${unit}`}
                                     contentStyle={{ borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                                 />
                                 <Legend verticalAlign="bottom" height={36} />

@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-02-04T16:52:22.852Z",
+  "baseUrl": "http://[::1]:5173",
+  "ok": [],
+  "failed": [
+    {
+      "categoryId": "global",
+      "moduleId": "bootstrap",
+      "moduleLabel": "bootstrap",
+      "error": "page.waitForFunction: Timeout 30000ms exceeded."
+    }
+  ],
+  "warnings": [],
+  "httpErrors": [],
+  "finishedAt": "2026-02-04T16:52:56.230Z"
+}

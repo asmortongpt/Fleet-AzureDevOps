@@ -708,8 +708,8 @@ trend = 'stable'
 }
 
 // Export singleton instance
-import { pool } from '../db'
 import logger from '../config/logger'
+import { pool } from '../db'
 const mlDecisionEngineService = new MLDecisionEngineService(pool, logger)
 
 export default mlDecisionEngineService

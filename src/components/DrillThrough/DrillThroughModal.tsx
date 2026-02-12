@@ -91,14 +91,14 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
               {config.title}
             </h2>
             {config.description && (
-              <p className="text-sm text-slate-700 dark:text-gray-400 mt-1">
+              <p className="text-sm text-slate-700 dark:text-gray-700 mt-1">
                 {config.description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
+            className="text-gray-700 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -132,7 +132,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
           {config.enableExport !== false && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-700 dark:text-gray-400">Export:</span>
+              <span className="text-sm text-slate-700 dark:text-gray-700">Export:</span>
               <button
                 onClick={() => handleExport('csv')}
                 disabled={isExporting || !data?.data?.length}
@@ -164,7 +164,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {Object.entries(data.summary).map(([key, value]) => (
                 <div key={key}>
-                  <p className="text-xs text-slate-700 dark:text-gray-400 uppercase tracking-wide">
+                  <p className="text-xs text-slate-700 dark:text-gray-700 uppercase tracking-wide">
                     {key.replace(/_/g, ' ')}
                   </p>
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -193,7 +193,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
           )}
 
           {!isLoading && !error && sortedData.length === 0 && (
-            <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+            <div className="text-center py-12 text-gray-700 dark:text-gray-700">
               No records found matching the selected filters.
             </div>
           )}
@@ -217,7 +217,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                         <div className="flex items-center gap-2">
                           {column.label}
                           {column.sortable !== false && sortBy === column.key && (
-                            <span className="text-blue-800 dark:text-blue-400">
+                            <span className="text-blue-800 dark:text-blue-700">
                               {sortDirection === 'asc' ? '↑' : '↓'}
                             </span>
                           )}
@@ -253,7 +253,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
         {/* Pagination */}
         {data && data.totalPages > 1 && (
           <div className="flex items-center justify-between p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <p className="text-sm text-slate-700 dark:text-gray-400">
+            <p className="text-sm text-slate-700 dark:text-gray-700">
               Showing {((page - 1) * (data.pageSize ?? 0)) + 1} to{' '}
               {Math.min(page * (data.pageSize ?? 0), data.totalCount ?? 0)} of{' '}
               {(data.totalCount ?? 0).toLocaleString()} records

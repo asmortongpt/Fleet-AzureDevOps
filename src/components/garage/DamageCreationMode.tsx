@@ -145,12 +145,12 @@ export function DamageCreationPanel({
                     <h3 className="text-sm font-bold text-white">Add Damage Point</h3>
                     <button
                         onClick={onCancel}
-                        className="text-slate-400 hover:text-white transition-colors"
+                        className="text-slate-700 hover:text-white transition-colors"
                     >
                         ✕
                     </button>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-700 mt-1">
                     {pendingPosition
                         ? 'Configure damage details below'
                         : 'Click on vehicle to place damage marker'}
@@ -160,7 +160,7 @@ export function DamageCreationPanel({
             {/* Damage Type Selector */}
             <div className="p-2 space-y-2">
                 <div>
-                    <label className="block text-xs text-slate-400 mb-2 uppercase tracking-wider">
+                    <label className="block text-xs text-slate-700 mb-2 uppercase tracking-wider">
                         Damage Type
                     </label>
                     <div className="grid grid-cols-3 gap-2">
@@ -185,7 +185,7 @@ export function DamageCreationPanel({
                 {/* Severity Slider */}
                 <div>
                     <div className="flex items-center justify-between mb-2">
-                        <label className="text-xs text-slate-400 uppercase tracking-wider">
+                        <label className="text-xs text-slate-700 uppercase tracking-wider">
                             Severity
                         </label>
                         <span className={`text-sm font-bold ${config.severity <= 2 ? 'text-green-400' :
@@ -204,7 +204,7 @@ export function DamageCreationPanel({
                         onChange={(e) => onChange({ ...config, severity: Number(e.target.value) })}
                         className="w-full h-2 bg-gradient-to-r from-green-500 via-yellow-500 via-orange-500 to-red-500 rounded-lg appearance-none cursor-pointer"
                     />
-                    <div className="flex justify-between text-[10px] text-slate-500 mt-1">
+                    <div className="flex justify-between text-[10px] text-gray-800 mt-1">
                         <span>Minor</span>
                         <span>Critical</span>
                     </div>
@@ -212,7 +212,7 @@ export function DamageCreationPanel({
 
                 {/* Zone Selector */}
                 <div>
-                    <label className="block text-xs text-slate-400 mb-2 uppercase tracking-wider">
+                    <label className="block text-xs text-slate-700 mb-2 uppercase tracking-wider">
                         Vehicle Zone
                     </label>
                     <select
@@ -228,7 +228,7 @@ export function DamageCreationPanel({
 
                 {/* Description */}
                 <div>
-                    <label className="block text-xs text-slate-400 mb-2 uppercase tracking-wider">
+                    <label className="block text-xs text-slate-700 mb-2 uppercase tracking-wider">
                         Description
                     </label>
                     <textarea
@@ -243,7 +243,7 @@ export function DamageCreationPanel({
                 {/* Cost Estimate */}
                 <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
                     <div className="flex items-center justify-between">
-                        <span className="text-slate-400 text-sm">Estimated Repair Cost</span>
+                        <span className="text-slate-700 text-sm">Estimated Repair Cost</span>
                         <span className="text-sm font-bold text-green-400">
                             ${estimatedCost.toLocaleString()}
                         </span>

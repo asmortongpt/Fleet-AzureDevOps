@@ -13,11 +13,21 @@
 
 import { useState } from 'react';
 
-import { EmptyState, SearchEmptyState } from '@/components/EmptyState';
-import { ErrorPanel } from '@/components/ErrorPanel';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { api, type Incident } from '@/lib/api';
-import { useApiData } from '@/lib/hooks/useApiData';
+import { EmptyState, SearchEmptyState } from '../EmptyState';
+import { ErrorPanel } from '../ErrorPanel';
+import { LoadingSpinner } from '../LoadingSpinner';
+import { api } from "@/lib/api";
+import { useApiData } from '../../lib/hooks/useApiData';
+
+// Local Incident type definition for this example
+interface Incident {
+  id: string;
+  title: string;
+  description: string;
+  status: 'open' | 'in_progress' | 'closed';
+  priority: 'critical' | 'high' | 'medium' | 'low';
+  created_at: string;
+}
 
 
 export function IncidentsExample() {
@@ -35,10 +45,10 @@ export function IncidentsExample() {
       // Refetch when filter changes
       dependencies: [filter],
       // Optional: callbacks for success/error
-      onSuccess: (data) => {
+      onSuccess: (data: Incident[]) => {
         console.log(`Loaded ${data.length} incidents`);
       },
-      onError: (error) => {
+      onError: (error: Error) => {
         console.error('Failed to load incidents:', error);
       },
     }
@@ -175,7 +185,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
         <span
           className={`rounded px-2 py-1 text-xs font-medium ${
             incident.status === 'open'
-              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-700'
               : incident.status === 'in_progress'
               ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
               : 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400'
@@ -198,7 +208,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
               ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/20 dark:text-orange-400'
               : incident.priority === 'medium'
               ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'
-              : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400'
+              : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-700'
           }`}
         >
           {incident.priority}

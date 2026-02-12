@@ -1,25 +1,28 @@
-```typescript
 import * as React from 'react';
 
-declare namespace React {
+declare module 'react' {
   // Add utility type for extracting props from component
   type ExtractProps<TComponentOrTProps> = TComponentOrTProps extends React.ComponentType<infer TProps>
     ? TProps
     : TComponentOrTProps;
 
   // Add utility type for forward ref components
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   type ForwardRefRenderFunction<T, P = {}> = (
     props: React.PropsWithChildren<P>,
     ref: React.Ref<T>
   ) => React.ReactElement | null;
 
   // Add utility type for component with static properties
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   type ComponentWithStaticProps<P, S = {}> = React.FunctionComponent<P> & S;
 
   // Add utility type for async components
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   type AsyncComponent<P = {}> = (props: P) => Promise<React.ReactElement | null>;
 
   // Add utility type for render props
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   type RenderProp<P = {}> = (props: P) => React.ReactNode;
 
   // Add utility type for compound components
@@ -38,13 +41,4 @@ declare namespace React {
   type PortalTarget = Element | DocumentFragment | null;
 }
 
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      [elemName: string]: any;
-    }
-  }
-}
-
 export {};
-```

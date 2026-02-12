@@ -30,6 +30,7 @@ export interface Vehicle {
   nextService: string
   alerts: string[]
   customFields?: Record<string, any>
+  metadata?: Record<string, any>
   tags?: string[]
 
   // Asset Classification
@@ -79,4 +80,206 @@ export interface Vehicle {
   // Timestamps
   createdAt?: string
   updatedAt?: string
+
+  // Additional Properties from Database Schema (snake_case compatibility)
+  assigned_driver?: string
+  assigned_driver_id?: string | number
+  driver_id?: number
+  driver_name?: string
+  driverId?: string
+
+  // Driver Information (object form)
+  // driver can be string OR object with { id, name }
+  // driver?: string | { id: string; name: string } // Already defined above as string
+
+  // Battery & Electric Vehicle Properties
+  batteryLevel?: number
+
+  // Maintenance Properties
+  lastMaintenance?: string | Date
+  nextMaintenanceDate?: string | Date
+
+  // Cost & Financial Tracking
+  cost?: string | number
+
+  // Additional Database Fields
+  tenant_id?: string  // UUID from database (matches tenantId field)
+  license_plate?: string
+  fuel_level?: number
+  created_at?: Date | string
+  updated_at?: Date | string
+
+  // Vehicle Identification & Display
+  vehicle_id?: string | number
+  vehicle_name?: string
+  vehicle_number?: string
+  vehicle_status?: string
+  vehicleId?: string
+  vehicleName?: string
+  vehicleNumber?: string
+  plate?: string
+  plate_number?: string
+  plateNumber?: string
+  manufacturer?: string
+  trim?: string
+  color?: string
+  exteriorColor?: string
+  interiorColor?: string
+
+  // Location & Tracking
+  latitude?: number
+  longitude?: number
+  coordinates?: { lat: number; lng: number }
+  current_location?: string
+  lastKnownLocation?: string
+  parkingLocation?: string
+  position?: any
+  speed?: number
+  isMoving?: boolean
+
+  // Metrics & Performance
+  odometer_reading?: number
+  odometerMiles?: number
+  currentMileage?: number
+  annualMiles?: number
+  milesSincePM?: number
+  mileageSinceLastPM?: number
+  daysSincePM?: number
+  daysOverdue?: number
+  daysUntilFailure?: number
+  daysUnused?: number
+  uptime?: number
+  health_score?: number
+  health?: string | number
+  efficiency_kwh_per_mile?: number
+  fuel_efficiency?: number
+
+  // Battery & Charging (EV)
+  battery_level?: number
+  current_soc?: number
+  charging_status?: string
+  range_miles?: number
+  carbon_saved_kg?: number
+
+  // Fuel & Capacity
+  fuel?: number
+  fuel_capacity?: number
+  tankCapacity?: number
+  capacity?: number
+  gvwr?: number
+  seatingCapacity?: number
+
+  // Maintenance & Service
+  lastServiceDate?: string | Date
+  lastInspectionDate?: string | Date
+  nextInspectionDate?: string | Date
+  next_service_date?: string | Date
+  nextServiceMiles?: number
+  nextMaintenanceMiles?: number
+  lastUpdated?: string | Date
+  last_updated?: string | Date
+  lastSeen?: string | Date
+  pmStatus?: string
+  pmOverdue?: boolean
+  maintenanceHistory?: any[]
+  maintenanceAlerts?: any[]
+  serviceSchedule?: any
+  safetyEquipmentStatus?: string
+  safetyInspectionExpired?: boolean
+  annualInspection?: any
+  defectReports?: any[]
+
+  // Cost & Financial
+  purchasePrice?: number | string
+  currentValue?: number | string
+  price?: number | string
+  last12MonthsMaintenanceCost?: number
+  estimatedCost?: number
+
+  // Assignment & Personnel
+  assigned_to?: string
+  assignedDate?: string | Date
+  assignedDepartment?: string
+  assignmentType?: string
+  fleetManager?: string
+  maintenanceSupervisor?: string
+  requiresCDL?: boolean
+
+  // Safety & Compliance
+  activeRecalls?: any[]
+  breakdownsLast12Months?: number
+  predictedIssue?: string
+  severity?: string
+  rating?: number
+
+  // Image & Media
+  image?: string
+  imageUrl?: string
+  primaryImage?: string
+  realImage?: string
+  imageSource?: string
+  imageConfidence?: number
+  isLoadingImages?: boolean
+
+  // Scheduling & Availability
+  availability?: string
+  schedule?: any
+  entry_count?: number
+  last_entry?: string | Date
+  total_time_in_zone?: number
+
+  // Features & Specifications
+  features?: string[]
+  specifications?: Record<string, any>
+  documents?: any[]
+
+  // UI/Display Properties
+  isFavorite?: boolean
+  views?: number
+  alertType?: string
+  confidence?: number
+  source?: string
+  rotation?: number
+
+  // Lifecycle
+  expectedLifeMiles?: number
+  expectedLifeYears?: number
+  expected_life_miles?: number
+  expected_life_years?: number
+  disposal_date?: string
+  disposal_value?: number
+  evaluation?: any
+
+  // Physical attributes (expanded from DB)
+  body_style?: string
+  doors?: number
+  trim_level?: string
+
+  // Engine & drivetrain (expanded from DB)
+  engine_type?: string
+  engine_displacement?: string
+  transmission?: string
+  drivetrain?: string
+  cylinders?: number
+  horsepower?: number
+  torque?: number
+
+  // Capacity & weight (expanded from DB)
+  curb_weight?: number
+  payload_capacity?: number
+  towing_capacity?: number
+  cargo_volume_cubic_ft?: number
+
+  // EV / Hybrid (expanded from DB)
+  battery_capacity_kwh?: number
+
+  // Organizational (expanded from DB)
+  cost_center?: string
+
+  // Registration & compliance (expanded from DB)
+  registration_state?: string
+  registration_expiry?: string
+  emissions_class?: string
+  dot_number?: string
+  ifta_account?: string
 }

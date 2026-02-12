@@ -1,12 +1,12 @@
 /**
- * StatCard Component
- * Responsive, animated card for displaying key metrics
+ * StatCard Component - Professional enterprise metric card
  */
 
-import { motion } from 'framer-motion'
-import { LucideIcon } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+// motion removed - React 19 incompatible
+import { LucideIcon, Minus, TrendingDown, TrendingUp } from 'lucide-react';
+
 import { cn } from '@/lib/utils'
+import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
 interface StatCardProps {
   title: string
@@ -17,6 +17,8 @@ interface StatCardProps {
   description?: string
   className?: string
   loading?: boolean
+  sparklineData?: { value: number }[]
+  showSparkline?: boolean
 }
 
 export function StatCard({
@@ -28,66 +30,91 @@ export function StatCard({
   description,
   className,
   loading = false,
+  sparklineData,
+  showSparkline = true,
 }: StatCardProps) {
   const getTrendColor = () => {
-    if (trend === 'up') return 'text-green-600 dark:text-green-400'
-    if (trend === 'down') return 'text-red-600 dark:text-red-400'
-    return 'text-gray-600 dark:text-gray-400'
+    if (trend === 'up') return 'text-emerald-600 dark:text-emerald-400'
+    if (trend === 'down') return 'text-rose-600 dark:text-rose-400'
+    return 'text-muted-foreground'
   }
 
-  const getTrendBg = () => {
-    if (trend === 'up') return 'bg-green-50 dark:bg-green-950/30'
-    if (trend === 'down') return 'bg-red-50 dark:bg-red-950/30'
-    return 'bg-gray-50 dark:bg-gray-950/30'
+  const getIconBg = () => {
+    if (trend === 'up') return 'bg-emerald-100/80 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
+    if (trend === 'down') return 'bg-rose-100/80 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
+    return 'bg-primary/10 text-primary'
   }
+
+  const getTrendIcon = () => {
+    if (trend === 'up') return <TrendingUp className="h-3.5 w-3.5" />
+    if (trend === 'down') return <TrendingDown className="h-3.5 w-3.5" />
+    return <Minus className="h-3.5 w-3.5" />
+  }
+
+  const getSparklineColor = () => {
+    if (trend === 'up') return '#10b981'
+    if (trend === 'down') return '#f43f5e'
+    return '#64748b'
+  }
+
+  const hasSparkline = showSparkline && Array.isArray(sparklineData) && sparklineData.length > 0
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      whileHover={{ scale: 1.02 }}
-      className={cn('h-full', className)}
-    >
-      <Card className="h-full border-2 hover:shadow-lg transition-shadow duration-300">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">
-            {title}
-          </CardTitle>
-          <div className={cn('p-2 rounded-lg', getTrendBg())}>
-            <Icon className={cn('h-4 w-4', getTrendColor())} />
+    <div className={cn('h-full', className)}>
+      <div className="h-full rounded-xl border border-border/50 bg-card p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cta-card cta-stat">
+        <div className="flex items-start justify-between mb-3">
+          <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg', getIconBg())}>
+            <Icon className="h-4.5 w-4.5" />
           </div>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="space-y-2">
-              <div className="h-8 w-24 bg-gray-200 dark:bg-gray-800 animate-pulse rounded" />
-              <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 animate-pulse rounded" />
+          {change !== undefined && (
+            <div className={cn(
+              'flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium',
+              trend === 'up' && 'bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300',
+              trend === 'down' && 'bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300',
+              trend === 'neutral' && 'bg-muted text-muted-foreground'
+            )}>
+              {getTrendIcon()}
+              <span>{change > 0 ? '+' : ''}{change}%</span>
             </div>
-          ) : (
-            <>
-              <div className="flex items-baseline gap-2">
-                <div className="text-3xl font-bold tracking-tight">{value}</div>
-                {change !== undefined && (
-                  <div
-                    className={cn(
-                      'text-sm font-medium flex items-center gap-1',
-                      getTrendColor()
-                    )}
-                  >
-                    <span>{change > 0 ? '+' : ''}{change}%</span>
-                    {trend === 'up' && '↑'}
-                    {trend === 'down' && '↓'}
-                  </div>
-                )}
-              </div>
-              {description && (
-                <p className="text-xs text-muted-foreground mt-1">{description}</p>
-              )}
-            </>
           )}
-        </CardContent>
-      </Card>
-    </motion.div>
+        </div>
+
+        {loading ? (
+          <div className="space-y-2">
+            <div className="h-7 w-20 bg-muted animate-pulse rounded" />
+            <div className="h-3 w-28 bg-muted animate-pulse rounded" />
+          </div>
+        ) : (
+          <>
+            <div className="text-2xl font-bold tracking-tight text-foreground">
+              {value}
+            </div>
+            <p className="text-xs font-medium text-muted-foreground mt-1">
+              {title}
+            </p>
+            {description && (
+              <p className="text-[11px] text-muted-foreground/70 mt-0.5">
+                {description}
+              </p>
+            )}
+            {hasSparkline && (
+              <div className="mt-2 -mx-1">
+                <ResponsiveContainer width="100%" height={36}>
+                  <LineChart data={sparklineData}>
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke={getSparklineColor()}
+                      strokeWidth={1.5}
+                      dot={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
   )
 }

@@ -10,11 +10,11 @@ import {
   FlipHorizontal,
   Keyboard,
   CheckCircle,
-  Warning,
-  CircleNotch,
-  Lightning
-} from "@phosphor-icons/react"
-import { Scanner, IDetectedBarcode } from '@yudiel/react-qr-scanner'
+  AlertTriangle,
+  Loader2,
+  Zap
+} from "lucide-react"
+import { Scanner } from '@yudiel/react-qr-scanner'
 import { useState, useRef, useEffect, useCallback } from "react"
 import { createWorker, Worker, OEM, PSM } from 'tesseract.js'
 
@@ -399,7 +399,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
     setFacingMode(prev => prev === 'user' ? 'environment' : 'user')
   }
 
-  const handleBarcodeScan = useCallback((detectedCodes: IDetectedBarcode[]) => {
+  const handleBarcodeScan = useCallback((detectedCodes: any[]) => {
     if (detectedCodes.length === 0 || paused) return
 
     const code = detectedCodes[0]
@@ -528,7 +528,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
         <div className="flex items-center gap-2 bg-black/70 px-3 py-2 rounded-lg">
           {isProcessingOCR ? (
             <>
-              <CircleNotch className="w-4 h-4 text-yellow-400 animate-spin" />
+              <Loader2 className="w-4 h-4 text-yellow-400 animate-spin" />
               <span className="text-white text-xs">Reading plate...</span>
               <div className="flex-1">
                 <Progress value={ocrProgress} className="h-1" />
@@ -563,7 +563,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
           onClick={() => setUseAdaptiveThreshold(!useAdaptiveThreshold)}
           title="Toggle adaptive image enhancement for difficult lighting"
         >
-          <Lightning className="w-4 h-4 mr-1" weight={useAdaptiveThreshold ? "fill" : "regular"} />
+          <Zap className="w-4 h-4 mr-1" />
           Enhance
         </Button>
         <Button
@@ -595,14 +595,8 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
       <Scanner
         onScan={handleBarcodeScan}
         onError={handleError}
-        formats={getFormats()}
-        paused={paused || showManualInput}
-        components={{ audio: false, torch: true, finder: true }}
+        scanDelay={300}
         constraints={{ facingMode }}
-        styles={{
-          container: { width: '100%', aspectRatio: '4/3' },
-          video: { width: '100%', height: '100%', objectFit: 'cover' },
-        }}
       />
 
       <div className="absolute top-3 left-3 flex items-center gap-2 bg-black/60 px-3 py-1.5 rounded-full">
@@ -674,9 +668,9 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
             <div className="p-3 bg-background">
               <div className="text-center space-y-2">
                 {scanResult.confidence > 70 ? (
-                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto" weight="fill" />
+                  <CheckCircle className="w-16 h-16 text-green-500 mx-auto" />
                 ) : (
-                  <Warning className="w-16 h-16 text-yellow-500 mx-auto" weight="fill" />
+                  <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto" />
                 )}
 
                 <div>

@@ -15,6 +15,7 @@
  */
 
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import logger from '@/utils/logger';
 
 // Database schema
 interface FleetOfflineDB extends DBSchema {
@@ -202,9 +203,9 @@ export class OfflineSyncService {
         },
       });
 
-      console.log('[OfflineSyncService] Database initialized successfully');
+      logger.info('[OfflineSyncService] Database initialized successfully');
     } catch (error) {
-      console.error('[OfflineSyncService] Failed to initialize database:', error);
+      logger.error('[OfflineSyncService] Failed to initialize database:', error instanceof Error ? error : new Error(String(error)));
       throw error;
     }
   }
@@ -214,12 +215,12 @@ export class OfflineSyncService {
    */
   private setupNetworkListeners(): void {
     window.addEventListener('online', () => {
-      console.log('[OfflineSyncService] Network connection restored');
+      logger.info('[OfflineSyncService] Network connection restored');
       this.syncWhenOnline();
     });
 
     window.addEventListener('offline', () => {
-      console.log('[OfflineSyncService] Network connection lost');
+      logger.info('[OfflineSyncService] Network connection lost');
       this.notifySyncStatus({ status: 'offline', message: 'Working offline' });
     });
   }
@@ -240,12 +241,12 @@ export class OfflineSyncService {
    */
   public async syncWhenOnline(): Promise<void> {
     if (!navigator.onLine) {
-      console.log('[OfflineSyncService] Cannot sync - offline');
+      logger.info('[OfflineSyncService] Cannot sync - offline');
       return;
     }
 
     if (this.syncInProgress) {
-      console.log('[OfflineSyncService] Sync already in progress');
+      logger.info('[OfflineSyncService] Sync already in progress');
       return;
     }
 
@@ -261,7 +262,7 @@ export class OfflineSyncService {
 
       this.notifySyncStatus({ status: 'synced', message: 'All data synchronized' });
     } catch (error) {
-      console.error('[OfflineSyncService] Sync failed:', error);
+      logger.error('[OfflineSyncService] Sync failed:', error instanceof Error ? error : new Error(String(error)));
       this.notifySyncStatus({ status: 'error', message: 'Sync failed', error });
     } finally {
       this.syncInProgress = false;
@@ -281,7 +282,7 @@ export class OfflineSyncService {
         await this.executeSyncOperation(operation);
         await this.db.delete('syncQueue', operation.id);
       } catch (error) {
-        console.error('[OfflineSyncService] Failed to execute operation:', operation, error);
+        logger.error('[OfflineSyncService] Failed to execute operation:', { operation, error: error instanceof Error ? error.message : String(error) });
 
         // Update retry count
         operation.retryCount++;
@@ -292,7 +293,7 @@ export class OfflineSyncService {
         } else {
           // Move to failed operations
           await this.db.delete('syncQueue', operation.id);
-          console.error('[OfflineSyncService] Operation failed after 3 retries:', operation);
+          logger.error('[OfflineSyncService] Operation failed after 3 retries:', operation);
         }
       }
     }
@@ -390,16 +391,16 @@ export class OfflineSyncService {
       localVersion: (data as any).localVersion ? (data as any).localVersion + 1 : 1,
     };
 
-    await this.db.put(storeName, entity);
+    await this.db.put(storeName as 'vehicles', entity);
 
     // Add to sync queue
     await this.addToSyncQueue({
       id: `${storeName}-${entity.id}-${Date.now()}`,
       type: (data as any).id ? 'update' : 'create',
-      entity: storeName.replace(/s$/, '') as any,
+      entity: String(storeName).replace(/s$/, '') as any,
       entityId: entity.id,
       data: entity,
-      priority: this.getPriority(storeName),
+      priority: this.getPriority(String(storeName)),
       timestamp: Date.now(),
       retryCount: 0,
     });
@@ -418,7 +419,7 @@ export class OfflineSyncService {
     id: string
   ): Promise<FleetOfflineDB[T]['value'] | undefined> {
     if (!this.db) throw new Error('Database not initialized');
-    return this.db.get(storeName, id);
+    return this.db.get(storeName as 'vehicles', id);
   }
 
   /**
@@ -428,7 +429,7 @@ export class OfflineSyncService {
     storeName: T
   ): Promise<FleetOfflineDB[T]['value'][]> {
     if (!this.db) throw new Error('Database not initialized');
-    return this.db.getAll(storeName);
+    return this.db.getAll(storeName as 'vehicles');
   }
 
   /**
@@ -440,16 +441,16 @@ export class OfflineSyncService {
   ): Promise<void> {
     if (!this.db) throw new Error('Database not initialized');
 
-    await this.db.delete(storeName, id);
+    await this.db.delete(storeName as 'vehicles', id);
 
     // Add to sync queue
     await this.addToSyncQueue({
       id: `${storeName}-${id}-delete-${Date.now()}`,
       type: 'delete',
-      entity: storeName.replace(/s$/, '') as any,
+      entity: String(storeName).replace(/s$/, '') as any,
       entityId: id,
       data: null,
-      priority: this.getPriority(storeName),
+      priority: this.getPriority(String(storeName)),
       timestamp: Date.now(),
       retryCount: 0,
     });
@@ -498,10 +499,10 @@ export class OfflineSyncService {
     ];
 
     for (const store of stores) {
-      await this.db.clear(store);
+      await this.db.clear(store as 'vehicles');
     }
 
-    console.log('[OfflineSyncService] All offline data cleared');
+    logger.info('[OfflineSyncService] All offline data cleared');
   }
 
   // Helper methods
@@ -557,7 +558,7 @@ export class OfflineSyncService {
       try {
         callback(status);
       } catch (error) {
-        console.error('[OfflineSyncService] Callback error:', error);
+        logger.error('[OfflineSyncService] Callback error:', error instanceof Error ? error : new Error(String(error)));
       }
     });
   }

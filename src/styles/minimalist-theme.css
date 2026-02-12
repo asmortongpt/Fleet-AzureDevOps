@@ -423,25 +423,31 @@
    ============================================ */
 
 @layer components {
-  /* Override gradient backgrounds */
-  .glass-card,
-  .glass-panel,
-  .glass-overlay,
-  [class*="backdrop-blur"] {
+  /* Override gradient backgrounds - EXCEPT for auth/login pages */
+  .glass-card:not(.premium-sso-page *),
+  .glass-panel:not(.premium-sso-page *),
+  .glass-overlay:not(.premium-sso-page *),
+  [class*="backdrop-blur"]:not(.premium-sso-page *) {
     backdrop-filter: none !important;
     background-blend-mode: normal !important;
   }
 
-  /* Override heavy shadows */
-  [class*="shadow-2xl"],
-  [class*="shadow-xl"] {
+  /* Override heavy shadows - EXCEPT for auth/login pages */
+  [class*="shadow-2xl"]:not(.premium-sso-page *),
+  [class*="shadow-xl"]:not(.premium-sso-page *) {
     box-shadow: var(--minimalist-shadow-sm) !important;
   }
 
-  /* Override gradient text */
-  [class*="bg-gradient"] {
+  /* Override gradient backgrounds - EXCEPT for auth/login pages  */
+  [class*="bg-gradient"]:not(.premium-sso-page *) {
     background-image: none !important;
     background-clip: text !important;
+  }
+
+  /* Premium SSO Page - Full Premium Experience */
+  .premium-sso-page,
+  .premium-sso-page * {
+    /* Allow all gradients, blur effects, shadows */
   }
 
   /* AGGRESSIVE GLOBAL SIZE REDUCTIONS */

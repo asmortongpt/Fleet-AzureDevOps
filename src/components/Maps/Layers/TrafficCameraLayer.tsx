@@ -106,7 +106,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
           <h3 className="font-semibold text-gray-900 dark:text-white">
             {camera.name}
           </h3>
-          <p className="text-sm text-slate-700 dark:text-gray-400">
+          <p className="text-sm text-slate-700 dark:text-gray-600">
             {camera.road} {camera.direction}
           </p>
         </div>
@@ -134,7 +134,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         </div>
       )}
 
-      <div className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-gray-400 mb-2">
+      <div className="grid grid-cols-2 gap-2 text-xs text-slate-700 dark:text-gray-600 mb-2">
         <div>
           <span className="font-medium">County:</span> {camera.county}
         </div>
@@ -149,7 +149,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
         )}
       </div>
 
-      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-between text-xs text-gray-700 dark:text-gray-600">
         <span>Updated: {new Date(camera.lastUpdated).toLocaleTimeString()}</span>
         <span
           className={`px-2 py-1 rounded ${
@@ -192,13 +192,13 @@ function CameraFeedModal({
             <h2 className="text-base font-bold text-gray-900 dark:text-white">
               {camera.name}
             </h2>
-            <p className="text-sm text-slate-700 dark:text-gray-400">
+            <p className="text-sm text-slate-700 dark:text-gray-600">
               {camera.road} {camera.direction} - {camera.county} County
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
+            className="text-gray-600 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
@@ -235,7 +235,7 @@ function CameraFeedModal({
         {/* Footer */}
         <div className="p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
           <div className="flex items-center justify-between">
-            <div className="text-sm text-slate-700 dark:text-gray-400">
+            <div className="text-sm text-slate-700 dark:text-gray-600">
               <p>{camera.description}</p>
               {camera.metadata?.mileMarker && (
                 <p className="mt-1">Mile Marker: {camera.metadata.mileMarker}</p>

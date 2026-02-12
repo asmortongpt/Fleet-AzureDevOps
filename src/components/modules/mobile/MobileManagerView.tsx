@@ -115,7 +115,7 @@ const MobileManagerView: React.FC = () => {
               <div>
                 <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
                 <p className="text-sm text-slate-700">{assignment.employee_number}</p>
-                <p className="text-xs text-gray-500 mt-1">{assignment.department_name}</p>
+                <p className="text-xs text-gray-700 mt-1">{assignment.department_name}</p>
               </div>
               <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
                 Pending
@@ -126,10 +126,10 @@ const MobileManagerView: React.FC = () => {
               <p className="text-sm font-medium text-gray-700">
                 {assignment.unit_number} - {assignment.make} {assignment.model} {assignment.year}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-700">
                 Type: {assignment.assignment_type.replace('_', ' ')}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-700">
                 Requested: {new Date(assignment.recommended_at).toLocaleDateString()}
               </p>
             </div>
@@ -178,7 +178,7 @@ const MobileManagerView: React.FC = () => {
           <p className="text-sm text-gray-700">
             {assignment.unit_number} - {assignment.make} {assignment.model}
           </p>
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-gray-700 mt-1">
             Since: {new Date(assignment.start_date).toLocaleDateString()}
           </p>
         </div>
@@ -190,7 +190,7 @@ const MobileManagerView: React.FC = () => {
     <div className="space-y-2">
       {dashboardData.current_on_call.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
-          <Clock className="w-16 h-16 text-gray-400 mx-auto mb-2" />
+          <Clock className="w-16 h-16 text-gray-700 mx-auto mb-2" />
           <p className="text-slate-700">No team members on-call</p>
         </div>
       ) : (
@@ -222,7 +222,7 @@ const MobileManagerView: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-700 mt-2">
               Until: {new Date(period.end_datetime).toLocaleDateString()} {new Date(period.end_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>

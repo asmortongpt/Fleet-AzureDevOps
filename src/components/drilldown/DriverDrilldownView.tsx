@@ -23,6 +23,7 @@ export interface Driver {
   total_miles_driven?: number;
   last_training_date?: string;
   performance_score?: number;
+  avatar_url?: string;
 }
 
 interface DriverDrilldownViewProps {
@@ -63,7 +64,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       ),
     },
     {
-      accessor: row => `${row.first_name} ${row.last_name}`,
+      accessorFn: (row: Driver) => `${row.first_name} ${row.last_name}`,
       id: 'full_name',
       header: 'Name',
       cell: ({ row }) => (
@@ -77,8 +78,8 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Email',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Mail className="w-4 h-4 text-slate-400" />
-          <a href={`mailto:${getValue<string>()}`} className="text-blue-400 hover:text-blue-300 hover:underline">
+          <Mail className="w-4 h-4 text-slate-700" />
+          <a href={`mailto:${getValue<string>()}`} className="text-blue-700 hover:text-blue-300 hover:underline">
             {getValue<string>()}
           </a>
         </div>
@@ -89,7 +90,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Phone',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Phone className="w-4 h-4 text-slate-400" />
+          <Phone className="w-4 h-4 text-slate-700" />
           {getValue<string>()}
         </div>
       ),
@@ -100,8 +101,8 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       cell: ({ getValue }) => {
         const status = getValue<string>();
         const statusColors: Record<string, string> = {
-          active: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
-          inactive: 'bg-slate-500/20 text-slate-400 border-slate-500/30',
+          active: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30',
+          inactive: 'bg-slate-500/20 text-slate-700 border-slate-500/30',
           'on-leave': 'bg-amber-500/20 text-amber-400 border-amber-500/30',
           terminated: 'bg-red-500/20 text-red-400 border-red-500/30',
         };
@@ -124,7 +125,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       accessorKey: 'license_number',
       header: 'License #',
       cell: ({ getValue }) => (
-        <span className="font-mono text-xs text-slate-400">{getValue<string>()}</span>
+        <span className="font-mono text-xs text-slate-700">{getValue<string>()}</span>
       ),
     },
     {
@@ -157,7 +158,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Hire Date',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-slate-400" />
+          <Calendar className="w-4 h-4 text-slate-700" />
           {new Date(getValue<string>()).toLocaleDateString()}
         </div>
       ),
@@ -170,12 +171,12 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
         return certs && certs.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {certs.slice(0, 2).map((cert, idx) => (
-              <span key={idx} className="px-2 py-0.5 bg-blue-600/20 text-blue-400 rounded text-xs border border-blue-500/30">
+              <span key={idx} className="px-2 py-0.5 bg-blue-600/20 text-blue-700 rounded text-xs border border-blue-500/30">
                 {cert}
               </span>
             ))}
             {certs.length > 2 && (
-              <span className="px-2 py-0.5 bg-slate-600/50 text-slate-400 rounded text-xs">
+              <span className="px-2 py-0.5 bg-slate-600/50 text-slate-700 rounded text-xs">
                 +{certs.length - 2}
               </span>
             )}
@@ -190,7 +191,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
         const count = getValue<number>() || 0;
         return (
           <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-            count === 0 ? 'bg-emerald-500/20 text-emerald-400' :
+            count === 0 ? 'bg-emerald-500/20 text-emerald-700' :
             count < 3 ? 'bg-amber-500/20 text-amber-400' :
             'bg-red-500/20 text-red-400'
           }`}>
@@ -215,8 +216,8 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
         if (!score) return 'N/A';
         return (
           <div className="flex items-center gap-2">
-            <Award className={`w-4 h-4 ${score >= 90 ? 'text-emerald-400' : score >= 75 ? 'text-amber-400' : 'text-red-400'}`} />
-            <span className={`font-semibold ${score >= 90 ? 'text-emerald-400' : score >= 75 ? 'text-amber-400' : 'text-red-400'}`}>
+            <Award className={`w-4 h-4 ${score >= 90 ? 'text-emerald-700' : score >= 75 ? 'text-amber-400' : 'text-red-400'}`} />
+            <span className={`font-semibold ${score >= 90 ? 'text-emerald-700' : score >= 75 ? 'text-amber-400' : 'text-red-400'}`}>
               {score}/100
             </span>
           </div>

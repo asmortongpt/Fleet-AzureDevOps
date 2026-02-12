@@ -203,7 +203,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                     <div className="space-y-2 text-sm">
                       {/* Response Time */}
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Avg Response</span>
+                        <span className="text-gray-700">Avg Response</span>
                         <span className="font-medium">
                           {formatResponseTime(stats.averageResponseTime)}
                         </span>
@@ -212,7 +212,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                       {/* Uptime */}
                       <div>
                         <div className="flex justify-between mb-1">
-                          <span className="text-gray-500">Uptime</span>
+                          <span className="text-gray-700">Uptime</span>
                           <span className="font-medium">{stats.uptime.toFixed(1)}%</span>
                         </div>
                         <Progress value={stats.uptime} className="h-2" />
@@ -220,7 +220,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
 
                       {/* Success Rate */}
                       <div className="flex justify-between">
-                        <span className="text-gray-500">Success Rate</span>
+                        <span className="text-gray-700">Success Rate</span>
                         <span className="font-medium">
                           {stats.successfulChecks}/{stats.totalChecks}
                         </span>
@@ -311,23 +311,23 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                     {/* Overall Statistics */}
                     <div className="grid grid-cols-2 gap-2">
                       <div className="p-3 bg-white dark:bg-gray-800 rounded">
-                        <div className="text-sm text-gray-500">Total Checks</div>
+                        <div className="text-sm text-gray-700">Total Checks</div>
                         <div className="text-sm font-bold">{stats.totalChecks}</div>
                       </div>
                       <div className="p-3 bg-white dark:bg-gray-800 rounded">
-                        <div className="text-sm text-gray-500">Failed Checks</div>
+                        <div className="text-sm text-gray-700">Failed Checks</div>
                         <div className="text-sm font-bold text-red-500">
                           {stats.failedChecks}
                         </div>
                       </div>
                       <div className="p-3 bg-white dark:bg-gray-800 rounded">
-                        <div className="text-sm text-gray-500">Avg Response</div>
+                        <div className="text-sm text-gray-700">Avg Response</div>
                         <div className="text-sm font-bold">
                           {formatResponseTime(stats.averageResponseTime)}
                         </div>
                       </div>
                       <div className="p-3 bg-white dark:bg-gray-800 rounded">
-                        <div className="text-sm text-gray-500">Last Check</div>
+                        <div className="text-sm text-gray-700">Last Check</div>
                         <div className="text-sm font-medium">
                           {stats.lastCheck
                             ? new Date(stats.lastCheck).toLocaleString()

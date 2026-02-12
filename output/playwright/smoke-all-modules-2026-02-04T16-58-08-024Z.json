@@ -1,0 +1,15 @@
+{
+  "startedAt": "2026-02-04T16:58:08.028Z",
+  "baseUrl": "http://[::1]:5173",
+  "ok": [
+    {
+      "categoryId": "fleet",
+      "moduleId": "live-fleet-dashboard",
+      "moduleLabel": "Live Fleet Dashboard"
+    }
+  ],
+  "failed": [],
+  "warnings": [],
+  "httpErrors": [],
+  "finishedAt": "2026-02-04T16:58:12.756Z"
+}

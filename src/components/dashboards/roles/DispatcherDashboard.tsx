@@ -9,7 +9,6 @@
  * - Route assignment & coordination
  */
 
-import React, { useState, useEffect } from 'react';
 import {
   MapTrifold,
   Radio,
@@ -24,12 +23,15 @@ import {
   ChatCircle,
   Lightning
 } from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
+// motion removed - React 19 incompatible
+import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
+import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
 interface OperationStats {
   active_trips: number;
   en_route: number;
@@ -138,9 +140,9 @@ export function DispatcherDashboard() {
       case 'delayed':
         return 'text-red-400 bg-red-950/30 border-red-500/30';
       case 'en_route':
-        return 'text-blue-400 bg-blue-950/30 border-blue-500/30';
+        return 'text-blue-700 bg-blue-950/30 border-blue-500/30';
       default:
-        return 'text-slate-400 bg-slate-800 border-slate-700';
+        return 'text-slate-700 bg-slate-800 border-slate-700';
     }
   };
 
@@ -150,7 +152,7 @@ export function DispatcherDashboard() {
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h1 className="text-sm font-bold text-white mb-1">Dispatch Console</h1>
-          <p className="text-sm text-slate-400">Real-Time Operations & Coordination</p>
+          <p className="text-sm text-slate-700">Real-Time Operations & Coordination</p>
         </div>
         <Button size="sm"
           onClick={handleCreateEmergencyAlert}
@@ -164,50 +166,46 @@ export function DispatcherDashboard() {
       {/* Active Operations Summary */}
       <Card className="bg-slate-800/50 backdrop-blur-xl border-cyan-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Lightning className="w-4 h-4 text-cyan-400" />
+          <Zap className="w-4 h-4 text-cyan-400" />
           <h2 className="text-sm font-bold text-white">Active Operations</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
           {/* Active Trips */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-cyan-950/30 rounded-md p-2 border border-cyan-500/30 hover:border-cyan-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <CarSimple className="w-4 h-4 text-cyan-400" />
+              <Car className="w-4 h-4 text-cyan-400" />
               <span className="text-sm font-black text-white">{operationStats.active_trips}</span>
             </div>
             <p className="text-cyan-300 font-semibold">Active Trips</p>
-          </motion.div>
+          </div>
 
           {/* En Route */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <MapTrifold className="w-4 h-4 text-blue-400" />
+              <MapTrifold className="w-4 h-4 text-blue-700" />
               <span className="text-sm font-black text-white">{operationStats.en_route}</span>
             </div>
             <p className="text-blue-300 font-semibold">En Route</p>
-          </motion.div>
+          </div>
 
           {/* Delayed */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-red-950/30 rounded-md p-2 border border-red-500/30 hover:border-red-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <Warning className="w-4 h-4 text-red-400" />
+              <AlertTriangle className="w-4 h-4 text-red-400" />
               <span className="text-sm font-black text-white">{operationStats.delayed}</span>
             </div>
             <p className="text-red-300 font-semibold">Delayed</p>
-          </motion.div>
+          </div>
 
           {/* Completed Today */}
-          <motion.div
-            whileHover={{ scale: 1.02 }}
+          <div
             className="bg-green-950/30 rounded-md p-2 border border-green-500/30 hover:border-green-400/50 transition-all"
           >
             <div className="flex items-start justify-between mb-2">
@@ -215,7 +213,7 @@ export function DispatcherDashboard() {
               <span className="text-sm font-black text-white">{operationStats.completed_today}</span>
             </div>
             <p className="text-green-300 font-semibold">Completed Today</p>
-          </motion.div>
+          </div>
         </div>
       </Card>
 
@@ -239,7 +237,7 @@ export function DispatcherDashboard() {
           onClick={handleCreateRoute}
           className="bg-cyan-600 hover:bg-cyan-700 text-white"
         >
-          <Path className="w-4 h-4 mr-2" />
+          <Route className="w-4 h-4 mr-2" />
           New Route
         </Button>
       </div>
@@ -262,7 +260,7 @@ export function DispatcherDashboard() {
               </Button>
               <Button size="sm"
                 variant="outline"
-                className="border-blue-600 text-blue-400"
+                className="border-blue-600 text-blue-700"
                 onClick={() => handleFilterTrips('en_route')}
               >
                 En Route
@@ -281,7 +279,7 @@ export function DispatcherDashboard() {
           <div className="bg-slate-900/50 rounded-md border border-slate-700 aspect-video flex items-center justify-center mb-3">
             <div className="text-center">
               <MapTrifold className="w-16 h-16 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-400 mb-2">Interactive Fleet Map</p>
+              <p className="text-slate-700 mb-2">Interactive Fleet Map</p>
               <p className="text-sm text-slate-500">Google Maps with vehicle markers & routes</p>
             </div>
           </div>
@@ -298,7 +296,7 @@ export function DispatcherDashboard() {
         {/* Active Trips List */}
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center gap-2 mb-3">
-            <Path className="w-4 h-4 text-violet-400" />
+            <Route className="w-4 h-4 text-violet-400" />
             <h2 className="text-sm font-bold text-white">Active Trips</h2>
           </div>
 
@@ -325,7 +323,7 @@ export function DispatcherDashboard() {
                 <p className="text-sm text-slate-300 mb-2">{trip.route}</p>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-xs text-slate-400">
+                  <div className="flex items-center gap-1 text-xs text-slate-700">
                     <Users className="w-3 h-3" />
                     <span>{trip.driver_name}</span>
                   </div>
@@ -353,9 +351,8 @@ export function DispatcherDashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           {dispatchChannels.map((channel) => (
-            <motion.div
+            <div
               key={channel.id}
-              whileHover={{ scale: 1.02 }}
               className={cn(
                 "rounded-md p-2 border transition-all",
                 channel.status === 'active'
@@ -373,7 +370,7 @@ export function DispatcherDashboard() {
                   )} />
                   <span className="text-white font-bold">{channel.name}</span>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-slate-400">
+                <div className="flex items-center gap-1 text-xs text-slate-700">
                   <Users className="w-3 h-3" />
                   <span>{channel.listeners}</span>
                 </div>
@@ -390,10 +387,10 @@ export function DispatcherDashboard() {
                     : "bg-slate-700 hover:bg-slate-600 text-sm text-slate-300"
                 )}
               >
-                <ChatCircle className="w-4 h-4 mr-2" />
+                <MessageCircle className="w-4 h-4 mr-2" />
                 {channel.status === 'active' ? 'Join' : 'Activate'}
               </Button>
-            </motion.div>
+            </div>
           ))}
         </div>
       </Card>

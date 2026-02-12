@@ -175,7 +175,7 @@ export interface CreatePolicyRequest {
   expiration_date?: string
 }
 
-export interface UpdatePolicyRequest extends Partial<CreatePolicyRequest> {}
+export type UpdatePolicyRequest = Partial<CreatePolicyRequest>;
 
 // =====================================================
 // Personal Use Charges
@@ -433,13 +433,14 @@ export function calculateMileageBreakdown(
     case UsageType.PERSONAL:
       return { business_miles: 0, personal_miles: total_miles }
 
-    case UsageType.MIXED:
+    case UsageType.MIXED: {
       if (business_percentage === undefined) {
         throw new Error('Business percentage required for mixed usage type')
       }
       const business_miles = Math.round(total_miles * (business_percentage / 100) * 100) / 100
       const personal_miles = Math.round(total_miles * ((100 - business_percentage) / 100) * 100) / 100
       return { business_miles, personal_miles }
+    }
 
     default:
       throw new Error(`Invalid usage type: ${usage_type}`)
@@ -455,8 +456,10 @@ export function formatChargePeriod(date: Date): string {
 }
 
 export function getChargePeriodDates(period: string): { start: Date; end: Date } {
-  const [year, month] = period.split('-').map(Number)
-  const start = new Date(year, (month ?? 1) - 1, 1)
-  const end = new Date(year, month ?? 1, 0) // Last day of month
+  const parts = period.split('-').map(Number)
+  const year = parts[0] ?? 0
+  const month = parts[1] ?? 1
+  const start = new Date(year, month - 1, 1)
+  const end = new Date(year, month, 0) // Last day of month
   return { start, end }
 }

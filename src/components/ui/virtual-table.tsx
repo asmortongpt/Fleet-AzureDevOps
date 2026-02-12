@@ -1,12 +1,12 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { ReactNode, useRef, useCallback } from 'react';
+import React, { ReactNode, useRef, useCallback } from 'react';
 
 interface VirtualTableProps<T> {
   data: T[];
   columns: Array<{ key: string; label: string; width: number }>;
 }
 
-function VirtualTable<T>({ data, columns }: VirtualTableProps<T>): JSX.Element {
+function VirtualTable<T>({ data, columns }: VirtualTableProps<T>): React.ReactElement {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({

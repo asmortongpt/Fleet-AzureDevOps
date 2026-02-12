@@ -17,8 +17,12 @@ import { User } from '../permissions/types';
 import { PermissionsRepository } from '../repositories/PermissionsRepository';
 import { auditService } from '../services/auditService';
 import { TYPES } from '../types';
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Get repository instance from DI container
 const getPermissionsRepository = (): PermissionsRepository => {

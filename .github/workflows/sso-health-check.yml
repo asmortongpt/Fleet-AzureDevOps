@@ -1,0 +1,189 @@
+name: SSO Authentication Health Check
+
+on:
+  push:
+    branches: [ main, develop, 'feature/**' ]
+    paths:
+      - 'api/src/routes/auth.ts'
+      - 'api/src/config/database.ts'
+      - 'api/src/config/connection-manager.ts'
+      - 'src/contexts/AuthContext.tsx'
+      - 'src/pages/AuthCallback.tsx'
+      - 'src/pages/Login.tsx'
+      - 'src/lib/msal-config.ts'
+      - 'src/config/auth-config.ts'
+      - '.github/workflows/sso-health-check.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'api/src/routes/auth.ts'
+      - 'api/src/config/database.ts'
+      - 'src/contexts/AuthContext.tsx'
+      - 'src/pages/AuthCallback.tsx'
+      - 'src/pages/Login.tsx'
+
+jobs:
+  sso-health-check:
+    name: SSO Authentication Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: fleet_test
+          POSTGRES_USER: fleet_user
+          POSTGRES_PASSWORD: fleet_test_pass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install API dependencies
+        run: |
+          cd api
+          npm ci
+
+      - name: Install Frontend dependencies
+        run: npm ci
+
+      - name: Setup database schema
+        env:
+          PGPASSWORD: fleet_test_pass
+        run: |
+          # Wait for PostgreSQL to be ready
+          for i in {1..30}; do
+            if pg_isready -h localhost -p 5432 -U fleet_user; then
+              echo "PostgreSQL is ready"
+              break
+            fi
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 1
+          done
+
+          # Create SSO columns
+          psql -h localhost -U fleet_user -d fleet_test < api/add_sso_columns.sql || echo "SSO columns may already exist"
+
+          # Verify SSO schema
+          COLUMNS=$(psql -h localhost -U fleet_user -d fleet_test -t -c "SELECT COUNT(*) FROM information_schema.columns WHERE table_name='users' AND column_name IN ('provider', 'provider_user_id', 'azure_tenant_id');" | tr -d ' ')
+
+          if [ "$COLUMNS" != "3" ]; then
+            echo "❌ SSO columns missing (found $COLUMNS/3)"
+            exit 1
+          fi
+          echo "✅ SSO schema verified"
+
+      - name: Start API server
+        env:
+          DATABASE_URL: postgresql://fleet_user:fleet_test_pass@localhost:5432/fleet_test
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: fleet_user
+          DB_PASSWORD: fleet_test_pass
+          DB_NAME: fleet_test
+          NODE_ENV: test
+          JWT_SECRET: test-secret-key-for-ci
+        run: |
+          cd api
+          npm run dev > /tmp/api.log 2>&1 &
+          API_PID=$!
+          echo "API_PID=$API_PID" >> $GITHUB_ENV
+
+          # Wait for API to start
+          for i in {1..60}; do
+            if curl -sf http://localhost:3001/api/health || curl -sf http://localhost:3001/api/auth/microsoft/exchange -X POST -H "Content-Type: application/json" -d '{}' | grep -q "error"; then
+              echo "✅ API server is running"
+              break
+            fi
+            echo "Waiting for API server... ($i/60)"
+            sleep 1
+
+            if [ $i -eq 60 ]; then
+              echo "❌ API server failed to start"
+              cat /tmp/api.log
+              exit 1
+            fi
+          done
+
+      - name: Test SSO exchange endpoint
+        run: |
+          echo "Testing SSO exchange endpoint..."
+
+          # Test with invalid token (should return 400, not 500)
+          RESPONSE=$(curl -s -w "%{http_code}" -o /tmp/sso-response.json \
+            -X POST http://localhost:3001/api/auth/microsoft/exchange \
+            -H "Content-Type: application/json" \
+            -d '{"idToken":"invalid"}')
+
+          echo "Response code: $RESPONSE"
+          cat /tmp/sso-response.json
+
+          if [ "$RESPONSE" = "400" ]; then
+            echo "✅ SSO endpoint responding correctly (400 for invalid token)"
+          elif [ "$RESPONSE" = "500" ]; then
+            echo "❌ SSO endpoint returned 500 (database connection issue?)"
+            cat /tmp/api.log
+            exit 1
+          else
+            echo "⚠️  Unexpected response: $RESPONSE"
+            cat /tmp/api.log
+            exit 1
+          fi
+
+      - name: Test database connection
+        env:
+          PGPASSWORD: fleet_test_pass
+        run: |
+          # Verify database connectivity
+          if psql -h localhost -U fleet_user -d fleet_test -c "SELECT 1;" > /dev/null 2>&1; then
+            echo "✅ Database connection verified"
+          else
+            echo "❌ Database connection failed"
+            exit 1
+          fi
+
+      - name: Check for import errors
+        run: |
+          # Check for common import typos
+          if grep -r "@tantml:query" src/; then
+            echo "❌ Found typo: @tantml:query (should be @tanstack/react-query)"
+            exit 1
+          fi
+          echo "✅ No import typos found"
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sso-test-logs
+          path: /tmp/*.log
+          retention-days: 7
+
+  summary:
+    name: SSO Test Summary
+    needs: sso-health-check
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Check result
+        run: |
+          if [ "${{ needs.sso-health-check.result }}" = "success" ]; then
+            echo "✅ SSO authentication health check passed"
+          else
+            echo "❌ SSO authentication health check failed"
+            exit 1
+          fi

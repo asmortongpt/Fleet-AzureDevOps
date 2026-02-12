@@ -14,8 +14,9 @@
 
 import { Pool } from 'pg'
 
-import { pool } from '../db/connection'
 import logger from '../config/logger'
+import { pool } from '../db/connection'
+
 import SearchIndexService from './SearchIndexService'
 
 export interface IndexingJob {

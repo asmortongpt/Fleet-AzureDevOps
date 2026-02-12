@@ -1,4 +1,4 @@
-import { Vehicle } from '@contexts/FleetDataContext';
+import { Vehicle } from '@/core/multi-tenant/contexts/FleetDataContext';
 import {
   DirectionsCar,
   LocalGasStation,
@@ -91,13 +91,13 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
   }, [vehicle]);
 
   const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev: Vehicle) => ({
       ...prev,
       [field]: value
     }));
     // Clear error when field is modified
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev: Record<string, string>) => ({
         ...prev,
         [field]: ''
       }));
@@ -105,7 +105,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
   };
 
   const handleNestedChange = (parent: string, field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev: Vehicle) => ({
       ...prev,
       [parent]: {
         ...prev[parent as keyof Vehicle] as any,
@@ -157,7 +157,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
   const handleFeatureToggle = (feature: string) => {
     const currentFeatures = formData.features || [];
     const newFeatures = currentFeatures.includes(feature)
-      ? currentFeatures.filter(f => f !== feature)
+      ? currentFeatures.filter((f: string) => f !== feature)
       : [...currentFeatures, feature];
 
     handleChange('features', newFeatures);
@@ -171,7 +171,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
 
       <Grid container spacing={3}>
         {/* Basic Information */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -182,7 +182,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
               </Stack>
 
               <Grid container spacing={2}>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     fullWidth
                     label="Plate Number"
@@ -194,7 +194,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     required
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     fullWidth
                     label="VIN"
@@ -206,7 +206,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     required
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     fullWidth
                     label="Make"
@@ -218,7 +218,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     required
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     fullWidth
                     label="Model"
@@ -230,7 +230,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     required
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     fullWidth
                     label="Year"
@@ -249,7 +249,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
         </Grid>
 
         {/* Status and Assignment */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.secondary.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -260,7 +260,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
               </Stack>
 
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <FormControl fullWidth>
                     <InputLabel>Status</InputLabel>
                     <Select
@@ -283,7 +283,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Autocomplete
                     options={departmentOptions}
                     value={formData.department}
@@ -299,7 +299,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     )}
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <FormControl fullWidth>
                     <InputLabel>Ownership</InputLabel>
                     <Select
@@ -315,7 +315,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     </Select>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     fullWidth
                     label="Assigned Driver"
@@ -325,7 +325,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     placeholder="Enter driver name"
                   />
                 </Grid>
-                <Grid item xs={12} md={6}>
+                <Grid size={{ xs: 12, md: 6 }}>
                   <TextField
                     fullWidth
                     label="Current Mileage"
@@ -344,7 +344,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
         </Grid>
 
         {/* Fuel and Battery Information */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.success.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -355,7 +355,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
               </Stack>
 
               <Grid container spacing={3}>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <Typography gutterBottom variant="subtitle2" fontWeight={600}>
                     Fuel Level: {formData.fuel.level}%
                   </Typography>
@@ -370,7 +370,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     sx={{ mb: 2 }}
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     fullWidth
                     label="Fuel Capacity"
@@ -383,7 +383,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     }}
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     fullWidth
                     label="Fuel Efficiency"
@@ -392,12 +392,12 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     onChange={(e) => handleNestedChange('fuel', 'efficiency', parseFloat(e.target.value) || 0)}
                     variant="outlined"
                     InputProps={{
-                      endAdornment: <Typography variant="body2" color="text: secondary">MPG</Typography>
+                      endAdornment: <Typography variant="body2" color="text.secondary">MPG</Typography>
                     }}
                   />
                 </Grid>
                 {formData.batteryLevel !== undefined && (
-                  <Grid item xs={12} md={6}>
+                  <Grid size={{ xs: 12, md: 6 }}>
                     <Stack direction="row" spacing={2} alignItems="center">
                       <Battery4Bar color="info" />
                       <Box sx={{ flex: 1 }}>
@@ -423,7 +423,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
         </Grid>
 
         {/* Features */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.warning.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -464,7 +464,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
         </Grid>
 
         {/* Location Information */}
-        <Grid item xs={12}>
+        <Grid size={12}>
           <Card elevation={0} sx={{ bgcolor: alpha(theme.palette.info.main, 0.02) }}>
             <CardContent>
               <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 3 }}>
@@ -475,7 +475,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
               </Stack>
 
               <Grid container spacing={2}>
-                <Grid item xs={12} md={8}>
+                <Grid size={{ xs: 12, md: 8 }}>
                   <TextField
                     fullWidth
                     label="Current Location"
@@ -485,12 +485,12 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
                     placeholder="Enter current address or location"
                   />
                 </Grid>
-                <Grid item xs={12} md={4}>
+                <Grid size={{ xs: 12, md: 4 }}>
                   <TextField
                     fullWidth
                     label="Next Maintenance"
                     type="date"
-                    value={formData.nextMaintenance.toISOString().split('T')[0]}
+                    value={formData.nextMaintenance?.toISOString().split('T')[0] ?? ''}
                     onChange={(e) => handleChange('nextMaintenance', new Date(e.target.value))}
                     variant="outlined"
                     InputLabelProps={{
@@ -505,7 +505,7 @@ export const VehicleEditForm: React.FC<VehicleEditFormProps> = ({
 
         {/* Form Status */}
         {Object.keys(errors).length > 0 && (
-          <Grid item xs={12}>
+          <Grid size={12}>
             <Alert severity="error">
               Please correct the following errors:
               <ul style={{ margin: '8px 0 0 16px' }}>

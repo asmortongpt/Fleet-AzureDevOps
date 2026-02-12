@@ -20,12 +20,14 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import logger from '@/utils/logger';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
   resetKeys?: Array<string | number>;
+  componentName?: string;
 }
 
 interface ErrorBoundaryState {
@@ -59,8 +61,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log error to console in development
     if (import.meta.env.DEV) {
-      console.error('ErrorBoundary caught an error:', error);
-      console.error('Component stack:', errorInfo.componentStack);
+      logger.error('ErrorBoundary caught an error:', error);
+      logger.error('Component stack:', errorInfo.componentStack);
     }
 
     // Update state with error details
@@ -130,7 +132,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     //   body: JSON.stringify(errorData),
     // }).catch(console.error);
 
-    console.log('[ErrorBoundary] Would log to service:', errorData);
+    logger.info('[ErrorBoundary] Would log to service:', errorData);
   };
 
   render() {

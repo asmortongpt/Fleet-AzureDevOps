@@ -1,14 +1,14 @@
 import {
-  Robot,
-  PaperPlaneRight,
+  Bot,
+  Send,
   FileText,
   ThumbsUp,
   ThumbsDown,
-  Sparkle,
-  CircleNotch,
+  Sparkles,
+  Loader2,
   Book,
-  ChatCircleDots
-} from "@phosphor-icons/react"
+  MessageCircle
+} from "lucide-react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState, useEffect, useRef } from "react"
 import { toast } from "sonner"
@@ -235,7 +235,7 @@ export function DocumentQA() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary text-primary-foreground rounded-lg">
-                  <Robot className="w-4 h-4" weight="bold" />
+                  <Bot className="w-4 h-4" />
                 </div>
                 <div>
                   <CardTitle>Document Q&A Assistant</CardTitle>
@@ -273,9 +273,9 @@ export function DocumentQA() {
                         : 'bg-muted'
                     }`}>
                       {message.type === 'question' ? (
-                        <ChatCircleDots className="w-3 h-3" weight="bold" />
+                        <MessageCircle className="w-3 h-3" />
                       ) : (
-                        <Robot className="w-3 h-3" weight="bold" />
+                        <Bot className="w-3 h-3" />
                       )}
                     </div>
 
@@ -290,7 +290,7 @@ export function DocumentQA() {
                         {message.confidence !== undefined && (
                           <div className="mt-2 pt-2 border-t border-border/50">
                             <div className="flex items-center gap-2 text-xs opacity-80">
-                              <Sparkle className="w-3 h-3" />
+                              <Sparkles className="w-3 h-3" />
                               Confidence: {Math.round(message.confidence * 100)}%
                             </div>
                           </div>
@@ -356,7 +356,7 @@ export function DocumentQA() {
                 {askQuestionMutation.isPending && (
                   <div className="flex gap-2">
                     <div className="flex-shrink-0 w-10 h-8 rounded-full bg-muted flex items-center justify-center">
-                      <CircleNotch className="w-3 h-3 animate-spin" weight="bold" />
+                      <Loader2 className="w-3 h-3 animate-spin" />
                     </div>
                     <div className="flex-1">
                       <div className="inline-block rounded-lg p-2 bg-muted">
@@ -401,9 +401,9 @@ export function DocumentQA() {
                   disabled={!inputValue.trim() || askQuestionMutation.isPending}
                 >
                   {askQuestionMutation.isPending ? (
-                    <CircleNotch className="w-3 h-3 animate-spin" />
+                    <Loader2 className="w-3 h-3 animate-spin" />
                   ) : (
-                    <PaperPlaneRight className="w-3 h-3" weight="fill" />
+                    <Send className="w-3 h-3" />
                   )}
                 </Button>
               </div>

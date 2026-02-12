@@ -1,6 +1,6 @@
 import { initAIPlatform } from "../ai";
-import { callTool } from "../ai/mcp/toolRouter";
 import { enforceAIPolicy } from "../ai/gateway/policy";
+import { callTool } from "../ai/mcp/toolRouter";
 
 export async function aiToolRoute(req: any, res: any) {
   initAIPlatform();

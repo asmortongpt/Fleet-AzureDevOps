@@ -40,8 +40,17 @@ import { useAudioVisualization, useFrequencyBars } from '@/hooks/useAudioVisuali
 import { useAuth } from '@/hooks/useAuth';
 import { useDispatchSocket } from '@/hooks/useDispatchSocket';
 import { usePTT } from '@/hooks/usePTT';
-import type { RadioChannel } from '@/types/radio';
 import logger from '@/utils/logger';
+
+type DispatchChannel = {
+  id: string
+  name: string
+  description?: string | null
+  channel_type: string
+  is_active: boolean
+  priority_level: number
+  color_code?: string | null
+}
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -61,7 +70,7 @@ function TabPanel(props: TabPanelProps) {
 export default function DispatchConsole() {
   const { hasPermission } = useAuth();
   const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
-  const [channels, setChannels] = useState<RadioChannel[]>([]);
+  const [channels, setChannels] = useState<DispatchChannel[]>([]);
   const [isMuted, setIsMuted] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [analyserNode, setAnalyserNode] = useState<AnalyserNode | null>(null);
@@ -73,24 +82,28 @@ export default function DispatchConsole() {
     onEmergencyAlert: (alert) => {
       logger.debug('Emergency alert received:', alert);
     },
-    onTransmission: (transmission) => {
-      logger.debug('Transmission update:', transmission);
-    }
   });
+
+  // Ensure we join the selected channel as soon as the socket is connected.
+  useEffect(() => {
+    if (!selectedChannelId) return;
+    if (!dispatch.isConnected) return;
+    dispatch.subscribeToChannel(selectedChannelId);
+  }, [dispatch.isConnected, selectedChannelId]);
 
   // PTT functionality
   const ptt = usePTT({
     onAudioChunk: (audioData) => {
-      if (ptt.currentTransmissionId) {
-        dispatch.sendAudioChunk(audioData, ptt.currentTransmissionId);
+      if (dispatch.activeTransmission?.id) {
+        dispatch.sendAudioChunk(audioData, dispatch.activeTransmission.id);
       }
     },
     onTransmissionStart: (transmissionId) => {
       logger.debug('PTT started:', transmissionId);
     },
     onTransmissionEnd: (audioBlob) => {
-      logger.debug('PTT ended, blob size:', audioBlob.size);
-      const transmissionId = ptt.currentTransmissionId;
+      logger.debug(`PTT ended, blob size: ${audioBlob.size}`);
+      const transmissionId = dispatch.activeTransmission?.id;
       if (transmissionId) {
         // Convert blob to base64 and send
         const reader = new FileReader();
@@ -112,17 +125,11 @@ export default function DispatchConsole() {
   useEffect(() => {
     const loadChannels = async () => {
       try {
-        const response = await fetch('/api/dispatch/channels', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-          }
-        });
+        const response = await fetch('/api/dispatch/channels', { credentials: 'include' });
         const data = await response.json();
         if (data.success) {
           setChannels(data.channels);
-          if (data.channels.length > 0 && !selectedChannelId) {
-            setSelectedChannelId(data.channels[0].id);
-          }
+          if (data.channels.length > 0) setSelectedChannelId((prev) => prev || data.channels[0].id);
         }
       } catch (error) {
         logger.error('Failed to load channels:', error);
@@ -130,7 +137,7 @@ export default function DispatchConsole() {
     };
 
     loadChannels();
-  }, [selectedChannelId]);
+  }, []);
 
   // Handle channel selection
   const handleChannelSelect = (channelId: string) => {
@@ -238,7 +245,7 @@ export default function DispatchConsole() {
                     }}
                   >
                     <ListItemAvatar>
-                      <Avatar sx={{ bgcolor: channel.status === 'ACTIVE' ? 'success.main' : 'grey.500' }}>
+                      <Avatar sx={{ bgcolor: channel.is_active ? 'success.main' : 'grey.500' }}>
                         <RadioIcon />
                       </Avatar>
                     </ListItemAvatar>
@@ -246,8 +253,7 @@ export default function DispatchConsole() {
                       primary={channel.name}
                       secondary={
                         <>
-                          {channel.frequency && <>{channel.frequency} • </>}
-                          {channel.status}
+                          {channel.channel_type}
                         </>
                       }
                     />
@@ -358,7 +364,7 @@ export default function DispatchConsole() {
                 {dispatch.activeTransmission && !ptt.isTransmitting && (
                   <Alert severity="info" icon={<RadioIcon />} sx={{ width: '100%' }}>
                     <AlertTitle>Incoming Transmission</AlertTitle>
-                    Channel {dispatch.activeTransmission.channel_name} is active
+                    Transmission is active on current channel
                   </Alert>
                 )}
 

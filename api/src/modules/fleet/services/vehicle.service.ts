@@ -1,4 +1,5 @@
 import { injectable, inject } from "inversify";
+
 import { BaseService } from "../../../services/base.service";
 import { TYPES } from "../../../types";
 import { VehicleRepository } from "../repositories/vehicle.repository";
@@ -27,6 +28,15 @@ export class VehicleService extends BaseService {
   async getAllVehicles(tenantId: string): Promise<any[]> {
     return this.executeInTransaction(async () => {
       return await this.vehicleRepository.findByTenant(tenantId);
+    });
+  }
+
+  async listVehicles(
+    tenantId: string,
+    opts: { page?: number; limit?: number; search?: string; status?: string; sortBy?: string; sortOrder?: string } = {}
+  ): Promise<{ data: any[]; total: number }> {
+    return this.executeInTransaction(async () => {
+      return await this.vehicleRepository.listByTenant(tenantId, opts);
     });
   }
 

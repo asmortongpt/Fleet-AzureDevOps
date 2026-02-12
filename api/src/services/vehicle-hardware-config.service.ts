@@ -16,13 +16,16 @@
  * - RBAC enforcement
  */
 
-import { Pool, PoolClient } from 'pg';
 import crypto from 'crypto';
+
+import { Pool, PoolClient } from 'pg';
+
 import logger from '../config/logger';
-import { getKeyVaultService } from '../config/key-vault.service';
-import SmartcarService from './smartcar.service';
+import { db } from '../db'
+
 import SamsaraService from './samsara.service';
-import { OBD2Emulator } from '../emulators/obd2/OBD2Emulator';
+import SmartcarService from './smartcar.service';
+
 
 // Placeholder TeltonikaService class
 class TeltonikaService {
@@ -1114,7 +1117,6 @@ class VehicleHardwareConfigService {
 }
 
 // Export singleton instance
-import { db } from '../db'
 const vehicleHardwareConfigService = new VehicleHardwareConfigService(db as any)
 
 export { VehicleHardwareConfigService }

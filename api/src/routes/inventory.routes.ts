@@ -17,19 +17,21 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { Pool } from 'pg';
 import { body, param, query, validationResult } from 'express-validator';
-import { asyncHandler } from '../middleware/errorHandler';
+import { Pool } from 'pg';
+
+import { authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
+import { asyncHandler } from '../middleware/errorHandler';
+import { pool as dbPool } from '../db/connection';
 
 const router = Router();
 
-// Database pool (will be injected via dependency injection)
-let pool: Pool;
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
-export function setDatabasePool(dbPool: Pool) {
-  pool = dbPool;
-}
+// Database pool
+const pool: Pool = dbPool;
 
 // =============================================================================
 // VALIDATION MIDDLEWARE
@@ -245,6 +247,7 @@ router.get('/items/:id', [
 // =============================================================================
 
 router.post('/items', [
+  authenticateJWT,
   csrfProtection,
   ...validateInventoryItem,
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -344,6 +347,7 @@ router.post('/items', [
 // =============================================================================
 
 router.put('/items/:id', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID().withMessage('Invalid item ID'),
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -417,6 +421,7 @@ router.put('/items/:id', [
 // =============================================================================
 
 router.delete('/items/:id', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID().withMessage('Invalid item ID'),
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -545,6 +550,7 @@ router.get('/transactions', [
 // =============================================================================
 
 router.post('/transactions', [
+  authenticateJWT,
   csrfProtection,
   ...validateTransaction,
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -685,6 +691,7 @@ router.get('/alerts/low-stock', asyncHandler(async (req: Request, res: Response)
 // =============================================================================
 
 router.put('/alerts/low-stock/:id/resolve', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -725,6 +732,7 @@ router.put('/alerts/low-stock/:id/resolve', [
 // =============================================================================
 
 router.post('/reservations', [
+  authenticateJWT,
   csrfProtection,
   ...validateReservation,
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -783,6 +791,7 @@ router.post('/reservations', [
 // =============================================================================
 
 router.put('/reservations/:id/release', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -895,6 +904,7 @@ router.get('/summary', asyncHandler(async (req: Request, res: Response) => {
 // =============================================================================
 
 router.post('/scan', [
+  authenticateJWT,
   csrfProtection,
   body('barcode').trim().notEmpty(),
 ], asyncHandler(async (req: Request, res: Response) => {

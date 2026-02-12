@@ -15,6 +15,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // CONFIGURATION
@@ -203,31 +204,6 @@ function sanitizeString(str: string): string {
     .replace(/\//g, '&#x2F;')
 }
 
-// ============================================================================
-// MOCK DATA GENERATORS (Separate for testability, fallback only)
-// ============================================================================
-
-function generateMockComplianceRateByCategory(): ComplianceRateByCategory[] {
-  return [
-    { name: 'DOT', rate: 95, total: 120, compliant: 114 },
-    { name: 'EPA', rate: 88, total: 85, compliant: 75 },
-    { name: 'OSHA', rate: 92, total: 100, compliant: 92 },
-    { name: 'IFTA', rate: 98, total: 60, compliant: 59 },
-    { name: 'DMV', rate: 94, total: 150, compliant: 141 },
-    { name: 'Insurance', rate: 100, total: 120, compliant: 120 },
-  ]
-}
-
-function generateMockInspectionTrend(): InspectionTrendData[] {
-  return [
-    { name: 'Jan', passed: 45, failed: 5, rate: 90 },
-    { name: 'Feb', passed: 48, failed: 4, rate: 92 },
-    { name: 'Mar', passed: 47, failed: 6, rate: 89 },
-    { name: 'Apr', passed: 51, failed: 3, rate: 94 },
-    { name: 'May', passed: 49, failed: 5, rate: 91 },
-    { name: 'Jun', passed: 52, failed: 2, rate: 96 },
-  ]
-}
 
 // ============================================================================
 // HELPER: CALCULATE INSPECTION TREND FROM REAL DATA
@@ -252,7 +228,7 @@ function calculateInspectionTrend(inspections: Inspection[]): InspectionTrendDat
 
       monthMap.set(monthKey, entry)
     } catch (error) {
-      console.warn('Invalid inspection date:', inspection.inspectionDate, error)
+      logger.warn('Invalid inspection date:', { inspectionDate: inspection.inspectionDate, error })
     }
   }
 
@@ -351,7 +327,7 @@ export function useReactiveComplianceData() {
           signal
         )
       } catch (error) {
-        console.warn('Compliance records API unavailable, using empty dataset:', error)
+        logger.warn('Compliance records API unavailable, using empty dataset:', { error })
         // Return empty array for graceful degradation
         return []
       }
@@ -380,7 +356,7 @@ export function useReactiveComplianceData() {
           signal
         )
       } catch (error) {
-        console.warn('Inspections API unavailable, using empty dataset:', error)
+        logger.warn('Inspections API unavailable, using empty dataset:', { error })
         return []
       }
     },
@@ -455,19 +431,13 @@ export function useReactiveComplianceData() {
     }, {} as Record<string, number>)
   }, [complianceRecords])
 
-  // Inspection trend data - calculated from real data, with fallback
+  // Inspection trend data - calculated from real data only
   const inspectionTrendData = useMemo(() => {
-    if (inspections.length === 0) {
-      return generateMockInspectionTrend()
-    }
     return calculateInspectionTrend(inspections)
   }, [inspections])
 
-  // Compliance rate by category - calculated from real data, with fallback
+  // Compliance rate by category - calculated from real data only
   const complianceRateByCategory = useMemo(() => {
-    if (complianceRecords.length === 0) {
-      return generateMockComplianceRateByCategory()
-    }
     return calculateComplianceRateByCategory(complianceRecords)
   }, [complianceRecords])
 

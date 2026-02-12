@@ -223,7 +223,8 @@ export const driverUpdateSchema = z.object({
  */
 export const driverQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(50),
+  // UI drilldowns commonly request 200; cap to 200 for safety.
+  limit: z.coerce.number().int().positive().max(200).default(50),
   status: driverStatusEnum.optional(),
   licenseClass: licenseClassEnum.optional(),
   assignedVehicleId: z.coerce.number().int().positive().optional(),

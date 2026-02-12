@@ -12,15 +12,22 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
+import { InteractionStatus } from '@azure/msal-browser'
 
 import { useAuth } from '@/hooks/useAuth'
-import {
-  initializeMsal,
-  isAuthenticated,
-  getAccount,
-  getAccessToken
-} from '@/lib/auth'
+import { useMsalAuth } from '@/hooks/use-msal-auth'
 import logger from '@/utils/logger'
+
+// Development auth bypass flag (reads from environment variable)
+// WARNING: ONLY set VITE_SKIP_AUTH=true in local development/testing
+// NEVER enable in production - enforced by production check below
+const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true';
+
+// Safety check: NEVER allow auth bypass in production
+if (SKIP_AUTH && import.meta.env.PROD) {
+  console.error('[SECURITY] Auth bypass attempted in production environment - BLOCKED');
+  throw new Error('Auth bypass is not allowed in production');
+}
 
 interface ProtectedRouteProps {
   children: ReactNode
@@ -34,79 +41,125 @@ export const ProtectedRoute = ({
   requiredPermission
 }: ProtectedRouteProps) => {
   const location = useLocation()
-  const { user, hasRole, hasPermission, canAccess } = useAuth()
+  const auth = useAuth()
+  const msalAuth = useMsalAuth()
+  const { user, isLoading: authLoading, canAccess } = auth
+  const { isAuthenticated: msalAuthenticated, isLoading: msalLoading, account } = msalAuth
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isAuthorized, setIsAuthorized] = useState(false)
 
   useEffect(() => {
+    // Wait for both auth systems to finish loading
+    if (authLoading || msalLoading) {
+      logger.debug('[ProtectedRoute] Waiting for auth to initialize', {
+        authLoading,
+        msalLoading
+      })
+      return
+    }
+
     const checkAuth = async () => {
       try {
-        // Initialize MSAL if not already done
-        await initializeMsal()
+        logger.debug('[ProtectedRoute] Checking authentication', {
+          hasUser: !!user,
+          hasMsalAccount: !!account,
+          msalAuthenticated,
+          requiredRole,
+          requiredPermission
+        })
 
-        // Check if user is authenticated
-        const authenticated = isAuthenticated()
-
-        if (!authenticated) {
-          logger.warn('User not authenticated, redirecting to login')
-          setIsCheckingAuth(false)
-          return
+        // DEV: Skip authentication if VITE_SKIP_AUTH=true
+        if (SKIP_AUTH) {
+          logger.info('[ProtectedRoute] SKIP_AUTH enabled - auto-authorizing');
+          setIsAuthorized(true);
+          setIsCheckingAuth(false);
+          return;
         }
 
-        // Get account and verify token
-        const account = getAccount()
-        if (!account) {
-          logger.warn('No account found, redirecting to login')
-          setIsCheckingAuth(false)
-          return
-        }
+        // Check 1: AuthContext user (email/password login or MSAL-synced session via httpOnly cookies)
+        if (user) {
+          logger.debug('[ProtectedRoute] User found in AuthContext', {
+            userId: user.id,
+            role: user.role,
+            email: user.email
+          })
 
-        try {
-          // Get fresh access token (will use cache if valid)
-          await getAccessToken()
-        } catch (error) {
-          logger.error('Failed to get access token:', { error })
-          setIsCheckingAuth(false)
-          return
-        }
+          if (requiredRole || requiredPermission) {
+            const normalizedRole = requiredRole && (typeof requiredRole === 'string' || Array.isArray(requiredRole))
+              ? requiredRole
+              : undefined
+            const normalizedPermission = requiredPermission && (typeof requiredPermission === 'string' || Array.isArray(requiredPermission))
+              ? requiredPermission
+              : undefined
+            const authorized = canAccess(normalizedRole as any, normalizedPermission as any)
+            setIsAuthorized(authorized)
 
-        // Check role and permission authorization
-        if (requiredRole || requiredPermission) {
-          // Validate requiredRole is string/string[] before passing
-          const normalizedRole = requiredRole && (typeof requiredRole === 'string' || Array.isArray(requiredRole))
-            ? requiredRole
-            : undefined
-          // Validate requiredPermission is string/string[] before passing
-          const normalizedPermission = requiredPermission && (typeof requiredPermission === 'string' || Array.isArray(requiredPermission))
-            ? requiredPermission
-            : undefined
-          const authorized = canAccess(normalizedRole as any, normalizedPermission as any)
-          setIsAuthorized(authorized)
-
-          if (!authorized) {
-            logger.warn('User not authorized for this route', {
-              requiredRole,
-              requiredPermission,
-              userRole: user?.role,
-              userPermissions: user?.permissions
-            })
+            if (!authorized) {
+              logger.warn('[ProtectedRoute] User not authorized for this route', {
+                requiredRole,
+                requiredPermission,
+                userRole: user?.role,
+                userPermissions: user?.permissions
+              })
+            } else {
+              logger.debug('[ProtectedRoute] User authorized for this route')
+            }
+          } else {
+            setIsAuthorized(true)
+            logger.debug('[ProtectedRoute] No role/permission requirements - user authorized')
           }
-        } else {
-          setIsAuthorized(true)
+          setIsCheckingAuth(false)
+          return
         }
-      } catch (error) {
-        logger.error('Authentication check failed:', { error })
+
+        // Check 2: MSAL authentication only (no backend session yet)
+        if (msalAuthenticated && account) {
+          logger.info('[ProtectedRoute] MSAL authenticated but no backend session', {
+            account: account.username
+          })
+
+          // Allow access for MSAL-authenticated users
+          // The AuthContext will sync the session in the background
+          setIsAuthorized(true)
+          setIsCheckingAuth(false)
+          return
+        }
+
+        // No authentication found
+        logger.warn('[ProtectedRoute] User not authenticated', {
+          hasUser: !!user,
+          msalAuthenticated,
+          path: location.pathname
+        })
         setIsAuthorized(false)
-      } finally {
+        setIsCheckingAuth(false)
+      } catch (error) {
+        logger.error('[ProtectedRoute] Authentication check failed:', { error })
+        setIsAuthorized(false)
         setIsCheckingAuth(false)
       }
     }
 
     checkAuth()
-  }, [requiredRole, requiredPermission, user, hasRole, hasPermission, canAccess])
+  }, [
+    authLoading,
+    msalLoading,
+    requiredRole,
+    requiredPermission,
+    user,
+    canAccess,
+    msalAuthenticated,
+    account,
+    location.pathname
+  ])
 
   // Show loading spinner while checking authentication
-  if (isCheckingAuth) {
+  if (isCheckingAuth || authLoading || msalLoading) {
+    logger.debug('[ProtectedRoute] Showing loading spinner', {
+      isCheckingAuth,
+      authLoading,
+      msalLoading
+    })
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -117,9 +170,9 @@ export const ProtectedRoute = ({
     )
   }
 
-  // Redirect to login if not authenticated
-  if (!isAuthenticated()) {
-    logger.info('Redirecting to login', { from: location.pathname })
+  // Redirect to login if not authenticated (check both AuthContext and MSAL)
+  if (!user && !msalAuthenticated) {
+    logger.info('[ProtectedRoute] Redirecting to login', { from: location.pathname })
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
@@ -146,12 +199,12 @@ export const ProtectedRoute = ({
             You don't have permission to access this page.
           </p>
           {requiredRole && (
-            <p className="text-sm text-gray-500 mb-2">
+            <p className="text-sm text-gray-700 mb-2">
               Required role: {Array.isArray(requiredRole) ? requiredRole.join(', ') : requiredRole}
             </p>
           )}
           {requiredPermission && (
-            <p className="text-sm text-gray-500 mb-3">
+            <p className="text-sm text-gray-700 mb-3">
               Required permission: {Array.isArray(requiredPermission) ? requiredPermission.join(', ') : requiredPermission}
             </p>
           )}

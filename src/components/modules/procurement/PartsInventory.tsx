@@ -1,4 +1,4 @@
-import { Plus, MagnifyingGlass, Package, TrendUp, TrendDown, Warning } from "@phosphor-icons/react"
+import { Plus, Search, Package, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -320,7 +320,7 @@ export function PartsInventory() {
           <CardContent>
             <div className="text-sm font-bold">${totalInventoryValue.toLocaleString()}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
-              <TrendUp className="w-3 h-3" />
+              <TrendingUp className="w-3 h-3" />
               Total assets
             </div>
           </CardContent>
@@ -333,7 +333,7 @@ export function PartsInventory() {
           <CardContent>
             <div className="text-sm font-bold text-yellow-600">{lowStockParts.length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               Need reorder
             </div>
           </CardContent>
@@ -346,7 +346,7 @@ export function PartsInventory() {
           <CardContent>
             <div className="text-sm font-bold text-red-600">{outOfStockParts.length}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <TrendDown className="w-3 h-3" />
+              <TrendingDown className="w-3 h-3" />
               Critical
             </div>
           </CardContent>
@@ -355,7 +355,7 @@ export function PartsInventory() {
 
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search parts..."
             value={searchTerm}

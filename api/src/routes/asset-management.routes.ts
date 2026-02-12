@@ -60,14 +60,35 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 
     let query = `
       SELECT
-        a.*,
+        a.id,
+        a.asset_number as asset_tag,
+        a.name as asset_name,
+        a.description,
+        a.type as asset_type,
+        a.category,
+        a.manufacturer,
+        a.model,
+        a.serial_number,
+        a.purchase_date,
+        a.purchase_price,
+        a.current_value,
+        a.status,
+        a.condition,
+        a.assigned_to_id as assigned_to,
         u.first_name || ' ' || u.last_name as assigned_to_name,
-        COUNT(DISTINCT ah.id) as history_count,
-        MAX(m.scheduled_date) as next_maintenance
+        a.assigned_facility_id as assigned_facility_id,
+        f.name as location,
+        a.warranty_expiry_date as warranty_expiration,
+        a.last_maintenance_date as last_maintenance,
+        a.next_maintenance_date as next_maintenance,
+        a.metadata,
+        COUNT(DISTINCT mr.id) as maintenance_count,
+        a.created_at,
+        a.updated_at
       FROM assets a
-      LEFT JOIN users u ON a.assigned_to = u.id
-      LEFT JOIN asset_history ah ON a.id = ah.asset_id
-      LEFT JOIN maintenance_schedules m ON a.id = m.asset_id AND m.status = 'scheduled'
+      LEFT JOIN users u ON a.assigned_to_id = u.id
+      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
+      LEFT JOIN maintenance_requests mr ON mr.asset_id = a.id
       WHERE a.tenant_id = $1
     `
 
@@ -76,7 +97,7 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 
     if (type) {
       paramCount++
-      query += ` AND a.asset_type = $${paramCount}`
+      query += ` AND a.type = $${paramCount}`
       params.push(type)
     }
 
@@ -88,38 +109,93 @@ router.get('/', requirePermission('vehicle:view:fleet'), async (req: AuthRequest
 
     if (location) {
       paramCount++
-      query += ` AND a.location = $${paramCount}`
-      params.push(location)
+      query += ` AND (f.name ILIKE $${paramCount} OR f.city ILIKE $${paramCount})`
+      params.push(`%${location}%`)
     }
 
     if (assigned_to) {
       paramCount++
-      query += ` AND a.assigned_to = $${paramCount}`
+      query += ` AND a.assigned_to_id = $${paramCount}`
       params.push(assigned_to)
     }
 
     if (search) {
       paramCount++
       query += ` AND (
-        a.asset_name ILIKE $${paramCount} OR
-        a.asset_tag ILIKE $${paramCount} OR
+        a.name ILIKE $${paramCount} OR
+        a.asset_number ILIKE $${paramCount} OR
         a.serial_number ILIKE $${paramCount} OR
         a.description ILIKE $${paramCount}
       )`
       params.push(`%${search}%`)
     }
 
-    query += ` GROUP BY a.id, u.first_name, u.last_name ORDER BY a.created_at DESC`
+    query += ` GROUP BY a.id, u.first_name, u.last_name, f.name ORDER BY a.created_at DESC`
 
     const result = await pool.query(query, params)
 
     res.json({
-      assets: result.rows,
+      data: result.rows,
       total: result.rows.length
     })
   } catch (error) {
     logger.error(`Error fetching assets:`, error) // Wave 28: Winston logger
     res.status(500).json({ error: 'Failed to fetch assets' })
+  }
+})
+
+/**
+ * @openapi
+ * /api/assets/analytics:
+ *   get:
+ *     summary: Get asset analytics with latest utilization metrics
+ *     tags: [Assets]
+ */
+router.get('/analytics', requirePermission('vehicle:view:fleet'), async (req: AuthRequest, res) => {
+  try {
+    const tenantId = req.user?.tenant_id
+
+    const result = await pool.query(
+      `SELECT
+        a.id,
+        a.asset_number as asset_tag,
+        a.name as asset_name,
+        a.type as asset_type,
+        a.status,
+        a.condition,
+        a.purchase_date,
+        a.purchase_price,
+        a.current_value,
+        a.assigned_facility_id,
+        f.name as facility_name,
+        f.latitude as facility_latitude,
+        f.longitude as facility_longitude,
+        aa.utilization_percentage,
+        aa.maintenance_cost,
+        aa.total_cost,
+        aa.period_start,
+        aa.period_end
+      FROM assets a
+      LEFT JOIN LATERAL (
+        SELECT utilization_percentage, maintenance_cost, total_cost, period_start, period_end
+        FROM asset_analytics
+        WHERE asset_id = a.id AND tenant_id = $1
+        ORDER BY period_end DESC
+        LIMIT 1
+      ) aa ON true
+      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
+      WHERE a.tenant_id = $1
+      ORDER BY a.created_at DESC`,
+      [tenantId]
+    )
+
+    res.json({
+      data: result.rows,
+      total: result.rows.length
+    })
+  } catch (error) {
+    logger.error(`Error fetching asset analytics:`, error)
+    res.status(500).json({ error: 'Failed to fetch asset analytics' })
   }
 })
 
@@ -137,11 +213,34 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
 
     const result = await pool.query(
       `SELECT
-        a.*,
+        a.id,
+        a.asset_number as asset_tag,
+        a.name as asset_name,
+        a.description,
+        a.type as asset_type,
+        a.category,
+        a.manufacturer,
+        a.model,
+        a.serial_number,
+        a.purchase_date,
+        a.purchase_price,
+        a.current_value,
+        a.status,
+        a.condition,
+        a.assigned_to_id as assigned_to,
         u.first_name || ' ' || u.last_name as assigned_to_name,
-        u.email as assigned_to_email
+        u.email as assigned_to_email,
+        a.assigned_facility_id as assigned_facility_id,
+        f.name as location,
+        a.warranty_expiry_date as warranty_expiration,
+        a.last_maintenance_date as last_maintenance,
+        a.next_maintenance_date as next_maintenance,
+        a.metadata,
+        a.created_at,
+        a.updated_at
       FROM assets a
-      LEFT JOIN users u ON a.assigned_to = u.id
+      LEFT JOIN users u ON a.assigned_to_id = u.id
+      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
       WHERE a.id = $1 AND a.tenant_id = $2`,
       [id, tenantId]
     )
@@ -150,31 +249,20 @@ router.get('/:id', requirePermission('vehicle:view:fleet'), async (req: AuthRequ
       throw new NotFoundError("Asset not found")
     }
 
-    // Get asset history
-    const history = await pool.query(
-      `SELECT
-        ah.*,
-        u.first_name || ' ' || u.last_name as performed_by_name
-      FROM asset_history ah
-      LEFT JOIN users u ON ah.performed_by = u.id
-      WHERE ah.asset_id = $1
-      ORDER BY ah.timestamp DESC
-      LIMIT 50`,
-      [id]
-    )
-
-    // Get maintenance records
+    // Get maintenance requests linked to this asset
     const maintenance = await pool.query(
-      `SELECT id, tenant_id, vehicle_id, service_type, description, scheduled_date, status FROM maintenance_schedules
+      `SELECT id, request_number, request_type, priority, status, title, description,
+              requested_date, scheduled_date, completed_date, total_cost
+       FROM maintenance_requests
        WHERE asset_id = $1
-       ORDER BY scheduled_date DESC
+       ORDER BY requested_date DESC
        LIMIT 20`,
       [id]
     )
 
     res.json({
-      asset: result.rows[0],
-      history: history.rows,
+      data: result.rows[0],
+      history: maintenance.rows,
       maintenance: maintenance.rows
     })
   } catch (error) {
@@ -200,57 +288,116 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
       asset_name,
       asset_type,
       asset_tag,
+      asset_number,
+      name,
+      type,
+      category,
       serial_number,
       manufacturer,
       model,
       purchase_date,
       purchase_price,
       current_value,
-      depreciation_rate,
-      warranty_expiry,
-      location,
+      warranty_expiration,
+      warranty_expiry_date,
       assigned_to,
+      assigned_to_id,
+      assigned_facility_id,
+      condition,
       status,
       description,
-      specifications,
-      photo_url
+      notes,
+      metadata,
+      location
     } = req.body
 
     const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
 
-    // Generate QR code data
-    const qrData = `ASSET:${asset_tag || Date.now()}`
+    const resolvedAssetNumber = asset_tag || asset_number || `AST-${Date.now()}`
+    const resolvedName = name || asset_name || resolvedAssetNumber
+    const resolvedType = type || asset_type || 'equipment'
+    const resolvedStatus = status || 'active'
+    const resolvedAssignedTo = assigned_to_id || assigned_to || null
+
+    let resolvedFacilityId = assigned_facility_id || null
+    if (!resolvedFacilityId && location) {
+      const facilityResult = await client.query(
+        `SELECT id FROM facilities WHERE tenant_id = $1 AND name ILIKE $2 LIMIT 1`,
+        [tenantId, `%${location}%`]
+      )
+      if (facilityResult.rows.length > 0) {
+        resolvedFacilityId = facilityResult.rows[0].id
+      }
+    }
 
     const result = await client.query(
       `INSERT INTO assets (
-        tenant_id, asset_name, asset_type, asset_tag, serial_number,
+        tenant_id, asset_number, name, description, type, category, serial_number,
         manufacturer, model, purchase_date, purchase_price, current_value,
-        depreciation_rate, warranty_expiry, location, assigned_to, status,
-        description, specifications, photo_url, qr_code_data, created_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)
-      RETURNING *`,
+        warranty_expiry_date, assigned_to_id, assigned_facility_id,
+        condition, status, notes, metadata
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19)
+      RETURNING id`,
       [
-        tenantId, asset_name, asset_type, asset_tag, serial_number,
-        manufacturer, model, purchase_date, purchase_price, current_value,
-        depreciation_rate, warranty_expiry, location, assigned_to, status || `active`,
-        description, specifications ? JSON.stringify(specifications) : null,
-        photo_url, qrData, userId
+        tenantId,
+        resolvedAssetNumber,
+        resolvedName,
+        description || null,
+        resolvedType,
+        category || null,
+        serial_number || null,
+        manufacturer || null,
+        model || null,
+        purchase_date || null,
+        purchase_price || null,
+        current_value || null,
+        warranty_expiry_date || warranty_expiration || null,
+        resolvedAssignedTo,
+        resolvedFacilityId,
+        condition || null,
+        resolvedStatus,
+        notes || null,
+        metadata || {}
       ]
     )
 
-    // Log asset creation
-    await client.query(
-      `INSERT INTO asset_history (
-        asset_id, action, performed_by, notes
-      ) VALUES ($1, $2, $3, $4)`,
-      [result.rows[0].id, 'created', userId, `Asset created`]
+    const assetResult = await client.query(
+      `SELECT
+        a.id,
+        a.asset_number as asset_tag,
+        a.name as asset_name,
+        a.description,
+        a.type as asset_type,
+        a.category,
+        a.manufacturer,
+        a.model,
+        a.serial_number,
+        a.purchase_date,
+        a.purchase_price,
+        a.current_value,
+        a.status,
+        a.condition,
+        a.assigned_to_id as assigned_to,
+        u.first_name || ' ' || u.last_name as assigned_to_name,
+        a.assigned_facility_id as assigned_facility_id,
+        f.name as location,
+        a.warranty_expiry_date as warranty_expiration,
+        a.last_maintenance_date as last_maintenance,
+        a.next_maintenance_date as next_maintenance,
+        a.metadata,
+        a.created_at,
+        a.updated_at
+      FROM assets a
+      LEFT JOIN users u ON a.assigned_to_id = u.id
+      LEFT JOIN facilities f ON a.assigned_facility_id = f.id
+      WHERE a.id = $1`,
+      [result.rows[0].id]
     )
 
     await client.query('COMMIT')
 
     res.status(201).json({
-      asset: result.rows[0],
+      data: assetResult.rows[0],
       message: 'Asset created successfully'
     })
   } catch (error) {
@@ -276,22 +423,69 @@ router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), asy
     await client.query('BEGIN')
 
     const { id } = req.params
-    const updates = req.body
+    const updates = req.body || {}
     const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
 
-    // Build dynamic update query
+    const fieldMap: Record<string, string> = {
+      asset_name: 'name',
+      asset_type: 'type',
+      asset_tag: 'asset_number',
+      asset_number: 'asset_number',
+      category: 'category',
+      description: 'description',
+      manufacturer: 'manufacturer',
+      model: 'model',
+      serial_number: 'serial_number',
+      purchase_date: 'purchase_date',
+      purchase_price: 'purchase_price',
+      current_value: 'current_value',
+      status: 'status',
+      condition: 'condition',
+      notes: 'notes',
+      metadata: 'metadata',
+      assigned_to: 'assigned_to_id',
+      assigned_to_id: 'assigned_to_id',
+      assigned_facility_id: 'assigned_facility_id',
+      warranty_expiration: 'warranty_expiry_date',
+      warranty_expiry_date: 'warranty_expiry_date',
+      last_maintenance: 'last_maintenance_date',
+      next_maintenance: 'next_maintenance_date'
+    }
+
+    // Build dynamic update query with mapping
     const setClauses: string[] = []
     const values: any[] = []
     let paramCount = 1
 
     Object.keys(updates).forEach(key => {
-      if (updates[key] !== undefined && key !== 'id' && key !== `tenant_id`) {
-        setClauses.push(`${key} = $${paramCount}`)
+      if (updates[key] === undefined || key === 'id' || key === 'tenant_id') {
+        return
+      }
+
+      if (key === 'location' && updates.location) {
+        // Resolve facility by name if possible
+        return
+      }
+
+      const mapped = fieldMap[key]
+      if (mapped) {
+        setClauses.push(`${mapped} = $${paramCount}`)
         values.push(updates[key])
         paramCount++
       }
     })
+
+    if (updates.location) {
+      const facilityResult = await client.query(
+        `SELECT id FROM facilities WHERE tenant_id = $1 AND name ILIKE $2 LIMIT 1`,
+        [tenantId, `%${updates.location}%`]
+      )
+      if (facilityResult.rows.length > 0) {
+        setClauses.push(`assigned_facility_id = $${paramCount}`)
+        values.push(facilityResult.rows[0].id)
+        paramCount++
+      }
+    }
 
     if (setClauses.length === 0) {
       return res.status(400).json({ error: `No fields to update` })
@@ -313,19 +507,10 @@ router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), asy
       return res.status(404).json({ error: `Asset not found` })
     }
 
-    // Log the update
-    const changedFields = Object.keys(updates).join(`, `)
-    await client.query(
-      `INSERT INTO asset_history (
-        asset_id, action, performed_by, notes
-      ) VALUES ($1, $2, $3, $4)`,
-      [id, 'updated', userId, `Updated fields: ${changedFields}`]
-    )
-
     await client.query(`COMMIT`)
 
     res.json({
-      asset: result.rows[0],
+      data: result.rows[0],
       message: `Asset updated successfully`
     })
   } catch (error) {
@@ -351,16 +536,16 @@ router.post('/:id/assign',csrfProtection, requirePermission('vehicle:update:flee
     await client.query('BEGIN')
 
     const { id } = req.params
-    const { assigned_to, notes } = req.body
+    const { assigned_to, assigned_to_id } = req.body
     const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
+    const resolvedAssignee = assigned_to_id || assigned_to
 
     const result = await client.query(
       `UPDATE assets
-       SET assigned_to = $1, updated_at = NOW()
+       SET assigned_to_id = $1, updated_at = NOW()
        WHERE id = $2 AND tenant_id = $3
        RETURNING *`,
-      [assigned_to, id, tenantId]
+      [resolvedAssignee, id, tenantId]
     )
 
     if (result.rows.length === 0) {
@@ -368,18 +553,10 @@ router.post('/:id/assign',csrfProtection, requirePermission('vehicle:update:flee
       return res.status(404).json({ error: `Asset not found` })
     }
 
-    // Log assignment
-    await client.query(
-      `INSERT INTO asset_history (
-        asset_id, action, performed_by, assigned_to, notes
-      ) VALUES ($1, $2, $3, $4, $5)`,
-      [id, 'assigned', userId, assigned_to, notes || `Asset assigned`]
-    )
-
     await client.query('COMMIT')
 
     res.json({
-      asset: result.rows[0],
+      data: result.rows[0],
       message: 'Asset assigned successfully'
     })
   } catch (error) {
@@ -405,16 +582,26 @@ router.post('/:id/transfer',csrfProtection, requirePermission('vehicle:update:fl
     await client.query('BEGIN')
 
     const { id } = req.params
-    const { new_location, transfer_reason, notes } = req.body
+    const { new_location, new_facility_id } = req.body
     const tenantId = req.user?.tenant_id
-    const userId = req.user?.id
+    let resolvedFacilityId = new_facility_id || null
+
+    if (!resolvedFacilityId && new_location) {
+      const facilityResult = await client.query(
+        `SELECT id FROM facilities WHERE tenant_id = $1 AND name ILIKE $2 LIMIT 1`,
+        [tenantId, `%${new_location}%`]
+      )
+      if (facilityResult.rows.length > 0) {
+        resolvedFacilityId = facilityResult.rows[0].id
+      }
+    }
 
     const result = await client.query(
       `UPDATE assets
-       SET location = $1, updated_at = NOW()
+       SET assigned_facility_id = $1, updated_at = NOW()
        WHERE id = $2 AND tenant_id = $3
        RETURNING *`,
-      [new_location, id, tenantId]
+      [resolvedFacilityId, id, tenantId]
     )
 
     if (result.rows.length === 0) {
@@ -422,18 +609,10 @@ router.post('/:id/transfer',csrfProtection, requirePermission('vehicle:update:fl
       return res.status(404).json({ error: `Asset not found` })
     }
 
-    // Log transfer
-    await client.query(
-      `INSERT INTO asset_history (
-        asset_id, action, performed_by, location, notes
-      ) VALUES ($1, $2, $3, $4, $5)`,
-      [id, 'transferred', userId, new_location, `${transfer_reason}: ${notes || ``}`]
-    )
-
     await client.query(`COMMIT`)
 
     res.json({
-      asset: result.rows[0],
+      data: result.rows[0],
       message: `Asset transferred successfully`
     })
   } catch (error) {
@@ -459,32 +638,13 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
 
     const result = await pool.query(
       `SELECT 
-      id,
-      tenant_id,
-      asset_tag,
-      asset_name,
-      asset_type,
-      category,
-      description,
-      manufacturer,
-      model,
-      serial_number,
-      purchase_date,
-      purchase_price,
-      current_value,
-      depreciation_rate,
-      condition,
-      status,
-      location,
-      assigned_to,
-      warranty_expiration,
-      last_maintenance,
-      qr_code,
-      metadata,
-      created_at,
-      updated_at,
-      created_by,
-      updated_by FROM assets WHERE id = $1 AND tenant_id = $2`,
+        id,
+        purchase_date,
+        purchase_price,
+        current_value,
+        metadata
+       FROM assets
+       WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
 
@@ -494,8 +654,9 @@ router.get('/:id/depreciation', requirePermission('vehicle:view:fleet'), async (
 
     const asset = result.rows[0]
     const purchasePrice = parseFloat(asset.purchase_price) || 0
-    const depreciationRate = parseFloat(asset.depreciation_rate) || 0
-    const purchaseDate = new Date(asset.purchase_date)
+    const metaRate = asset.metadata?.depreciation_rate
+    const depreciationRate = metaRate ? parseFloat(metaRate) : 10
+    const purchaseDate = asset.purchase_date ? new Date(asset.purchase_date) : new Date()
     const currentDate = new Date()
 
     // Calculate years since purchase
@@ -554,10 +715,10 @@ router.get('/analytics/summary', requirePermission('report:view:global'), async 
         [tenantId]
       ),
       pool.query(
-        `SELECT asset_type, COUNT(*) as count
+        `SELECT type as asset_type, COUNT(*) as count
          FROM assets
          WHERE tenant_id = $1
-         GROUP BY asset_type`,
+         GROUP BY type`,
         [tenantId]
       ),
       pool.query(

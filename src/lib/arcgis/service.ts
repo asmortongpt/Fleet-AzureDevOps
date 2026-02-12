@@ -34,39 +34,37 @@ async function fetchWithTimeout(url: string, options: RequestInit = {}, timeoutM
 }
 
 // GeoJSON type definitions
-declare namespace GeoJSON {
-  interface Feature {
-    type: 'Feature'
-    geometry: Geometry
-    properties: Record<string, any>
-  }
+export interface GeoJSONFeature {
+  type: 'Feature'
+  geometry: GeoJSONGeometry
+  properties: Record<string, any>
+}
 
-  type Geometry = Point | LineString | MultiLineString | Polygon | MultiPolygon
+export type GeoJSONGeometry = GeoJSONPoint | GeoJSONLineString | GeoJSONMultiLineString | GeoJSONPolygon | GeoJSONMultiPolygon
 
-  interface Point {
-    type: 'Point'
-    coordinates: [number, number]
-  }
+export interface GeoJSONPoint {
+  type: 'Point'
+  coordinates: [number, number]
+}
 
-  interface LineString {
-    type: 'LineString'
-    coordinates: [number, number][]
-  }
+export interface GeoJSONLineString {
+  type: 'LineString'
+  coordinates: [number, number][]
+}
 
-  interface MultiLineString {
-    type: 'MultiLineString'
-    coordinates: [number, number][][]
-  }
+export interface GeoJSONMultiLineString {
+  type: 'MultiLineString'
+  coordinates: [number, number][][]
+}
 
-  interface Polygon {
-    type: 'Polygon'
-    coordinates: [number, number][][]
-  }
+export interface GeoJSONPolygon {
+  type: 'Polygon'
+  coordinates: [number, number][][]
+}
 
-  interface MultiPolygon {
-    type: 'MultiPolygon'
-    coordinates: [number, number][][][]
-  }
+export interface GeoJSONMultiPolygon {
+  type: 'MultiPolygon'
+  coordinates: [number, number][][][]
 }
 
 export class ArcGISService {
@@ -303,7 +301,7 @@ export class ArcGISService {
   /**
    * Parse ArcGIS feature to GeoJSON
    */
-  featureToGeoJSON(feature: any): GeoJSON.Feature {
+  featureToGeoJSON(feature: any): GeoJSONFeature {
     return {
       type: 'Feature',
       geometry: this.geometryToGeoJSON(feature.geometry),
@@ -314,7 +312,7 @@ export class ArcGISService {
   /**
    * Convert ArcGIS geometry to GeoJSON geometry
    */
-  private geometryToGeoJSON(geometry: any): GeoJSON.Geometry {
+  private geometryToGeoJSON(geometry: any): GeoJSONGeometry {
     if (!geometry) {
       return { type: 'Point', coordinates: [0, 0] }
     }

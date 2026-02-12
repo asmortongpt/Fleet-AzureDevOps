@@ -1,16 +1,17 @@
 import express, { Response } from 'express'
 
-import pool from '../config/database'
 import logger from '../config/logger'
 import { NotFoundError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 // Response transformer to convert DB fields to API contract
 const transformRouteResponse = (dbRow: any) => ({
@@ -88,7 +89,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(pageSize)
 
       // Row-level filtering: check if user is a driver
-      const userResult = await pool.query(
+      const userResult = await req.dbClient!.query(
         `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`,
         [req.user!.id, req.user!.tenant_id]
       )
@@ -96,24 +97,24 @@ router.get(
       let query = `SELECT
       id,
       tenant_id,
-      route_name,
-      vehicle_id,
-      driver_id,
+      name,
+      assigned_vehicle_id as vehicle_id,
+      assigned_driver_id as driver_id,
       status,
-      route_type,
-      start_location,
-      end_location,
-      planned_start_time,
-      planned_end_time,
+      type as route_type,
+      start_facility_id as start_location,
+      end_facility_id as end_location,
+      scheduled_start_time as planned_start_time,
+      scheduled_end_time as planned_end_time,
       actual_start_time,
       actual_end_time,
-      total_distance,
+      actual_distance as total_distance,
       estimated_duration,
       actual_duration,
       waypoints,
-      optimized_waypoints,
-      route_geometry,
-      notes,
+      optimized_route as optimized_waypoints,
+      metadata as route_geometry,
+      description as notes,
       created_at,
       updated_at FROM routes WHERE tenant_id = $1`
       let countQuery = `SELECT COUNT(*) FROM routes WHERE tenant_id = $1`
@@ -122,8 +123,8 @@ router.get(
 
       // Apply filters
       if (type) {
-        query += ` AND route_type = $${paramIndex}`
-        countQuery += ` AND route_type = $${paramIndex}`
+        query += ` AND type = $${paramIndex}`
+        countQuery += ` AND type = $${paramIndex}`
         params.push(type)
         paramIndex++
       }
@@ -136,22 +137,22 @@ router.get(
       }
 
       if (driverId) {
-        query += ` AND driver_id = $${paramIndex}`
-        countQuery += ` AND driver_id = $${paramIndex}`
+        query += ` AND assigned_driver_id = $${paramIndex}`
+        countQuery += ` AND assigned_driver_id = $${paramIndex}`
         params.push(driverId)
         paramIndex++
       }
 
       if (vehicleId) {
-        query += ` AND vehicle_id = $${paramIndex}`
-        countQuery += ` AND vehicle_id = $${paramIndex}`
+        query += ` AND assigned_vehicle_id = $${paramIndex}`
+        countQuery += ` AND assigned_vehicle_id = $${paramIndex}`
         params.push(vehicleId)
         paramIndex++
       }
 
       if (date) {
-        query += ` AND DATE(planned_start_time) = DATE($${paramIndex})`
-        countQuery += ` AND DATE(planned_start_time) = DATE($${paramIndex})`
+        query += ` AND DATE(scheduled_start_time) = DATE($${paramIndex})`
+        countQuery += ` AND DATE(scheduled_start_time) = DATE($${paramIndex})`
         params.push(date)
         paramIndex++
       }
@@ -159,8 +160,8 @@ router.get(
       // If user is a driver, filter to only their routes
       if (userResult.rows.length > 0) {
         const driverId = userResult.rows[0].id
-        query += ` AND driver_id = $${paramIndex}`
-        countQuery += ` AND driver_id = $${paramIndex}`
+        query += ` AND assigned_driver_id = $${paramIndex}`
+        countQuery += ` AND assigned_driver_id = $${paramIndex}`
         params.push(driverId)
         paramIndex++
       }
@@ -168,8 +169,8 @@ router.get(
       query += ` ORDER BY created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(pageSize, offset)
 
-      const result = await pool.query(query, params)
-      const countResult = await pool.query(countQuery, params.slice(0, -2))
+      const result = await req.dbClient!.query(query, params)
+      const countResult = await req.dbClient!.query(countQuery, params.slice(0, -2))
 
       res.json({
         data: result.rows.map(transformRouteResponse),
@@ -195,7 +196,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       // Row-level filtering: check if user is a driver
-      const userResult = await pool.query(
+      const userResult = await req.dbClient!.query(
         `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`,
         [req.user!.id, req.user!.tenant_id]
       )
@@ -204,29 +205,29 @@ router.get(
         SELECT
           r.id,
           r.tenant_id,
-          r.route_name,
-          r.vehicle_id,
-          r.driver_id,
+          r.name as route_name,
+          r.assigned_vehicle_id as vehicle_id,
+          r.assigned_driver_id as driver_id,
           r.status,
-          r.route_type,
-          r.start_location,
-          r.end_location,
-          r.planned_start_time,
-          r.planned_end_time,
+          r.type as route_type,
+          r.start_facility_id as start_location,
+          r.end_facility_id as end_location,
+          r.scheduled_start_time as planned_start_time,
+          r.scheduled_end_time as planned_end_time,
           r.actual_start_time,
-          r.total_distance,
+          r.actual_distance as total_distance,
           r.estimated_duration,
           r.waypoints,
-          r.optimized_waypoints,
-          r.notes,
+          r.optimized_route as optimized_waypoints,
+          r.description as notes,
           r.created_at,
           r.updated_at,
           v.name as vehicle_name,
           v.license_plate,
           CONCAT(d.first_name, ' ', d.last_name) as driver_name
         FROM routes r
-        LEFT JOIN vehicles v ON r.vehicle_id = v.id
-        LEFT JOIN drivers d ON r.driver_id = d.id
+        LEFT JOIN vehicles v ON r.assigned_vehicle_id = v.id
+        LEFT JOIN drivers d ON r.assigned_driver_id = d.id
         WHERE r.tenant_id = $1
           AND r.status IN ('in_progress', 'active', 'planned')
       `
@@ -236,13 +237,13 @@ router.get(
       // If user is a driver, filter to only their routes
       if (userResult.rows.length > 0) {
         const driverId = userResult.rows[0].id
-        query += ` AND r.driver_id = $2`
+        query += ` AND r.assigned_driver_id = $2`
         params.push(driverId)
       }
 
-      query += ` ORDER BY r.planned_start_time ASC`
+      query += ` ORDER BY r.scheduled_start_time ASC`
 
-      const result = await pool.query(query, params)
+      const result = await req.dbClient!.query(query, params)
 
       res.json({
         data: result.rows.map(transformRouteResponse),
@@ -258,6 +259,7 @@ router.get(
 // POST /routes/optimize - Optimize route planning (MUST be before /:id)
 router.post(
   '/optimize',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'routes' }),
@@ -281,12 +283,12 @@ router.post(
       }
 
       const estimatedDuration = optimizedStops.length * 30
-      const trafficDelayMinutes = considerTraffic ? Math.floor(Math.random() * 20) : 0
+      const trafficDelayMinutes = considerTraffic ? Math.min(20, Math.round(estimatedDuration * 0.1)) : 0
 
       res.json({
         data: {
           stops: optimizedStops,
-          optimizationScore: 85 + Math.floor(Math.random() * 15),
+          optimizationScore: calculateOptimizationScore({ waypoints: optimizedStops }),
           estimatedDuration: estimatedDuration + trafficDelayMinutes,
           trafficDelayMinutes: considerTraffic ? trafficDelayMinutes : undefined
         }
@@ -305,7 +307,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const result = await req.dbClient!.query(
         `SELECT
           COUNT(*) as total_routes,
           COUNT(CASE WHEN status = 'completed' THEN 1 END) as completed_routes,
@@ -340,7 +342,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const result = await req.dbClient!.query(
         `SELECT
           COUNT(CASE WHEN status = 'completed' AND actual_end_time <= planned_end_time THEN 1 END) as on_time,
           COUNT(CASE WHEN status = 'completed' AND actual_end_time > planned_end_time THEN 1 END) as late,
@@ -377,27 +379,92 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
-        `SELECT
-          AVG(ARRAY_LENGTH(CAST(waypoints::text AS json)::json, 1)) as avg_stops,
-          AVG(total_distance) as avg_miles,
-          AVG(actual_duration / NULLIF(ARRAY_LENGTH(CAST(waypoints::text AS json)::json, 1), 0)) as avg_time_per_stop
-        FROM routes WHERE tenant_id = $1 AND status = 'completed'`,
-        [req.user!.tenant_id]
+      const client = req.dbClient!
+      const tenantId = req.user!.tenant_id
+
+      const result = await client.query(
+        `
+        WITH scoped AS (
+          SELECT
+            COALESCE(jsonb_array_length(COALESCE(waypoints, '[]'::jsonb)), 0) AS stops,
+            COALESCE(actual_distance, estimated_distance, 0) AS miles,
+            actual_duration AS duration,
+            status
+          FROM routes
+          WHERE tenant_id = $1
+            AND created_at >= NOW() - INTERVAL '30 days'
+        )
+        SELECT
+          AVG(stops)::numeric AS avg_stops,
+          AVG(miles)::numeric AS avg_miles,
+          AVG(duration::numeric / NULLIF(stops, 0)) AS avg_time_per_stop,
+          (COUNT(*) FILTER (WHERE status = 'completed')::numeric / NULLIF(COUNT(*)::numeric, 0)) * 100 AS utilization_rate
+        FROM scoped
+        `,
+        [tenantId]
       )
 
-      const row = result.rows[0]
+      const row = result.rows[0] || {}
 
       res.json({
         data: {
-          averageStopsPerRoute: parseFloat(row.avg_stops) || 0,
-          averageMilesPerRoute: parseFloat(row.avg_miles) || 0,
-          averageTimePerStop: parseFloat(row.avg_time_per_stop) || 0,
-          utilizationRate: 85 // Placeholder
+          averageStopsPerRoute: Number(row.avg_stops) || 0,
+          averageMilesPerRoute: Number(row.avg_miles) || 0,
+          averageTimePerStop: Number(row.avg_time_per_stop) || 0,
+          utilizationRate: Number(row.utilization_rate) || 0
         }
       })
     } catch (error) {
       logger.error('Efficiency analytics error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
+// GET /routes/efficiency (legacy alias; MUST be before /:id)
+router.get(
+  '/efficiency',
+  requirePermission('route:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'routes' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const client = req.dbClient!
+      const tenantId = req.user!.tenant_id
+
+      const result = await client.query(
+        `
+        WITH scoped AS (
+          SELECT
+            COALESCE(jsonb_array_length(COALESCE(waypoints, '[]'::jsonb)), 0) AS stops,
+            COALESCE(actual_distance, estimated_distance, 0) AS miles,
+            actual_duration AS duration,
+            status
+          FROM routes
+          WHERE tenant_id = $1
+            AND created_at >= NOW() - INTERVAL '30 days'
+        )
+        SELECT
+          AVG(stops)::numeric AS avg_stops,
+          AVG(miles)::numeric AS avg_miles,
+          AVG(duration::numeric / NULLIF(stops, 0)) AS avg_time_per_stop,
+          (COUNT(*) FILTER (WHERE status = 'completed')::numeric / NULLIF(COUNT(*)::numeric, 0)) * 100 AS utilization_rate
+        FROM scoped
+        `,
+        [tenantId]
+      )
+
+      const row = result.rows[0] || {}
+
+      res.json({
+        data: {
+          averageStopsPerRoute: Number(row.avg_stops) || 0,
+          averageMilesPerRoute: Number(row.avg_miles) || 0,
+          averageTimePerStop: Number(row.avg_time_per_stop) || 0,
+          utilizationRate: Number(row.utilization_rate) || 0
+        }
+      })
+    } catch (error) {
+      logger.error('Efficiency analytics error (alias):', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -409,7 +476,7 @@ router.get(
   requirePermission('route:view:own', {
     customCheck: async (req: AuthRequest) => {
       // IDOR check: verify the route belongs to the user if they're a driver
-      const driverResult = await pool.query(
+      const driverResult = await req.dbClient!.query(
         `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`,
         [req.user!.id, req.user!.tenant_id]
       )
@@ -420,8 +487,8 @@ router.get(
       }
 
       // If user is a driver, verify the route belongs to them
-      const routeResult = await pool.query(
-        `SELECT id FROM routes WHERE id = $1 AND driver_id = $2 AND tenant_id = $3`,
+      const routeResult = await req.dbClient!.query(
+        `SELECT id FROM routes WHERE id = $1 AND assigned_driver_id = $2 AND tenant_id = $3`,
         [req.params.id, driverResult.rows[0].id, req.user!.tenant_id]
       )
 
@@ -431,28 +498,28 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await pool.query(
+      const result = await req.dbClient!.query(
         `SELECT
       id,
       tenant_id,
-      route_name,
-      vehicle_id,
-      driver_id,
+      name,
+      assigned_vehicle_id as vehicle_id,
+      assigned_driver_id as driver_id,
       status,
-      route_type,
-      start_location,
-      end_location,
-      planned_start_time,
-      planned_end_time,
+      type as route_type,
+      start_facility_id as start_location,
+      end_facility_id as end_location,
+      scheduled_start_time as planned_start_time,
+      scheduled_end_time as planned_end_time,
       actual_start_time,
       actual_end_time,
-      total_distance,
+      actual_distance as total_distance,
       estimated_duration,
       actual_duration,
       waypoints,
-      optimized_waypoints,
-      route_geometry,
-      notes,
+      optimized_route as optimized_waypoints,
+      metadata as route_geometry,
+      description as notes,
       created_at,
       updated_at FROM routes WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
@@ -473,6 +540,7 @@ router.get(
 // POST /routes
 router.post(
   '/',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:create:fleet'),
   auditLog({ action: 'CREATE', resourceType: 'routes' }),
@@ -486,7 +554,7 @@ router.post(
       }
 
       // Validate vehicle exists
-      const vehicleCheck = await pool.query(
+      const vehicleCheck = await req.dbClient!.query(
         'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
         [vehicleId, req.user!.tenant_id]
       )
@@ -495,7 +563,7 @@ router.post(
       }
 
       // Validate driver exists
-      const driverCheck = await pool.query(
+      const driverCheck = await req.dbClient!.query(
         'SELECT id FROM drivers WHERE id = $1 AND tenant_id = $2',
         [driverId, req.user!.tenant_id]
       )
@@ -522,13 +590,14 @@ router.post(
 
       const insertData = {
         tenant_id: req.user!.tenant_id,
-        vehicle_id: vehicleId,
-        driver_id: driverId,
+        name: `Route ${new Date().toISOString()}`,
+        assigned_vehicle_id: vehicleId,
+        assigned_driver_id: driverId,
         status: status || 'planned',
         waypoints: JSON.stringify(waypoints),
-        optimized_waypoints: optimize ? JSON.stringify(waypoints) : null,
+        optimized_route: optimize ? JSON.stringify(waypoints) : null,
         estimated_duration: estimatedDuration,
-        planned_start_time: startTime || new Date().toISOString()
+        scheduled_start_time: startTime || new Date().toISOString()
       }
 
       const { columnNames, placeholders, values } = buildInsertClause(
@@ -537,7 +606,7 @@ router.post(
         1
       )
 
-      const result = await pool.query(
+      const result = await req.dbClient!.query(
         `INSERT INTO routes (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         values
       )
@@ -562,11 +631,12 @@ const ALLOWED_UPDATE_FIELDS = [
 
 router.put(
   '/:id',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:update:fleet', {
     customCheck: async (req: AuthRequest) => {
       // Prevent modifying completed routes
-      const routeResult = await pool.query(
+      const routeResult = await req.dbClient!.query(
         `SELECT status FROM routes WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -590,12 +660,12 @@ router.put(
       const data = req.body
 
       // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
-      const { vehicle_id, driver_id } = data
+      const { assigned_vehicle_id, assigned_driver_id } = data
 
-      if (vehicle_id) {
-        const vehicleCheck = await pool.query(
+      if (assigned_vehicle_id) {
+        const vehicleCheck = await req.dbClient!.query(
           'SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2',
-          [vehicle_id, req.user!.tenant_id]
+          [assigned_vehicle_id, req.user!.tenant_id]
         )
         if (vehicleCheck.rows.length === 0) {
           return res.status(403).json({
@@ -605,10 +675,10 @@ router.put(
         }
       }
 
-      if (driver_id) {
-        const driverCheck = await pool.query(
+      if (assigned_driver_id) {
+        const driverCheck = await req.dbClient!.query(
           'SELECT id FROM drivers WHERE id = $1 AND tenant_id = $2',
-          [driver_id, req.user!.tenant_id]
+          [assigned_driver_id, req.user!.tenant_id]
         )
         if (driverCheck.rows.length === 0) {
           return res.status(403).json({
@@ -620,7 +690,7 @@ router.put(
 
       const { fields, values } = buildUpdateClause(data, 3)
 
-      const result = await pool.query(
+      const result = await req.dbClient!.query(
         `UPDATE routes SET ${fields}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`,
         [req.params.id, req.user!.tenant_id, ...values]
       )
@@ -640,6 +710,7 @@ router.put(
 // PUT /routes/:id/stops - Add stops to route
 router.put(
   '/:id/stops',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'routes' }),
@@ -652,7 +723,7 @@ router.put(
       }
 
       // Get current route
-      const routeResult = await pool.query(
+      const routeResult = await req.dbClient!.query(
         `SELECT waypoints FROM routes WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -671,7 +742,7 @@ router.put(
 
       const updatedWaypoints = [...currentWaypoints, ...newStops]
 
-      const result = await pool.query(
+      const result = await req.dbClient!.query(
         `UPDATE routes SET waypoints = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3 RETURNING *`,
         [JSON.stringify(updatedWaypoints), req.params.id, req.user!.tenant_id]
       )
@@ -687,13 +758,14 @@ router.put(
 // PUT /routes/:id/optimize - Reoptimize route
 router.put(
   '/:id/optimize',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
       // Get current route
-      const routeResult = await pool.query(
+      const routeResult = await req.dbClient!.query(
         `SELECT waypoints FROM routes WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -707,8 +779,8 @@ router.put(
       // Simple optimization: sort by priority
       const optimizedStops = stops.sort((a: any, b: any) => a.priority - b.priority)
 
-      const result = await pool.query(
-        `UPDATE routes SET optimized_waypoints = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3 RETURNING *`,
+      const result = await req.dbClient!.query(
+        `UPDATE routes SET optimized_route = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3 RETURNING *`,
         [JSON.stringify(optimizedStops), req.params.id, req.user!.tenant_id]
       )
 
@@ -723,6 +795,7 @@ router.put(
 // PUT /routes/:id/stops/:stopNumber - Update stop status
 router.put(
   '/:id/stops/:stopNumber',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:update:fleet'),
   auditLog({ action: 'UPDATE', resourceType: 'routes' }),
@@ -732,7 +805,7 @@ router.put(
       const { status, actualArrival, actualDeparture } = req.body
 
       // Get current route
-      const routeResult = await pool.query(
+      const routeResult = await req.dbClient!.query(
         `SELECT waypoints FROM routes WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -761,7 +834,7 @@ router.put(
         stops[stopIndex + 1].status = 'in-progress'
       }
 
-      const result = await pool.query(
+      const result = await req.dbClient!.query(
         `UPDATE routes SET waypoints = $1, updated_at = NOW() WHERE id = $2 AND tenant_id = $3 RETURNING *`,
         [JSON.stringify(stops), req.params.id, req.user!.tenant_id]
       )
@@ -777,13 +850,14 @@ router.put(
 // DELETE /routes/:id
 router.delete(
   '/:id',
+  authenticateJWT,
   csrfProtection,
   requirePermission('route:delete:fleet'),
   auditLog({ action: 'DELETE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
       // Check if route is active
-      const routeCheck = await pool.query(
+      const routeCheck = await req.dbClient!.query(
         'SELECT status FROM routes WHERE id = $1 AND tenant_id = $2',
         [req.params.id, req.user!.tenant_id]
       )
@@ -796,7 +870,7 @@ router.delete(
         return res.status(400).json({ error: 'Cannot delete active routes' })
       }
 
-      const result = await pool.query(
+      const result = await req.dbClient!.query(
         'DELETE FROM routes WHERE id = $1 AND tenant_id = $2 RETURNING id',
         [req.params.id, req.user!.tenant_id]
       )

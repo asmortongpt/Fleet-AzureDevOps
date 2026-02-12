@@ -1,12 +1,13 @@
 import { AI_CONFIG } from "../config";
-import { UserContext } from "../gateway/policy";
 import { callLLM } from "../gateway/modelRouter";
+import { UserContext } from "../gateway/policy";
 import { buildChatPrompt } from "../gateway/prompts";
-import { embedText } from "./embeddings";
-import { retrieveChunks } from "./retriever";
-import { rerank } from "./reranker";
-import { buildContextBlock } from "./contextBuilder";
+
 import { buildCitations } from "./citations";
+import { buildContextBlock } from "./contextBuilder";
+import { embedText } from "./embeddings";
+import { rerank } from "./reranker";
+import { retrieveChunks } from "./retriever";
 
 export async function runRagPipeline(params: {
   user: UserContext;

@@ -83,11 +83,7 @@ This PR addresses **30 of 35 high-severity security vulnerabilities** (86% compl
 
 **Example Conflict (src/pages/AdminHub.tsx):**
 ```typescript
-<<<<<<< HEAD
-import { HubPage, HubTabItem, HubTab } from '@/components/ui/hub-page'
-=======
 import { HubPage, HubTab } from '@/components/ui/hub-page'
->>>>>>> origin/main
 ```
 
 #### Resolution Strategy

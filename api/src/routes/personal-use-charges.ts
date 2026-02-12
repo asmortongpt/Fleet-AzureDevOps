@@ -80,16 +80,18 @@ router.get(
         offset = 0
       } = req.query as any;
 
-      let query = `
-        SELECT c.*,
-               u.first_name || ' ' || u.last_name as driver_name,
-               u.email as driver_email
-        FROM personal_use_charges c
-        LEFT JOIN users u ON c.driver_id = u.id
-        WHERE c.tenant_id = $1
-      `;
-      const params: any[] = [req.user!.tenant_id];
-      let paramCount = 1;
+	      let query = `
+	        SELECT c.*,
+	               dr.first_name || ' ' || dr.last_name as driver_name,
+	               dr.email as driver_email,
+	               COALESCE(v.number, v.name) as vehicle_number
+	        FROM personal_use_data c
+	        LEFT JOIN drivers dr ON c.driver_id = dr.id
+	        LEFT JOIN vehicles v ON c.vehicle_id = v.id
+	        WHERE c.tenant_id = $1
+	      `;
+	      const params: any[] = [req.user!.tenant_id];
+	      let paramCount = 1;
 
       if (driver_id) {
         paramCount++;
@@ -97,43 +99,37 @@ router.get(
         params.push(driver_id);
       }
 
-      if (charge_period) {
-        paramCount++;
-        query += ` AND c.charge_period = $${paramCount}`;
-        params.push(charge_period);
-      }
+	      if (charge_period) {
+	        paramCount++;
+	        // Map YYYY-MM to period_start/period_end
+	        query += ` AND TO_CHAR(c.period_start, 'YYYY-MM') = $${paramCount}`;
+	        params.push(charge_period);
+	      }
 
-      if (charge_status) {
-        paramCount++;
-        query += ` AND c.charge_status = $${paramCount}`;
-        params.push(charge_status);
-      }
+	      if (charge_status) {
+	        paramCount++;
+	        query += ` AND c.status = $${paramCount}`;
+	        params.push(charge_status);
+	      }
 
-      if (start_date) {
-        paramCount++;
-        query += ` AND c.charge_period_start >= $${paramCount}`;
-        params.push(start_date);
-      }
+	      if (start_date) {
+	        paramCount++;
+	        query += ` AND c.period_start >= $${paramCount}`;
+	        params.push(start_date);
+	      }
 
-      if (end_date) {
-        paramCount++;
-        query += ` AND c.charge_period_end <= $${paramCount}`;
-        params.push(end_date);
-      }
+	      if (end_date) {
+	        paramCount++;
+	        query += ` AND c.period_end <= $${paramCount}`;
+	        params.push(end_date);
+	      }
 
-      if (is_reimbursement !== undefined) {
-        paramCount++;
-        query += ` AND c.is_reimbursement = $${paramCount}`;
-        params.push(is_reimbursement === 'true');
-      }
+	      // `personal_use_data` does not model reimbursements; ignore the filter for now.
 
-      query += ` ORDER BY c.charge_period_start DESC, c.created_at DESC`;
+	      query += ` ORDER BY c.period_start DESC, c.created_at DESC`;
 
-      // Get total count
-      const countResult = await pool.query(
-        query.replace(/SELECT c\.\*, u\.first_name.*FROM/, 'SELECT COUNT(*) FROM'),
-        params
-      );
+	      // Get total count
+	      const countResult = await pool.query(`SELECT COUNT(*) FROM (${query}) q`, params);
 
       // Add pagination
       paramCount++;
@@ -144,13 +140,13 @@ router.get(
       query += ` OFFSET $${paramCount}`;
       params.push(offset);
 
-      const result = await pool.query(query, params);
+	      const result = await pool.query(query, params);
 
-      res.json({
-        success: true,
-        data: result.rows,
-        pagination: {
-          total: parseInt(countResult.rows[0].count),
+	      res.json({
+	        success: true,
+	        data: result.rows,
+	        pagination: {
+	          total: parseInt(countResult.rows[0].count),
           limit: parseInt(limit),
           offset: parseInt(offset),
           has_more: parseInt(offset) + result.rows.length < parseInt(countResult.rows[0].count)
@@ -161,12 +157,43 @@ router.get(
       res.status(500).json({ error: 'Failed to retrieve personal use charges' });
     }
   }
-);
+	);
 
-/**
- * GET /api/personal-use-charges/:id
- * Get specific personal use charge
- */
+	/**
+	 * GET /api/personal-use-charges/summary
+	 * Summary rollup for personal use data (DB-backed)
+	 */
+	router.get(
+	  '/summary',
+	  requirePermission('route:view:fleet'),
+	  async (req: AuthRequest, res: Response) => {
+	    try {
+	      const result = await pool.query(
+	        `SELECT
+	           TO_CHAR(period_start, 'YYYY-MM') as charge_period,
+	           SUM(personal_miles)::numeric(12,2) as personal_miles,
+	           SUM(COALESCE(taxable_benefit_amount, 0))::numeric(12,2) as taxable_benefit_amount,
+	           COUNT(*)::integer as records
+	         FROM personal_use_data
+	         WHERE tenant_id = $1
+	         GROUP BY 1
+	         ORDER BY 1 DESC
+	         LIMIT 12`,
+	        [req.user!.tenant_id]
+	      );
+	
+	      res.json({ success: true, data: result.rows });
+	    } catch (error: any) {
+	      logger.error('Get personal use summary error:', error);
+	      res.status(500).json({ error: 'Failed to retrieve personal use summary' });
+	    }
+	  }
+	);
+
+	/**
+	 * GET /api/personal-use-charges/:id
+	 * Get specific personal use charge
+	 */
 router.get(
   '/:id',
   requirePermission('route:view:own'),

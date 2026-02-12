@@ -15,12 +15,17 @@
  */
 
 import { Router, Request, Response } from 'express';
+import { body, param, validationResult } from 'express-validator';
 import { Pool } from 'pg';
-import { body, param, query, validationResult } from 'express-validator';
-import { asyncHandler } from '../middleware/errorHandler';
+
+import { authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
+import { asyncHandler } from '../middleware/errorHandler';
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 let pool: Pool;
 
@@ -238,6 +243,7 @@ router.get('/:id', [
 // =============================================================================
 
 router.post('/', [
+  authenticateJWT,
   csrfProtection,
   ...validatePurchaseOrder,
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -357,6 +363,7 @@ router.post('/', [
 // =============================================================================
 
 router.post('/:id/submit-for-approval', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -449,6 +456,7 @@ router.post('/:id/submit-for-approval', [
 // =============================================================================
 
 router.post('/:id/approve', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID(),
   body('action').isIn(['approve', 'reject']),
@@ -529,6 +537,7 @@ router.post('/:id/approve', [
 // =============================================================================
 
 router.post('/:id/send-to-vendor', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
@@ -570,6 +579,7 @@ router.post('/:id/send-to-vendor', [
 // =============================================================================
 
 router.post('/:id/receive', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID(),
   body('received_items').isArray({ min: 1 }),
@@ -699,6 +709,7 @@ router.post('/:id/receive', [
 // =============================================================================
 
 router.post('/:id/cancel', [
+  authenticateJWT,
   csrfProtection,
   param('id').isUUID(),
   body('reason').trim().notEmpty(),
@@ -740,6 +751,7 @@ router.post('/:id/cancel', [
 // =============================================================================
 
 router.post('/auto-create-from-alerts', [
+  authenticateJWT,
   csrfProtection,
   body('alert_ids').isArray({ min: 1 }),
   body('alert_ids.*').isUUID(),

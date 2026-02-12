@@ -647,10 +647,10 @@ const PushNotificationAdmin: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="text-sm font-semibold">Available Templates</h3>
-                  {templatesQuery.isRefetching && <span className="text-sm text-gray-500">Refreshing...</span>}
+                  {templatesQuery.isRefetching && <span className="text-sm text-gray-700">Refreshing...</span>}
                 </div>
                 {templatesQuery.isLoading ? (
-                  <div className="text-center py-3 text-gray-500">Loading templates...</div>
+                  <div className="text-center py-3 text-gray-700">Loading templates...</div>
                 ) : templatesQuery.error ? (
                   <div className="text-center py-3 text-red-500">Error loading templates</div>
                 ) : (
@@ -693,7 +693,7 @@ const PushNotificationAdmin: React.FC = () => {
                   </button>
                 </div>
                 {historyQuery.isLoading ? (
-                  <div className="text-center py-3 text-gray-500">Loading history...</div>
+                  <div className="text-center py-3 text-gray-700">Loading history...</div>
                 ) : historyQuery.error ? (
                   <div className="text-center py-3 text-red-500">Error loading history</div>
                 ) : (
@@ -758,7 +758,7 @@ const PushNotificationAdmin: React.FC = () => {
             {activeTab === 'stats' && (
               <div>
                 {statsQuery.isLoading ? (
-                  <div className="text-center py-3 text-gray-500">Loading statistics...</div>
+                  <div className="text-center py-3 text-gray-700">Loading statistics...</div>
                 ) : statsQuery.error ? (
                   <div className="text-center py-3 text-red-500">Error loading statistics</div>
                 ) : statsQuery.data ? (

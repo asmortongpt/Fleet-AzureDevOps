@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 interface Signal {
   id: string;
@@ -40,7 +41,7 @@ export function TopSignals({ className }: TopSignalsProps) {
   React.useEffect(() => {
     const fetchTopSignals = async () => {
       try {
-        const [dashboardStats, maintenanceAlerts, costsData] = await Promise.all([
+        const [dashboardStats, maintenanceAlerts, costsData, healthData] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
             .then(res => res.json())
             .catch(() => null),
@@ -48,6 +49,9 @@ export function TopSignals({ className }: TopSignalsProps) {
             .then(res => res.json())
             .catch(() => null),
           fetch('/api/dashboard/costs/summary?period=monthly', { credentials: 'include' })
+            .then(res => res.json())
+            .catch(() => null),
+          fetch('/api/health/system', { credentials: 'include' })
             .then(res => res.json())
             .catch(() => null)
         ]);
@@ -70,7 +74,7 @@ export function TopSignals({ className }: TopSignalsProps) {
               impact: 'Maximizing asset ROI and operational efficiency',
               metrics: `${activeVehicles}/${totalVehicles} vehicles active`,
               icon: <CheckCircle2 className="h-5 w-5" />,
-              color: 'text-emerald-600 dark:text-emerald-400'
+              color: 'text-emerald-600 dark:text-emerald-700'
             });
           } else if (utilizationRate < 50) {
             detectedSignals.push({
@@ -109,7 +113,7 @@ export function TopSignals({ className }: TopSignalsProps) {
                 impact: 'Preventing unplanned downtime and extending asset life',
                 metrics: `${maintenanceAlerts.upcoming_count} scheduled, 0 overdue`,
                 icon: <CheckCircle2 className="h-5 w-5" />,
-                color: 'text-emerald-600 dark:text-emerald-400'
+                color: 'text-emerald-600 dark:text-emerald-700'
               });
             }
           }
@@ -130,7 +134,7 @@ export function TopSignals({ className }: TopSignalsProps) {
                 impact: 'Optimal staffing levels supporting operations',
                 metrics: `${activeDrivers}/${totalDrivers} drivers on duty`,
                 icon: <TrendingUp className="h-5 w-5" />,
-                color: 'text-emerald-600 dark:text-emerald-400'
+                color: 'text-emerald-600 dark:text-emerald-700'
               });
             }
           }
@@ -152,7 +156,7 @@ export function TopSignals({ className }: TopSignalsProps) {
               impact: 'Exceeding financial efficiency goals',
               metrics: `Fuel: $${costsData.fuel_cost?.toLocaleString() || 0}, Maintenance: $${costsData.maintenance_cost?.toLocaleString() || 0}`,
               icon: <TrendingUp className="h-5 w-5" />,
-              color: 'text-emerald-600 dark:text-emerald-400'
+              color: 'text-emerald-600 dark:text-emerald-700'
             });
           } else if (fuelTrend > 15 || maintenanceTrend > 20) {
             detectedSignals.push({
@@ -168,17 +172,29 @@ export function TopSignals({ className }: TopSignalsProps) {
           }
         }
 
-        // Signal 5: System Stability
-        detectedSignals.push({
-          id: 'system-stability',
-          priority: 4,
-          title: 'Platform operating normally',
-          reason: 'All critical systems responding within SLA',
-          impact: 'Uninterrupted operations and data accuracy',
-          metrics: 'Database: <20ms, API: 0% errors, Cache: 87% hit rate',
-          icon: <Activity className="h-5 w-5" />,
-          color: 'text-blue-600 dark:text-blue-400'
-        });
+        // Signal 5: System Stability (from live health checks)
+        if (healthData && healthData.checks) {
+          const dbLatency = healthData.checks.database?.latency || 'unknown'
+          const redisStatus = healthData.checks.redis?.status || 'unknown'
+          const memoryPct = healthData.checks.memory?.systemMemoryPercentage
+          const diskPct = healthData.checks.disk?.usedPercentage
+          const status = healthData.status || 'unknown'
+
+          detectedSignals.push({
+            id: 'system-stability',
+            priority: 4,
+            title: status === 'healthy' ? 'Platform operating normally' : 'Platform health degraded',
+            reason: status === 'healthy'
+              ? 'All critical systems responding within thresholds'
+              : `Health status: ${status}`,
+            impact: status === 'healthy'
+              ? 'Uninterrupted operations and data accuracy'
+              : 'Potential performance or availability risk',
+            metrics: `DB: ${dbLatency}, Redis: ${redisStatus}, Memory: ${memoryPct ?? 'n/a'}%, Disk: ${diskPct ?? 'n/a'}%`,
+            icon: <Activity className="h-5 w-5" />,
+            color: status === 'healthy' ? 'text-blue-600 dark:text-blue-700' : 'text-orange-600 dark:text-orange-400'
+          });
+        }
 
         // Sort by priority and take top 5
         const topSignals = detectedSignals
@@ -187,7 +203,7 @@ export function TopSignals({ className }: TopSignalsProps) {
 
         setSignals(topSignals);
       } catch (error) {
-        console.error('Failed to fetch top signals:', error);
+        logger.error('Failed to fetch top signals:', error);
         setSignals([]);
       } finally {
         setLoading(false);

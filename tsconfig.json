@@ -11,7 +11,7 @@
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -32,6 +32,9 @@
       ],
       "@/components/*": [
         "src/components/*"
+      ],
+      "@/contexts/*": [
+        "src/contexts/*"
       ],
       "@/types/*": [
         "src/types/*"
@@ -57,6 +60,11 @@
     "**/*.test.tsx",
     "**/__tests__/**",
     "**/tests/**",
+    "**/*.bak",
+    "**/*.async_backup",
+    "**/*.event_backup",
+    "**/*.nullcheck_backup",
+    "**/*.skip",
     "node_modules",
     "api",
     "api-standalone",

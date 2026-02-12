@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+
 import { pool } from '../config/database';
 
 export interface FuelCardIntegration {

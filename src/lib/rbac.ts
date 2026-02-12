@@ -10,6 +10,8 @@
  * Created: 2025-12-31 (Agent 7)
  */
 
+import logger from '@/utils/logger';
+
 export type Role = 'admin' | 'manager' | 'operator' | 'viewer';
 
 export type Permission =
@@ -144,7 +146,7 @@ export function checkAccess(
 
   // Log to console in development
   if (process.env.NODE_ENV === 'development' && !allowed) {
-    console.warn('[RBAC] Access Denied:', log);
+    logger.warn('[RBAC] Access Denied:', log);
   }
 
   return allowed;

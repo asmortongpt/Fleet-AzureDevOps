@@ -13,12 +13,12 @@
 import { Router } from 'express'
 import { z } from 'zod'
 
-import { pool } from '../config/database';
 import logger from '../config/logger';
 import type { AuthRequest } from '../middleware/auth'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { setTenantContext } from '../middleware/tenant-context'
 
 // SECURITY: Input validation schemas
 const createAlertRuleSchema = z.object({
@@ -44,6 +44,7 @@ const resolveAlertSchema = z.object({
 
 const router = Router()
 router.use(authenticateJWT)
+router.use(setTenantContext)
 
 /**
  * @openapi
@@ -100,6 +101,16 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
     const tenantId = req.user?.tenant_id
     const userId = req.user?.id
 
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
     let query = `
       SELECT
         a.*,
@@ -149,7 +160,7 @@ router.get('/', requirePermission('report:view:global'), async (req: AuthRequest
       LIMIT $${paramCount + 1}`
     params.push(limit)
 
-    const result = await pool.query(query, params)
+    const result = await client.query(query, params)
 
     res.json({
       alerts: result.rows,
@@ -183,9 +194,19 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
   try {
     const tenantId = req.user?.tenant_id
 
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
     const [statusCounts, severityCounts, recentAlerts, trends] = await Promise.all([
       // Status breakdown
-      pool.query(
+      client.query(
         `SELECT status, COUNT(*) as count
          FROM alerts
          WHERE tenant_id = $1
@@ -193,7 +214,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
         [tenantId]
       ),
       // Severity breakdown
-      pool.query(
+      client.query(
         `SELECT severity, COUNT(*) as count
          FROM alerts
          WHERE tenant_id = $1 AND created_at >= NOW() - INTERVAL '7 days'
@@ -201,7 +222,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
         [tenantId]
       ),
       // Recent unacknowledged alerts
-      pool.query(
+      client.query(
         `SELECT COUNT(*) as count
          FROM alerts
          WHERE tenant_id = $1
@@ -210,7 +231,7 @@ router.get('/stats', requirePermission('report:view:global'), async (req: AuthRe
         [tenantId]
       ),
       // 7-day trend
-      pool.query(
+      client.query(
         `SELECT
            DATE(created_at) as date,
            COUNT(*) as count,
@@ -267,7 +288,17 @@ router.post('/:id/acknowledge', csrfProtection, requirePermission('report:view:g
     const userId = req.user?.id
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
+    const result = await client.query(
       `UPDATE alerts
        SET status = 'acknowledged',
            acknowledged_at = NOW(),
@@ -334,7 +365,17 @@ router.post('/:id/resolve', csrfProtection, requirePermission('report:view:globa
     const userId = req.user?.id
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
+    const result = await client.query(
       `UPDATE alerts
        SET status = 'resolved',
        resolved_at = NOW(),
@@ -380,7 +421,17 @@ router.get('/rules', requirePermission('report:view:global'), async (req: AuthRe
   try {
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
+    const result = await client.query(
       `SELECT
          ar.*,
          u.first_name || ' ' || u.last_name as created_by_name
@@ -469,7 +520,17 @@ router.post('/rules', csrfProtection, requirePermission('report:generate:global'
     const tenantId = req.user?.tenant_id
     const userId = req.user?.id
 
-    const result = await pool.query(
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
+    const result = await client.query(
       `INSERT INTO alert_rules (
         tenant_id, rule_name, rule_type, conditions, severity,
         channels, recipients, is_enabled, cooldown_minutes, created_by
@@ -542,6 +603,16 @@ router.put('/rules/:id', csrfProtection, requirePermission('report:generate:glob
     const updates = validatedData
     const tenantId = req.user?.tenant_id
 
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
     const setClauses: string[] = []
     const values: any[] = []
     let paramCount = 1
@@ -571,7 +642,7 @@ router.put('/rules/:id', csrfProtection, requirePermission('report:generate:glob
     setClauses.push(`updated_at = NOW()`)
     values.push(id, tenantId)
 
-    const result = await pool.query(
+    const result = await client.query(
       `UPDATE alert_rules
        SET ${setClauses.join(`, `)}
        WHERE id = $${paramCount} AND tenant_id = $${paramCount + 1}
@@ -623,7 +694,17 @@ router.delete('/rules/:id', csrfProtection, requirePermission('report:generate:g
     const { id } = req.params
     const tenantId = req.user?.tenant_id
 
-    const result = await pool.query(
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
+    const result = await client.query(
       `DELETE FROM alert_rules
        WHERE id = $1 AND tenant_id = $2
        RETURNING id`,
@@ -677,12 +758,19 @@ router.get('/notifications', requirePermission('report:view:global'), async (req
     const userId = req.user?.id
     const tenantId = req.user?.tenant_id
 
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
     let query = `
-      SELECT
-        n.*,
-        a.status as alert_status
+      SELECT n.*
       FROM notifications n
-      LEFT JOIN alerts a ON n.alert_id = a.id
       WHERE n.user_id = $1 AND n.tenant_id = $2
     `
 
@@ -698,7 +786,7 @@ router.get('/notifications', requirePermission('report:view:global'), async (req
     query += ` ORDER BY n.created_at DESC LIMIT $${paramCount + 1}`
     params.push(limit)
 
-    const result = await pool.query(query, params)
+    const result = await client.query(query, params)
 
     res.json({
       notifications: result.rows,
@@ -740,7 +828,17 @@ router.post('/notifications/:id/read', csrfProtection, requirePermission('report
     const { id } = req.params
     const userId = req.user?.id
 
-    const result = await pool.query(
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
+    const result = await client.query(
       `UPDATE notifications
        SET is_read = true, read_at = NOW()
        WHERE id = $1 AND user_id = $2
@@ -782,7 +880,17 @@ router.post('/notifications/read-all', csrfProtection, requirePermission('report
   try {
     const userId = req.user?.id
 
-    const result = await pool.query(
+    // Use req.dbClient which has tenant context set
+    const client = (req as any).dbClient
+    if (!client) {
+      logger.error('dbClient not available - tenant context middleware not run')
+      return res.status(500).json({
+        error: 'Internal server error',
+        code: 'MISSING_DB_CLIENT'
+      })
+    }
+
+    const result = await client.query(
       `UPDATE notifications
        SET is_read = true, read_at = NOW()
        WHERE user_id = $1 AND is_read = false

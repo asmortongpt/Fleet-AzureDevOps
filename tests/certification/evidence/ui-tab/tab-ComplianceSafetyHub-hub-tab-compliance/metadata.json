@@ -1,0 +1,20 @@
+{
+  "testId": "tab-ComplianceSafetyHub-hub-tab-compliance",
+  "itemType": "ui-tab",
+  "runDate": "2026-02-01T18:59:39.200Z",
+  "status": "SKIP",
+  "evidencePaths": {
+    "screenshots": [
+      "screenshot-before-tab-click-1769972381038.png"
+    ],
+    "videos": [],
+    "traces": [],
+    "logs": [
+      "console-logs.txt"
+    ],
+    "har": []
+  },
+  "errors": [
+    "Tab not visible: [data-testid=\"hub-tab-compliance\"]"
+  ]
+}

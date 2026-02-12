@@ -1,8 +1,9 @@
 /**
  * ComplianceRecordFactory - Generates compliance and certification records
  */
-import { BaseFactory } from './BaseFactory';
 import type { ComplianceRecord, CertificationStatus, FactoryOptions } from '../types';
+
+import { BaseFactory } from './BaseFactory';
 
 interface CertificationType {
   type: string;

@@ -10,16 +10,7 @@
  * - Alert rules management
  */
 
-import {
-  Bell,
-  Check,
-  CheckCircle,
-  Warning,
-  Info,
-  ArrowUp,
-  MagnifyingGlass,
-  Funnel
-} from '@phosphor-icons/react'
+import { Bell, Check, CheckCircle, AlertTriangle, Info, ArrowUp, Search, Filter } from 'lucide-react'
 import { AxiosResponse } from 'axios'
 import { useState, useEffect } from 'react'
 
@@ -148,7 +139,7 @@ export function Notifications() {
     switch (severity) {
       case 'emergency':
       case 'critical':
-        return <Warning className="w-3 h-3" weight="fill" />
+        return <AlertTriangle className="w-3 h-3" />
       case 'warning':
         return <ArrowUp className="w-3 h-3" />
       case 'info':
@@ -213,7 +204,7 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Warning className="w-4 h-4 text-red-600" weight="fill" />
+              <AlertTriangle className="w-4 h-4 text-red-600" />
               <div className="text-base font-bold">
                 {stats?.unacknowledged_critical || 0}
               </div>
@@ -261,7 +252,7 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-green-600" weight="fill" />
+              <CheckCircle className="w-4 h-4 text-green-600" />
               <div className="text-base font-bold">
                 {stats?.by_status.find(s => s.status === 'resolved')?.count || 0}
               </div>
@@ -279,7 +270,7 @@ export function Notifications() {
         <CardContent>
           <div className="flex flex-col sm:flex-row gap-2 mb-3">
             <div className="flex-1 relative">
-              <MagnifyingGlass className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Search alerts..."
                 value={searchQuery}
@@ -289,7 +280,7 @@ export function Notifications() {
             </div>
             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <Funnel className="w-4 h-4 mr-2" />
+                <Filter className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -302,13 +293,13 @@ export function Notifications() {
             </Select>
             <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
               <SelectTrigger className="w-full sm:w-[180px]">
-                <Funnel className="w-4 h-4 mr-2" />
+                <Filter className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Severity" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Severities</SelectItem>
                 <SelectItem value="info">Info</SelectItem>
-                <SelectItem value="warning">Warning</SelectItem>
+                <SelectItem value="warning">AlertTriangle</SelectItem>
                 <SelectItem value="critical">Critical</SelectItem>
                 <SelectItem value="emergency">Emergency</SelectItem>
               </SelectContent>

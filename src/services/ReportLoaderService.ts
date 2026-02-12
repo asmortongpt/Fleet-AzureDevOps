@@ -166,9 +166,10 @@ class ReportLoaderService {
         throw new Error(`Failed to load report registry: ${response.statusText}`);
       }
 
-      this.registry = await response.json();
-      console.log(`✓ Loaded report registry: ${this.registry.totalReports} reports`);
-      return this.registry;
+      const registry: ReportRegistry = await response.json();
+      this.registry = registry;
+      console.log(`✓ Loaded report registry: ${registry.totalReports} reports`);
+      return registry;
     } catch (error) {
       console.error('Error loading report registry:', error);
       throw error;

@@ -1,0 +1,74 @@
+═══════════════════════════════════════════════════════════════════════
+🤖 CLAWS.BOT Quick Commands - Fleet-CTA
+═══════════════════════════════════════════════════════════════════════
+
+INTEGRATED! Just use npm scripts:
+
+npm run claws:verify    # Verify all code is correct
+npm run claws:finish    # Finish incomplete features
+npm run claws:fix       # Fix all errors and warnings
+npm run claws:test      # Add comprehensive tests
+npm run claws:secure    # Fix security vulnerabilities
+
+Custom task:
+npm run claws -- "Your task here" --validate
+
+═══════════════════════════════════════════════════════════════════════
+FLEET-CTA SPECIFIC EXAMPLES
+═══════════════════════════════════════════════════════════════════════
+
+# Complete 3D vehicle viewer
+npm run claws -- "Complete 3D vehicle viewer with controls, lighting, and model loader" --validate
+
+# Fix TypeScript errors
+npm run claws -- "Fix all TypeScript compilation errors, especially ID type mismatches" --validate
+
+# Optimize FleetHub performance
+npm run claws -- "Optimize FleetHub - add memoization, virtualization, loading states" --validate
+
+# Complete charging module
+npm run claws -- "Complete EV charging integration - status, costs, station finder" --validate
+
+# Complete compliance features
+npm run claws -- "Complete compliance hub - DVIR, inspections, violations" --validate
+
+# Fix database integration
+npm run claws -- "Fix PostgreSQL integration - ID types, error handling, API responses" --validate
+
+# Add accessibility
+npm run claws -- "Improve accessibility - ARIA labels, keyboard nav, screen readers" --validate
+
+# Production ready
+npm run claws -- "Prepare for production - fix errors, add tests, optimize performance" --validate
+
+═══════════════════════════════════════════════════════════════════════
+WHAT YOU'LL SEE
+═══════════════════════════════════════════════════════════════════════
+
+🔍 VALIDATION: starting ACTUAL verification
+
+✅ CHECKPOINT 1: TypeScript Compilation
+   ACTUALLY running: npx tsc --noEmit
+   Result: ✅ Success
+
+🧪 CHECKPOINT 2: Test Execution
+   ACTUALLY running: npx vitest run
+   Result: 87 tests passed
+   [Real Vitest output shown]
+
+🔒 CHECKPOINT 3: Security Scan
+   ACTUALLY running: npm audit
+   Result: 0 vulnerabilities
+
+📊 Trust Score: 1.00 (100% - claims matched reality)
+
+This is PROOF, not AI hallucinations!
+
+═══════════════════════════════════════════════════════════════════════
+MORE INFO
+═══════════════════════════════════════════════════════════════════════
+
+Documentation: cat CLAWS_BOT_INTEGRATION.md
+CLAWS.BOT Repo: https://github.com/asmortongpt/CLAWS.BOT
+
+═══════════════════════════════════════════════════════════════════════

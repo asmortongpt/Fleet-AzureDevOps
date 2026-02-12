@@ -154,7 +154,7 @@ export function TrendChart({
       </ResponsiveContainer>
 
       {onDrillDown && (
-        <p className="text-xs text-gray-500 mt-2 text-center">
+        <p className="text-xs text-gray-700 mt-2 text-center">
           Click on any data point to drill down
         </p>
       )}

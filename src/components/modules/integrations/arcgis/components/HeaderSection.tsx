@@ -3,7 +3,7 @@
  * @module ArcGIS/components/HeaderSection
  */
 
-import { Plus, Download, ArrowClockwise } from "@phosphor-icons/react"
+import { Plus, Download, RotateCw } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
@@ -34,7 +34,7 @@ export function HeaderSection({ enabledLayersCount, hasLayers, onExport, onRefre
               Export
             </Button>
             <Button variant="outline" size="sm" onClick={onRefresh} aria-label="Action button">
-              <ArrowClockwise className="w-4 h-4 mr-2" />
+              <RotateCw className="w-4 h-4 mr-2" />
               Refresh
             </Button>
           </>

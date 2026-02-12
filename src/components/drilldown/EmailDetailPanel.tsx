@@ -11,7 +11,7 @@ import {
   Reply,
   ReplyAll,
   Forward,
-  Trash,
+  Trash2,
   Archive,
   Tag,
   Clock,
@@ -22,6 +22,7 @@ import {
   ExternalLink,
   Eye,
 } from 'lucide-react'
+import DOMPurify from 'dompurify'
 import React from 'react'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -188,7 +189,13 @@ function EmailBody({ email }: { email: EmailRecord }) {
         {email.bodyHtml ? (
           <div
             className="prose prose-sm dark:prose-invert max-w-none"
-            dangerouslySetInnerHTML={{ __html: email.bodyHtml }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(email.bodyHtml, {
+                ALLOWED_TAGS: ['p', 'br', 'b', 'i', 'u', 'a', 'ul', 'ol', 'li', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'td', 'th'],
+                ALLOWED_ATTR: ['href', 'target', 'class', 'style'],
+                ALLOW_DATA_ATTR: false,
+              })
+            }}
           />
         ) : (
           <div className="whitespace-pre-wrap text-sm leading-relaxed">
@@ -451,7 +458,7 @@ export function EmailDetailPanel({ emailId, email: providedEmail }: EmailDetailP
             Archive
           </Button>
           <Button variant="outline" size="sm" className="gap-2 text-destructive">
-            <Trash className="w-4 h-4" />
+            <Trash2 className="w-4 h-4" />
             Delete
           </Button>
         </div>
