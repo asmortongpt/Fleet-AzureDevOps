@@ -3,7 +3,7 @@
  * Email, push, in-app notifications, and quiet hours
  */
 
-import { Bell, Envelope, DeviceMobile, Moon } from '@phosphor-icons/react'
+import { Bell, Mail, Smartphone, Moon } from 'lucide-react'
 import { useAtom } from 'jotai'
 
 import { Button } from '@/components/ui/button'
@@ -58,7 +58,7 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Envelope className="w-3 h-3" />
+            <Mail className="w-3 h-3" />
             <CardTitle>Email Notifications</CardTitle>
           </div>
           <CardDescription>Choose which emails you want to receive</CardDescription>
@@ -166,7 +166,7 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <DeviceMobile className="w-3 h-3" />
+            <Smartphone className="w-3 h-3" />
             <CardTitle>Push Notifications</CardTitle>
           </div>
           <CardDescription>Browser push notifications (requires permission)</CardDescription>

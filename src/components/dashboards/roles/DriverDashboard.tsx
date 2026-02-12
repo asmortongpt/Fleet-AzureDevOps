@@ -12,28 +12,19 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import {
-  Car,
-  MapPin,
-  GasPump,
-  Warning,
-  CheckCircle,
-  PlayCircle,
-  ClipboardText,
-  Clock,
-  Path,
-  Gauge,
-  Calendar,
-  WarningCircle
-} from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
+import { Car, MapPin, Fuel, AlertTriangle, CheckCircle, PlayCircle, Clipboard, Clock, Route, Gauge, Calendar, AlertCircle } from 'lucide-react';
+// motion removed - React 19 incompatible
+import toast from 'react-hot-toast';
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useAuth } from '@/contexts';
+import { secureFetch } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { DriverVehicle, DriverTrip } from '@/services/dashboardApi';
+import logger from '@/utils/logger';
 
 interface InspectionItem {
   id: string;
@@ -43,7 +34,8 @@ interface InspectionItem {
 
 export function DriverDashboard() {
   const navigate = useNavigate();
-  const [driverName] = useState('John Smith');
+  const { user } = useAuth();
+  const driverName = (user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : null) || user?.email || 'Driver';
 
   // React Query hooks for real-time data fetching
   const { data: vehicleData, isLoading: vehicleLoading, error: vehicleError } = useQuery({
@@ -116,26 +108,22 @@ export function DriverDashboard() {
     toast.loading('Submitting inspection...');
 
     try {
-      // Uncomment when API is ready:
-      /*
-      const response = await fetch('/api/inspections', {
+      const response = await secureFetch('/api/inspections', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           vehicle_id: assignedVehicle.id,
-          inspection_items: inspectionItems.map(item => ({
+          inspection_type: 'pre_trip',
+          status: 'completed',
+          passed: inspectionItems.every(item => item.completed),
+          checklist_data: inspectionItems.map(item => ({
             item: item.id,
             status: item.completed ? 'pass' : 'fail'
           })),
-          timestamp: new Date().toISOString()
+          completed_at: new Date().toISOString()
         })
       });
 
       if (!response.ok) throw new Error('Inspection submission failed');
-      */
-
-      // Mock delay for demo
-      await new Promise(resolve => setTimeout(resolve, 1000));
       toast.success('Pre-trip inspection completed!');
 
       // Reset checklist after successful submission
@@ -143,7 +131,7 @@ export function DriverDashboard() {
         prev.map(item => ({ ...item, completed: false }))
       );
     } catch (error) {
-      console.error('Inspection submission failed:', error);
+      logger.error('Inspection submission failed:', error);
       toast.error('Failed to submit inspection');
     }
   };
@@ -197,7 +185,7 @@ export function DriverDashboard() {
     return (
       <div className="min-h-screen bg-slate-900 p-2">
         <Alert variant="destructive" className="bg-red-950/50 border-red-500/50">
-          <WarningCircle className="h-4 w-4 text-red-400" />
+          <AlertCircle className="h-4 w-4 text-red-400" />
           <AlertTitle className="text-red-400">Error Loading Data</AlertTitle>
           <AlertDescription className="text-red-300">
             {vehicleError instanceof Error ? vehicleError.message : 'Failed to load your dashboard data'}
@@ -212,7 +200,7 @@ export function DriverDashboard() {
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-sm font-bold text-white mb-1">My Dashboard</h1>
-        <p className="text-sm text-slate-400">Driver: {driverName}</p>
+        <p className="text-sm text-slate-700">Driver: {driverName}</p>
       </div>
 
       {/* Assigned Vehicle */}
@@ -246,7 +234,7 @@ export function DriverDashboard() {
             {/* Fuel Level */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <GasPump className="w-4 h-4 text-slate-400" />
+                <Fuel className="w-4 h-4 text-slate-700" />
                 <span className="text-sm text-slate-300 text-sm">Fuel</span>
               </div>
               <div className="flex items-center gap-2">
@@ -263,7 +251,7 @@ export function DriverDashboard() {
             {/* Mileage */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Gauge className="w-4 h-4 text-slate-400" />
+                <Gauge className="w-4 h-4 text-slate-700" />
                 <span className="text-sm text-slate-300 text-sm">Mileage</span>
               </div>
               <p className="text-sm font-bold text-white">
@@ -274,7 +262,7 @@ export function DriverDashboard() {
             {/* Last Inspection */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-slate-400" />
+                <Calendar className="w-4 h-4 text-slate-700" />
                 <span className="text-sm text-slate-300 text-sm">Last Inspection</span>
               </div>
               <p className="text-sm font-bold text-white flex items-center gap-2">
@@ -289,15 +277,14 @@ export function DriverDashboard() {
       {/* Today's Trips */}
       <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
-          <Path className="w-4 h-4 text-violet-400" />
+          <Route className="w-4 h-4 text-violet-400" />
           <h2 className="text-sm font-bold text-white">Today's Trips</h2>
         </div>
 
         <div className="space-y-3">
           {todaysTrips.map((trip) => (
-            <motion.div
+            <div
               key={trip.id}
-              whileHover={{ scale: 1.01 }}
               className="bg-slate-900/50 rounded-md p-2 border border-slate-700 hover:border-violet-500/50 transition-all"
             >
               <div className="flex items-start justify-between mb-2">
@@ -322,7 +309,7 @@ export function DriverDashboard() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-400 text-sm mb-3">
+              <div className="flex items-center gap-2 text-slate-700 text-sm mb-3">
                 <Clock className="w-4 h-4" />
                 <span>
                   Scheduled: {formatTime(trip.scheduled_start)} - {formatTime(trip.scheduled_end)}
@@ -348,7 +335,7 @@ export function DriverDashboard() {
                   View Route
                 </Button>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </Card>
@@ -359,14 +346,14 @@ export function DriverDashboard() {
           onClick={handleLogFuel}
           className="bg-cyan-600 hover:bg-cyan-700 text-white"
         >
-          <GasPump className="w-4 h-4 mr-2" />
+          <Fuel className="w-4 h-4 mr-2" />
           Log Fuel
         </Button>
         <Button size="sm"
           onClick={handleReportIssue}
           className="bg-red-600 hover:bg-red-700 text-white"
         >
-          <Warning className="w-4 h-4 mr-2" />
+          <AlertTriangle className="w-4 h-4 mr-2" />
           Report Issue
         </Button>
       </div>
@@ -374,7 +361,7 @@ export function DriverDashboard() {
       {/* Pre-Trip Inspection Checklist */}
       <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
         <div className="flex items-center gap-2 mb-3">
-          <ClipboardText className="w-4 h-4 text-amber-400" />
+          <Clipboard className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Pre-Trip Inspection Checklist</h2>
         </div>
 
@@ -396,7 +383,7 @@ export function DriverDashboard() {
                   ? "bg-green-500 border-green-500"
                   : "border-slate-600"
               )}>
-                {item.completed && <CheckCircle className="w-4 h-4 text-white" weight="fill" />}
+                {item.completed && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
               <span className={cn(
                 "text-sm",
@@ -415,7 +402,7 @@ export function DriverDashboard() {
             "w-full",
             allInspectionsDone
               ? "bg-green-600 hover:bg-green-700 text-white"
-              : "bg-slate-700 text-slate-400 cursor-not-allowed"
+              : "bg-slate-700 text-slate-700 cursor-not-allowed"
           )}
         >
           <CheckCircle className="w-4 h-4 mr-2" />

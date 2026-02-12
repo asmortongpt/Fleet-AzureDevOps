@@ -1,7 +1,7 @@
 import {
   Plus
-} from "@phosphor-icons/react"
-import { useState } from "react"
+} from "lucide-react"
+import { useEffect, useState } from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
@@ -24,11 +24,15 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuth } from "@/hooks/useAuth"
+import { secureFetch } from "@/hooks/use-api"
+import logger from "@/utils/logger"
 
 
 interface OSHAForm {
   id: string
   tenantId: string
+  caseNumber?: string
   formType: "300" | "300A" | "301" | "incident" | "near-miss" | "jsa" | "inspection" | "custom"
   title: string
   description: string
@@ -60,7 +64,10 @@ interface OSHAForm {
 }
 
 export function OSHAForms() {
+  const { user } = useAuth()
   const [forms, setForms] = useState<OSHAForm[]>([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [_activeModule, setActiveModule] = useState("dashboard")
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState<string>("all")
@@ -77,6 +84,126 @@ export function OSHAForms() {
     status: "draft"
   })
 
+  const mapStatusFromApi = (status?: string): OSHAForm["status"] => {
+    const normalized = (status || '').toLowerCase()
+    if (normalized === 'open') return 'submitted'
+    if (normalized === 'investigating') return 'under-review'
+    if (normalized === 'closed') return 'closed'
+    return 'draft'
+  }
+
+  const mapStatusToApi = (status: OSHAForm["status"]): string => {
+    switch (status) {
+      case 'submitted':
+        return 'open'
+      case 'under-review':
+        return 'investigating'
+      case 'approved':
+      case 'closed':
+        return 'closed'
+      default:
+        return 'open'
+    }
+  }
+
+  const mapFormFromApi = (row: any): OSHAForm => {
+    const metadata = row.metadata && typeof row.metadata === 'object' ? row.metadata : {}
+    return {
+      id: row.id,
+      tenantId: row.tenant_id,
+      caseNumber: row.case_number,
+      formType: metadata.formType || 'incident',
+      title: metadata.title || row.case_number || 'OSHA Log Entry',
+      description: row.incident_description || '',
+      incidentDate: row.incident_date,
+      reportedDate: row.reported_date || row.incident_date,
+      location: row.location || '',
+      department: metadata.department || '',
+      employeeId: row.employee_id || undefined,
+      employeeName: row.employee_name || metadata.employeeName,
+      injuryType: row.injury_type || metadata.injuryType,
+      bodyPart: row.body_part_affected || metadata.bodyPart,
+      severity: metadata.severity || 'moderate',
+      daysAway: row.days_away_from_work || 0,
+      daysRestricted: row.days_restricted_duty || 0,
+      requiresMedicalAttention: Boolean(metadata.requiresMedicalAttention || row.is_recordable),
+      rootCause: metadata.rootCause,
+      correctiveAction: metadata.correctiveAction,
+      preventiveMeasures: metadata.preventiveMeasures,
+      witnesses: Array.isArray(metadata.witnesses) ? metadata.witnesses : [],
+      photos: Array.isArray(metadata.photos) ? metadata.photos : [],
+      status: mapStatusFromApi(row.status),
+      submittedBy: row.reported_by || metadata.submittedBy || '',
+      submittedAt: row.reported_date || row.created_at || '',
+      reviewedBy: metadata.reviewedBy,
+      reviewedAt: metadata.reviewedAt,
+      approvedBy: metadata.approvedBy,
+      approvedAt: metadata.approvedAt,
+      notes: metadata.notes
+    }
+  }
+
+  const buildPayload = (form: Partial<OSHAForm>) => {
+    const caseNumber = form.caseNumber || `OSHA-${new Date().getFullYear()}-${Date.now().toString().slice(-6)}`
+    return {
+      case_number: caseNumber,
+      incident_date: form.incidentDate,
+      incident_description: form.description || form.title || 'OSHA incident',
+      employee_id: form.employeeId || null,
+      employee_name: form.employeeName || null,
+      job_title: null,
+      body_part_affected: form.bodyPart || null,
+      injury_type: form.injuryType || null,
+      is_recordable: form.requiresMedicalAttention || form.severity !== 'minor',
+      is_lost_time: (form.daysAway || 0) > 0,
+      days_away_from_work: form.daysAway || 0,
+      days_restricted_duty: form.daysRestricted || 0,
+      location: form.location || null,
+      vehicle_id: null,
+      reported_date: form.reportedDate || form.incidentDate || null,
+      status: mapStatusToApi(form.status as OSHAForm["status"]),
+      metadata: {
+        formType: form.formType,
+        title: form.title,
+        department: form.department,
+        severity: form.severity,
+        requiresMedicalAttention: form.requiresMedicalAttention,
+        rootCause: form.rootCause,
+        correctiveAction: form.correctiveAction,
+        preventiveMeasures: form.preventiveMeasures,
+        witnesses: form.witnesses || [],
+        photos: form.photos || [],
+        notes: form.notes,
+        submittedBy: form.submittedBy || user?.email || user?.id,
+        reviewedBy: form.reviewedBy,
+        approvedBy: form.approvedBy
+      }
+    }
+  }
+
+  const loadForms = async () => {
+    setIsLoading(true)
+    setLoadError(null)
+    try {
+      const response = await secureFetch('/api/osha-compliance/300-log')
+      if (!response.ok) {
+        throw new Error(`Failed to load OSHA forms (${response.status})`)
+      }
+      const payload = await response.json()
+      const rows = Array.isArray(payload?.data) ? payload.data : Array.isArray(payload) ? payload : []
+      setForms(rows.map(mapFormFromApi))
+    } catch (error: any) {
+      setLoadError(error?.message || 'Failed to load OSHA forms')
+      logger.error('OSHA forms load failed', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadForms()
+  }, [])
+
   const filteredForms = (forms || []).filter(form => {
     const matchesSearch =
       form.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,84 +215,86 @@ export function OSHAForms() {
     return matchesSearch && matchesType && matchesStatus
   })
 
-  const handleSaveForm = () => {
+  const handleSaveForm = async () => {
     if (!newForm.title || !newForm.incidentDate || !newForm.location) {
       toast.error("Please fill in required fields")
       return
     }
+    try {
+      const payload = buildPayload(newForm)
+      if (selectedForm) {
+        const response = await secureFetch(`/api/osha-compliance/300-log/${selectedForm.id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        })
+        if (!response.ok) {
+          throw new Error('Failed to update OSHA form')
+        }
+        const updated = await response.json()
+        setForms(current => (current || []).map(f => (f.id === selectedForm.id ? mapFormFromApi(updated) : f)))
+        toast.success("Form updated successfully")
+      } else {
+        const response = await secureFetch('/api/osha-compliance/300-log', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        })
+        if (!response.ok) {
+          throw new Error('Failed to create OSHA form')
+        }
+        const created = await response.json()
+        setForms(current => [...(current || []), mapFormFromApi(created)])
+        toast.success("Form created successfully")
+      }
 
-    const form: OSHAForm = {
-      id: selectedForm?.id || `osha-${Date.now()}`,
-      tenantId: "tenant-demo",
-      formType: newForm.formType as OSHAForm["formType"],
-      title: newForm.title,
-      description: newForm.description || "",
-      incidentDate: newForm.incidentDate,
-      reportedDate: newForm.reportedDate || new Date().toISOString().split("T")[0],
-      location: newForm.location,
-      department: newForm.department || "",
-      employeeId: newForm.employeeId,
-      employeeName: newForm.employeeName,
-      injuryType: newForm.injuryType,
-      bodyPart: newForm.bodyPart,
-      severity: newForm.severity as OSHAForm["severity"],
-      daysAway: newForm.daysAway,
-      daysRestricted: newForm.daysRestricted,
-      requiresMedicalAttention: newForm.requiresMedicalAttention || false,
-      rootCause: newForm.rootCause,
-      correctiveAction: newForm.correctiveAction,
-      preventiveMeasures: newForm.preventiveMeasures,
-      witnesses: newForm.witnesses || [],
-      photos: newForm.photos || [],
-      status: newForm.status as OSHAForm["status"],
-      submittedBy: "Current User",
-      submittedAt: selectedForm?.submittedAt || new Date().toISOString(),
-      reviewedBy: newForm.reviewedBy,
-      reviewedAt: newForm.reviewedAt,
-      approvedBy: newForm.approvedBy,
-      approvedAt: newForm.approvedAt,
-      notes: newForm.notes
+      setIsAddDialogOpen(false)
+      resetForm()
+    } catch (error) {
+      logger.error('OSHA form save failed', error)
+      toast.error("Failed to save form")
     }
-
-    if (selectedForm) {
-      setForms(current =>
-        (current || []).map(f => (f.id === form.id ? form : f))
-      )
-      toast.success("Form updated successfully")
-    } else {
-      setForms(current => [...(current || []), form])
-      toast.success("Form created successfully")
-    }
-
-    setIsAddDialogOpen(false)
-    resetForm()
   }
 
-  const handleSubmit = (formId: string) => {
-    setForms(current =>
-      (current || []).map(f =>
-        f.id === formId
-          ? { ...f, status: "submitted" as const, submittedAt: new Date().toISOString() }
-          : f
-      )
-    )
-    toast.success("Form submitted for review")
+  const handleSubmit = async (formId: string) => {
+    const target = forms.find(f => f.id === formId)
+    if (!target) return
+    try {
+      const payload = buildPayload({ ...target, status: "submitted" })
+      const response = await secureFetch(`/api/osha-compliance/300-log/${formId}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      })
+      if (!response.ok) throw new Error('Failed to submit form')
+      const updated = await response.json()
+      setForms(current => (current || []).map(f => (f.id === formId ? mapFormFromApi(updated) : f)))
+      toast.success("Form submitted for review")
+    } catch (error) {
+      logger.error('OSHA form submit failed', error)
+      toast.error("Failed to submit form")
+    }
   }
 
-  const handleApprove = (formId: string) => {
-    setForms(current =>
-      (current || []).map(f =>
-        f.id === formId
-          ? {
-              ...f,
-              status: "approved" as const,
-              approvedBy: "Safety Officer",
-              approvedAt: new Date().toISOString()
-            }
-          : f
-      )
-    )
-    toast.success("Form approved")
+  const handleApprove = async (formId: string) => {
+    const target = forms.find(f => f.id === formId)
+    if (!target) return
+    try {
+      const payload = buildPayload({
+        ...target,
+        status: "approved",
+        approvedBy: user?.email || user?.id,
+        approvedAt: new Date().toISOString()
+      })
+      const response = await secureFetch(`/api/osha-compliance/300-log/${formId}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload)
+      })
+      if (!response.ok) throw new Error('Failed to approve form')
+      const updated = await response.json()
+      setForms(current => (current || []).map(f => (f.id === formId ? mapFormFromApi(updated) : f)))
+      toast.success("Form approved")
+    } catch (error) {
+      logger.error('OSHA form approve failed', error)
+      toast.error("Failed to approve form")
+    }
   }
 
   const handleEdit = (form: OSHAForm) => {
@@ -245,6 +374,10 @@ export function OSHAForms() {
           <p className="text-muted-foreground">
             Manage workplace safety incidents, near-misses, and compliance documentation
           </p>
+        </div>
+        <div className="flex flex-col items-end gap-1 text-xs">
+          {isLoading && <span className="text-muted-foreground">Loading OSHA forms…</span>}
+          {loadError && <span className="text-destructive">{loadError}</span>}
         </div>
         <Dialog
           open={isAddDialogOpen}

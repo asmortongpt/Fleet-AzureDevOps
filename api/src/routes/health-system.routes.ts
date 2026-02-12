@@ -17,6 +17,8 @@ import { Router, Request, Response } from 'express'
 
 import { pool } from '../config/db-pool'
 import telemetryService from '../monitoring/applicationInsights'
+import { authenticateJWT } from '../middleware/auth'
+import { requireRole, Role } from '../middleware/rbac'
 
 const router = Router()
 
@@ -152,10 +154,19 @@ function checkMemory(): HealthCheck {
   const systemMemoryPercentage = Math.round(((totalMemory - freeMemory) / totalMemory) * 100)
 
   // Determine status based on memory usage
+  const warningThresholds = {
+    heap: 75,
+    system: 85
+  }
+  const criticalThresholds = {
+    heap: 90,
+    system: 95
+  }
+
   let status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
-  if (heapPercentage > 90 || systemMemoryPercentage > 95) {
+  if (heapPercentage >= criticalThresholds.heap || systemMemoryPercentage >= criticalThresholds.system) {
     status = 'unhealthy'
-  } else if (heapPercentage > 75 || systemMemoryPercentage > 85) {
+  } else if (heapPercentage >= warningThresholds.heap || systemMemoryPercentage >= warningThresholds.system) {
     status = 'warning'
   }
 
@@ -193,11 +204,11 @@ function checkDisk(): HealthCheck {
     const usedGB = totalGB - availableGB
     const usedPercentage = Math.round((usedGB / totalGB) * 100)
 
-    // Determine status based on available space
+    // Determine status based on disk usage
     let status: 'healthy' | 'warning' | 'unhealthy' = 'healthy'
-    if (availableGB < 1) {
+    if (availableGB <= 1 || usedPercentage >= 95) {
       status = 'unhealthy'
-    } else if (availableGB < 5 || usedPercentage > 90) {
+    } else if (availableGB <= 5 || usedPercentage >= 90) {
       status = 'warning'
     }
 
@@ -216,7 +227,7 @@ function checkDisk(): HealthCheck {
   } catch (error: any) {
     // If statfs fails, provide basic info
     return {
-      status: 'healthy',
+      status: 'warning',
       message: 'Disk check not available on this platform',
       error: error.message
     }
@@ -241,7 +252,10 @@ function checkApplicationInsights(): HealthCheck {
 /**
  * GET / - Comprehensive health check endpoint
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/',
+  authenticateJWT,
+  requireRole([Role.ADMIN, Role.SECURITY_ADMIN, Role.COMPLIANCE_OFFICER, Role.ANALYST]),
+  async (req: Request, res: Response) => {
   const startTime = Date.now()
 
   // Run all health checks in parallel
@@ -278,9 +292,9 @@ router.get('/', async (req: Request, res: Response) => {
     health.status = 'degraded'
   }
 
-  // Set appropriate HTTP status code
-  const statusCode = health.status === 'healthy' ? 200 :
-    health.status === 'degraded' ? 200 : 503
+  // Keep this endpoint "reporting-only": always return 200 with a rich payload.
+  // Use `/ready` (readiness) and `/simple` (LB) for 503 semantics.
+  const statusCode = 200
 
   // Track health check in telemetry
   const duration = Date.now() - startTime

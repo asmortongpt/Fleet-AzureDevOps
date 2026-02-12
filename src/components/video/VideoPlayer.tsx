@@ -120,94 +120,17 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
   };
 
   /**
-   * Simulate computer vision analysis
-   * In production, this would receive real CV data from the API
+   * Computer vision analysis placeholder.
+   * Real overlays should be supplied via API integration.
    */
   const simulateComputerVision = () => {
     if (!showOverlays) return;
-
-    // Simulate object detection
-    const overlays: CVOverlay[] = [];
-
-    // Vehicle detection (forward camera)
-    if (cameraAngle === 'forward') {
-      // Vehicle ahead
-      overlays.push({
-        type: 'object',
-        boundingBox: { x: 0.4, y: 0.3, width: 0.2, height: 0.3 },
-        label: 'Vehicle',
-        confidence: 0.92,
-        color: '#00ff00'
-      });
-
-      // Pedestrian
-      if (Math.random() > 0.7) {
-        overlays.push({
-          type: 'object',
-          boundingBox: { x: 0.15, y: 0.4, width: 0.08, height: 0.25 },
-          label: 'Pedestrian',
-          confidence: 0.87,
-          color: '#ffff00'
-        });
-      }
-
-      // Lane lines
-      overlays.push({
-        type: 'lane',
-        points: [
-          { x: 0.3, y: 1.0 },
-          { x: 0.35, y: 0.7 },
-          { x: 0.4, y: 0.5 }
-        ],
-        label: 'Left Lane',
-        color: '#0088ff'
-      });
-
-      overlays.push({
-        type: 'lane',
-        points: [
-          { x: 0.7, y: 1.0 },
-          { x: 0.65, y: 0.7 },
-          { x: 0.6, y: 0.5 }
-        ],
-        label: 'Right Lane',
-        color: '#0088ff'
-      });
-
-      // Speed limit sign
-      if (Math.random() > 0.8) {
-        overlays.push({
-          type: 'sign',
-          boundingBox: { x: 0.75, y: 0.2, width: 0.08, height: 0.08 },
-          label: 'Speed Limit 45',
-          confidence: 0.94,
-          color: '#ff8800'
-        });
-      }
-
-      // Collision warning
-      if (Math.random() > 0.9) {
-        overlays.push({
-          type: 'warning',
-          boundingBox: { x: 0.35, y: 0.15, width: 0.3, height: 0.15 },
-          label: 'COLLISION WARNING',
-          color: '#ff0000'
-        });
-      }
-    }
-
-    setCvOverlays(overlays);
-
-    // Update stats
-    const vehicleCount = overlays.filter(o => o.label.includes('Vehicle')).length;
-    const pedestrianCount = overlays.filter(o => o.label.includes('Pedestrian')).length;
-    const alertCount = overlays.filter(o => o.type === 'warning').length;
-
+    setCvOverlays([]);
     setDetectionStats({
-      objects: overlays.filter(o => o.type === 'object').length,
-      vehicles: vehicleCount,
-      pedestrians: pedestrianCount,
-      alerts: alertCount
+      objects: 0,
+      vehicles: 0,
+      pedestrians: 0,
+      alerts: 0
     });
   };
 

@@ -414,18 +414,18 @@ export class PushNotificationRepository {
       throw new ValidationError('tenantId is required');
     }
 
-    let query = `
-      SELECT n.*,
-             u.name as created_by_name,
-             COUNT(r.id) as total_recipients,
-             SUM(CASE WHEN r.delivery_status = 'delivered' THEN 1 ELSE 0 END) as delivered,
-             SUM(CASE WHEN r.opened_at IS NOT NULL THEN 1 ELSE 0 END) as opened,
-             SUM(CASE WHEN r.clicked_at IS NOT NULL THEN 1 ELSE 0 END) as clicked
-      FROM push_notifications n
-      LEFT JOIN users u ON n.created_by = u.id
-      LEFT JOIN push_notification_recipients r ON n.id = r.push_notification_id
-      WHERE n.tenant_id = $1
-    `;
+	    let query = `
+	      SELECT n.*,
+	             NULLIF(TRIM(CONCAT(COALESCE(u.first_name, ''), ' ', COALESCE(u.last_name, ''))), '') as created_by_name,
+	             COUNT(r.id) as total_recipients,
+	             SUM(CASE WHEN r.delivery_status = 'delivered' THEN 1 ELSE 0 END) as delivered,
+	             SUM(CASE WHEN r.opened_at IS NOT NULL THEN 1 ELSE 0 END) as opened,
+	             SUM(CASE WHEN r.clicked_at IS NOT NULL THEN 1 ELSE 0 END) as clicked
+	      FROM push_notifications n
+	      LEFT JOIN users u ON n.created_by = u.id
+	      LEFT JOIN push_notification_recipients r ON n.id = r.push_notification_id
+	      WHERE n.tenant_id = $1
+	    `;
 
     const params: any[] = [tenantId];
     let paramIndex = 2;
@@ -454,7 +454,7 @@ export class PushNotificationRepository {
       paramIndex++;
     }
 
-    query += ` GROUP BY n.id, u.name ORDER BY n.created_at DESC`;
+	    query += ` GROUP BY n.id, u.first_name, u.last_name ORDER BY n.created_at DESC`;
 
     if (filters.limit) {
       query += ` LIMIT $${paramIndex}`;

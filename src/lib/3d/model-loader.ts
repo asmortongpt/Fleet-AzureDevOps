@@ -10,9 +10,10 @@
  */
 
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 
+import logger from '@/utils/logger';
 export interface ModelLoadOptions {
   url: string;
   onProgress?: (progress: number) => void;
@@ -118,8 +119,9 @@ export async function loadVehicleModel(
           onProgress(progress);
         }
       },
-      (error) => {
-        const err = new Error(`Failed to load model from ${url}: ${error.message || error}`);
+      (error: unknown) => {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const err = new Error(`Failed to load model from ${url}: ${errorMessage}`);
         if (onError) {
           onError(err);
         }
@@ -141,7 +143,7 @@ export async function loadFallbackModel(
   try {
     return await loadVehicleModel({ url: fallbackUrl });
   } catch (error) {
-    console.error('Failed to load fallback model, using placeholder', error);
+    logger.error('Failed to load fallback model, using placeholder', error);
     return createPlaceholderModel();
   }
 }
@@ -256,7 +258,7 @@ export function clearModelCache(): void {
 export async function preloadModels(urls: string[]): Promise<void> {
   const promises = urls.map(url =>
     loadVehicleModel({ url }).catch(err => {
-      console.warn(`Failed to preload model ${url}:`, err);
+      logger.warn(`Failed to preload model ${url}:`, err);
     })
   );
 

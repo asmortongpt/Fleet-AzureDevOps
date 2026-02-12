@@ -3,7 +3,7 @@
  * Features: Time-series cost trends, category breakdown, YoY comparison
  */
 
-import { TrendDown, TrendUp, CurrencyDollar } from '@phosphor-icons/react'
+import { TrendingDown, TrendingUp, DollarSign } from 'lucide-react'
 import { memo, useMemo } from 'react'
 import {
     LineChart,
@@ -94,7 +94,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                                 className="w-3 h-3 rounded-full"
                                 style={{ backgroundColor: entry.color }}
                             />
-                            <span className="text-slate-400">{entry.name}:</span>
+                            <span className="text-slate-700">{entry.name}:</span>
                         </span>
                         <span className="font-semibold text-white">
                             {formatCurrency(entry.value)}
@@ -266,7 +266,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
 
     if (!data || data.length === 0) {
         return (
-            <div className="flex items-center justify-center h-full text-slate-400">
+            <div className="flex items-center justify-center h-full text-slate-700">
                 <p>No cost data available</p>
             </div>
         )
@@ -278,8 +278,8 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
             {stats && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
-                            <CurrencyDollar className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
+                            <DollarSign className="w-4 h-4" />
                             <span>Total Cost</span>
                         </div>
                         <p className="text-sm font-bold text-white">
@@ -287,7 +287,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                         </p>
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
                             <span>Average</span>
                         </div>
                         <p className="text-sm font-bold text-white">
@@ -295,7 +295,7 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                         </p>
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
                             <span>Peak</span>
                         </div>
                         <p className="text-sm font-bold text-white">
@@ -303,11 +303,11 @@ export const CostAnalyticsChart = memo<CostAnalyticsChartProps>(({
                         </p>
                     </div>
                     <div className="bg-slate-800/40 rounded-lg p-2">
-                        <div className="flex items-center gap-2 text-slate-400 text-sm mb-1">
+                        <div className="flex items-center gap-2 text-slate-700 text-sm mb-1">
                             {stats.trend === 'up' ? (
-                                <TrendUp className="w-4 h-4 text-red-400" />
+                                <TrendingUp className="w-4 h-4 text-red-400" />
                             ) : (
-                                <TrendDown className="w-4 h-4 text-green-400" />
+                                <TrendingDown className="w-4 h-4 text-green-400" />
                             )}
                             <span>Trend</span>
                         </div>

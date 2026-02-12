@@ -10,8 +10,8 @@
  * - Smooth animations and transitions
  */
 
-import { ArrowUp, ArrowDown, Minus, CaretRight } from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
+import { ArrowUp, ArrowDown, Minus, ChevronRight } from 'lucide-react'
+// motion removed - React 19 incompatible
 
 import { cn } from '@/lib/utils'
 
@@ -19,8 +19,10 @@ interface StatCardProps {
     title: string
     value: string | number
     subtitle?: string
+    description?: string  // Alias for subtitle
     trend?: 'up' | 'down' | 'neutral'
     trendValue?: string
+    change?: number  // Alias for trendValue (numeric)
     icon?: React.ReactNode
     variant?: 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'
     size?: 'sm' | 'default' | 'lg'
@@ -117,8 +119,10 @@ export function StatCard({
     title,
     value,
     subtitle,
+    description,
     trend,
     trendValue,
+    change,
     icon,
     variant = 'default',
     size = 'default',
@@ -129,17 +133,14 @@ export function StatCard({
     const isClickable = !!onClick
     const styles = variantStyles[variant]
     const sizes = sizeStyles[size]
+    const displaySubtitle = description || subtitle  // Use description if provided, fallback to subtitle
+    const displayTrendValue = trendValue || (change !== undefined ? `${change > 0 ? '+' : ''}${change}%` : undefined)  // Convert change to string
 
     const TrendIcon = trend === 'up' ? ArrowUp : trend === 'down' ? ArrowDown : Minus
     const trendColor = trend === 'up' ? 'text-success' : trend === 'down' ? 'text-destructive' : 'text-muted-foreground'
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            whileHover={isClickable ? { scale: 1.02, transition: { duration: 0.2 } } : {}}
-            whileTap={isClickable ? { scale: 0.99 } : {}}
+        <div
             role={isClickable ? 'button' : undefined}
             tabIndex={isClickable ? 0 : undefined}
             onClick={onClick}
@@ -195,15 +196,15 @@ export function StatCard({
                     )}>
                         {value}
                     </p>
-                    {(subtitle || trend) && (
+                    {(displaySubtitle || trend) && (
                         <div className="flex items-center gap-2 flex-wrap">
-                            {subtitle && (
-                                <p className={cn('text-muted-foreground truncate', sizes.subtitle)}>{subtitle}</p>
+                            {displaySubtitle && (
+                                <p className={cn('text-muted-foreground truncate', sizes.subtitle)}>{displaySubtitle}</p>
                             )}
-                            {trend && trendValue && (
+                            {trend && displayTrendValue && (
                                 <div className={cn('flex items-center gap-0.5 font-medium', trendColor, sizes.subtitle)}>
-                                    <TrendIcon className="w-3 h-3" weight="bold" />
-                                    <span>{trendValue}</span>
+                                    <TrendIcon className="w-3 h-3" />
+                                    <span>{displayTrendValue}</span>
                                 </div>
                             )}
                         </div>
@@ -228,10 +229,10 @@ export function StatCard({
             {/* Drilldown indicator */}
             {isClickable && (
                 <div className="absolute bottom-3 right-3 opacity-0 translate-x-1 group-hover:opacity-60 group-hover:translate-x-0 transition-all duration-300">
-                    <CaretRight className="w-4 h-4 text-primary" weight="bold" />
+                    <ChevronRight className="w-4 h-4 text-primary" />
                 </div>
             )}
-        </motion.div>
+        </div>
     )
 }
 
@@ -276,12 +277,7 @@ export function ProgressRing({
     const offset = circumference - (Math.min(100, Math.max(0, progress)) / 100) * circumference
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="relative inline-flex items-center justify-center"
-        >
+        <div className="relative inline-flex items-center justify-center">
             <svg width={size} height={size} className="transform -rotate-90">
                 {/* Background circle */}
                 <circle
@@ -293,18 +289,16 @@ export function ProgressRing({
                     strokeWidth={strokeWidth}
                     className={ringBgColors[color]}
                 />
-                <motion.circle
+                <circle
                     cx={size / 2}
                     cy={size / 2}
                     r={radius}
                     fill="none"
                     strokeWidth={strokeWidth}
                     strokeDasharray={circumference}
+                    strokeDashoffset={offset}
                     strokeLinecap="round"
                     className={cn('transition-all duration-700 ease-out', ringColors[color])}
-                    initial={{ strokeDashoffset: circumference }}
-                    animate={{ strokeDashoffset: offset }}
-                    transition={{ duration: 1, ease: 'easeOut', delay: 0.2 }}
                 />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
@@ -312,7 +306,7 @@ export function ProgressRing({
                 {label && <span className="text-xs text-muted-foreground font-medium">{label}</span>}
                 {sublabel && <span className="text-xs text-muted-foreground/70">{sublabel}</span>}
             </div>
-        </motion.div>
+        </div>
     )
 }
 
@@ -372,10 +366,7 @@ interface QuickStatProps {
 export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
     const isClickable = !!onClick
     return (
-        <motion.div
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2 }}
+        <div
             role={isClickable ? 'button' : undefined}
             tabIndex={isClickable ? 0 : undefined}
             onClick={onClick}
@@ -404,14 +395,14 @@ export function QuickStat({ label, value, trend, onClick }: QuickStatProps) {
                         trend === 'up' ? 'text-success' : 'text-destructive',
                         isClickable && 'group-hover:scale-110'
                     )}>
-                        {trend === 'up' ? <ArrowUp className="w-3.5 h-3.5" weight="bold" /> : <ArrowDown className="w-3.5 h-3.5" weight="bold" />}
+                        {trend === 'up' ? <ArrowUp className="w-3.5 h-3.5" /> : <ArrowDown className="w-3.5 h-3.5" />}
                     </span>
                 )}
                 {isClickable && (
-                    <CaretRight className="w-3.5 h-3.5 text-muted-foreground opacity-50" />
+                    <ChevronRight className="w-3.5 h-3.5 text-muted-foreground opacity-50" />
                 )}
             </div>
-        </motion.div>
+        </div>
     )
 }
 
@@ -425,22 +416,11 @@ interface StatGridProps {
     staggerDelay?: number
 }
 
-export function StatGrid({ children, className, staggerDelay = 0.1 }: StatGridProps) {
+export function StatGrid({ children, className }: StatGridProps) {
     return (
-        <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={{
-                visible: {
-                    transition: {
-                        staggerChildren: staggerDelay,
-                    },
-                },
-            }}
-            className={className}
-        >
+        <div className={className}>
             {children}
-        </motion.div>
+        </div>
     )
 }
 

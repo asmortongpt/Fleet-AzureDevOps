@@ -11,7 +11,6 @@
  * Created: 2026-01-08
  */
 
-import React, { useState, useMemo } from 'react';
 import {
   Activity,
   AlertTriangle,
@@ -20,12 +19,12 @@ import {
   Gauge,
   Wrench,
   Calendar,
-  TrendingUp,
   CheckCircle,
   XCircle,
   Clock,
-  DollarSign,
 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+
 import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
 
 // ============================================================================
@@ -111,7 +110,7 @@ export function VehicleConditionPanel({
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-white mb-1">Vehicle Condition</h2>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-700 text-sm">
               Last updated: {condition.lastUpdated.toLocaleString()}
             </p>
           </div>
@@ -149,7 +148,7 @@ export function VehicleConditionPanel({
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="text-base font-bold text-white">{healthScore}</span>
-                <span className="text-xs text-slate-400">Health</span>
+                <span className="text-xs text-slate-700">Health</span>
               </div>
             </div>
           </div>
@@ -175,7 +174,7 @@ export function VehicleConditionPanel({
                 {onScheduleService && (
                   <button
                     onClick={() => onScheduleService(alert.type)}
-                    className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+                    className="text-blue-700 hover:text-blue-300 text-sm font-medium"
                   >
                     Schedule
                   </button>
@@ -199,7 +198,7 @@ export function VehicleConditionPanel({
             className={`flex-1 px-3 py-3 text-sm font-medium transition-colors ${
               activeTab === tab.id
                 ? 'text-white bg-slate-800 border-b-2 border-blue-500'
-                : 'text-slate-400 hover:text-white hover:bg-slate-800/50'
+                : 'text-slate-700 hover:text-white hover:bg-slate-800/50'
             }`}
           >
             {tab.label}
@@ -282,7 +281,7 @@ function OverviewTab({ condition, onScheduleService }: OverviewTabProps) {
             {onScheduleService && (
               <button
                 onClick={() => onScheduleService(condition.nextScheduledService.type)}
-                className="text-blue-400 hover:text-blue-300 text-sm font-medium"
+                className="text-blue-700 hover:text-blue-300 text-sm font-medium"
               >
                 Reschedule
               </button>
@@ -291,27 +290,27 @@ function OverviewTab({ condition, onScheduleService }: OverviewTabProps) {
 
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <Wrench size={20} className="text-slate-400" />
+              <Wrench size={20} className="text-slate-700" />
               <div>
                 <p className="text-white font-medium">{condition.nextScheduledService.type}</p>
-                <p className="text-slate-400 text-sm">{condition.nextScheduledService.description}</p>
+                <p className="text-slate-700 text-sm">{condition.nextScheduledService.description}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2 mt-2">
               <div className="flex items-center gap-2">
-                <Calendar size={16} className="text-slate-400" />
+                <Calendar size={16} className="text-slate-700" />
                 <div>
-                  <p className="text-xs text-slate-400">Due Date</p>
+                  <p className="text-xs text-slate-700">Due Date</p>
                   <p className="text-white text-sm">
                     {condition.nextScheduledService.dueDate.toLocaleDateString()}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Gauge size={16} className="text-slate-400" />
+                <Gauge size={16} className="text-slate-700" />
                 <div>
-                  <p className="text-xs text-slate-400">Due Mileage</p>
+                  <p className="text-xs text-slate-700">Due Mileage</p>
                   <p className="text-white text-sm">
                     {condition.nextScheduledService.dueMileage.toLocaleString()} {condition.mileage.unit}
                   </p>
@@ -449,16 +448,16 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
       {/* Summary */}
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-slate-800/50 rounded-lg p-2 text-center">
-          <p className="text-slate-400 text-sm mb-1">Total Services</p>
+          <p className="text-slate-700 text-sm mb-1">Total Services</p>
           <p className="text-sm font-bold text-white">{filteredHistory.length}</p>
         </div>
         <div className="bg-slate-800/50 rounded-lg p-2 text-center">
-          <p className="text-slate-400 text-sm mb-1">Total Cost</p>
+          <p className="text-slate-700 text-sm mb-1">Total Cost</p>
           <p className="text-sm font-bold text-green-400">${totalCost.toLocaleString()}</p>
         </div>
         <div className="bg-slate-800/50 rounded-lg p-2 text-center">
-          <p className="text-slate-400 text-sm mb-1">Avg Cost</p>
-          <p className="text-sm font-bold text-blue-400">
+          <p className="text-slate-700 text-sm mb-1">Avg Cost</p>
+          <p className="text-sm font-bold text-blue-700">
             ${Math.round(totalCost / (filteredHistory.length || 1)).toLocaleString()}
           </p>
         </div>
@@ -494,7 +493,7 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
       {/* Timeline */}
       <div className="space-y-2">
         {filteredHistory.length === 0 ? (
-          <div className="text-center py-12 text-slate-400">
+          <div className="text-center py-12 text-slate-700">
             <Clock size={48} className="mx-auto mb-2 opacity-50" />
             <p>No service records found</p>
           </div>
@@ -513,7 +512,7 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
                     <h4 className="text-white font-semibold capitalize mb-1">
                       {record.serviceType.replace(/_/g, ' ')}
                     </h4>
-                    <p className="text-slate-400 text-sm">{record.description}</p>
+                    <p className="text-slate-700 text-sm">{record.description}</p>
                   </div>
                   <span className="text-green-400 font-semibold">
                     ${record.cost.toLocaleString()}
@@ -541,7 +540,7 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
 
                 {record.parts.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-slate-700">
-                    <p className="text-slate-400 text-sm mb-2">Parts Used:</p>
+                    <p className="text-slate-700 text-sm mb-2">Parts Used:</p>
                     <ul className="space-y-1">
                       {record.parts.map((part, idx) => (
                         <li key={idx} className="text-sm text-slate-300 flex justify-between">
@@ -577,7 +576,7 @@ interface StatCardProps {
 
 function StatCard({ icon, label, value, unit, color }: StatCardProps) {
   const colorClasses = {
-    blue: 'text-blue-400 bg-blue-900/30',
+    blue: 'text-blue-700 bg-blue-900/30',
     green: 'text-green-400 bg-green-900/30',
     yellow: 'text-yellow-400 bg-yellow-900/30',
     red: 'text-red-400 bg-red-900/30',
@@ -588,10 +587,10 @@ function StatCard({ icon, label, value, unit, color }: StatCardProps) {
       <div className={`inline-flex p-2 rounded-lg mb-3 ${colorClasses[color]}`}>
         {icon}
       </div>
-      <p className="text-slate-400 text-sm mb-1">{label}</p>
+      <p className="text-slate-700 text-sm mb-1">{label}</p>
       <p className="text-sm font-bold text-white">
         {value}
-        {unit && <span className="text-sm text-slate-400 ml-1">{unit}</span>}
+        {unit && <span className="text-sm text-slate-700 ml-1">{unit}</span>}
       </p>
     </div>
   );
@@ -619,7 +618,7 @@ interface DetailRowProps {
 function DetailRow({ label, value }: DetailRowProps) {
   return (
     <div className="flex items-center justify-between py-2 border-b border-slate-700 last:border-0">
-      <span className="text-slate-400">{label}</span>
+      <span className="text-slate-700">{label}</span>
       <span className="text-white font-medium capitalize">{value}</span>
     </div>
   );
@@ -648,7 +647,7 @@ function TirePressureVisual({ tires }: { tires: VehicleCondition['tires'] }) {
         >
           <div className="text-white font-bold text-sm">{tire.pressure}</div>
         </div>
-        <p className="text-slate-400 text-xs">{position}</p>
+        <p className="text-slate-700 text-xs">{position}</p>
         <p className="text-white text-xs">{tire.condition}</p>
       </div>
     );

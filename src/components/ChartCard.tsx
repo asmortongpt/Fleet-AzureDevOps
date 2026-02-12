@@ -1,14 +1,14 @@
-import { 
-  LineChart, 
-  Line, 
+import {
+  LineChart,
+  Line,
   AreaChart,
   Area,
   BarChart,
   Bar,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
   ResponsiveContainer
 } from "recharts"
 

@@ -19,7 +19,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Grid,
   Tabs,
   Tab,
   Table,
@@ -52,14 +51,19 @@ import {
   ListItemIcon,
   Divider
 } from '@mui/material';
+import Grid from '@mui/material/GridLegacy';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import React, { useState, useEffect } from 'react';
 
+import logger from '@/utils/logger';
 import WarrantyRecallService, {
   WarrantyInfo,
   RecallInfo,
   WarrantyAnalytics,
-  RecallAnalytics
+  RecallAnalytics,
+  WarrantyClaim,
+  ClaimReason,
+  VendorPerformance
 } from '../../services/inventory/WarrantyRecallService';
 
 interface TabPanelProps {
@@ -113,7 +117,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       ]);
 
       const [warrantyData, recallData, warrantyStats, recallStats] = await Promise.all([
-        WarrantyRecallService.getWarrantyAnalytics().then(() => Array.from((WarrantyRecallService as any).warranties.values())),
+        WarrantyRecallService.getAllWarranties(),
         WarrantyRecallService.getActiveRecalls(),
         WarrantyRecallService.getWarrantyAnalytics(),
         WarrantyRecallService.getRecallAnalytics()
@@ -124,12 +128,12 @@ const WarrantyRecallDashboard: React.FC = () => {
       setWarrantyAnalytics(warrantyStats);
       setRecallAnalytics(recallStats);
 
-      const totalNotifications = warrantyData.reduce((sum, w) =>
-        sum + w.notifications.filter(n => !n.acknowledged).length, 0
+      const totalNotifications = warrantyData.reduce((sum: number, w: WarrantyInfo) =>
+        sum + w.notifications.filter((n: { acknowledged: boolean }) => !n.acknowledged).length, 0
       );
       setNotificationCount(totalNotifications);
     } catch (error) {
-      console.error('Error initializing warranty/recall data:', error);
+      logger.error('Error initializing warranty/recall data:', error);
     } finally {
       setLoading(false);
     }
@@ -139,7 +143,7 @@ const WarrantyRecallDashboard: React.FC = () => {
     setTabValue(newValue);
   };
 
-  const getWarrantyStatusColor = (warranty: WarrantyInfo) => {
+  const getWarrantyStatusColor = (warranty: WarrantyInfo): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     const endDate = parseISO(warranty.warrantyEndDate);
     const daysRemaining = differenceInDays(endDate, new Date());
 
@@ -149,7 +153,7 @@ const WarrantyRecallDashboard: React.FC = () => {
     return 'success';
   };
 
-  const getRecallSeverityColor = (severity: string) => {
+  const getRecallSeverityColor = (severity: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (severity) {
       case 'SAFETY': return 'error';
       case 'PERFORMANCE': return 'warning';
@@ -159,7 +163,7 @@ const WarrantyRecallDashboard: React.FC = () => {
     }
   };
 
-  const getUrgencyColor = (urgency: string) => {
+  const getUrgencyColor = (urgency: string): 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning' => {
     switch (urgency) {
       case 'IMMEDIATE': return 'error';
       case 'URGENT': return 'warning';
@@ -185,7 +189,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       setNewClaim({ claimNumber: '', issueDescription: '', claimType: 'DEFECT' });
       await initializeData();
     } catch (error) {
-      console.error('Error submitting warranty claim:', error);
+      logger.error('Error submitting warranty claim:', error);
     }
   };
 
@@ -197,7 +201,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       });
       await initializeData();
     } catch (error) {
-      console.error('Error processing recall action:', error);
+      logger.error('Error processing recall action:', error);
     }
   };
 
@@ -212,7 +216,7 @@ const WarrantyRecallDashboard: React.FC = () => {
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Error generating compliance report:', error);
+      logger.error('Error generating compliance report:', error);
     }
   };
 
@@ -249,7 +253,7 @@ const WarrantyRecallDashboard: React.FC = () => {
 
       {warrantyAnalytics && recallAnalytics && (
         <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -257,13 +261,13 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <Typography variant="h6">Active Warranties</Typography>
                 </Box>
                 <Typography variant="h4">{warrantyAnalytics.activeWarranties}</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {warrantyAnalytics.expiringWithin30Days} expiring soon
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -271,13 +275,13 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <Typography variant="h6">Active Recalls</Typography>
                 </Box>
                 <Typography variant="h4">{recallAnalytics.activeRecalls}</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {recallAnalytics.affectedItemsCount} items affected
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -285,13 +289,13 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <Typography variant="h6">Compliance Rate</Typography>
                 </Box>
                 <Typography variant="h4">{recallAnalytics.complianceRate.toFixed(1)}%</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {recallAnalytics.overdueActions} overdue actions
                 </Typography>
               </CardContent>
             </Card>
           </Grid>
-          <Grid item xs={12} md={3}>
+          <Grid xs={12} md={3}>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
@@ -299,7 +303,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                   <Typography variant="h6">Claim Success Rate</Typography>
                 </Box>
                 <Typography variant="h4">{warrantyAnalytics.claimSuccessRate.toFixed(1)}%</Typography>
-                <Typography variant="body2" color="text: secondary">
+                <Typography variant="body2" color="text.secondary">
                   {warrantyAnalytics.totalClaims} total claims
                 </Typography>
               </CardContent>
@@ -354,7 +358,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                           <Typography variant="body2" fontWeight="bold">
                             {warranty.partName}
                           </Typography>
-                          <Typography variant="caption" color="text: secondary">
+                          <Typography variant="caption" color="text.secondary">
                             {warranty.partNumber}
                           </Typography>
                         </Box>
@@ -388,7 +392,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                               />
                               <Typography
                                 variant="body2"
-                                color={daysRemaining <= 30 ? 'error' : 'text: primary'}
+                                color={daysRemaining <= 30 ? 'error' : 'text.primary'}
                               >
                                 {daysRemaining} days
                               </Typography>
@@ -448,14 +452,14 @@ const WarrantyRecallDashboard: React.FC = () => {
                       />
                     </Box>
                   </Box>
-                  <Typography variant="body2" color="text: secondary">
+                  <Typography variant="body2" color="text.secondary">
                     {recall.recallNumber}
                   </Typography>
                 </Box>
               </AccordionSummary>
               <AccordionDetails>
                 <Grid container spacing={3}>
-                  <Grid item xs={12} md={8}>
+                  <Grid xs={12} md={8}>
                     <Typography variant="body1" paragraph>
                       {recall.description}
                     </Typography>
@@ -467,7 +471,7 @@ const WarrantyRecallDashboard: React.FC = () => {
 
                     <Typography variant="h6" gutterBottom>Affected Parts</Typography>
                     <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                      {recall.affectedParts.map((part, index) => (
+                      {recall.affectedParts.map((part: string, index: number) => (
                         <Chip key={index} label={part} size="small" />
                       ))}
                     </Box>
@@ -487,7 +491,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                               </TableRow>
                             </TableHead>
                             <TableBody>
-                              {recall.affectedInventory.map((item, index) => (
+                              {recall.affectedInventory.map((item: { partId: string; partNumber: string; location: string; actionRequired: string; complianceStatus: string }, index: number) => (
                                 <TableRow key={index}>
                                   <TableCell>{item.partNumber}</TableCell>
                                   <TableCell>{item.location}</TableCell>
@@ -519,7 +523,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                     )}
                   </Grid>
 
-                  <Grid item xs={12} md={4}>
+                  <Grid xs={12} md={4}>
                     <Card variant="outlined">
                       <CardContent>
                         <Typography variant="h6" gutterBottom>Vendor Contact</Typography>
@@ -549,10 +553,10 @@ const WarrantyRecallDashboard: React.FC = () => {
 
                         <Divider sx={{ my: 2 }} />
 
-                        <Typography variant="body2" color="text: secondary">
+                        <Typography variant="body2" color="text.secondary">
                           <strong>Issued:</strong> {format(parseISO(recall.dateIssued), 'MMM dd, yyyy')}
                         </Typography>
-                        <Typography variant="body2" color="text: secondary">
+                        <Typography variant="body2" color="text.secondary">
                           <strong>Effective:</strong> {format(parseISO(recall.effectiveDate), 'MMM dd, yyyy')}
                         </Typography>
                         {recall.complianceDeadline && (
@@ -599,7 +603,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {warranty.claimHistory.map((claim) => (
+                        {warranty.claimHistory.map((claim: WarrantyClaim) => (
                           <TableRow key={claim.id}>
                             <TableCell>{claim.claimNumber}</TableCell>
                             <TableCell>
@@ -633,12 +637,12 @@ const WarrantyRecallDashboard: React.FC = () => {
 
           {warrantyAnalytics && recallAnalytics && (
             <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Warranty Performance</Typography>
                     <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" color="text: secondary">
+                      <Typography variant="body2" color="text.secondary">
                         Claim Success Rate
                       </Typography>
                       <LinearProgress
@@ -652,7 +656,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                     </Box>
 
                     <Typography variant="h6" gutterBottom>Top Claim Reasons</Typography>
-                    {warrantyAnalytics.topClaimReasons.map((reason, index) => (
+                    {warrantyAnalytics.topClaimReasons.map((reason: ClaimReason, index: number) => (
                       <Box key={index} sx={{ mb: 1 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                           <Typography variant="body2">{reason.reason}</Typography>
@@ -669,12 +673,12 @@ const WarrantyRecallDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12} md={6}>
+              <Grid xs={12} md={6}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Recall Compliance</Typography>
                     <Box sx={{ mb: 2 }}>
-                      <Typography variant="body2" color="text: secondary">
+                      <Typography variant="body2" color="text.secondary">
                         Overall Compliance Rate
                       </Typography>
                       <LinearProgress
@@ -689,7 +693,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                     </Box>
 
                     <Typography variant="h6" gutterBottom>Recalls by Severity</Typography>
-                    {Object.entries(recallAnalytics.recallsBySeverity).map(([severity, count]) => (
+                    {Object.entries(recallAnalytics.recallsBySeverity).map(([severity, count]: [string, number]) => (
                       <Box key={severity} sx={{ mb: 1 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                           <Typography variant="body2">{severity}</Typography>
@@ -699,7 +703,10 @@ const WarrantyRecallDashboard: React.FC = () => {
                           variant="determinate"
                           value={(count / recallAnalytics.totalRecalls) * 100}
                           sx={{ height: 4 }}
-                          color={getRecallSeverityColor(severity) as any}
+                          color={(() => {
+                            const color = getRecallSeverityColor(severity);
+                            return color === 'default' || color === 'secondary' ? 'primary' : color;
+                          })()}
                         />
                       </Box>
                     ))}
@@ -707,7 +714,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                 </Card>
               </Grid>
 
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Vendor Performance</Typography>
@@ -723,7 +730,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {warrantyAnalytics.vendorPerformance.map((vendor) => (
+                          {warrantyAnalytics.vendorPerformance.map((vendor: VendorPerformance) => (
                             <TableRow key={vendor.vendorId}>
                               <TableCell>{vendor.vendorName}</TableCell>
                               <TableCell>{vendor.totalWarranties}</TableCell>
@@ -752,7 +759,7 @@ const WarrantyRecallDashboard: React.FC = () => {
         <DialogTitle>Submit Warranty Claim</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 label="Claim Number"
@@ -761,7 +768,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                 required
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <FormControl fullWidth required>
                 <InputLabel>Claim Type</InputLabel>
                 <Select
@@ -775,7 +782,7 @@ const WarrantyRecallDashboard: React.FC = () => {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <TextField
                 fullWidth
                 multiline

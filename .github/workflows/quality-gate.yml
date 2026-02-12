@@ -25,19 +25,19 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: TypeScript Type Checking (Frontend)
-        run: npm run typecheck || echo "TypeScript errors found - continuing build"
-        continue-on-error: true
+        run: npm run typecheck
+        continue-on-error: false
 
       - name: TypeScript Type Checking (API)
         run: |
           cd api
           npm ci --legacy-peer-deps
-          npm run build || echo "API type check completed"
-        continue-on-error: true
+          npm run build
+        continue-on-error: false
 
       - name: ESLint Code Quality
-        run: npm run lint || echo "Lint warnings found - continuing build"
-        continue-on-error: true
+        run: npm run lint
+        continue-on-error: false
 
       - name: Run Unit Tests
         run: npm test -- --run --passWithNoTests

@@ -117,7 +117,8 @@ function VehicleModel({
   exteriorColor = '#ffffff',
   showDamage = false,
   damageMarkers = [],
-  quality = 'medium'
+  quality = 'medium',
+  vehicleType = 'sedan'
 }: {
   url: string;
   exteriorColor?: string;
@@ -129,17 +130,14 @@ function VehicleModel({
     description?: string;
   }>;
   quality?: 'low' | 'medium' | 'high';
+  vehicleType?: 'truck' | 'suv' | 'van' | 'sedan';
 }) {
   const groupRef = useRef<THREE.Group>(null);
   const [modelLoaded, setModelLoaded] = useState(false);
 
   // Load GLTF model (placeholder for now)
   // In production, this would load actual vehicle models
-  const { scene } = useGLTF(url || `/models/vehicles/${
-  vehicleType === 'truck' ? 'trucks' :
-  vehicleType === 'suv' ? 'suvs' :
-  vehicleType === 'van' ? 'vans' : 'sedans'
-}/default.glb`, true);
+  const { scene } = useGLTF(url || '/models/vehicles/sedans/default.glb', true);
 
   useEffect(() => {
     if (scene) {

@@ -13,7 +13,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { logger } from '@/utils/logger';
 
-interface MockUserProfile {
+interface UserProfile {
   id: string;
   email: string;
   firstName: string;
@@ -27,13 +27,13 @@ interface MockUserProfile {
 }
 
 interface ProductionOktaContextType {
-  user: MockUserProfile | null;
+  user: UserProfile | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (username?: string) => Promise<void>;
   logout: () => Promise<void>;
   hasPermission: (permission: string) => boolean;
-  hasRole: (role: MockUserProfile["role"]) => boolean;
+  hasRole: (role: UserProfile["role"]) => boolean;
   getAuthHeaders: () => Promise<Record<string, string>>;
 }
 
@@ -59,7 +59,7 @@ interface ProductionOktaProviderProps {
 }
 
 // Role mapping from Okta groups to application roles
-const OKTA_ROLE_MAPPING: Record<string, MockUserProfile['role']> = {
+const OKTA_ROLE_MAPPING: Record<string, UserProfile['role']> = {
   "DCF-Fleet-Administrators": "admin",
   "Florida-Legislature": "legislature",
   "DCF-Department-Managers": "department",
@@ -67,7 +67,7 @@ const OKTA_ROLE_MAPPING: Record<string, MockUserProfile['role']> = {
 };
 
 // Permission mapping based on roles
-const ROLE_PERMISSIONS: Record<MockUserProfile['role'], string[]> = {
+const ROLE_PERMISSIONS: Record<UserProfile['role'], string[]> = {
   admin: ['read', 'write', 'admin', 'fleet:manage', 'drivers:manage', 'maintenance:manage'],
   legislature: ['read', 'fleet:view', 'analytics:view'],
   department: ['read', 'write', 'fleet:manage', 'drivers:view'],
@@ -77,7 +77,7 @@ const ROLE_PERMISSIONS: Record<MockUserProfile['role'], string[]> = {
 // Context provider component
 const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { oktaAuth: contextOktaAuth, authState } = useOktaAuth();
-  const [user, setUser] = useState<MockUserProfile | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -117,7 +117,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
       }
 
       // Map Okta groups to application role
-      let userRole: MockUserProfile['role'] = 'driver'; // Default role
+      let userRole: UserProfile['role'] = 'driver'; // Default role
       for (const group of userGroups) {
         if (OKTA_ROLE_MAPPING[group]) {
           userRole = OKTA_ROLE_MAPPING[group];
@@ -125,8 +125,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
         }
       }
 
-      // Create user profile compatible with mock auth
-      const userProfile: MockUserProfile = {
+      const userProfile: UserProfile = {
         id: userInfo.sub || 'okta-user',
         email: userInfo.email || '',
         firstName: userInfo.given_name || 'Unknown',
@@ -148,7 +147,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
     }
   };
 
-  const getDepartmentFromRole = (role: MockUserProfile['role']): string => {
+  const getDepartmentFromRole = (role: UserProfile['role']): string => {
     switch (role) {
       case 'admin': return 'DCF Fleet Operations';
       case 'legislature': return 'Florida House of Representatives';
@@ -202,7 +201,7 @@ const ProductionOktaContextProvider: React.FC<{ children: ReactNode }> = ({ chil
     return user?.permissions?.includes(permission) || false;
   };
 
-  const hasRole = (role: MockUserProfile['role']): boolean => {
+  const hasRole = (role: UserProfile['role']): boolean => {
     return user?.role === role;
   };
 

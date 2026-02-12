@@ -6,6 +6,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 
+import { secureFetch } from '@/hooks/use-api'
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
 
 interface Employee {
@@ -53,7 +55,7 @@ export function useReactivePeopleData() {
   const { data: employees = [], isLoading: employeesLoading } = useQuery<Employee[]>({
     queryKey: ['employees', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/employees`)
+      const response = await secureFetch(`${API_BASE}/employees`)
       if (!response.ok) throw new Error('Failed to fetch employees')
       return response.json()
     },
@@ -65,7 +67,7 @@ export function useReactivePeopleData() {
   const { data: teams = [], isLoading: teamsLoading } = useQuery<Team[]>({
     queryKey: ['teams', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/teams`)
+      const response = await secureFetch(`${API_BASE}/teams`)
       if (!response.ok) throw new Error('Failed to fetch teams')
       return response.json()
     },
@@ -77,7 +79,7 @@ export function useReactivePeopleData() {
   const { data: reviews = [], isLoading: reviewsLoading } = useQuery<PerformanceReview[]>({
     queryKey: ['performance-reviews', realTimeUpdate],
     queryFn: async () => {
-      const response = await fetch(`${API_BASE}/performance-reviews`)
+      const response = await secureFetch(`${API_BASE}/performance-reviews`)
       if (!response.ok) throw new Error('Failed to fetch performance reviews')
       return response.json()
     },
@@ -132,15 +134,29 @@ export function useReactivePeopleData() {
     needsImprovement: employees.filter((e) => e.performanceRating < 60).length,
   }
 
-  // Performance trend data (mock - would come from API with historical data)
-  const performanceTrendData = [
-    { name: 'Jan', avgRating: 82, reviews: 15 },
-    { name: 'Feb', avgRating: 85, reviews: 18 },
-    { name: 'Mar', avgRating: 84, reviews: 16 },
-    { name: 'Apr', avgRating: 87, reviews: 20 },
-    { name: 'May', avgRating: 86, reviews: 17 },
-    { name: 'Jun', avgRating: 89, reviews: 22 },
-  ]
+  // Performance trend data derived from review history (last 6 months)
+  const performanceTrendData = Array.from({ length: 6 }, (_, i) => {
+    const date = new Date()
+    date.setMonth(date.getMonth() - (5 - i))
+    const label = date.toLocaleDateString('en-US', { month: 'short' })
+    const month = date.getMonth()
+    const year = date.getFullYear()
+
+    const monthlyReviews = reviews.filter((review) => {
+      const reviewDate = new Date(review.date)
+      return reviewDate.getMonth() === month && reviewDate.getFullYear() === year
+    })
+
+    const avgRating = monthlyReviews.length > 0
+      ? Math.round(monthlyReviews.reduce((sum, r) => sum + (r.rating || 0), 0) / monthlyReviews.length)
+      : 0
+
+    return {
+      name: label,
+      avgRating,
+      reviews: monthlyReviews.length,
+    }
+  })
 
   // Department performance data (top departments by avg rating)
   const departmentPerformanceData = Object.entries(

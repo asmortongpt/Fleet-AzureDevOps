@@ -11,20 +11,7 @@
  * - Fully responsive design
  */
 
-import {
-  Circle,
-  CaretDown,
-  CaretUp,
-  Pulse,
-  WarningCircle,
-  CheckCircle,
-  XCircle,
-  ArrowsClockwise,
-  Lightning,
-  Broadcast,
-  Globe,
-  Clock
-} from '@phosphor-icons/react'
+import { Circle, ChevronDown, ChevronUp, Activity, AlertCircle, CheckCircle, XCircle, RefreshCw, Zap, Radio, Globe, Clock } from 'lucide-react'
 import { useState, useEffect, useCallback, useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -33,9 +20,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { useDispatchSocket } from '@/hooks/useDispatchSocket'
-import { useOBD2Emulator } from '@/hooks/useOBD2Emulator'
-import { useRadioSocket } from '@/hooks/useRadioSocket'
 
 interface EndpointStatus {
   endpoint: string
@@ -66,84 +50,127 @@ export function EndpointMonitor() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['core']))
 
-  // WebSocket connections
-  const obd2 = useOBD2Emulator(false)
-  const radio = useRadioSocket(null)
-  const dispatch = useDispatchSocket({ autoConnect: false })
+  // WebSocket connection (DB-backed emulator stream)
+  const [emulatorStream, setEmulatorStream] = useState<Pick<WebSocketStatus,
+    'isConnected' | 'lastConnected' | 'lastDisconnected' | 'reconnectAttempts' | 'messagesReceived' | 'latency'
+  >>({
+    isConnected: false,
+    lastConnected: null,
+    lastDisconnected: null,
+    reconnectAttempts: 0,
+    messagesReceived: 0,
+    latency: null,
+  })
 
   // Define all REST endpoints to monitor
   const endpointDefinitions: Omit<EndpointStatus, 'status' | 'latency' | 'lastChecked' | 'uptime' | 'errorCount'>[] = [
     // Core endpoints
-    { endpoint: '/api/csrf', name: 'CSRF Token', category: 'core' },
-    { endpoint: '/api/auth/login', name: 'Authentication', category: 'core' },
-    { endpoint: '/api/vehicles', name: 'Vehicles API', category: 'core' },
-    { endpoint: '/api/drivers', name: 'Drivers API', category: 'core' },
-    { endpoint: '/api/telemetry', name: 'Telemetry API', category: 'core' },
+    { endpoint: '/api/dashboard/stats', name: 'Dashboard Stats', category: 'core' },
+    { endpoint: '/api/auth/me', name: 'Current Session', category: 'core' },
+    { endpoint: '/api/vehicles?limit=1', name: 'Vehicles API', category: 'core' },
+    { endpoint: '/api/drivers?limit=1', name: 'Drivers API', category: 'core' },
+    { endpoint: '/api/incidents?limit=1', name: 'Incidents API', category: 'core' },
 
     // Management endpoints
-    { endpoint: '/api/work-orders', name: 'Work Orders', category: 'management' },
-    { endpoint: '/api/maintenance-schedules', name: 'Maintenance', category: 'management' },
-    { endpoint: '/api/inspections', name: 'Inspections', category: 'management' },
-    { endpoint: '/api/fuel-transactions', name: 'Fuel Tracking', category: 'management' },
-    { endpoint: '/api/purchase-orders', name: 'Purchase Orders', category: 'management' },
+    { endpoint: '/api/work-orders?limit=1', name: 'Work Orders', category: 'management' },
+    { endpoint: '/api/maintenance-schedules?limit=1', name: 'Maintenance', category: 'management' },
+    { endpoint: '/api/inspections?limit=1', name: 'Inspections', category: 'management' },
+    { endpoint: '/api/fuel-transactions?limit=1', name: 'Fuel Tracking', category: 'management' },
+    { endpoint: '/api/service-bays', name: 'Service Bays', category: 'management' },
 
     // Analytics endpoints
-    { endpoint: '/api/routes', name: 'Routes', category: 'analytics' },
-    { endpoint: '/api/geofences', name: 'Geofences', category: 'analytics' },
-    { endpoint: '/api/safety-incidents', name: 'Safety Incidents', category: 'analytics' },
-    { endpoint: '/api/traffic-cameras', name: 'Traffic Cameras', category: 'analytics' },
-
-    // Integration endpoints
-    { endpoint: '/api/teams', name: 'MS Teams', category: 'integration' },
-    { endpoint: '/api/outlook/messages', name: 'Outlook', category: 'integration' },
-    { endpoint: '/api/calendar/events', name: 'Calendar', category: 'integration' },
-    { endpoint: '/api/arcgis-layers', name: 'ArcGIS Layers', category: 'integration' },
+    { endpoint: '/api/routes?limit=1', name: 'Routes', category: 'analytics' },
+    { endpoint: '/api/geofences?limit=1', name: 'Geofences', category: 'analytics' },
+    { endpoint: '/api/hazard-zones', name: 'Hazard Zones', category: 'analytics' },
   ]
+
+  // Keep a lightweight WS to the emulator stream so the UI reflects real demo connectivity.
+  useEffect(() => {
+    let ws: WebSocket | null = null
+    let cancelled = false
+    let attempts = 0
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+    const host = window.location.hostname || 'localhost'
+    const url = `${protocol}//${host}:3004/emulator/stream`
+
+    const connect = () => {
+      if (cancelled) return
+      attempts += 1
+      setEmulatorStream((s) => ({ ...s, reconnectAttempts: attempts - 1 }))
+
+      try {
+        ws = new WebSocket(url)
+      } catch {
+        ws = null
+        return
+      }
+
+      ws.onopen = () => {
+        if (cancelled) return
+        setEmulatorStream((s) => ({
+          ...s,
+          isConnected: true,
+          lastConnected: new Date(),
+          latency: 0,
+        }))
+      }
+
+      ws.onmessage = () => {
+        if (cancelled) return
+        setEmulatorStream((s) => ({ ...s, messagesReceived: s.messagesReceived + 1 }))
+      }
+
+      ws.onclose = () => {
+        if (cancelled) return
+        setEmulatorStream((s) => ({
+          ...s,
+          isConnected: false,
+          lastDisconnected: new Date(),
+        }))
+        // Retry with simple backoff.
+        window.setTimeout(connect, Math.min(10_000, 500 + attempts * 500))
+      }
+
+      ws.onerror = () => {
+        try {
+          ws?.close()
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    connect()
+    return () => {
+      cancelled = true
+      try {
+        ws?.close()
+      } catch {
+        // ignore
+      }
+    }
+  }, [])
 
   // WebSocket status
   const webSocketStatuses: WebSocketStatus[] = useMemo(() => [
     {
-      name: 'OBD2 Emulator',
-      url: 'ws://localhost:8081',
-      port: 8081,
-      isConnected: obd2.isConnected,
-      lastConnected: obd2.isConnected ? new Date() : null,
-      lastDisconnected: !obd2.isConnected ? new Date() : null,
-      reconnectAttempts: 0,
-      messagesReceived: obd2.dataHistory.length,
-      latency: obd2.data ? 50 : null
-    },
-    {
-      name: 'Radio Dispatch',
-      url: 'ws://localhost:8082',
-      port: 8082,
-      isConnected: radio.isConnected,
-      lastConnected: radio.isConnected ? new Date() : null,
-      lastDisconnected: !radio.isConnected ? new Date() : null,
-      reconnectAttempts: 0,
-      messagesReceived: radio.transmissions.length,
-      latency: radio.isConnected ? 40 : null
-    },
-    {
-      name: 'Dispatch Console',
-      url: 'ws://localhost:8083',
-      port: 8083,
-      isConnected: dispatch.isConnected,
-      lastConnected: dispatch.isConnected ? new Date() : null,
-      lastDisconnected: !dispatch.isConnected ? new Date() : null,
-      reconnectAttempts: 0,
-      messagesReceived: dispatch.recentTransmissions.length,
-      latency: dispatch.isConnected ? 45 : null
+      name: 'Emulator Stream',
+      url: `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.hostname || 'localhost'}:3004/emulator/stream`,
+      port: 3004,
+      ...emulatorStream,
     }
-  ], [obd2, radio, dispatch])
+  ], [emulatorStream])
 
   // Check endpoint health
   const checkEndpointHealth = useCallback(async (endpoint: string): Promise<Partial<EndpointStatus>> => {
     const startTime = performance.now()
     try {
       const response = await fetch(`${window.location.origin}${endpoint}`, {
-        method: 'HEAD',
+        method: 'GET',
         credentials: 'include',
+        cache: 'no-store',
+        headers: { Accept: 'application/json' },
       })
       const endTime = performance.now()
       const latency = Math.round(endTime - startTime)
@@ -212,11 +239,11 @@ export function EndpointMonitor() {
       case 'healthy':
         return { variant: 'default' as const, className: 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800', icon: CheckCircle }
       case 'degraded':
-        return { variant: 'default' as const, className: 'bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', icon: WarningCircle }
+        return { variant: 'default' as const, className: 'bg-yellow-100 text-yellow-700 border-yellow-300 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800', icon: AlertCircle }
       case 'down':
         return { variant: 'destructive' as const, className: 'bg-red-100 text-red-700 border-red-300 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800', icon: XCircle }
       default:
-        return { variant: 'outline' as const, className: 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700', icon: Circle }
+        return { variant: 'outline' as const, className: 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700', icon: Circle }
     }
   }
 
@@ -259,7 +286,7 @@ export function EndpointMonitor() {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Pulse className="w-3 h-3 text-primary" weight="duotone" />
+              <Activity className="w-3 h-3 text-primary" />
               Endpoint Health Monitor
             </CardTitle>
             <div className="flex items-center gap-2">
@@ -275,7 +302,7 @@ export function EndpointMonitor() {
                 disabled={isMonitoring}
                 className="h-8 text-xs"
               >
-                <ArrowsClockwise className={`w-3.5 h-3.5 mr-1.5 ${isMonitoring ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${isMonitoring ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
             </div>
@@ -311,7 +338,7 @@ export function EndpointMonitor() {
               <div className="text-xs text-red-600 dark:text-red-500">Down</div>
             </div>
             <div className="text-center p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-              <div className="text-sm font-bold text-blue-700 dark:text-blue-400">{Math.round(healthMetrics.avgLatency)}ms</div>
+              <div className="text-sm font-bold text-blue-700 dark:text-blue-700">{Math.round(healthMetrics.avgLatency)}ms</div>
               <div className="text-xs text-blue-800 dark:text-blue-800">Avg Latency</div>
             </div>
           </div>
@@ -322,7 +349,7 @@ export function EndpointMonitor() {
       <Card className="border-border/50 bg-card dark:bg-card">
         <CardHeader className="pb-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Broadcast className="w-4 h-4 text-blue-800 dark:text-blue-400" weight="duotone" />
+            <Radio className="w-4 h-4 text-blue-800 dark:text-blue-700" />
             WebSocket Connections
           </CardTitle>
         </CardHeader>
@@ -334,9 +361,9 @@ export function EndpointMonitor() {
             >
               <div className="flex items-center gap-3">
                 <div className={`p-2 rounded-full ${ws.isConnected ? 'bg-green-100 dark:bg-green-900/30' : 'bg-gray-100 dark:bg-gray-800'}`}>
-                  <Lightning
-                    className={`w-4 h-4 ${ws.isConnected ? 'text-green-600 dark:text-green-400' : 'text-gray-400 dark:text-slate-700'}`}
-                    weight="duotone"
+                  <Zap
+                    className={`w-4 h-4 ${ws.isConnected ? 'text-green-600 dark:text-green-400' : 'text-gray-700 dark:text-slate-700'}`}
+                   
                   />
                 </div>
                 <div>
@@ -344,9 +371,9 @@ export function EndpointMonitor() {
                     <span className="text-sm font-medium dark:text-foreground">{ws.name}</span>
                     <Badge
                       variant="outline"
-                      className={`text-[10px] h-5 ${ws.isConnected ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : 'bg-gray-100 text-slate-700 border-gray-300 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'}`}
+                      className={`text-[10px] h-5 ${ws.isConnected ? 'bg-green-100 text-green-700 border-green-300 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' : 'bg-gray-100 text-slate-700 border-gray-300 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700'}`}
                     >
-                      <Circle className={`w-2 h-2 mr-1 ${ws.isConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`} weight="fill" />
+                      <Circle className={`w-2 h-2 mr-1 ${ws.isConnected ? 'fill-green-500 animate-pulse' : 'fill-gray-400'}`} />
                       {ws.isConnected ? 'Connected' : 'Disconnected'}
                     </Badge>
                   </div>
@@ -388,7 +415,7 @@ export function EndpointMonitor() {
                     <CardHeader className="pb-3 cursor-pointer hover:bg-muted/30 dark:hover:bg-muted/10 transition-colors">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Globe className="w-4 h-4 text-primary dark:text-primary" weight="duotone" />
+                          <Globe className="w-4 h-4 text-primary dark:text-primary" />
                           <CardTitle className="text-base font-semibold capitalize dark:text-foreground">
                             {category} APIs
                           </CardTitle>
@@ -404,9 +431,9 @@ export function EndpointMonitor() {
                             <Progress value={categoryHealth} className="w-20 h-1.5 bg-muted dark:bg-muted" />
                           </div>
                           {isExpanded ? (
-                            <CaretUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                            <ChevronUp className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
                           ) : (
-                            <CaretDown className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
+                            <ChevronDown className="w-4 h-4 text-muted-foreground dark:text-muted-foreground" />
                           )}
                         </div>
                       </div>
@@ -427,7 +454,7 @@ export function EndpointMonitor() {
                               className="flex items-center justify-between p-3 rounded-lg border border-border/50 bg-muted/20 dark:bg-muted/5 hover:bg-muted/40 dark:hover:bg-muted/10 transition-colors"
                             >
                               <div className="flex items-center gap-3 flex-1 min-w-0">
-                                <StatusIcon className="w-4 h-4 flex-shrink-0" weight="fill" />
+                                <StatusIcon className="w-4 h-4 flex-shrink-0" />
                                 <div className="min-w-0 flex-1">
                                   <div className="text-sm font-medium truncate dark:text-foreground">
                                     {endpoint.name}

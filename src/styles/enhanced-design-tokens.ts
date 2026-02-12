@@ -139,7 +139,7 @@ export const enhancedDesignTokens = {
         redBlue: ['#B71C1C', '#D32F2F', '#E57373', '#FFCDD2', '#EEEEEE', '#BBDEFB', '#64B5F6', '#1976D2', '#0D47A1'],
         orangeTeal: ['#E65100', '#F57C00', '#FFA726', '#FFE0B2', '#EEEEEE', '#B2EBF2', '#4DD0E1', '#0097A7', '#006064'],
       },
-      heatmap: ['#1A237E', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50', '#CDDC39', '#FFEB3B', '#FF9800', '#FF5722'],
+      heatmap: ['#1A237E', '#3F51B5', '#2196F3', '#03A9F4', '#00BCD4', '#009688', '#4CAF50', '#CDDC39', '#FFEB3B', '#FF9800', '#DD3903'],
     },
   },
 

@@ -16,6 +16,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // ============================================================================
 // CONFIGURATION
@@ -48,19 +49,17 @@ const UserSchema = z.object({
   id: z.string().uuid(),
   name: z.string().min(1).max(255),
   email: z.string().email(),
-  role: z.enum(['admin', 'manager', 'operator', 'viewer']),
-  status: z.enum(['active', 'inactive', 'suspended']),
-  lastLogin: z.string().datetime().optional(),
+  role: z.string().min(1),
+  status: z.enum(['active', 'inactive', 'suspended', 'pending']).default('active'),
+  lastLogin: z.string().datetime().optional().nullable(),
   createdAt: z.string().datetime(),
 })
 
 const SystemMetricsSchema = z.object({
-  cpuUsage: z.number().min(0).max(100),
-  memoryUsage: z.number().min(0).max(100),
-  storageUsed: z.number().min(0).max(100),
-  storageTotal: z.number().positive(),
-  apiCalls: z.number().nonnegative(),
-  uptime: z.number().min(0).max(100),
+  pageLoadTime: z.number().nullable(),
+  apiResponseTime: z.number().nullable(),
+  memoryUsage: z.number().nullable(),
+  activeConnections: z.number().nullable(),
 })
 
 const AuditLogSchema = z.object({
@@ -154,7 +153,8 @@ async function secureFetch<T>(
     throw new Error(errorMessage)
   }
 
-  const data = await response.json()
+  const payload = await response.json()
+  const data = payload?.data ?? payload
 
   // Validate response with Zod schema
   const validatedData = schema.parse(data)
@@ -167,19 +167,15 @@ async function secureFetch<T>(
 // ============================================================================
 
 function calculateSystemHealth(metrics: SystemMetrics): number {
-  // Weighted scoring system for accurate health assessment
-  const cpuScore = Math.max(0, 100 - metrics.cpuUsage)
-  const memoryScore = Math.max(0, 100 - metrics.memoryUsage)
-  const storageScore = Math.max(0, 100 - (metrics.storageUsed / metrics.storageTotal * 100))
-  const uptimeScore = metrics.uptime
+  const memoryUsage = metrics.memoryUsage ?? 0
+  const apiResponseTime = metrics.apiResponseTime ?? 0
+  const pageLoadTime = metrics.pageLoadTime ?? 0
 
-  // Weighted average: CPU (30%), Memory (30%), Storage (20%), Uptime (20%)
-  return Math.round(
-    cpuScore * 0.3 +
-    memoryScore * 0.3 +
-    storageScore * 0.2 +
-    uptimeScore * 0.2
-  )
+  const memoryScore = Math.max(0, 100 - memoryUsage)
+  const apiScore = Math.max(0, 100 - (apiResponseTime / 5)) // 500ms -> 0
+  const pageScore = Math.max(0, 100 - (pageLoadTime * 20)) // 5s -> 0
+
+  return Math.round((memoryScore * 0.4) + (apiScore * 0.4) + (pageScore * 0.2))
 }
 
 // ============================================================================
@@ -226,83 +222,6 @@ function aggregateActivityByDay(logs: AuditLog[]): ActivityTrendData[] {
   return result
 }
 
-// ============================================================================
-// MOCK DATA GENERATORS (Separate module for testability)
-// ============================================================================
-
-function generateMockAuditLogs(): AuditLog[] {
-  const actions = [
-    'CREATE_VEHICLE',
-    'UPDATE_VEHICLE',
-    'DELETE_VEHICLE',
-    'CREATE_DRIVER',
-    'UPDATE_DRIVER',
-    'LOGIN',
-    'LOGOUT',
-    'UPDATE_SETTINGS',
-    'CREATE_MAINTENANCE',
-    'ASSIGN_VEHICLE',
-  ] as const
-
-  const resources = ['vehicles', 'drivers', 'maintenance', 'settings', 'auth'] as const
-  const users = [
-    'John Admin',
-    'Sarah Manager',
-    'Mike Operator',
-    'Lisa Admin',
-  ] as const
-
-  const logs: AuditLog[] = []
-  const now = Date.now()
-
-  for (let i = 0; i < 50; i++) {
-    const timestamp = new Date(now - Math.random() * 7 * 24 * 60 * 60 * 1000)
-
-    logs.push({
-      id: crypto.randomUUID(),
-      userId: crypto.randomUUID(),
-      userName: users[Math.floor(Math.random() * users.length)],
-      action: actions[Math.floor(Math.random() * actions.length)],
-      resource: resources[Math.floor(Math.random() * resources.length)],
-      timestamp: timestamp.toISOString(),
-      status: Math.random() > 0.1 ? 'success' : 'failure',
-      ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
-    })
-  }
-
-  return logs.sort((a, b) =>
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  )
-}
-
-function generateMockSessions(users: User[]): Session[] {
-  if (users.length === 0) return []
-
-  const activeUsers = users.filter((u) => u.status === 'active').slice(0, 10)
-  const now = Date.now()
-
-  return activeUsers.map((user) => ({
-    id: crypto.randomUUID(),
-    userId: user.id,
-    userName: user.name,
-    startTime: new Date(now - Math.random() * 4 * 60 * 60 * 1000).toISOString(),
-    lastActivity: new Date(now - Math.random() * 30 * 60 * 1000).toISOString(),
-    ipAddress: `192.168.1.${Math.floor(Math.random() * 255)}`,
-    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    status: 'active' as const,
-  }))
-}
-
-function generateMockSystemMetrics(): SystemMetrics {
-  return {
-    cpuUsage: Math.round(Math.random() * 30 + 20),
-    memoryUsage: Math.round(Math.random() * 40 + 30),
-    storageUsed: 67,
-    storageTotal: 100,
-    apiCalls: Math.round(Math.random() * 1000 + 12000),
-    uptime: 99.9,
-  }
-}
 
 // ============================================================================
 // MAIN HOOK: useReactiveAdminData
@@ -331,15 +250,28 @@ export function useReactiveAdminData() {
     queryKey: ['admin-users'],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch(
-          `${API_BASE}/users`,
-          z.array(UserSchema),
-          signal
-        )
+        const response = await fetch(`${API_BASE}/users?limit=200`, {
+          signal,
+          credentials: 'include'
+        })
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`)
+        }
+        const payload = await response.json()
+        const rows = payload?.data ?? payload ?? []
+        const mapped = rows.map((row: any) => ({
+          id: row.id,
+          name: row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim(),
+          email: row.email,
+          role: row.role,
+          status: row.status || (row.is_active ? 'active' : 'inactive'),
+          lastLogin: row.last_login_at || row.lastLogin || null,
+          createdAt: row.created_at || row.createdAt
+        }))
+        return z.array(UserSchema).parse(mapped)
       } catch (error) {
-        // Graceful fallback to mock data if API fails
-        console.warn('Users API unavailable, using mock data:', error)
-        return [] // Return empty array, let components handle empty state
+        logger.warn('Users API unavailable, returning empty array:', { error })
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.USERS,
@@ -359,19 +291,11 @@ export function useReactiveAdminData() {
   } = useQuery<SystemMetrics>({
     queryKey: ['system-metrics'],
     queryFn: async ({ signal }) => {
-      try {
-        const response = await secureFetch(
-          `${API_BASE}/health`,
-          SystemMetricsSchema,
-          signal,
-          false // Health endpoint may not require auth
-        )
-        return response
-      } catch (error) {
-        // Fallback to mock metrics
-        console.warn('Metrics API unavailable, using mock data:', error)
-        return generateMockSystemMetrics()
-      }
+      return await secureFetch(
+        `${API_BASE}/system/metrics`,
+        SystemMetricsSchema,
+        signal
+      )
     },
     refetchInterval: REFETCH_INTERVALS.METRICS,
     staleTime: STALE_TIMES.METRICS,
@@ -391,14 +315,29 @@ export function useReactiveAdminData() {
     queryKey: ['audit-logs'],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch(
-          `${API_BASE}/audit-logs?limit=100`,
-          z.array(AuditLogSchema),
-          signal
-        )
+        const response = await fetch(`${API_BASE}/audit-logs?limit=100`, {
+          signal,
+          credentials: 'include'
+        })
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`)
+        }
+        const payload = await response.json()
+        const rows = payload?.data ?? payload ?? []
+        const mapped = rows.map((row: any) => ({
+          id: row.id,
+          userId: row.userId,
+          userName: row.userName,
+          action: row.action,
+          resource: row.resource,
+          timestamp: row.timestamp,
+          status: row.status,
+          ipAddress: row.ipAddress
+        }))
+        return z.array(AuditLogSchema).parse(mapped)
       } catch (error) {
-        console.warn('Audit logs API unavailable, using mock data:', error)
-        return generateMockAuditLogs()
+        logger.warn('Audit logs API unavailable, returning empty array:', { error })
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.AUDIT_LOGS,
@@ -419,14 +358,29 @@ export function useReactiveAdminData() {
     queryKey: ['active-sessions'],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch(
-          `${API_BASE}/sessions`,
-          z.array(SessionSchema),
-          signal
-        )
+        const response = await fetch(`${API_BASE}/sessions?limit=200`, {
+          signal,
+          credentials: 'include'
+        })
+        if (!response.ok) {
+          throw new Error(`API Error: ${response.status}`)
+        }
+        const payload = await response.json()
+        const rows = payload?.data ?? payload ?? []
+        const mapped = rows.map((row: any) => ({
+          id: row.id,
+          userId: row.userId,
+          userName: row.userName,
+          startTime: row.startTime,
+          lastActivity: row.lastActivity,
+          ipAddress: row.ipAddress,
+          userAgent: row.userAgent,
+          status: row.status
+        }))
+        return z.array(SessionSchema).parse(mapped)
       } catch (error) {
-        console.warn('Sessions API unavailable, using mock data:', error)
-        return generateMockSessions(users)
+        logger.warn('Sessions API unavailable, returning empty array:', { error })
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.SESSIONS,

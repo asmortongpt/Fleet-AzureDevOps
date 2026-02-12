@@ -1,37 +1,56 @@
-import { AwilixContainer } from 'awilix';
-
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface DriverRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface InspectionRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface MaintenanceRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface VehicleRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface VendorRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface WorkOrderRepository {
   // Define methods and properties as needed
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface Logger {
   // Define methods and properties as needed
 }
 
 /**
- * Type-safe DI container interface extending AwilixContainer.
+ * Registration options for DI container services.
  */
-export interface DIContainer extends AwilixContainer {
+export interface RegistrationOptions {
+  lifetime?: 'singleton' | 'transient' | 'scoped';
+}
+
+/**
+ * Service resolver that can be registered in the container.
+ */
+export interface Resolver<T> {
+  resolve(): T;
+}
+
+/**
+ * Type-safe DI container interface.
+ */
+export interface DIContainer {
   vehicleRepository: VehicleRepository;
   driverRepository: DriverRepository;
   vendorRepository: VendorRepository;
@@ -39,4 +58,6 @@ export interface DIContainer extends AwilixContainer {
   maintenanceRepository: MaintenanceRepository;
   workOrderRepository: WorkOrderRepository;
   logger: Logger;
+  register(registrations: Record<string, Resolver<unknown>>): void;
+  resolve<T>(name: string): T;
 }

@@ -14,7 +14,7 @@ import { useMemo, useCallback } from 'react'
 import { z } from 'zod'
 
 // Environment variables with secure fallbacks
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 const REFETCH_INTERVAL = 10000 // 10 seconds
 const STALE_TIME = 5000 // 5 seconds
 const RETRY_ATTEMPTS = 3
@@ -32,48 +32,109 @@ const MAX_TOP_PERFORMERS = 10
 const DriverStatusEnum = z.enum(['active', 'inactive', 'on_leave', 'suspended'])
 const AssignmentStatusEnum = z.enum(['active', 'completed', 'pending'])
 
-const DriverSchema = z.object({
-  id: z.string(),
-  name: z.string().min(1),
-  email: z.string().email(),
-  phone: z.string().min(1),
-  licenseNumber: z.string().min(1),
-  licenseExpiry: z.string().datetime(),
-  status: DriverStatusEnum,
-  vehicleId: z.string().optional(),
-  safetyScore: z.number().min(0).max(100),
-  performanceRating: z.number().min(0).max(100),
-  hoursWorked: z.number().min(0),
-  violationCount: z.number().min(0),
-  createdAt: z.string().datetime(),
-})
+const DriverSchema = z
+  .object({
+    id: z.string(),
+    name: z.string().nullish(),
+    email: z.string().email().nullish(),
+    phone: z.string().nullish(),
+    licenseNumber: z.string().nullish(),
+    licenseExpiry: z.string().datetime().nullish(),
+    status: z.string().nullish(),
+    vehicleId: z.string().nullish(),
+    safetyScore: z.number().min(0).max(100).nullish(),
+    performanceRating: z.number().min(0).max(100).nullish(),
+    hoursWorked: z.number().min(0).nullish(),
+    violationCount: z.number().min(0).nullish(),
+    createdAt: z.string().datetime().nullish(),
+    // snake_case fields
+    first_name: z.string().nullish(),
+    last_name: z.string().nullish(),
+    license_number: z.string().nullish(),
+    license_expiry_date: z.string().datetime().nullish(),
+    performance_score: z.coerce.number().nullish(),
+    status_code: z.string().nullish(),
+    employee_number: z.string().nullish(),
+    created_at: z.string().datetime().nullish(),
+    metadata: z.any().nullish(),
+  })
+  .passthrough()
+  .transform((row) => {
+    const metadata = row.metadata && typeof row.metadata === 'object' ? row.metadata : {}
+    const name = row.name || `${row.first_name || ''} ${row.last_name || ''}`.trim()
+    const status = (row.status || row.status_code || 'active') as z.infer<typeof DriverStatusEnum>
 
-const AssignmentSchema = z.object({
-  id: z.string(),
-  driverId: z.string(),
-  vehicleId: z.string(),
-  startDate: z.string().datetime(),
-  endDate: z.string().datetime().optional(),
-  status: AssignmentStatusEnum,
-})
+    // Parse numeric strings from API (safety_score, performance_score come as "72.50")
+    const safetyScore = Number(row.safetyScore ?? row.safety_score ?? row.performance_score ?? 0) || 0
+    const performanceRating = Number(row.performanceRating ?? row.performance_score ?? row.safety_score ?? 0) || 0
 
-const PerformanceTrendSchema = z.object({
-  date: z.string().datetime(),
-  avgScore: z.number(),
-  violations: z.number(),
-})
+    return {
+      id: row.id,
+      name: name || row.email || 'Unknown',
+      email: row.email || '',
+      phone: row.phone || '',
+      licenseNumber: row.licenseNumber || row.license_number || '',
+      licenseExpiry: row.licenseExpiry || row.license_expiry_date || new Date().toISOString(),
+      status: status || 'active',
+      vehicleId: row.vehicleId,
+      safetyScore,
+      performanceRating,
+      hoursWorked: row.hoursWorked ?? metadata.hoursWorked ?? 0,
+      violationCount: row.violationCount ?? metadata.violationCount ?? 0,
+      createdAt: row.createdAt || row.created_at || new Date().toISOString(),
+      // Pass through extra fields for UI consumption
+      department: row.department,
+      region: row.region,
+      employment_type: row.employment_type,
+      employmentType: row.employment_type,
+      hos_status: row.hos_status,
+      hosStatus: row.hos_status,
+      hours_available: row.hours_available,
+      hoursAvailable: row.hours_available,
+      medical_card_expiry: row.medical_card_expiry_date,
+      medicalCardExpiry: row.medical_card_expiry_date,
+      drug_test_date: row.drug_test_date,
+      safety_score: safetyScore,
+    }
+  })
+
+const AssignmentSchema = z
+  .object({
+    id: z.string(),
+    driverId: z.string().nullish(),
+    vehicleId: z.string().nullish(),
+    startDate: z.string().datetime().nullish(),
+    endDate: z.string().datetime().nullish(),
+    status: z.string().default('active'),
+    driver_id: z.string().nullish(),
+    vehicle_id: z.string().nullish(),
+    start_date: z.string().datetime().nullish(),
+    end_date: z.string().datetime().nullish(),
+  })
+  .transform((row) => ({
+    id: row.id,
+    driverId: row.driverId ?? row.driver_id ?? '',
+    vehicleId: row.vehicleId ?? row.vehicle_id ?? '',
+    startDate: row.startDate ?? row.start_date ?? '',
+    endDate: row.endDate ?? row.end_date,
+    status: row.status,
+  }))
+
 
 // TypeScript types derived from schemas
 export type Driver = z.infer<typeof DriverSchema>
 export type Assignment = z.infer<typeof AssignmentSchema>
-export type PerformanceTrend = z.infer<typeof PerformanceTrendSchema>
+export type PerformanceTrend = {
+  date: string
+  avgScore: number
+  violations: number
+}
 export type DriverStatus = z.infer<typeof DriverStatusEnum>
 export type AssignmentStatus = z.infer<typeof AssignmentStatusEnum>
 
 // API response types
 const DriversResponseSchema = z.array(DriverSchema)
 const AssignmentsResponseSchema = z.array(AssignmentSchema)
-const PerformanceTrendResponseSchema = z.array(PerformanceTrendSchema)
 
 // Custom error types
 export class ApiError extends Error {
@@ -125,9 +186,15 @@ async function secureFetch<T>(
       }
 
       const data = await response.json()
+      // Handle nested response formats: { data: { data: [...] } }, { data: [...] }, or [...]
+      const payload =
+        Array.isArray(data?.data?.data) ? data.data.data
+        : Array.isArray(data?.data) ? data.data
+        : Array.isArray(data) ? data
+        : data
 
       // Validate response schema
-      const validated = schema.parse(data)
+      const validated = schema.parse(payload)
 
       return validated
     } catch (error) {
@@ -202,9 +269,9 @@ interface UseReactiveDriversDataReturn {
  */
 export function useReactiveDriversData(): UseReactiveDriversDataReturn {
   // Fetch drivers with error handling
-  const driversQuery: UseQueryResult<Driver[], Error> = useQuery({
+  const driversQuery = useQuery({
     queryKey: ['drivers'],
-    queryFn: () => secureFetch('/drivers', DriversResponseSchema),
+    queryFn: () => secureFetch('/drivers', DriversResponseSchema as any) as Promise<Driver[]>,
     refetchInterval: REFETCH_INTERVAL,
     staleTime: STALE_TIME,
     retry: RETRY_ATTEMPTS,
@@ -213,18 +280,31 @@ export function useReactiveDriversData(): UseReactiveDriversDataReturn {
 
   // Fetch assignments with error handling
   const assignmentsQuery: UseQueryResult<Assignment[], Error> = useQuery({
-    queryKey: ['assignments'],
-    queryFn: () => secureFetch('/assignments', AssignmentsResponseSchema),
-    refetchInterval: REFETCH_INTERVAL,
-    staleTime: STALE_TIME,
-    retry: RETRY_ATTEMPTS,
-    retryDelay: RETRY_DELAY,
-  })
+    queryKey: ['vehicle-assignments'],
+    queryFn: async () => {
+      const response = await fetch(`${API_BASE}/vehicle-assignments`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        credentials: 'same-origin',
+      })
 
-  // Fetch performance trend data
-  const performanceTrendQuery: UseQueryResult<PerformanceTrend[], Error> = useQuery({
-    queryKey: ['performance-trend'],
-    queryFn: () => secureFetch('/performance-trend', PerformanceTrendResponseSchema),
+      if (!response.ok) {
+        throw new ApiError(
+          `HTTP ${response.status}: ${response.statusText}`,
+          response.status,
+          '/vehicle-assignments'
+        )
+      }
+
+      const payload = await response.json()
+      // Handle nested formats: { data: { assignments: [...] } }, { data: { data: [...] } }, { data: [...] }
+      const rows =
+        payload?.data?.assignments ?? payload?.data?.data ?? payload?.assignments ?? (Array.isArray(payload?.data) ? payload.data : payload ?? [])
+      return AssignmentsResponseSchema.parse(Array.isArray(rows) ? rows : [])
+    },
     refetchInterval: REFETCH_INTERVAL,
     staleTime: STALE_TIME,
     retry: RETRY_ATTEMPTS,
@@ -233,7 +313,7 @@ export function useReactiveDriversData(): UseReactiveDriversDataReturn {
 
   const drivers = driversQuery.data ?? []
   const assignments = assignmentsQuery.data ?? []
-  const performanceTrend = performanceTrendQuery.data ?? []
+  const performanceTrend: PerformanceTrend[] = []
 
   // Memoized metrics calculation - only recalculates when drivers/assignments change
   const metrics = useMemo<DriverMetrics>(() => {
@@ -356,23 +436,19 @@ export function useReactiveDriversData(): UseReactiveDriversDataReturn {
   const refresh = useCallback(() => {
     driversQuery.refetch()
     assignmentsQuery.refetch()
-    performanceTrendQuery.refetch()
-  }, [driversQuery, assignmentsQuery, performanceTrendQuery])
+  }, [driversQuery, assignmentsQuery])
 
   const isLoading =
     driversQuery.isLoading ||
-    assignmentsQuery.isLoading ||
-    performanceTrendQuery.isLoading
+    assignmentsQuery.isLoading
 
   const isError =
     driversQuery.isError ||
-    assignmentsQuery.isError ||
-    performanceTrendQuery.isError
+    assignmentsQuery.isError
 
   const error =
     driversQuery.error ||
-    assignmentsQuery.error ||
-    performanceTrendQuery.error
+    assignmentsQuery.error
 
   return {
     drivers,

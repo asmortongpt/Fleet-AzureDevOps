@@ -31,6 +31,7 @@ import { toast } from "sonner"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { getCsrfToken } from "@/hooks/use-api"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import type { Vehicle, GISFacility } from "@/lib/types"
 import logger from '@/utils/logger';
@@ -148,26 +149,28 @@ export function AdvancedRouteOptimization() {
    * Using useMemo to avoid extra renders from intermediate state
    */
   const transformedRoutes = useMemo(() => {
+    if (!dbRoutes.length) {
+      return { routes: [] as OptimizedRoute[], error: null as string | null }
+    }
+
     try {
-      if (dbRoutes.length > 0) {
-        return dbRoutes.map((route: any) => ({
-          id: route.id,
-          vehicleId: route.vehicle_id || "Unknown",
-          driverId: route.driver_id || "Unknown",
-          stops: route.waypoints || [],
-          totalDistance: route.total_distance || 0,
-          totalDuration: route.estimated_duration || 0,
-          estimatedFuel: (route.total_distance || 0) / 18, // Estimate: 18 mpg average
-          estimatedCost: ((route.total_distance || 0) / 18) * 3.85, // Estimate: $3.85/gal
-          optimizationScore: route.status === 'completed' ? 95 : route.status === 'in_progress' ? 92 : 88,
-          constraints: route.constraints || []
-        }))
-      }
-      return []
+      const routes = dbRoutes.map((route: any) => ({
+        id: route.id,
+        vehicleId: route.vehicle_id || "Unknown",
+        driverId: route.driver_id || "Unknown",
+        stops: route.waypoints || [],
+        totalDistance: route.total_distance || 0,
+        totalDuration: route.estimated_duration || 0,
+        estimatedFuel: (route.total_distance || 0) / 18, // Estimate: 18 mpg average
+        estimatedCost: ((route.total_distance || 0) / 18) * 3.85, // Estimate: $3.85/gal
+        optimizationScore: route.status === 'completed' ? 95 : route.status === 'in_progress' ? 92 : 88,
+        constraints: route.constraints || []
+      }))
+
+      return { routes, error: null as string | null }
     } catch (err) {
       logger.error("Error transforming routes:", err)
-      setError("Failed to load routes")
-      return []
+      return { routes: [] as OptimizedRoute[], error: "Failed to load routes" }
     }
   }, [dbRoutes])
 
@@ -175,10 +178,14 @@ export function AdvancedRouteOptimization() {
    * Sync transformed routes to state and initialize selectedRoute
    */
   useEffect(() => {
-    if (transformedRoutes.length > 0) {
-      setRoutes(transformedRoutes)
+    if (transformedRoutes.error) {
+      setError(transformedRoutes.error)
+    }
+
+    if (transformedRoutes.routes.length > 0) {
+      setRoutes(transformedRoutes.routes)
       if (!selectedRoute) {
-        setSelectedRoute(transformedRoutes[0].id)
+        setSelectedRoute(transformedRoutes.routes[0].id)
       }
     } else {
       setRoutes([])
@@ -194,7 +201,7 @@ export function AdvancedRouteOptimization() {
         abortControllerRef.current.abort()
       }
     }
-  }, [])
+  }, [config, dbRoutes])
 
   // ==================== Computed Values ====================
 
@@ -240,7 +247,7 @@ export function AdvancedRouteOptimization() {
    */
   const _handleAddStop = useCallback(() => {
     // Implementation removed as it's unused
-  }, [])
+  }, [config, dbRoutes])
 
   /**
    * Update a stop
@@ -269,25 +276,78 @@ export function AdvancedRouteOptimization() {
       // Create abort controller for this operation
       abortControllerRef.current = new AbortController()
 
-      // Simulate AI optimization with realistic delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      const stops = dbRoutes.flatMap((route: any) => {
+        const waypoints = Array.isArray(route.waypoints) ? route.waypoints : []
+        return waypoints
+          .map((waypoint: any) => ({
+            name: waypoint.name || waypoint.address || 'Stop',
+            address: waypoint.address || waypoint.location || 'Unknown',
+            latitude: Number(waypoint.latitude || waypoint.lat),
+            longitude: Number(waypoint.longitude || waypoint.lng),
+            serviceMinutes: Number(waypoint.serviceMinutes || waypoint.service_minutes || 15),
+            priority: Number(waypoint.priority || 1)
+          }))
+          .filter((stop: any) => Number.isFinite(stop.latitude) && Number.isFinite(stop.longitude))
+      })
 
-      // Check if operation was cancelled
-      if (abortControllerRef.current?.signal.aborted) {
+      if (stops.length < 2) {
+        setError("Route optimization requires stops with coordinates.")
+        toast.error("Route optimization needs stops with coordinates.")
         return
       }
 
-      // Apply optimization improvements
-      setRoutes(current =>
-        current.map(route => ({
-          ...route,
-          optimizationScore: Math.min(100, route.optimizationScore + Math.floor(Math.random() * 5)),
-          totalDistance: route.totalDistance * 0.92, // 8% reduction
-          totalDuration: route.totalDuration * 0.88, // 12% reduction
-          estimatedCost: route.estimatedCost * 0.85 // 15% reduction
-        }))
-      )
+      const csrf = await getCsrfToken()
+      const response = await fetch("/api/route-optimization/optimize", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrf
+        },
+        body: JSON.stringify({
+          jobName: "Advanced Route Optimization",
+          stops,
+          goal: config.optimizeFor === "distance"
+            ? "minimize_distance"
+            : config.optimizeFor === "time"
+              ? "minimize_time"
+              : config.optimizeFor === "cost"
+                ? "minimize_cost"
+                : "balance",
+          considerTraffic: config.considerTraffic,
+          considerTimeWindows: true,
+          considerCapacity: true,
+          maxStopsPerRoute: config.maxStopsPerRoute,
+          maxRouteDuration: config.maxRouteDuration
+        }),
+        signal: abortControllerRef.current.signal
+      })
 
+      if (!response.ok) {
+        throw new Error("Optimization failed")
+      }
+
+      const payload = await response.json()
+      const optimizedRoutes: OptimizedRoute[] = Array.isArray(payload.routes)
+        ? payload.routes.map((route: any) => ({
+          id: String(route.routeNumber || route.route_number || route.id),
+          vehicleId: String(route.vehicle?.id || route.vehicle_id || ""),
+          driverId: String(route.driver?.id || route.driver_id || ""),
+          stops: route.stops || [],
+          totalDistance: Number(route.totalDistance || route.total_distance || 0),
+          totalDuration: Number(route.totalDuration || route.total_duration || 0),
+          estimatedFuel: Number(route.totalDistance || route.total_distance || 0) / 18,
+          estimatedCost: Number(route.totalCost || route.total_cost || 0),
+          optimizationScore: Number(payload.optimizationScore || payload.optimization_score || 0),
+          constraints: [],
+          trafficDelayMinutes: route.trafficDelayMinutes
+        }))
+        : []
+
+      setRoutes(optimizedRoutes)
+      if (optimizedRoutes.length > 0) {
+        setSelectedRoute(optimizedRoutes[0].id)
+      }
       toast.success("Routes optimized successfully")
     } catch (err) {
       const message = err instanceof Error ? err.message : "Optimization failed"
@@ -306,23 +366,68 @@ export function AdvancedRouteOptimization() {
       setLoading(true)
       setError(null)
 
-      // Simulate re-optimization
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const route = dbRoutes.find((r: any) => String(r.id) === String(routeId))
+      if (!route) {
+        throw new Error("Route not found")
+      }
 
-      setRoutes(current =>
-        current.map(route => {
-          if (route.id === routeId) {
-            return {
-              ...route,
-              optimizationScore: Math.min(100, route.optimizationScore + 3),
-              totalDistance: route.totalDistance * 0.95,
-              totalDuration: route.totalDuration * 0.93,
-              estimatedCost: route.estimatedCost * 0.92
-            }
-          }
-          return route
+      const waypoints = Array.isArray(route.waypoints) ? route.waypoints : []
+      const stops = waypoints
+        .map((waypoint: any) => ({
+          name: waypoint.name || waypoint.address || 'Stop',
+          address: waypoint.address || waypoint.location || 'Unknown',
+          latitude: Number(waypoint.latitude || waypoint.lat),
+          longitude: Number(waypoint.longitude || waypoint.lng),
+          serviceMinutes: Number(waypoint.serviceMinutes || waypoint.service_minutes || 15),
+          priority: Number(waypoint.priority || 1)
+        }))
+        .filter((stop: any) => Number.isFinite(stop.latitude) && Number.isFinite(stop.longitude))
+
+      if (stops.length < 2) {
+        throw new Error("Route optimization requires stops with coordinates.")
+      }
+
+      const csrf = await getCsrfToken()
+      const response = await fetch("/api/route-optimization/optimize", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrf
+        },
+        body: JSON.stringify({
+          jobName: `Re-optimize Route ${routeId}`,
+          stops,
+          goal: "balance",
+          considerTraffic: true,
+          considerTimeWindows: true,
+          considerCapacity: true,
+          maxStopsPerRoute: config.maxStopsPerRoute,
+          maxRouteDuration: config.maxRouteDuration
         })
-      )
+      })
+
+      if (!response.ok) {
+        throw new Error("Re-optimization failed")
+      }
+
+      const payload = await response.json()
+      const updated = Array.isArray(payload.routes) && payload.routes.length > 0 ? payload.routes[0] : null
+      if (updated) {
+        setRoutes(current =>
+          current.map((routeItem) =>
+            routeItem.id === routeId
+              ? {
+                ...routeItem,
+                totalDistance: Number(updated.totalDistance || updated.total_distance || routeItem.totalDistance),
+                totalDuration: Number(updated.totalDuration || updated.total_duration || routeItem.totalDuration),
+                estimatedCost: Number(updated.totalCost || updated.total_cost || routeItem.estimatedCost),
+                optimizationScore: Number(payload.optimizationScore || payload.optimization_score || routeItem.optimizationScore)
+              }
+              : routeItem
+          )
+        )
+      }
 
       toast.success("Route re-optimized successfully")
     } catch (err) {

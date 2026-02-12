@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 
 import { DriverAPI } from '../../services/api/RealDatabaseAPI';
+import logger from '@/utils/logger';
 
 interface DriverFormData {
   employee_id: string;
@@ -62,7 +63,7 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, onCancel }) => {
 
     try {
       const driver = await DriverAPI.create(formData);
-      // console.log('✅ Driver created in database:', driver);
+      // logger.info('✅ Driver created in database:', driver);
 
       if (onSuccess) {
         onSuccess(driver);
@@ -85,7 +86,7 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, onCancel }) => {
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create driver');
-      console.error('❌ Driver creation failed:', err);
+      logger.error('❌ Driver creation failed:', err);
     } finally {
       setIsSubmitting(false);
     }

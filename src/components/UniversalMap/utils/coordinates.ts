@@ -1,14 +1,22 @@
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 
 /**
- * Default map center (Tallahassee, FL)
+ * Default map center from environment (format: "lat,lng")
  */
-export const DEFAULT_CENTER: [number, number] = [30.4383, -84.2807]
+function parseDefaultCenter(): [number, number] | null {
+  const raw = (import.meta as any).env?.VITE_DEFAULT_MAP_CENTER as string | undefined
+  if (!raw) return null
+  const parts = raw.split(',').map(p => Number(p.trim()))
+  if (parts.length !== 2 || parts.some(n => !Number.isFinite(n))) return null
+  return [parts[0], parts[1]]
+}
+
+export const DEFAULT_CENTER: [number, number] = parseDefaultCenter() ?? [0, 0]
 
 /**
- * Default zoom level
+ * Default zoom level from environment
  */
-export const DEFAULT_ZOOM = 13
+export const DEFAULT_ZOOM = Number((import.meta as any).env?.VITE_DEFAULT_MAP_ZOOM ?? 4)
 
 /**
  * Calculate center coordinates from markers data
@@ -28,10 +36,25 @@ export function calculateDynamicCenter(
 
   // Collect vehicle coordinates
   vehicles.forEach(v => {
-    if (v.location?.lat && v.location?.lng &&
-        v.location.lat >= -90 && v.location.lat <= 90 &&
-        v.location.lng >= -180 && v.location.lng <= 180) {
-      validCoords.push([v.location.lat, v.location.lng])
+    const latRaw =
+      (v as any).location?.lat ??
+      (v as any).location?.latitude ??
+      (v as any).latitude ??
+      (v as any).gps_latitude ??
+      (v as any).lat
+    const lngRaw =
+      (v as any).location?.lng ??
+      (v as any).location?.longitude ??
+      (v as any).longitude ??
+      (v as any).gps_longitude ??
+      (v as any).lng
+
+    const lat = Number(latRaw)
+    const lng = Number(lngRaw)
+    if (Number.isFinite(lat) && Number.isFinite(lng) &&
+        lat >= -90 && lat <= 90 &&
+        lng >= -180 && lng <= 180) {
+      validCoords.push([lat, lng])
     }
   })
 

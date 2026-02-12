@@ -14,7 +14,7 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { apiClient } from '@/lib/api';
+import { apiClient } from "@/lib/api-client";
 import logger from '@/utils/logger';
 interface TripInspectorProps {
   id: string;
@@ -104,7 +104,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
 
   if (!trip) {
     return (
-      <div className="p-3 text-gray-500">
+      <div className="p-3 text-gray-700">
         No trip data available
       </div>
     );
@@ -117,9 +117,9 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-gray-900 dark:text-white">
-              Trip #{trip.id.slice(0, 8)}
+              Trip #{String(trip.id).slice(0, 8)}
             </h2>
-            <p className="text-sm text-slate-700 dark:text-gray-400">
+            <p className="text-sm text-slate-700 dark:text-gray-700">
               {trip.vehicleName} • {trip.driverName}
             </p>
           </div>
@@ -226,7 +226,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
           <Card className="p-2">
             <h3 className="text-sm font-semibold mb-2">Trip Route</h3>
             <div className="bg-gray-100 dark:bg-gray-800 rounded-lg h-96 flex items-center justify-center">
-              <p className="text-gray-500">Map visualization would appear here</p>
+              <p className="text-gray-700">Map visualization would appear here</p>
             </div>
             <div className="mt-2 grid grid-cols-3 gap-2 text-center">
               <div>
@@ -259,7 +259,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                   <p className="font-medium">Trip Started</p>
                   <p className="text-sm text-slate-700">{new Date(trip.startTime).toLocaleString()}</p>
                   {trip.startLocation.address && (
-                    <p className="text-sm text-gray-500">{trip.startLocation.address}</p>
+                    <p className="text-sm text-gray-700">{trip.startLocation.address}</p>
                   )}
                 </div>
               </div>
@@ -273,7 +273,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                   <p className="text-sm text-slate-700">
                     {new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.3)).toLocaleString()}
                   </p>
-                  <p className="text-sm text-gray-500">Duration: 15 minutes</p>
+                  <p className="text-sm text-gray-700">Duration: 15 minutes</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -286,7 +286,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                   <p className="text-sm text-slate-700">
                     {new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.6)).toLocaleString()}
                   </p>
-                  <p className="text-sm text-gray-500">Duration: 10 minutes</p>
+                  <p className="text-sm text-gray-700">Duration: 10 minutes</p>
                 </div>
               </div>
               <div className="flex gap-2">
@@ -297,7 +297,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                   <p className="font-medium">Trip Ended</p>
                   <p className="text-sm text-slate-700">{new Date(trip.endTime).toLocaleString()}</p>
                   {trip.endLocation.address && (
-                    <p className="text-sm text-gray-500">{trip.endLocation.address}</p>
+                    <p className="text-sm text-gray-700">{trip.endLocation.address}</p>
                   )}
                 </div>
               </div>

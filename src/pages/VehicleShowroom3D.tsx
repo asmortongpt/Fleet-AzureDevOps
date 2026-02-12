@@ -13,18 +13,6 @@
  * - Comparison mode
  */
 
-import { useState, useCallback, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import VehicleViewer3D from '@/components/3d/VehicleViewer3D';
-import ARModeExport, { QuickARButton } from '@/components/3d/ARModeExport';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import {
   Car,
   Palette,
@@ -32,17 +20,33 @@ import {
   Camera,
   Share2,
   Download,
-  Maximize2,
   Sun,
   Moon,
   Zap,
   Sparkles,
   Eye,
-  ArrowLeft
+  EyeOff,
+  ArrowLeft,
+  Loader2
 } from 'lucide-react';
-import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/pbr-materials';
-import { useNavigate } from 'react-router-dom';
+import { useState, useCallback, useEffect, useMemo } from 'react';
+import { useSearchParams , useNavigate } from 'react-router-dom';
 
+import ARModeExport from '@/components/3d/ARModeExport';
+import VehicleViewer3D from '@/components/3d/VehicleViewer3D';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useTenant } from '@/contexts/TenantContext';
+import { useVehicles } from '@/hooks/use-api';
+import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/pbr-materials';
+
+
+import logger from '@/utils/logger';
 interface Vehicle {
   id: number;
   make: string;
@@ -60,6 +64,7 @@ interface Vehicle {
 export default function VehicleShowroom3D() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { tenantId } = useTenant();
 
   // Get vehicle ID from URL params
   const vehicleIdParam = searchParams.get('id');
@@ -73,56 +78,38 @@ export default function VehicleShowroom3D() {
   const [environment, setEnvironment] = useState<'studio' | 'sunset' | 'city' | 'night'>('studio');
   const [autoRotate, setAutoRotate] = useState(false);
   const [showDamage, setShowDamage] = useState(false);
+  const [modelUrl, setModelUrl] = useState<string | null>(null);
+  const [usdzUrl, setUsdzUrl] = useState<string | null>(null);
+  const [modelLoading, setModelLoading] = useState(false);
+  const [modelError, setModelError] = useState<string | null>(null);
 
-  // Mock vehicle data - In production, fetch from API
-  const mockVehicles: Vehicle[] = [
-    {
-      id: 1,
-      make: 'Ford',
-      model: 'F-150',
-      year: 2024,
-      vehicleType: 'pickup',
-      modelUrl: '/models/vehicles/ford-f150.glb',
-      usdzUrl: '/models/vehicles/ford-f150.usdz',
-      exteriorColor: '#1a1a1a',
-      trim: 'Lariat',
-    },
-    {
-      id: 2,
-      make: 'Chevrolet',
-      model: 'Silverado',
-      year: 2024,
-      vehicleType: 'pickup',
-      modelUrl: '/models/vehicles/chevy-silverado.glb',
-      exteriorColor: '#c0c0c0',
-      trim: 'LT',
-    },
-    {
-      id: 3,
-      make: 'Toyota',
-      model: 'Camry',
-      year: 2024,
-      vehicleType: 'sedan',
-      modelUrl: '/models/vehicles/toyota-camry.glb',
-      exteriorColor: '#0066cc',
-      trim: 'XSE',
-    },
-    {
-      id: 4,
-      make: 'Honda',
-      model: 'CR-V',
-      year: 2024,
-      vehicleType: 'suv',
-      modelUrl: '/models/vehicles/honda-crv.glb',
-      exteriorColor: '#ff0000',
-      trim: 'EX-L',
-    },
-  ];
+  // Fetch vehicles from API
+  const { data: vehiclesData, isLoading: vehiclesLoading } = useVehicles({ tenant_id: tenantId || '' });
+
+  // Map API vehicles to showroom Vehicle interface
+  const showroomVehicles: Vehicle[] = useMemo(() => {
+    if (!vehiclesData) return [];
+    return vehiclesData.map((v) => {
+      const typeMap: Record<string, Vehicle['vehicleType']> = {
+        sedan: 'sedan', suv: 'suv', truck: 'truck', van: 'van', bus: 'bus',
+      };
+      return {
+        id: typeof v.id === 'string' ? parseInt(v.id, 10) || 0 : Number(v.id),
+        make: v.make,
+        model: v.model,
+        year: v.year,
+        vehicleType: typeMap[v.type] || 'sedan',
+        modelUrl: '',
+        exteriorColor: '#ffffff',
+      };
+    });
+  }, [vehiclesData]);
 
   // Load vehicle on mount or when ID changes
   useEffect(() => {
+    if (showroomVehicles.length === 0) return;
     if (vehicleIdParam) {
-      const vehicle = mockVehicles.find(v => v.id === parseInt(vehicleIdParam));
+      const vehicle = showroomVehicles.find(v => v.id === parseInt(vehicleIdParam));
       if (vehicle) {
         setSelectedVehicle(vehicle);
         setExteriorColor(vehicle.exteriorColor || '#ffffff');
@@ -130,10 +117,54 @@ export default function VehicleShowroom3D() {
       }
     } else {
       // Default to first vehicle
-      setSelectedVehicle(mockVehicles[0]);
-      setExteriorColor(mockVehicles[0].exteriorColor || '#ffffff');
+      setSelectedVehicle(showroomVehicles[0]);
+      setExteriorColor(showroomVehicles[0].exteriorColor || '#ffffff');
     }
-  }, [vehicleIdParam]);
+  }, [vehicleIdParam, showroomVehicles]);
+
+  useEffect(() => {
+    if (!selectedVehicle?.id) return;
+    let active = true;
+
+    const fetchModel = async () => {
+      setModelLoading(true);
+      setModelError(null);
+      try {
+        const response = await fetch(`/api/vehicle-3d/${selectedVehicle.id}/3d-model`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('3D model unavailable');
+        }
+
+        const data = await response.json();
+        if (!active) return;
+
+        const glbUrl = data.glb_model_url || data.glbModelUrl || data.model_url || data.modelUrl;
+        const arUrl = data.usdz_model_url || data.usdzModelUrl;
+
+        setModelUrl(glbUrl || null);
+        setUsdzUrl(arUrl || null);
+      } catch (error) {
+        if (!active) return;
+        setModelUrl(null);
+        setUsdzUrl(null);
+        setModelError('3D model unavailable');
+      } finally {
+        if (active) {
+          setModelLoading(false);
+        }
+      }
+    };
+
+    fetchModel();
+
+    return () => {
+      active = false;
+    };
+  }, [selectedVehicle?.id]);
 
   const handleVehicleSelect = useCallback((vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
@@ -157,16 +188,31 @@ export default function VehicleShowroom3D() {
         alert('Link copied to clipboard!');
       }
     } catch (err) {
-      console.error('Error sharing:', err);
+      logger.error('Error sharing:', err);
     }
   }, [selectedVehicle]);
+
+  if (vehiclesLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center space-y-2">
+          <Loader2 className="w-16 h-16 text-muted-foreground mx-auto animate-spin" />
+          <p className="text-muted-foreground">Loading vehicles...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!selectedVehicle) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center space-y-2">
           <Car className="w-16 h-16 text-muted-foreground mx-auto" />
-          <p className="text-muted-foreground">Loading vehicle...</p>
+          <p className="text-muted-foreground">No vehicles available</p>
+          <Button variant="outline" onClick={() => navigate('/virtual-garage')}>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Garage
+          </Button>
         </div>
       </div>
     );
@@ -227,7 +273,7 @@ export default function VehicleShowroom3D() {
                 Fleet Vehicles
               </h2>
               <div className="space-y-2">
-                {mockVehicles.map((vehicle) => (
+                {showroomVehicles.map((vehicle) => (
                   <button
                     key={vehicle.id}
                     onClick={() => handleVehicleSelect(vehicle)}
@@ -280,20 +326,38 @@ export default function VehicleShowroom3D() {
           {/* Center - 3D Viewer */}
           <div className="lg:col-span-2">
             <Card className="overflow-hidden">
-              <VehicleViewer3D
-                vehicleId={selectedVehicle.id}
-                modelUrl={selectedVehicle.modelUrl}
-                usdzUrl={selectedVehicle.usdzUrl}
-                vehicleData={{
-                  ...selectedVehicle,
-                  exteriorColor,
-                  interiorColor,
-                }}
-                quality={quality}
-                autoRotate={autoRotate}
-                showControls={true}
-                className="w-full"
-              />
+              {modelLoading && (
+                <div className="flex items-center justify-center h-[520px]">
+                  <div className="text-center space-y-2">
+                    <Loader2 className="w-10 h-10 text-muted-foreground mx-auto animate-spin" />
+                    <p className="text-sm text-muted-foreground">Loading 3D model...</p>
+                  </div>
+                </div>
+              )}
+              {!modelLoading && modelUrl && (
+                <VehicleViewer3D
+                  vehicleId={selectedVehicle.id}
+                  modelUrl={modelUrl}
+                  usdzUrl={usdzUrl || undefined}
+                  vehicleData={{
+                    ...selectedVehicle,
+                    exteriorColor,
+                    interiorColor,
+                  }}
+                  quality={quality}
+                  autoRotate={autoRotate}
+                  showControls={true}
+                  className="w-full"
+                />
+              )}
+              {!modelLoading && !modelUrl && (
+                <div className="flex items-center justify-center h-[520px]">
+                  <div className="text-center space-y-2">
+                    <EyeOff className="w-8 h-8 text-muted-foreground mx-auto" />
+                    <p className="text-sm text-muted-foreground">{modelError || '3D model unavailable'}</p>
+                  </div>
+                </div>
+              )}
             </Card>
           </div>
 
@@ -350,13 +414,13 @@ export default function VehicleShowroom3D() {
                       {Object.entries(VEHICLE_COLORS).slice(0, 15).map(([name, color]) => (
                         <button
                           key={name}
-                          onClick={() => setExteriorColor(color)}
+                          onClick={() => setExteriorColor(color as string)}
                           className={`w-10 h-8 rounded-lg border-2 transition-all ${
                             exteriorColor === color
                               ? 'border-primary ring-2 ring-primary ring-offset-2'
                               : 'border-border hover:border-primary/50'
                           }`}
-                          style={{ backgroundColor: color }}
+                          style={{ backgroundColor: color as string }}
                           title={name.replace(/_/g, ' ')}
                         />
                       ))}

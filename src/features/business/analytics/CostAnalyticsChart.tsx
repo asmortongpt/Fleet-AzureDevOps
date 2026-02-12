@@ -1,7 +1,7 @@
 import {
   LocalGasStation as FuelIcon,
   Build as MaintenanceIcon,
-  TrendingUp as TrendingUpIcon
+  TrendingUp as TrendUpIcon
 } from '@mui/icons-material';
 import {
   Box,
@@ -106,7 +106,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
   return (
     <Grid container spacing={3}>
       {/* Cost Comparison Bar Chart */}
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Card>
           <CardContent>
             <Stack spacing={2}>
@@ -114,7 +114,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
                 <Typography variant="h6" fontWeight={600}>
                   Cost Comparison
                 </Typography>
-                <TrendingUpIcon color="primary" />
+                <TrendUpIcon color="primary" />
               </Box>
 
               <ResponsiveContainer width="100%" height={280}>
@@ -131,7 +131,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
 
               <Box sx={{ mt: 2 }}>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <FuelIcon sx={{ color: COLORS.fuel }} />
                       <Box>
@@ -144,7 +144,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
                       </Box>
                     </Box>
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <MaintenanceIcon sx={{ color: COLORS.maintenance }} />
                       <Box>
@@ -165,7 +165,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
       </Grid>
 
       {/* Cost Breakdown Pie Chart */}
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Card>
           <CardContent>
             <Stack spacing={2}>
@@ -196,7 +196,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
               <Box>
                 <Grid container spacing={1}>
                   {pieData.map((item, index) => (
-                    <Grid item xs={6} key={index}>
+                    <Grid size={{ xs: 6 }} key={index}>
                       <Chip
                         label={`${item.name}: ${item.percentage}%`}
                         size="small"
@@ -226,7 +226,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
 
       {/* Cost by Fuel Type */}
       {fuelTypeCostData.length > 0 && (
-        <Grid item xs={12}>
+        <Grid size={{ xs: 12 }}>
           <Card>
             <CardContent>
               <Stack spacing={2}>
@@ -258,11 +258,11 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
       )}
 
       {/* Cost Summary Cards */}
-      <Grid item xs={12}>
+      <Grid size={{ xs: 12 }}>
         <Card sx={{ bgcolor: 'primary.main', color: 'white' }}>
           <CardContent>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <Box>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
                     Average Cost per Vehicle
@@ -272,7 +272,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <Box>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
                     Fuel vs Maintenance Ratio
@@ -282,7 +282,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
                   </Typography>
                 </Box>
               </Grid>
-              <Grid item xs={12} sm={4}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <Box>
                   <Typography variant="body2" sx={{ opacity: 0.9 }}>
                     Highest Cost Category

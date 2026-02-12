@@ -38,13 +38,17 @@ import {
   Alert,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+import logger from '@/utils/logger';
 
-const API_URL = 'http://localhost:8081';
+// Prefer same-origin `/api` (Vite proxies this in dev). This feature module is not used by the
+// consolidated hubs, but keeping it functional avoids hardcoded environments.
+const API_URL = '';
 
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
   value: number;
+  [key: string]: any;
 }
 
 function TabPanel(props: TabPanelProps) {
@@ -59,7 +63,7 @@ function TabPanel(props: TabPanelProps) {
     >
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
-  )
+  );
 }
 
 export default function ReportingDashboard() {
@@ -105,7 +109,7 @@ export default function ReportingDashboard() {
       const data = await response.json();
       setReports(data);
     } catch (error) {
-      console.error('Failed to fetch reports:', error)
+      logger.error('Failed to fetch reports:', error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -115,7 +119,7 @@ export default function ReportingDashboard() {
       const data = await response.json();
       setScheduledReports(data);
     } catch (error) {
-      console.error('Failed to fetch scheduled reports:', error)
+      logger.error('Failed to fetch scheduled reports:', error instanceof Error ? error.message : String(error));
     }
   };
 
@@ -154,7 +158,7 @@ export default function ReportingDashboard() {
         setError('Failed to generate report');
       }
     } catch (error) {
-      setError('Failed to generate report: ' + error)
+      setError('Failed to generate report: ' + (error instanceof Error ? error.message : String(error)));
     } finally {
       setLoading(false);
     }
@@ -265,7 +269,7 @@ export default function ReportingDashboard() {
 
       {/* Stats Panel */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
@@ -275,26 +279,26 @@ export default function ReportingDashboard() {
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
                 Scheduled Reports Active
               </Typography>
               <Typography variant="h4">
-                {scheduledReports.filter((r) => r.isActive).length}
+                {Array.isArray(scheduledReports) ? scheduledReports.filter((r: any) => r.isActive).length : 0}
               </Typography>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 4 }}>
           <Card>
             <CardContent>
               <Typography color="textSecondary" gutterBottom>
                 Storage Used
               </Typography>
               <Typography variant="h4">
-                {(reports.reduce((sum, r) => sum + (r.fileSize || 0), 0) / 1024).toFixed(2)} KB
+                {Array.isArray(reports) ? (reports.reduce((sum: number, r: any) => sum + (r.fileSize || 0), 0) / 1024).toFixed(2) : '0.00'} KB
               </Typography>
             </CardContent>
           </Card>
@@ -302,7 +306,7 @@ export default function ReportingDashboard() {
       </Grid>
 
       <Paper sx={{ width: '100%' }}>
-        <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)}>
+        <Tabs value={tabValue} onChange={(e: React.SyntheticEvent, v: number) => setTabValue(v)}>
           <Tab icon={<Assessment />} label="Build Report" />
           <Tab icon={<Schedule />} label="Scheduled Reports" />
           <Tab icon={<History />} label="Report History" />
@@ -311,7 +315,7 @@ export default function ReportingDashboard() {
         {/* Build Report Tab */}
         <TabPanel value={tabValue} index={0}>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Report Type</InputLabel>
                 <Select
@@ -328,7 +332,7 @@ export default function ReportingDashboard() {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Report Name"
@@ -338,7 +342,7 @@ export default function ReportingDashboard() {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="Start Date"
@@ -349,7 +353,7 @@ export default function ReportingDashboard() {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <TextField
                 fullWidth
                 label="End Date"
@@ -360,7 +364,7 @@ export default function ReportingDashboard() {
               />
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <FormControl fullWidth>
                 <InputLabel>Export Format</InputLabel>
                 <Select
@@ -375,7 +379,7 @@ export default function ReportingDashboard() {
               </FormControl>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid size={12}>
               <Button
                 variant="contained"
                 size="large"
@@ -425,12 +429,13 @@ export default function ReportingDashboard() {
                     <TableCell>
                       <Chip label={report.frequency} size="small" />
                     </TableCell>
-                    <TableCell>{report.format.toUpperCase()}</TableCell>
+                    <TableCell>{String(report.format).toUpperCase()}</TableCell>
                     <TableCell>
                       <Chip
                         label={report.isActive ? 'Active' : 'Inactive'}
                         color={report.isActive ? 'success' : 'default'}
                         size="small"
+                        variant="filled"
                       />
                     </TableCell>
                     <TableCell>
@@ -504,7 +509,7 @@ export default function ReportingDashboard() {
                     <TableCell>
                       {new Date(report.generatedAt).toLocaleString()}
                     </TableCell>
-                    <TableCell>{report.format.toUpperCase()}</TableCell>
+                    <TableCell>{String(report.format).toUpperCase()}</TableCell>
                     <TableCell>
                       {report.fileSize ? `${(report.fileSize / 1024).toFixed(2)} KB` : 'N/A'}
                     </TableCell>
@@ -513,6 +518,7 @@ export default function ReportingDashboard() {
                         label={report.status}
                         color={report.status === 'completed' ? 'success' : 'warning'}
                         size="small"
+                        variant="filled"
                       />
                     </TableCell>
                     <TableCell>
@@ -581,7 +587,7 @@ export default function ReportingDashboard() {
         <DialogTitle>Create Scheduled Report</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth
                 label="Report Name"
@@ -591,7 +597,7 @@ export default function ReportingDashboard() {
                 }
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Report Type</InputLabel>
                 <Select
@@ -612,7 +618,7 @@ export default function ReportingDashboard() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Frequency</InputLabel>
                 <Select
@@ -628,7 +634,7 @@ export default function ReportingDashboard() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <FormControl fullWidth>
                 <InputLabel>Format</InputLabel>
                 <Select
@@ -644,7 +650,7 @@ export default function ReportingDashboard() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12}>
+            <Grid size={12}>
               <TextField
                 fullWidth
                 label="Email Recipients (comma-separated)"

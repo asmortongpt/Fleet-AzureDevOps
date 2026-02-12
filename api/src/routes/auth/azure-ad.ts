@@ -17,11 +17,18 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+if (!process.env.AZURE_AD_CLIENT_ID && !process.env.AZURE_CLIENT_ID) {
+  throw new Error('AZURE_AD_CLIENT_ID (or AZURE_CLIENT_ID) environment variable is required for Azure AD authentication');
+}
+if (!process.env.AZURE_AD_CLIENT_SECRET && !process.env.AZURE_CLIENT_SECRET) {
+  throw new Error('AZURE_AD_CLIENT_SECRET (or AZURE_CLIENT_SECRET) environment variable is required for Azure AD authentication');
+}
+
 passport.use(
   new AzureStrategy(
     {
-      clientID: process.env.AZURE_CLIENT_ID || 'dummy_client_id',
-      clientSecret: process.env.AZURE_CLIENT_SECRET || 'dummy_secret',
+      clientID: process.env.AZURE_AD_CLIENT_ID || process.env.AZURE_CLIENT_ID!,
+      clientSecret: process.env.AZURE_AD_CLIENT_SECRET || process.env.AZURE_CLIENT_SECRET!,
       callbackURL: '/api/auth/azure/callback',
     },
     function (accessToken: string, refresh_token: string, params: any, profile: any, done: any) {

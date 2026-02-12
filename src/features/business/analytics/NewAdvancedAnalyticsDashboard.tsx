@@ -23,6 +23,8 @@ import {
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 
+import { secureFetch } from '@/hooks/use-api';
+
 import CostAnalyticsChart from './CostAnalyticsChart';
 import FleetMetricsCards from './FleetMetricsCards';
 import VehicleUtilizationChart from './VehicleUtilizationChart';
@@ -88,8 +90,8 @@ const NewAdvancedAnalyticsDashboard: React.FC = () => {
       setError(null);
 
       const [dashboardResponse, vehiclesResponse] = await Promise.all([
-        fetch('http://localhost:8081/api/analytics/dashboard'),
-        fetch('http://localhost:8081/api/vehicles')
+        secureFetch(`/api/analytics/dashboard?days=${encodeURIComponent(dateRange)}`, { method: 'GET' }),
+        secureFetch('/api/vehicles?limit=1000', { method: 'GET' })
       ]);
 
       if (!dashboardResponse.ok || !vehiclesResponse.ok) {
@@ -100,7 +102,7 @@ const NewAdvancedAnalyticsDashboard: React.FC = () => {
       const vehiclesJson = await vehiclesResponse.json();
 
       setDashboardData(dashboardJson);
-      setVehicles(vehiclesJson);
+      setVehicles(vehiclesJson?.data?.data ?? vehiclesJson?.data ?? vehiclesJson);
       setLastRefresh(new Date());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

@@ -1,0 +1,124 @@
+
+> fleet-garage-system@1.0.0 typecheck
+> tsc --noEmit
+
+src/App.tsx(194,10): error TS2305: Module '"@/contexts/AuthContext"' has no exported member 'useAuth'.
+src/components/3d/ARModeExport.tsx(175,7): error TS2304: Cannot find name 'logger'.
+src/components/analytics/AnalyticsDashboard.tsx(47,102): error TS2339: Property 'odometer' does not exist on type 'Vehicle'.
+src/components/AssetLocationMap.tsx(9,10): error TS2305: Module '"@/types"' has no exported member 'Asset'.
+src/components/AssetLocationMap.tsx(9,17): error TS2305: Module '"@/types"' has no exported member 'Geofence'.
+src/components/AssetLocationMap.tsx(103,57): error TS7006: Parameter 'coord' implicitly has an 'any' type.
+src/components/auth/LoginPage.tsx(15,3): error TS2305: Module '"@/lib/auth"' has no exported member 'loginWithRedirect'.
+src/components/auth/LoginPage.tsx(16,3): error TS2305: Module '"@/lib/auth"' has no exported member 'loginWithPopup'.
+src/components/auth/LoginPage.tsx(17,3): error TS2305: Module '"@/lib/auth"' has no exported member 'initializeMsal'.
+src/components/auth/LoginPage.tsx(18,3): error TS2305: Module '"@/lib/auth"' has no exported member 'isAuthenticated'.
+src/components/auth/LoginPage.tsx(19,3): error TS2305: Module '"@/lib/auth"' has no exported member 'getUserProfile'.
+src/components/auth/ProtectedRoute.tsx(18,3): error TS2305: Module '"@/lib/auth"' has no exported member 'initializeMsal'.
+src/components/auth/ProtectedRoute.tsx(19,3): error TS2305: Module '"@/lib/auth"' has no exported member 'isAuthenticated'.
+src/components/auth/ProtectedRoute.tsx(20,3): error TS2305: Module '"@/lib/auth"' has no exported member 'getAccount'.
+src/components/auth/ProtectedRoute.tsx(21,3): error TS2305: Module '"@/lib/auth"' has no exported member 'getAccessToken'.
+src/components/auth/ProtectedRoute.tsx(38,17): error TS2339: Property 'hasRole' does not exist on type '{ tenantId?: string | undefined; user?: any; }'.
+src/components/auth/ProtectedRoute.tsx(38,26): error TS2339: Property 'hasPermission' does not exist on type '{ tenantId?: string | undefined; user?: any; }'.
+src/components/auth/ProtectedRoute.tsx(38,41): error TS2339: Property 'canAccess' does not exist on type '{ tenantId?: string | undefined; user?: any; }'.
+src/components/auth/RBACGuard.tsx(9,10): error TS2305: Module '"@/contexts/AuthContext"' has no exported member 'useAuth'.
+src/components/auth/RBACGuard.tsx(9,19): error TS2305: Module '"@/contexts/AuthContext"' has no exported member 'UserRole'.
+src/components/auth/TenantSwitcher.tsx(21,10): error TS2305: Module '"@/contexts/AuthContext"' has no exported member 'useAuth'.
+src/components/common/ScannerModal.tsx(17,10): error TS2724: '"@yudiel/react-qr-scanner"' has no exported member named 'QrScanner'. Did you mean 'Scanner'?
+src/components/dashboards/roles/DispatcherDashboard.tsx(168,12): error TS2304: Cannot find name 'Zap'.
+src/components/dashboards/roles/DispatcherDashboard.tsx(179,16): error TS2304: Cannot find name 'Car'.
+src/components/dashboards/roles/DispatcherDashboard.tsx(191,15): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
+src/components/dashboards/roles/DispatcherDashboard.tsx(191,16): error TS2786: 'Map' cannot be used as a JSX component.
+  Its type 'MapConstructor' is not a valid JSX element type.
+    Type 'MapConstructor' is not assignable to type 'new (props: any, deprecatedLegacyContext?: any) => Component<any, any, any>'.
+      Type 'Map<any, any>' is missing the following properties from type 'Component<any, any, any>': context, setState, forceUpdate, render, and 3 more.
+src/components/dashboards/roles/DispatcherDashboard.tsx(203,16): error TS2304: Cannot find name 'AlertTriangle'.
+src/components/dashboards/roles/DispatcherDashboard.tsx(243,12): error TS2304: Cannot find name 'Route'.
+src/components/dashboards/roles/DispatcherDashboard.tsx(253,15): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
+src/components/dashboards/roles/DispatcherDashboard.tsx(253,16): error TS2786: 'Map' cannot be used as a JSX component.
+  Its type 'MapConstructor' is not a valid JSX element type.
+    Type 'MapConstructor' is not assignable to type 'new (props: any, deprecatedLegacyContext?: any) => Component<any, any, any>'.
+      Type 'Map<any, any>' is missing the following properties from type 'Component<any, any, any>': context, setState, forceUpdate, render, and 3 more.
+src/components/dashboards/roles/DispatcherDashboard.tsx(284,15): error TS2607: JSX element class does not support attributes because it does not have a 'props' property.
+src/components/dashboards/roles/DispatcherDashboard.tsx(284,16): error TS2786: 'Map' cannot be used as a JSX component.
+  Its type 'MapConstructor' is not a valid JSX element type.
+    Type 'MapConstructor' is not assignable to type 'new (props: any, deprecatedLegacyContext?: any) => Component<any, any, any>'.
+      Type 'Map<any, any>' is missing the following properties from type 'Component<any, any, any>': context, setState, forceUpdate, render, and 3 more.
+src/components/dashboards/roles/DispatcherDashboard.tsx(302,14): error TS2304: Cannot find name 'Route'.
+src/components/dashboards/roles/DispatcherDashboard.tsx(394,18): error TS2304: Cannot find name 'MessageCircle'.
+src/components/dashboards/roles/FleetManagerDashboard.tsx(129,12): error TS2304: Cannot find name 'AlertCircle'.
+src/components/dashboards/roles/FleetManagerDashboard.tsx(154,12): error TS2304: Cannot find name 'AlertCircle'.
+src/components/dashboards/roles/FleetManagerDashboard.tsx(171,16): error TS2304: Cannot find name 'AlertTriangle'.
+src/components/dashboards/roles/FleetManagerDashboard.tsx(380,22): error TS2304: Cannot find name 'AlertTriangle'.
+src/components/dashboards/roles/MaintenanceManagerDashboard.tsx(264,16): error TS2304: Cannot find name 'AlertTriangle'.
+src/components/dashboards/roles/MaintenanceManagerDashboard.tsx(280,22): error TS2304: Cannot find name 'Car'.
+src/components/dashboards/roles/MaintenanceManagerDashboard.tsx(370,22): error TS2304: Cannot find name 'AlertTriangle'.
+src/components/DispatchConsole.tsx(75,17): error TS2339: Property 'isAuthenticated' does not exist on type '{ tenantId?: string | undefined; user?: any; }'.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(35,3): error TS2687: All declarations of 'requester_name' must have identical modifiers.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(36,3): error TS2687: All declarations of 'requester_department' must have identical modifiers.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(37,3): error TS2687: All declarations of 'submitted_date' must have identical modifiers.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(67,3): error TS2717: Subsequent property declarations must have the same type.  Property 'id' must be of type 'string | number', but here has type 'string'.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(72,3): error TS2687: All declarations of 'requester_name' must have identical modifiers.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(72,3): error TS2717: Subsequent property declarations must have the same type.  Property 'requester_name' must be of type 'string', but here has type 'string | undefined'.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(73,3): error TS2687: All declarations of 'requester_department' must have identical modifiers.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(73,3): error TS2717: Subsequent property declarations must have the same type.  Property 'requester_department' must be of type 'string', but here has type 'string | undefined'.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(74,3): error TS2687: All declarations of 'submitted_date' must have identical modifiers.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(74,3): error TS2717: Subsequent property declarations must have the same type.  Property 'submitted_date' must be of type 'string', but here has type 'string | undefined'.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(81,3): error TS2717: Subsequent property declarations must have the same type.  Property 'asset_id' must be of type 'string | number | undefined', but here has type 'string | undefined'.
+src/components/drilldown/MaintenanceRequestDrilldowns.tsx(94,3): error TS2717: Subsequent property declarations must have the same type.  Property 'activity_log' must be of type 'ActivityLogEntry[] | undefined', but here has type '{ id: string; action: string; timestamp: string; user: string; comments?: string | undefined; }[] | undefined'.
+src/components/drilldown/PolicyTemplateDetailPanel.tsx(241,20): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'string'.
+src/components/drilldown/VehicleDrilldownView.tsx(22,39): error TS2339: Property 'metadata' does not exist on type 'Vehicle'.
+src/components/drilldown/VehicleDrilldownView.tsx(22,108): error TS2339: Property 'number' does not exist on type 'Vehicle'.
+src/components/drilldown/VehicleDrilldownView.tsx(27,33): error TS2339: Property 'number' does not exist on type 'Vehicle'.
+src/components/drilldown/VehicleDrilldownView.tsx(45,71): error TS2339: Property 'number' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(102,24): error TS2339: Property 'status' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(105,24): error TS2339: Property 'status' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(108,24): error TS2339: Property 'status' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(123,40): error TS2339: Property 'number' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(125,43): error TS2339: Property 'number' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(129,93): error TS2339: Property 'number' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(134,98): error TS2339: Property 'year' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(138,76): error TS2339: Property 'vin' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(142,77): error TS2339: Property 'status' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(148,66): error TS2339: Property 'mileage' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(152,66): error TS2339: Property 'assignedDriver' does not exist on type 'Vehicle'.
+src/components/DrilldownSystem.tsx(156,66): error TS2339: Property 'department' does not exist on type 'Vehicle'.
+src/components/fleet/VehicleReservation.tsx(343,61): error TS2367: This comparison appears to be unintentional because the types '"pending" | "active" | "scheduled" | "completed" | "cancelled" | "in_progress" | "no_show"' and '"approved"' have no overlap.
+src/components/fuel/FuelCardDialog.tsx(289,28): error TS2339: Property 'firstName' does not exist on type 'Driver'.
+src/components/fuel/FuelCardDialog.tsx(289,42): error TS2339: Property 'lastName' does not exist on type 'Driver'.
+src/components/fuel/FuelCardDialog.tsx(309,28): error TS2339: Property 'number' does not exist on type 'Vehicle'.
+src/components/fuel/FuelCardDialog.tsx(309,41): error TS2339: Property 'year' does not exist on type 'Vehicle'.
+src/components/fuel/FuelTransactionDialog.tsx(264,28): error TS2339: Property 'number' does not exist on type 'Vehicle'.
+src/components/fuel/FuelTransactionDialog.tsx(264,41): error TS2339: Property 'year' does not exist on type 'Vehicle'.
+src/components/fuel/FuelTransactionDialog.tsx(281,28): error TS2339: Property 'firstName' does not exist on type 'Driver'.
+src/components/fuel/FuelTransactionDialog.tsx(281,42): error TS2339: Property 'lastName' does not exist on type 'Driver'.
+src/components/hos/DOTReportsDialog.tsx(171,45): error TS2345: Argument of type 'string' is not assignable to parameter of type 'DriverFilters'.
+src/components/hos/DOTReportsDialog.tsx(172,55): error TS2554: Expected 1 arguments, but got 2.
+src/components/hos/DOTReportsDialog.tsx(177,63): error TS2554: Expected 1 arguments, but got 2.
+src/components/hos/DOTReportsDialog.tsx(184,5): error TS2561: Object literal may only specify known properties, but 'startDate' does not exist in type 'HOSViolationFilters'. Did you mean to write 'start_date'?
+src/components/hos/DOTReportsDialog.tsx(332,31): error TS2339: Property 'first_name' does not exist on type 'Driver'.
+src/components/hos/DOTReportsDialog.tsx(332,51): error TS2339: Property 'last_name' does not exist on type 'Driver'.
+src/components/hos/DOTReportsDialog.tsx(332,71): error TS2339: Property 'license_number' does not exist on type 'Driver'.
+src/components/hos/DOTReportsDialog.tsx(392,68): error TS2322: Type 'HOSSummaryData | DVIRSummaryData | ViolationSummaryData | DriverPerformanceData' is not assignable to type 'HOSSummaryData'.
+  Type 'DVIRSummaryData' is missing the following properties from type 'HOSSummaryData': totalLogs, byStatus, byDriver, logs
+src/components/hos/DOTReportsDialog.tsx(393,70): error TS2322: Type 'HOSSummaryData | DVIRSummaryData | ViolationSummaryData | DriverPerformanceData' is not assignable to type 'DVIRSummaryData'.
+  Type 'HOSSummaryData' is missing the following properties from type 'DVIRSummaryData': totalReports, totalDefects, criticalDefects, unsafeVehicles, and 2 more.
+src/components/hos/DOTReportsDialog.tsx(394,73): error TS2322: Type 'HOSSummaryData | DVIRSummaryData | ViolationSummaryData | DriverPerformanceData' is not assignable to type 'ViolationSummaryData'.
+  Type 'HOSSummaryData' is missing the following properties from type 'ViolationSummaryData': totalViolations, bySeverity, byType, violations
+src/components/hos/DOTReportsDialog.tsx(396,44): error TS2322: Type 'HOSSummaryData | DVIRSummaryData | ViolationSummaryData | DriverPerformanceData' is not assignable to type 'DriverPerformanceData'.
+  Type 'HOSSummaryData' is missing the following properties from type 'DriverPerformanceData': totalHours, totalViolations, complianceRate, avgDailyHours, violations
+src/components/hos/DOTReportsDialog.tsx(416,35): error TS2367: This comparison appears to be unintentional because the types 'DutyStatus' and '"sleeper"' have no overlap.
+src/components/hos/DOTReportsDialog.tsx(418,35): error TS2367: This comparison appears to be unintentional because the types 'DutyStatus' and '"on_duty"' have no overlap.
+src/components/hos/DOTReportsDialog.tsx(447,39): error TS2367: This comparison appears to be unintentional because the types 'InspectionType' and '"en_route"' have no overlap.
+src/components/hos/DVIRInspectionDialog.tsx(286,7): error TS2322: Type 'string' is not assignable to type 'HOSLocation'.
+src/components/hos/DVIRInspectionDialog.tsx(289,7): error TS2322: Type '{ component: string; description: string; severity: string; }[] | undefined' is not assignable to type 'DVIRDefect[] | undefined'.
+  Type '{ component: string; description: string; severity: string; }[]' is not assignable to type 'DVIRDefect[]'.
+    Property 'defect_description' is missing in type '{ component: string; description: string; severity: string; }' but required in type 'DVIRDefect'.
+src/components/hos/HOSLogEntryDialog.tsx(268,9): error TS2353: Object literal may only specify known properties, and 'coordinates' does not exist in type 'HOSLocation'.
+src/components/hos/ViolationResolutionDialog.tsx(145,9): error TS2353: Object literal may only specify known properties, and 'violationId' does not exist in type 'ResolveViolationInput'.
+src/components/hubs/communication/CommunicationHub.tsx(527,11): error TS2322: Type 'import("@/types").Vehicle[]' is not assignable to type 'import("/Users/andrewmorton/Documents/GitHub/Fleet-CTA/src/lib/types").Vehicle[]'.
+  Type 'Vehicle' is missing the following properties from type 'Vehicle': tenantId, number, type, year, and 13 more.
+src/components/hubs/operations/OperationsHubEnhanced.tsx(453,17): error TS2719: Type 'Vehicle[]' is not assignable to type 'Vehicle[]'. Two different types with this name exist, but they are unrelated.
+  Type 'Vehicle' is not assignable to type 'Vehicle'. Two different types with this name exist, but they are unrelated.
+    Types of property 'status' are incompatible.
+      Type '"active" | "maintenance" | "inactive"' is not assignable to type '"offline" | "active" | "maintenance" | "idle"'.
+        Type '"inactive"' is not assignable to type '"offline" | "active" | "maintenance" | "idle"'. Did you mean '"active"'?

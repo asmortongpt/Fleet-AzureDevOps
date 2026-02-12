@@ -5,6 +5,8 @@
  * @module security/headers
  */
 
+import logger from '@/utils/logger';
+
 export interface SecurityHeadersConfig {
   enableHSTS?: boolean;
   hstsMaxAge?: number;
@@ -101,7 +103,7 @@ export function getSecurityHeaders(): Record<string, string> {
     return { ...DEV_SECURITY_HEADERS };
   }
 
-  const headers = { ...SECURITY_HEADERS };
+  const headers: Record<string, string> = { ...SECURITY_HEADERS };
 
   // Remove HSTS if not HTTPS
   if (!isHTTPS) {
@@ -213,7 +215,7 @@ export async function auditSecurityHeaders(
       }
     }
   } catch (error) {
-    console.error('Failed to audit security headers:', error);
+    logger.error('Failed to audit security headers:', error);
   }
 
   return audit;
@@ -423,18 +425,18 @@ export function securityHeadersMiddleware(
 export function initSecurityHeaders(): void {
   // Log security headers status in development
   if (import.meta.env.DEV) {
-    console.log('[Security Headers] Initialized');
-    console.log('[Security Headers] Configuration:', getSecurityHeaders());
+    logger.info('[Security Headers] Initialized');
+    logger.info('[Security Headers] Configuration:', getSecurityHeaders());
   }
 
   // Audit headers in production
   if (import.meta.env.PROD && typeof window !== 'undefined') {
     auditSecurityHeaders().then((audit) => {
       if (audit.missing.length > 0) {
-        console.warn('[Security Headers] Missing headers:', audit.missing);
+        logger.warn('[Security Headers] Missing headers:', audit.missing);
       }
       if (audit.invalid.length > 0) {
-        console.warn('[Security Headers] Invalid headers:', audit.invalid);
+        logger.warn('[Security Headers] Invalid headers:', audit.invalid);
       }
     });
   }

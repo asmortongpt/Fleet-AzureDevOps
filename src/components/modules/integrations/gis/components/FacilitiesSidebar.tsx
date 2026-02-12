@@ -2,11 +2,14 @@
  * Facilities Sidebar - Displays list of facilities in the region
  */
 
-import { Buildings, CarProfile, Wrench, GasPump } from "@phosphor-icons/react"
+import { Building2, User, Wrench, Fuel, Car } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import type { GISFacility } from "@/lib/types"
+
+// Icon alias for Phosphor naming
+const CarProfile = Car
 
 interface FacilitiesSidebarProps {
   facilities: GISFacility[]
@@ -15,13 +18,13 @@ interface FacilitiesSidebarProps {
 function getFacilityIcon(type: GISFacility["type"]) {
   switch (type) {
     case "office":
-      return <Buildings className="w-3 h-3" />
+      return <Building2 className="w-3 h-3" />
     case "depot":
       return <CarProfile className="w-3 h-3" />
     case "service-center":
       return <Wrench className="w-3 h-3" />
     case "fueling-station":
-      return <GasPump className="w-3 h-3" />
+      return <Fuel className="w-3 h-3" />
   }
 }
 

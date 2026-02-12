@@ -6,7 +6,7 @@
 
 import React, { useState } from 'react';
 
-import { VehicleAPI } from '../../services/api/RealDatabaseAPI';
+import { api } from "@/lib/api";
 
 interface VehicleFormData {
   fleet_number: string;
@@ -63,7 +63,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
     setError(null);
 
     try {
-      const vehicle = await VehicleAPI.create(formData);
+      const vehicle = await api.post('/vehicles', formData);
       // console.log('✅ Vehicle created in database:', vehicle);
 
       if (onSuccess) {

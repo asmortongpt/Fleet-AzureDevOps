@@ -21,7 +21,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 interface VehicleAssignment {
   id: string
@@ -60,164 +63,6 @@ interface VehicleUtilization {
   currentJob?: string
 }
 
-// Demo data
-const demoAssignments: VehicleAssignment[] = [
-  {
-    id: 'assign-001',
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    vehicleNumber: 'V-1001',
-    driverId: 'drv-001',
-    driverName: 'John Smith',
-    driverPhone: '(850) 555-0101',
-    driverEmail: 'john.smith@fleet.com',
-    jobId: 'job-001',
-    jobNumber: 'JOB-1001',
-    jobTitle: 'Downtown Delivery Route',
-    assignedDate: '2026-01-03T08:00:00',
-    startTime: '2026-01-03T08:15:00',
-    estimatedEnd: '2026-01-03T16:00:00',
-    status: 'active',
-    utilizationPercent: 85,
-    hoursActive: 6.5,
-    hoursIdle: 0.5
-  },
-  {
-    id: 'assign-002',
-    vehicleId: 'veh-demo-1002',
-    vehicleName: 'Chevrolet Silverado #1002',
-    vehicleNumber: 'V-1002',
-    driverId: 'drv-002',
-    driverName: 'Sarah Johnson',
-    driverPhone: '(850) 555-0102',
-    driverEmail: 'sarah.johnson@fleet.com',
-    jobId: 'job-002',
-    jobNumber: 'JOB-1002',
-    jobTitle: 'Airport Cargo Pickup',
-    assignedDate: '2026-01-03T10:00:00',
-    startTime: '2026-01-03T10:25:00',
-    estimatedEnd: '2026-01-03T12:00:00',
-    status: 'active',
-    utilizationPercent: 92,
-    hoursActive: 1.5,
-    hoursIdle: 0.2
-  },
-  {
-    id: 'assign-003',
-    vehicleId: 'veh-demo-1003',
-    vehicleName: 'Mercedes Sprinter #1003',
-    vehicleNumber: 'V-1003',
-    driverId: 'drv-003',
-    driverName: 'Mike Davis',
-    assignedDate: '2026-01-03T06:00:00',
-    startTime: '2026-01-03T06:00:00',
-    endTime: '2026-01-03T09:45:00',
-    status: 'completed',
-    utilizationPercent: 88,
-    hoursActive: 3.75,
-    hoursIdle: 0.5
-  },
-  {
-    id: 'assign-004',
-    vehicleId: 'veh-demo-1005',
-    vehicleName: 'Ford Transit #1005',
-    vehicleNumber: 'V-1005',
-    driverId: 'drv-004',
-    driverName: 'Lisa Chen',
-    driverPhone: '(850) 555-0104',
-    driverEmail: 'lisa.chen@fleet.com',
-    jobId: 'job-005',
-    jobNumber: 'JOB-1005',
-    jobTitle: 'Emergency Medical Supply Transport',
-    assignedDate: '2026-01-03T11:00:00',
-    startTime: '2026-01-03T11:05:00',
-    estimatedEnd: '2026-01-03T12:00:00',
-    status: 'active',
-    utilizationPercent: 95,
-    hoursActive: 0.8,
-    hoursIdle: 0.05
-  }
-]
-
-const demoUtilization: VehicleUtilization[] = [
-  {
-    vehicleId: 'veh-demo-1001',
-    vehicleName: 'Ford F-150 #1001',
-    vehicleNumber: 'V-1001',
-    totalHours: 8,
-    activeHours: 6.5,
-    idleHours: 1.5,
-    utilizationRate: 81,
-    assignmentCount: 1,
-    lastAssignment: '2026-01-03T08:00:00',
-    status: 'active',
-    currentDriver: 'John Smith',
-    currentJob: 'JOB-1001'
-  },
-  {
-    vehicleId: 'veh-demo-1002',
-    vehicleName: 'Chevrolet Silverado #1002',
-    vehicleNumber: 'V-1002',
-    totalHours: 8,
-    activeHours: 7.2,
-    idleHours: 0.8,
-    utilizationRate: 90,
-    assignmentCount: 2,
-    lastAssignment: '2026-01-03T10:00:00',
-    status: 'active',
-    currentDriver: 'Sarah Johnson',
-    currentJob: 'JOB-1002'
-  },
-  {
-    vehicleId: 'veh-demo-1003',
-    vehicleName: 'Mercedes Sprinter #1003',
-    vehicleNumber: 'V-1003',
-    totalHours: 4,
-    activeHours: 3.75,
-    idleHours: 0.25,
-    utilizationRate: 94,
-    assignmentCount: 1,
-    lastAssignment: '2026-01-03T06:00:00',
-    status: 'idle'
-  },
-  {
-    vehicleId: 'veh-demo-1004',
-    vehicleName: 'Dodge Ram #1004',
-    vehicleNumber: 'V-1004',
-    totalHours: 8,
-    activeHours: 0,
-    idleHours: 8,
-    utilizationRate: 0,
-    assignmentCount: 0,
-    status: 'idle'
-  },
-  {
-    vehicleId: 'veh-demo-1005',
-    vehicleName: 'Ford Transit #1005',
-    vehicleNumber: 'V-1005',
-    totalHours: 8,
-    activeHours: 5.5,
-    idleHours: 2.5,
-    utilizationRate: 69,
-    assignmentCount: 2,
-    lastAssignment: '2026-01-03T11:00:00',
-    status: 'active',
-    currentDriver: 'Lisa Chen',
-    currentJob: 'JOB-1005'
-  },
-  {
-    vehicleId: 'veh-demo-1006',
-    vehicleName: 'GMC Sierra #1006',
-    vehicleNumber: 'V-1006',
-    totalHours: 8,
-    activeHours: 0,
-    idleHours: 8,
-    utilizationRate: 0,
-    assignmentCount: 0,
-    status: 'maintenance'
-  }
-]
-
 export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
   const { push } = useDrilldown()
 
@@ -225,7 +70,6 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
     filter ? `/api/assignments?filter=${filter}` : '/api/assignments',
     fetcher,
     {
-      fallbackData: demoAssignments,
       shouldRetryOnError: false
     }
   )
@@ -234,7 +78,6 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
     '/api/vehicles/utilization',
     fetcher,
     {
-      fallbackData: demoUtilization,
       shouldRetryOnError: false
     }
   )
@@ -390,9 +233,9 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <Truck className="w-4 h-4 text-blue-400 mx-auto mb-1" />
-            <div className="text-sm font-bold text-blue-400">{metrics.activeVehicles}</div>
-            <div className="text-xs text-slate-400">Active</div>
+            <Truck className="w-4 h-4 text-blue-700 mx-auto mb-1" />
+            <div className="text-sm font-bold text-blue-700">{metrics.activeVehicles}</div>
+            <div className="text-xs text-slate-700">Active</div>
           </CardContent>
         </Card>
 
@@ -400,7 +243,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <Clock className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">{metrics.idleVehicles}</div>
-            <div className="text-xs text-slate-400">Idle</div>
+            <div className="text-xs text-slate-700">Idle</div>
           </CardContent>
         </Card>
 
@@ -408,7 +251,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <AlertCircle className="w-4 h-4 text-red-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-red-400">{metrics.maintenanceVehicles}</div>
-            <div className="text-xs text-slate-400">Maintenance</div>
+            <div className="text-xs text-slate-700">Maintenance</div>
           </CardContent>
         </Card>
 
@@ -416,7 +259,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <TrendingUp className="w-4 h-4 text-green-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-green-400">{metrics.avgUtilization}%</div>
-            <div className="text-xs text-slate-400">Avg Utilization</div>
+            <div className="text-xs text-slate-700">Avg Utilization</div>
           </CardContent>
         </Card>
       </div>
@@ -425,7 +268,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Activity className="w-3 h-3 text-blue-400" />
+            <Activity className="w-3 h-3 text-blue-700" />
             Current Assignments ({filteredAssignments.length})
           </CardTitle>
         </CardHeader>

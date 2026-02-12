@@ -23,9 +23,13 @@ import {
   reportQueue,
 } from '../jobs/queue'
 import { csrfProtection } from '../middleware/csrf'
+import { authenticateJWT } from '../middleware/auth'
 
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 /**
  * GET /api/admin/jobs

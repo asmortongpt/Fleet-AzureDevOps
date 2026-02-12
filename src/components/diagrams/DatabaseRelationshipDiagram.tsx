@@ -2,11 +2,11 @@ import {
   Database,
   Table as TableIcon,
   GitBranch,
-  MagnifyingGlass,
-  ArrowsClockwise,
+  Search,
+  RefreshCw,
   Key,
   Link as LinkIcon
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import mermaid from "mermaid"
 import { useEffect, useRef, useState } from "react"
 
@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import logger from '@/utils/logger';
 
 interface TableInfo {
   name: string
@@ -414,7 +415,7 @@ erDiagram
       mermaid.run({
         nodes: mermaidRef.current.querySelectorAll(".mermaid")
       }).catch(error => {
-        console.error("Mermaid rendering error:", error)
+        logger.error("Mermaid rendering error:", error)
       })
     }
   }, [viewMode])
@@ -469,7 +470,7 @@ erDiagram
               size="sm"
               onClick={() => window.location.reload()}
             >
-              <ArrowsClockwise className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4" />
             </Button>
           </div>
         </CardHeader>
@@ -483,7 +484,7 @@ erDiagram
         <CardHeader>
           <CardTitle className="text-sm">Table Schema Details</CardTitle>
           <div className="relative mt-2">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search tables..."

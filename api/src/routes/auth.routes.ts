@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { ApiError } from '../middleware/error.middleware';
 import { AuditService, AuditCategory, AuditSeverity } from '../services/audit/AuditService';
 import { AuthenticationService } from '../services/auth/AuthenticationService';
+import { authenticateJWT } from '../middleware/auth'
 
 
 // Validation schemas
@@ -37,6 +38,7 @@ const mfaVerifySchema = z.object({
 
 export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditService): Router {
   const router = Router();
+
   const authService = new AuthenticationService(pool, redis);
 
   /**
@@ -125,7 +127,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
    * POST /auth/logout
    * Revoke current session
    */
-  router.post('/logout', async (req: Request, res: Response, next) => {
+  router.post('/logout', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
       const user = (req as any).user;
       if (!user || !user.sessionUuid) {
@@ -182,7 +184,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
    * POST /auth/mfa/setup
    * Setup MFA for authenticated user
    */
-  router.post('/mfa/setup', async (req: Request, res: Response, next) => {
+  router.post('/mfa/setup', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
       const user = (req as any).user;
       if (!user) {
@@ -208,7 +210,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
    * POST /auth/mfa/verify
    * Verify and enable MFA
    */
-  router.post('/mfa/verify', async (req: Request, res: Response, next) => {
+  router.post('/mfa/verify', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
       const user = (req as any).user;
       if (!user) {

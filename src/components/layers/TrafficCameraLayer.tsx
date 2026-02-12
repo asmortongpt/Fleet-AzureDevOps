@@ -1,4 +1,4 @@
-import { VideoCamera } from "@phosphor-icons/react"
+import { Video } from "lucide-react"
 import { useQuery } from "@tanstack/react-query"
 
 import {
@@ -88,7 +88,7 @@ export function TrafficCameraLayer({ visible, filters, onCameraSelect, selectedC
                                         <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500 border-2 border-white"></span>
                                     </span>
                                 )}
-                                <VideoCamera weight="fill" className="w-4 h-4" />
+                                <Video className="w-4 h-4" />
                             </div>
                         </div>
                     </HoverCardTrigger>

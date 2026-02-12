@@ -57,7 +57,8 @@ export class DocumentRAGService {
         apiKey: process.env.OPENAI_API_KEY
       })
     } else {
-      this.logger.warn('OpenAI API key not found. RAG features will use mock data.')
+      // Hard-disable AI features when not configured; do not fall back to mock responses in production.
+      this.logger.warn('OpenAI API key not found. Document RAG features are disabled until OPENAI_API_KEY is configured.')
     }
   }
 
@@ -175,9 +176,7 @@ break
    */
   private async generateEmbedding(text: string): Promise<number[]> {
     if (!this.openai) {
-      // Return mock embedding for development
-      this.logger.warn('Using mock embedding (OpenAI not configured)')
-      return this.generateMockEmbedding()
+      throw new Error('OpenAI API key is required for embedding generation')
     }
 
     try {
@@ -189,18 +188,10 @@ break
       return response.data[0].embedding
     } catch (error) {
       this.logger.error('Error generating embedding:', error)
-      // Fallback to mock embedding
-      return this.generateMockEmbedding()
+      throw error
     }
   }
 
-  /**
-   * Generate mock embedding for development
-   */
-  private generateMockEmbedding(): number[] {
-    // Generate a random 1536-dimensional vector (OpenAI ada-002 size)
-    return Array.from({ length: 1536 }, () => Math.random() * 2 - 1)
-  }
 
   /**
    * Semantic search across documents
@@ -310,35 +301,30 @@ break
         .join(`\n\n`)
 
       // Generate answer using OpenAI
-      let answer: string
-      let confidence: number
-
       if (!this.openai) {
-        // Mock answer for development
-        answer = `Based on the documents, here's what I found: ${searchResults[0].chunk_text.substring(0, 200)}... (Note: Using mock AI response - configure OpenAI API key for full functionality)`
-        confidence = 0.5
-      } else {
-        const response = await this.openai.chat.completions.create({
-          model: this.chatModel,
-          messages: [
-            {
-              role: 'system',
-              content: `You are a helpful assistant that answers questions based on fleet management documents.
-              Use the provided context to answer questions accurately. If the context doesn't contain enough information,
-              say so clearly. Always cite which source you're using in your answer.`
-            },
-            {
-              role: 'user',
-              content: `Context:\n${context}\n\nQuestion: ${question}\n\nProvide a clear, concise answer based on the context above.`
-            }
-          ],
-          temperature: 0.7,
-          max_tokens: 500
-        })
-
-        answer = response.choices[0].message.content || 'Unable to generate answer'
-        confidence = 0.85 // Could be calculated based on search scores
+        throw new Error('OpenAI API key is required for Q&A functionality')
       }
+
+      const response = await this.openai.chat.completions.create({
+        model: this.chatModel,
+        messages: [
+          {
+            role: 'system',
+            content: `You are a helpful assistant that answers questions based on fleet management documents.
+            Use the provided context to answer questions accurately. If the context doesn't contain enough information,
+            say so clearly. Always cite which source you're using in your answer.`
+          },
+          {
+            role: 'user',
+            content: `Context:\n${context}\n\nQuestion: ${question}\n\nProvide a clear, concise answer based on the context above.`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 500
+      })
+
+      const answer = response.choices[0].message.content || 'Unable to generate answer'
+      const confidence = 0.85 // Could be calculated based on search scores
 
       // Generate query embedding for storage
       const queryEmbedding = await this.generateEmbedding(question)

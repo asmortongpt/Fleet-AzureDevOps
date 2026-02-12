@@ -26,7 +26,7 @@
  * ```
  */
 
-import { Warning, Info, CheckCircle } from "@phosphor-icons/react"
+import { AlertTriangle, Info, CheckCircle } from "lucide-react"
 import { useState, ReactNode } from "react"
 
 import {
@@ -91,12 +91,12 @@ const VARIANT_CONFIG: Record<
   }
 > = {
   danger: {
-    icon: <Warning className="w-4 h-4" />,
+    icon: <AlertTriangle className="w-4 h-4" />,
     iconColor: "text-red-600",
     confirmButtonVariant: "destructive"
   },
   warning: {
-    icon: <Warning className="w-4 h-4" />,
+    icon: <AlertTriangle className="w-4 h-4" />,
     iconColor: "text-orange-600",
     confirmButtonVariant: "default"
   },

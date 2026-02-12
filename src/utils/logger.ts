@@ -12,7 +12,7 @@
 
 type LogLevel = 'debug' | 'info' | 'warn' | 'error' | 'fatal'
 
-type LogContext = string | {
+export type LogContext = string | {
   userId?: string
   sessionId?: string
   component?: string
@@ -23,7 +23,7 @@ type LogContext = string | {
 class ProductionLogger {
   private isProduction = import.meta.env.PROD
   private isDevelopment = import.meta.env.DEV
-  private logLevel: LogLevel = (import.meta.env.VITE_LOG_LEVEL as LogLevel) || 'info'
+  private logLevel: LogLevel = (import.meta.env.VITE_LOG_LEVEL as LogLevel) || (import.meta.env.DEV ? 'debug' : 'info')
 
   private shouldLog(level: LogLevel): boolean {
     const levels: LogLevel[] = ['debug', 'info', 'warn', 'error', 'fatal']

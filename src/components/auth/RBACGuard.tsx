@@ -6,7 +6,7 @@
 
 import { ReactNode } from 'react';
 
-import { useAuth, UserRole } from '@/contexts/AuthContext';
+import { useAuth, UserRole } from '@/contexts';
 import { Permission } from '@/middleware/rbac';
 
 export interface RBACGuardProps {

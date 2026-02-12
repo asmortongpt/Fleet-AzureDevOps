@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from "framer-motion"
+// motion removed - React 19 incompatible
 import {
     X,
     Phone,
@@ -32,12 +32,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
     ]
 
     return (
-        <AnimatePresence>
-            <motion.div
-                initial={{ x: 400, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: 400, opacity: 0 }}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            <div
                 className="absolute right-4 top-20 bottom-8 w-[400px] bg-white/95 backdrop-blur-md border border-slate-200 shadow-sm rounded-lg overflow-hidden flex flex-col z-40"
             >
                 {/* Header / Profile Cover */}
@@ -83,19 +78,19 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                             <div className={`text-base font-bold ${driver.safetyScore >= 90 ? 'text-green-600' : 'text-amber-600'}`}>
                                 {driver.safetyScore}
                             </div>
-                            <div className="text-[10px] uppercase font-bold text-slate-400 mt-0.5">Safety</div>
+                            <div className="text-[10px] uppercase font-bold text-slate-700 mt-0.5">Safety</div>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-md border border-slate-100 text-center">
                             <div className="text-base font-bold text-slate-700">
                                 4.9
                             </div>
-                            <div className="text-[10px] uppercase font-bold text-slate-400 mt-0.5">Rating</div>
+                            <div className="text-[10px] uppercase font-bold text-slate-700 mt-0.5">Rating</div>
                         </div>
                         <div className="bg-slate-50 p-3 rounded-md border border-slate-100 text-center">
                             <div className="text-base font-bold text-blue-800">
                                 98%
                             </div>
-                            <div className="text-[10px] uppercase font-bold text-slate-400 mt-0.5">On-Time</div>
+                            <div className="text-[10px] uppercase font-bold text-slate-700 mt-0.5">On-Time</div>
                         </div>
                     </div>
 
@@ -111,7 +106,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                                 {/* Status */}
                                 <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Status</h4>
+                                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Current Status</h4>
                                     <div className="flex items-center justify-between p-3 bg-white border border-slate-200 rounded-md shadow-sm">
                                         <div className="flex items-center gap-3">
                                             <Activity className="w-3 h-3 text-blue-800" />
@@ -128,7 +123,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                                 {/* assigned Vehicle */}
                                 <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Assigned Vehicle</h4>
+                                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Assigned Vehicle</h4>
                                     {assignment ? (
                                         <div className="p-3 bg-white border border-slate-200 rounded-md shadow-sm hover:border-blue-300 transition-colors cursor-pointer group">
                                             <div className="flex justify-between items-start">
@@ -166,7 +161,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
 
                                 {/* Licenses */}
                                 <div className="space-y-3">
-                                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Compliance</h4>
+                                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Compliance</h4>
                                     <div className="p-3 bg-slate-50 rounded-lg border border-slate-100 flex justify-between items-center">
                                         <div className="flex items-center gap-3">
                                             <FileCheck className="w-4 h-4 text-slate-500" />
@@ -224,7 +219,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-10 text-slate-400">
+                                    <div className="text-center py-10 text-slate-700">
                                         <p>No vehicle assigned.</p>
                                     </div>
                                 )}
@@ -232,7 +227,6 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                         </ScrollArea>
                     </Tabs>
                 </div>
-            </motion.div>
-        </AnimatePresence>
+            </div>
     )
 }

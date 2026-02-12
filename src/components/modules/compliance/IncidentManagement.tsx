@@ -1,12 +1,12 @@
 import {
   Plus,
-  MagnifyingGlass,
-  Warning,
+  Search,
+  AlertTriangle,
   CheckCircle,
-  CarProfile,
+  Car,
   MapPin,
-  ClipboardText
-} from "@phosphor-icons/react"
+  Clipboard
+} from "lucide-react"
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
@@ -140,7 +140,7 @@ export function IncidentManagement() {
   // Fetch incidents on component mount
   useEffect(() => {
     fetchIncidents()
-  }, [])
+  }, [filterSeverity, filterStatus])
 
   const fetchIncidents = async () => {
     try {
@@ -213,10 +213,7 @@ export function IncidentManagement() {
     }
 
     try {
-      await apiClient.get(`/api/incident-management/${selectedIncident.id}/actions`, {
-        method: "POST",
-        body: JSON.stringify(newAction)
-      })
+      await apiClient.post(`/api/incident-management/${selectedIncident.id}/actions`, newAction)
 
       fetchIncidentDetails(selectedIncident.id)
       setNewAction({
@@ -241,10 +238,7 @@ export function IncidentManagement() {
     }
 
     try {
-      await apiClient.get(`/api/incident-management/${selectedIncident.id}/close`, {
-        method: "POST",
-        body: JSON.stringify(closureData)
-      })
+      await apiClient.post(`/api/incident-management/${selectedIncident.id}/close`, closureData)
 
       fetchIncidents()
       setIsCloseDialogOpen(false)
@@ -551,7 +545,7 @@ export function IncidentManagement() {
           <CardContent>
             <div className="text-sm font-bold">{totalIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <ClipboardText className="w-3 h-3" />
+              <Clipboard className="w-3 h-3" />
               All time
             </div>
           </CardContent>
@@ -564,7 +558,7 @@ export function IncidentManagement() {
           <CardContent>
             <div className="text-sm font-bold text-blue-800">{openIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" />
+              <AlertTriangle className="w-3 h-3" />
               Active cases
             </div>
           </CardContent>
@@ -577,7 +571,7 @@ export function IncidentManagement() {
           <CardContent>
             <div className="text-sm font-bold text-red-600">{criticalIncidents}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
-              <Warning className="w-3 h-3" weight="fill" />
+              <AlertTriangle className="w-3 h-3" />
               High priority
             </div>
           </CardContent>
@@ -600,7 +594,7 @@ export function IncidentManagement() {
       {/* Search and Filters */}
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             placeholder="Search incidents..."
             value={searchTerm}
@@ -694,7 +688,7 @@ export function IncidentManagement() {
                     <TableCell>
                       {incident.vehicle_involved ? (
                         <div className="flex items-center gap-1 text-sm">
-                          <CarProfile className="w-3 h-3 text-muted-foreground" />
+                          <Car className="w-3 h-3 text-muted-foreground" />
                           {incident.vehicle_involved}
                         </div>
                       ) : (

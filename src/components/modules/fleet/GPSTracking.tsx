@@ -3,8 +3,8 @@
  * Displays vehicle locations on a map with live updates
  */
 
-import React from 'react';
 import { MapPin, Navigation, Clock, Signal } from 'lucide-react';
+import React from 'react';
 
 interface Vehicle {
   id: string;
@@ -46,7 +46,7 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Map Area */}
         <div className="lg:col-span-3 bg-slate-800/50 rounded-lg border border-slate-700 p-4 min-h-[500px]">
-          <div className="flex items-center justify-center h-full text-slate-400">
+          <div className="flex items-center justify-center h-full text-slate-700">
             <div className="text-center">
               <Navigation className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
               <p className="text-lg font-medium">GPS Map View</p>
@@ -60,38 +60,38 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
         {/* Sidebar */}
         <div className="space-y-4">
           <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">
+            <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-3">
               Quick Stats
             </h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Tracked Vehicles</span>
+                <span className="text-slate-700">Tracked Vehicles</span>
                 <span className="text-white font-medium">{vehicles.length || 127}</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">In Motion</span>
+                <span className="text-slate-700">In Motion</span>
                 <span className="text-green-400 font-medium">89</span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-400">Stationary</span>
+                <span className="text-slate-700">Stationary</span>
                 <span className="text-yellow-400 font-medium">38</span>
               </div>
             </div>
           </div>
 
           <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
-            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
               <Clock className="w-4 h-4" />
               Recent Activity
             </h3>
             <div className="space-y-2 text-sm">
-              <div className="text-slate-400">
+              <div className="text-slate-700">
                 <span className="text-white">Vehicle #127</span> entered geofence
               </div>
-              <div className="text-slate-400">
+              <div className="text-slate-700">
                 <span className="text-white">Vehicle #089</span> completed route
               </div>
-              <div className="text-slate-400">
+              <div className="text-slate-700">
                 <span className="text-white">Vehicle #045</span> speed alert
               </div>
             </div>

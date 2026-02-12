@@ -1,7 +1,7 @@
 // Toast Container Component
 // Displays toast notifications using the toast event bus
 
-import { motion, AnimatePresence } from 'framer-motion';
+// motion removed - React 19 incompatible
 import React, { useState, useEffect } from 'react';
 
 import { toastEventBus } from '../../utils/toast';
@@ -60,28 +60,22 @@ export const ToastContainer: React.FC = () => {
       role="status"
       data-testid="toast-container"
     >
-      <AnimatePresence>
-        {toasts.map((toast) => (
-          <motion.div
-            key={toast.id}
-            className={`toast toast-${toast.type}`}
-            initial={{ opacity: 0, y: -20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
-            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+      {toasts.map((toast) => (
+        <div
+          key={toast.id}
+          className={`toast toast-${toast.type}`}
+        >
+          <span className="toast-icon">{getIcon(toast)}</span>
+          <span className="toast-message">{toast.message}</span>
+          <button
+            className="toast-close"
+            onClick={() => removeToast(toast.id)}
+            aria-label="Close notification"
           >
-            <span className="toast-icon">{getIcon(toast)}</span>
-            <span className="toast-message">{toast.message}</span>
-            <button
-              className="toast-close"
-              onClick={() => removeToast(toast.id)}
-              aria-label="Close notification"
-            >
-              ×
-            </button>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+            ×
+          </button>
+        </div>
+      ))}
     </div>
   );
 };

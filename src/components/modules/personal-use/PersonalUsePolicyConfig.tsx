@@ -1,11 +1,4 @@
-import {
-  Shield,
-  Info,
-  FloppyDisk,
-  ArrowsClockwise,
-  Eye,
-  Warning
-} from '@phosphor-icons/react'
+import { Shield, Info, Save, RefreshCw, Eye, AlertTriangle } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import React, { useState } from 'react'
 import { toast } from 'sonner'
@@ -52,12 +45,12 @@ const LoadingSpinner = () => (
 
 const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry: () => void }) => (
   <Alert variant="destructive" className="m-2">
-    <Warning className="h-4 w-4" />
+    <AlertTriangle className="h-4 w-4" />
     <AlertTitle>Error</AlertTitle>
     <AlertDescription className="flex items-center justify-between">
       <span>{error}</span>
       <Button variant="outline" size="sm" onClick={onRetry}>
-        <ArrowsClockwise className="w-4 h-4 mr-2" />
+        <RefreshCw className="w-4 h-4 mr-2" />
         Retry
       </Button>
     </AlertDescription>
@@ -305,7 +298,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleResetToDefaults}>
-            <ArrowsClockwise className="w-4 h-4 mr-2" />
+            <RefreshCw className="w-4 h-4 mr-2" />
             Reset to Defaults
           </Button>
           <Button variant="outline" onClick={() => setShowPreview(!showPreview)}>
@@ -313,7 +306,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
             {showPreview ? 'Hide' : 'Show'} Preview
           </Button>
           <Button onClick={handleSave} disabled={saving || !hasChanges}>
-            <FloppyDisk className="w-4 h-4 mr-2" />
+            <Save className="w-4 h-4 mr-2" />
             {saving ? 'Saving...' : 'Save Policy'}
           </Button>
         </div>

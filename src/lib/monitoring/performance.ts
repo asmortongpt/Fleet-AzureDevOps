@@ -1,4 +1,5 @@
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
+import logger from '@/utils/logger';
 
 let appInsights: ApplicationInsights | null = null
 
@@ -7,7 +8,7 @@ export function initializeMonitoring() {
 
   const connectionString = import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING
   if (!connectionString) {
-    console.warn('Application Insights connection string not found')
+    logger.warn('Application Insights connection string not found')
     return
   }
 

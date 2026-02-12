@@ -1,5 +1,4 @@
-/// <reference path="./global.d.ts" />
-/// <reference path="./window.d.ts" />
-
-export * from './global';
-export * from './window';
+// Type declarations are loaded below
+// Import type files to avoid triple-slash reference linting errors
+import './react-extensions'
+import './react-three-fiber'

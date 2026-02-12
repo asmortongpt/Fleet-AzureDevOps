@@ -272,7 +272,7 @@ export function EntityLinkingProvider({
       const vehicle = vehicles.find(v => v.id === wo.vehicleId)
       if (vehicle) {
         newRelationships.push({
-          source: { type: 'work-order', id: wo.id, label: `WO-${wo.id.slice(-6)} - ${wo.serviceType}` },
+          source: { type: 'work-order', id: wo.id, label: `WO-${String(wo.id).slice(-6)} - ${wo.serviceType}` },
           target: { type: 'vehicle', id: vehicle.id, label: `${vehicle.make} ${vehicle.model}` },
           relationshipType: 'serviced-by'
         })
@@ -283,7 +283,7 @@ export function EntityLinkingProvider({
         const partRecord = parts.find(p => p.id === part.partId)
         if (partRecord) {
           newRelationships.push({
-            source: { type: 'work-order', id: wo.id, label: `WO-${wo.id.slice(-6)}` },
+            source: { type: 'work-order', id: wo.id, label: `WO-${String(wo.id).slice(-6)}` },
             target: { type: 'part', id: partRecord.id, label: partRecord.name },
             relationshipType: 'contains',
             metadata: { quantity: part.quantity, cost: part.cost }
@@ -493,7 +493,7 @@ export function EntityLinkingProvider({
       workOrder: {
         type: 'work-order',
         id: workOrder.id,
-        label: `WO-${workOrder.id.slice(-6)} - ${workOrder.serviceType}`,
+        label: `WO-${String(workOrder.id).slice(-6)} - ${workOrder.serviceType}`,
         data: workOrder
       },
       vehicle: linked.vehicles.length > 0 ? linked.vehicles[0] : null,

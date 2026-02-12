@@ -48,6 +48,11 @@
     "dist",
     "src/**/*.test.ts",
     "src/**/*.spec.ts",
-    "src/**/__tests__/**"
+    "src/**/__tests__/**",
+    "**/*.bak",
+    "**/*.async_backup",
+    "**/*.event_backup",
+    "**/*.nullcheck_backup",
+    "**/*.skip"
   ]
 }

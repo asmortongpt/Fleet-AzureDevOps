@@ -1,49 +1,72 @@
-import { Configuration, PopupRequest } from '@azure/msal-browser';
-
 /**
  * MSAL Configuration for Azure AD SSO
- * Works across all environments: localhost, gray-flower, fleet.capitaltechalliance.com
+ *
+ * This file imports centralized authentication configuration from @/config/auth-config.ts
+ * Works across all environments: localhost, Azure Static Web Apps, custom domains
+ *
+ * SECURITY:
+ * - All redirect URIs must be registered in Azure AD App Registration
+ * - Tokens are stored in sessionStorage (cleared on tab close)
+ * - HTTPS required in production
+ * - Client secret is NEVER exposed to frontend
+ */
+
+import { Configuration, PopupRequest, SilentRequest } from '@azure/msal-browser';
+import { getMsalConfig, getLoginRequest, getSilentRequest } from '@/config/auth-config';
+import logger from '@/utils/logger';
+
+/**
+ * MSAL Configuration
+ *
+ * Generated from centralized auth-config.ts with environment-specific settings
  */
 export const msalConfig: Configuration = {
-  auth: {
-    clientId: import.meta.env.VITE_AZURE_AD_CLIENT_ID || '',
-    authority: `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_AD_TENANT_ID}`,
-    redirectUri: typeof window !== 'undefined' ? window.location.origin + '/auth/callback' : '',
-    postLogoutRedirectUri: typeof window !== 'undefined' ? window.location.origin : '',
-  },
-  cache: {
-    cacheLocation: 'sessionStorage',
-    storeAuthStateInCookie: false,
-  },
+  ...getMsalConfig() as any,
   system: {
+    ...getMsalConfig().system,
     loggerOptions: {
       loggerCallback: (level, message, containsPii) => {
         if (containsPii) return;
+
+        const prefix = '[MSAL]';
         switch (level) {
           case 0: // Error
-            console.error('[MSAL]', message);
+            logger.error(prefix, message);
             break;
           case 1: // Warning
-            console.warn('[MSAL]', message);
+            logger.warn(prefix, message);
             break;
           case 2: // Info
-            console.info('[MSAL]', message);
+            logger.info(prefix, message);
             break;
           case 3: // Verbose
-            console.debug('[MSAL]', message);
+            logger.debug(prefix, message);
             break;
         }
       },
       logLevel: import.meta.env.DEV ? 3 : 1, // Verbose in dev, Warning in prod
+      piiLoggingEnabled: import.meta.env.DEV,
     },
   },
 };
 
+/**
+ * Login Request Configuration
+ *
+ * Used for initial authentication (redirect or popup)
+ * Scopes: openid, profile, email, User.Read
+ * Prompt: select_account (user chooses which account to use)
+ */
 export const loginRequest: PopupRequest = {
-  scopes: ['openid', 'profile', 'email', 'User.Read'],
-  prompt: 'select_account',
+  ...getLoginRequest() as any,
 };
 
-export const silentRequest = {
-  scopes: ['openai', 'profile', 'email', 'User.Read'],
+/**
+ * Silent Token Request Configuration
+ *
+ * Used for silent token renewal (no user interaction)
+ * Includes offline_access for refresh token support
+ */
+export const silentRequest: SilentRequest = {
+  ...getSilentRequest() as any,
 };

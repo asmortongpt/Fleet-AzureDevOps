@@ -4,8 +4,12 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { Pool } from 'pg';
 
 import { csrfProtection } from '../../middleware/csrf'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Database pool (should be injected via DI in production)
 const pool = new Pool({

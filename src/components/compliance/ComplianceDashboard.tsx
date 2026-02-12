@@ -14,6 +14,7 @@ import {
   XCircle
 } from 'lucide-react'
 import React, { useState, useMemo } from 'react'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,6 +30,9 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
+const fetcher = (url: string) =>
+  fetch(url, { credentials: 'include' }).then((res) => res.json())
+
 /**
  * Compliance Dashboard Component
  *
@@ -39,7 +43,6 @@ import { cn } from '@/lib/utils'
  * - Reporting panel for document generation
  */
 
-// Mock compliance data
 interface ComplianceMetric {
   id: string
   category: string
@@ -74,162 +77,22 @@ interface ComplianceEvent {
   entityId: string
 }
 
-const mockMetrics: ComplianceMetric[] = [
-  {
-    id: 'vehicle-compliance',
-    category: 'Vehicle Compliance',
-    score: 92,
-    target: 95,
-    trend: 'up',
-    violations: 3,
-    inspectionsDue: 5,
-    status: 'good'
-  },
-  {
-    id: 'driver-compliance',
-    category: 'Driver Compliance',
-    score: 88,
-    target: 95,
-    trend: 'down',
-    violations: 7,
-    inspectionsDue: 8,
-    status: 'warning'
-  },
-  {
-    id: 'safety-compliance',
-    category: 'Safety Compliance',
-    score: 96,
-    target: 95,
-    trend: 'stable',
-    violations: 1,
-    inspectionsDue: 2,
-    status: 'excellent'
-  },
-  {
-    id: 'regulatory-compliance',
-    category: 'Regulatory Compliance',
-    score: 75,
-    target: 95,
-    trend: 'down',
-    violations: 12,
-    inspectionsDue: 15,
-    status: 'critical'
-  }
-]
-
-const mockAlerts: ComplianceAlert[] = [
-  {
-    id: 'alert-1',
-    type: 'critical',
-    severity: 'critical',
-    title: 'DOT Annual Inspection Overdue',
-    description: '2 vehicles have overdue DOT annual inspections',
-    timestamp: '2024-12-16T09:30:00',
-    entityType: 'vehicle',
-    entityId: 'veh-123',
-    dueDate: '2024-12-10'
-  },
-  {
-    id: 'alert-2',
-    type: 'expiring',
-    severity: 'high',
-    title: 'Driver Certifications Expiring Soon',
-    description: '4 driver certifications expire within 30 days',
-    timestamp: '2024-12-16T08:15:00',
-    entityType: 'driver',
-    entityId: 'drv-456',
-    dueDate: '2025-01-15'
-  },
-  {
-    id: 'alert-3',
-    type: 'warning',
-    severity: 'medium',
-    title: 'Insurance Documentation Review',
-    description: 'Annual insurance policy review required',
-    timestamp: '2024-12-15T14:20:00',
-    entityType: 'document',
-    entityId: 'doc-789',
-    dueDate: '2024-12-20'
-  },
-  {
-    id: 'alert-4',
-    type: 'violation',
-    severity: 'high',
-    title: 'Speed Violation Recorded',
-    description: 'Vehicle FL-456 exceeded speed limit by 15mph',
-    timestamp: '2024-12-14T16:45:00',
-    entityType: 'vehicle',
-    entityId: 'veh-456'
-  }
-]
-
-const mockEvents: ComplianceEvent[] = [
-  {
-    id: 'event-1',
-    type: 'inspection',
-    title: 'Vehicle Safety Inspection',
-    description: 'Annual safety inspection completed for FL-123',
-    timestamp: '2024-12-15T10:00:00',
-    status: 'completed',
-    entityType: 'vehicle',
-    entityId: 'veh-123'
-  },
-  {
-    id: 'event-2',
-    type: 'certification',
-    title: 'Driver CDL Renewal',
-    description: 'CDL certification renewed for John Doe',
-    timestamp: '2024-12-14T14:30:00',
-    status: 'completed',
-    entityType: 'driver',
-    entityId: 'drv-001'
-  },
-  {
-    id: 'event-3',
-    type: 'violation',
-    title: 'Traffic Violation',
-    description: 'Speeding violation recorded for FL-456',
-    timestamp: '2024-12-14T16:45:00',
-    status: 'pending',
-    entityType: 'vehicle',
-    entityId: 'veh-456'
-  },
-  {
-    id: 'event-4',
-    type: 'training',
-    title: 'Safety Training Completed',
-    description: 'Defensive driving course completed by 3 drivers',
-    timestamp: '2024-12-13T09:00:00',
-    status: 'completed',
-    entityType: 'driver',
-    entityId: 'drv-multiple'
-  },
-  {
-    id: 'event-5',
-    type: 'audit',
-    title: 'Fleet Compliance Audit',
-    description: 'Quarterly compliance audit scheduled',
-    timestamp: '2024-12-20T09:00:00',
-    status: 'pending',
-    entityType: 'facility',
-    entityId: 'fac-001'
-  }
-]
 
 // Compliance Scorecard Component
-const ComplianceScorecard: React.FC = () => {
+const ComplianceScorecard: React.FC<{ metrics: ComplianceMetric[] }> = ({ metrics }) => {
   const overallScore = useMemo(() => {
-    const avg = mockMetrics.reduce((sum, m) => sum + m.score, 0) / mockMetrics.length
+    if (metrics.length === 0) return 0
+    const avg = metrics.reduce((sum, m) => sum + m.score, 0) / metrics.length
     return Math.round(avg)
-  }, [])
+  }, [metrics])
 
   const totalViolations = useMemo(() => {
-    return mockMetrics.reduce((sum, m) => sum + m.violations, 0)
-  }, [])
+    return metrics.reduce((sum, m) => sum + m.violations, 0)
+  }, [metrics])
 
   const totalInspectionsDue = useMemo(() => {
-    return mockMetrics.reduce((sum, m) => sum + m.inspectionsDue, 0)
-  }, [])
+    return metrics.reduce((sum, m) => sum + m.inspectionsDue, 0)
+  }, [metrics])
 
   const getScoreColor = (score: number) => {
     if (score >= 95) return 'text-green-600'
@@ -264,7 +127,7 @@ const ComplianceScorecard: React.FC = () => {
               <div className="text-sm text-muted-foreground">Inspections Due</div>
             </div>
             <div>
-              <div className="text-sm font-bold text-green-600">{mockMetrics.length}</div>
+              <div className="text-sm font-bold text-green-600">{metrics.length}</div>
               <div className="text-sm text-muted-foreground">Categories</div>
             </div>
           </div>
@@ -273,7 +136,7 @@ const ComplianceScorecard: React.FC = () => {
 
       {/* Category Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2" data-testid="compliance-categories">
-        {mockMetrics.map((metric) => (
+        {metrics.map((metric) => (
           <Card key={metric.id}>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center justify-between">
@@ -312,13 +175,13 @@ const ComplianceScorecard: React.FC = () => {
 }
 
 // Alert Panel Component
-const AlertPanel: React.FC = () => {
+const AlertPanel: React.FC<{ alerts: ComplianceAlert[] }> = ({ alerts }) => {
   const [alertFilter, setAlertFilter] = useState<string>('all')
 
   const filteredAlerts = useMemo(() => {
-    if (alertFilter === 'all') return mockAlerts
-    return mockAlerts.filter(a => a.severity === alertFilter)
-  }, [alertFilter])
+    if (alertFilter === 'all') return alerts
+    return alerts.filter(a => a.severity === alertFilter)
+  }, [alertFilter, alerts])
 
   const getSeverityIcon = (severity: string) => {
     switch(severity) {
@@ -405,13 +268,13 @@ const AlertPanel: React.FC = () => {
 }
 
 // Timeline View Component
-const TimelineView: React.FC = () => {
+const TimelineView: React.FC<{ events: ComplianceEvent[] }> = ({ events }) => {
   const [eventFilter, setEventFilter] = useState<string>('all')
 
   const filteredEvents = useMemo(() => {
-    if (eventFilter === 'all') return mockEvents
-    return mockEvents.filter(e => e.type === eventFilter)
-  }, [eventFilter])
+    if (eventFilter === 'all') return events
+    return events.filter(e => e.type === eventFilter)
+  }, [eventFilter, events])
 
   const getEventIcon = (type: string) => {
     switch(type) {
@@ -560,6 +423,19 @@ const ReportingPanel: React.FC = () => {
 
 // Main Compliance Dashboard Component
 export function ComplianceDashboard() {
+  const { data, error } = useSWR('/api/compliance/dashboard', fetcher)
+  const metrics: ComplianceMetric[] = data?.metrics || []
+  const alerts: ComplianceAlert[] = data?.alerts || []
+  const events: ComplianceEvent[] = data?.events || []
+
+  if (error) {
+    return (
+      <div className="p-3 text-sm text-red-600">
+        Failed to load compliance dashboard.
+      </div>
+    )
+  }
+
   return (
     <div className="h-screen flex flex-col" data-testid="compliance-dashboard">
       {/* Header */}
@@ -582,12 +458,12 @@ export function ComplianceDashboard() {
       <ScrollArea className="flex-1">
         <div className="p-3 space-y-2">
           {/* Scorecard */}
-          <ComplianceScorecard />
+          <ComplianceScorecard metrics={metrics} />
 
           {/* Two-column layout for Alerts and Timeline */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            <AlertPanel />
-            <TimelineView />
+            <AlertPanel alerts={alerts} />
+            <TimelineView events={events} />
           </div>
 
           {/* Reporting Panel */}

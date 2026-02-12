@@ -9,11 +9,6 @@
  * - AR placement preview
  */
 
-import { useState, useCallback } from 'react';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Camera,
   Smartphone,
@@ -24,6 +19,13 @@ import {
   AlertCircle,
   Loader2
 } from 'lucide-react';
+import { useState, useCallback } from 'react';
+
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import logger from '@/utils/logger';
 
 export interface ARModeExportProps {
   vehicleId?: number;
@@ -171,7 +173,7 @@ export default function ARModeExport({
         alert('AR link copied to clipboard!');
       }
     } catch (err) {
-      console.error('Error sharing:', err);
+      logger.error('Error sharing:', err);
     }
   }, [generatedUrl, vehicleData]);
 

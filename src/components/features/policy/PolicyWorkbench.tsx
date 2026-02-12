@@ -29,6 +29,7 @@ import {
   Info,
   Lightbulb,
   Brain,
+  Building,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
@@ -501,7 +502,7 @@ export function PolicyWorkbench() {
                             {substep.status === 'completed' ? (
                               <CheckCircle2 className="w-3 h-3 text-green-600 flex-shrink-0 mt-0.5" />
                             ) : (
-                              <Circle className="w-3 h-3 text-slate-400 flex-shrink-0 mt-0.5" />
+                              <Circle className="w-3 h-3 text-slate-700 flex-shrink-0 mt-0.5" />
                             )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2">

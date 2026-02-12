@@ -8,13 +8,11 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+
 import { geospatialRepository } from '../repositories/geospatial.repository';
 import {
   CalculateDistanceDto,
-  FindNearestVehiclesDto,
-  FindNearestFacilityDto,
   PointInGeofenceDto,
-  FindNearestChargingStationDto,
 } from '../types/geospatial';
 
 export class GeospatialController {

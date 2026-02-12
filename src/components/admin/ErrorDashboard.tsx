@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import logger from '@/utils/logger';
 
 
 interface ErrorSummary {
@@ -65,73 +66,110 @@ export function ErrorDashboard() {
     setIsLoading(true);
 
     try {
-      // In production, this would fetch from your monitoring API
-      // For now, we'll use mock data
-      const mockSummary: ErrorSummary = {
-        total: 1247,
-        last24h: 89,
-        last7d: 456,
-        byType: {
-          'TypeError': 45,
-          'NetworkError': 23,
-          'ValidationError': 12,
-          'RuntimeError': 9,
-        },
-        bySeverity: {
-          critical: 5,
-          high: 23,
-          medium: 45,
-          low: 16,
-        },
-        trend: 'down',
-        trendPercentage: 12.5,
-      };
+      const response = await fetch('/api/monitoring/errors', {
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' }
+      });
 
-      const mockErrors: ErrorEntry[] = [
-        {
-          id: '1',
-          message: 'Cannot read property \'map\' of undefined',
-          type: 'TypeError',
-          severity: 'high',
-          timestamp: Date.now() - 3600000,
-          count: 15,
-          affectedUsers: 8,
-        },
-        {
-          id: '2',
-          message: 'Network request failed',
-          type: 'NetworkError',
-          severity: 'medium',
-          timestamp: Date.now() - 7200000,
-          count: 23,
-          affectedUsers: 12,
-        },
-        {
-          id: '3',
-          message: 'Invalid email format',
-          type: 'ValidationError',
-          severity: 'low',
-          timestamp: Date.now() - 10800000,
-          count: 7,
-          affectedUsers: 5,
-        },
-      ];
+      if (!response.ok) {
+        throw new Error(`Failed to fetch errors (${response.status})`);
+      }
 
-      const mockHistory = [
-        { date: '2025-12-25', errors: 45, critical: 2 },
-        { date: '2025-12-26', errors: 52, critical: 3 },
-        { date: '2025-12-27', errors: 38, critical: 1 },
-        { date: '2025-12-28', errors: 61, critical: 4 },
-        { date: '2025-12-29', errors: 43, critical: 2 },
-        { date: '2025-12-30', errors: 56, critical: 1 },
-        { date: '2025-12-31', errors: 48, critical: 2 },
-      ];
+      const payload = await response.json();
+      const rawErrors = Array.isArray(payload) ? payload : (payload.data ?? []);
+      const now = Date.now();
+      const dayMs = 24 * 60 * 60 * 1000;
 
-      setSummary(mockSummary);
-      setErrors(mockErrors);
-      setErrorHistory(mockHistory);
+      const byType: Record<string, number> = {};
+      const bySeverity: Record<string, number> = { critical: 0, high: 0, medium: 0, low: 0 };
+
+      const grouped = new Map<string, {
+        entry: ErrorEntry;
+        users: Set<string>;
+      }>();
+
+      rawErrors.forEach((err: any) => {
+        const statusCode = Number(err.statusCode) || 0;
+        const severity: ErrorEntry['severity'] =
+          statusCode >= 500 ? 'critical' : statusCode >= 400 ? 'medium' : 'low';
+        const type = err.type || 'Error';
+        const message = err.message || 'Unknown error';
+        const key = `${type}|${message}`;
+
+        byType[type] = (byType[type] || 0) + 1;
+        bySeverity[severity] = (bySeverity[severity] || 0) + 1;
+
+        if (!grouped.has(key)) {
+          grouped.set(key, {
+            entry: {
+              id: err.id || key,
+              message,
+              type,
+              severity,
+              timestamp: err.timestamp || now,
+              count: 1,
+              affectedUsers: 0,
+              stack: err.stack,
+              context: err.context
+            },
+            users: new Set()
+          });
+        } else {
+          grouped.get(key)!.entry.count += 1;
+          grouped.get(key)!.entry.timestamp = Math.max(grouped.get(key)!.entry.timestamp, err.timestamp || 0);
+        }
+
+        if (err.userId) {
+          grouped.get(key)!.users.add(err.userId);
+        }
+      });
+
+      const entries = Array.from(grouped.values()).map(({ entry, users }) => ({
+        ...entry,
+        affectedUsers: users.size
+      })).sort((a, b) => b.timestamp - a.timestamp);
+
+      const last24h = rawErrors.filter((err: any) => (err.timestamp || 0) >= now - dayMs).length;
+      const prev24h = rawErrors.filter((err: any) => (err.timestamp || 0) >= now - 2 * dayMs && (err.timestamp || 0) < now - dayMs).length;
+      const last7d = rawErrors.filter((err: any) => (err.timestamp || 0) >= now - 7 * dayMs).length;
+
+      let trend: ErrorSummary['trend'] = 'stable';
+      let trendPercentage = 0;
+      if (prev24h > 0) {
+        trendPercentage = Math.abs(((last24h - prev24h) / prev24h) * 100);
+        trend = last24h > prev24h ? 'up' : last24h < prev24h ? 'down' : 'stable';
+      }
+
+      const history: { date: string; errors: number; critical: number }[] = [];
+      for (let i = 6; i >= 0; i -= 1) {
+        const start = new Date(now - i * dayMs);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(start.getTime() + dayMs);
+        const dayErrors = rawErrors.filter((err: any) => {
+          const ts = err.timestamp || 0;
+          return ts >= start.getTime() && ts < end.getTime();
+        });
+        const criticalCount = dayErrors.filter((err: any) => (Number(err.statusCode) || 0) >= 500).length;
+        history.push({
+          date: start.toISOString().slice(0, 10),
+          errors: dayErrors.length,
+          critical: criticalCount
+        });
+      }
+
+      setSummary({
+        total: rawErrors.length,
+        last24h,
+        last7d,
+        byType,
+        bySeverity,
+        trend,
+        trendPercentage: Number(trendPercentage.toFixed(1))
+      });
+      setErrors(entries);
+      setErrorHistory(history);
     } catch (error) {
-      console.error('Failed to fetch error data:', error);
+      logger.error('Failed to fetch error data:', error);
     } finally {
       setIsLoading(false);
     }

@@ -46,51 +46,70 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
 
     useEffect(() => {
         const fetchTenantSettings = async () => {
-            if (!user?.tenantId) return;
-
-            setIsLoading(true);
-            try {
-                // In a real app, this would fetch from an API
-                // const response = await fetch(\`/api/v1/tenants/\${user.tenantId}/settings\`);
-                // const data = await response.json();
-
-                // Simulating API call for now
-                await new Promise(resolve => setTimeout(resolve, 500));
-
-                // Mock data
+            if (import.meta.env.VITE_SKIP_AUTH === 'true') {
                 setSettings({
                     branding: {
                         primaryColor: '#0f172a',
                         logoUrl: '/logos/logo-horizontal.svg',
-                        companyName: user.tenantName || 'My Organization',
+                        companyName: 'Capital Transit Authority',
                     },
-                    features: {
-                        'beta-features': false,
-                        'advanced-analytics': true,
-                    },
+                    features: {},
                     region: 'US-East',
                     dateFormat: 'MM/DD/YYYY',
                 });
+                return;
+            }
+
+            if (!user?.tenantId) return;
+
+            setIsLoading(true);
+            try {
+                const response = await fetch(`/api/tenants/${user.tenantId}`, {
+                    credentials: 'include'
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch tenant settings: ${response.status}`);
+                }
+
+                const payload = await response.json();
+                const tenantPayload = payload?.data?.data || payload?.data || payload;
+                const settingsData = tenantPayload?.settings || {};
+
+                setSettings({
+                    branding: {
+                        primaryColor: settingsData.branding?.primaryColor || '#0f172a',
+                        logoUrl: settingsData.branding?.logoUrl || '/logos/logo-horizontal.svg',
+                        companyName: settingsData.branding?.companyName || tenantPayload?.name || user.tenantName || 'Organization',
+                    },
+                    features: settingsData.features || {},
+                    region: settingsData.region || 'US-East',
+                    dateFormat: settingsData.dateFormat || 'MM/DD/YYYY',
+                });
             } catch (error) {
                 logger.error('[TenantContext] Failed to fetch settings', { error });
+                setSettings(null);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        if (isAuthenticated && user?.tenantId) {
+        if (import.meta.env.VITE_SKIP_AUTH === 'true') {
+            fetchTenantSettings();
+        } else if (isAuthenticated && user?.tenantId) {
             fetchTenantSettings();
         } else {
             setSettings(null);
         }
     }, [isAuthenticated, user?.tenantId]);
 
+    const skipAuth = import.meta.env.VITE_SKIP_AUTH === 'true';
     const value = {
-        tenantId: user?.tenantId || null,
-        tenantName: user?.tenantName,
+        tenantId: skipAuth ? '8e33a492-9b42-4e7a-8654-0572c9773b71' : (user?.tenantId || null),
+        tenantName: skipAuth ? 'Capital Transit Authority' : user?.tenantName,
         settings,
         isLoading,
-        isTenantActive: !!user?.tenantId,
+        isTenantActive: skipAuth ? true : !!user?.tenantId,
     };
 
     return (

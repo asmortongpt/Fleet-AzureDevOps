@@ -2,7 +2,7 @@
 
 import { io, Socket } from 'socket.io-client';
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8001';
+const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8001';
 
 export type WebSocketEvent =
   | 'transmission_received'
@@ -64,7 +64,7 @@ class WebSocketClient {
 
   on(event: WebSocketEvent, handler: (data: any) => void): void {
     if (!this.socket) {
-      console.warn('WebSocket not connected. Call connect() first.');
+      logger.warn('WebSocket not connected. Call connect() first.');
       return;
     }
     this.socket.on(event, handler);
@@ -81,7 +81,7 @@ class WebSocketClient {
 
   emit(event: string, data?: any): void {
     if (!this.socket) {
-      console.warn('WebSocket not connected. Call connect() first.');
+      logger.warn('WebSocket not connected. Call connect() first.');
       return;
     }
     this.socket.emit(event, data);
@@ -91,26 +91,26 @@ class WebSocketClient {
     if (!this.socket) return;
 
     this.socket.on('connect', () => {
-      console.log('WebSocket connected');
+      logger.info('WebSocket connected');
       this.reconnectAttempts = 0;
     });
 
     this.socket.on('disconnect', (reason) => {
-      console.log('WebSocket disconnected:', reason);
+      logger.info('WebSocket disconnected:', reason);
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
+      logger.error('WebSocket connection error:', error);
       this.reconnectAttempts++;
 
       if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-        console.error('Max reconnection attempts reached');
+        logger.error('Max reconnection attempts reached');
         this.disconnect();
       }
     });
 
     this.socket.on('error', (error) => {
-      console.error('WebSocket error:', error);
+      logger.error('WebSocket error:', error);
     });
   }
 
@@ -128,6 +128,7 @@ export const wsClient = new WebSocketClient();
 
 // React hook for WebSocket
 import { useEffect, useRef } from 'react';
+import logger from '@/utils/logger';
 
 interface UseWebSocketOptions extends WebSocketConfig {
   enabled?: boolean;

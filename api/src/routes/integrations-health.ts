@@ -10,12 +10,12 @@
 
 import { Router, Request, Response } from 'express';
 import axios from 'axios';
-import { authenticateJWT } from '../middleware/auth.middleware';
 import { requireRBAC, Role } from '../middleware/rbac';
 import { asyncHandler } from '../middleware/async-handler';
 import logger from '../config/logger';
 import { pool } from '../db/connection';
 import { cache } from '../utils/cache';
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
 
@@ -444,7 +444,8 @@ async function checkRedis(): Promise<IntegrationHealth> {
     if (!cache.isConnected()) {
       health.status = 'down';
       health.errorMessage = 'Redis not connected';
-      health.technicalDetails = '      return health;
+      health.technicalDetails = 'Cache is not connected';
+      return health;
     }
 
     health.responseTime = Date.now() - startTime;

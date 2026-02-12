@@ -1,14 +1,14 @@
 import { 
   Receipt,
   Plus,
-  CurrencyDollar,
+  DollarSign,
   Car,
   MapPin,
   Calendar,
   CheckCircle,
   Clock,
   X
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { useAuth } from "@/hooks/useAuth"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { MileageReimbursement as MileageReimbursementType } from "@/lib/types"
 
@@ -30,8 +31,9 @@ interface MileageReimbursementProps {
 }
 
 export function MileageReimbursement() {
+  const { user } = useAuth()
   const data = useFleetData()
-  const requests = data.mileageReimbursements || []
+  const requests = (data.mileageReimbursements || []) as unknown as MileageReimbursementType[]
 
   const [showForm, setShowForm] = useState(false)
   const [employeeName, setEmployeeName] = useState("")
@@ -53,7 +55,7 @@ export function MileageReimbursement() {
 
     const newRequest: MileageReimbursementType = {
       id: `mr-${Date.now()}`,
-      employeeId: `EMP${Math.floor(Math.random() * 10000)}`,
+      employeeId: user?.id || "",
       employeeName,
       vehicleType,
       tripDate,
@@ -99,9 +101,9 @@ export function MileageReimbursement() {
     return colors[status]
   }
 
-  const totalSubmitted = requests.filter((r: MileageReimbursementType) => r.status === "submitted").reduce((sum: number, r: MileageReimbursementType) => sum + r.amount, 0)
-  const totalApproved = requests.filter((r: MileageReimbursementType) => r.status === "approved").reduce((sum: number, r: MileageReimbursementType) => sum + r.amount, 0)
-  const totalPaid = requests.filter((r: MileageReimbursementType) => r.status === "paid").reduce((sum: number, r: MileageReimbursementType) => sum + r.amount, 0)
+  const totalSubmitted = requests.filter(r => r.status === "submitted").reduce((sum, r) => sum + r.amount, 0)
+  const totalApproved = requests.filter(r => r.status === "approved").reduce((sum, r) => sum + r.amount, 0)
+  const totalPaid = requests.filter(r => r.status === "paid").reduce((sum, r) => sum + r.amount, 0)
 
   return (
     <div className="space-y-2">
@@ -136,7 +138,7 @@ export function MileageReimbursement() {
             </div>
             <p className="text-sm font-semibold metric-number">${(totalSubmitted ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {requests.filter((r: MileageReimbursementType) => r.status === "submitted").length} requests
+              {requests.filter(r => r.status === "submitted").length} requests
             </p>
           </CardContent>
         </Card>
@@ -151,7 +153,7 @@ export function MileageReimbursement() {
             </div>
             <p className="text-sm font-semibold metric-number">${(totalApproved ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {requests.filter((r: MileageReimbursementType) => r.status === "approved").length} requests
+              {requests.filter(r => r.status === "approved").length} requests
             </p>
           </CardContent>
         </Card>
@@ -160,13 +162,13 @@ export function MileageReimbursement() {
           <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
               <div className="p-2 rounded-lg bg-accent/10 text-accent">
-                <CurrencyDollar className="w-3 h-3" />
+                <DollarSign className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Paid</p>
             </div>
             <p className="text-sm font-semibold metric-number">${(totalPaid ?? 0).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {requests.filter((r: MileageReimbursementType) => r.status === "paid").length} requests
+              {requests.filter(r => r.status === "paid").length} requests
             </p>
           </CardContent>
         </Card>
@@ -307,7 +309,7 @@ export function MileageReimbursement() {
             </div>
           ) : (
             <div className="space-y-3">
-              {requests.map((request: MileageReimbursementType) => (
+              {requests.map(request => (
                 <div 
                   key={request.id}
                   className="flex items-center justify-between p-2 border rounded-lg"

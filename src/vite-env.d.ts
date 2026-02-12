@@ -1,5 +1,10 @@
 /// <reference types="vite/client" />
 /// <reference types="@testing-library/jest-dom" />
+/// <reference types="@react-three/fiber" />
+
+// Load custom type declarations
+import './@types/react-extensions'
+import './@types/react-three-fiber'
 
 interface ImportMetaEnv {
     readonly VITE_API_URL: string

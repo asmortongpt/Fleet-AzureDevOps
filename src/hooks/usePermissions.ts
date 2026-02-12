@@ -9,6 +9,7 @@ import { useMemo } from 'react';
 
 import logger from '@/utils/logger';
 export type UserRole =
+  | 'SuperAdmin'
   | 'Admin'
   | 'FleetManager'
   | 'MaintenanceManager'
@@ -55,9 +56,44 @@ export interface PermissionCheckResponse {
 /**
  * Fetch user permissions from API
  */
+const SKIP_AUTH_PERMISSIONS: UserPermissions = {
+  user_id: '00000000-0000-0000-0000-000000000001',
+  roles: ['SuperAdmin', 'Admin'],
+  permissions: {
+    can_access_admin: true,
+    can_manage_users: true,
+    can_view_financial: true,
+    can_manage_maintenance: true,
+    can_view_safety_data: true,
+    is_auditor: false,
+  },
+  visible_modules: [],
+  module_configs: {},
+};
+
+const isSkipAuth = () =>
+  import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true';
+
 async function fetchPermissions(): Promise<UserPermissions> {
-  const response = await axios.get('/api/v1/me/permissions');
-  return response.data;
+  try {
+    const response = await axios.get('/api/v1/me/permissions');
+    const data = response.data;
+    // Validate the response has the expected shape
+    if (data && Array.isArray(data.roles) && data.permissions) {
+      return data;
+    }
+    // Response doesn't match expected format - use SKIP_AUTH fallback
+    if (isSkipAuth()) {
+      return SKIP_AUTH_PERMISSIONS;
+    }
+    return data;
+  } catch {
+    // In dev mode with auth bypass, return SuperAdmin permissions
+    if (isSkipAuth()) {
+      return SKIP_AUTH_PERMISSIONS;
+    }
+    throw new Error('Failed to fetch permissions');
+  }
 }
 
 /**
@@ -95,7 +131,7 @@ export function usePermissions() {
       if (!permissions) return false;
 
       // Admin can do everything
-      if (permissions.roles.includes('Admin')) return true;
+      if ((Array.isArray(permissions.roles) ? permissions.roles : []).includes('Admin')) return true;
 
       // Map common actions to permission checks
       const actionRoleMap: Record<string, UserRole[]> = {
@@ -131,7 +167,7 @@ export function usePermissions() {
       }
 
       // Check if user has any of the required roles
-      return permissions.roles.some(role => allowedRoles.includes(role));
+      return (Array.isArray(permissions.roles) ? permissions.roles : []).some(role => allowedRoles.includes(role));
     },
     [permissions]
   );
@@ -142,7 +178,7 @@ export function usePermissions() {
   const hasModule = useMemo(
     () => (moduleName: string) => {
       if (!permissions) return false;
-      return permissions.visible_modules.includes(moduleName);
+      return (Array.isArray(permissions.visible_modules) ? permissions.visible_modules : []).includes(moduleName);
     },
     [permissions]
   );
@@ -153,7 +189,7 @@ export function usePermissions() {
   const hasRole = useMemo(
     () => (role: UserRole) => {
       if (!permissions) return false;
-      return permissions.roles.includes(role);
+      return (Array.isArray(permissions.roles) ? permissions.roles : []).includes(role);
     },
     [permissions]
   );
@@ -164,7 +200,7 @@ export function usePermissions() {
   const hasAnyRole = useMemo(
     () => (...roles: UserRole[]) => {
       if (!permissions) return false;
-      return permissions.roles.some(role => roles.includes(role));
+      return (Array.isArray(permissions.roles) ? permissions.roles : []).some(role => roles.includes(role));
     },
     [permissions]
   );
@@ -185,7 +221,7 @@ export function usePermissions() {
       if (!permissions) return false;
 
       // Admin can access all fields
-      if (permissions.roles.includes('Admin')) return true;
+      if ((Array.isArray(permissions.roles) ? permissions.roles : []).includes('Admin')) return true;
 
       // Field visibility rules (matches backend config)
       const fieldRules: Record<string, Record<string, UserRole[]>> = {
@@ -217,7 +253,7 @@ export function usePermissions() {
       const fieldRule = resourceRules[fieldName];
       if (!fieldRule) return true; // No rule for field = accessible
 
-      return permissions.roles.some(role => fieldRule.includes(role));
+      return (Array.isArray(permissions.roles) ? permissions.roles : []).some(role => fieldRule.includes(role));
     },
     [permissions]
   );
@@ -249,13 +285,14 @@ export function usePermissions() {
     visibleModules,
     checkPermissionServer,
     // Convenience flags
-    isAdmin: permissions?.roles.includes('Admin') || false,
-    isFleetManager: permissions?.roles.includes('FleetManager') || false,
-    isDriver: permissions?.roles.includes('Driver') || false,
-    isAuditor: permissions?.roles.includes('Auditor') || false,
-    canViewFinancial: permissions?.permissions.can_view_financial || false,
-    canManageMaintenance: permissions?.permissions.can_manage_maintenance || false,
-    canViewSafety: permissions?.permissions.can_view_safety_data || false
+    isAdmin: (Array.isArray(permissions?.roles) ? permissions.roles : []).some(r => r === 'Admin' || r === 'SuperAdmin'),
+    isSuperAdmin: (Array.isArray(permissions?.roles) ? permissions.roles : []).includes('SuperAdmin'),
+    isFleetManager: (Array.isArray(permissions?.roles) ? permissions.roles : []).includes('FleetManager'),
+    isDriver: (Array.isArray(permissions?.roles) ? permissions.roles : []).includes('Driver'),
+    isAuditor: (Array.isArray(permissions?.roles) ? permissions.roles : []).includes('Auditor'),
+    canViewFinancial: permissions?.permissions?.can_view_financial || (Array.isArray(permissions?.roles) ? permissions.roles : []).some(r => r === 'Admin' || r === 'SuperAdmin') || false,
+    canManageMaintenance: permissions?.permissions?.can_manage_maintenance || (Array.isArray(permissions?.roles) ? permissions.roles : []).some(r => r === 'Admin' || r === 'SuperAdmin') || false,
+    canViewSafety: permissions?.permissions?.can_view_safety_data || (Array.isArray(permissions?.roles) ? permissions.roles : []).some(r => r === 'Admin' || r === 'SuperAdmin') || false
   };
 }
 

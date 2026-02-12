@@ -9,8 +9,8 @@ import type {
 
 import logger from '@/utils/logger';
 
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+const API_BASE_URL =
+  (import.meta.env.VITE_API_URL || (typeof window !== 'undefined' ? window.location.origin : '')).replace(/\/api\/?$/, '');
 
 interface UseDrillThroughOptions {
   /** Entity type */

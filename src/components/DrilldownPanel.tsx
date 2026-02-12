@@ -3,7 +3,7 @@
  * Displays nested data with smooth animations and accessibility support
  */
 
-import { motion, AnimatePresence } from 'framer-motion'
+// motion removed - React 19 incompatible
 import { X, ArrowLeft, Loader2 } from 'lucide-react'
 import React, { useEffect } from 'react'
 
@@ -53,26 +53,18 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
   }, [currentLevel])
 
   return (
-    <AnimatePresence>
+    <>
       {currentLevel && (
         <>
           {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+          <div
             className="fixed inset-0 bg-black/50 z-40"
             onClick={reset}
             aria-hidden="true"
           />
 
           {/* Panel */}
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+          <div
             className={cn(
               'fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5',
               'bg-slate-950/95 backdrop-blur-2xl border-l border-slate-800 shadow-sm z-50',
@@ -131,10 +123,10 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
                 </>
               )}
             </div>
-          </motion.div>
+          </div>
         </>
       )}
-    </AnimatePresence>
+    </>
   )
 }
 

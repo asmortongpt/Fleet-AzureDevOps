@@ -1,9 +1,12 @@
 
+import baseLogger from '@/utils/logger';
+
+// Create telemetry-prefixed logger with proper type signatures matching ProductionLogger
 const logger = {
-  error: (...args: any[]) => console.error('[Telemetry]', ...args),
-  warn: (...args: any[]) => console.warn('[Telemetry]', ...args),
-  info: (...args: any[]) => console.log('[Telemetry]', ...args),
-  debug: (...args: any[]) => console.debug('[Telemetry]', ...args),
+  error: (message: string, context?: unknown) => baseLogger.error(`[Telemetry] ${message}`, context as Parameters<typeof baseLogger.error>[1]),
+  warn: (message: string, context?: unknown) => baseLogger.warn(`[Telemetry] ${message}`, context as Parameters<typeof baseLogger.warn>[1]),
+  info: (message: string, context?: unknown) => baseLogger.info(`[Telemetry] ${message}`, context as Parameters<typeof baseLogger.info>[1]),
+  debug: (message: string, context?: unknown) => baseLogger.debug(`[Telemetry] ${message}`, context as Parameters<typeof baseLogger.debug>[1]),
 };
 
 
@@ -102,7 +105,7 @@ export interface IEventTelemetry {
 // =============================================================================
 
 export function initializeAppInsights(_config?: Partial<TelemetryConfig>): null {
-  logger.info('[Telemetry] DISABLED - ApplicationInsights incompatible with React 19');
+  logger.info('DISABLED - ApplicationInsights incompatible with React 19');
   return null;
 }
 
@@ -120,13 +123,13 @@ export function clearAuthenticatedUser(): void {
 
 export function trackPageView(_pageView?: IPageViewTelemetry): void {
   if (!_telemetryInitialized) {
-    logger.debug('[Telemetry] Skipping pageView - not initialized');
+    logger.debug('Skipping pageView - not initialized');
     return;
   }
   try {
     // No-op stub
   } catch (error) {
-    logger.warn('[Telemetry] Failed to track pageView:', error);
+    logger.warn('Failed to track pageView:', error);
   }
 }
 
@@ -289,11 +292,11 @@ export function trackReactErrorBoundary(
   _componentName?: string
 ): void {
   if (!_telemetryInitialized) {
-    logger.error('[Telemetry Stub] React Error Boundary caught (not initialized):', error, errorInfo);
+    logger.error('[Telemetry Stub] React Error Boundary caught (not initialized):', { error, errorInfo });
     return;
   }
   try {
-    logger.error('[Telemetry Stub] React Error Boundary caught:', error, errorInfo);
+    logger.error('[Telemetry Stub] React Error Boundary caught:', { error, errorInfo });
   } catch (trackError) {
     logger.warn('[Telemetry] Failed to track React error boundary:', trackError);
   }

@@ -212,15 +212,14 @@ export class PushNotificationService {
           body: payload.body,
           icon: payload.icon || '/fleet-icon-192.png',
           badge: payload.badge || '/fleet-badge-72.png',
-          image: payload.image,
           tag: payload.tag || `notification-${Date.now()}`,
-          data: payload.data,
+          data: { ...payload.data, image: payload.image },
           actions: payload.actions || this.getDefaultActions(payload.category),
           requireInteraction: payload.requireInteraction || payload.priority === 'critical',
           silent: payload.silent || false,
           vibrate: this.settings.vibrationEnabled ? (payload.vibrate || [200, 100, 200]) : [],
           timestamp: payload.timestamp || Date.now(),
-        });
+        } as NotificationOptions);
       }
 
       // Track notification

@@ -10,7 +10,8 @@
  */
 
 import { EventEmitter } from 'events';
-import { DashCamEmulator, DashCamConfig, VideoFile, CameraPosition, EventTrigger } from '../emulators/video/DashCamEmulator';
+
+import { DashCamEmulator, DashCamConfig, VideoFile, EventTrigger } from '../emulators/video/DashCamEmulator';
 import { VideoTelematicsEmulator, VideoEvent } from '../emulators/video/VideoTelematicsEmulator';
 
 export interface VideoEmulatorServiceConfig {

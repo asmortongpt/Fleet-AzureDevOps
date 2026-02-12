@@ -9,8 +9,8 @@ interface Size {
   height: number;
 }
 
-export function useResizeObserver(
-  ref: RefObject<HTMLElement>
+export function useResizeObserver<T extends HTMLElement = HTMLElement>(
+  ref: RefObject<T | null>
 ): Size {
   const [size, setSize] = useState<Size>({
     width: 0,

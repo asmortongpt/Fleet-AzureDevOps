@@ -1,126 +1,158 @@
 import {
-  MapPin, Play, Pause, SkipBack, SkipForward, Navigation,
-  Clock, Fuel, Gauge, AlertTriangle, CheckCircle,
-  Flag, XCircle
-} from 'lucide-react';
-import { useState } from 'react';
+  MapPin,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Navigation,
+  Clock,
+  Fuel,
+  Gauge,
+  AlertTriangle,
+  CheckCircle,
+  Flag,
+  XCircle
+} from 'lucide-react'
+import { useMemo, useState } from 'react'
+import useSWR from 'swr'
 
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Slider } from '@/components/ui/slider';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDrilldown } from '@/contexts/DrilldownContext';
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Slider } from '@/components/ui/slider'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { swrFetcher } from '@/lib/fetcher'
 
 interface Route {
-  id: string;
-  name?: string;
-  vehicleId?: string;
-  driverId?: string;
-  startTime?: string;
-  endTime?: string;
-  status?: string;
-  distance?: number;
-  [key: string]: any;
+  id: string
+  name?: string
+  vehicleId?: string
+  driverId?: string
+  startTime?: string
+  endTime?: string
+  status?: string
+  distance?: number
+  [key: string]: any
 }
 
 interface RouteDetailViewProps {
-  route: Route;
-  onClose?: () => void;
+  route: Route
+  onClose?: () => void
 }
 
 export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
-  const { push: _push } = useDrilldown();
-  const [activeTab, setActiveTab] = useState('playback');
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [playbackPosition, setPlaybackPosition] = useState([0]);
-  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const { push: _push } = useDrilldown()
+  const [activeTab, setActiveTab] = useState('playback')
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [playbackPosition, setPlaybackPosition] = useState([0])
+  const [playbackSpeed, setPlaybackSpeed] = useState(1)
+  const routeId = route.id
 
-  // Mock comprehensive route data
-  const routeOverview = {
-    totalDistance: 145.8,
-    totalDuration: '4h 23m',
-    avgSpeed: 33.2,
-    maxSpeed: 65,
-    stops: 12,
-    idleTime: '32m',
-    fuelUsed: 8.5,
-    fuelEfficiency: 17.2
-  };
+  const { data: routeResponse } = useSWR<any>(
+    routeId ? `/api/routes/${routeId}` : null,
+    swrFetcher
+  )
+  const routeDetails = (routeResponse?.data || routeResponse || route) as Route
 
-  const stops = [
-    { id: '1', name: 'Depot - Start', address: '123 Main St', arrivalTime: '08:00', departureTime: '08:15', duration: '15m', type: 'start', lat: 30.2672, lng: -97.7431 },
-    { id: '2', name: 'Customer Site A', address: '456 Oak Ave', arrivalTime: '08:45', departureTime: '09:20', duration: '35m', type: 'delivery', lat: 30.2850, lng: -97.7350 },
-    { id: '3', name: 'Customer Site B', address: '789 Elm St', arrivalTime: '09:55', departureTime: '10:15', duration: '20m', type: 'delivery', lat: 30.2950, lng: -97.7250 },
-    { id: '4', name: 'Fuel Station', address: '321 Gas Rd', arrivalTime: '11:00', departureTime: '11:12', duration: '12m', type: 'fuel', lat: 30.3050, lng: -97.7150 },
-    { id: '5', name: 'Customer Site C', address: '654 Pine Ln', arrivalTime: '11:45', departureTime: '12:30', duration: '45m', type: 'service', lat: 30.3150, lng: -97.7050 },
-    { id: '6', name: 'Depot - End', address: '123 Main St', arrivalTime: '13:00', departureTime: null, duration: null, type: 'end', lat: 30.2672, lng: -97.7431 }
-  ];
+  const vehicleId = routeDetails.vehicleId || routeDetails.vehicle_id
+  const { data: gpsResponse } = useSWR<any>(
+    vehicleId ? `/api/gps-tracks?vehicleId=${vehicleId}&limit=200` : null,
+    swrFetcher
+  )
+  const { data: incidentResponse } = useSWR<{ data: any[] }>(
+    vehicleId ? `/api/safety-incidents?vehicle_id=${vehicleId}&limit=100` : null,
+    swrFetcher
+  )
 
-  const events = [
-    { time: '08:32', type: 'speed', severity: 'low', description: 'Speed exceeded 5 mph over limit', location: 'Highway 183' },
-    { time: '09:15', type: 'idle', severity: 'info', description: 'Extended idle time (8 minutes)', location: 'Customer Site A' },
-    { time: '10:45', type: 'harsh-brake', severity: 'medium', description: 'Harsh braking detected', location: 'Intersection of Oak & Elm' },
-    { time: '12:15', type: 'geofence', severity: 'info', description: 'Entered restricted zone', location: 'Downtown Construction Area' }
-  ];
+  const gpsTracks = Array.isArray(gpsResponse) ? gpsResponse : (gpsResponse as any)?.data || []
+  const incidents = incidentResponse?.data || []
 
-  const _telemetryData = [
-    { time: '08:00', speed: 0, fuel: 95, rpm: 0 },
-    { time: '08:15', speed: 35, fuel: 94, rpm: 1800 },
-    { time: '08:30', speed: 55, fuel: 92, rpm: 2200 },
-    { time: '08:45', speed: 30, fuel: 90, rpm: 1500 },
-    { time: '09:00', speed: 0, fuel: 90, rpm: 800 },
-    { time: '09:20', speed: 40, fuel: 88, rpm: 1900 },
-    { time: '09:55', speed: 35, fuel: 85, rpm: 1700 },
-    { time: '10:15', speed: 45, fuel: 83, rpm: 2000 },
-    { time: '11:00', speed: 50, fuel: 80, rpm: 2100 },
-    { time: '11:45', speed: 35, fuel: 78, rpm: 1600 },
-    { time: '12:30', speed: 40, fuel: 75, rpm: 1800 },
-    { time: '13:00', speed: 0, fuel: 73, rpm: 0 }
-  ];
+  const routeOverview = useMemo(() => {
+    const totalDistance = Number(routeDetails.distance ?? routeDetails.total_distance ?? 0)
+    const start = routeDetails.startTime || routeDetails.start_time
+    const end = routeDetails.endTime || routeDetails.end_time
+    let totalDuration = 'N/A'
+    if (start && end) {
+      const startDate = new Date(start)
+      const endDate = new Date(end)
+      const diff = Math.max(0, endDate.getTime() - startDate.getTime())
+      const hours = Math.floor(diff / 3600000)
+      const minutes = Math.floor((diff % 3600000) / 60000)
+      totalDuration = `${hours}h ${minutes}m`
+    }
+    const avgSpeed = Number(routeDetails.avg_speed ?? routeDetails.average_speed ?? 0)
+    const maxSpeed = Number(routeDetails.max_speed ?? 0)
+    const stops = Number(routeDetails.stops ?? routeDetails.stop_count ?? 0)
+    const fuelUsed = Number(routeDetails.fuel_used ?? 0)
+    const fuelEfficiency = Number(routeDetails.fuel_efficiency ?? 0)
+    const idleTime = routeDetails.idle_time || 'N/A'
 
-  const geofences = [
-    { id: '1', name: 'Service Area North', type: 'allowed', interactions: 5 },
-    { id: '2', name: 'Downtown Core', type: 'restricted', interactions: 1 },
-    { id: '3', name: 'Highway Corridor', type: 'preferred', interactions: 8 }
-  ];
+    return {
+      totalDistance,
+      totalDuration,
+      avgSpeed,
+      maxSpeed,
+      stops,
+      idleTime,
+      fuelUsed,
+      fuelEfficiency
+    }
+  }, [routeDetails])
+
+  const stops = useMemo(() => {
+    return routeDetails.stops_detail || routeDetails.stops || []
+  }, [routeDetails])
+
+  const events = useMemo(() => {
+    return incidents.map((incident: any) => ({
+      time: incident.occurred_at || incident.date || incident.created_at || 'N/A',
+      type: incident.type || incident.category || 'incident',
+      severity: incident.severity || incident.priority || 'info',
+      description: incident.title || incident.summary || incident.description || 'Incident',
+      location: incident.location || incident.address || 'N/A'
+    }))
+  }, [incidents])
+
+  const geofences = useMemo(() => {
+    return routeDetails.geofences || []
+  }, [routeDetails])
 
   const getStopIcon = (type: string) => {
     switch (type) {
       case 'start':
-        return <Flag className="w-4 h-4 text-green-600" />;
+        return <Flag className="w-4 h-4 text-green-600" />
       case 'end':
-        return <Flag className="w-4 h-4 text-red-600" />;
+        return <Flag className="w-4 h-4 text-red-600" />
       case 'delivery':
-        return <MapPin className="w-4 h-4 text-blue-800" />;
+        return <MapPin className="w-4 h-4 text-blue-800" />
       case 'fuel':
-        return <Fuel className="w-4 h-4 text-orange-600" />;
+        return <Fuel className="w-4 h-4 text-orange-600" />
       case 'service':
-        return <CheckCircle className="w-4 h-4 text-purple-600" />;
+        return <CheckCircle className="w-4 h-4 text-purple-600" />
       default:
-        return <MapPin className="w-4 h-4" />;
+        return <MapPin className="w-4 h-4" />
     }
-  };
+  }
 
   const getEventBadge = (severity: string) => {
     switch (severity) {
       case 'high':
-        return <Badge variant="destructive"><AlertTriangle className="w-3 h-3 mr-1" />High</Badge>;
+        return <Badge variant="destructive"><AlertTriangle className="w-3 h-3 mr-1" />High</Badge>
       case 'medium':
-        return <Badge variant="default" className="bg-yellow-500">Medium</Badge>;
+        return <Badge variant="default" className="bg-yellow-500">Medium</Badge>
       case 'low':
-        return <Badge variant="secondary">Low</Badge>;
+        return <Badge variant="secondary">Low</Badge>
       case 'info':
-        return <Badge variant="outline">Info</Badge>;
+        return <Badge variant="outline">Info</Badge>
       default:
-        return <Badge variant="secondary">{severity}</Badge>;
+        return <Badge variant="secondary">{severity}</Badge>
     }
-  };
+  }
 
   const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-    // In production, this would control actual map animation
-  };
+    setIsPlaying(!isPlaying)
+  }
 
   return (
     <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
@@ -131,14 +163,14 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
             <div className="flex items-center gap-3 mb-2">
               <Navigation className="w-4 h-4" />
               <div>
-                <h1 className="text-sm font-bold">{route.name || 'Route Details'}</h1>
-                <p className="text-cyan-100">Route ID: {route.id}</p>
+                <h1 className="text-sm font-bold">{routeDetails.name || 'Route Details'}</h1>
+                <p className="text-cyan-100">Route ID: {routeDetails.id}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2 mt-2">
               <div>
                 <p className="text-xs text-cyan-200">Distance</p>
-                <p className="text-sm font-semibold">{routeOverview.totalDistance} mi</p>
+                <p className="text-sm font-semibold">{routeOverview.totalDistance || 0} mi</p>
               </div>
               <div>
                 <p className="text-xs text-cyan-200">Duration</p>
@@ -146,15 +178,15 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
               </div>
               <div>
                 <p className="text-xs text-cyan-200">Avg Speed</p>
-                <p className="text-sm font-semibold">{routeOverview.avgSpeed} mph</p>
+                <p className="text-sm font-semibold">{routeOverview.avgSpeed || 0} mph</p>
               </div>
               <div>
                 <p className="text-xs text-cyan-200">Stops</p>
-                <p className="text-sm font-semibold">{routeOverview.stops}</p>
+                <p className="text-sm font-semibold">{routeOverview.stops || 0}</p>
               </div>
               <div>
                 <p className="text-xs text-cyan-200">Fuel Efficiency</p>
-                <p className="text-sm font-semibold">{routeOverview.fuelEfficiency} MPG</p>
+                <p className="text-sm font-semibold">{routeOverview.fuelEfficiency || 0} MPG</p>
               </div>
             </div>
           </div>
@@ -179,25 +211,21 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
 
           {/* Playback Tab */}
           <TabsContent value="playback" className="space-y-2">
-            {/* Map Placeholder */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Route Visualization</span>
                   <div className="flex gap-2">
-                    <Badge variant="secondary">{route.vehicleId || 'V-001'}</Badge>
-                    <Badge variant="outline">{route.driverId || 'Driver'}</Badge>
+                    <Badge variant="secondary">{routeDetails.vehicleId || routeDetails.vehicle_id || 'Vehicle'}</Badge>
+                    <Badge variant="outline">{routeDetails.driverId || routeDetails.driver_id || 'Driver'}</Badge>
                   </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-2">
                   <div className="text-center">
-                    <MapPin className="w-12 h-9 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">Interactive map would display here</p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      Route from {stops[0]?.name ?? 'Start'} to {stops[stops.length - 1]?.name ?? 'End'}
-                    </p>
+                    <MapPin className="w-12 h-9 text-gray-700 mx-auto mb-2" />
+                    <p className="text-sm text-gray-700">Route geometry unavailable.</p>
                   </div>
                 </div>
 
@@ -219,232 +247,159 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
                         onValueChange={setPlaybackPosition}
                         max={100}
                         step={1}
-                        className="w-full"
                       />
                     </div>
-                    <div className="flex gap-2">
-                      {[0.5, 1, 2, 4].map(speed => (
-                        <Button
-                          key={speed}
-                          size="sm"
-                          variant={playbackSpeed === speed ? 'default' : 'outline'}
-                          onClick={() => setPlaybackSpeed(speed)}
-                        >
-                          {speed}x
-                        </Button>
-                      ))}
-                    </div>
                   </div>
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{route.startTime || '08:00'}</span>
-                    <span>Position: {playbackPosition[0]}%</span>
-                    <span>{route.endTime || '13:00'}</span>
+
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Speed</span>
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="outline" onClick={() => setPlaybackSpeed(0.5)}>0.5x</Button>
+                      <Button size="sm" variant={playbackSpeed === 1 ? "default" : "outline"} onClick={() => setPlaybackSpeed(1)}>1x</Button>
+                      <Button size="sm" variant="outline" onClick={() => setPlaybackSpeed(2)}>2x</Button>
+                      <Button size="sm" variant="outline" onClick={() => setPlaybackSpeed(4)}>4x</Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-              <Card>
-                <CardContent className="pt-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-cyan-600" />
-                    <p className="text-xs text-muted-foreground">Total Time</p>
-                  </div>
-                  <p className="text-sm font-bold">{routeOverview.totalDuration}</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Gauge className="w-4 h-4 text-cyan-600" />
-                    <p className="text-xs text-muted-foreground">Max Speed</p>
-                  </div>
-                  <p className="text-sm font-bold">{routeOverview.maxSpeed} mph</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Fuel className="w-4 h-4 text-cyan-600" />
-                    <p className="text-xs text-muted-foreground">Fuel Used</p>
-                  </div>
-                  <p className="text-sm font-bold">{routeOverview.fuelUsed} gal</p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardContent className="pt-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Clock className="w-4 h-4 text-cyan-600" />
-                    <p className="text-xs text-muted-foreground">Idle Time</p>
-                  </div>
-                  <p className="text-sm font-bold">{routeOverview.idleTime}</p>
-                </CardContent>
-              </Card>
-            </div>
           </TabsContent>
 
           {/* Stops Tab */}
-          <TabsContent value="stops">
+          <TabsContent value="stops" className="space-y-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="w-3 h-3" />
-                  Route Stops
-                </CardTitle>
-                <CardDescription>{stops.length} stops along this route</CardDescription>
+                <CardTitle className="text-sm">Route Stops</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="relative space-y-3">
-                  {stops.map((stop, index) => (
-                    <div key={stop.id} className="flex gap-2">
-                      <div className="flex flex-col items-center">
-                        <div className="w-4 h-4 rounded-full bg-cyan-100 dark:bg-cyan-900 flex items-center justify-center">
-                          {getStopIcon(stop.type)}
+              <CardContent className="space-y-2">
+                {stops.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">No stop data available.</div>
+                ) : (
+                  stops.map((stop: any) => (
+                    <div key={stop.id || stop.name} className="flex items-start gap-2 p-2 bg-muted rounded-md">
+                      {getStopIcon(stop.type || 'stop')}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium">{stop.name || 'Stop'}</p>
+                          <span className="text-xs text-muted-foreground">{stop.arrivalTime || stop.arrival_time || ''}</span>
                         </div>
-                        {index < stops.length - 1 && (
-                          <div className="w-px h-full bg-cyan-200 dark:bg-cyan-800 my-1" />
-                        )}
-                      </div>
-                      <div className="flex-1 pb-2">
-                        <div className="flex items-start justify-between mb-1">
-                          <div>
-                            <p className="font-semibold">{stop.name}</p>
-                            <p className="text-sm text-muted-foreground">{stop.address}</p>
-                          </div>
-                          <Badge variant="secondary" className="text-xs capitalize">{stop.type}</Badge>
-                        </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mt-2 text-xs">
-                          <div>
-                            <span className="text-muted-foreground">Arrival:</span>
-                            <p className="font-medium">{stop.arrivalTime}</p>
-                          </div>
-                          {stop.departureTime && (
-                            <>
-                              <div>
-                                <span className="text-muted-foreground">Departure:</span>
-                                <p className="font-medium">{stop.departureTime}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Duration:</span>
-                                <p className="font-medium">{stop.duration ?? 'N/A'}</p>
-                              </div>
-                            </>
-                          )}
-                        </div>
+                        <p className="text-xs text-muted-foreground">{stop.address || stop.location || ''}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Events Tab */}
-          <TabsContent value="events">
+          <TabsContent value="events" className="space-y-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-3 h-3" />
-                  Route Events
-                </CardTitle>
-                <CardDescription>{events.length} events recorded during this route</CardDescription>
+                <CardTitle className="text-sm">Route Events</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {events.map((event, index) => (
-                    <div key={index} className="border-b border-gray-200 dark:border-gray-700 pb-3 last:border-b-0">
-                      <div className="flex items-start justify-between mb-1">
-                        <div>
-                          <p className="font-semibold capitalize">{event.type.replace('-', ' ')}</p>
-                          <p className="text-sm text-muted-foreground">{event.description}</p>
+              <CardContent className="space-y-2">
+                {events.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">No events available.</div>
+                ) : (
+                  events.map((event: any, idx: number) => (
+                    <div key={`${event.time}-${idx}`} className="flex items-start gap-2 p-2 bg-muted rounded-md">
+                      <AlertTriangle className="w-4 h-4 text-orange-600 mt-0.5" />
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between">
+                          <p className="font-medium">{event.description}</p>
+                          {getEventBadge(event.severity)}
                         </div>
-                        {getEventBadge(event.severity)}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span>{event.time}</span>
-                        <span>{event.location}</span>
+                        <p className="text-xs text-muted-foreground">{event.location}</p>
+                        <p className="text-xs text-muted-foreground">{event.time}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics">
+          <TabsContent value="analytics" className="space-y-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Gauge className="w-3 h-3" />
-                  Performance Analytics
-                </CardTitle>
-                <CardDescription>Route performance metrics and insights</CardDescription>
+                <CardTitle className="text-sm">Route Analytics</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                  <div className="space-y-2">
-                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
-                      <p className="text-sm font-medium mb-1">Fuel Efficiency</p>
-                      <p className="text-sm font-bold">{routeOverview.fuelEfficiency} MPG</p>
-                      <p className="text-xs text-muted-foreground mt-1">Industry avg: 15.5 MPG</p>
-                    </div>
-                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
-                      <p className="text-sm font-medium mb-1">Idle Time Ratio</p>
-                      <p className="text-sm font-bold">12%</p>
-                      <p className="text-xs text-muted-foreground mt-1">Target: &lt;10%</p>
-                    </div>
-                    <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
-                      <p className="text-sm font-medium mb-1">Speed Compliance</p>
-                      <p className="text-sm font-bold">94%</p>
-                      <p className="text-xs text-muted-foreground mt-1">1 minor violation recorded</p>
-                    </div>
+              <CardContent className="grid grid-cols-2 gap-2 text-sm">
+                <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                  <div className="flex items-center gap-2">
+                    <Gauge className="w-4 h-4 text-blue-800" />
+                    Avg Speed
                   </div>
-                  <div className="bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center p-2">
-                    <div className="text-center">
-                      <Gauge className="w-12 h-9 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Performance charts would display here</p>
-                      <p className="text-xs text-gray-400 mt-1">Speed, fuel consumption, and RPM over time</p>
-                    </div>
+                  <span>{routeOverview.avgSpeed || 0} mph</span>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                  <div className="flex items-center gap-2">
+                    <Gauge className="w-4 h-4 text-blue-800" />
+                    Max Speed
                   </div>
+                  <span>{routeOverview.maxSpeed || 0} mph</span>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-blue-800" />
+                    Idle Time
+                  </div>
+                  <span>{routeOverview.idleTime}</span>
+                </div>
+                <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+                  <div className="flex items-center gap-2">
+                    <Fuel className="w-4 h-4 text-blue-800" />
+                    Fuel Used
+                  </div>
+                  <span>{routeOverview.fuelUsed || 0} gal</span>
                 </div>
               </CardContent>
             </Card>
+
+            {gpsTracks.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Telemetry Samples</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  {gpsTracks.slice(0, 10).map((track: any, idx: number) => (
+                    <div key={track.id || idx} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                      <span>{track.timestamp || track.time || 'Time'}</span>
+                      <span>{track.speed || 0} mph</span>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           {/* Geofences Tab */}
-          <TabsContent value="geofences">
+          <TabsContent value="geofences" className="space-y-2">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Navigation className="w-3 h-3" />
-                  Geofence Interactions
-                </CardTitle>
-                <CardDescription>Route interactions with defined geofences</CardDescription>
+                <CardTitle className="text-sm">Geofence Interactions</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {geofences.map(geofence => (
-                    <div key={geofence.id} className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
-                      <div className="flex items-start justify-between mb-1">
-                        <div>
-                          <p className="font-semibold">{geofence.name}</p>
-                          <p className="text-sm text-muted-foreground capitalize">{geofence.type} zone</p>
-                        </div>
-                        <Badge variant={geofence.type === 'restricted' ? 'destructive' : 'secondary'}>
-                          {geofence.interactions} {geofence.interactions === 1 ? 'entry' : 'entries'}
-                        </Badge>
+              <CardContent className="space-y-2">
+                {geofences.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">No geofence data available.</div>
+                ) : (
+                  geofences.map((fence: any) => (
+                    <div key={fence.id || fence.name} className="flex items-center justify-between p-2 bg-muted rounded-md">
+                      <div>
+                        <p className="font-medium">{fence.name || 'Geofence'}</p>
+                        <p className="text-xs text-muted-foreground">{fence.type || 'unknown'}</p>
                       </div>
+                      <Badge variant="outline">{fence.interactions || 0}</Badge>
                     </div>
-                  ))}
-                </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
       </div>
     </div>
-  );
+  )
 }

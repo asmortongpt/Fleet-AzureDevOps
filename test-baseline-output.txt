@@ -1,0 +1,1025 @@
+
+Running 37 tests using 6 workers
+
+FleetHub mobile: 0 vehicle elements found
+FleetHub mobile: Load time 11986ms
+FleetHub mobile: First tab focused on BUTTON
+FleetHub mobile: Map container visible
+  ✓   4 [chromium] › tests/fleethub-validation.spec.ts:77:5 › FleetHub Quality Tests › FleetHub mobile - keyboard navigation (13.4s)
+  ✓   3 [chromium] › tests/fleethub-validation.spec.ts:29:5 › FleetHub Quality Tests › FleetHub mobile - map renders (13.2s)
+FleetHub mobile: 1 violations
+Violations: [
+  {
+    "id": "button-name",
+    "impact": "critical",
+    "description": "Ensure buttons have discernible text",
+    "nodes": 5
+  }
+]
+  ✘   2 [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub mobile - vehicle list visible (13.1s)
+FleetHub mobile: scrollHeight=667, viewportHeight=667
+  ✘   5 [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub mobile - accessibility (14.1s)
+  ✓   1 [chromium] › tests/fleethub-validation.spec.ts:13:5 › FleetHub Quality Tests › FleetHub mobile - no scroll required (14.7s)
+  ✘   6 [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub mobile - performance (13.5s)
+  ✓   7 [chromium] › tests/fleethub-validation.spec.ts:105:5 › FleetHub Quality Tests › FleetHub mobile - live tracking tab (5.7s)
+FleetHub mobile: 0 status badges found
+FleetHub tablet: Map container visible
+  ✓   9 [chromium] › tests/fleethub-validation.spec.ts:29:5 › FleetHub Quality Tests › FleetHub tablet - map renders (6.1s)
+FleetHub tablet: 0 violations
+  ✓  10 [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub tablet - accessibility (6.2s)
+FleetHub tablet: First tab focused on BUTTON
+  ✓  11 [chromium] › tests/fleethub-validation.spec.ts:77:5 › FleetHub Quality Tests › FleetHub tablet - keyboard navigation (5.7s)
+FleetHub mobile: 11 buttons, 5 tabs
+  ✓  12 [chromium] › tests/fleethub-validation.spec.ts:136:5 › FleetHub Quality Tests › FleetHub mobile - interactive elements accessible (5.9s)
+FleetHub tablet: Load time 6079ms
+FleetHub tablet: 0 vehicle elements found
+FleetHub tablet: scrollHeight=1024, viewportHeight=1024
+  ✓  13 [chromium] › tests/fleethub-validation.spec.ts:13:5 › FleetHub Quality Tests › FleetHub tablet - no scroll required (8.4s)
+  ✓  16 [chromium] › tests/fleethub-validation.spec.ts:105:5 › FleetHub Quality Tests › FleetHub tablet - live tracking tab (6.0s)
+FleetHub tablet: 0 status badges found
+FleetHub desktop: scrollHeight=1080, viewportHeight=1080
+  ✓  19 [chromium] › tests/fleethub-validation.spec.ts:13:5 › FleetHub Quality Tests › FleetHub desktop - no scroll required (5.6s)
+  ✘  14 [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub tablet - vehicle list visible (6.8s)
+FleetHub tablet: 11 buttons, 5 tabs
+  ✓  18 [chromium] › tests/fleethub-validation.spec.ts:136:5 › FleetHub Quality Tests › FleetHub tablet - interactive elements accessible (10.6s)
+FleetHub desktop: Map container visible
+  ✓  20 [chromium] › tests/fleethub-validation.spec.ts:29:5 › FleetHub Quality Tests › FleetHub desktop - map renders (7.3s)
+  ✘  17 [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub tablet - vehicle status indicators (5.9s)
+  ✘   8 [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub mobile - vehicle status indicators (7.4s)
+FleetHub desktop: 1 violations
+Violations: [
+  {
+    "id": "color-contrast",
+    "impact": "serious",
+    "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    "nodes": 2
+  }
+]
+FleetHub desktop: First tab focused on BUTTON
+  ✓  22 [chromium] › tests/fleethub-validation.spec.ts:77:5 › FleetHub Quality Tests › FleetHub desktop - keyboard navigation (6.0s)
+FleetHub desktop: 0 vehicle elements found
+FleetHub desktop: 0 status badges found
+  ✘  15 [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub tablet - performance (6.6s)
+FleetHub desktop: Load time 7448ms
+  ✘  25 [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub desktop - performance (8.2s)
+  ✓  26 [chromium] › tests/fleethub-validation.spec.ts:105:5 › FleetHub Quality Tests › FleetHub desktop - live tracking tab (8.8s)
+  ✘  21 [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub desktop - accessibility (8.7s)
+  ✘  23 [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub desktop - vehicle list visible (2.8s)
+FleetHub ultrawide: Map container visible
+  ✓  27 [chromium] › tests/fleethub-validation.spec.ts:29:5 › FleetHub Quality Tests › FleetHub ultrawide - map renders (12.1s)
+FleetHub desktop: 11 buttons, 5 tabs
+  ✓  28 [chromium] › tests/fleethub-validation.spec.ts:136:5 › FleetHub Quality Tests › FleetHub desktop - interactive elements accessible (11.6s)
+FleetHub ultrawide: First tab focused on BUTTON
+  ✘  24 [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub desktop - vehicle status indicators (5.8s)
+  ✓  30 [chromium] › tests/fleethub-validation.spec.ts:77:5 › FleetHub Quality Tests › FleetHub ultrawide - keyboard navigation (8.7s)
+FleetHub ultrawide: scrollHeight=1440, viewportHeight=1440
+  ✓  29 [chromium] › tests/fleethub-validation.spec.ts:13:5 › FleetHub Quality Tests › FleetHub ultrawide - no scroll required (16.8s)
+FleetHub ultrawide: Load time 10528ms
+  ✘  31 [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub ultrawide - performance (11.2s)
+FleetHub ultrawide: 0 vehicle elements found
+  ✘  33 [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub ultrawide - vehicle list visible (13.9s)
+FleetHub ultrawide: 1 violations
+Violations: [
+  {
+    "id": "color-contrast",
+    "impact": "serious",
+    "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    "nodes": 2
+  }
+]
+  ✘  32 [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub ultrawide - accessibility (15.4s)
+FleetHub ultrawide: 0 status badges found
+  ✘  34 [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub ultrawide - vehicle status indicators (14.9s)
+FleetHub ultrawide: 11 buttons, 5 tabs
+  ✓  35 [chromium] › tests/fleethub-validation.spec.ts:136:5 › FleetHub Quality Tests › FleetHub ultrawide - interactive elements accessible (17.5s)
+  ✓  36 [chromium] › tests/fleethub-validation.spec.ts:105:5 › FleetHub Quality Tests › FleetHub ultrawide - live tracking tab (16.2s)
+Content consistency: { mobile: [33m0[39m, tablet: [33m0[39m, desktop: [33m0[39m, ultrawide: [33m0[39m }
+  ✓  37 [chromium] › tests/fleethub-validation.spec.ts:154:3 › FleetHub Quality Tests › FleetHub - consistent content across viewports (16.4s)
+
+
+  1) [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub mobile - vehicle list visible 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      49 |
+      50 |       console.log(`FleetHub ${viewport.name}: ${count} vehicle elements found`);
+    > 51 |       expect(count).toBeGreaterThan(0);
+         |                     ^
+      52 |     });
+      53 |
+      54 |     test(`FleetHub ${viewport.name} - accessibility`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:51:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-0dbd7-bile---vehicle-list-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-0dbd7-bile---vehicle-list-visible-chromium/error-context.md
+
+  2) [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub mobile - accessibility 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  -   1[39m
+    [31m+ Received  + 375[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensure buttons have discernible text",[39m
+    [31m+     "help": "Buttons must have discernible text",[39m
+    [31m+     "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/button-name?application=playwright",[39m
+    [31m+     "id": "button-name",[39m
+    [31m+     "impact": "critical",[39m
+    [31m+     "nodes": Array [[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "button-has-visible-text",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have inner text that is visible to screen readers",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-label attribute does not exist or is empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-labelledby",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "messageKey": "noAttr",[39m
+    [31m+             },[39m
+    [31m+             "id": "non-empty-title",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element has no title attribute",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "implicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an implicit (wrapped) <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "explicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an explicit <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "presentational-role",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element does not have inner text that is visible to screen readers[39m
+    [31m+   aria-label attribute does not exist or is empty[39m
+    [31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty[39m
+    [31m+   Element has no title attribute[39m
+    [31m+   Element does not have an implicit (wrapped) <label>[39m
+    [31m+   Element does not have an explicit <label>[39m
+    [31m+   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+         "html": "<button type=\"button\" role=\"tab\" aria-selected=\"true\" aria-controls=\"radix-:r5:-content-f...\" data-state=\"active\" id=\"radix-:r5:-trigger-f...\" data-slot=\"tabs-trigger\" class=\"h-9 flex-1 justify-c...\" data-testid=\"hub-tab-fleet\" tabindex=\"-1\" data-orientation=\"horizontal\" data-radix-collectio...=\"\">",[39m
+    [31m+         "impact": "critical",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           "#radix-\\:r5\\:-trigger-fleet",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "button-has-visible-text",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have inner text that is visible to screen readers",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-label attribute does not exist or is empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-labelledby",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "messageKey": "noAttr",[39m
+    [31m+             },[39m
+    [31m+             "id": "non-empty-title",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element has no title attribute",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "implicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an implicit (wrapped) <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "explicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an explicit <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "presentational-role",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element does not have inner text that is visible to screen readers[39m
+    [31m+   aria-label attribute does not exist or is empty[39m
+    [31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty[39m
+    [31m+   Element has no title attribute[39m
+    [31m+   Element does not have an implicit (wrapped) <label>[39m
+    [31m+   Element does not have an explicit <label>[39m
+    [31m+   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+         "html": "<button type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"radix-:r5:-content-d...\" data-state=\"inactive\" id=\"radix-:r5:-trigger-d...\" data-slot=\"tabs-trigger\" class=\"h-9 flex-1 justify-c...\" data-testid=\"hub-tab-drivers\" tabindex=\"-1\" data-orientation=\"horizontal\" data-radix-collectio... ...>",[39m
+    [31m+         "impact": "critical",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           "#radix-\\:r5\\:-trigger-drivers",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "button-has-visible-text",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have inner text that is visible to screen readers",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-label attribute does not exist or is empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-labelledby",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "messageKey": "noAttr",[39m
+    [31m+             },[39m
+    [31m+             "id": "non-empty-title",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element has no title attribute",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "implicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an implicit (wrapped) <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "explicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an explicit <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "presentational-role",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element does not have inner text that is visible to screen readers[39m
+    [31m+   aria-label attribute does not exist or is empty[39m
+    [31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty[39m
+    [31m+   Element has no title attribute[39m
+    [31m+   Element does not have an implicit (wrapped) <label>[39m
+    [31m+   Element does not have an explicit <label>[39m
+    [31m+   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+         "html": "<button type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"radix-:r5:-content-o...\" data-state=\"inactive\" id=\"radix-:r5:-trigger-o...\" data-slot=\"tabs-trigger\" class=\"h-9 flex-1 justify-c...\" data-testid=\"hub-tab-operations\" tabindex=\"-1\" data-orientation=\"horizontal\" data-radix-collectio ...>",[39m
+    [31m+         "impact": "critical",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           "#radix-\\:r5\\:-trigger-operations",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "button-has-visible-text",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have inner text that is visible to screen readers",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-label attribute does not exist or is empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-labelledby",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "messageKey": "noAttr",[39m
+    [31m+             },[39m
+    [31m+             "id": "non-empty-title",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element has no title attribute",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "implicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an implicit (wrapped) <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "explicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an explicit <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "presentational-role",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element does not have inner text that is visible to screen readers[39m
+    [31m+   aria-label attribute does not exist or is empty[39m
+    [31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty[39m
+    [31m+   Element has no title attribute[39m
+    [31m+   Element does not have an implicit (wrapped) <label>[39m
+    [31m+   Element does not have an explicit <label>[39m
+    [31m+   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+         "html": "<button type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"radix-:r5:-content-m...\" data-state=\"inactive\" id=\"radix-:r5:-trigger-m...\" data-slot=\"tabs-trigger\" class=\"h-9 flex-1 justify-c...\" data-testid=\"hub-tab-maintenance\" tabindex=\"-1\" data-orientation=\"horizontal\" data-radix-collecti ...>",[39m
+    [31m+         "impact": "critical",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           "#radix-\\:r5\\:-trigger-maintenance",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "button-has-visible-text",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have inner text that is visible to screen readers",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-label attribute does not exist or is empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "aria-labelledby",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "messageKey": "noAttr",[39m
+    [31m+             },[39m
+    [31m+             "id": "non-empty-title",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element has no title attribute",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "implicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an implicit (wrapped) <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "explicit-label",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element does not have an explicit <label>",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+           Object {[39m
+    [31m+             "data": null,[39m
+    [31m+             "id": "presentational-role",[39m
+    [31m+             "impact": "critical",[39m
+    [31m+             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+             "relatedNodes": Array [],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element does not have inner text that is visible to screen readers[39m
+    [31m+   aria-label attribute does not exist or is empty[39m
+    [31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty[39m
+    [31m+   Element has no title attribute[39m
+    [31m+   Element does not have an implicit (wrapped) <label>[39m
+    [31m+   Element does not have an explicit <label>[39m
+    [31m+   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",[39m
+    [31m+         "html": "<button type=\"button\" role=\"tab\" aria-selected=\"false\" aria-controls=\"radix-:r5:-content-a...\" data-state=\"inactive\" id=\"radix-:r5:-trigger-a...\" data-slot=\"tabs-trigger\" class=\"h-9 flex-1 justify-c...\" data-testid=\"hub-tab-assets\" tabindex=\"-1\" data-orientation=\"horizontal\" data-radix-collectio...= ...>",[39m
+    [31m+         "impact": "critical",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           "#radix-\\:r5\\:-trigger-assets",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+     ],[39m
+    [31m+     "tags": Array [[39m
+    [31m+       "cat.name-role-value",[39m
+    [31m+       "wcag2a",[39m
+    [31m+       "wcag412",[39m
+    [31m+       "section508",[39m
+    [31m+       "section508.22.a",[39m
+    [31m+       "TTv5",[39m
+    [31m+       "TT6.a",[39m
+    [31m+       "EN-301-549",[39m
+    [31m+       "EN-9.4.1.2",[39m
+    [31m+       "ACT",[39m
+    [31m+       "RGAAv4",[39m
+    [31m+       "RGAA-11.9.1",[39m
+    [31m+     ],[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      72 |       }
+      73 |
+    > 74 |       expect(results.violations).toEqual([]);
+         |                                  ^
+      75 |     });
+      76 |
+      77 |     test(`FleetHub ${viewport.name} - keyboard navigation`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:74:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-c99e0-tHub-mobile---accessibility-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-c99e0-tHub-mobile---accessibility-chromium/error-context.md
+
+  3) [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub mobile - performance 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m3000[39m
+    Received:   [31m11986[39m
+
+      100 |       console.log(`FleetHub ${viewport.name}: Load time ${loadTime}ms`);
+      101 |
+    > 102 |       expect(loadTime).toBeLessThan(3000); // <3s initial load (will optimize to <1s)
+          |                        ^
+      103 |     });
+      104 |
+      105 |     test(`FleetHub ${viewport.name} - live tracking tab`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:102:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-978ef-eetHub-mobile---performance-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-978ef-eetHub-mobile---performance-chromium/error-context.md
+
+  4) [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub mobile - vehicle status indicators 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      131 |
+      132 |       console.log(`FleetHub ${viewport.name}: ${count} status badges found`);
+    > 133 |       expect(count).toBeGreaterThan(0);
+          |                     ^
+      134 |     });
+      135 |
+      136 |     test(`FleetHub ${viewport.name} - interactive elements accessible`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:133:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-e58e5---vehicle-status-indicators-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-e58e5---vehicle-status-indicators-chromium/error-context.md
+
+  5) [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub tablet - vehicle list visible 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      49 |
+      50 |       console.log(`FleetHub ${viewport.name}: ${count} vehicle elements found`);
+    > 51 |       expect(count).toBeGreaterThan(0);
+         |                     ^
+      52 |     });
+      53 |
+      54 |     test(`FleetHub ${viewport.name} - accessibility`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:51:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-51bb8-blet---vehicle-list-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-51bb8-blet---vehicle-list-visible-chromium/error-context.md
+
+  6) [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub tablet - performance 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m3000[39m
+    Received:   [31m6079[39m
+
+      100 |       console.log(`FleetHub ${viewport.name}: Load time ${loadTime}ms`);
+      101 |
+    > 102 |       expect(loadTime).toBeLessThan(3000); // <3s initial load (will optimize to <1s)
+          |                        ^
+      103 |     });
+      104 |
+      105 |     test(`FleetHub ${viewport.name} - live tracking tab`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:102:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-052ce-eetHub-tablet---performance-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-052ce-eetHub-tablet---performance-chromium/error-context.md
+
+  7) [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub tablet - vehicle status indicators 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      131 |
+      132 |       console.log(`FleetHub ${viewport.name}: ${count} status badges found`);
+    > 133 |       expect(count).toBeGreaterThan(0);
+          |                     ^
+      134 |     });
+      135 |
+      136 |     test(`FleetHub ${viewport.name} - interactive elements accessible`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:133:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-a6b11---vehicle-status-indicators-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-a6b11---vehicle-status-indicators-chromium/error-context.md
+
+  8) [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub desktop - vehicle list visible 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      49 |
+      50 |       console.log(`FleetHub ${viewport.name}: ${count} vehicle elements found`);
+    > 51 |       expect(count).toBeGreaterThan(0);
+         |                     ^
+      52 |     });
+      53 |
+      54 |     test(`FleetHub ${viewport.name} - accessibility`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:51:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-799dd-ktop---vehicle-list-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-799dd-ktop---vehicle-list-visible-chromium/error-context.md
+
+  9) [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub desktop - accessibility 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  -  1[39m
+    [31m+ Received  + 99[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "help": "Elements must meet minimum color contrast ratio thresholds",[39m
+    [31m+     "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": Array [[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "bgColor": "#1a1f29",[39m
+    [31m+               "contrastRatio": 1.51,[39m
+    [31m+               "expectedContrastRatio": "4.5:1",[39m
+    [31m+               "fgColor": "#1d3687",[39m
+    [31m+               "fontSize": "6.8pt (9px)",[39m
+    [31m+               "fontWeight": "normal",[39m
+    [31m+               "messageKey": null,[39m
+    [31m+             },[39m
+    [31m+             "id": "color-contrast",[39m
+    [31m+             "impact": "serious",[39m
+    [31m+             "message": "Element has insufficient color contrast of 1.51 (foreground color: #1d3687, background color: #1a1f29, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",[39m
+    [31m+             "relatedNodes": Array [[39m
+    [31m+               Object {[39m
+    [31m+                 "html": "<aside class=\"z-20 flex flex-col h-full bg-minimalist-secondary border-r border-minimalist-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] w-44\">",[39m
+    [31m+                 "target": Array [[39m
+    [31m+                   ".z-20",[39m
+    [31m+                 ],[39m
+    [31m+               },[39m
+    [31m+             ],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element has insufficient color contrast of 1.51 (foreground color: #1d3687, background color: #1a1f29, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",[39m
+    [31m+         "html": "<div class=\"px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary/70\">Hubs</div>",[39m
+    [31m+         "impact": "serious",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           ".uppercase",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "bgColor": "#ffffff",[39m
+    [31m+               "contrastRatio": 2.53,[39m
+    [31m+               "expectedContrastRatio": "4.5:1",[39m
+    [31m+               "fgColor": "#9ca3af",[39m
+    [31m+               "fontSize": "7.5pt (10px)",[39m
+    [31m+               "fontWeight": "normal",[39m
+    [31m+               "messageKey": null,[39m
+    [31m+             },[39m
+    [31m+             "id": "color-contrast",[39m
+    [31m+             "impact": "serious",[39m
+    [31m+             "message": "Element has insufficient color contrast of 2.53 (foreground color: #9ca3af, background color: #ffffff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",[39m
+    [31m+             "relatedNodes": Array [[39m
+    [31m+               Object {[39m
+    [31m+                 "html": "<div class=\"h-11 border-b border-border/50 bg-card/95 backdrop-blur-sm z-30 flex items-center justify-between transition-all duration-200 px-2\">",[39m
+    [31m+                 "target": Array [[39m
+    [31m+                   ".bg-card\\/95",[39m
+    [31m+                 ],[39m
+    [31m+               },[39m
+    [31m+               Object {[39m
+    [31m+                 "html": "<main id=\"main-content\" class=\"flex-1 flex flex-col relative z-10 overflow-hidden bg-background min-w-0\">",[39m
+    [31m+                 "target": Array [[39m
+    [31m+                   "#main-content",[39m
+    [31m+                 ],[39m
+    [31m+               },[39m
+    [31m+             ],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element has insufficient color contrast of 2.53 (foreground color: #9ca3af, background color: #ffffff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",[39m
+    [31m+         "html": "<span class=\"text-[10px] text-minimalist-secondary leading-none mt-0.5\">Fleet Manager</span>",[39m
+    [31m+         "impact": "serious",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           ".text-\\[10px\\].mt-0\\.5.leading-none",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+     ],[39m
+    [31m+     "tags": Array [[39m
+    [31m+       "cat.color",[39m
+    [31m+       "wcag2aa",[39m
+    [31m+       "wcag143",[39m
+    [31m+       "TTv5",[39m
+    [31m+       "TT13.c",[39m
+    [31m+       "EN-301-549",[39m
+    [31m+       "EN-9.1.4.3",[39m
+    [31m+       "ACT",[39m
+    [31m+       "RGAAv4",[39m
+    [31m+       "RGAA-3.2.1",[39m
+    [31m+     ],[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      72 |       }
+      73 |
+    > 74 |       expect(results.violations).toEqual([]);
+         |                                  ^
+      75 |     });
+      76 |
+      77 |     test(`FleetHub ${viewport.name} - keyboard navigation`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:74:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-26e32-Hub-desktop---accessibility-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-26e32-Hub-desktop---accessibility-chromium/error-context.md
+
+  10) [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub desktop - performance 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m3000[39m
+    Received:   [31m7448[39m
+
+      100 |       console.log(`FleetHub ${viewport.name}: Load time ${loadTime}ms`);
+      101 |
+    > 102 |       expect(loadTime).toBeLessThan(3000); // <3s initial load (will optimize to <1s)
+          |                        ^
+      103 |     });
+      104 |
+      105 |     test(`FleetHub ${viewport.name} - live tracking tab`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:102:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-ddde4-etHub-desktop---performance-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-ddde4-etHub-desktop---performance-chromium/error-context.md
+
+  11) [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub desktop - vehicle status indicators 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      131 |
+      132 |       console.log(`FleetHub ${viewport.name}: ${count} status badges found`);
+    > 133 |       expect(count).toBeGreaterThan(0);
+          |                     ^
+      134 |     });
+      135 |
+      136 |     test(`FleetHub ${viewport.name} - interactive elements accessible`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:133:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-a83db---vehicle-status-indicators-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-a83db---vehicle-status-indicators-chromium/error-context.md
+
+  12) [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub ultrawide - vehicle list visible 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      49 |
+      50 |       console.log(`FleetHub ${viewport.name}: ${count} vehicle elements found`);
+    > 51 |       expect(count).toBeGreaterThan(0);
+         |                     ^
+      52 |     });
+      53 |
+      54 |     test(`FleetHub ${viewport.name} - accessibility`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:51:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-7dc96-wide---vehicle-list-visible-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-7dc96-wide---vehicle-list-visible-chromium/error-context.md
+
+  13) [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub ultrawide - accessibility 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  -  1[39m
+    [31m+ Received  + 99[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   Object {[39m
+    [31m+     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",[39m
+    [31m+     "help": "Elements must meet minimum color contrast ratio thresholds",[39m
+    [31m+     "helpUrl": "https://dequeuniversity.com/rules/axe/4.11/color-contrast?application=playwright",[39m
+    [31m+     "id": "color-contrast",[39m
+    [31m+     "impact": "serious",[39m
+    [31m+     "nodes": Array [[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "bgColor": "#1a1f29",[39m
+    [31m+               "contrastRatio": 1.51,[39m
+    [31m+               "expectedContrastRatio": "4.5:1",[39m
+    [31m+               "fgColor": "#1d3687",[39m
+    [31m+               "fontSize": "6.8pt (9px)",[39m
+    [31m+               "fontWeight": "normal",[39m
+    [31m+               "messageKey": null,[39m
+    [31m+             },[39m
+    [31m+             "id": "color-contrast",[39m
+    [31m+             "impact": "serious",[39m
+    [31m+             "message": "Element has insufficient color contrast of 1.51 (foreground color: #1d3687, background color: #1a1f29, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",[39m
+    [31m+             "relatedNodes": Array [[39m
+    [31m+               Object {[39m
+    [31m+                 "html": "<aside class=\"z-20 flex flex-col h-full bg-minimalist-secondary border-r border-minimalist-medium transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] w-44\">",[39m
+    [31m+                 "target": Array [[39m
+    [31m+                   ".z-20",[39m
+    [31m+                 ],[39m
+    [31m+               },[39m
+    [31m+             ],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element has insufficient color contrast of 1.51 (foreground color: #1d3687, background color: #1a1f29, font size: 6.8pt (9px), font weight: normal). Expected contrast ratio of 4.5:1",[39m
+    [31m+         "html": "<div class=\"px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-primary/70\">Hubs</div>",[39m
+    [31m+         "impact": "serious",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           ".uppercase",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+       Object {[39m
+    [31m+         "all": Array [],[39m
+    [31m+         "any": Array [[39m
+    [31m+           Object {[39m
+    [31m+             "data": Object {[39m
+    [31m+               "bgColor": "#ffffff",[39m
+    [31m+               "contrastRatio": 2.53,[39m
+    [31m+               "expectedContrastRatio": "4.5:1",[39m
+    [31m+               "fgColor": "#9ca3af",[39m
+    [31m+               "fontSize": "7.5pt (10px)",[39m
+    [31m+               "fontWeight": "normal",[39m
+    [31m+               "messageKey": null,[39m
+    [31m+             },[39m
+    [31m+             "id": "color-contrast",[39m
+    [31m+             "impact": "serious",[39m
+    [31m+             "message": "Element has insufficient color contrast of 2.53 (foreground color: #9ca3af, background color: #ffffff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",[39m
+    [31m+             "relatedNodes": Array [[39m
+    [31m+               Object {[39m
+    [31m+                 "html": "<div class=\"h-11 border-b border-border/50 bg-card/95 backdrop-blur-sm z-30 flex items-center justify-between transition-all duration-200 px-2\">",[39m
+    [31m+                 "target": Array [[39m
+    [31m+                   ".bg-card\\/95",[39m
+    [31m+                 ],[39m
+    [31m+               },[39m
+    [31m+               Object {[39m
+    [31m+                 "html": "<main id=\"main-content\" class=\"flex-1 flex flex-col relative z-10 overflow-hidden bg-background min-w-0\">",[39m
+    [31m+                 "target": Array [[39m
+    [31m+                   "#main-content",[39m
+    [31m+                 ],[39m
+    [31m+               },[39m
+    [31m+             ],[39m
+    [31m+           },[39m
+    [31m+         ],[39m
+    [31m+         "failureSummary": "Fix any of the following:[39m
+    [31m+   Element has insufficient color contrast of 2.53 (foreground color: #9ca3af, background color: #ffffff, font size: 7.5pt (10px), font weight: normal). Expected contrast ratio of 4.5:1",[39m
+    [31m+         "html": "<span class=\"text-[10px] text-minimalist-secondary leading-none mt-0.5\">Fleet Manager</span>",[39m
+    [31m+         "impact": "serious",[39m
+    [31m+         "none": Array [],[39m
+    [31m+         "target": Array [[39m
+    [31m+           ".text-\\[10px\\].mt-0\\.5.leading-none",[39m
+    [31m+         ],[39m
+    [31m+       },[39m
+    [31m+     ],[39m
+    [31m+     "tags": Array [[39m
+    [31m+       "cat.color",[39m
+    [31m+       "wcag2aa",[39m
+    [31m+       "wcag143",[39m
+    [31m+       "TTv5",[39m
+    [31m+       "TT13.c",[39m
+    [31m+       "EN-301-549",[39m
+    [31m+       "EN-9.1.4.3",[39m
+    [31m+       "ACT",[39m
+    [31m+       "RGAAv4",[39m
+    [31m+       "RGAA-3.2.1",[39m
+    [31m+     ],[39m
+    [31m+   },[39m
+    [31m+ ][39m
+
+      72 |       }
+      73 |
+    > 74 |       expect(results.violations).toEqual([]);
+         |                                  ^
+      75 |     });
+      76 |
+      77 |     test(`FleetHub ${viewport.name} - keyboard navigation`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:74:34
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-fe02d-b-ultrawide---accessibility-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-fe02d-b-ultrawide---accessibility-chromium/error-context.md
+
+  14) [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub ultrawide - performance 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m3000[39m
+    Received:   [31m10528[39m
+
+      100 |       console.log(`FleetHub ${viewport.name}: Load time ${loadTime}ms`);
+      101 |
+    > 102 |       expect(loadTime).toBeLessThan(3000); // <3s initial load (will optimize to <1s)
+          |                        ^
+      103 |     });
+      104 |
+      105 |     test(`FleetHub ${viewport.name} - live tracking tab`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:102:24
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-23c06-Hub-ultrawide---performance-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-23c06-Hub-ultrawide---performance-chromium/error-context.md
+
+  15) [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub ultrawide - vehicle status indicators 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      131 |
+      132 |       console.log(`FleetHub ${viewport.name}: ${count} status badges found`);
+    > 133 |       expect(count).toBeGreaterThan(0);
+          |                     ^
+      134 |     });
+      135 |
+      136 |     test(`FleetHub ${viewport.name} - interactive elements accessible`, async ({ page }) => {
+        at /Users/andrewmorton/Documents/GitHub/Fleet-CTA/tests/fleethub-validation.spec.ts:133:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/fleethub-validation-FleetH-b3db2---vehicle-status-indicators-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/fleethub-validation-FleetH-b3db2---vehicle-status-indicators-chromium/error-context.md
+
+  15 failed
+    [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub mobile - vehicle list visible 
+    [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub mobile - accessibility 
+    [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub mobile - performance 
+    [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub mobile - vehicle status indicators 
+    [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub tablet - vehicle list visible 
+    [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub tablet - performance 
+    [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub tablet - vehicle status indicators 
+    [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub desktop - vehicle list visible 
+    [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub desktop - accessibility 
+    [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub desktop - performance 
+    [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub desktop - vehicle status indicators 
+    [chromium] › tests/fleethub-validation.spec.ts:41:5 › FleetHub Quality Tests › FleetHub ultrawide - vehicle list visible 
+    [chromium] › tests/fleethub-validation.spec.ts:54:5 › FleetHub Quality Tests › FleetHub ultrawide - accessibility 
+    [chromium] › tests/fleethub-validation.spec.ts:92:5 › FleetHub Quality Tests › FleetHub ultrawide - performance 
+    [chromium] › tests/fleethub-validation.spec.ts:123:5 › FleetHub Quality Tests › FleetHub ultrawide - vehicle status indicators 
+  22 passed (2.1m)

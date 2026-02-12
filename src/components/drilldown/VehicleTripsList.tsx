@@ -51,7 +51,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
     push({
       id: `trip-telemetry-${trip.id}`,
       type: 'trip-telemetry',
-      label: `Trip ${trip.id.slice(0, 8)}`,
+      label: `Trip ${String(trip.id).slice(0, 8)}`,
       data: { tripId: trip.id, trip },
     })
   }
@@ -96,7 +96,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                               {trip.status}
                             </Badge>
                             <span className="text-xs text-muted-foreground">
-                              Trip #{trip.id.slice(0, 8)}
+                              Trip #{String(trip.id).slice(0, 8)}
                             </span>
                           </div>
                           <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-foreground transition-colors" />

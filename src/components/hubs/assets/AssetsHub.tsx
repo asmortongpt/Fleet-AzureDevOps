@@ -13,11 +13,12 @@
 
 import {
   Barcode,
-  TrendUp,
-  ChartLine
-} from "@phosphor-icons/react"
+  TrendingUp,
+  LineChart
+} from "lucide-react"
 import { GoogleMap, LoadScript, Marker, HeatmapLayer } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
+import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -58,10 +59,8 @@ interface AssetUtilization {
   assetName: string
   type: AssetType
   utilizationRate: number
-  hoursUsed: number
-  hoursAvailable: number
-  revenue: number
-  cost: number
+  maintenanceCost: number
+  totalCost: number
   roi: number
 }
 
@@ -85,196 +84,15 @@ interface AssetLocation {
     lat: number
     lng: number
   }
-  status: OperationalStatus
+  status: OperationalStatus | string
   value: number
   utilizationRate: number
 }
 
-// Demo data
-const demoAssetMetrics: AssetMetrics = {
-  totalAssets: 127,
-  activeAssets: 94,
-  utilizationRate: 78.5,
-  totalValue: 8450000,
-  avgAge: 4.2,
-  avgMileage: 42500,
-  maintenanceCost: 245000,
-  roi: 18.4,
-  trend: "improving"
-}
-
-const demoAssetLocations: AssetLocation[] = [
-  {
-    id: "asset-001",
-    name: "Ford F-150 #1001",
-    type: "PICKUP_TRUCK",
-    location: { lat: 30.4383, lng: -84.2807 },
-    status: "IN_USE",
-    value: 45000,
-    utilizationRate: 85
-  },
-  {
-    id: "asset-002",
-    name: "Excavator CAT 320",
-    type: "EXCAVATOR",
-    location: { lat: 30.4550, lng: -84.2500 },
-    status: "IN_USE",
-    value: 250000,
-    utilizationRate: 92
-  },
-  {
-    id: "asset-003",
-    name: "Mercedes Sprinter #2001",
-    type: "CARGO_VAN",
-    location: { lat: 30.4200, lng: -84.3100 },
-    status: "AVAILABLE",
-    value: 55000,
-    utilizationRate: 65
-  },
-  {
-    id: "asset-004",
-    name: "Forklift Toyota 8FG",
-    type: "FORKLIFT",
-    location: { lat: 30.4400, lng: -84.2600 },
-    status: "MAINTENANCE",
-    value: 35000,
-    utilizationRate: 45
-  },
-  {
-    id: "asset-005",
-    name: "Dump Truck Mack #3001",
-    type: "DUMP_TRUCK",
-    location: { lat: 30.4300, lng: -84.3000 },
-    status: "IN_USE",
-    value: 180000,
-    utilizationRate: 88
-  },
-  {
-    id: "asset-006",
-    name: "Backhoe JCB 3CX",
-    type: "BACKHOE",
-    location: { lat: 30.4500, lng: -84.2700 },
-    status: "AVAILABLE",
-    value: 95000,
-    utilizationRate: 72
-  }
-]
-
-const demoUtilization: AssetUtilization[] = [
-  {
-    assetId: "asset-002",
-    assetName: "Excavator CAT 320",
-    type: "EXCAVATOR",
-    utilizationRate: 92,
-    hoursUsed: 184,
-    hoursAvailable: 200,
-    revenue: 45000,
-    cost: 12000,
-    roi: 275
-  },
-  {
-    assetId: "asset-005",
-    assetName: "Dump Truck Mack #3001",
-    type: "DUMP_TRUCK",
-    utilizationRate: 88,
-    hoursUsed: 176,
-    hoursAvailable: 200,
-    revenue: 38000,
-    cost: 9500,
-    roi: 300
-  },
-  {
-    assetId: "asset-001",
-    assetName: "Ford F-150 #1001",
-    type: "PICKUP_TRUCK",
-    utilizationRate: 85,
-    hoursUsed: 170,
-    hoursAvailable: 200,
-    revenue: 15000,
-    cost: 4200,
-    roi: 257
-  },
-  {
-    assetId: "asset-006",
-    assetName: "Backhoe JCB 3CX",
-    type: "BACKHOE",
-    utilizationRate: 72,
-    hoursUsed: 144,
-    hoursAvailable: 200,
-    revenue: 28000,
-    cost: 8500,
-    roi: 229
-  },
-  {
-    assetId: "asset-003",
-    assetName: "Mercedes Sprinter #2001",
-    type: "CARGO_VAN",
-    utilizationRate: 65,
-    hoursUsed: 130,
-    hoursAvailable: 200,
-    revenue: 12000,
-    cost: 3800,
-    roi: 216
-  },
-  {
-    assetId: "asset-004",
-    assetName: "Forklift Toyota 8FG",
-    type: "FORKLIFT",
-    utilizationRate: 45,
-    hoursUsed: 90,
-    hoursAvailable: 200,
-    revenue: 8000,
-    cost: 2500,
-    roi: 220
-  }
-]
-
-const demoReplacements: AssetReplacement[] = [
-  {
-    assetId: "asset-101",
-    assetName: "Ford F-350 #1025",
-    type: "Heavy Truck",
-    age: 12,
-    condition: "poor",
-    replacementYear: 2026,
-    estimatedCost: 75000,
-    priority: "high",
-    reason: "High maintenance costs, safety concerns, reliability issues"
-  },
-  {
-    assetId: "asset-102",
-    assetName: "Bulldozer CAT D6",
-    type: "Heavy Equipment",
-    age: 10,
-    condition: "fair",
-    replacementYear: 2026,
-    estimatedCost: 450000,
-    priority: "high",
-    reason: "Approaching end of useful life, parts becoming scarce"
-  },
-  {
-    assetId: "asset-103",
-    assetName: "Chevrolet Silverado #1045",
-    type: "Light Truck",
-    age: 8,
-    condition: "good",
-    replacementYear: 2027,
-    estimatedCost: 55000,
-    priority: "medium",
-    reason: "Normal replacement cycle, technology upgrades available"
-  },
-  {
-    assetId: "asset-104",
-    assetName: "Generator Caterpillar 500kW",
-    type: "Specialty Equipment",
-    age: 7,
-    condition: "good",
-    replacementYear: 2028,
-    estimatedCost: 125000,
-    priority: "low",
-    reason: "Preventive replacement, efficiency improvements"
-  }
-]
+const fetcher = (url: string) =>
+  fetch(url, { credentials: "include" })
+    .then((res) => res.json())
+    .then((data) => data?.data ?? data)
 
 const mapContainerStyle = {
   width: "100%",
@@ -286,13 +104,24 @@ const mapCenter = {
   lng: -84.2807
 }
 
-const getStatusColor = (status: OperationalStatus): string => {
-  switch (status) {
-    case "AVAILABLE": return "#22c55e"
-    case "IN_USE": return "#3b82f6"
-    case "MAINTENANCE": return "#f59e0b"
-    case "RESERVED": return "#8b5cf6"
-    default: return "#6b7280"
+const getStatusColor = (status: OperationalStatus | string): string => {
+  const normalized = (status || "").toString().toLowerCase()
+  switch (normalized) {
+    case "available":
+      return "#22c55e"
+    case "in_use":
+    case "active":
+      return "#3b82f6"
+    case "maintenance":
+      return "#f59e0b"
+    case "reserved":
+      return "#8b5cf6"
+    case "inactive":
+    case "retired":
+    case "disposed":
+      return "#6b7280"
+    default:
+      return "#6b7280"
   }
 }
 
@@ -302,6 +131,26 @@ const getUtilizationColor = (rate: number): string => {
   if (rate >= 40) return "text-yellow-500"
   return "text-red-500"
 }
+
+const getHealthScoreColor = (score: number): string => {
+  if (score >= 80) return "bg-green-500"
+  if (score >= 60) return "bg-yellow-500"
+  if (score >= 40) return "bg-orange-500"
+  return "bg-red-500"
+}
+
+const getHealthScoreTextColor = (score: number): string => {
+  if (score >= 80) return "text-green-500"
+  if (score >= 60) return "text-yellow-500"
+  if (score >= 40) return "text-orange-500"
+  return "text-red-500"
+}
+
+const formatStatusLabel = (status: string) =>
+  status
+    .toString()
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 const getConditionBadge = (condition: string) => {
   switch (condition) {
@@ -328,21 +177,186 @@ export function AssetsHub() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [mapLoaded, setMapLoaded] = useState(false)
 
+  const { data: assetAnalytics = [], error: assetError } = useSWR<any[]>(
+    "/api/assets/analytics",
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const assets = Array.isArray(assetAnalytics) ? assetAnalytics : []
+
+  const statusOptions = useMemo(() => {
+    const values = new Set<string>()
+    assets.forEach((asset: any) => {
+      if (asset.status) values.add(asset.status)
+    })
+    return Array.from(values)
+  }, [assets])
+
   const filteredAssets = useMemo(() => {
-    return demoAssetLocations.filter(asset => {
+    return assets.filter((asset: any) => {
       if (statusFilter !== "all" && asset.status !== statusFilter) return false
       return true
     })
-  }, [statusFilter])
+  }, [assets, statusFilter])
+
+  const assetLocations: AssetLocation[] = useMemo(() => {
+    return assets
+      .filter((asset: any) => asset.facility_latitude && asset.facility_longitude)
+      .map((asset: any) => ({
+        id: asset.id,
+        name: asset.asset_name || asset.name,
+        type: (asset.asset_type || "OTHER") as AssetType,
+        location: {
+          lat: Number(asset.facility_latitude),
+          lng: Number(asset.facility_longitude),
+        },
+        status: (asset.status || "AVAILABLE") as OperationalStatus,
+        value: Number(asset.current_value || asset.purchase_price || 0),
+        utilizationRate: Number(asset.utilization_percentage || 0)
+      }))
+  }, [assets])
+
+  const filteredLocations = useMemo(() => {
+    return assetLocations.filter((asset) => {
+      if (statusFilter !== "all" && asset.status !== statusFilter) return false
+      return true
+    })
+  }, [assetLocations, statusFilter])
+
+  const metrics: AssetMetrics = useMemo(() => {
+    const totalAssets = assets.length
+    const activeAssets = assets.filter((asset: any) => {
+      const status = (asset.status || "").toString().toLowerCase()
+      return status === "active" || status === "in_use" || status === "available"
+    }).length
+    // Prefer actual uptime_percentage / uptime_hours when available, fall back to utilization_percentage
+    const utilizationValues = assets
+      .map((asset: any) => {
+        const uptime = Number(asset.uptime_percentage || asset.uptimePercentage)
+        if (Number.isFinite(uptime) && uptime > 0) return uptime
+        return Number(asset.utilization_percentage)
+      })
+      .filter((value: number) => Number.isFinite(value) && value > 0)
+    const utilizationRate = utilizationValues.length > 0
+      ? utilizationValues.reduce((sum, v) => sum + v, 0) / utilizationValues.length
+      : (totalAssets > 0 ? (activeAssets / totalAssets) * 100 : 0)
+
+    const totalValue = assets.reduce(
+      (sum: number, asset: any) => sum + Number(asset.current_value || asset.purchase_price || 0),
+      0
+    )
+
+    const ages = assets
+      .map((asset: any) => asset.purchase_date)
+      .filter(Boolean)
+      .map((date: string) => {
+        const purchaseDate = new Date(date)
+        if (Number.isNaN(purchaseDate.getTime())) return 0
+        const years = (Date.now() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365)
+        return years
+      })
+      .filter((years: number) => years > 0)
+
+    const avgAge = ages.length > 0 ? ages.reduce((sum, v) => sum + v, 0) / ages.length : 0
+
+    const maintenanceCost = assets.reduce(
+      (sum: number, asset: any) => sum + Number(asset.maintenance_cost || 0),
+      0
+    )
+
+    const roiValues = assets
+      .map((asset: any) => {
+        const purchasePrice = Number(asset.purchase_price || 0)
+        const currentValue = Number(asset.current_value || 0)
+        if (!purchasePrice || !currentValue) return null
+        return ((currentValue - purchasePrice) / purchasePrice) * 100
+      })
+      .filter((value: number | null) => typeof value === "number")
+    const roi = roiValues.length > 0
+      ? roiValues.reduce((sum, v) => sum + (v || 0), 0) / roiValues.length
+      : 0
+
+    const trend: AssetMetrics["trend"] = utilizationRate >= 70 ? "improving" : utilizationRate >= 50 ? "stable" : "declining"
+
+    return {
+      totalAssets,
+      activeAssets,
+      utilizationRate,
+      totalValue,
+      avgAge,
+      avgMileage: 0,
+      maintenanceCost,
+      roi,
+      trend
+    }
+  }, [assets])
 
   // Prepare heatmap data for utilization visualization
   const heatmapData = useMemo(() => {
     if (!mapLoaded) return []
-    return demoAssetLocations.map(asset => ({
+    return filteredLocations.map(asset => ({
       location: new window.google.maps.LatLng(asset.location.lat, asset.location.lng),
-      weight: asset.utilizationRate
+      weight: asset.utilizationRate || 0
     }))
-  }, [mapLoaded])
+  }, [filteredLocations, mapLoaded])
+
+  const utilizationRows: AssetUtilization[] = useMemo(() => {
+    return assets.map((asset: any) => {
+      // Prefer uptime-based values when available
+      const uptime = Number(asset.uptime_percentage || asset.uptimePercentage)
+      const utilPct = Number(asset.utilization_percentage || 0)
+      const effectiveUtilization = (Number.isFinite(uptime) && uptime > 0) ? uptime : utilPct
+      return {
+        assetId: asset.id,
+        assetName: asset.asset_name || asset.name,
+        type: (asset.asset_type || asset.type || "OTHER") as AssetType,
+        utilizationRate: effectiveUtilization,
+        maintenanceCost: Number(asset.maintenance_cost || 0),
+        totalCost: Number(asset.total_cost || 0),
+        roi: (() => {
+          const purchasePrice = Number(asset.purchase_price || 0)
+          const currentValue = Number(asset.current_value || 0)
+          if (!purchasePrice || !currentValue) return 0
+          return Math.round(((currentValue - purchasePrice) / purchasePrice) * 100)
+        })()
+      }
+    })
+  }, [assets])
+
+  const replacementRows: AssetReplacement[] = useMemo(() => {
+    const now = new Date()
+    return assets
+      .map((asset: any) => {
+        const purchaseDate = asset.purchase_date ? new Date(asset.purchase_date) : null
+        const age = purchaseDate && !Number.isNaN(purchaseDate.getTime())
+          ? Math.floor((now.getTime() - purchaseDate.getTime()) / (1000 * 60 * 60 * 24 * 365))
+          : 0
+        const condition = (asset.condition || "good").toLowerCase()
+        const replacementYear = purchaseDate ? purchaseDate.getFullYear() + 8 : now.getFullYear() + 1
+        let priority: AssetReplacement["priority"] = "low"
+        if (age >= 10 || condition === "poor") priority = "high"
+        else if (age >= 7 || condition === "fair") priority = "medium"
+        const reason = condition === "poor"
+          ? "Condition below operational standard"
+          : age >= 10
+            ? "Exceeds recommended service life"
+            : "Approaching replacement cycle"
+        return {
+          assetId: asset.id,
+          assetName: asset.asset_name || asset.name,
+          type: asset.asset_type || asset.type || "Other",
+          age,
+          condition: (condition as AssetReplacement["condition"]) || "good",
+          replacementYear,
+          estimatedCost: Number(asset.current_value || asset.purchase_price || 0),
+          priority,
+          reason
+        }
+      })
+      .sort((a, b) => (a.priority === b.priority ? b.age - a.age : a.priority === "high" ? -1 : a.priority === "medium" && b.priority === "low" ? -1 : 1))
+      .slice(0, 10)
+  }, [assets])
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""
 
@@ -362,7 +376,7 @@ export function AssetsHub() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline">
-              <ChartLine className="w-4 h-4 mr-2" />
+              <LineChart className="w-4 h-4 mr-2" />
               Analytics Report
             </Button>
             <Button>
@@ -375,6 +389,11 @@ export function AssetsHub() {
 
       {/* Asset Metrics Cards */}
       <div className="px-3 py-2 border-b bg-card">
+        {assetError && (
+          <div className="mb-2 text-xs text-red-500">
+            Failed to load asset analytics. Please refresh.
+          </div>
+        )}
         <div className="grid grid-cols-4 gap-2">
           <Card>
             <CardHeader className="pb-2">
@@ -385,12 +404,12 @@ export function AssetsHub() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <div className="text-base font-bold">
-                  ${(demoAssetMetrics.totalValue / 1000000).toFixed(2)}M
+                  {metrics.totalValue > 0 ? `$${(metrics.totalValue / 1000000).toFixed(2)}M` : "—"}
                 </div>
-                <TrendUp className="w-3 h-3 text-green-500" />
+                {metrics.totalValue > 0 && <TrendingUp className="w-3 h-3 text-green-500" />}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {demoAssetMetrics.totalAssets} total assets
+                {metrics.totalAssets} total assets
               </p>
             </CardContent>
           </Card>
@@ -403,11 +422,11 @@ export function AssetsHub() {
             </CardHeader>
             <CardContent>
               <div className="text-base font-bold text-blue-800">
-                {demoAssetMetrics.utilizationRate}%
+                {metrics.utilizationRate > 0 ? `${metrics.utilizationRate.toFixed(1)}%` : "—"}
               </div>
-              <Progress value={demoAssetMetrics.utilizationRate} className="mt-2" />
+              <Progress value={metrics.utilizationRate} className="mt-2" />
               <p className="text-xs text-muted-foreground mt-1">
-                {demoAssetMetrics.activeAssets} assets in use
+                {metrics.activeAssets} assets in use
               </p>
             </CardContent>
           </Card>
@@ -421,12 +440,12 @@ export function AssetsHub() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <div className="text-base font-bold text-green-500">
-                  {demoAssetMetrics.roi}%
+                  {metrics.roi > 0 ? `${metrics.roi.toFixed(1)}%` : "—"}
                 </div>
-                <TrendUp className="w-3 h-3 text-green-500" />
+                {metrics.roi > 0 && <TrendingUp className="w-3 h-3 text-green-500" />}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                +2.4% from last quarter
+                Average ROI based on purchase price
               </p>
             </CardContent>
           </Card>
@@ -439,10 +458,10 @@ export function AssetsHub() {
             </CardHeader>
             <CardContent>
               <div className="text-base font-bold text-orange-500">
-                ${(demoAssetMetrics.maintenanceCost / 1000).toFixed(0)}K
+                {metrics.maintenanceCost > 0 ? `$${(metrics.maintenanceCost / 1000).toFixed(0)}K` : "—"}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                2.9% of total asset value
+                Latest period maintenance spend
               </p>
             </CardContent>
           </Card>
@@ -476,7 +495,7 @@ export function AssetsHub() {
                       ]
                     }}
                   >
-                    {mapLoaded && filteredAssets.map(asset => (
+                    {mapLoaded && filteredLocations.map(asset => (
                       <Marker
                         key={asset.id}
                         position={{ lat: asset.location.lat, lng: asset.location.lng }}
@@ -538,7 +557,7 @@ export function AssetsHub() {
                       ]
                     }}
                   >
-                    {mapLoaded && filteredAssets.map(asset => (
+                    {mapLoaded && filteredLocations.map(asset => (
                       <Marker
                         key={asset.id}
                         position={{ lat: asset.location.lat, lng: asset.location.lng }}
@@ -579,10 +598,11 @@ export function AssetsHub() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">All Statuses</SelectItem>
-                          <SelectItem value="AVAILABLE">Available</SelectItem>
-                          <SelectItem value="IN_USE">In Use</SelectItem>
-                          <SelectItem value="MAINTENANCE">Maintenance</SelectItem>
-                          <SelectItem value="RESERVED">Reserved</SelectItem>
+                          {statusOptions.map((status) => (
+                            <SelectItem key={status} value={status}>
+                              {formatStatusLabel(status)}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -592,35 +612,59 @@ export function AssetsHub() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Asset Name</TableHead>
-                            <TableHead>Type</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead>Value</TableHead>
-                            <TableHead>Utilization</TableHead>
+                          <TableHead>Asset Name</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Department</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Health</TableHead>
+                          <TableHead>Value</TableHead>
+                          <TableHead>Utilization</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredAssets.map(asset => (
+                          {filteredAssets.map((asset: any) => {
+                            const utilization = Number(asset.utilization_percentage || 0)
+                            const utilizationLabel = utilization > 0 ? `${utilization.toFixed(1)}%` : "—"
+                            const healthScore = Number(asset.health_score || asset.healthScore || 0)
+                            const department = asset.department || asset.dept || "—"
+                            return (
                             <TableRow key={asset.id}>
-                              <TableCell className="font-medium">{asset.name}</TableCell>
-                              <TableCell>{asset.type}</TableCell>
+                              <TableCell className="font-medium">{asset.asset_name || asset.name}</TableCell>
+                              <TableCell>{asset.asset_type || asset.type || "—"}</TableCell>
+                              <TableCell className="text-sm">{department}</TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   <div
                                     className="w-2 h-2 rounded-full"
                                     style={{ backgroundColor: getStatusColor(asset.status) }}
                                   />
-                                  {asset.status}
+                                  {formatStatusLabel(asset.status || "unknown")}
                                 </div>
                               </TableCell>
-                              <TableCell>${asset.value.toLocaleString()}</TableCell>
                               <TableCell>
-                                <span className={getUtilizationColor(asset.utilizationRate)}>
-                                  {asset.utilizationRate}%
+                                {healthScore > 0 ? (
+                                  <div className="flex items-center gap-1.5">
+                                    <div className={`w-2 h-2 rounded-full ${getHealthScoreColor(healthScore)}`} />
+                                    <span className={`text-sm font-medium ${getHealthScoreTextColor(healthScore)}`}>
+                                      {healthScore}%
+                                    </span>
+                                  </div>
+                                ) : (
+                                  <span className="text-muted-foreground">--</span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                {asset.current_value || asset.purchase_price
+                                  ? `$${Number(asset.current_value || asset.purchase_price).toLocaleString()}`
+                                  : "—"}
+                              </TableCell>
+                              <TableCell>
+                                <span className={getUtilizationColor(utilization)}>
+                                  {utilizationLabel}
                                 </span>
                               </TableCell>
                             </TableRow>
-                          ))}
+                          )})}
                         </TableBody>
                       </Table>
                     </CardContent>
@@ -639,27 +683,27 @@ export function AssetsHub() {
                             <TableHead>Asset Name</TableHead>
                             <TableHead>Type</TableHead>
                             <TableHead>Utilization</TableHead>
-                            <TableHead>Hours</TableHead>
-                            <TableHead>Revenue</TableHead>
+                            <TableHead>Maintenance Cost</TableHead>
+                            <TableHead>Total Cost</TableHead>
                             <TableHead>ROI</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {demoUtilization.map(asset => (
+                          {utilizationRows.map(asset => (
                             <TableRow key={asset.assetId}>
                               <TableCell className="font-medium">{asset.assetName}</TableCell>
                               <TableCell>{asset.type}</TableCell>
                               <TableCell>
                                 <span className={getUtilizationColor(asset.utilizationRate)}>
-                                  {asset.utilizationRate}%
+                                  {asset.utilizationRate > 0 ? `${asset.utilizationRate.toFixed(1)}%` : "—"}
                                 </span>
                               </TableCell>
                               <TableCell>
-                                {asset.hoursUsed}/{asset.hoursAvailable}
+                                {asset.maintenanceCost > 0 ? `$${asset.maintenanceCost.toLocaleString()}` : "—"}
                               </TableCell>
-                              <TableCell>${asset.revenue.toLocaleString()}</TableCell>
-                              <TableCell className={asset.roi > 0 ? "text-green-500" : "text-red-500"}>
-                                {asset.roi}%
+                              <TableCell>{asset.totalCost > 0 ? `$${asset.totalCost.toLocaleString()}` : "—"}</TableCell>
+                              <TableCell className={asset.roi > 0 ? "text-green-500" : "text-muted-foreground"}>
+                                {asset.roi > 0 ? `${asset.roi}%` : "—"}
                               </TableCell>
                             </TableRow>
                           ))}
@@ -687,7 +731,7 @@ export function AssetsHub() {
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {demoReplacements.map(asset => (
+                          {replacementRows.map(asset => (
                             <TableRow key={asset.assetId}>
                               <TableCell className="font-medium">{asset.assetName}</TableCell>
                               <TableCell>{asset.type}</TableCell>

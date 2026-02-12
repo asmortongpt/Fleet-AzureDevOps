@@ -263,62 +263,7 @@ export function useSystemStatus(options: UseSystemStatusOptions = {}) {
     return () => clearInterval(interval)
   }, [enabled, pollInterval])
 
-  // Generate mock insights from telemetry data
-  useEffect(() => {
-    if (!vehicleTelemetry.vehicles.length) return
-
-    const mockInsights: AIInsight[] = []
-
-    // Check for low fuel vehicles
-    const lowFuelVehicles = vehicleTelemetry.vehicles.filter(v => v.fuelLevel < 20)
-    if (lowFuelVehicles.length > 0) {
-      mockInsights.push({
-        id: `low-fuel-${Date.now()}`,
-        type: 'alert',
-        title: 'Low Fuel Alert',
-        message: `${lowFuelVehicles.length} vehicle(s) have fuel below 20%`,
-        confidence: 0.95,
-        priority: 'high',
-        timestamp: new Date(),
-        actionable: true
-      })
-    }
-
-    // Check for vehicles needing service
-    const serviceVehicles = vehicleTelemetry.vehicles.filter(v => v.status === 'service')
-    if (serviceVehicles.length > 0) {
-      mockInsights.push({
-        id: `service-needed-${Date.now()}`,
-        type: 'recommendation',
-        title: 'Service Recommended',
-        message: `${serviceVehicles.length} vehicle(s) require maintenance attention`,
-        confidence: 0.88,
-        priority: 'medium',
-        timestamp: new Date(),
-        actionable: true
-      })
-    }
-
-    // Add optimization insights
-    if (vehicleTelemetry.vehicles.length > 5) {
-      mockInsights.push({
-        id: `route-optimization-${Date.now()}`,
-        type: 'optimization',
-        title: 'Route Optimization Opportunity',
-        message: 'AI detected potential for 12% fuel savings through route optimization',
-        confidence: 0.76,
-        priority: 'low',
-        timestamp: new Date(),
-        actionable: true
-      })
-    }
-
-    setAIInsights(prev => {
-      // Merge with existing, keep only last 20
-      const merged = [...mockInsights, ...prev]
-      return merged.slice(0, 20)
-    })
-  }, [vehicleTelemetry.vehicles])
+  // AI insights are sourced exclusively from backend endpoints.
 
   // Calculate health metrics
   useEffect(() => {

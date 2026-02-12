@@ -2,16 +2,14 @@ import {
   QrCode,
   Barcode,
   Camera,
-  MagnifyingGlass,
-  CarProfile,
+  Search,
+  Car,
   Check,
   X
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode"
 import { useState, useEffect, useRef, useCallback } from "react"
 import { toast } from "sonner"
-
-import { ScannerModal } from "./ScannerModal"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -137,6 +135,8 @@ export function VehicleIdentification({
   const [showQRScanner, setShowQRScanner] = useState(false)
   const [showVINScanner, setShowVINScanner] = useState(false)
   const [showPlateScanner, setShowPlateScanner] = useState(false)
+  const [scannerOpen, setScannerOpen] = useState(false)
+  const [scannerType, setScannerType] = useState<'qr' | 'vin' | 'plate'>('qr')
 
   const handleVINLookup = async () => {
     if (!vinInput.trim()) {
@@ -268,6 +268,17 @@ export function VehicleIdentification({
     toast.success("Code scanned - please verify plate number")
   }, [])
 
+  // Route scan results to appropriate handler
+  const handleScanResult = useCallback((data: string) => {
+    if (scannerType === 'qr') {
+      handleQRScanResult(data)
+    } else if (scannerType === 'vin') {
+      handleVINScanResult(data)
+    } else if (scannerType === 'plate') {
+      handlePlateScanResult(data)
+    }
+  }, [scannerType, handleQRScanResult, handleVINScanResult, handlePlateScanResult])
+
   return (
     <div>
       {selectedVehicle ? (
@@ -275,7 +286,7 @@ export function VehicleIdentification({
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Check className="w-3 h-3 text-green-600" weight="bold" />
+                <Check className="w-3 h-3 text-green-600" />
                 <CardTitle className="text-sm text-green-700">Vehicle Selected</CardTitle>
               </div>
               <Button
@@ -290,7 +301,7 @@ export function VehicleIdentification({
           <CardContent>
             <div className="space-y-1 text-sm">
               <div className="flex items-center gap-2">
-                <CarProfile className="w-4 h-4 text-muted-foreground" />
+                <Car className="w-4 h-4 text-muted-foreground" />
                 <span className="font-semibold">{selectedVehicle.vehicleNumber}</span>
               </div>
               {selectedVehicle.make && selectedVehicle.model && (
@@ -316,7 +327,7 @@ export function VehicleIdentification({
           <DialogTrigger asChild>
             {trigger || (
               <Button variant="outline">
-                <CarProfile className="w-4 h-4 mr-2" />
+                <Car className="w-4 h-4 mr-2" />
                 Select Vehicle
               </Button>
             )}
@@ -332,7 +343,7 @@ export function VehicleIdentification({
             <Tabs defaultValue="search" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="search">
-                  <MagnifyingGlass className="w-4 h-4 mr-1" />
+                  <Search className="w-4 h-4 mr-1" />
                   Search
                 </TabsTrigger>
                 <TabsTrigger value="qr">
@@ -389,7 +400,7 @@ export function VehicleIdentification({
                                   {vehicle.licensePlate && <div>Plate: {vehicle.licensePlate}</div>}
                                 </div>
                               </div>
-                              <CarProfile className="w-4 h-4 text-muted-foreground" />
+                              <Car className="w-4 h-4 text-muted-foreground" />
                             </div>
                           </CardContent>
                         </Card>
@@ -533,13 +544,6 @@ export function VehicleIdentification({
         </Dialog>
       )}
 
-      {/* Scanner Modal */}
-      <ScannerModal
-        open={scannerOpen}
-        onOpenChange={setScannerOpen}
-        type={scannerType}
-        onScan={handleScanResult}
-      />
     </div>
   )
 }

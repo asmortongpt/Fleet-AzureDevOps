@@ -10,21 +10,21 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-[var(--minimalist-accent-blue)] hover:bg-blue-600 text-white border-0 rounded-md",
+          "bg-primary hover:bg-primary/90 text-primary-foreground border-0 rounded-md shadow-sm",
         destructive:
-          "bg-[var(--minimalist-accent-red)] text-white hover:bg-red-600 rounded-md",
+          "bg-destructive text-white hover:bg-destructive/90 rounded-md shadow-sm",
         outline:
-          "border border-[var(--minimalist-border-medium)] bg-transparent hover:bg-[var(--minimalist-bg-tertiary)] text-[var(--minimalist-text-primary)] rounded-md",
+          "border border-border bg-transparent hover:bg-muted text-foreground rounded-md",
         secondary:
-          "bg-[var(--minimalist-bg-tertiary)] text-[var(--minimalist-text-primary)] hover:bg-[var(--minimalist-bg-elevated)] rounded-md",
+          "bg-muted text-foreground hover:bg-muted/80 rounded-md",
         ghost:
-          "hover:bg-[var(--minimalist-bg-tertiary)] hover:text-[var(--minimalist-text-primary)] rounded-md",
+          "hover:bg-muted hover:text-foreground rounded-md",
         link:
           "text-primary underline-offset-4 hover:underline",
         success:
-          "bg-[var(--minimalist-accent-green)] text-white hover:bg-green-600 rounded-md",
+          "bg-emerald-600 text-white hover:bg-emerald-700 rounded-md shadow-sm",
         warning:
-          "bg-[var(--minimalist-accent-amber)] text-white hover:bg-amber-600 rounded-md",
+          "bg-amber-500 text-white hover:bg-amber-600 rounded-md shadow-sm",
       },
       size: {
         default: "h-9 px-2 py-2 has-[>svg]:px-3",

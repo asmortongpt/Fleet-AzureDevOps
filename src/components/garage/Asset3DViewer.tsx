@@ -14,7 +14,8 @@
 
 import { OrbitControls, PerspectiveCamera, Environment, useGLTF, Html } from '@react-three/drei';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import React, { useEffect, useRef, useState, Suspense, useMemo, useCallback } from 'react';
+import React, { Component, useEffect, useRef, useState, Suspense, useMemo, useCallback } from 'react';
+import type { ErrorInfo, ReactNode } from 'react';
 import * as THREE from 'three';
 
 import { PhotorealisticMaterials } from '../../materials/PhotorealisticMaterials';
@@ -243,7 +244,7 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
   return (
     <group position={position}>
       {/* Outer ring animation */}
-      <mesh onClick={(e) => { e.stopPropagation(); onClick(); }}>
+      <mesh onClick={(e: any) => { e.stopPropagation(); onClick(); }}>
         <sphereGeometry args={[isSelected ? 0.15 : 0.1, 16, 16]} />
         <meshStandardMaterial
           color={color}
@@ -267,7 +268,7 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
             <div className="font-semibold">{point.zone}</div>
             <div className="text-slate-300 capitalize">{point.severity} damage</div>
             {point.description && (
-              <div className="text-slate-400 mt-1">{point.description}</div>
+              <div className="text-slate-700 mt-1">{point.description}</div>
             )}
           </div>
         </Html>
@@ -458,6 +459,87 @@ function CameraController({ preset, autoRotate, enableControls }: CameraControll
 }
 
 // ============================================================================
+// R3F ERROR BOUNDARY
+// ============================================================================
+
+/**
+ * R3F Error Boundary - Catches React Three Fiber / React 19 reconciler crashes
+ * (e.g. "Cannot read properties of undefined (reading 'ReactCurrentOwner')")
+ * and displays a graceful fallback instead of crashing the entire page.
+ */
+interface R3FErrorBoundaryProps {
+  children: ReactNode;
+  vehicleLabel?: string;
+}
+
+interface R3FErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+}
+
+class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundaryState> {
+  constructor(props: R3FErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error): R3FErrorBoundaryState {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // eslint-disable-next-line no-console
+    console.error('[R3F ErrorBoundary] 3D renderer crashed:', error.message);
+    if (import.meta.env.DEV && errorInfo.componentStack) {
+      // eslint-disable-next-line no-console
+      console.error('[R3F ErrorBoundary] Component stack:', errorInfo.componentStack);
+    }
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg">
+          <div className="text-center p-6 max-w-md">
+            <div className="w-12 h-12 text-amber-400 mx-auto mb-4 flex items-center justify-center text-3xl">
+              &#9888;
+            </div>
+            <h3 className="text-lg font-semibold text-white mb-2">3D View Unavailable</h3>
+            <p className="text-sm text-slate-300 mb-4">
+              The 3D asset viewer could not be loaded. This may be due to browser compatibility
+              or graphics driver limitations.
+            </p>
+            {this.props.vehicleLabel && (
+              <p className="text-xs text-slate-400 mb-4">Asset: {this.props.vehicleLabel}</p>
+            )}
+            {import.meta.env.DEV && this.state.error && (
+              <details className="text-left mt-4">
+                <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-300">
+                  Error details (dev only)
+                </summary>
+                <pre className="text-xs text-red-400 mt-2 p-3 bg-slate-950 rounded overflow-auto max-h-40">
+                  {this.state.error.message}
+                  {'\n\n'}
+                  {this.state.error.stack}
+                </pre>
+              </details>
+            )}
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              className="mt-4 px-4 py-2 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
+
+// ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
@@ -547,83 +629,87 @@ export function Asset3DViewer({
     'topDown', 'lowAngle', 'wheelDetail'
   ];
 
+  const vehicleLabel = [year, make, model].filter(Boolean).join(' ') || undefined;
+
   return (
     <div className="relative w-full h-full bg-gradient-to-br from-slate-900 to-slate-800">
-      {/* 3D Canvas */}
-      <Canvas
-        shadows
-        dpr={dpr}
-        gl={{
-          antialias: qualityLevel !== 'low',
-          alpha: true,
-          powerPreference: qualityLevel === 'ultra' ? 'high-performance' : 'default',
-          stencil: false,
-          depth: true,
-        }}
-        onCreated={({ gl }) => {
-          gl.toneMapping = THREE.ACESFilmicToneMapping;
-          gl.toneMappingExposure = 1.2;
-        }}
-      >
-        <Suspense fallback={null}>
-          {/* Camera and Controls */}
-          <CameraController
-            preset={cameraPreset}
-            autoRotate={autoRotate}
-            enableControls={true}
-          />
-
-          {/* Lighting System */}
-          <ambientLight intensity={0.4} />
-          <directionalLight
-            position={[10, 10, 5]}
-            intensity={1.2}
-            castShadow
-            shadow-mapSize-width={qualityLevel === 'low' ? 1024 : 2048}
-            shadow-mapSize-height={qualityLevel === 'low' ? 1024 : 2048}
-            shadow-camera-far={50}
-            shadow-camera-left={-10}
-            shadow-camera-right={10}
-            shadow-camera-top={10}
-            shadow-camera-bottom={-10}
-          />
-          <directionalLight position={[-10, 5, -5]} intensity={0.5} />
-          <directionalLight position={[0, -5, 0]} intensity={0.2} />
-
-          {/* Fill lights for automotive look */}
-          <pointLight position={[5, 2, 0]} intensity={0.3} color="#fff5e0" />
-          <pointLight position={[-5, 2, 0]} intensity={0.3} color="#e0f0ff" />
-
-          {/* Environment */}
-          <Environment
-            preset="sunset"
-            background={false}
-          />
-
-          {/* Ground plane with reflection */}
-          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
-            <planeGeometry args={[50, 50]} />
-            <meshStandardMaterial
-              color="#1a1a2e"
-              metalness={0.8}
-              roughness={0.2}
-              envMapIntensity={0.5}
+      {/* 3D Canvas wrapped in error boundary for React 19 / R3F v8 compatibility */}
+      <R3FErrorBoundary vehicleLabel={vehicleLabel}>
+        <Canvas
+          shadows
+          dpr={dpr}
+          gl={{
+            antialias: qualityLevel !== 'low',
+            alpha: true,
+            powerPreference: qualityLevel === 'ultra' ? 'high-performance' : 'default',
+            stencil: false,
+            depth: true,
+          }}
+          onCreated={({ gl }) => {
+            gl.toneMapping = THREE.ACESFilmicToneMapping;
+            gl.toneMappingExposure = 1.2;
+          }}
+        >
+          <Suspense fallback={null}>
+            {/* Camera and Controls */}
+            <CameraController
+              preset={cameraPreset}
+              autoRotate={autoRotate}
+              enableControls={true}
             />
-          </mesh>
 
-          {/* Vehicle Model */}
-          <VehicleModel
-            url={resolvedModelUrl}
-            color={color}
-            damagePoints={damagePoints}
-            selectedDamageId={selectedDamageId}
-            onSelectDamage={onSelectDamage}
-            showDamage={showDamage}
-            onLoad={handleModelLoad}
-            onError={handleModelError}
-          />
-        </Suspense>
-      </Canvas>
+            {/* Lighting System */}
+            <ambientLight intensity={0.4} />
+            <directionalLight
+              position={[10, 10, 5]}
+              intensity={1.2}
+              castShadow
+              shadow-mapSize-width={qualityLevel === 'low' ? 1024 : 2048}
+              shadow-mapSize-height={qualityLevel === 'low' ? 1024 : 2048}
+              shadow-camera-far={50}
+              shadow-camera-left={-10}
+              shadow-camera-right={10}
+              shadow-camera-top={10}
+              shadow-camera-bottom={-10}
+            />
+            <directionalLight position={[-10, 5, -5]} intensity={0.5} />
+            <directionalLight position={[0, -5, 0]} intensity={0.2} />
+
+            {/* Fill lights for automotive look */}
+            <pointLight position={[5, 2, 0]} intensity={0.3} color="#fff5e0" />
+            <pointLight position={[-5, 2, 0]} intensity={0.3} color="#e0f0ff" />
+
+            {/* Environment */}
+            <Environment
+              preset="sunset"
+              background={false}
+            />
+
+            {/* Ground plane with reflection */}
+            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
+              <planeGeometry args={[50, 50]} />
+              <meshStandardMaterial
+                color="#1a1a2e"
+                metalness={0.8}
+                roughness={0.2}
+                envMapIntensity={0.5}
+              />
+            </mesh>
+
+            {/* Vehicle Model */}
+            <VehicleModel
+              url={resolvedModelUrl}
+              color={color}
+              damagePoints={damagePoints}
+              selectedDamageId={selectedDamageId}
+              onSelectDamage={onSelectDamage}
+              showDamage={showDamage}
+              onLoad={handleModelLoad}
+              onError={handleModelError}
+            />
+          </Suspense>
+        </Canvas>
+      </R3FErrorBoundary>
 
       {/* Loading Overlay */}
       {isLoading && (
@@ -641,7 +727,7 @@ export function Asset3DViewer({
           <div className="text-center text-white p-3">
             <div className="text-red-400 text-sm mb-3">⚠️</div>
             <p className="text-sm font-semibold mb-2">Failed to load 3D model</p>
-            <p className="text-sm text-slate-400">{loadError.message}</p>
+            <p className="text-sm text-slate-700">{loadError.message}</p>
           </div>
         </div>
       )}
@@ -674,7 +760,7 @@ export function Asset3DViewer({
           <span className={deviceCapabilities.webgl2 ? 'text-green-400' : 'text-yellow-400'}>●</span>
           <span>WebGL {deviceCapabilities.webgl2 ? '2.0' : '1.0'}</span>
           {deviceCapabilities.maxTextureSize && (
-            <span className="text-slate-400">| {deviceCapabilities.maxTextureSize}px max</span>
+            <span className="text-slate-700">| {deviceCapabilities.maxTextureSize}px max</span>
           )}
         </div>
       )}

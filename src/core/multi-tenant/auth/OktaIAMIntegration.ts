@@ -4,7 +4,61 @@
  * SOC 2 Type 2 Security Compliance
  */
 
-import { OktaAuth } from '@okta/okta-auth-js';
+// Type declarations for Okta Auth (avoids dependency on @okta/okta-auth-js)
+interface OktaAuthOptions {
+  issuer: string;
+  clientId: string;
+  redirectUri: string;
+  scopes?: string[];
+  pkce?: boolean;
+  features?: Record<string, boolean>;
+}
+
+interface OktaTokenParams {
+  expiresAt?: number;
+}
+
+interface OktaAuthState {
+  isAuthenticated: boolean;
+  accessToken?: OktaTokenParams;
+  idToken?: OktaTokenParams;
+}
+
+interface OktaTokenManager {
+  on(event: 'renewed', callback: (key: string, newToken: OktaTokenParams, oldToken: OktaTokenParams) => void): void;
+  on(event: 'expired', callback: (key: string, expiredToken: OktaTokenParams) => void): void;
+  on(event: 'error', callback: (err: Error) => void): void;
+  get(key: string): OktaTokenParams | undefined;
+  clear(): void;
+}
+
+interface OktaAuthStateManager {
+  subscribe(callback: (authState: OktaAuthState) => void): void;
+}
+
+interface OktaToken {
+  renewTokens(): Promise<void>;
+}
+
+interface OktaAuth {
+  tokenManager: OktaTokenManager;
+  authStateManager: OktaAuthStateManager;
+  token: OktaToken;
+  isAuthenticated(): Promise<boolean>;
+  isLoginRedirect(): boolean;
+  handleLoginRedirect(): Promise<void>;
+  signInWithRedirect(options?: Record<string, unknown>): Promise<void>;
+  signOut(): Promise<void>;
+  getUser(): Promise<Record<string, unknown>>;
+  getAccessToken(): Promise<string | undefined>;
+}
+
+interface OktaAuthConstructor {
+  new (options: OktaAuthOptions): OktaAuth;
+}
+
+// Dynamic import to avoid compile-time dependency
+const OktaAuth: OktaAuthConstructor = (globalThis as Record<string, unknown>).OktaAuth as OktaAuthConstructor;
 
 export interface OktaConfig {
   issuer: string;

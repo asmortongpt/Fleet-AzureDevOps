@@ -10,8 +10,9 @@
  * - Comprehensive error handling and logging
  */
 
-import { SecretClient } from '@azure/keyvault-secrets';
 import { DefaultAzureCredential, ClientSecretCredential } from '@azure/identity';
+import { SecretClient } from '@azure/keyvault-secrets';
+
 import logger from '../utils/logger';
 
 // Cache configuration

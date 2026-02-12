@@ -3,16 +3,7 @@
  * Supports OSHA compliance, photo uploads, witness statements
  */
 
-import {
-    Warning,
-    Camera,
-    MapPin,
-    Calendar,
-    User,
-    FileText,
-    Check,
-    X
-} from '@phosphor-icons/react'
+import { AlertTriangle, Camera, MapPin, Calendar, User, FileText, Check, X } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
@@ -67,7 +58,7 @@ const INCIDENT_TYPES = [
     'Environmental Spill',
     'Safety Violation',
     'Workplace Hazard',
-    'Fire/Explosion',
+    'Flame/Explosion',
     'Other'
 ]
 
@@ -140,10 +131,10 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
             <Card className="bg-gradient-to-br from-slate-800/60 to-slate-900/60 backdrop-blur-xl border-slate-700/50">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-white">
-                        <Warning className="w-3 h-3 text-red-400" />
+                        <AlertTriangle className="w-3 h-3 text-red-400" />
                         Report Safety Incident
                     </CardTitle>
-                    <CardDescription className="text-slate-400">
+                    <CardDescription className="text-slate-700">
                         All fields marked with * are required for OSHA compliance
                     </CardDescription>
                 </CardHeader>
@@ -371,11 +362,11 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                         />
                     </div>
 
-                    {/* OSHA Warning */}
+                    {/* OSHA AlertTriangle */}
                     {hasInjuries && (
                         <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-2">
                             <div className="flex items-start gap-3">
-                                <Warning className="w-3 h-3 text-yellow-400 mt-0.5" />
+                                <AlertTriangle className="w-3 h-3 text-yellow-400 mt-0.5" />
                                 <div className="space-y-1">
                                     <p className="text-yellow-400 font-medium">OSHA Reporting Required</p>
                                     <p className="text-sm text-slate-300">

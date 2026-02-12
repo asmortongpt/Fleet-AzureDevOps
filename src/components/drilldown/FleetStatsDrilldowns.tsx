@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { generateDemoVehicles, generateDemoFuelTransactions, generateDemoWorkOrders } from '@/lib/demo-data'
+import { useFleetData } from '@/hooks/use-fleet-data'
 
 // Reusable stat row component
 function StatRow({ label, value, trend, icon: Icon }: {
@@ -32,7 +32,7 @@ function StatRow({ label, value, trend, icon: Icon }: {
             </div>
             <div className="flex items-center gap-1">
                 <span className="font-semibold">{value}</span>
-                {trend === 'up' && <TrendingUp className="h-4 w-4 text-emerald-500" />}
+                {trend === 'up' && <TrendingUp className="h-4 w-4 text-emerald-600" />}
                 {trend === 'down' && <TrendingDown className="h-4 w-4 text-red-500" />}
             </div>
         </div>
@@ -42,7 +42,8 @@ function StatRow({ label, value, trend, icon: Icon }: {
 // Fleet Overview Drilldown - Shows all vehicles summary
 export function FleetOverviewDrilldown() {
     const { push } = useDrilldown()
-    const vehicles = generateDemoVehicles(100)
+    const { vehicles: rawVehicles } = useFleetData()
+    const vehicles = rawVehicles || []
 
     const byStatus = {
         active: vehicles.filter(v => v.status === 'active'),
@@ -66,15 +67,15 @@ export function FleetOverviewDrilldown() {
                 <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
                     <CardContent className="pt-2">
                         <div className="text-base font-bold text-blue-800">{vehicles.length}</div>
-                        <div className="text-sm text-blue-400">Total Fleet Size</div>
+                        <div className="text-sm text-blue-700">Total Fleet Size</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
                     <CardContent className="pt-2">
-                        <div className="text-base font-bold text-emerald-500">
+                        <div className="text-base font-bold text-emerald-600">
                             {Math.round((byStatus.active.length / vehicles.length) * 100)}%
                         </div>
-                        <div className="text-sm text-emerald-400">Utilization Rate</div>
+                        <div className="text-sm text-emerald-700">Utilization Rate</div>
                     </CardContent>
                 </Card>
             </div>
@@ -158,12 +159,13 @@ export function FleetOverviewDrilldown() {
 // Active Vehicles Drilldown
 export function ActiveVehiclesDrilldown() {
     const { push } = useDrilldown()
-    const vehicles = generateDemoVehicles(100).filter(v => v.status === 'active')
+    const { vehicles: rawVehicles } = useFleetData()
+    const vehicles = (rawVehicles || []).filter((v: any) => v.status === 'active')
 
     return (
         <div className="space-y-2">
             <div className="flex items-center justify-between">
-                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/20">
                     {vehicles.length} Active Vehicles
                 </Badge>
                 <span className="text-sm text-muted-foreground">Real-time status</span>
@@ -185,7 +187,7 @@ export function ActiveVehiclesDrilldown() {
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center">
-                                        <Truck className="h-5 w-5 text-emerald-400" />
+                                        <Truck className="h-5 w-5 text-emerald-700" />
                                     </div>
                                     <div>
                                         <div className="font-semibold">{vehicle.number}</div>
@@ -222,7 +224,8 @@ export function ActiveVehiclesDrilldown() {
 // Maintenance Drilldown
 export function MaintenanceDrilldown() {
     const { push } = useDrilldown()
-    const workOrders = generateDemoWorkOrders(75)
+    const { workOrders: rawWorkOrders } = useFleetData()
+    const workOrders = rawWorkOrders || []
 
     const byStatus = {
         overdue: workOrders.filter(w => w.dueDate && new Date(w.dueDate) < new Date() && w.status !== 'completed' && w.status !== 'cancelled'),
@@ -278,7 +281,7 @@ export function MaintenanceDrilldown() {
                 <Card className="border-emerald-500/30 bg-emerald-500/10">
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
-                            <CheckCircle className="h-5 w-5 text-emerald-500" />
+                            <CheckCircle className="h-5 w-5 text-emerald-600" />
                             <div>
                                 <div className="text-sm font-bold text-emerald-700">{byStatus.completed.length}</div>
                                 <div className="text-xs text-emerald-600">Completed</div>
@@ -335,7 +338,8 @@ export function MaintenanceDrilldown() {
 // Fuel Management Drilldown
 export function FuelManagementDrilldown() {
     const { push } = useDrilldown()
-    const transactions = generateDemoFuelTransactions(150)
+    const { fuelTransactions: rawTransactions } = useFleetData()
+    const transactions = rawTransactions || []
 
     const totalCost = transactions.reduce((sum, t) => sum + (t.cost ?? 0), 0)
     const totalGallons = transactions.reduce((sum, t) => sum + t.gallons, 0)
@@ -358,7 +362,7 @@ export function FuelManagementDrilldown() {
                             <Fuel className="h-5 w-5 text-blue-800" />
                             <div>
                                 <div className="text-sm font-bold text-blue-800">{transactions.length}</div>
-                                <div className="text-xs text-blue-400">Total Transactions</div>
+                                <div className="text-xs text-blue-700">Total Transactions</div>
                             </div>
                         </div>
                     </CardContent>
@@ -366,10 +370,10 @@ export function FuelManagementDrilldown() {
                 <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
-                            <Fuel className="h-5 w-5 text-emerald-500" />
+                            <Fuel className="h-5 w-5 text-emerald-600" />
                             <div>
-                                <div className="text-sm font-bold text-emerald-500">${totalCost.toFixed(2)}</div>
-                                <div className="text-xs text-emerald-400">Total Cost</div>
+                                <div className="text-sm font-bold text-emerald-600">${totalCost.toFixed(2)}</div>
+                                <div className="text-xs text-emerald-700">Total Cost</div>
                             </div>
                         </div>
                     </CardContent>
@@ -513,9 +517,10 @@ export function SafetyScoreDrilldown() {
 
 export function VehicleListDrilldown() {
     const { currentLevel, push } = useDrilldown()
+    const { vehicles: apiVehicles } = useFleetData()
 
-    // Get vehicles from drilldown data or generate demo vehicles
-    const vehicles = currentLevel?.data?.vehicles || generateDemoVehicles(100)
+    // Get vehicles from drilldown data or API
+    const vehicles = currentLevel?.data?.vehicles || apiVehicles || []
     const filter = currentLevel?.data?.filter || currentLevel?.data?.status
 
     // Apply filter if provided
@@ -633,7 +638,7 @@ export function VehicleListDrilldown() {
                 <Card>
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
-                            <CheckCircle className="h-4 w-4 text-emerald-500" />
+                            <CheckCircle className="h-4 w-4 text-emerald-600" />
                             <div>
                                 <div className="text-sm font-bold text-emerald-600">
                                     {filteredVehicles.filter((v: any) => v.status === 'active').length}
@@ -695,7 +700,7 @@ export function VehicleListDrilldown() {
                                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-100 dark:bg-amber-900/30' :
                                                 'bg-slate-100 dark:bg-slate-800'
                                             }`}>
-                                            <Truck className={`h-5 w-5 ${vehicle.status === 'active' ? 'text-emerald-600 dark:text-emerald-400' :
+                                            <Truck className={`h-5 w-5 ${vehicle.status === 'active' ? 'text-emerald-600 dark:text-emerald-700' :
                                                 vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-600 dark:text-amber-400' :
                                                     'text-slate-500'
                                                 }`} />

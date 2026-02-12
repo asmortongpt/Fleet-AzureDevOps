@@ -74,11 +74,15 @@ export enum PoolType {
  * Connection pool configuration
  */
 interface PoolConfiguration {
-  host: string
-  port: number
-  database: string
-  user: string
-  password: string
+  // Prefer a single DATABASE_URL when provided (common in PaaS/K8s/12-factor deployments).
+  // If present, we rely on the connection string for host/user/db and only override pool/ssl settings.
+  connectionString?: string
+
+  host?: string
+  port?: number
+  database?: string
+  user?: string
+  password?: string
   max: number
   idleTimeoutMillis: number
   connectionTimeoutMillis: number
@@ -144,21 +148,39 @@ export class ConnectionManager {
    * Setup configurations for different pool types
    */
   private setupConfigurations(): void {
-    const baseConfig = {
-      host: process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'fleet-postgres-service' : 'localhost'),
-      port: parseInt(process.env.DB_PORT || '5432'),
-      database: process.env.DB_NAME || 'fleetdb',
-      ssl: getDatabaseSSLConfig(),
-      // TCP keepalive to prevent idle connection timeouts in AKS/Azure Load Balancer
-      keepAlive: true,
-      keepAliveInitialDelayMillis: 10000
-    }
+    const databaseUrl = process.env.DATABASE_URL
+
+    // NOTE: Many parts of this codebase run under different server entrypoints:
+    // - "server-simple" (drizzle) relies on DATABASE_URL
+    // - the legacy pool manager relied on DB_HOST/DB_NAME/etc.
+    // If we don't honor DATABASE_URL, authentication can succeed in one layer while /auth/me fails in another,
+    // creating an SSO login loop.
+    const baseConfig = databaseUrl
+      ? {
+          connectionString: databaseUrl,
+          ssl: getDatabaseSSLConfig(),
+          keepAlive: true,
+          keepAliveInitialDelayMillis: 10000
+        }
+      : {
+          host: process.env.DB_HOST || (process.env.NODE_ENV === 'production' ? 'fleet-postgres-service' : 'localhost'),
+          port: parseInt(process.env.DB_PORT || '5432'),
+          database: process.env.DB_NAME || 'fleetdb',
+          ssl: getDatabaseSSLConfig(),
+          // TCP keepalive to prevent idle connection timeouts in AKS/Azure Load Balancer
+          keepAlive: true,
+          keepAliveInitialDelayMillis: 10000
+        }
 
     // Admin pool configuration (for migrations and schema changes)
     this.poolConfigs.set(PoolType.ADMIN, {
       ...baseConfig,
-      user: process.env.DB_ADMIN_USER || process.env.DB_USER || 'fleetadmin',
-      password: process.env.DB_ADMIN_PASSWORD || process.env.DB_PASSWORD || '',
+      ...(databaseUrl
+        ? {}
+        : {
+            user: process.env.DB_ADMIN_USER || process.env.DB_USER || 'fleetadmin',
+            password: process.env.DB_ADMIN_PASSWORD || process.env.DB_PASSWORD || ''
+          }),
       max: parseInt(process.env.DB_ADMIN_POOL_SIZE || '5'),
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 10000
@@ -171,9 +193,13 @@ export class ConnectionManager {
     // - connectionTimeout: 2s (fast fail for overloaded scenarios)
     this.poolConfigs.set(PoolType.WEBAPP, {
       ...baseConfig,
-      user: process.env.DB_WEBAPP_USER || process.env.DB_USER || 'fleetadmin',
-      password: process.env.DB_WEBAPP_PASSWORD || process.env.DB_PASSWORD || '',
-      max: parseInt(process.env.DB_WEBAPP_POOL_SIZE || '10'),
+      ...(databaseUrl
+        ? {}
+        : {
+            user: process.env.DB_WEBAPP_USER || process.env.DB_USER || 'fleetadmin',
+            password: process.env.DB_WEBAPP_PASSWORD || process.env.DB_PASSWORD || ''
+          }),
+      max: parseInt(process.env.DB_WEBAPP_POOL_SIZE || '20'),
       idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS || '30000'),
       connectionTimeoutMillis: parseInt(process.env.DB_CONNECTION_TIMEOUT_MS || '2000')
     })
@@ -185,8 +211,12 @@ export class ConnectionManager {
     // - connectionTimeout: 5s (analytics can tolerate slightly higher latency)
     this.poolConfigs.set(PoolType.READONLY, {
       ...baseConfig,
-      user: process.env.DB_READONLY_USER || process.env.DB_USER || 'fleetadmin',
-      password: process.env.DB_READONLY_PASSWORD || process.env.DB_PASSWORD || '',
+      ...(databaseUrl
+        ? {}
+        : {
+            user: process.env.DB_READONLY_USER || process.env.DB_USER || 'fleetadmin',
+            password: process.env.DB_READONLY_PASSWORD || process.env.DB_PASSWORD || ''
+          }),
       max: parseInt(process.env.DB_READONLY_POOL_SIZE || '10'),
       idleTimeoutMillis: parseInt(process.env.DB_READONLY_IDLE_TIMEOUT_MS || '60000'),
       connectionTimeoutMillis: parseInt(process.env.DB_READONLY_CONNECTION_TIMEOUT_MS || '5000')
@@ -198,17 +228,25 @@ export class ConnectionManager {
     // - idleTimeout: 30s (balance between connection reuse and resource conservation)
     // - connectionTimeout: 3s (fast fail for read queries)
     // - Connects to read replica host if configured, otherwise uses main DB
-    const readReplicaHost = process.env.DB_READ_REPLICA_HOST || baseConfig.host
-    if (readReplicaHost !== baseConfig.host) {
+    // Read replicas require host-based configuration. When DATABASE_URL is used, callers should
+    // provide a separate DATABASE_URL for the replica and run a distinct ConnectionManager.
+    if (!databaseUrl) {
+      const readReplicaHost = process.env.DB_READ_REPLICA_HOST || baseConfig.host
+      if (readReplicaHost !== baseConfig.host) {
       this.poolConfigs.set(PoolType.READ_REPLICA, {
         ...baseConfig,
         host: readReplicaHost,
-        user: process.env.DB_READONLY_USER || process.env.DB_USER || 'fleetadmin',
-        password: process.env.DB_READONLY_PASSWORD || process.env.DB_PASSWORD || '',
+        ...(databaseUrl
+          ? {}
+          : {
+              user: process.env.DB_READONLY_USER || process.env.DB_USER || 'fleetadmin',
+              password: process.env.DB_READONLY_PASSWORD || process.env.DB_PASSWORD || ''
+            }),
         max: parseInt(process.env.DB_READ_REPLICA_POOL_SIZE || '50'),
         idleTimeoutMillis: parseInt(process.env.DB_READ_REPLICA_IDLE_TIMEOUT_MS || '30000'),
         connectionTimeoutMillis: parseInt(process.env.DB_READ_REPLICA_CONNECTION_TIMEOUT_MS || '3000')
       })
+    }
     }
   }
 

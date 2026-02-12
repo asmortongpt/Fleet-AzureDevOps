@@ -2,7 +2,7 @@ import {
   Car,
   MapPin,
   Circle,
-  Zap as Lightning,
+  Zap as Zap,
   Wrench,
   BatteryMedium as Battery,
   AlertTriangle
@@ -11,7 +11,7 @@ import React, { useMemo } from 'react'
 
 import { MaintenanceRequestDialog } from '../modules/maintenance/MaintenanceRequestDialog'
 import { Badge } from '../ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
+import { Section } from '../ui/section'
 
 import { UnifiedFleetMap } from './UnifiedFleetMap'
 
@@ -87,7 +87,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
     }
 
     vehicles.forEach(vehicle => {
-      if (metrics.hasOwnProperty(vehicle.status)) {
+      if (Object.prototype.hasOwnProperty.call(metrics, vehicle.status)) {
         metrics[vehicle.status as keyof typeof metrics]++
       }
     })
@@ -113,7 +113,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
       bgColor: 'bg-gray-50'
     },
     {
-      icon: <Lightning className="w-4 h-4" />,
+      icon: <Zap className="w-4 h-4" />,
       label: 'Charging',
       count: statusMetrics.charging,
       color: 'bg-blue-500',
@@ -176,7 +176,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {showLegend && activeLegendItems.length > 0 && (
           <div className="absolute bottom-4 left-4 z-10">
             <div className="shadow-sm bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3">
-              <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wide mb-2">
+              <div className="text-[10px] font-semibold text-slate-700 uppercase tracking-wide mb-2">
                 Vehicle Status
               </div>
               <div className="space-y-1.5">
@@ -191,7 +191,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
                         {item.label}
                       </span>
                     </div>
-                    <Badge variant="outline" className="h-4 px-1.5 text-[10px] bg-slate-800 border-slate-700 text-slate-400">
+                    <Badge variant="outline" className="h-4 px-1.5 text-[10px] bg-slate-800 border-slate-700 text-slate-700">
                       {item.count}
                     </Badge>
                   </div>
@@ -205,7 +205,7 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
         {showLegend && facilities.length > 0 && (
           <div className="absolute bottom-4 right-4 z-10">
             <div className="shadow-sm bg-slate-900/90 backdrop-blur-md border border-white/10 rounded-lg p-3 flex items-center gap-2">
-              <MapPin className="w-3 h-3 text-emerald-500" />
+              <MapPin className="w-3 h-3 text-emerald-600" />
               <span className="text-xs font-medium text-slate-300">
                 {facilities.length} Locations
               </span>
@@ -217,104 +217,86 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
   }
 
   return (
-    <Card className="w-full" data-testid="fleet-map">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-sm">
-            <MapPin className="w-3 h-3 text-primary" />
-            Live Fleet Map
-            {enableRealTime && (
-              <Badge variant="outline" className="ml-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse" />
-                Real-time
-              </Badge>
-            )}
-          </CardTitle>
-          <div className="text-sm text-muted-foreground">
-            {vehicles.length} {vehicles.length === 1 ? 'vehicle' : 'vehicles'} tracked
-          </div>
+    <Section
+      title="Live Fleet Map"
+      description={`${vehicles.length} ${vehicles.length === 1 ? 'vehicle' : 'vehicles'} tracked`}
+      icon={<MapPin className="h-4 w-4 text-primary" />}
+      actions={
+        enableRealTime ? (
+          <Badge variant="outline" className="ml-2">
+            <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse" />
+            Real-time
+          </Badge>
+        ) : null
+      }
+      className="w-full"
+      contentClassName="p-0"
+    >
+      <div className="relative" data-testid="fleet-map">
+        {/* Map Container */}
+        <div style={{ height }} className="w-full">
+          <UnifiedFleetMap
+            vehicles={vehicles}
+            facilities={facilities}
+            enableRealTime={enableRealTime}
+            onVehicleSelect={onVehicleSelect}
+            height={height}
+            forceSimulatedView={forceSimulatedView}
+            onVehicleAction={handleVehicleAction}
+          />
+
+          {/* Maintenance Request Dialog */}
+          <MaintenanceRequestDialog
+            open={maintenanceDialogOpen}
+            onOpenChange={setMaintenanceDialogOpen}
+            defaultVehicleId={selectedVehicleId}
+            data={fleetData}
+          />
         </div>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="relative">
-          {/* Map Container */}
-          <div style={{ height }} className="w-full">
-            <UnifiedFleetMap
-              vehicles={vehicles}
-              facilities={facilities}
-              enableRealTime={enableRealTime}
-              onVehicleSelect={onVehicleSelect}
-              height={height}
-              forceSimulatedView={forceSimulatedView}
-              onVehicleAction={handleVehicleAction}
-            />
 
-            {/* Maintenance Request Dialog */}
-            <MaintenanceRequestDialog
-              open={maintenanceDialogOpen}
-              onOpenChange={setMaintenanceDialogOpen}
-              defaultVehicleId={selectedVehicleId}
-              data={fleetData}
-            />
-          </div>
-
-          {/* Map Legend */}
-          {showLegend && activeLegendItems.length > 0 && (
-            <div className="absolute bottom-4 left-4 z-10">
-              <Card className="shadow-sm bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90">
-                <CardHeader className="pb-2 pt-3 px-3">
-                  <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Vehicle Status
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="px-3 pb-3 pt-0">
-                  <div className="space-y-1.5">
-                    {activeLegendItems.map((item, index) => (
-                      <div
-                        key={index}
-                        className={`flex items-center justify-between gap-3 px-2 py-1.5 rounded-md ${item.bgColor} transition-colors hover:opacity-80`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className={`w-3 h-3 rounded-full ${item.color} flex items-center justify-center`}>
-                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                          </div>
-                          <span className={`text-sm font-medium ${item.textColor}`}>
-                            {item.label}
-                          </span>
-                        </div>
-                        <Badge variant="secondary" className="h-5 px-2 text-xs font-semibold">
-                          {item.count}
-                        </Badge>
+        {/* Map Legend */}
+        {showLegend && activeLegendItems.length > 0 && (
+          <div className="absolute bottom-4 left-4 z-10">
+            <div className="shadow-sm bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90 rounded-lg border border-border p-3">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+                Vehicle Status
+              </div>
+              <div className="space-y-1.5">
+                {activeLegendItems.map((item, index) => (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-between gap-3 px-2 py-1.5 rounded-md ${item.bgColor} transition-colors hover:opacity-80`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className={`w-3 h-3 rounded-full ${item.color} flex items-center justify-center`}>
+                        <div className="w-1.5 h-1.5 rounded-full bg-white" />
                       </div>
-                    ))}
+                      <span className={`text-sm font-medium ${item.textColor}`}>
+                        {item.label}
+                      </span>
+                    </div>
+                    <Badge variant="secondary" className="h-5 px-2 text-xs font-semibold">
+                      {item.count}
+                    </Badge>
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+              </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* Facilities Legend (if facilities present) */}
-          {showLegend && facilities.length > 0 && (
-            <div className="absolute bottom-4 right-4 z-10">
-              <Card className="shadow-sm bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90">
-                <CardHeader className="pb-2 pt-3 px-3">
-                  <CardTitle className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    Facilities
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="px-3 pb-3 pt-0">
-                  <div className="flex items-center gap-2 px-2 py-1.5">
-                    <MapPin className="w-4 h-4 text-green-600" />
-                    <span className="text-sm font-medium text-green-700">
-                      {facilities.length} {facilities.length === 1 ? 'location' : 'locations'}
-                    </span>
-                  </div>
-                </CardContent>
-              </Card>
+        {/* Facilities Legend (if facilities present) */}
+        {showLegend && facilities.length > 0 && (
+          <div className="absolute bottom-4 right-4 z-10">
+            <div className="shadow-sm bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90 rounded-lg border border-border px-3 py-2 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-green-600" />
+              <span className="text-sm font-medium text-green-700">
+                {facilities.length} {facilities.length === 1 ? 'location' : 'locations'}
+              </span>
             </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+          </div>
+        )}
+      </div>
+    </Section>
   )
 }

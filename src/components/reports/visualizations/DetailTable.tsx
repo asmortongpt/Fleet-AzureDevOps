@@ -130,7 +130,7 @@ export function DetailTable({
   // Get sort icon
   const getSortIcon = (field: string) => {
     if (sortField !== field) {
-      return <ChevronsUpDown className="h-4 w-4 text-gray-400" />;
+      return <ChevronsUpDown className="h-4 w-4 text-gray-700" />;
     }
     return sortDirection === 'asc' ? (
       <ChevronUp className="h-4 w-4 text-indigo-600" />

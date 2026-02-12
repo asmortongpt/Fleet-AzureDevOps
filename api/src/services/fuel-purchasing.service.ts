@@ -2,7 +2,7 @@
  * Fuel Purchasing Service
  *
  * Manages fuel pricing, station data, purchase orders, and contracts
- * Integrates with external price APIs (or uses realistic mock data)
+ * Integrates with external price APIs and/or persisted station pricing tables.
  */
 
 import { Pool } from 'pg'
@@ -136,16 +136,10 @@ export class FuelPurchasingService {
         })
       }
 
-      // If no stations found, generate mock data
-      if (stations.length === 0) {
-        return this.generateMockStations(lat, lng, radiusMiles)
-      }
-
       return stations
     } catch (error) {
       console.error('Error getting nearby stations:', error)
-      // Return mock data on error
-      return this.generateMockStations(lat, lng, radiusMiles)
+      throw error
     }
   }
 
@@ -517,58 +511,6 @@ return null
     }
   }
 
-  /**
-   * Generate mock fuel stations for demonstration
-   */
-  private generateMockStations(lat: number, lng: number, radiusMiles: number): FuelStation[] {
-    const brands = ['Shell', 'BP', 'Chevron', 'Exxon', 'Mobil', '76', 'Arco', 'Valero']
-    const cities = ['Downtown', 'Midtown', 'Westside', 'Eastside', 'Northpoint', 'Southbay']
-    const states = ['CA', 'TX', 'FL', 'NY', 'IL']
-
-    const stations: FuelStation[] = []
-    const numStations = 12
-
-    for (let i = 0; i < numStations; i++) {
-      const angle = (i / numStations) * 2 * Math.PI
-      const distance = Math.random() * radiusMiles
-      const stationLat = lat + (distance * Math.cos(angle)) / 69
-      const stationLng = lng + (distance * Math.sin(angle)) / 54.6
-
-      const brand = brands[Math.floor(Math.random() * brands.length)]
-      const city = cities[Math.floor(Math.random() * cities.length)]
-      const state = states[Math.floor(Math.random() * states.length)]
-
-      // Generate realistic prices
-      const baseRegular = 3.45 + (Math.random() - 0.5) * 0.4
-      const basePremium = baseRegular + 0.50
-      const baseDiesel = baseRegular + 0.30
-
-      stations.push({
-        id: `mock-station-${i}`,
-        stationName: `${brand} ${city}`,
-        brand,
-        address: `${1000 + i * 100} Main St`,
-        city,
-        state,
-        lat: stationLat,
-        lng: stationLng,
-        fuelTypes: [`regular`, `premium`, 'diesel'],
-        acceptsFleetCards: Math.random() > 0.3,
-        fleetCardBrands: ['WEX', 'Fuelman'],
-        has24HourAccess: Math.random() > 0.5,
-        hasTruckAccess: Math.random() > 0.4,
-        rating: 3.5 + Math.random() * 1.5,
-        distance,
-        currentPrices: {
-          regular: Math.round(baseRegular * 1000) / 1000,
-          premium: Math.round(basePremium * 1000) / 1000,
-          diesel: Math.round(baseDiesel * 1000) / 1000
-        }
-      })
-    }
-
-    return stations.sort((a, b) => (a.distance || 0) - (b.distance || 0))
-  }
 }
 
 // Export singleton instance

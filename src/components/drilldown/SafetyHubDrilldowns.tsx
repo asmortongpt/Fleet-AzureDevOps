@@ -2,13 +2,7 @@
  * SafetyHubDrilldowns - List/Detail views for Safety Hub drill-down navigation
  */
 
-import {
-  Warning,
-  ShieldCheck,
-  Calendar,
-  CheckCircle,
-  XCircle
-} from '@phosphor-icons/react'
+import { AlertTriangle, ShieldCheck, Calendar, CheckCircle, XCircle } from 'lucide-react'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
@@ -16,9 +10,10 @@ import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/Dril
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
-
-// ============ DEMO DATA ============
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 interface IncidentData {
   id: string
@@ -35,77 +30,13 @@ interface IncidentData {
   workDaysLost: number
 }
 
-const demoIncidents: IncidentData[] = [
-  {
-    id: "inc-001",
-    type: "Vehicle Collision",
-    severity: "critical",
-    status: "investigating",
-    date: "2025-12-15",
-    location: "1500 S Adams St, Tallahassee, FL",
-    vehicleId: "veh-demo-1001",
-    vehicleName: "Ford F-150 #1001",
-    driverId: "drv-001",
-    driverName: "John Smith",
-    oshaRecordable: true,
-    workDaysLost: 5
-  },
-  {
-    id: "inc-002",
-    type: "Slip and Fall",
-    severity: "medium",
-    status: "resolved",
-    date: "2025-12-10",
-    location: "North Service Center, Tallahassee, FL",
-    vehicleId: "veh-demo-1002",
-    vehicleName: "Chevrolet Silverado #1002",
-    oshaRecordable: true,
-    workDaysLost: 2
-  },
-  {
-    id: "inc-003",
-    type: "Near Miss",
-    severity: "low",
-    status: "closed",
-    date: "2025-12-08",
-    location: "South Warehouse, Tallahassee, FL",
-    oshaRecordable: false,
-    workDaysLost: 0
-  },
-  {
-    id: "inc-004",
-    type: "Equipment Malfunction",
-    severity: "high",
-    status: "open",
-    date: "2025-12-14",
-    location: "East Depot, Tallahassee, FL",
-    vehicleId: "veh-demo-1015",
-    vehicleName: "Mercedes Sprinter #1015",
-    oshaRecordable: false,
-    workDaysLost: 0
-  },
-  {
-    id: "inc-005",
-    type: "Chemical Exposure",
-    severity: "medium",
-    status: "investigating",
-    date: "2025-12-12",
-    location: "West Facility, Tallahassee, FL",
-    oshaRecordable: true,
-    workDaysLost: 1
-  }
-]
-
 // ============ INCIDENT LIST VIEW ============
 
 export function IncidentListView({ filter }: { filter?: string }) {
   const { data: incidents } = useSWR<IncidentData[]>(
     filter ? `/api/incidents?filter=${filter}` : '/api/incidents',
     fetcher,
-    {
-      fallbackData: demoIncidents,
-      shouldRetryOnError: false
-    }
+    { shouldRetryOnError: false }
   )
 
   const filteredIncidents = useMemo(() => {
@@ -201,7 +132,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-red-400">
               {filteredIncidents.filter(i => i.status === 'open' || i.status === 'investigating').length}
             </div>
-            <div className="text-xs text-slate-400">Open/Investigating</div>
+            <div className="text-xs text-slate-700">Open/Investigating</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -209,15 +140,15 @@ export function IncidentListView({ filter }: { filter?: string }) {
             <div className="text-sm font-bold text-amber-400">
               {filteredIncidents.filter(i => i.oshaRecordable).length}
             </div>
-            <div className="text-xs text-slate-400">OSHA Recordable</div>
+            <div className="text-xs text-slate-700">OSHA Recordable</div>
           </CardContent>
         </Card>
         <Card className="bg-emerald-900/30 border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-emerald-400">
+            <div className="text-sm font-bold text-emerald-700">
               {filteredIncidents.reduce((sum, i) => sum + i.workDaysLost, 0)}
             </div>
-            <div className="text-xs text-slate-400">Total Days Lost</div>
+            <div className="text-xs text-slate-700">Total Days Lost</div>
           </CardContent>
         </Card>
       </div>
@@ -226,7 +157,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
       <Card className="bg-slate-800/50 border-slate-700">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Warning className="w-3 h-3 text-amber-400" />
+            <AlertTriangle className="w-3 h-3 text-amber-400" />
             {filter ? `Filtered Incidents (${filteredIncidents.length})` : `All Incidents (${filteredIncidents.length})`}
           </CardTitle>
         </CardHeader>
@@ -254,7 +185,6 @@ export function LostTimeIncidentsView() {
     '/api/incidents?filter=lost-time',
     fetcher,
     {
-      fallbackData: demoIncidents.filter(i => i.workDaysLost > 0),
       shouldRetryOnError: false
     }
   )
@@ -316,9 +246,9 @@ export function LostTimeIncidentsView() {
       {/* Summary */}
       <Card className="bg-red-900/30 border-red-700/50">
         <CardContent className="p-3 text-center">
-          <Warning className="w-10 h-8 text-red-400 mx-auto mb-2" />
+          <AlertTriangle className="w-10 h-8 text-red-400 mx-auto mb-2" />
           <div className="text-sm font-bold text-white">{totalDaysLost}</div>
-          <div className="text-sm text-slate-400">Total Work Days Lost</div>
+          <div className="text-sm text-slate-700">Total Work Days Lost</div>
           <div className="text-xs text-slate-500 mt-1">
             from {incidents?.length || 0} incidents
           </div>
@@ -358,10 +288,10 @@ export function OSHAComplianceView() {
       {/* Overall Score */}
       <Card className="bg-emerald-900/30 border-emerald-700/50">
         <CardContent className="p-3 text-center">
-          <ShieldCheck className="w-10 h-8 text-emerald-400 mx-auto mb-2" />
+          <ShieldCheck className="w-10 h-8 text-emerald-700 mx-auto mb-2" />
           <div className="text-sm font-bold text-white">87%</div>
-          <div className="text-sm text-slate-400">OSHA Compliance Score</div>
-          <div className="text-xs text-emerald-400 mt-1">+3% from last month</div>
+          <div className="text-sm text-slate-700">OSHA Compliance Score</div>
+          <div className="text-xs text-emerald-700 mt-1">+3% from last month</div>
         </CardContent>
       </Card>
 
@@ -409,7 +339,7 @@ export function OSHAComplianceView() {
             <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.action}</div>
-                <div className="text-xs text-slate-400">{new Date(item.date).toLocaleDateString()}</div>
+                <div className="text-xs text-slate-700">{new Date(item.date).toLocaleDateString()}</div>
               </div>
               <Badge variant={item.status === 'completed' ? 'outline' : 'default'}>
                 {item.status}
@@ -434,17 +364,17 @@ export function DaysIncidentFreeView() {
       {/* Current Streak */}
       <Card className="bg-gradient-to-br from-emerald-900/30 to-emerald-800/20 border-emerald-700/50">
         <CardContent className="p-3 text-center">
-          <ShieldCheck className="w-12 h-9 text-emerald-400 mx-auto mb-2" />
+          <ShieldCheck className="w-12 h-9 text-emerald-700 mx-auto mb-2" />
           <div className="text-6xl font-bold text-white mb-2">{currentStreak}</div>
           <div className="text-sm text-slate-300 mb-2">Days Without Incident</div>
           <div className="flex justify-center gap-2 text-sm">
             <div>
-              <div className="text-slate-400">Target</div>
+              <div className="text-slate-700">Target</div>
               <div className="text-base font-bold text-white">{target}</div>
             </div>
             <div>
-              <div className="text-slate-400">Record</div>
-              <div className="text-base font-bold text-emerald-400">{longestStreak}</div>
+              <div className="text-slate-700">Record</div>
+              <div className="text-base font-bold text-emerald-700">{longestStreak}</div>
             </div>
           </div>
           {/* Progress Bar */}
@@ -454,7 +384,7 @@ export function DaysIncidentFreeView() {
               style={{ width: `${Math.min((currentStreak / target) * 100, 100)}%` }}
             />
           </div>
-          <div className="text-xs text-slate-400 mt-2">
+          <div className="text-xs text-slate-700 mt-2">
             {Math.round((currentStreak / target) * 100)}% to target
           </div>
         </CardContent>
@@ -475,7 +405,7 @@ export function DaysIncidentFreeView() {
             <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.period}</div>
-                <div className="text-xs text-slate-400">{item.days} days</div>
+                <div className="text-xs text-slate-700">{item.days} days</div>
               </div>
               {item.status === 'longest' && (
                 <Badge variant="default" className="bg-emerald-600">

@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { useCallback, useMemo } from 'react';
-import { sanitizeInput } from '../utils/security';
+import { sanitizeInput } from '../lib/security/sanitize';
 
 // ============================================================================
 // Validation Schemas

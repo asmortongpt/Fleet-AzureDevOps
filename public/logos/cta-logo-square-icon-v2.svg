@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skylineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ff4200;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#fdbf16;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00ccfe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" fill="#1a0548" rx="60" />
+  
+  <!-- Modern geometric CTA -->
+  <g transform="translate(100, 150)">
+    <!-- C -->
+    <path d="M 0,80 Q 0,0 80,0 L 80,40 Q 40,40 40,80 Q 40,120 80,120 L 80,160 Q 0,160 0,80" fill="#ffffff"/>
+    
+    <!-- T -->
+    <rect x="120" y="0" width="40" height="160" fill="#ffffff"/>
+    <rect x="100" y="0" width="80" height="40" fill="#ffffff"/>
+    
+    <!-- A -->
+    <path d="M 220,160 L 260,0 L 300,0 L 340,160 L 300,160 L 295,130 L 265,130 L 260,160 Z M 270,90 L 290,90 L 280,40 Z" fill="#ffffff"/>
+  </g>
+  
+  <!-- Gradient Bar -->
+  <rect x="100" y="370" width="312" height="12" fill="url(#skylineGradient)" rx="6" />
+</svg>

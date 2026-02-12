@@ -126,7 +126,7 @@ export function FolderManager({
                 onChange={(e) => setFolderName(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    editingFolder ? handleUpdate() : handleCreate();
+                    void (editingFolder ? handleUpdate() : handleCreate());
                   }
                 }}
               />

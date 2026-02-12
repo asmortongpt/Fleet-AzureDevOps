@@ -4,7 +4,7 @@
  */
 import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
 
-import axios from '@/lib/api'
+import { apiClient as axios } from "@/lib/api-client"
 
 export interface CrudResourceOptions<T> {
   resourceName: string // e.g., 'drivers', 'vehicles'

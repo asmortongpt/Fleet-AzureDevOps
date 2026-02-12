@@ -7,19 +7,21 @@
  * - GET /api/auth/revoke/status - Get blacklist statistics (admin only)
  *
  * Features:
- * - In-memory JWT blacklist with automatic TTL cleanup
+ * - Database-backed JWT blacklist (revoked_tokens table) with automatic TTL cleanup
  * - Self-revocation: Users can revoke their own sessions
  * - Admin revocation: Admins can revoke any user's session
  * - Comprehensive audit logging for all revocations
  * - Token validation to prevent arbitrary revocations
  *
  * Implementation Notes:
- * - Uses in-memory Map for token blacklist (TODO: migrate to Redis for production)
+ * - Uses PostgreSQL revoked_tokens table (CREATE TABLE IF NOT EXISTS on startup)
+ * - Tokens are stored as SHA-256 hashes (never plaintext)
  * - Cleanup interval runs every 5 minutes to remove expired tokens
  * - Tokens are stored with their JWT expiry timestamp
  * - checkRevoked middleware should be added to protected routes
  */
 
+import crypto from 'crypto'
 import express, { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
@@ -38,25 +40,48 @@ setImmediate(() => {
 })
 
 // ============================================================================
-// JWT Blacklist Infrastructure
+// JWT Blacklist Infrastructure (Database-backed)
 // ============================================================================
-// In-memory blacklist for revoked tokens
-// Maps token -> expiry timestamp
-// TODO: Upgrade to Redis for production multi-instance deployments
-const revokedTokens = new Map<string, number>()
+
+// Ensure the revoked_tokens table exists on startup
+// noinspection ES6MissingAwait - Intentional fire-and-forget initialization
+void pool.query(`
+  CREATE TABLE IF NOT EXISTS revoked_tokens (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    token_hash VARCHAR(128) NOT NULL UNIQUE,
+    expires_at TIMESTAMPTZ NOT NULL,
+    revoked_by UUID,
+    revoked_at TIMESTAMPTZ DEFAULT NOW(),
+    reason TEXT
+  )
+`).then(() => {
+  // Create index for fast lookups and cleanup
+  return pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_revoked_tokens_hash ON revoked_tokens(token_hash);
+    CREATE INDEX IF NOT EXISTS idx_revoked_tokens_expires ON revoked_tokens(expires_at);
+  `)
+}).then(() => {
+  console.log('[JWT_BLACKLIST] revoked_tokens table initialized')
+}).catch((err) => {
+  console.error('[JWT_BLACKLIST] Failed to initialize revoked_tokens table:', err)
+})
+
+// Helper: hash a token for storage (never store plaintext tokens)
+function hashToken(token: string): string {
+  return crypto.createHash('sha256').update(token).digest('hex')
+}
 
 // Cleanup interval for expired tokens (every 5 minutes)
-setInterval(() => {
-  const now = Date.now()
-  let cleaned = 0
-  for (const [token, expiry] of revokedTokens.entries()) {
-    if (expiry < now) {
-      revokedTokens.delete(token)
-      cleaned++
+setInterval(async () => {
+  try {
+    const result = await pool.query(
+      `DELETE FROM revoked_tokens WHERE expires_at < NOW()`
+    )
+    if (result.rowCount && result.rowCount > 0) {
+      console.log(`[JWT_BLACKLIST] Cleaned ${result.rowCount} expired tokens from blacklist`)
     }
-  }
-  if (cleaned > 0) {
-    console.log(`[JWT_BLACKLIST] Cleaned ${cleaned} expired tokens from blacklist`)
+  } catch (err) {
+    console.error('[JWT_BLACKLIST] Cleanup error:', err)
   }
 }, 5 * 60 * 1000)
 
@@ -74,7 +99,7 @@ setInterval(() => {
  * router.get('/protected', authenticateJWT, checkRevoked, handler)
  * ```
  */
-export function checkRevoked(req: AuthRequest, res: Response, next: NextFunction) {
+export async function checkRevoked(req: AuthRequest, res: Response, next: NextFunction) {
   // Extract token from Authorization header or cookie
   const token = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
 
@@ -83,23 +108,28 @@ export function checkRevoked(req: AuthRequest, res: Response, next: NextFunction
     return next()
   }
 
-  // Check if token is in blacklist
-  if (revokedTokens.has(token)) {
-    const expiry = revokedTokens.get(token)
-    console.log(`[JWT_BLACKLIST] Blocked revoked token - expires at ${new Date(expiry!).toISOString()}`)
-    return res.status(401).json({
-      error: 'Token has been revoked',
-      code: 'TOKEN_REVOKED',
-      message: 'This session has been terminated. Please log in again.'
-    })
-  }
+  try {
+    const tokenHash = hashToken(token)
 
-  // Clean expired entries opportunistically (additional to interval cleanup)
-  const now = Date.now()
-  for (const [t, exp] of revokedTokens.entries()) {
-    if (exp < now) {
-      revokedTokens.delete(t)
+    // Check if token is in the revoked_tokens table
+    const result = await pool.query(
+      `SELECT expires_at FROM revoked_tokens WHERE token_hash = $1 AND expires_at > NOW()`,
+      [tokenHash]
+    )
+
+    if (result.rows.length > 0) {
+      const expiry = result.rows[0].expires_at
+      console.log(`[JWT_BLACKLIST] Blocked revoked token - expires at ${new Date(expiry).toISOString()}`)
+      return res.status(401).json({
+        error: 'Token has been revoked',
+        code: 'TOKEN_REVOKED',
+        message: 'This session has been terminated. Please log in again.'
+      })
     }
+  } catch (err) {
+    console.error('[JWT_BLACKLIST] Error checking revocation status:', err)
+    // Fail open on DB error to avoid locking out all users;
+    // the authenticateJWT middleware still validates the JWT signature
   }
 
   next()
@@ -179,7 +209,7 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
     // Look up target user
     const userQuery = user_id
       ? 'SELECT id, email, tenant_id FROM users WHERE id = $1'
-      : 'SELECT id, email, tenant_id FROM users WHERE email = $2'
+      : 'SELECT id, email, tenant_id FROM users WHERE email = $1'
 
     const userResult = await pool.query(
       userQuery,
@@ -233,11 +263,23 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
       })
     }
 
-    // Add to blacklist with JWT expiry time
+    // Add to blacklist with JWT expiry time (database-backed)
     const expiryMs = decoded.exp ? decoded.exp * 1000 : Date.now() + 24 * 60 * 60 * 1000
-    revokedTokens.set(tokenToRevoke, expiryMs)
+    const expiryDate = new Date(expiryMs)
+    const tokenHash = hashToken(tokenToRevoke)
 
-    console.log(`[JWT_BLACKLIST] Token revoked for user ${targetEmail} - blacklist size: ${revokedTokens.size}`)
+    await pool.query(
+      `INSERT INTO revoked_tokens (token_hash, expires_at, revoked_by, reason)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (token_hash) DO NOTHING`,
+      [tokenHash, expiryDate, req.user.id, targetUserId === req.user.id ? 'self_revocation' : 'admin_revocation']
+    )
+
+    // Get current blacklist size for logging/response
+    const sizeResult = await pool.query(`SELECT COUNT(*) as cnt FROM revoked_tokens WHERE expires_at > NOW()`)
+    const blacklistSize = parseInt(sizeResult.rows[0]?.cnt || '0', 10)
+
+    console.log(`[JWT_BLACKLIST] Token revoked for user ${targetEmail} - blacklist size: ${blacklistSize}`)
 
     // Audit log for successful revocation
     await createAuditLog(
@@ -253,8 +295,8 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
         revoked_by: req.user.id,
         revoked_by_email: req.user.email,
         is_self_revocation: targetUserId === req.user.id,
-        blacklist_size: revokedTokens.size,
-        token_expiry: new Date(expiryMs).toISOString()
+        blacklist_size: blacklistSize,
+        token_expiry: expiryDate.toISOString()
       },
       req.ip || null,
       req.get('User-Agent') || null,
@@ -285,8 +327,8 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
         id: req.user.id,
         email: req.user.email
       },
-      blacklist_size: revokedTokens.size,
-      expires_at: new Date(expiryMs).toISOString()
+      blacklist_size: blacklistSize,
+      expires_at: expiryDate.toISOString()
     })
 
   } catch (error: any) {
@@ -335,20 +377,24 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
  * ```
  */
 router.get('/revoke/status', authenticateJWT, authorize('admin'), asyncHandler(async (req: AuthRequest, res: Response) => {
-  const now = Date.now()
-  const activeRevocations = Array.from(revokedTokens.entries())
-    .filter(([_, expiry]) => expiry > now)
-    .length
+  const statsResult = await pool.query(`
+    SELECT
+      COUNT(*) AS total_size,
+      COUNT(*) FILTER (WHERE expires_at > NOW()) AS active_revocations,
+      COUNT(*) FILTER (WHERE expires_at <= NOW()) AS expired_pending_cleanup
+    FROM revoked_tokens
+  `)
+
+  const stats = statsResult.rows[0]
 
   return res.json({
-    blacklist_size: revokedTokens.size,
-    active_revocations: activeRevocations,
-    expired_pending_cleanup: revokedTokens.size - activeRevocations,
+    blacklist_size: parseInt(stats.total_size || '0', 10),
+    active_revocations: parseInt(stats.active_revocations || '0', 10),
+    expired_pending_cleanup: parseInt(stats.expired_pending_cleanup || '0', 10),
     cleanup_interval_ms: 5 * 60 * 1000,
-    storage_type: 'in-memory',
-    recommendation: 'Upgrade to Redis for production multi-instance deployments'
+    storage_type: 'database',
+    table: 'revoked_tokens'
   })
 }))
 
 export default router
-export { revokedTokens }

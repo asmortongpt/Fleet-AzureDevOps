@@ -3,13 +3,15 @@
  * Developer mode, API endpoint, feature flags, and debug settings
  */
 
-import { Code, Cpu, Flag, Bug, ChartBar, Warning } from '@phosphor-icons/react'
+import { Code, Cpu, Flag, Bug, BarChart, AlertTriangle, Database } from 'lucide-react'
 import { useAtom } from 'jotai'
+import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
 import {
   Table,
@@ -19,17 +21,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { swrFetcher } from '@/lib/fetcher'
 import { advancedSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 
-// Mock performance metrics
-const mockPerformanceMetrics = {
-  pageLoadTime: '1.2s',
-  apiResponseTime: '150ms',
-  memoryUsage: '45MB',
-  activeConnections: 3,
-}
-
-// Mock feature flags
+// Available feature flags
 const availableFeatureFlags = [
   {
     key: 'newDashboard',
@@ -60,6 +55,32 @@ const availableFeatureFlags = [
 export function AdvancedSettings() {
   const [settings, setSettings] = useAtom(advancedSettingsAtom)
   const [, setHasUnsavedChanges] = useAtom(hasUnsavedChangesAtom)
+  const { data: metricsData } = useSWR<Record<string, any>>(
+    settings.performanceMetrics ? '/api/system/metrics' : null,
+    swrFetcher
+  )
+  const metrics = (metricsData as any)?.data ?? metricsData ?? {}
+
+  // Database stats - always fetch for the Database Stats card
+  const { data: dbStatsData } = useSWR<Record<string, any>>(
+    '/api/system/db-stats',
+    swrFetcher,
+    { refreshInterval: 30000, revalidateOnFocus: false }
+  )
+  const dbStats = (dbStatsData as any)?.data ?? dbStatsData ?? {}
+
+  // Connection pool status
+  const { data: poolData } = useSWR<Record<string, any>>(
+    '/api/system/pool-status',
+    swrFetcher,
+    { refreshInterval: 15000, revalidateOnFocus: false }
+  )
+  const poolStatus = (poolData as any)?.data ?? poolData ?? {}
+
+  const formatMetric = (value: number | null | undefined, unit?: string) => {
+    if (value === null || value === undefined) return '—'
+    return unit ? `${value} ${unit}` : String(value)
+  }
 
   const updateSetting = <K extends keyof typeof settings>(
     key: K,
@@ -82,9 +103,9 @@ export function AdvancedSettings() {
 
   return (
     <div className="space-y-2">
-      {/* Warning Banner */}
+      {/* AlertTriangle Banner */}
       <div className="flex items-start gap-3 p-2 bg-warning/10 border border-warning/20 rounded-lg">
-        <Warning className="w-3 h-3 text-warning mt-0.5" />
+        <AlertTriangle className="w-3 h-3 text-warning mt-0.5" />
         <div className="flex-1 text-sm">
           <p className="font-medium">Advanced Settings</p>
           <p className="text-muted-foreground mt-1">
@@ -243,7 +264,7 @@ export function AdvancedSettings() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
-              <ChartBar className="w-3 h-3" />
+              <BarChart className="w-3 h-3" />
               <CardTitle>Performance Metrics</CardTitle>
             </div>
             <CardDescription>Real-time application performance data</CardDescription>
@@ -259,25 +280,94 @@ export function AdvancedSettings() {
               <TableBody>
                 <TableRow>
                   <TableCell className="font-medium">Page Load Time</TableCell>
-                  <TableCell>{mockPerformanceMetrics.pageLoadTime}</TableCell>
+                  <TableCell>{formatMetric(metrics.pageLoadTime, 's')}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">API Response Time</TableCell>
-                  <TableCell>{mockPerformanceMetrics.apiResponseTime}</TableCell>
+                  <TableCell>{formatMetric(metrics.apiResponseTime, 'ms')}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Memory Usage</TableCell>
-                  <TableCell>{mockPerformanceMetrics.memoryUsage}</TableCell>
+                  <TableCell>{formatMetric(metrics.memoryUsage, '%')}</TableCell>
                 </TableRow>
                 <TableRow>
                   <TableCell className="font-medium">Active Connections</TableCell>
-                  <TableCell>{mockPerformanceMetrics.activeConnections}</TableCell>
+                  <TableCell>{formatMetric(metrics.activeConnections)}</TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </CardContent>
         </Card>
       )}
+
+      {/* Database Stats */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Database className="w-3 h-3" />
+            <CardTitle>Database Stats</CardTitle>
+          </div>
+          <CardDescription>Live entity counts and connection pool status from PostgreSQL</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="p-3 border rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Vehicles</p>
+              <p className="text-2xl font-bold">{formatMetric(dbStats.totalVehicles ?? dbStats.total_vehicles)}</p>
+            </div>
+            <div className="p-3 border rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Drivers</p>
+              <p className="text-2xl font-bold">{formatMetric(dbStats.totalDrivers ?? dbStats.total_drivers)}</p>
+            </div>
+            <div className="p-3 border rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Work Orders</p>
+              <p className="text-2xl font-bold">{formatMetric(dbStats.totalWorkOrders ?? dbStats.total_work_orders)}</p>
+            </div>
+            <div className="p-3 border rounded-lg bg-muted/30">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Fuel Transactions</p>
+              <p className="text-2xl font-bold">{formatMetric(dbStats.totalFuelTransactions ?? dbStats.total_fuel_transactions)}</p>
+            </div>
+          </div>
+
+          {/* Connection Pool Status */}
+          {(poolStatus.totalConnections != null || poolStatus.total_connections != null || poolStatus.total != null) && (
+            <div className="border rounded-lg p-3 space-y-2">
+              <p className="text-sm font-medium">Connection Pool</p>
+              <div className="grid grid-cols-3 gap-3 text-center">
+                <div>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-lg font-semibold">{poolStatus.totalConnections ?? poolStatus.total_connections ?? poolStatus.total ?? '--'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Active</p>
+                  <p className="text-lg font-semibold text-blue-500">{poolStatus.activeConnections ?? poolStatus.active ?? poolStatus.busy ?? '--'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Idle</p>
+                  <p className="text-lg font-semibold text-green-500">{poolStatus.idleConnections ?? poolStatus.idle ?? '--'}</p>
+                </div>
+              </div>
+              {(() => {
+                const total = poolStatus.totalConnections ?? poolStatus.total_connections ?? poolStatus.total ?? 0
+                const active = poolStatus.activeConnections ?? poolStatus.active ?? poolStatus.busy ?? 0
+                const pct = total > 0 ? Math.round((active / total) * 100) : 0
+                return total > 0 ? (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Pool utilization</span>
+                      <span>{pct}%</span>
+                    </div>
+                    <Progress
+                      value={pct}
+                      className="h-2"
+                    />
+                  </div>
+                ) : null
+              })()}
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* System Information */}
       <Card>

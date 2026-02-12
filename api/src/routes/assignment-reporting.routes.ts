@@ -507,17 +507,186 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const { report_type, format = 'csv', filters } = req.body;
+      const tenant_id = req.user!.tenant_id;
 
-      // This would integrate with a report generation library
-      // For now, return a placeholder response
+      if (!report_type) {
+        return res.status(400).json({ error: 'report_type is required' });
+      }
 
-      res.json({
-        message: 'Report export initiated',
-        report_type,
-        format,
-        status: 'pending',
-        estimated_completion: new Date(Date.now() + 60000).toISOString(),
-      });
+      const validReportTypes = [
+        'assignment-inventory', 'policy-compliance', 'assignment-changes',
+        'region-distribution', 'department-summary', 'on-call-summary',
+        'cost-benefit-summary'
+      ];
+      if (!validReportTypes.includes(report_type)) {
+        return res.status(400).json({
+          error: `Invalid report_type. Must be one of: ${validReportTypes.join(', ')}`
+        });
+      }
+
+      const validFormats = ['csv', 'json'];
+      if (!validFormats.includes(format)) {
+        return res.status(400).json({
+          error: `Invalid format. Must be one of: ${validFormats.join(', ')}`
+        });
+      }
+
+      // Build the appropriate query based on report type
+      let query: string;
+      const params: any[] = [tenant_id];
+
+      switch (report_type) {
+        case 'assignment-inventory':
+          query = `
+            SELECT
+              dept.name AS department,
+              u.first_name || ' ' || u.last_name AS employee_name,
+              dr.employee_number,
+              v.unit_number,
+              v.make || ' ' || v.model || ' ' || v.year AS vehicle,
+              va.assignment_type,
+              va.lifecycle_state,
+              va.start_date,
+              va.end_date
+            FROM vehicle_assignments va
+            JOIN vehicles v ON va.vehicle_id = v.id
+            JOIN drivers dr ON va.driver_id = dr.id
+            LEFT JOIN users u ON dr.user_id = u.id
+            LEFT JOIN departments dept ON va.department_id = dept.id
+            WHERE va.tenant_id = $1
+            ORDER BY dept.name, u.last_name
+          `;
+          break;
+        case 'policy-compliance':
+          query = `
+            SELECT id, tenant_id, policy_id, entity_id, exception_type, approved_date
+            FROM v_policy_compliance_exceptions
+            WHERE tenant_id = $1
+            ORDER BY exception_type
+          `;
+          break;
+        case 'assignment-changes':
+          query = `
+            SELECT
+              vah.change_type,
+              vah.change_timestamp,
+              vah.previous_values,
+              vah.new_values,
+              u.first_name || ' ' || u.last_name AS changed_by_name,
+              v.unit_number,
+              v.make || ' ' || v.model AS vehicle
+            FROM vehicle_assignment_history vah
+            LEFT JOIN users u ON vah.changed_by_user_id = u.id
+            LEFT JOIN vehicle_assignments va ON vah.vehicle_assignment_id = va.id
+            LEFT JOIN vehicles v ON va.vehicle_id = v.id
+            WHERE vah.tenant_id = $1
+            ORDER BY vah.change_timestamp DESC
+            LIMIT 5000
+          `;
+          break;
+        case 'department-summary':
+          query = `
+            SELECT
+              dept.name AS department,
+              COUNT(*) as total_assignments,
+              COUNT(CASE WHEN va.assignment_type = 'designated' THEN 1 END) as designated_count,
+              COUNT(CASE WHEN va.assignment_type = 'on_call' THEN 1 END) as on_call_count,
+              COUNT(CASE WHEN va.lifecycle_state = 'active' THEN 1 END) as active_count
+            FROM vehicle_assignments va
+            LEFT JOIN departments dept ON va.department_id = dept.id
+            WHERE va.tenant_id = $1
+            GROUP BY dept.id, dept.name
+            ORDER BY total_assignments DESC
+          `;
+          break;
+        case 'region-distribution':
+          query = `
+            SELECT
+              dr.home_county AS region,
+              dr.residence_region,
+              COUNT(*) as assignment_count,
+              COUNT(CASE WHEN va.commuting_authorized THEN 1 END) as commuting_authorized
+            FROM vehicle_assignments va
+            JOIN drivers dr ON va.driver_id = dr.id
+            WHERE va.tenant_id = $1 AND va.lifecycle_state = 'active'
+            GROUP BY dr.home_county, dr.residence_region
+            ORDER BY assignment_count DESC
+          `;
+          break;
+        case 'on-call-summary':
+          query = `
+            SELECT
+              dept.name AS department,
+              u.first_name || ' ' || u.last_name AS driver_name,
+              dr.employee_number,
+              COUNT(DISTINCT ocp.id) as on_call_periods,
+              SUM(ocp.callback_count) as total_callbacks
+            FROM on_call_periods ocp
+            JOIN drivers dr ON ocp.driver_id = dr.id
+            LEFT JOIN users u ON dr.user_id = u.id
+            LEFT JOIN departments dept ON ocp.department_id = dept.id
+            WHERE ocp.tenant_id = $1
+            GROUP BY dept.name, u.first_name, u.last_name, dr.employee_number
+            ORDER BY on_call_periods DESC
+          `;
+          break;
+        case 'cost-benefit-summary':
+          query = `
+            SELECT
+              dept.name AS department,
+              COUNT(*) as total_analyses,
+              ROUND(SUM(cba.total_annual_costs), 2) as total_costs,
+              ROUND(SUM(cba.total_annual_benefits), 2) as total_benefits,
+              ROUND(SUM(cba.net_benefit), 2) as total_net_benefit
+            FROM cost_benefit_analyses cba
+            LEFT JOIN departments dept ON cba.department_id = dept.id
+            WHERE cba.tenant_id = $1
+            GROUP BY dept.name
+            ORDER BY total_net_benefit DESC
+          `;
+          break;
+        default:
+          return res.status(400).json({ error: 'Unsupported report type' });
+      }
+
+      const result = await pool.query(query, params);
+
+      if (format === 'json') {
+        res.json({
+          report_type,
+          format,
+          generated_at: new Date().toISOString(),
+          generated_by: req.user!.email,
+          status: 'completed',
+          total_records: result.rows.length,
+          data: result.rows,
+        });
+      } else {
+        // CSV export
+        if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'No data available for the requested report.' });
+        }
+
+        const headers = Object.keys(result.rows[0]);
+        const csvLines = [
+          headers.join(','),
+          ...result.rows.map((row: any) =>
+            headers.map((h) => {
+              const val = row[h];
+              const str = val === null || val === undefined ? '' : String(val);
+              return str.includes(',') || str.includes('"') || str.includes('\n')
+                ? `"${str.replace(/"/g, '""')}"`
+                : str;
+            }).join(',')
+          ),
+        ];
+        const csv = csvLines.join('\n');
+        const filename = `${report_type}_${new Date().toISOString().split('T')[0]}.csv`;
+
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.send(csv);
+      }
     } catch (error: any) {
       logger.error('Error exporting report:', error) // Wave 30: Winston logger;
       res.status(500).json({

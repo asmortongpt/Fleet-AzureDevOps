@@ -1,11 +1,11 @@
 import {
-  MapTrifold,
+  Map,
   Plus,
   MapPin,
-  Path,
-  TrendUp,
+  Route,
+  TrendingUp,
   CheckCircle
-} from "@phosphor-icons/react"
+} from "lucide-react"
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
@@ -41,23 +41,71 @@ interface Route {
 }
 
 export function RouteManagement() {
-  const data = useFleetData()
   const fleetData = useFleetData()
   const allVehicles = fleetData?.vehicles || []
   const facilities = fleetData?.facilities || []
+  const apiRoutes = fleetData?.routes || []
 
-  const [routes, setRoutes] = useState<Route[]>([])
   const [activeTab, setActiveTab] = useState<string>("active")
   const [dialogOpen, setDialogOpen] = useState(false)
   const [routeName, setRouteName] = useState("")
   const [selectedVehicle, setSelectedVehicle] = useState("")
-  const [driver, setDriver] = useState("")
+  const [selectedDriverId, setSelectedDriverId] = useState("")
   const [startLocation, setStartLocation] = useState("")
   const [endLocation, setEndLocation] = useState("")
   const [scheduledStart, setScheduledStart] = useState("")
 
-  const vehicles = data?.vehicles || []
-  const drivers = data?.drivers || []
+  const vehicles = fleetData?.vehicles || []
+  const drivers = fleetData?.drivers || []
+
+  const routes = useMemo<Route[]>(() => {
+    return (apiRoutes || []).map((route: any) => {
+      const vehicle = vehicles.find((v: any) => String(v.id) === String(route.vehicleId || route.vehicle_id))
+      const driver = drivers.find((d: any) => String(d.id) === String(route.driverId || route.driver_id))
+
+      const estimatedDuration = Number(route.estimatedDuration || route.estimated_duration || 0)
+      const distance =
+        Number(route.totalDistance || route.total_distance || route.distance || 0) ||
+        (estimatedDuration > 0 ? (estimatedDuration / 60) * 45 : (route.stops?.length || 0) * 8)
+
+      const scheduledStartTime = route.date || route.plannedStartTime || route.planned_start_time || route.startTime
+      const scheduledEndTime = scheduledStartTime
+        ? new Date(new Date(scheduledStartTime).getTime() + estimatedDuration * 60000).toISOString()
+        : ""
+
+      const statusRaw = String(route.status || "").toLowerCase()
+      const status: Route["status"] =
+        statusRaw === "completed" ? "completed" :
+          statusRaw === "cancelled" ? "cancelled" :
+            statusRaw === "in_transit" || statusRaw === "active" || statusRaw === "in_progress" ? "active" :
+              "planned"
+
+      const stops = Array.isArray(route.stops)
+        ? route.stops
+        : Array.isArray(route.waypoints)
+          ? route.waypoints
+          : []
+
+      return {
+        id: String(route.routeId || route.id || ""),
+        name: route.name || route.routeName || "Route",
+        vehicleId: String(route.vehicleId || route.vehicle_id || vehicle?.id || ""),
+        vehicleNumber: vehicle?.number || vehicle?.name || String(route.vehicleId || route.vehicle_id || ""),
+        driver: driver?.name || route.driverName || "",
+        startLocation: route.startLocation || stops[0]?.address || "",
+        endLocation: route.endLocation || stops[stops.length - 1]?.address || "",
+        waypoints: stops.map((stop: any) => stop.address || stop.location || ""),
+        distance: Math.round(distance),
+        estimatedTime: estimatedDuration || Math.round((distance / 45) * 60),
+        status,
+        scheduledStart: scheduledStartTime || "",
+        scheduledEnd: scheduledEndTime,
+        actualStart: route.actualStart || route.actual_start,
+        actualEnd: route.actualEnd || route.actual_end,
+        efficiency: Number(route.optimizationScore || route.optimization_score || 0)
+      }
+    })
+  }, [apiRoutes, vehicles, drivers])
 
   const metrics = useMemo(() => {
     const routeList = routes || []
@@ -80,64 +128,46 @@ export function RouteManagement() {
     }
   }, [routes])
 
-  const handleCreateRoute = () => {
-    if (!routeName || !selectedVehicle || !driver || !startLocation || !endLocation || !scheduledStart) {
+  const handleCreateRoute = async () => {
+    if (!routeName || !selectedVehicle || !selectedDriverId || !startLocation || !endLocation || !scheduledStart) {
       toast.error("Please fill in all required fields")
       return
     }
 
-    const vehicle = vehicles.find(v => v.id === selectedVehicle)
-    if (!vehicle) return
+    try {
+      await fleetData.addRoute({
+        vehicleId: selectedVehicle,
+        driverId: selectedDriverId,
+        stops: [
+          { address: startLocation, priority: 1 },
+          { address: endLocation, priority: 2 }
+        ],
+        startTime: scheduledStart,
+        optimize: true,
+        status: "planned"
+      })
 
-    const distance = Math.floor(Math.random() * 150 + 20)
-    const estimatedTime = Math.floor(distance / 45 * 60)
+      toast.success("Route created successfully")
 
-    const newRoute: Route = {
-      id: `route-${Date.now()}`,
-      name: routeName,
-      vehicleId: vehicle.id,
-      vehicleNumber: vehicle.number,
-      driver,
-      startLocation,
-      endLocation,
-      waypoints: [],
-      distance,
-      estimatedTime,
-      status: "planned",
-      scheduledStart,
-      scheduledEnd: new Date(new Date(scheduledStart).getTime() + estimatedTime * 60000).toISOString(),
-      efficiency: 95
+      setDialogOpen(false)
+      setRouteName("")
+      setSelectedVehicle("")
+      setSelectedDriverId("")
+      setStartLocation("")
+      setEndLocation("")
+      setScheduledStart("")
+    } catch (error) {
+      toast.error("Failed to create route")
     }
-
-    setRoutes(current => [...(current || []), newRoute])
-    toast.success("Route created successfully")
-
-    setDialogOpen(false)
-    setRouteName("")
-    setSelectedVehicle("")
-    setDriver("")
-    setStartLocation("")
-    setEndLocation("")
-    setScheduledStart("")
   }
 
-  const handleUpdateStatus = (id: string, status: Route["status"]) => {
-    setRoutes(current => 
-      (current || []).map(r => {
-        if (r.id === id) {
-          const updates: Partial<Route> = { status }
-          if (status === "active" && !r.actualStart) {
-            updates.actualStart = new Date().toISOString()
-          }
-          if (status === "completed" && !r.actualEnd) {
-            updates.actualEnd = new Date().toISOString()
-          }
-          return { ...r, ...updates }
-        }
-        return r
-      })
-    )
-    toast.success(`Route ${status}`)
+  const handleUpdateStatus = async (id: string, status: Route["status"]) => {
+    try {
+      await fleetData.updateRoute(id, { status })
+      toast.success(`Route ${status}`)
+    } catch (error) {
+      toast.error("Failed to update route")
+    }
   }
 
   const getStatusColor = (status: Route["status"]) => {
@@ -212,13 +242,13 @@ export function RouteManagement() {
               <div className="grid grid-cols-2 gap-2">
                 <div className="space-y-2">
                   <Label>Driver</Label>
-                  <Select value={driver} onValueChange={setDriver}>
+                  <Select value={selectedDriverId} onValueChange={setSelectedDriverId}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select driver" />
                     </SelectTrigger>
                     <SelectContent>
                       {drivers.map(d => (
-                        <SelectItem key={d.id} value={d.name}>
+                        <SelectItem key={d.id} value={String(d.id)}>
                           {d.name}
                         </SelectItem>
                       ))}
@@ -268,7 +298,7 @@ export function RouteManagement() {
           title="Active Routes"
           value={metrics.active}
           subtitle="in progress"
-          icon={<Path className="w-3 h-3" />}
+          icon={<Route className="w-3 h-3" />}
           status="info"
         />
         <MetricCard
@@ -289,7 +319,7 @@ export function RouteManagement() {
           title="Avg Efficiency"
           value={`${metrics.avgEfficiency}%`}
           subtitle="route completion"
-          icon={<TrendUp className="w-3 h-3" />}
+          icon={<TrendingUp className="w-3 h-3" />}
           status="success"
         />
       </div>
@@ -330,7 +360,7 @@ export function RouteManagement() {
         <CardContent>
           {(filteredRoutes || []).length === 0 ? (
             <div className="text-center py-12">
-              <MapTrifold className="w-12 h-9 mx-auto text-muted-foreground mb-2" />
+              <Map className="w-12 h-9 mx-auto text-muted-foreground mb-2" />
               <p className="text-muted-foreground">No routes found. Create your first route to get started.</p>
             </div>
           ) : (

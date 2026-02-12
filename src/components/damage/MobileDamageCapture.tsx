@@ -204,16 +204,16 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
           <div className="space-y-1">
             <p className="font-medium">Device Capabilities Detected:</p>
             <ul className="list-disc list-inside text-sm space-y-1">
-              <li className={deviceCapabilities.hasCamera ? 'text-green-600' : 'text-gray-400'}>
+              <li className={deviceCapabilities.hasCamera ? 'text-green-600' : 'text-gray-700'}>
                 {deviceCapabilities.hasCamera ? '✓' : '✗'} Camera
               </li>
-              <li className={deviceCapabilities.hasVideo ? 'text-green-600' : 'text-gray-400'}>
+              <li className={deviceCapabilities.hasVideo ? 'text-green-600' : 'text-gray-700'}>
                 {deviceCapabilities.hasVideo ? '✓' : '✗'} Video Recording
               </li>
-              <li className={deviceCapabilities.hasDepth ? 'text-green-600' : 'text-gray-400'}>
+              <li className={deviceCapabilities.hasDepth ? 'text-green-600' : 'text-gray-700'}>
                 {deviceCapabilities.hasDepth ? '✓' : '✗'} Depth Sensing
               </li>
-              <li className={deviceCapabilities.hasLiDAR ? 'text-green-600' : 'text-gray-400'}>
+              <li className={deviceCapabilities.hasLiDAR ? 'text-green-600' : 'text-gray-700'}>
                 {deviceCapabilities.hasLiDAR ? '✓' : '✗'} LiDAR Scanner
               </li>
             </ul>

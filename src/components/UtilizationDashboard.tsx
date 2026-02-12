@@ -1,13 +1,21 @@
-import { Table, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
-import Helmet from 'react-helmet';
+import { Helmet } from 'react-helmet';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 
-import { useAuth } from '../../hooks/useAuth';
-import { fetchIdleAssets, fetchUtilizationData, fetchROIMetrics } from '../../services/analyticsService';
-import { exportToCSV, exportToExcel } from '../../utils/exportUtils';
-import { logger } from '../../utils/logger';
-import { validateTenantId } from '../../utils/validation';
+import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { useAuth } from '@/hooks/useAuth';
+import { fetchIdleAssets, fetchUtilizationData, fetchROIMetrics } from '@/services/analyticsService';
+import { exportToCSV, exportToExcel } from '@/utils/exportUtils';
+import { logger } from '@/utils/logger';
+import { validateTenantId } from '@/utils/validation';
 
 interface Asset {
   id: string;
@@ -71,20 +79,6 @@ const UtilizationDashboard: React.FC = () => {
     fetchData();
   }, [tenantId]);
 
-  const columns = [
-    {
-      title: 'Asset Name',
-      dataIndex: 'name',
-      key: 'name',
-    },
-    {
-      title: 'Idle Days',
-      dataIndex: 'idleDays',
-      key: 'idleDays',
-      sorter: (a: Asset, b: Asset) => a.idleDays - b.idleDays,
-    },
-  ];
-
   return (
     <>
       <Helmet>
@@ -93,9 +87,26 @@ const UtilizationDashboard: React.FC = () => {
       </Helmet>
       <div>
         <h2>Idle Assets</h2>
-        <Table columns={columns} dataSource={idleAssets} rowKey="id" />
-        <Button onClick={() => exportToCSV(idleAssets)}>Export to CSV</Button>
-        <Button onClick={() => exportToExcel(idleAssets)}>Export to Excel</Button>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Asset Name</TableHead>
+              <TableHead>Idle Days</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {idleAssets.map((asset) => (
+              <TableRow key={asset.id}>
+                <TableCell>{asset.name}</TableCell>
+                <TableCell>{asset.idleDays}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <div className="mt-4 space-x-2">
+          <Button onClick={() => exportToCSV(idleAssets)}>Export to CSV</Button>
+          <Button onClick={() => exportToExcel(idleAssets)}>Export to Excel</Button>
+        </div>
       </div>
       <div>
         <h2>Utilization Rate</h2>
@@ -110,16 +121,26 @@ const UtilizationDashboard: React.FC = () => {
       </div>
       <div>
         <h2>ROI Metrics</h2>
-        <Table
-          columns={[
-            { title: 'Asset ID', dataIndex: 'assetId', key: 'assetId' },
-            { title: 'Revenue', dataIndex: 'revenue', key: 'revenue' },
-            { title: 'Cost', dataIndex: 'cost', key: 'cost' },
-            { title: 'ROI', dataIndex: 'roi', key: 'roi' },
-          ]}
-          dataSource={roiMetrics}
-          rowKey="assetId"
-        />
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Asset ID</TableHead>
+              <TableHead>Revenue</TableHead>
+              <TableHead>Cost</TableHead>
+              <TableHead>ROI</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {roiMetrics.map((metric) => (
+              <TableRow key={metric.assetId}>
+                <TableCell>{metric.assetId}</TableCell>
+                <TableCell>{metric.revenue}</TableCell>
+                <TableCell>{metric.cost}</TableCell>
+                <TableCell>{metric.roi}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </>
   );

@@ -10,10 +10,16 @@ import path from 'path'
 import express, { Request, Response } from 'express'
 
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
+import { pool } from '../db'
+import { csrfProtection } from '../middleware/csrf'
 import { telemetryService } from '../services/TelemetryService'
 import { getVideoDatasetService } from '../services/video-dataset.service'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = express.Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 // Singleton instance of EmulatorOrchestrator
 let orchestrator: EmulatorOrchestrator | null = null
@@ -26,12 +32,21 @@ async function ensureInitialized(): Promise<void> {
   if (isInitialized) return
 
   try {
-    await telemetryService.initialize()
+    // TelemetryService expects a minimal query/execute interface.
+    await telemetryService.initialize({
+      query: async (sql: string, params?: any[]) => (await pool.query(sql, params)).rows,
+      execute: async (sql: string, params?: any[]) => {
+        const res = await pool.query(sql, params)
+        return { rowCount: res.rowCount ?? 0 }
+      },
+    })
     isInitialized = true
     console.log('Emulator routes: TelemetryService initialized')
   } catch (error) {
-    console.warn('Emulator routes: TelemetryService initialization warning:', error)
-    isInitialized = true // Continue anyway with mock data
+    // Do not silently fall back to mock/synthetic data: emulator must be DB-backed.
+    console.error('Emulator routes: TelemetryService initialization failed:', error)
+    isInitialized = false
+    throw error
   }
 }
 
@@ -42,7 +57,28 @@ async function getOrchestrator(): Promise<EmulatorOrchestrator> {
   await ensureInitialized()
 
   if (!orchestrator) {
-    orchestrator = new EmulatorOrchestrator()
+    // Reuse the orchestrator instance created during API startup (server.ts) to avoid
+    // double-binding the emulator WebSocket port (and crashing with EADDRINUSE).
+    const globalOrchestrator = (globalThis as any).__fleetEmulatorOrchestrator as EmulatorOrchestrator | undefined
+    if (globalOrchestrator) {
+      orchestrator = globalOrchestrator
+      return orchestrator
+    }
+
+    // When running from bundled `dist/`, __dirname points at dist/ and the default config path
+    // inside EmulatorOrchestrator won't exist. Provide an explicit path to the source config.
+    const configPath = path.resolve(process.cwd(), 'src/emulators/config/default.json')
+    orchestrator = new EmulatorOrchestrator(configPath)
+
+    // The orchestrator loads DB-backed vehicles asynchronously on construction.
+    // Wait briefly for the inventory to populate so immediate calls (telemetry/start)
+    // don't race the loader and produce false 404s.
+    const started = Date.now()
+    while (Date.now() - started < 5_000) {
+      const total = orchestrator.getStatus()?.vehicles?.total ?? 0
+      if (total > 0) break
+      await new Promise((r) => setTimeout(r, 100))
+    }
   }
   return orchestrator
 }
@@ -87,6 +123,91 @@ router.get('/status', async (req: Request, res: Response) => {
   }
 })
 
+/**
+ * @openapi
+ * /api/emulator/vehicles:
+ *   get:
+ *     tags: [Emulator]
+ *     summary: List emulated vehicles
+ *     description: Returns the vehicle set loaded by TelemetryService from the database.
+ */
+router.get('/vehicles', async (_req: Request, res: Response) => {
+  try {
+    await ensureInitialized()
+    res.json({
+      success: true,
+      data: telemetryService.getVehicles(),
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error',
+    })
+  }
+})
+
+/**
+ * @openapi
+ * /api/emulator/vehicles/{vehicleId}/telemetry:
+ *   get:
+ *     tags: [Emulator]
+ *     summary: Get real-time telemetry snapshot for a vehicle
+ *     description: Returns the current in-memory emulator state (GPS/OBD2/etc) for the requested vehicle.
+ *     parameters:
+ *       - in: path
+ *         name: vehicleId
+ *         required: true
+ *         schema:
+ *           type: string
+ */
+router.get('/vehicles/:vehicleId/telemetry', async (req: Request, res: Response) => {
+  try {
+    await ensureInitialized()
+    const vehicleId = String(req.params.vehicleId)
+
+    const orch = await getOrchestrator()
+    const status = orch.getStatus()
+    if (!status?.isRunning) {
+      // Start only the requested vehicle to keep startup light.
+      await orch.start([vehicleId])
+    }
+
+    const raw = orch.getVehicleTelemetry(vehicleId)
+    if (!raw) {
+      return res.status(404).json({ success: false, error: 'Vehicle telemetry not found' })
+    }
+
+    const gps = raw.gps || raw.state?.gps || {}
+    const obd2 = raw.obd2 || raw.state?.obd2 || {}
+
+    res.json({
+      success: true,
+      data: {
+        gps: {
+          latitude: gps.latitude ?? gps.lat ?? gps.location?.lat,
+          longitude: gps.longitude ?? gps.lng ?? gps.location?.lng,
+          speed: gps.speed,
+          heading: gps.heading,
+        },
+        obd: {
+          rpm: obd2.rpm,
+          speed: obd2.speed,
+          fuelLevel: obd2.fuelLevel ?? obd2.fuel_level,
+          engineTemp: obd2.engineTemp ?? obd2.coolantTemp ?? obd2.coolant_temp,
+          coolantTemp: obd2.coolantTemp ?? obd2.coolant_temp,
+          batteryVoltage: obd2.batteryVoltage ?? obd2.battery_voltage,
+        },
+        timestamp: new Date().toISOString(),
+      },
+    })
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Unknown error',
+    })
+  }
+})
+
 // ============================================================================
 // EMULATOR CONTROL ENDPOINTS
 // ============================================================================
@@ -99,7 +220,7 @@ router.get('/status', async (req: Request, res: Response) => {
  *     summary: Start emulators
  *     description: Start emulation for specified vehicles or all vehicles from database
  */
-router.post('/start', async (req: Request, res: Response) => {
+router.post('/start', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { vehicleIds, count } = req.body
     const orch = await getOrchestrator()
@@ -133,7 +254,7 @@ router.post('/start', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Stop all emulators
  */
-router.post('/stop', async (req: Request, res: Response) => {
+router.post('/stop', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = await getOrchestrator()
     await orch.stop()
@@ -157,7 +278,7 @@ router.post('/stop', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Pause all emulators
  */
-router.post('/pause', async (req: Request, res: Response) => {
+router.post('/pause', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = await getOrchestrator()
     await orch.pause()
@@ -181,7 +302,7 @@ router.post('/pause', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Resume all emulators
  */
-router.post('/resume', async (req: Request, res: Response) => {
+router.post('/resume', csrfProtection, async (req: Request, res: Response) => {
   try {
     const orch = await getOrchestrator()
     await orch.resume()
@@ -205,7 +326,7 @@ router.post('/resume', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Run a predefined scenario
  */
-router.post('/scenario/:scenarioId', async (req: Request, res: Response) => {
+router.post('/scenario/:scenarioId', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { scenarioId } = req.params
     const orch = await getOrchestrator()
@@ -800,7 +921,7 @@ router.get('/video/library/:videoId', async (req: Request, res: Response) => {
  *     tags: [Emulator]
  *     summary: Start video stream
  */
-router.post('/video/stream/:vehicleId/:cameraAngle/start', async (req: Request, res: Response) => {
+router.post('/video/stream/:vehicleId/:cameraAngle/start', csrfProtection, async (req: Request, res: Response) => {
   try {
     const videoService = getVideoDatasetService()
     const { vehicleId, cameraAngle } = req.params
@@ -838,7 +959,7 @@ router.post('/video/stream/:vehicleId/:cameraAngle/start', async (req: Request, 
  *     tags: [Emulator]
  *     summary: Stop video stream
  */
-router.post('/video/stream/:vehicleId/:cameraAngle/stop', async (req: Request, res: Response) => {
+router.post('/video/stream/:vehicleId/:cameraAngle/stop', csrfProtection, async (req: Request, res: Response) => {
   try {
     const videoService = getVideoDatasetService()
     const { vehicleId, cameraAngle } = req.params

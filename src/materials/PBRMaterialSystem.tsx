@@ -6,8 +6,12 @@
 
 import * as THREE from 'three'
 
-import { ViewMode } from '../components/3d/InteriorExteriorViewer'
-import { LODLevel } from '../systems/LODSystem'
+// Local type definitions (not exported from their respective modules)
+export type ViewMode = 'exterior' | 'interior' | 'engine' | 'trunk'
+
+export interface LODLevel {
+  materialQuality: 'low' | 'medium' | 'high'
+}
 
 export interface PBRMaterialConfig {
   albedo: string | THREE.Color

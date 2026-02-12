@@ -1,23 +1,18 @@
 
 import React, { ReactNode } from 'react';
 
-import { MockAuthProvider } from './MockAuthProvider';
+import { ProductionOktaProvider } from './ProductionOktaProvider';
 
 // Environment detection and configuration
 const getAuthProviderConfig = () => {
   const isProduction = import.meta.env.VITE_NODE_ENV === 'production';
   const forceOkta = import.meta.env.VITE_REACT_APP_FORCE_OKTA_AUTH === 'true';
-  const forceMock = import.meta.env.VITE_REACT_APP_FORCE_MOCK_AUTH === 'true';
   const oktaConfigured = Boolean(
     import.meta.env.VITE_REACT_APP_OKTA_ISSUER &&
     import.meta.env.VITE_REACT_APP_OKTA_CLIENT_ID
   );
 
   // Decision matrix for authentication provider
-  if (forceMock) {
-    return { provider: 'mock', reason: 'Force mock authentication via environment variable' };
-  }
-
   if (forceOkta && oktaConfigured) {
     return { provider: 'okta', reason: 'Force Okta authentication via environment variable' };
   }
@@ -27,11 +22,11 @@ const getAuthProviderConfig = () => {
   }
 
   if (!isProduction) {
-    return { provider: 'mock', reason: 'Development environment - using mock authentication' };
+    return { provider: 'okta', reason: 'Development environment - Okta required for auth' };
   }
 
-  // Default to mock if Okta is not properly configured
-  return { provider: 'mock', reason: 'Okta not properly configured - using mock authentication' };
+  // Default to okta when configured; otherwise error out
+  return { provider: 'okta', reason: 'Okta required for authentication' };
 };
 
 interface AuthProviderFactoryProps {
@@ -43,8 +38,11 @@ export const AuthProviderFactory: React.FC<AuthProviderFactoryProps> = ({ childr
 
   // logger.debug(`[AuthProviderFactory] Using ${config.provider} authentication: ${config.reason}`);
 
-  // For now, always use MockAuthProvider until Okta is fully configured
-  return <MockAuthProvider>{children}</MockAuthProvider>;
+  if (!import.meta.env.VITE_REACT_APP_OKTA_ISSUER || !import.meta.env.VITE_REACT_APP_OKTA_CLIENT_ID) {
+    throw new Error('Okta configuration missing: set VITE_REACT_APP_OKTA_ISSUER and VITE_REACT_APP_OKTA_CLIENT_ID');
+  }
+
+  return <ProductionOktaProvider>{children}</ProductionOktaProvider>;
 };
 
 export default AuthProviderFactory;

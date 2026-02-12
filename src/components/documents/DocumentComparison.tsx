@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
@@ -104,7 +105,7 @@ export function DocumentComparison({
         aiSummary
       });
     } catch (error) {
-      console.error('Comparison failed:', error);
+      logger.error('Comparison failed:', error);
     } finally {
       setLoading(false);
     }
@@ -189,7 +190,7 @@ export function DocumentComparison({
       const data = await response.json();
       return data.summary || 'Changes detected between versions.';
     } catch (error) {
-      console.error('AI summary error:', error);
+      logger.error('AI summary error:', error);
       return `${diff.totalChanges} changes detected (${diff.added.length} additions, ${diff.removed.length} deletions, ${diff.modified.length} modifications)`;
     }
   };
@@ -227,7 +228,7 @@ export function DocumentComparison({
                       !isRemoved && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
-                    <span className="text-xs text-gray-400 mr-2">{idx + 1}</span>
+                    <span className="text-xs text-gray-700 mr-2">{idx + 1}</span>
                     {line || ' '}
                   </div>
                 );
@@ -264,7 +265,7 @@ export function DocumentComparison({
                       !isAdded && !isModified && !showUnchanged && "opacity-30"
                     )}
                   >
-                    <span className="text-xs text-gray-400 mr-2">{idx + 1}</span>
+                    <span className="text-xs text-gray-700 mr-2">{idx + 1}</span>
                     {line || ' '}
                   </div>
                 );
@@ -464,7 +465,7 @@ export function DocumentComparison({
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-500 mx-auto mb-2"></div>
-                <p className="text-gray-500">Analyzing changes...</p>
+                <p className="text-gray-700">Analyzing changes...</p>
               </div>
             </div>
           ) : (

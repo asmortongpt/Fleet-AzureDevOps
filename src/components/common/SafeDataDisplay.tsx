@@ -183,7 +183,7 @@ export function SafeDate({ date, fallback = 'N/A', format = 'short', className }
         day: 'numeric'
       })
       break
-    case 'relative':
+    case 'relative': {
       const now = new Date()
       const diffMs = now.getTime() - dateObj.getTime()
       const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
@@ -193,6 +193,7 @@ export function SafeDate({ date, fallback = 'N/A', format = 'short', className }
       else if (diffDays < 30) formatted = `${Math.floor(diffDays / 7)} weeks ago`
       else formatted = dateObj.toLocaleDateString()
       break
+    }
     case 'datetime':
       formatted = dateObj.toLocaleString()
       break

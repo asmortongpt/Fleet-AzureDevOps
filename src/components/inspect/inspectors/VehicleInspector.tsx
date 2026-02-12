@@ -16,7 +16,7 @@ import { OBD2Dashboard } from '@/components/obd2/OBD2Dashboard';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { apiClient } from '@/lib/api';
+import { apiClient } from "@/lib/api-client";
 import logger from '@/utils/logger';
 
 interface VehicleInspectorProps {
@@ -96,7 +96,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
 
   if (!vehicle) {
     return (
-      <div className="p-3 text-gray-500">
+      <div className="p-3 text-gray-700">
         No vehicle data available
       </div>
     );
@@ -111,7 +111,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
             <h2 className="text-sm font-bold text-gray-900 dark:text-white">
               {vehicle.name}
             </h2>
-            <p className="text-sm text-slate-700 dark:text-gray-400">
+            <p className="text-sm text-slate-700 dark:text-gray-700">
               {vehicle.year} {vehicle.make} {vehicle.model} • {vehicle.licensePlate}
             </p>
           </div>
@@ -201,11 +201,11 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
                   </div>
                 )}
                 <div className="bg-gray-100 dark:bg-gray-800 rounded-lg h-96 flex items-center justify-center">
-                  <p className="text-gray-500">Map visualization would appear here</p>
+                  <p className="text-gray-700">Map visualization would appear here</p>
                 </div>
               </div>
             ) : (
-              <p className="text-gray-500">No location data available</p>
+              <p className="text-gray-700">No location data available</p>
             )}
           </Card>
         </TabsContent>
@@ -229,17 +229,17 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
               <div className="border-l-4 border-blue-500 pl-2 py-2">
                 <p className="font-medium">Oil Change</p>
                 <p className="text-sm text-slate-700">Last performed at {(vehicle.odometer - 3000).toLocaleString()} miles</p>
-                <p className="text-sm text-gray-500">Next due at {(vehicle.odometer + 2000).toLocaleString()} miles</p>
+                <p className="text-sm text-gray-700">Next due at {(vehicle.odometer + 2000).toLocaleString()} miles</p>
               </div>
               <div className="border-l-4 border-green-500 pl-2 py-2">
                 <p className="font-medium">Tire Rotation</p>
                 <p className="text-sm text-slate-700">Last performed at {(vehicle.odometer - 5000).toLocaleString()} miles</p>
-                <p className="text-sm text-gray-500">Next due at {(vehicle.odometer + 1000).toLocaleString()} miles</p>
+                <p className="text-sm text-gray-700">Next due at {(vehicle.odometer + 1000).toLocaleString()} miles</p>
               </div>
               <div className="border-l-4 border-yellow-500 pl-2 py-2">
                 <p className="font-medium">Inspection Due</p>
                 <p className="text-sm text-slate-700">Annual inspection required</p>
-                <p className="text-sm text-gray-500">Due in 45 days</p>
+                <p className="text-sm text-gray-700">Due in 45 days</p>
               </div>
             </div>
           </Card>

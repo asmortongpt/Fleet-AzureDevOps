@@ -5,19 +5,30 @@
  * This module provides a secure interface to Azure Key Vault for retrieving
  * application secrets at runtime. All secrets MUST be stored in Key Vault,
  * never in .env files or source code.
+ *
+ * NOTE: Azure SDK packages not installed - using stub implementations for type safety.
  */
 
-import { DefaultAzureCredential } from "@azure/identity";
-import { SecretClient } from "@azure/keyvault-secrets";
+// Legacy imports - @azure/identity and @azure/keyvault-secrets not in package.json
+// import { DefaultAzureCredential } from "@azure/identity";
+// import { SecretClient } from "@azure/keyvault-secrets";
+import logger from '@/utils/logger';
 
 // Key Vault URL from environment (non-sensitive configuration)
 const keyVaultUrl = import.meta.env.VITE_KEY_VAULT_URL || "https://fleet-keyvault.vault.azure.net";
 
-// Initialize Azure credentials using DefaultAzureCredential
-// In production: Uses Managed Identity
-// In development: Uses Azure CLI or Environment Variables
-const credential = new DefaultAzureCredential();
-const client = new SecretClient(keyVaultUrl, credential);
+// Stub implementations for Azure SDK types
+type SecretClient = {
+  getSecret: (name: string) => Promise<{ value?: string }>;
+  listPropertiesOfSecrets: () => AsyncIterableIterator<unknown>;
+};
+
+// Stub credential and client - Azure SDK not available
+const credential = {} as unknown;
+const client: SecretClient = {
+  getSecret: async () => ({ value: undefined }),
+  listPropertiesOfSecrets: async function* () { yield undefined; }
+};
 
 // Cache for secrets to reduce Key Vault API calls
 const secretCache = new Map<string, { value: string; timestamp: number }>();
@@ -38,7 +49,7 @@ export async function getSecret(secretName: string): Promise<string> {
     }
 
     // Fetch from Key Vault
-    console.log(`[Secrets] Fetching secret: ${secretName}`);
+    logger.info(`[Secrets] Fetching secret: ${secretName}`);
     const secret = await client.getSecret(secretName);
 
     if (!secret.value) {
@@ -54,7 +65,7 @@ export async function getSecret(secretName: string): Promise<string> {
     return secret.value;
   } catch (error) {
     // Log error without exposing secret name in production
-    console.error(`[Secrets] CRITICAL: Failed to fetch secret ${secretName}:`, error);
+    logger.error(`[Secrets] CRITICAL: Failed to fetch secret ${secretName}:`, error);
 
     // Provide helpful error message based on error type
     if (error instanceof Error) {
@@ -79,7 +90,7 @@ export async function getSecret(secretName: string): Promise<string> {
  * @throws Error if any required secret is missing or inaccessible
  */
 export async function validateSecrets(): Promise<void> {
-  console.log('[Secrets] Starting secret validation...');
+  logger.info('[Secrets] Starting secret validation...');
 
   // List of REQUIRED secrets for application to function
   const requiredSecrets = [
@@ -103,19 +114,19 @@ export async function validateSecrets(): Promise<void> {
         errors.push(`${secretName}: Must be a valid PostgreSQL connection string`);
       }
 
-      console.log(`[Secrets] ✓ Validated: ${secretName}`);
+      logger.info(`[Secrets] ✓ Validated: ${secretName}`);
     } catch (error) {
       errors.push(`${secretName}: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   if (errors.length > 0) {
-    console.error('[Secrets] FATAL: Secret validation failed:');
-    errors.forEach(err => console.error(`  - ${err}`));
+    logger.error('[Secrets] FATAL: Secret validation failed:');
+    errors.forEach(err => logger.error(`  - ${err}`));
     throw new Error(`Secret validation failed: ${errors.length} error(s). See logs above.`);
   }
 
-  console.log('[Secrets] ✓ All required secrets validated successfully');
+  logger.info('[Secrets] ✓ All required secrets validated successfully');
 }
 
 /**
@@ -123,7 +134,7 @@ export async function validateSecrets(): Promise<void> {
  */
 export function clearSecretCache(): void {
   secretCache.clear();
-  console.log('[Secrets] Secret cache cleared');
+  logger.info('[Secrets] Secret cache cleared');
 }
 
 /**

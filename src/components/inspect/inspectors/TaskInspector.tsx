@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { apiClient } from '@/lib/api';
+import { apiClient } from "@/lib/api-client";
 import logger from '@/utils/logger';
 interface TaskInspectorProps {
   id: string;
@@ -155,7 +155,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
 
   if (!task) {
     return (
-      <div className="p-3 text-gray-500">
+      <div className="p-3 text-gray-700">
         No task data available
       </div>
     );
@@ -172,7 +172,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
             <h2 className="text-sm font-bold text-gray-900 dark:text-white">
               {task.title}
             </h2>
-            <p className="text-sm text-slate-700 dark:text-gray-400 mt-1">
+            <p className="text-sm text-slate-700 dark:text-gray-700 mt-1">
               {task.type}
             </p>
           </div>
@@ -333,9 +333,9 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                     {item.completed ? (
                       <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
                     ) : (
-                      <Circle className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                      <Circle className="h-5 w-5 text-gray-700 flex-shrink-0" />
                     )}
-                    <span className={`flex-1 ${item.completed ? 'line-through text-gray-500' : ''}`}>
+                    <span className={`flex-1 ${item.completed ? 'line-through text-gray-700' : ''}`}>
                       {item.description}
                     </span>
                   </div>
@@ -370,7 +370,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Task Created</p>
                   <p className="text-sm text-slate-700">{new Date(task.createdAt).toLocaleString()}</p>
-                  <p className="text-sm text-gray-500">Priority set to {task.priority}</p>
+                  <p className="text-sm text-gray-700">Priority set to {task.priority}</p>
                 </div>
               </div>
 
@@ -383,7 +383,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   <div className="flex-1 pb-2">
                     <p className="font-medium">Task Assigned</p>
                     <p className="text-sm text-slate-700">{new Date(task.createdAt).toLocaleString()}</p>
-                    <p className="text-sm text-gray-500">Assigned to {task.assignedTo.name}</p>
+                    <p className="text-sm text-gray-700">Assigned to {task.assignedTo.name}</p>
                   </div>
                 </div>
               )}
@@ -409,7 +409,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   <div className="flex-1">
                     <p className="font-medium text-green-600">Task Completed</p>
                     <p className="text-sm text-slate-700">{new Date(task.completedAt).toLocaleString()}</p>
-                    <p className="text-sm text-gray-500">All checklist items completed</p>
+                    <p className="text-sm text-gray-700">All checklist items completed</p>
                   </div>
                 </div>
               )}

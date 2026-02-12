@@ -9,7 +9,8 @@ import { KPITiles, KPIMeasure } from './visualizations/KPITiles';
 import { TrendChart, TrendDataPoint } from './visualizations/TrendChart';
 
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts';
+import logger from '@/utils/logger';
 
 
 interface ReportDefinition {
@@ -128,7 +129,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
         const definition = await response.json();
         setReportDef(definition);
       } catch (err) {
-        console.error('Error loading report:', err);
+        logger.error('Error loading report:', err);
         setError(err instanceof Error ? err.message : 'Failed to load report');
       } finally {
         setLoading(false);
@@ -144,8 +145,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
 
     setLoading(true);
     try {
-      // In production, this would call the backend API
-      // For now, we'll simulate with mock data
+      // Call backend API for report execution
       const response = await fetch('/api/reports/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -164,9 +164,9 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       const data = await response.json();
       setReportData(data);
     } catch (err) {
-      console.error('Error fetching report data:', err);
-      // Use mock data for demo
-      setReportData(generateMockData(reportDef));
+      logger.error('Error fetching report data:', err);
+      // Return empty data structure when API is unavailable
+      setReportData(generateEmptyData(reportDef));
     } finally {
       setLoading(false);
     }
@@ -247,7 +247,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Export error:', err);
+      logger.error('Export error:', err);
       alert('Export failed. Please try again.');
     }
   }, [reportDef, filters, user]);
@@ -416,37 +416,21 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   );
 }
 
-// Mock data generator for demo purposes
-function generateMockData(reportDef: ReportDefinition): Record<string, any> {
+// Returns empty data structure when API is unavailable
+function generateEmptyData(reportDef: ReportDefinition): Record<string, any> {
   const data: Record<string, any> = {};
 
   reportDef.visuals.forEach((visual) => {
     if (visual.type === 'kpiTiles') {
       visual.measures?.forEach((measure) => {
-        data[measure.id] = Math.random() * 1000000;
-        data[`${measure.id}_trend`] = {
-          direction: Math.random() > 0.5 ? 'up' : 'down',
-          value: Math.random() * 20,
-          label: 'vs last period'
-        };
-        data[`${measure.id}_target`] = Math.random() * 1200000;
+        data[measure.id] = 0;
+        data[`${measure.id}_trend`] = null;
+        data[`${measure.id}_target`] = null;
       });
     } else if (visual.type === 'line') {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      data[visual.id] = months.map((month) => ({
-        month,
-        amount: Math.random() * 100000,
-        category: 'Total'
-      }));
+      data[visual.id] = [];
     } else if (visual.type === 'table') {
-      data[visual.id] = Array.from({ length: 100 }, (_, i) => ({
-        month: 'Jan 2024',
-        category: `Category ${i % 5}`,
-        department: `Dept ${i % 3}`,
-        equipment_key: `EQ-${1000 + i}`,
-        work_order_number: `WO-${10000 + i}`,
-        amount: Math.random() * 10000
-      }));
+      data[visual.id] = [];
     }
   });
 

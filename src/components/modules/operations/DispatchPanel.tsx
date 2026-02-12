@@ -1,10 +1,10 @@
 import {
-    Microphone,
+    Mic,
     Radio,
-    Warning,
-    SpeakerHigh,
-    SpeakerSlash
-} from "@phosphor-icons/react";
+    AlertTriangle,
+    Volume2,
+    VolumeX
+} from "lucide-react";
 import React, { useState, useEffect } from "react";
 
 import { Badge } from "../../ui/badge";
@@ -20,6 +20,7 @@ import {
 
 import { useDispatchSocket } from "@/hooks/useDispatchSocket";
 import { usePTT } from "@/hooks/usePTT";
+import logger from '@/utils/logger';
 
 interface DispatchPanelProps {
     open: boolean;
@@ -36,22 +37,28 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
     const dispatch = useDispatchSocket({
         channelId: selectedChannelId || undefined,
         autoConnect: open, // Only connect when panel is open to save resources
-        onEmergencyAlert: (alert) => console.log('Emergency alert:', alert),
-        onTransmission: (t) => console.log('Transmission:', t)
+        onEmergencyAlert: (alert) => logger.info('Emergency alert:', alert),
     });
+
+    useEffect(() => {
+        if (!open) return;
+        if (!selectedChannelId) return;
+        if (!dispatch.isConnected) return;
+        dispatch.subscribeToChannel(selectedChannelId);
+    }, [dispatch.isConnected, open, selectedChannelId]);
 
     const ptt = usePTT({
         onAudioChunk: (data) => {
-            if (ptt.currentTransmissionId) dispatch.sendAudioChunk(data, ptt.currentTransmissionId);
+            if (dispatch.activeTransmission?.id) dispatch.sendAudioChunk(data, dispatch.activeTransmission.id);
         },
-        onTransmissionStart: () => console.log('PTT Start'),
+        onTransmissionStart: () => logger.info('PTT Start'),
         onTransmissionEnd: (blob) => {
-            console.log('PTT End');
-            if (ptt.currentTransmissionId) {
+            logger.info('PTT End');
+            if (dispatch.activeTransmission?.id) {
                 const reader = new FileReader();
                 reader.onloadend = () => {
                     const base64 = (reader.result as string).split(',')[1];
-                    dispatch.endTransmission(ptt.currentTransmissionId!, base64);
+                    dispatch.endTransmission(dispatch.activeTransmission!.id, base64);
                 };
                 reader.readAsDataURL(blob);
             }
@@ -59,16 +66,31 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
         enableKeyboardShortcut: open // Only enable shortcut when open
     });
 
-    // Mock channels if API fails or for immediate feedback
+    // Load channels from DB-backed API when the panel opens.
     useEffect(() => {
-        setChannels([
-            { id: 'ch-1', name: 'Operations Main', status: 'ACTIVE', frequency: '450.025' },
-            { id: 'ch-2', name: 'Maintenance', status: 'ACTIVE', frequency: '451.100' },
-            { id: 'ch-3', name: 'Security', status: 'BUSY', frequency: '452.325' },
-            { id: 'ch-4', name: 'Logistics', status: 'ACTIVE', frequency: '453.550' }
-        ]);
-        setSelectedChannelId('ch-1');
-    }, []);
+        if (!open) return;
+        let cancelled = false;
+
+        const loadChannels = async () => {
+            try {
+                const res = await fetch('/api/dispatch/channels', { credentials: 'include' });
+                const json = await res.json();
+                if (!cancelled && json?.success) {
+                    setChannels(Array.isArray(json.channels) ? json.channels : []);
+                    if (Array.isArray(json.channels) && json.channels.length > 0) {
+                        setSelectedChannelId((prev) => prev || json.channels[0].id);
+                    }
+                }
+            } catch (err) {
+                logger.error('[DispatchPanel] Failed to load channels', err);
+            }
+        };
+
+        loadChannels();
+        return () => {
+            cancelled = true;
+        };
+    }, [open]);
 
     return (
         <Sheet open={open} onOpenChange={onOpenChange}>
@@ -81,7 +103,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                 <SheetHeader className="p-3 border-b border-white/10 bg-black/20">
                     <div className="flex items-center justify-between">
                         <SheetTitle className="text-base font-semibold flex items-center gap-2 text-white">
-                            <Radio className="w-4 h-4 text-emerald-400" weight="fill" />
+                            <Radio className="w-4 h-4 text-emerald-700" />
                             Dispatch Radio
                         </SheetTitle>
                         <div className={`w-3 h-3 rounded-full ${dispatch.isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`} />
@@ -101,7 +123,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                         <Button
                             className={`h-24 w-full rounded-lg relative overflow-hidden transition-all duration-300 flex flex-col items-center justify-center gap-2 ${(ptt.isTransmitting || isPressing)
                                 ? "bg-red-500/20 border-red-500/50 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)]"
-                                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-500 hover:bg-emerald-500/20 hover:border-emerald-500/40"
+                                : "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 hover:bg-emerald-500/20 hover:border-emerald-500/40"
                                 } border-2`}
                             onMouseDown={() => { setIsPressing(true); ptt.startPTT(); }}
                             onMouseUp={() => { setIsPressing(false); ptt.stopPTT(); }}
@@ -124,7 +146,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                             )}
 
                             <div className="relative z-10 flex flex-col items-center">
-                                <Microphone className={`w-4 h-4 mb-1 ${(ptt.isTransmitting || isPressing) ? "animate-pulse" : ""}`} weight="fill" />
+                                <Mic className={`w-4 h-4 mb-1 ${(ptt.isTransmitting || isPressing) ? "animate-pulse" : ""}`} />
                                 <span className="font-bold tracking-wider font-mono">
                                     {(ptt.isTransmitting || isPressing) ? "TRANSMITTING" : "PUSH TO TALK"}
                                 </span>
@@ -137,7 +159,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                             onClick={() => setIsMuted(!isMuted)}
                             className={isMuted ? 'text-red-500' : 'text-muted-foreground'}
                         >
-                            {isMuted ? <SpeakerSlash className="w-4 h-4 mr-2" /> : <SpeakerHigh className="w-4 h-4 mr-2" />}
+                            {isMuted ? <VolumeX className="w-4 h-4 mr-2" /> : <Volume2 className="w-4 h-4 mr-2" />}
                             {isMuted ? 'Audio Muted' : 'Audio Active'}
                         </Button>
                     </div>
@@ -152,7 +174,10 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                                     {channels.map(channel => (
                                         <button
                                             key={channel.id}
-                                            onClick={() => setSelectedChannelId(channel.id)}
+                                            onClick={() => {
+                                                setSelectedChannelId(channel.id);
+                                                dispatch.subscribeToChannel(channel.id);
+                                            }}
                                             className={`
                                         w-full text-left p-2 rounded-md text-sm transition-colors flex items-center justify-between
                                         ${selectedChannelId === channel.id
@@ -161,7 +186,9 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                                     `}
                                         >
                                             <span>{channel.name}</span>
-                                            {channel.status === 'BUSY' && <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />}
+                                            {String(channel.channel_type || channel.status || '').toUpperCase() === 'EMERGENCY' && (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                            )}
                                         </button>
                                     ))}
                                 </div>
@@ -173,21 +200,28 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                             <div className="p-3 text-xs font-semibold text-muted-foreground uppercase bg-muted/10 border-b">Recent Activity</div>
                             <ScrollArea className="flex-1">
                                 <div className="divide-y">
-                                    {/* Mock history items */}
-                                    {[1, 2, 3].map((_, i) => (
-                                        <div key={i} className="p-3 hover:bg-muted/5">
-                                            <div className="flex items-center justify-between mb-1">
-                                                <span className="text-xs font-bold">Unit 45</span>
-                                                <span className="text-[10px] text-muted-foreground">10:42 AM</span>
+                                    {dispatch.recentTransmissions.length === 0 ? (
+                                        <div className="p-3 text-xs text-muted-foreground">No recent transmissions.</div>
+                                    ) : (
+                                        dispatch.recentTransmissions.slice(0, 10).map((t) => (
+                                            <div key={t.id} className="p-3 hover:bg-muted/5">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="text-xs font-bold">{t.username || 'Unit'}</span>
+                                                    <span className="text-[10px] text-muted-foreground">
+                                                        {new Date(t.startedAt).toLocaleTimeString()}
+                                                    </span>
+                                                </div>
+                                                <div className="text-xs text-muted-foreground line-clamp-2">
+                                                    Transmission {t.id}
+                                                </div>
+                                                <div className="flex items-center gap-1 mt-1">
+                                                    <Badge variant="outline" className="text-[10px] h-4 px-1">
+                                                        {t.isEmergency ? 'Emergency' : 'Normal'}
+                                                    </Badge>
+                                                </div>
                                             </div>
-                                            <div className="text-xs text-muted-foreground line-clamp-2">
-                                                "Arrived at destination. Offloading cargo now."
-                                            </div>
-                                            <div className="flex items-center gap-1 mt-1">
-                                                <Badge variant="outline" className="text-[10px] h-4 px-1">Normal</Badge>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))
+                                    )}
                                 </div>
                             </ScrollArea>
                         </div>
@@ -197,7 +231,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                 {/* Emergency Footer */}
                 <div className="p-2 border-t bg-destructive/5">
                     <Button variant="destructive" className="w-full font-bold" size="lg">
-                        <Warning className="w-3 h-3 mr-2" />
+                        <AlertTriangle className="w-3 h-3 mr-2" />
                         EMERGENCY ALERT
                     </Button>
                 </div>

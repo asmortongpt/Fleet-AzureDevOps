@@ -505,7 +505,7 @@ export class AuthenticationService {
     try {
       // DEVELOPMENT BYPASS: Accept mock tokens in dev mode
       // This is CRITICAL for local development without Azure AD
-      if (process.env.NODE_ENV === 'development' || true) { // Force true for local dev
+      if (process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'staging') { // Mock token support for local development only
         try {
           const decoded = Buffer.from(token, 'base64').toString('utf-8');
           // Simple heuristic: starts with { and contains "payload"

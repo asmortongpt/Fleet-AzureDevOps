@@ -9,6 +9,8 @@
  * - Complex filtering and sorting
  */
 
+import logger from '@/utils/logger';
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -592,4 +594,4 @@ function calculateSavings(
 // WORKER READY
 // ============================================================================
 
-console.log('[Worker] Data processor worker initialized');
+logger.info('[Worker] Data processor worker initialized');

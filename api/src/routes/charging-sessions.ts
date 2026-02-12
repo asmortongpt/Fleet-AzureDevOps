@@ -23,39 +23,37 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT 
-      id,
-      transaction_id,
-      station_id,
-      connector_id,
-      vehicle_id,
-      driver_id,
-      start_time,
-      end_time,
-      duration_minutes,
-      start_soc_percent,
-      end_soc_percent,
-      energy_delivered_kwh,
-      max_power_kw,
-      avg_power_kw,
-      energy_cost,
-      idle_fee,
-      total_cost,
-      session_status,
-      stop_reason,
-      scheduled_start_time,
-      scheduled_end_time,
-      charging_profile,
-      is_smart_charging,
-      target_soc_percent,
-      reservation_id,
-      rfid_tag,
-      authorization_method,
-      meter_start,
-      meter_stop,
-      raw_ocpp_data,
-      created_at,
-      updated_at FROM charging_sessions WHERE tenant_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`,
+        `SELECT
+          cs.id,
+          cs.tenant_id,
+          cs.vehicle_id,
+          cs.driver_id,
+          cs.station_id,
+          cs.start_time,
+          cs.end_time,
+          cs.duration_minutes,
+          cs.energy_delivered_kwh,
+          cs.start_soc_percent,
+          cs.end_soc_percent,
+          cs.cost,
+          cs.payment_method,
+          cs.status,
+          cs.metadata,
+          cs.created_at,
+          cs.updated_at,
+          v.vehicle_number,
+          v.make,
+          v.model,
+          d.first_name,
+          d.last_name,
+          s.name as station_name
+         FROM charging_sessions cs
+         LEFT JOIN vehicles v ON cs.vehicle_id = v.id
+         LEFT JOIN drivers d ON cs.driver_id = d.id
+         LEFT JOIN charging_stations s ON cs.station_id = s.id
+         WHERE cs.tenant_id = $1
+         ORDER BY cs.start_time DESC NULLS LAST, cs.created_at DESC
+         LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )
 
@@ -88,7 +86,34 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT id, transaction_id, station_id, connector_id, vehicle_id, driver_id, start_time, end_time, duration_minutes, start_soc_percent, end_soc_percent, energy_delivered_kwh, max_power_kw, avg_power_kw, energy_cost, idle_fee, total_cost, session_status, stop_reason, scheduled_start_time, scheduled_end_time, charging_profile, is_smart_charging, target_soc_percent, reservation_id, rfid_tag, authorization_method, meter_start, meter_stop, raw_ocpp_data, created_at, updated_at FROM charging_sessions WHERE id = $1 AND tenant_id = $2`,
+        `SELECT cs.id,
+                cs.tenant_id,
+                cs.vehicle_id,
+                cs.driver_id,
+                cs.station_id,
+                cs.start_time,
+                cs.end_time,
+                cs.duration_minutes,
+                cs.energy_delivered_kwh,
+                cs.start_soc_percent,
+                cs.end_soc_percent,
+                cs.cost,
+                cs.payment_method,
+                cs.status,
+                cs.metadata,
+                cs.created_at,
+                cs.updated_at,
+                v.vehicle_number,
+                v.make,
+                v.model,
+                d.first_name,
+                d.last_name,
+                s.name as station_name
+         FROM charging_sessions cs
+         LEFT JOIN vehicles v ON cs.vehicle_id = v.id
+         LEFT JOIN drivers d ON cs.driver_id = d.id
+         LEFT JOIN charging_stations s ON cs.station_id = s.id
+         WHERE cs.id = $1 AND cs.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 

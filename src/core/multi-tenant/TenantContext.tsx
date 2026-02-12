@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import logger from '@/utils/logger';
 
 interface Tenant {
   id: string;
@@ -60,7 +61,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
       }
 
     } catch (error) {
-      console.error('Failed to load tenant:', error);
+      logger.error('Failed to load tenant:', error);
     } finally {
       setLoading(false);
     }

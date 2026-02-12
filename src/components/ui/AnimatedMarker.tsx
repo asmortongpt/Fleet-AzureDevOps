@@ -1,9 +1,9 @@
-import { motion, HTMLMotionProps } from "framer-motion";
-import { ReactNode } from "react";
+// motion removed - React 19 incompatible
+import { ReactNode, HTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
 
-interface AnimatedMarkerProps extends Omit<HTMLMotionProps<"div">, "children"> {
+interface AnimatedMarkerProps extends HTMLAttributes<HTMLDivElement> {
   /** Marker content (icon, number, etc.) */
   children: ReactNode;
   /** Whether the marker is active/selected */
@@ -23,10 +23,9 @@ interface AnimatedMarkerProps extends Omit<HTMLMotionProps<"div">, "children"> {
 }
 
 /**
- * AnimatedMarker - Smooth map marker transitions with Framer Motion
+ * AnimatedMarker - Map marker with status indicators
  *
  * Features:
- * - Entry/exit animations
  * - Hover effects with scale and shadow
  * - Pulse animation for active vehicles
  * - Status-based color coding
@@ -67,30 +66,14 @@ export function AnimatedMarker({
   }
 
   return (
-    <motion.div
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{
-        scale: isActive ? 1.2 : 1,
-        opacity: 1
-      }}
-      exit={{ scale: 0, opacity: 0 }}
-      whileHover={{
-        scale: isActive ? 1.3 : 1.1,
-        boxShadow: "0 10px 30px rgba(0, 0, 0, 0.3)"
-      }}
-      whileTap={{ scale: 0.95 }}
-      transition={{
-        type: "spring",
-        stiffness: 400,
-        damping: 17
-      }}
+    <div
       className={cn(
         "relative rounded-full border-2 flex items-center justify-center",
-        "cursor-pointer shadow-sm transition-shadow",
+        "cursor-pointer shadow-sm transition-all duration-200 hover:scale-110 hover:shadow-lg",
         "backdrop-blur-sm",
         sizeClasses[size],
         colorClasses,
-        isActive && "ring-4 ring-white/50",
+        isActive && "ring-4 ring-white/50 scale-[1.2]",
         className
       )}
       role="button"
@@ -105,44 +88,28 @@ export function AnimatedMarker({
 
       {/* Pulse animation for active vehicles */}
       {showPulse && (
-        <motion.div
+        <div
           className={cn(
-            "absolute inset-0 rounded-full",
+            "absolute inset-0 rounded-full animate-ping opacity-50",
             colorClasses
           )}
-          animate={{
-            scale: [1, 1.5, 1],
-            opacity: [0.7, 0, 0.7],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
         />
       )}
 
       {/* Active indicator */}
       {isActive && (
-        <motion.div
-          className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full border-2 border-current"
-          animate={{
-            scale: [1, 1.2, 1],
-          }}
-          transition={{
-            duration: 1,
-            repeat: Infinity,
-          }}
+        <div
+          className="absolute -top-1 -right-1 w-3 h-3 bg-white rounded-full border-2 border-current animate-pulse"
         />
       )}
-    </motion.div>
+    </div>
   );
 }
 
 /**
  * AnimatedMarkerCluster - Marker for clustered vehicles
  */
-interface AnimatedMarkerClusterProps extends Omit<HTMLMotionProps<"div">, "children"> {
+interface AnimatedMarkerClusterProps extends HTMLAttributes<HTMLDivElement> {
   count: number;
   isActive?: boolean;
   size?: "sm" | "md" | "lg";
@@ -163,23 +130,10 @@ export function AnimatedMarkerCluster({
   };
 
   return (
-    <motion.div
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0, opacity: 0 }}
-      whileHover={{
-        scale: 1.15,
-        boxShadow: "0 12px 36px rgba(0, 0, 0, 0.4)"
-      }}
-      whileTap={{ scale: 0.9 }}
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 15
-      }}
+    <div
       className={cn(
         "relative rounded-full border-3 flex items-center justify-center",
-        "cursor-pointer shadow-sm",
+        "cursor-pointer shadow-sm transition-all duration-200 hover:scale-[1.15] hover:shadow-lg",
         "bg-gradient-to-br from-blue-500 to-blue-600",
         "border-blue-700",
         sizeClasses[size],
@@ -194,26 +148,17 @@ export function AnimatedMarkerCluster({
       <div className="text-white font-bold">{count}</div>
 
       {/* Ripple effect */}
-      <motion.div
-        className="absolute inset-0 rounded-full bg-blue-400"
-        animate={{
-          scale: [1, 1.3, 1],
-          opacity: [0.5, 0, 0.5],
-        }}
-        transition={{
-          duration: 1.5,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
+      <div
+        className="absolute inset-0 rounded-full bg-blue-400 animate-ping opacity-30"
       />
-    </motion.div>
+    </div>
   );
 }
 
 /**
  * AnimatedMarkerRoute - Animated route line endpoint marker
  */
-interface AnimatedMarkerRouteProps extends Omit<HTMLMotionProps<"div">, "children"> {
+interface AnimatedMarkerRouteProps extends HTMLAttributes<HTMLDivElement> {
   type: "start" | "end" | "waypoint";
   label?: string;
   className?: string;
@@ -234,15 +179,7 @@ export function AnimatedMarkerRoute({
   const config = typeConfig[type];
 
   return (
-    <motion.div
-      initial={{ scale: 0, opacity: 0, y: -20 }}
-      animate={{ scale: 1, opacity: 1, y: 0 }}
-      exit={{ scale: 0, opacity: 0, y: 20 }}
-      transition={{
-        type: "spring",
-        stiffness: 500,
-        damping: 20
-      }}
+    <div
       className={cn(
         "relative w-4 h-4 rounded-full border-2 flex items-center justify-center",
         "shadow-sm cursor-pointer",
@@ -255,14 +192,12 @@ export function AnimatedMarkerRoute({
     >
       <div className="text-white font-bold text-xs">{config.icon}</div>
       {label && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+        <div
           className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium bg-black/75 text-white px-2 py-1 rounded shadow-sm"
         >
           {label}
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }

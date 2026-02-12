@@ -14,12 +14,8 @@
  * Created: 2025-11-23
  */
 
-import {
-  MagnifyingGlass, Car, User, Wrench, Package,
-  Truck, MapPin, FileText,
-  Keyboard, CaretRight, Spinner
-} from '@phosphor-icons/react'
-import { motion } from 'framer-motion'
+import { Search, Car, User, Wrench, Package, Truck, MapPin, FileText, Keyboard, ChevronRight, Loader2, Loader2 as Spinner } from 'lucide-react'
+// motion removed - React 19 incompatible
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -93,7 +89,7 @@ const SEARCH_CATEGORIES: SearchCategory[] = [
   { type: 'part', label: 'Parts', icon: Package, color: 'text-cyan-500' },
   { type: 'vendor', label: 'Vendors', icon: Truck, color: 'text-indigo-500' },
   { type: 'route', label: 'Routes', icon: MapPin, color: 'text-purple-500' },
-  { type: 'document', label: 'Documents', icon: FileText, color: 'text-gray-500' }
+  { type: 'document', label: 'Documents', icon: FileText, color: 'text-gray-700' }
 ]
 
 // ============================================================================
@@ -222,7 +218,7 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
           searchResults.push({
             type: 'work-order',
             id: wo.id,
-            title: `WO-${wo.id.slice(-6)} - ${wo.serviceType}`,
+            title: `WO-${String(wo.id).slice(-6)} - ${wo.serviceType}`,
             subtitle: wo.vehicleNumber,
             description: `${wo.status} | ${wo.priority} priority`,
             score,
@@ -308,9 +304,7 @@ function SearchResultItem({ result, isSelected, onClick }: SearchResultItemProps
   const Icon = category?.icon || FileText
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 5 }}
-      animate={{ opacity: 1, y: 0 }}
+    <div
       onClick={onClick}
       className={cn(
         "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
@@ -341,8 +335,8 @@ function SearchResultItem({ result, isSelected, onClick }: SearchResultItemProps
         )}
       </div>
 
-      <CaretRight className="w-4 h-4 text-muted-foreground shrink-0" />
-    </motion.div>
+      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+    </div>
   )
 }
 
@@ -420,7 +414,7 @@ export function UniversalSearch({
       <DialogContent className={cn("sm:max-w-[600px] p-0", className)}>
         <DialogHeader className="px-2 pt-2 pb-2">
           <div className="flex items-center gap-2">
-            <MagnifyingGlass className="w-3 h-3 text-muted-foreground" />
+            <Search className="w-3 h-3 text-muted-foreground" />
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -446,7 +440,7 @@ export function UniversalSearch({
               </div>
             ) : results.length === 0 && !isSearching ? (
               <div className="text-center py-3 text-muted-foreground">
-                <MagnifyingGlass className="w-4 h-4 mx-auto mb-2 opacity-50" />
+                <Search className="w-4 h-4 mx-auto mb-2 opacity-50" />
                 <p className="text-sm">No results found for "{query}"</p>
               </div>
             ) : (

@@ -4,6 +4,7 @@ import logger from '../config/logger'; // Wave 29: Add Winston logger
 import { ValidationError } from '../errors/app-error'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { pool } from '../db/connection'
 import {
   getPresence,
   setPresence,
@@ -11,7 +12,8 @@ import {
   getDriverAvailability,
   getAllDriversAvailability,
   findAvailableDrivers,
-  getIntelligentRoutingSuggestion
+  getIntelligentRoutingSuggestion,
+  subscribeToPresence
 } from '../services/presence.service'
 import { getErrorMessage } from '../utils/error-handler'
 
@@ -200,12 +202,36 @@ router.post('/subscribe', csrfProtection, authenticateJWT, async (req: Request, 
       })
     }
 
-    // Note: This would require proper webhook setup
-    // For now, return a placeholder response
+    const userId = (req as any).user?.id || null
+    const tenantId = (req as any).user?.tenant_id || null
+
+    // Store the webhook subscription in the database
+    const insertResult = await pool.query(
+      `INSERT INTO webhook_subscriptions
+       (user_id, tenant_id, resource_type, resource_ids, webhook_url, status, expires_at, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW() + INTERVAL '1 hour', NOW())
+       RETURNING id, expires_at`,
+      [userId, tenantId, 'presence', JSON.stringify(userIds), webhookUrl, 'active']
+    )
+
+    const subscription = insertResult.rows[0]
+
+    // Attempt to create the Microsoft Graph subscription for real-time presence updates
+    let graphSubscription = null
+    try {
+      graphSubscription = await subscribeToPresence(userIds, webhookUrl)
+    } catch (graphError: any) {
+      // Log but do not fail -- the local DB subscription is still stored
+      logger.warn('Microsoft Graph presence subscription failed (local DB subscription still active):', getErrorMessage(graphError))
+    }
+
     res.json({
       success: true,
       message: 'Presence subscription created',
-      note: 'Webhook subscriptions require proper Azure configuration'
+      subscriptionId: subscription.id,
+      expiresAt: subscription.expires_at,
+      graphSubscriptionId: graphSubscription?.id || null,
+      monitoredUserIds: userIds
     })
   } catch (error: any) {
     logger.error('Error creating presence subscription:', getErrorMessage(error)) // Wave 29: Winston logger

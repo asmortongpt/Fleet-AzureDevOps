@@ -2,6 +2,8 @@
  * Performance Monitoring Service
  */
 
+import logger from '@/utils/logger';
+
 export interface PerformanceMetric {
   name: string;
   value: number;
@@ -38,7 +40,7 @@ class PerformanceMonitor {
   }
 
   async reportToAnalytics(): Promise<void> {
-    console.log('Performance metrics reported');
+    logger.info('Performance metrics reported');
   }
 }
 

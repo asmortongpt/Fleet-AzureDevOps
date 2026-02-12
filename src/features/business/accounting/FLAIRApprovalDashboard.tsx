@@ -6,8 +6,44 @@
 
 import React, { useState, useEffect } from 'react';
 
-import { useAuth } from '../../contexts/AuthContext';
-import { flairIntegrationService, FLAIRExpenseEntry } from '../../services/FLAIRIntegration';
+import { useAuth } from '@/contexts';
+
+// FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
+export interface FLAIRExpenseEntry {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  department: string;
+  expenseType: string;
+  amount: number;
+  transactionDate: string;
+  description: string;
+  accountCodes: {
+    fundCode: string;
+    appUnitCode: string;
+    objectCode: string;
+    locationCode: string;
+  };
+  supportingDocuments: string[];
+  travelDetails?: {
+    originAddress: string;
+    destinationAddress: string;
+    mileage: number;
+    mileageRate: number;
+    purposeCode: string;
+  };
+  approvalStatus: 'pending' | 'supervisor_approved' | 'finance_approved' | 'submitted_to_flair' | 'processed' | 'rejected';
+  approvalHistory: ApprovalRecord[];
+}
+
+interface ApprovalRecord {
+  approverEmployeeId: string;
+  approverName: string;
+  approverTitle: string;
+  approvalLevel: string;
+  approvedAt: string;
+  comments?: string;
+}
 
 // Component props
 interface FLAIRApprovalDashboardProps {
@@ -46,7 +82,7 @@ const ExpenseEntryCard: React.FC<{
       rejected: { color: 'bg-red-100 text-red-800', text: 'Rejected' }
     };
 
-    const config = statusConfig[entry.approvalStatus];
+    const config = statusConfig[entry.approvalStatus as keyof typeof statusConfig] || statusConfig.pending;
     return <span className={`px-2 py-1 text-xs rounded-full ${config.color}`}>{config.text}</span>;
   };
 
@@ -63,9 +99,9 @@ const ExpenseEntryCard: React.FC<{
   };
 
   const canApprove = () => {
-    if (userRole === 'admin') return true;
-    if (userRole === 'manager' && entry.approvalStatus === 'pending') return true;
-    if (userRole === 'finance_manager' && entry.approvalStatus === 'supervisor_approved') return true;
+    const role = userRole?.toLowerCase?.() || '';
+    if (role === 'superadmin' || role === 'admin') return true;
+    if (role === 'manager' && entry.approvalStatus === 'pending') return true;
     return false;
   };
 
@@ -129,7 +165,7 @@ const ExpenseEntryCard: React.FC<{
         <div className="bg-gray-50 rounded-lg p-3 mb-2">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Approval History</h4>
           <div className="space-y-1">
-            {entry.approvalHistory.map((approval, index) => (
+            {entry.approvalHistory.map((approval: ApprovalRecord, index: number) => (
               <div key={index} className="text-xs text-slate-700">
                 <strong>{approval.approverName}</strong> ({approval.approvalLevel}) approved on{' '}
                 {new Date(approval.approvedAt).toLocaleString()}
@@ -362,12 +398,44 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
   const loadExpenseEntries = async () => {
     try {
       setIsLoading(true);
-      // In production, this would fetch from the backend
-      // For now, generate mock data
-      const mockEntries = generateMockEntries();
-      setEntries(mockEntries);
+
+      const response = await fetch('/api/flair/expenses', {
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to load expenses (${response.status})`);
+      }
+
+      const payload = await response.json();
+      const rows = payload.data ?? payload;
+
+      const mapped: FLAIRExpenseEntry[] = (rows || []).map((item: any) => ({
+        id: item.id,
+        employeeId: item.employee_id,
+        employeeName: item.employee_name,
+        department: item.department,
+        expenseType: item.expense_type,
+        amount: Number(item.amount) || 0,
+        transactionDate: item.transaction_date,
+        description: item.description,
+        accountCodes: item.account_codes || {
+          fundCode: '',
+          appUnitCode: '',
+          objectCode: '',
+          locationCode: ''
+        },
+        supportingDocuments: Array.isArray(item.supporting_documents) ? item.supporting_documents : [],
+        travelDetails: item.travel_details || undefined,
+        approvalStatus: item.approval_status,
+        approvalHistory: Array.isArray(item.approval_history) ? item.approval_history : []
+      }));
+
+      setEntries(mapped);
     } catch (error) {
       console.error('Error loading expense entries:', error);
+      setEntries([]);
     } finally {
       setIsLoading(false);
     }
@@ -434,20 +502,40 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
 
   const handleApproval = async (entryId: string, comments?: string) => {
     try {
-      const approvalLevel = user?.role === 'finance_manager' ? 'finance_manager' : 'supervisor';
+      const entry = entries.find((e) => e.id === entryId);
+      const approverName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Approver';
+      const approvalLevel = user?.role === 'Admin' || user?.role === 'SuperAdmin'
+        ? 'finance_manager'
+        : 'supervisor';
 
-      const success = await flairIntegrationService.approveExpense(entryId, {
-        approverEmployeeId: user?.employeeId || '',
-        approverName: user?.fullName || '',
-        approverTitle: user?.jobTitle || '',
+      const approvalRecord: ApprovalRecord = {
+        approverEmployeeId: user?.id || '',
+        approverName,
+        approverTitle: user?.role || '',
         approvalLevel,
+        approvedAt: new Date().toISOString(),
         comments
+      };
+
+      const updatedHistory = [...(entry?.approvalHistory || []), approvalRecord];
+      const nextStatus = approvalLevel === 'finance_manager' ? 'finance_approved' : 'supervisor_approved';
+
+      const response = await fetch(`/api/flair/expenses/${entryId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          approval_status: nextStatus,
+          approval_history: updatedHistory
+        })
       });
 
-      if (success) {
-        await loadExpenseEntries();
-        onApprovalComplete?.(entryId, true);
+      if (!response.ok) {
+        throw new Error(`Failed to approve expense (${response.status})`);
       }
+
+      await loadExpenseEntries();
+      onApprovalComplete?.(entryId, true);
     } catch (error) {
       console.error('Error approving expense:', error);
     }
@@ -455,8 +543,34 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
 
   const handleRejection = async (entryId: string, reason: string) => {
     try {
-      // In production, this would call a rejection API
-      console.log('Rejecting expense:', entryId, reason);
+      const entry = entries.find((e) => e.id === entryId);
+      const approverName = user ? `${user.firstName} ${user.lastName}`.trim() : 'Approver';
+
+      const rejectionRecord: ApprovalRecord = {
+        approverEmployeeId: user?.id || '',
+        approverName,
+        approverTitle: user?.role || '',
+        approvalLevel: 'rejection',
+        approvedAt: new Date().toISOString(),
+        comments: reason
+      };
+
+      const updatedHistory = [...(entry?.approvalHistory || []), rejectionRecord];
+
+      const response = await fetch(`/api/flair/expenses/${entryId}`, {
+        method: 'PUT',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          approval_status: 'rejected',
+          approval_history: updatedHistory
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to reject expense (${response.status})`);
+      }
+
       await loadExpenseEntries();
       onApprovalComplete?.(entryId, false);
     } catch (error) {
@@ -465,70 +579,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
   };
 
   const handleViewDetails = (entryId: string) => {
-    // In production, this would open a detailed view modal
     console.log('Viewing details for expense:', entryId);
-  };
-
-  const generateMockEntries = (): FLAIRExpenseEntry[] => {
-    // Generate mock expense entries for demonstration
-    const mockEntries: FLAIRExpenseEntry[] = [
-      {
-        id: 'EXP_001',
-        employeeId: 'DCF123456',
-        employeeName: 'John Smith',
-        department: 'Children and Families Services',
-        expenseType: 'travel_mileage',
-        amount: 45.6,
-        transactionDate: '2025-01-20',
-        description: 'Travel to client visit in Orlando',
-        accountCodes: {
-          fundCode: '1000',
-          appUnitCode: '60900200',
-          objectCode: '100777',
-          locationCode: '001'
-        },
-        supportingDocuments: [],
-        travelDetails: {
-          originAddress: '1317 Winewood Blvd, Tallahassee, FL',
-          destinationAddress: '12345 Orange Ave, Orlando, FL',
-          mileage: 68,
-          mileageRate: 0.67,
-          purposeCode: 'CLIENT_VISIT'
-        },
-        approvalStatus: 'pending',
-        approvalHistory: []
-      },
-      {
-        id: 'EXP_002',
-        employeeId: 'DCF789012',
-        employeeName: 'Sarah Johnson',
-        department: 'Administrative Services',
-        expenseType: 'fuel',
-        amount: 85.5,
-        transactionDate: '2025-01-19',
-        description: 'Fuel purchase for vehicle DCF-123',
-        accountCodes: {
-          fundCode: '1000',
-          appUnitCode: '60900100',
-          objectCode: '100779',
-          locationCode: '001'
-        },
-        supportingDocuments: [],
-        approvalStatus: 'supervisor_approved',
-        approvalHistory: [
-          {
-            approverEmployeeId: 'DCF456789',
-            approverName: 'Mike Davis',
-            approverTitle: 'Fleet Supervisor',
-            approvalLevel: 'supervisor',
-            approvedAt: '2025-01-20T10:30:00Z',
-            comments: 'Approved - regular fuel purchase'
-          }
-        ]
-      }
-    ];
-
-    return mockEntries;
   };
 
   if (isLoading) {
@@ -548,8 +599,8 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
           <h2 className="text-sm font-bold text-gray-900">FLAIR Approval Dashboard</h2>
           <p className="text-slate-700">Review and approve expense submissions</p>
         </div>
-        <div className="text-sm text-gray-500">
-          Logged in as: {user?.fullName} ({user?.role})
+        <div className="text-sm text-gray-700">
+          Logged in as: {user ? `${user.firstName} ${user.lastName}`.trim() : ''} ({user?.role})
         </div>
       </div>
 

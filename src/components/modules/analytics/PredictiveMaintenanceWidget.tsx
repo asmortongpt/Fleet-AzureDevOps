@@ -1,20 +1,18 @@
 import {
     Wrench,
-    TrendUp,
     Warning,
-    CheckCircle,
-    Lightning,
-    Clock
+    Lightning
 } from "@phosphor-icons/react"
 import { useMemo } from "react"
+import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-
 import { useVehicles } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
 
+import { AlertTriangle, Zap } from 'lucide-react';
 interface MaintenanceRisk {
     vehicleId: string
     vehicleName: string
@@ -26,47 +24,71 @@ interface MaintenanceRisk {
 
 export function PredictiveMaintenanceWidget() {
     const { data: vehiclesData, isLoading } = useVehicles()
+    const { data: predictions = [] } = useSWR<any[]>(
+        "/api/predictive-maintenance?limit=100",
+        (url: string) =>
+            fetch(url, { credentials: 'include' })
+                .then((r) => r.json())
+                .then((data) => data?.data ?? data),
+        { shouldRetryOnError: false }
+    )
 
     const vehicles = useMemo(() => {
         if (!vehiclesData) return []
         return Array.isArray(vehiclesData) ? vehiclesData : (vehiclesData as any).data || []
     }, [vehiclesData])
 
-    // Mock predictive analysis based on vehicle data
+    const predictionList = useMemo(() => {
+        return Array.isArray(predictions) ? predictions : (predictions as any)?.data || []
+    }, [predictions])
+
+    const vehiclesById = useMemo(() => {
+        return (vehicles as Vehicle[]).reduce<Record<string, Vehicle>>((acc: Record<string, Vehicle>, v: Vehicle) => {
+            acc[String(v.id)] = v
+            return acc
+        }, {})
+    }, [vehicles])
+
+    // Predictive analysis based on API data
     const risks: MaintenanceRisk[] = useMemo(() => {
-        return vehicles
-            .map((v: Vehicle) => {
-                // Simple logic for demo: older vehicles or high mileage = higher risk
-                let score = 0
-                if (v.mileage > 100000) score += 40
-                if (v.mileage > 50000) score += 20
-                if (v.year < 2020) score += 20
-                if (v.status === 'service') score += 10
-                if (v.alerts && v.alerts.length > 0) score += 20
-
-                // Randomize slightly for demo "AI" feel
-                score += Math.floor(Math.random() * 10)
-                score = Math.min(score, 100)
-
+        return predictionList
+            .map((prediction: any) => {
+                const confidence = Number(prediction.confidence_score ?? prediction.confidence ?? 0)
+                const score = Math.max(0, Math.min(100, Math.round(confidence)))
                 let level: MaintenanceRisk['riskLevel'] = 'low'
                 if (score > 80) level = 'critical'
                 else if (score > 60) level = 'high'
                 else if (score > 40) level = 'medium'
 
+                const vehicle = vehiclesById[String(prediction.vehicle_id)]
+                const vehicleName =
+                    prediction.vehicle_name ||
+                    prediction.vehicle_unit ||
+                    vehicle?.name ||
+                    (vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Unknown Vehicle')
+
+                const predictedDate = prediction.predicted_failure_date
+                    ? new Date(prediction.predicted_failure_date)
+                    : null
+                const daysUntilFailure = predictedDate
+                    ? Math.max(0, Math.ceil((predictedDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                    : undefined
+
                 return {
-                    vehicleId: v.id,
-                    vehicleName: v.name || `${v.year} ${v.make} ${v.model}`,
+                    vehicleId: prediction.vehicle_id || vehicle?.id || '',
+                    vehicleName,
                     riskScore: score,
                     riskLevel: level,
-                    predictedFailure: score > 60 ? 'Brake Pad Wear' : undefined,
-                    daysUntilFailure: score > 60 ? Math.floor(Math.random() * 30) : undefined
+                    predictedFailure: prediction.component || prediction.prediction_type || undefined,
+                    daysUntilFailure
                 }
             })
             .sort((a: MaintenanceRisk, b: MaintenanceRisk) => b.riskScore - a.riskScore)
-            .slice(0, 5) // Top 5
-    }, [vehicles])
+            .slice(0, 5)
+    }, [predictionList, vehiclesById])
 
     const highRiskCount = risks.filter(r => r.riskLevel === 'high' || r.riskLevel === 'critical').length
+    const next7Days = risks.filter(r => r.daysUntilFailure !== undefined && r.daysUntilFailure <= 7).length
     const fleetHealth = Math.round(100 - (risks.reduce((acc, r) => acc + r.riskScore, 0) / (risks.length || 1)))
 
     if (isLoading) {
@@ -83,7 +105,7 @@ export function PredictiveMaintenanceWidget() {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle className="flex items-center gap-2 text-sm">
-                            <Lightning className="h-5 w-5 text-amber-500" weight="fill" />
+                            <Zap className="h-5 w-5 text-amber-500" />
                             Predictive Maintenance
                         </CardTitle>
                         <CardDescription>AI-driven failure prediction</CardDescription>
@@ -102,8 +124,8 @@ export function PredictiveMaintenanceWidget() {
                             <div className="text-sm font-bold text-red-600">{highRiskCount}</div>
                         </div>
                         <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
-                            <div className="text-xs text-muted-foreground">Next 7 Days</div>
-                            <div className="text-sm font-bold text-blue-800">3</div>
+                        <div className="text-xs text-muted-foreground">Next 7 Days</div>
+                            <div className="text-sm font-bold text-blue-800">{next7Days}</div>
                         </div>
                     </div>
 
@@ -117,9 +139,9 @@ export function PredictiveMaintenanceWidget() {
                                 <div key={risk.vehicleId} className="flex items-center justify-between p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
                                     <div className="flex items-center gap-3">
                                         {risk.riskLevel === 'critical' ? (
-                                            <Warning className="text-red-500 h-4 w-4" weight="fill" />
+                                            <AlertTriangle className="text-red-500 h-4 w-4" />
                                         ) : risk.riskLevel === 'high' ? (
-                                            <Warning className="text-orange-500 h-4 w-4" weight="bold" />
+                                            <AlertTriangle className="text-orange-500 h-4 w-4" />
                                         ) : (
                                             <Wrench className="text-blue-800 h-4 w-4" />
                                         )}

@@ -4,7 +4,6 @@
  */
 
 import * as Sentry from '@sentry/node';
-import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { Request } from 'express';
 
 
@@ -82,6 +81,16 @@ class SentryService implements SentryConfig {
     }
 
     try {
+      let profilingIntegration: any = null;
+      try {
+        // Optional native dependency - guard to avoid hard crash in dev environments.
+        // eslint-disable-next-line @typescript-eslint/no-var-requires
+        const profiling = require('@sentry/profiling-node');
+        profilingIntegration = profiling?.nodeProfilingIntegration?.();
+      } catch (error: any) {
+        console.warn('Sentry profiling disabled:', error?.message || 'missing native module');
+      }
+
       Sentry.init({
         dsn,
         environment: process.env.NODE_ENV || 'development',
@@ -100,8 +109,8 @@ class SentryService implements SentryConfig {
           Sentry.expressIntegration(),
           // Postgres integration for database query tracking
           Sentry.postgresIntegration(),
-          // Profiling for performance monitoring
-          nodeProfilingIntegration(),
+          // Profiling for performance monitoring (optional)
+          ...(profilingIntegration ? [profilingIntegration] : []),
           // Console integration to capture console errors
           Sentry.consoleIntegration(),
           // Context lines for better error context

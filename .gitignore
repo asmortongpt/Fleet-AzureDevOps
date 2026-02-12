@@ -31,6 +31,10 @@ dist-ssr
 .env.staging
 .env.development
 .env.*.local
+.env.test
+.env.new
+.env.backup.*
+*.env.backup*
 .env.secrets*
 keyvault-config-*.env
 *-config.env
@@ -111,6 +115,9 @@ benchmarks/reports/*.html
 # Testing artifacts
 test-results/
 playwright-report/
+output/playwright/
+output/playwright/*.png
+output/audit/
 
 # Build outputs
 build/
@@ -157,3 +164,14 @@ artifacts/sync_test_*.json
 .gitignore updated
 azure-test-agents/
 incoming_data/
+*.env.bak*
+.env.bak
+
+# CLAWS.BOT
+claws-reports/
+logs/verification-*.log
+MERGE_EXECUTION_SUMMARY.md
+.env.bak*
+*.bak*
+.worktrees/
+*.zip

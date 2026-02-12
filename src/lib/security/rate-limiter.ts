@@ -5,6 +5,8 @@
  * @module security/rate-limiter
  */
 
+import logger from '@/utils/logger';
+
 export interface RateLimitConfig {
   windowMs: number; // Time window in milliseconds
   maxRequests: number; // Max requests per window
@@ -209,7 +211,7 @@ export class RateLimiter {
 
     // Log in development
     if (import.meta.env.DEV) {
-      console.warn('[Rate Limit] Violation detected:', violation);
+      logger.warn('[Rate Limit] Violation detected:', violation);
     }
 
     // Send to monitoring in production
@@ -231,7 +233,7 @@ export class RateLimiter {
         body: JSON.stringify(violation),
       });
     } catch (error) {
-      console.error('Failed to report rate limit violation:', error);
+      logger.error('Failed to report rate limit violation:', error);
     }
   }
 

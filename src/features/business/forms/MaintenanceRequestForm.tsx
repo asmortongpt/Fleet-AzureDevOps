@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import logger from '@/utils/logger';
 
 interface MaintenanceRequestProps {
   currentTheme: any;
@@ -21,7 +22,7 @@ const MaintenanceRequestForm: React.FC<MaintenanceRequestProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log('Maintenance Request:', request);
+    // logger.info('Maintenance Request:', request);
     alert('Maintenance request submitted successfully!');
     setActiveView('dashboard');
   };

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import logger from '@/utils/logger';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
@@ -30,7 +31,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Handle unauthorized - could redirect to login
-      console.error('Unauthorized request');
+      logger.error('Unauthorized request');
     }
     return Promise.reject(error);
   }

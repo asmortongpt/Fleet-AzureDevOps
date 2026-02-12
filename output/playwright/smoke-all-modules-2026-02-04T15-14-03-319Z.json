@@ -1,0 +1,16 @@
+{
+  "startedAt": "2026-02-04T15:14:03.320Z",
+  "baseUrl": "http://[::1]:5173",
+  "ok": [],
+  "failed": [
+    {
+      "categoryId": "global",
+      "moduleId": "bootstrap",
+      "moduleLabel": "bootstrap",
+      "error": "Login failed or timed out (status=500)"
+    }
+  ],
+  "warnings": [],
+  "httpErrors": [],
+  "finishedAt": "2026-02-04T15:14:06.378Z"
+}

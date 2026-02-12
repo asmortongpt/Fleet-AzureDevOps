@@ -5,6 +5,7 @@ import { useTenant } from './TenantContext';
 
 import type { FeatureFlagKey } from '@/types/feature-flags';
 import { FEATURE_FLAGS } from '@/types/feature-flags';
+import logger from '@/utils/logger';
 
 interface FeatureFlagContextType {
     isEnabled: (featureKey: FeatureFlagKey) => boolean;
@@ -37,7 +38,7 @@ export const FeatureFlagProvider = ({ children }: FeatureFlagProviderProps) => {
     const isEnabled = useCallback((featureKey: FeatureFlagKey): boolean => {
         const flagMetadata = FEATURE_FLAGS[featureKey];
         if (!flagMetadata) {
-            console.warn(`Unknown feature flag: ${featureKey}`);
+            logger.warn(`Unknown feature flag: ${featureKey}`);
             return false;
         }
 

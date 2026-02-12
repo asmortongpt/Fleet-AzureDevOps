@@ -19,6 +19,8 @@
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     font-feature-settings: 'tnum' 1, 'cv11' 1;
     text-rendering: optimizeLegibility;
+    font-size: 14px; /* Minimum readable size */
+    line-height: 1.6; /* Better readability */
   }
 
   /* Improved focus styles for accessibility */
@@ -51,52 +53,89 @@
 }
 
 /*
-  PREMIUM MODERN THEME
-  Fleet Management Platform - Next-Gen Design System
-  High-contrast, vibrant, and glassmorphic aesthetic
+  CAPITAL TECHNOLOGY ALLIANCE (CTA) BRAND THEME - VIBRANT PALETTE
+  Fleet Management Platform - ArchonY: Intelligent Performance
+  Professional, modern, and highly accessible
   WCAG AAA Compliant (7:1 contrast ratio minimum)
+
+  Brand Colors (Vibrant Palette) - EXACT from ADELE Branding Second Look 012626:
+  - DAYTIME: #2F3359 (Navy Blue - Headers, primary text, fonts)
+  - BLUE SKIES: #41B2E3 (Bright Cyan - Interactive, links, highlights)
+  - MIDNIGHT: #1A0B2E (Deep Purple - Backgrounds, dark sections)
+  - NOON: #DD3903 (Deep Orange-Red - CTAs, alerts, important highlights)
+  - GOLDEN HOUR: #F0A000 (Golden Yellow-Orange - Accents, secondary highlights, badges)
+  - Gradient Bar: linear-gradient(90deg, #F0A000 0%, #DD3903 100%) - Skyline Gradient
+
+  Taglines:
+  - "Intelligent Technology. Integrated Partnership."
+  - "Intelligent Performance"
 */
 :root {
-  /* FORCED DARK THEME - Deep Midnight (Default) */
-  --background: #0F1419;
-  --foreground: #F9FAFB;
+  /* CTA DARK THEME - ArchonY Enterprise (Default)
+   * All brand colors sourced from ADELE branding document (Jan 26, 2026)
+   * MIDNIGHT adjusted darker per client request (#0A0E27 instead of #1A0B2E)
+   * Updated for better readability with higher contrast
+   */
+  --background: #0A0E27; /* MIDNIGHT (darker) - App background */
+  --foreground: #FFFFFF; /* Pure white text for maximum contrast */
 
-  --card: #1A1F2E;
-  --card-foreground: #F9FAFB;
+  --card: #131B45; /* Lighter cards for better visibility */
+  --card-foreground: #FFFFFF; /* Pure white text */
 
-  --popover: #242B3D;
-  --popover-foreground: #F9FAFB;
+  --popover: #111638;
+  --popover-foreground: #F8FAFC;
 
-  --primary: #3b82f6;
-  /* Blue 500 */
+  /* CTA Primary Brand Color - DAYTIME Navy */
+  --primary: #2F3359; /* DAYTIME - Navy for primary elements (EXACT from PDF) */
   --primary-foreground: #ffffff;
 
-  --secondary: #2A3347;
-  --secondary-foreground: #D1D5DB;
+  /* CTA Secondary - BLUE SKIES Cyan */
+  --secondary: #41B2E3; /* BLUE SKIES - Bright Cyan for interactive elements (EXACT from PDF) */
+  --secondary-foreground: #0A0E1A;
 
-  --muted: #242B3D;
-  --muted-foreground: #9CA3AF;
+  --muted: #1E2654; /* Lighter muted background for better contrast */
+  --muted-foreground: #D1D5DB; /* Much lighter gray for better readability */
 
-  --accent: #2A3347;
-  --accent-foreground: #F9FAFB;
+  /* CTA Accent - NOON Orange-Red */
+  --accent: #DD3903; /* NOON - Deep Orange-Red for CTAs (EXACT from PDF) */
+  --accent-foreground: #ffffff;
 
-  --destructive: #7f1d1d;
-  --destructive-foreground: #fef2f2;
+  --destructive: #DC2626;
+  --destructive-foreground: #FECACA;
 
-  --success: #059669;
-  --warning: #d97706;
+  /* CTA Success - Emerald Green */
+  --success: #10B981;
+  /* CTA Warning - GOLDEN HOUR Golden */
+  --warning: #F0A000; /* GOLDEN HOUR - Golden Yellow-Orange (EXACT from PDF) */
 
-  --border: rgba(75, 85, 99, 0.3);
-  --input: #242B3D;
-  --ring: #3b82f6;
+  --border: rgba(65, 178, 227, 0.12); /* BLUE SKIES with transparency (41B2E3) */
+  --input: #111638;
+  --ring: #41B2E3; /* BLUE SKIES for focus rings (EXACT from PDF) */
 
-  --radius: 0.75rem;
+  --radius: 0.5rem;
 
-  /* WCAG AAA Compliant Colors (7:1 contrast on white) */
-  --blue-badge-bg: #1e3a8a; /* Blue 900 - 8.59:1 contrast on #e9f0fd */
-  --blue-badge-text: #1e3a8a; /* Blue 900 - 8.59:1 contrast on white */
-  --gray-text: #334155; /* Slate 700 - 8.34:1 contrast on white */
-  --link-color: #1e40af; /* Blue 800 - 7.04:1 contrast on white */
+  /* ==========================================================================
+   * CTA Brand Colors - Direct Variables
+   * Source: ADELE Branding Document, Jan 26 2026, Vibrant Palette (page 4)
+   * MIDNIGHT darkened per client request
+   * ========================================================================== */
+  --cta-daytime: #2F3359;      /* DAYTIME - Navy Blue (EXACT from PDF) */
+  --cta-blue-skies: #41B2E3;   /* BLUE SKIES - Bright Cyan (EXACT from PDF) */
+  --cta-midnight: #1A0B2E;     /* MIDNIGHT - Deep Purple (EXACT from PDF) */
+  --cta-noon: #DD3903;         /* NOON - Deep Orange-Red (EXACT from PDF) */
+  --cta-golden-hour: #F0A000;  /* GOLDEN HOUR - Golden Yellow-Orange (EXACT from PDF) */
+
+  /* CTA Brand Gradients (EXACT from PDF Skyline) */
+  --cta-gradient-primary: linear-gradient(90deg, #F0A000 0%, #DD3903 100%);        /* Golden Hour → Noon */
+  --cta-gradient-secondary: linear-gradient(135deg, #41B2E3 0%, #2F3359 100%);     /* Blue Skies → Daytime */
+  --cta-gradient-accent: linear-gradient(135deg, #2F3359 0%, #1A0B2E 100%);        /* Daytime → Midnight */
+  --cta-gradient-skyline: linear-gradient(90deg, #0080F0 0%, #41B2E3 25%, #F0A000 75%, #DD3903 100%); /* Full skyline */
+
+  /* WCAG AAA Compliant Colors (EXACT from PDF) */
+  --blue-badge-bg: #2F3359;  /* DAYTIME Navy */
+  --blue-badge-text: #2F3359;
+  --gray-text: #334155;      /* Slate 700 */
+  --link-color: #41B2E3;     /* BLUE SKIES */
 }
 
 .light {
@@ -165,6 +204,13 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
 
+  /* CTA Brand Colors for Tailwind */
+  --color-cta-daytime: var(--cta-daytime);
+  --color-cta-blue-skies: var(--cta-blue-skies);
+  --color-cta-midnight: var(--cta-midnight);
+  --color-cta-noon: var(--cta-noon);
+  --color-cta-golden-hour: var(--cta-golden-hour);
+
   --radius-sm: calc(var(--radius) * 0.5);
   --radius-md: var(--radius);
   --radius-lg: calc(var(--radius) * 1.5);
@@ -174,6 +220,74 @@
 }
 
 @layer utilities {
+  /* ================================================================
+   * ENHANCED READABILITY UTILITIES
+   * Updated for better user experience and accessibility
+   * ================================================================ */
+
+  /* Better button sizes */
+  .btn-readable {
+    @apply h-10 px-4 text-sm font-medium rounded-lg;
+  }
+
+  .btn-readable-lg {
+    @apply h-12 px-6 text-base font-medium rounded-lg;
+  }
+
+  .btn-readable-sm {
+    @apply h-9 px-3 text-sm font-medium rounded-md;
+  }
+
+  /* Better input sizes */
+  .input-readable {
+    @apply h-10 px-4 text-sm rounded-lg;
+  }
+
+  .input-readable-lg {
+    @apply h-12 px-5 text-base rounded-lg;
+  }
+
+  /* Improved card spacing */
+  .card-readable {
+    @apply p-5 space-y-4 rounded-lg;
+  }
+
+  .card-readable-lg {
+    @apply p-6 space-y-5 rounded-xl;
+  }
+
+  /* Better text hierarchy */
+  .heading-1 {
+    @apply text-3xl md:text-4xl font-bold leading-tight;
+  }
+
+  .heading-2 {
+    @apply text-2xl md:text-3xl font-semibold leading-tight;
+  }
+
+  .heading-3 {
+    @apply text-xl md:text-2xl font-semibold leading-snug;
+  }
+
+  .heading-4 {
+    @apply text-lg md:text-xl font-semibold leading-snug;
+  }
+
+  .body-text {
+    @apply text-sm md:text-base leading-relaxed;
+  }
+
+  .body-text-lg {
+    @apply text-base md:text-lg leading-relaxed;
+  }
+
+  .label-text {
+    @apply text-sm font-medium;
+  }
+
+  .helper-text {
+    @apply text-xs md:text-sm text-muted-foreground;
+  }
 
   /* WCAG AAA COMPLIANT COLOR UTILITIES */
   .text-wcag-blue {
@@ -207,21 +321,21 @@
     color: #1e3a8a; /* Even darker on hover */
   }
 
-  /* PROFESSIONAL CARD STYLES - Premium & Modern */
+  /* PROFESSIONAL CARD STYLES - Premium & Modern - ENHANCED FOR READABILITY */
   .glass {
-    @apply bg-card/60 backdrop-blur-xl border border-border/50 shadow-lg;
+    @apply bg-card/70 backdrop-blur-xl border border-border/50 shadow-lg p-4 rounded-lg;
   }
 
   .glass-panel {
-    @apply bg-card/80 backdrop-blur-2xl border border-border/40 shadow-xl;
+    @apply bg-card/85 backdrop-blur-2xl border border-border/40 shadow-xl p-5 rounded-xl;
   }
 
   .glass-card {
-    @apply bg-card/70 backdrop-blur-lg border border-border/50 hover:border-primary/50 hover:bg-card/80 transition-all duration-300 ease-out;
+    @apply bg-card/75 backdrop-blur-lg border border-border/50 hover:border-primary/50 hover:bg-card/85 transition-all duration-300 ease-out p-4 rounded-lg;
   }
 
   .glass-button {
-    @apply bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 shadow-md transition-all duration-200;
+    @apply bg-primary hover:bg-primary/90 text-primary-foreground border border-primary/20 shadow-md transition-all duration-200 px-4 py-2 text-sm font-medium rounded-lg;
   }
 
   /* PROFESSIONAL BORDERS - Modern Gradient */
@@ -243,25 +357,25 @@
     @apply text-primary font-semibold;
   }
 
-  /* COMPACT & RESPONSIVE UTILITIES */
+  /* READABLE & RESPONSIVE UTILITIES - UPDATED FOR BETTER READABILITY */
   .compact-card {
-    @apply p-2 md:p-3 lg:p-4;
+    @apply p-4 md:p-5 lg:p-6;
   }
 
   .compact-section {
-    @apply mb-3 md:mb-4 lg:mb-6;
+    @apply mb-4 md:mb-6 lg:mb-8;
   }
 
   .compact-heading {
-    @apply text-lg md:text-xl lg:text-2xl;
+    @apply text-xl md:text-2xl lg:text-3xl font-semibold;
   }
 
   .compact-text {
-    @apply text-xs md:text-sm;
+    @apply text-sm md:text-base leading-relaxed;
   }
 
   .compact-subtext {
-    @apply text-[10px] md:text-xs;
+    @apply text-xs md:text-sm text-muted-foreground;
   }
 
   /* Responsive containers */
@@ -269,13 +383,13 @@
     @apply px-2 md:px-4 lg:px-6 max-w-7xl mx-auto;
   }
 
-  /* Dense table */
+  /* Readable table - UPDATED */
   .table-compact th {
-    @apply px-2 md:px-4 py-2 md:py-3 text-[10px] md:text-xs;
+    @apply px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm font-semibold;
   }
 
   .table-compact td {
-    @apply px-2 md:px-4 py-2 md:py-3 text-xs md:text-sm;
+    @apply px-4 md:px-6 py-3 md:py-4 text-sm md:text-base;
   }
 
   .text-gradient {
@@ -755,5 +869,61 @@
   .panel-interactive {
     @apply transition-all duration-200 ease-out;
     @apply hover:bg-muted/50 active:bg-muted/70;
+  }
+}
+
+/* ArchonY SPA Layout Utilities */
+@layer utilities {
+  /* Dawn gradient bar - CTA signature brand accent */
+  .dawn-gradient {
+    background: linear-gradient(90deg, var(--cta-golden-hour) 0%, var(--cta-noon) 100%);
+  }
+
+  /* Glass effect for floating panels */
+  .glass-midnight {
+    background: rgba(10, 14, 39, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Scrollbar-none utility */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  /* Thin scrollbar for panels */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  /* Safe area for mobile notch */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  /* Premium glass morphism */
+  .glass-premium {
+    background: rgba(10, 14, 39, 0.75);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Responsive container queries */
+  @container (max-width: 640px) {
+    .container-responsive {
+      padding-inline: 0.75rem;
+    }
   }
 }

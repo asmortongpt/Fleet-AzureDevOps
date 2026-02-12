@@ -204,7 +204,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
       case 'warning':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
-        return <AlertTriangle className="h-5 w-5 text-gray-500" />
+        return <AlertTriangle className="h-5 w-5 text-gray-700" />
     }
   }
 

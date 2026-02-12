@@ -33,14 +33,14 @@ export function DocumentActivity({ activities }: DocumentActivityProps) {
     const colors = {
       created: 'text-green-500',
       updated: 'text-blue-800',
-      viewed: 'text-gray-500',
+      viewed: 'text-gray-700',
       downloaded: 'text-purple-500',
       shared: 'text-orange-500',
       commented: 'text-blue-800',
       tagged: 'text-yellow-500',
       moved: 'text-indigo-500',
     };
-    return colors[action] || 'text-gray-500';
+    return colors[action] || 'text-gray-700';
   };
 
   const getActivityDescription = (activity: ActivityItem) => {

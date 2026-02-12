@@ -1,4 +1,4 @@
-import { motion } from "framer-motion"
+// motion removed - React 19 incompatible
 import { useMemo } from "react"
 
 import { cn } from "@/lib/utils"
@@ -57,13 +57,10 @@ export function MiniChart({
             {data.map((point, index) => {
               const height = (point.value / maxValue) * 100
               return (
-                <motion.div
+                <div
                   key={index}
                   className={cn("sparkline-bar", colorClasses[color])}
                   style={{ height: `${height}%` }}
-                  initial={{ height: 0 }}
-                  animate={{ height: `${height}%` }}
-                  transition={{ duration: 0.5, delay: index * 0.05 }}
                   title={`${point.label}: ${point.value}`}
                 />
               )
@@ -88,28 +85,23 @@ export function MiniChart({
             {data.slice(0, 5).map((point, index) => {
               const percentage = (point.value / maxValue) * 100
               return (
-                <motion.div
+                <div
                   key={index}
                   className="flex items-center gap-2"
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
                   <div className="text-[10px] text-muted-foreground w-12 truncate">
                     {point.label}
                   </div>
                   <div className="flex-1 h-4 bg-muted rounded-sm overflow-hidden">
-                    <motion.div
+                    <div
                       className={cn("h-full", colorClasses[color])}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${percentage}%` }}
-                      transition={{ duration: 0.5, delay: index * 0.05 }}
+                      style={{ width: `${percentage}%` }}
                     />
                   </div>
                   <div className="text-[10px] font-semibold text-foreground w-8 text-right">
                     {point.value}
                   </div>
-                </motion.div>
+                </div>
               )
             })}
           </div>
@@ -130,7 +122,7 @@ export function MiniChart({
       <div className="compact-card-content">
         <div className="relative h-full">
           <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <motion.polyline
+            <polyline
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
@@ -140,11 +132,8 @@ export function MiniChart({
                 const y = 100 - (point.value / maxValue) * 90
                 return `${x},${y}`
               }).join(" ")}
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 1, ease: "easeInOut" }}
             />
-            <motion.polygon
+            <polygon
               fill="currentColor"
               fillOpacity="0.1"
               className={colorClasses[color]}
@@ -153,9 +142,6 @@ export function MiniChart({
                 const y = 100 - (point.value / maxValue) * 90
                 return `${x},${y}`
               }).join(" ")} 100,100`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
             />
           </svg>
         </div>
@@ -222,14 +208,11 @@ export function MiniDonutChart({ title, data, total, className }: DonutChartProp
                 ].join(' ')
 
                 return (
-                  <motion.path
+                  <path
                     key={index}
                     d={pathData}
                     fill="currentColor"
                     className={segment.color}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
                   />
                 )
               })}
@@ -238,19 +221,16 @@ export function MiniDonutChart({ title, data, total, className }: DonutChartProp
           </div>
           <div className="flex-1 space-y-1">
             {segments.map((segment, index) => (
-              <motion.div
+              <div
                 key={index}
                 className="flex items-center justify-between text-[10px]"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
               >
                 <div className="flex items-center gap-1">
                   <div className={cn("w-2 h-2 rounded-full", segment.color)} />
                   <span className="text-muted-foreground truncate">{segment.label}</span>
                 </div>
                 <span className="font-semibold text-foreground">{segment.value}</span>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

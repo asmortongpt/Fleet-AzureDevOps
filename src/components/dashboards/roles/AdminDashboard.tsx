@@ -10,24 +10,10 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  Shield,
-  Users,
-  ChartLine,
-  FileText,
-  Warning,
-  CheckCircle,
-  Lock,
-  Database,
-  Cpu,
-  Clock,
-  TrendUp,
-  UserPlus,
-  Download,
-  Eye
-} from '@phosphor-icons/react';
-import { motion } from 'framer-motion';
-import { toast } from 'react-hot-toast';
+import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, Database, Cpu, Clock, TrendingUp, UserPlus, Download, Eye } from 'lucide-react';
+// motion removed - React 19 incompatible
+import toast from 'react-hot-toast';
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -164,20 +150,20 @@ export function AdminDashboard() {
       case 'critical':
         return 'text-red-400 bg-red-950/30 border-red-500/30';
       default:
-        return 'text-slate-400 bg-slate-800 border-slate-700';
+        return 'text-slate-700 bg-slate-800 border-slate-700';
     }
   };
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'info':
-        return 'text-blue-400';
+        return 'text-blue-700';
       case 'warning':
         return 'text-amber-400';
       case 'critical':
         return 'text-red-400';
       default:
-        return 'text-slate-400';
+        return 'text-slate-700';
     }
   };
 
@@ -186,7 +172,7 @@ export function AdminDashboard() {
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-sm font-bold text-white mb-1">Admin Dashboard</h1>
-        <p className="text-sm text-slate-400">System Management & Compliance Oversight</p>
+        <p className="text-sm text-slate-700">System Management & Compliance Oversight</p>
       </div>
 
       {/* System Health Summary */}
@@ -199,7 +185,7 @@ export function AdminDashboard() {
           : "bg-red-950/20 border-red-500/30"
       )}>
         <div className="flex items-center gap-2 mb-3">
-          <ChartLine className={cn(
+          <LineChart className={cn(
             "w-4 h-4",
             systemHealth.status === 'healthy' ? "text-green-400" : "text-amber-400"
           )} />
@@ -225,7 +211,7 @@ export function AdminDashboard() {
           {/* Error Rate */}
           <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
             <div className="flex items-center gap-2 mb-2">
-              <Warning className="w-4 h-4 text-amber-400" />
+              <AlertTriangle className="w-4 h-4 text-amber-400" />
               <span className="text-sm text-slate-300 text-sm">Error Rate</span>
             </div>
             <p className="text-sm font-bold text-white">{systemHealth.api_error_rate}%</p>
@@ -301,14 +287,14 @@ export function AdminDashboard() {
                 <span className="text-sm font-bold text-white">{userStats.total_users}</span>
               </div>
               <div className="flex items-center gap-1 text-sm text-green-400">
-                <TrendUp className="w-4 h-4" />
+                <TrendingUp className="w-4 h-4" />
                 <span>{userStats.active_today} active today</span>
               </div>
             </div>
 
             {/* By Role */}
             <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
-              <p className="text-slate-400 text-sm mb-3 font-semibold">By Role</p>
+              <p className="text-slate-700 text-sm mb-3 font-semibold">By Role</p>
               <div className="space-y-2">
                 {Object.entries(userStats.by_role).map(([role, count]) => (
                   <div key={role} className="flex items-center justify-between">
@@ -342,8 +328,7 @@ export function AdminDashboard() {
 
           <div className="space-y-3">
             {/* Failed Logins */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
+            <div
               className={cn(
                 "rounded-lg p-2 border transition-all",
                 securityMetrics.failed_logins_24h > 5
@@ -363,7 +348,7 @@ export function AdminDashboard() {
               {securityMetrics.failed_logins_24h > 5 && (
                 <p className="text-xs text-red-400 mt-2">⚠️ Above normal threshold</p>
               )}
-            </motion.div>
+            </div>
 
             {/* Active Sessions */}
             <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
@@ -379,8 +364,7 @@ export function AdminDashboard() {
             </div>
 
             {/* Compliance Violations */}
-            <motion.div
-              whileHover={{ scale: 1.02 }}
+            <div
               className={cn(
                 "rounded-lg p-2 border transition-all",
                 securityMetrics.compliance_violations > 0
@@ -391,7 +375,7 @@ export function AdminDashboard() {
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">
                   {securityMetrics.compliance_violations > 0 ? (
-                    <Warning className="w-4 h-4 text-red-400" />
+                    <AlertTriangle className="w-4 h-4 text-red-400" />
                   ) : (
                     <CheckCircle className="w-4 h-4 text-green-400" />
                   )}
@@ -401,7 +385,7 @@ export function AdminDashboard() {
                   {securityMetrics.compliance_violations}
                 </span>
               </div>
-            </motion.div>
+            </div>
 
             {/* Pending Audits */}
             <div className="bg-slate-900/50 rounded-lg p-2 border border-slate-700">
@@ -431,7 +415,7 @@ export function AdminDashboard() {
         <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <ChartLine className="w-4 h-4 text-amber-400" />
+              <LineChart className="w-4 h-4 text-amber-400" />
               <h2 className="text-sm font-bold text-white">Recent Activity</h2>
             </div>
           </div>
@@ -455,7 +439,7 @@ export function AdminDashboard() {
                     )}>
                       {activity.action}
                     </p>
-                    <p className="text-xs text-slate-400">{activity.user}</p>
+                    <p className="text-xs text-slate-700">{activity.user}</p>
                     <p className="text-xs text-slate-500">{activity.timestamp}</p>
                   </div>
                 </div>

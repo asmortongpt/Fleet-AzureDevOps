@@ -1,6 +1,7 @@
 import { injectable } from 'inversify';
-import { VehiclesRepository } from '../../../repositories/vehicles.repository';
+
 import { pool } from '../../../config/database';
+import { VehiclesRepository } from '../../../repositories/vehicles.repository';
 
 /**
  * VehicleRepository - Wrapper for VehiclesRepository in fleet module

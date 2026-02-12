@@ -11,11 +11,11 @@
  */
 
 import {
-  CloudIcon,
-  ArrowTrendingDownIcon,
-  DocumentArrowDownIcon,
-  SparklesIcon
-} from '@heroicons/react/24/outline';
+  Cloud,
+  TrendDown,
+  FileArrowDown,
+  Sparkle
+} from '@phosphor-icons/react';
 import { jsPDF } from 'jspdf';
 import React, { useState, useEffect } from 'react';
 
@@ -292,7 +292,7 @@ const CarbonFootprintTracker: React.FC = () => {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <CloudIcon className="w-16 h-16 mx-auto text-green-500 animate-pulse" />
+          <Cloud className="w-16 h-16 mx-auto text-green-500 animate-pulse" />
           <p className="mt-2 text-sm text-slate-700">Loading carbon data...</p>
         </div>
       </div>
@@ -324,7 +324,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <option value="year">Last Year</option>
           </select>
           <Button onClick={downloadReport} variant="outline">
-            <DocumentArrowDownIcon className="w-4 h-4 mr-2" />
+            <FileArrowDown className="w-4 h-4 mr-2" />
             Download Report
           </Button>
         </div>
@@ -335,13 +335,13 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">CO₂ Emissions</CardTitle>
-            <CloudIcon className="w-3 h-3 text-gray-500" />
+            <Cloud className="w-3 h-3 text-gray-700" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold">
               {formatLargeNumber(summary?.total_carbon_kg || 0)} kg
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               From EV charging
             </p>
           </CardContent>
@@ -350,13 +350,13 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">CO₂ Saved</CardTitle>
-            <ArrowTrendingDownIcon className="w-3 h-3 text-green-500" />
+            <TrendDown className="w-3 h-3 text-green-500" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold text-green-600">
               {formatLargeNumber(summary?.total_saved_kg || 0)} kg
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               vs. ICE vehicles
             </p>
           </CardContent>
@@ -365,13 +365,13 @@ const CarbonFootprintTracker: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-slate-700">Reduction</CardTitle>
-            <SparklesIcon className="w-3 h-3 text-blue-800" />
+            <Sparkle className="w-3 h-3 text-blue-800" />
           </CardHeader>
           <CardContent>
             <div className="text-base font-bold text-blue-800">
               {formatNumber(summary?.avg_reduction_percent || 0, 1)}%
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               Carbon reduction
             </p>
           </CardContent>
@@ -388,7 +388,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <div className="text-base font-bold text-green-600">
               {treesEquivalent}
             </div>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-700 mt-1">
               Annual absorption
             </p>
           </CardContent>

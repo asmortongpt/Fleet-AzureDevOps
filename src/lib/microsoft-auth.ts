@@ -108,17 +108,18 @@ export function isAuthenticated(): boolean {
   logger.info('[AUTH] Checking authentication')
   logger.info('[AUTH] Environment - DEV:', { isDev: import.meta.env.DEV, isProd: import.meta.env.PROD })
 
-  // Detect Playwright/test automation
-  const isPlaywright = (window as any).playwright !== undefined ||
-    (navigator as any).webdriver === true ||
-    (window as any).__playwright !== undefined
+  // SECURITY: Auth bypass ONLY allowed in non-production environments
+  if (!import.meta.env.PROD) {
+    const isPlaywright = (window as any).playwright !== undefined ||
+      (navigator as any).webdriver === true ||
+      (window as any).__playwright !== undefined
 
-  logger.info('[AUTH] Playwright detected:', { isPlaywright })
+    const skipAuth = import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true'
 
-  // In DEV mode or Playwright, bypass authentication entirely
-  if (import.meta.env.DEV || isPlaywright) {
-    logger.info('[AUTH] Test/DEV mode - bypassing authentication')
-    return true
+    if (skipAuth || isPlaywright) {
+      logger.info('[AUTH] Auth bypass enabled (non-production)', { skipAuth, isPlaywright })
+      return true
+    }
   }
 
   // Production: Authentication state is managed via httpOnly cookies

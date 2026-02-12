@@ -11,15 +11,10 @@
  * Created: 2025-11-24
  */
 
-import {
-  Warning,
-  Eye,
-  EyeSlash,
-  PushPin,
-  Plus,
-  CaretUp,
-  CaretDown
-} from '@phosphor-icons/react'
+import { AlertTriangle, Eye, EyeOff, Pin, Plus, ChevronUp, ChevronDown } from 'lucide-react'
+
+// Icon alias for Phosphor naming
+const PushPin = Pin
 import React, { useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -148,7 +143,7 @@ function DamagePinMarker({
             {damage.repaired ? (
               <span className="text-[10px] text-white font-bold">R</span>
             ) : (
-              <Warning className="w-3 h-3 text-white" />
+              <AlertTriangle className="w-3 h-3 text-white" />
             )}
           </button>
         </TooltipTrigger>
@@ -182,10 +177,9 @@ function VehicleSilhouette({ className }: { className?: string }) {
       <path
         d="M180 40 C180 25 175 15 160 12 L140 10 C130 10 120 15 110 15 L90 15 C80 15 70 10 60 10 L40 12 C25 15 20 25 20 40 C20 55 25 65 40 68 L60 70 C70 70 80 65 90 65 L110 65 C120 65 130 70 140 70 L160 68 C175 65 180 55 180 40Z"
         fill="currentColor"
-        className="text-slate-700"
+        className="text-slate-700 stroke-slate-500"
         stroke="currentColor"
         strokeWidth="1"
-        className="stroke-slate-500"
       />
       {/* Windshield */}
       <path
@@ -240,7 +234,7 @@ function DamageListItem({
         <p className="text-sm font-medium text-white truncate">
           {ZONE_POSITIONS[damage.zone]?.label || 'Custom'}
         </p>
-        <p className="text-xs text-slate-400 truncate">{damage.description}</p>
+        <p className="text-xs text-slate-700 truncate">{damage.description}</p>
       </div>
       <Badge
         variant={damage.repaired ? 'outline' : damage.severity === 'severe' ? 'destructive' : 'secondary'}
@@ -293,14 +287,14 @@ export function DamageStrip({
             onClick={onToggleExpand}
           >
             {isExpanded ? (
-              <CaretDown className="w-3 h-3" />
+              <ChevronDown className="w-3 h-3" />
             ) : (
-              <CaretUp className="w-3 h-3" />
+              <ChevronUp className="w-3 h-3" />
             )}
           </Button>
 
           <div className="flex items-center gap-2">
-            <Warning className="w-3 h-3 text-amber-400" />
+            <AlertTriangle className="w-3 h-3 text-amber-400" />
             <span className="font-medium text-white">Damage Inspector</span>
           </div>
 
@@ -327,7 +321,7 @@ export function DamageStrip({
             {showPins ? (
               <Eye className="w-4 h-4 mr-2" />
             ) : (
-              <EyeSlash className="w-4 h-4 mr-2" />
+              <EyeOff className="w-4 h-4 mr-2" />
             )}
             {showPins ? 'Hide' : 'Show'} Pins
           </Button>
@@ -367,7 +361,7 @@ export function DamageStrip({
           {/* Damage List */}
           <div className="bg-slate-900/50 rounded-lg border border-slate-700/50 overflow-hidden">
             <div className="p-2 border-b border-slate-700/50">
-              <h4 className="text-xs font-medium text-slate-400 uppercase">Damage Points</h4>
+              <h4 className="text-xs font-medium text-slate-700 uppercase">Damage Points</h4>
             </div>
             <div className="h-36 overflow-y-auto p-2 space-y-1">
               {damages.length > 0 ? (
@@ -391,42 +385,6 @@ export function DamageStrip({
       )}
     </div>
   )
-}
-
-// Demo data generator
-export function generateDemoDamages(vehicleId: string): DamagePin[] {
-  return [
-    {
-      id: `${vehicleId}-dmg-1`,
-      zone: 'rear_bumper',
-      position: { x: 5, y: 50 },
-      severity: 'moderate',
-      description: 'Parking lot collision - scratches and dent',
-      date: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000),
-      repairCost: 450,
-      repaired: true
-    },
-    {
-      id: `${vehicleId}-dmg-2`,
-      zone: 'front_left_fender',
-      position: { x: 85, y: 25 },
-      severity: 'minor',
-      description: 'Door ding from parking lot',
-      date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
-      repairCost: 150,
-      repaired: false
-    },
-    {
-      id: `${vehicleId}-dmg-3`,
-      zone: 'front_windshield',
-      position: { x: 70, y: 40 },
-      severity: 'minor',
-      description: 'Small rock chip',
-      date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-      repairCost: 75,
-      repaired: false
-    }
-  ]
 }
 
 export type { DamagePin }

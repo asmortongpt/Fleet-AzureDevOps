@@ -18,6 +18,7 @@
 import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { useState, useCallback, useMemo } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // Environment configuration with validation
 // Use relative path to leverage Vite's proxy in development
@@ -73,10 +74,10 @@ const FuelTransactionSchema = z.object({
   fuelType: FuelTypeEnum.optional(),
   location: z.string().optional(),
   odometer: z.number().min(0).optional(),
-  createdAt: z.string().datetime(),
+  createdAt: z.string(),
   receiptNumber: z.string().optional(),
   notes: z.string().max(500).optional(),
-})
+}).passthrough()
 
 const TaskSchema = z.object({
   id: z.string().min(1),
@@ -189,14 +190,20 @@ async function secureFetch<T>(
     }
 
     const data = await response.json()
+    // Handle nested response formats: { data: { data: [...] } }, { data: [...] }, or [...]
+    const payload =
+      Array.isArray(data?.data?.data) ? data.data.data
+      : Array.isArray(data?.data) ? data.data
+      : Array.isArray(data) ? data
+      : data
 
     // Validate response with Zod
     try {
-      const validated = schema.parse(data)
+      const validated = schema.parse(payload)
       return validated
     } catch (error) {
       if (error instanceof z.ZodError) {
-        console.error('[Operations] Validation error:', error.errors, endpoint)
+        logger.error('[Operations] Validation error:', error.errors, endpoint)
         throw new ValidationError('Invalid API response format', error.errors)
       }
       throw error
@@ -214,30 +221,73 @@ async function secureFetch<T>(
 }
 
 /**
- * Generate mock trend data with realistic patterns
- * TODO: Replace with actual backend calculations
+ * Generate completion trend data from actual routes
  */
 function generateCompletionTrendData(routes: Route[]): TrendDataPoint[] {
-  // In production, this would aggregate actual route completion data by day
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  return days.map((name, idx) => ({
-    name,
-    completed: Math.floor(45 + Math.random() * 15),
-    target: idx < 5 ? 50 : idx === 5 ? 40 : 35,
-  }))
+  const today = new Date()
+  const days = Array.from({ length: 7 }).map((_, index) => {
+    const date = new Date(today)
+    date.setDate(today.getDate() - (6 - index))
+    return date
+  })
+
+  const completedByDate = new Map<string, number>()
+  routes.forEach((route) => {
+    if (route.status !== 'completed') return
+    const completedAt = safeParseDate(route.endTime || route.updatedAt || route.createdAt)
+    if (!completedAt) return
+    const key = completedAt.toISOString().split('T')[0]
+    completedByDate.set(key, (completedByDate.get(key) || 0) + 1)
+  })
+
+  const totalCompleted = Array.from(completedByDate.values()).reduce((sum, value) => sum + value, 0)
+  const target = totalCompleted > 0 ? Math.round(totalCompleted / 7) : 0
+
+  return days.map((date) => {
+    const key = date.toISOString().split('T')[0]
+    const label = date.toLocaleDateString('en-US', { weekday: 'short' })
+    return {
+      name: label,
+      completed: completedByDate.get(key) || 0,
+      target
+    }
+  })
 }
 
 /**
- * Generate mock fuel consumption data
- * TODO: Replace with actual aggregations from fuel transactions
+ * Generate fuel consumption data from actual transactions
  */
 function generateFuelConsumptionData(transactions: FuelTransaction[]): TrendDataPoint[] {
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-  return days.map((name) => ({
-    name,
-    gallons: Math.floor(150 + Math.random() * 150),
-    cost: Math.floor(600 + Math.random() * 600),
-  }))
+  const today = new Date()
+  const days = Array.from({ length: 7 }).map((_, index) => {
+    const date = new Date(today)
+    date.setDate(today.getDate() - (6 - index))
+    return date
+  })
+
+  const totals = new Map<string, { gallons: number; cost: number }>()
+  transactions.forEach((tx) => {
+    const createdAt = safeParseDate(tx.createdAt)
+    if (!createdAt) return
+    const key = createdAt.toISOString().split('T')[0]
+    const current = totals.get(key) || { gallons: 0, cost: 0 }
+    const gallons = tx.amount ?? (tx.pricePerUnit ? tx.cost / tx.pricePerUnit : 0)
+    totals.set(key, {
+      gallons: current.gallons + (Number.isFinite(gallons) ? gallons : 0),
+      cost: current.cost + (tx.cost || 0)
+    })
+  })
+
+  return days.map((date) => {
+    const key = date.toISOString().split('T')[0]
+    const label = date.toLocaleDateString('en-US', { weekday: 'short' })
+    const dayTotals = totals.get(key) || { gallons: 0, cost: 0 }
+    return {
+      name: label,
+      gallons: Math.round(dayTotals.gallons * 100) / 100,
+      cost: Math.round(dayTotals.cost * 100) / 100
+    }
+  })
 }
 
 /**
@@ -251,6 +301,25 @@ function safeParseDate(dateString: string | undefined): Date | null {
   } catch {
     return null
   }
+}
+
+function normalizeRouteStatus(status: string | undefined): RouteStatus {
+  const normalized = (status || '').toLowerCase()
+  if (normalized === 'active' || normalized === 'in_progress' || normalized === 'in-progress') {
+    return 'in_transit'
+  }
+  if (normalized === 'planned' || normalized === 'scheduled') {
+    return 'scheduled'
+  }
+  if (normalized === 'completed') return 'completed'
+  if (normalized === 'delayed') return 'delayed'
+  if (normalized === 'cancelled' || normalized === 'canceled') return 'cancelled'
+  return 'scheduled'
+}
+
+function normalizeDateString(value?: string): string | null {
+  const parsed = safeParseDate(value)
+  return parsed ? parsed.toISOString() : null
 }
 
 /**
@@ -322,9 +391,52 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
     queryKey: ['routes', realTimeUpdate],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch('/routes', RoutesResponseSchema, signal)
+        const raw = await secureFetch('/routes', z.any(), signal)
+        const rows = Array.isArray(raw) ? raw : []
+        const normalized = rows
+          .map((row: any) => {
+            const startTime =
+              normalizeDateString(row.startTime) ||
+              normalizeDateString(row.plannedStartTime || row.planned_start_time || row.date) ||
+              normalizeDateString(row.createdAt || row.created_at)
+            if (!startTime) {
+              return null
+            }
+
+            const estimatedDuration = Number(
+              row.estimatedDuration ?? row.estimated_duration ?? row.estimated_duration_minutes ?? 0
+            )
+            const distance =
+              Number(row.totalDistance ?? row.total_distance ?? row.distance ?? row.actual_distance ?? 0) ||
+              (estimatedDuration > 0 ? (estimatedDuration / 60) * 45 : 0)
+
+            return {
+              id: String(row.routeId ?? row.id ?? ''),
+              driverId: String(row.driverId ?? row.driver_id ?? row.assigned_driver_id ?? ''),
+              vehicleId: String(row.vehicleId ?? row.vehicle_id ?? row.assigned_vehicle_id ?? ''),
+              status: normalizeRouteStatus(row.status),
+              startTime,
+              endTime: normalizeDateString(row.endTime || row.actualEndTime || row.actual_end_time),
+              distance: Number.isFinite(distance) ? distance : 0,
+              estimatedDuration: Number.isFinite(estimatedDuration) ? estimatedDuration : 0,
+              actualDuration: Number(row.actualDuration ?? row.actual_duration ?? 0) || undefined,
+              origin: row.startLocation ?? row.start_location,
+              destination: row.endLocation ?? row.end_location,
+              stops: Array.isArray(row.stops)
+                ? row.stops.length
+                : Array.isArray(row.waypoints)
+                  ? row.waypoints.length
+                  : Number(row.stops ?? 0) || 0,
+              priority: row.priority,
+              createdAt: normalizeDateString(row.createdAt || row.created_at),
+              updatedAt: normalizeDateString(row.updatedAt || row.updated_at)
+            }
+          })
+          .filter(Boolean)
+
+        return RoutesResponseSchema.parse(normalized)
       } catch (error) {
-        console.error('[Operations] Failed to fetch routes:', error)
+        logger.error('[Operations] Failed to fetch routes:', error)
         // Return empty array instead of throwing to prevent UI crashes
         return []
       }
@@ -341,9 +453,37 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
     queryKey: ['fuel-transactions', realTimeUpdate],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch('/fuel-transactions', FuelTransactionsResponseSchema, signal)
+        const raw = await secureFetch('/fuel-transactions', z.any(), signal)
+        const rows = Array.isArray(raw) ? raw : []
+        // Normalize snake_case API fields to match schema
+        const normalized = rows.map((row: any) => {
+          const amount = Number(row.gallons ?? row.amount ?? row.quantity ?? 0)
+          const pricePerUnit = Number(row.cost_per_gallon ?? row.price_per_gallon ?? row.pricePerUnit ?? row.price_per_unit ?? 0)
+          const cost = Number(row.total_cost ?? row.cost ?? (amount * pricePerUnit) ?? 0)
+          const createdAt = row.transaction_date ?? row.createdAt ?? row.created_at ?? new Date().toISOString()
+          return {
+            id: String(row.id),
+            vehicleId: String(row.vehicle_id ?? row.vehicleId ?? ''),
+            driverId: row.driver_id ?? row.driverId ?? undefined,
+            amount: Number.isFinite(amount) ? amount : 0,
+            cost: Number.isFinite(cost) ? cost : 0,
+            pricePerUnit: Number.isFinite(pricePerUnit) ? pricePerUnit : undefined,
+            fuelType: row.fuel_type ?? row.fuelType ?? undefined,
+            location: row.station_name ?? row.station_address ?? row.location ?? undefined,
+            odometer: row.odometer_reading ? Number(row.odometer_reading) : undefined,
+            createdAt,
+            receiptNumber: row.receipt_number ?? row.receiptNumber ?? undefined,
+            notes: row.notes ?? undefined,
+            // Pass through extra fields for UI consumption
+            station_brand: row.station_brand,
+            stationBrand: row.station_brand,
+            mpg_calculated: row.mpg_calculated ? Number(row.mpg_calculated) : undefined,
+            mpgCalculated: row.mpg_calculated ? Number(row.mpg_calculated) : undefined,
+          }
+        })
+        return FuelTransactionsResponseSchema.parse(normalized)
       } catch (error) {
-        console.error('[Operations] Failed to fetch fuel transactions:', error)
+        logger.error('[Operations] Failed to fetch fuel transactions:', error)
         return []
       }
     },
@@ -359,9 +499,48 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
     queryKey: ['tasks', realTimeUpdate],
     queryFn: async ({ signal }) => {
       try {
-        return await secureFetch('/tasks', TasksResponseSchema, signal)
+        const raw = await secureFetch('/work-orders', z.any(), signal)
+        const rows = Array.isArray(raw) ? raw : []
+        const tasks = rows
+          .map((row: any) => {
+            const dueDate = normalizeDateString(row.scheduled_end || row.scheduled_end_date)
+            const createdAt = normalizeDateString(row.created_at)
+            const completedAt = normalizeDateString(row.actual_end || row.actual_end_date)
+          const statusRaw = String(row.status || '').toLowerCase()
+          const isOverdue =
+            dueDate !== null &&
+            !completedAt &&
+            new Date(dueDate).getTime() < Date.now()
+
+          let status: Task['status'] = 'open'
+          if (statusRaw === 'completed') status = 'completed'
+          else if (statusRaw === 'cancelled') status = 'cancelled'
+          else if (statusRaw === 'in_progress' || statusRaw === 'in-progress') status = 'in_progress'
+          else if (isOverdue) status = 'overdue'
+
+            const fallbackCreatedAt = createdAt || dueDate || completedAt
+            if (!fallbackCreatedAt) {
+              return null
+            }
+
+            return {
+              id: String(row.id),
+              title: row.title || row.work_order_number || 'Work Order',
+              description: row.description,
+              status,
+              priority: (row.priority || 'medium') as Task['priority'],
+              assignedTo: row.assigned_technician_id || row.assigned_to_id || undefined,
+              dueDate: dueDate || undefined,
+              completedAt: completedAt || undefined,
+              createdAt: fallbackCreatedAt,
+              updatedAt: normalizeDateString(row.updated_at || row.updated_at_date) || undefined
+            }
+          })
+          .filter(Boolean)
+
+        return TasksResponseSchema.parse(tasks)
       } catch (error) {
-        console.error('[Operations] Failed to fetch tasks:', error)
+        logger.error('[Operations] Failed to fetch tasks:', error)
         return []
       }
     },

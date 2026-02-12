@@ -303,7 +303,8 @@ export const vehicleUpdateSchema = z.object({
  */
 export const vehicleQuerySchema = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(50),
+  // UI frequently requests 200 for drilldowns; cap to 200 for safety.
+  limit: z.coerce.number().int().positive().max(200).default(50),
   asset_category: assetCategoryEnum.optional(),
   asset_type: z.string().optional(),
   power_type: powerTypeEnum.optional(),

@@ -104,7 +104,7 @@ export class VehiclesService {
       const offset = ((filters.page || 1) - 1) * limit
 
       const result = await this.db.query(
-        `SELECT 
+        `SELECT
       vehicles.id,
       vehicles.tenant_id,
       vehicles.vin,
@@ -135,8 +135,27 @@ export class VehiclesService {
       vehicles.photos,
       vehicles.notes,
       vehicles.created_at,
-      vehicles.updated_at 
-      FROM vehicles 
+      vehicles.updated_at,
+      vehicles.color,
+      vehicles.exterior_color,
+      vehicles.department,
+      vehicles.region,
+      vehicles.ownership,
+      vehicles.health_score,
+      vehicles.engine_type,
+      vehicles.transmission,
+      vehicles.operational_status,
+      vehicles.tags,
+      vehicles.fuel_efficiency,
+      vehicles.seating_capacity,
+      vehicles.gvwr,
+      vehicles.registration_state,
+      vehicles.registration_expiry,
+      vehicles.image_url,
+      vehicles.uptime,
+      vehicles.expected_life_miles,
+      vehicles.expected_life_years
+      FROM vehicles
       LEFT JOIN users u ON vehicles.assigned_driver_id = u.id
       LEFT JOIN facilities f ON vehicles.assigned_facility_id = f.id
       WHERE vehicles.tenant_id = $1 ${assetFilters} ORDER BY vehicles.created_at DESC LIMIT ${paramIndex} OFFSET ${paramIndex + 1}`,

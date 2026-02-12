@@ -1,7 +1,6 @@
 declare module '@tanstack/react-virtual' {
-  import { RefObject } from 'react';
-
-  export interface VirtualItem {
+  
+export interface VirtualItem {
     index: number;
     start: number;
     end: number;
@@ -30,6 +29,7 @@ declare module '@tanstack/react-virtual' {
     isScrollingResetDelay?: number;
     enabled?: boolean;
     isRtl?: boolean;
+    gap?: number;
   }
 
   export interface Range {

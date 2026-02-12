@@ -17,7 +17,7 @@
  * ```
  */
 
-import { TrendUp, TrendDown } from '@phosphor-icons/react'
+import { TrendingUp, TrendingDown } from 'lucide-react'
 import { ArrowRight, Loader2 } from 'lucide-react'
 import React, { ReactNode, MouseEvent, KeyboardEvent } from 'react'
 
@@ -223,8 +223,8 @@ export function DrilldownCard({
                       trend.direction === 'neutral' && 'text-muted-foreground'
                     )}
                   >
-                    {trend.direction === 'up' && <TrendUp className="w-3 h-3" />}
-                    {trend.direction === 'down' && <TrendDown className="w-3 h-3" />}
+                    {trend.direction === 'up' && <TrendingUp className="w-3 h-3" />}
+                    {trend.direction === 'down' && <TrendingDown className="w-3 h-3" />}
                     <span>
                       {trend.value > 0 ? '+' : ''}
                       {trend.value}%

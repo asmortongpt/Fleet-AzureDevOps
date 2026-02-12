@@ -17,6 +17,8 @@ import {
   Geofence
 } from '../emulators/types'
 
+import { pool } from '../db'
+
 // Database connection interface (works with actual DB or mock)
 interface DatabaseConnection {
   query: (sql: string, params?: any[]) => Promise<any[]>
@@ -25,8 +27,12 @@ interface DatabaseConnection {
 
 export interface TelemetryVehicle {
   id: string
-  vehicleId: number
+  // Canonical DB identifiers
+  dbId: string
+  tenantId: string
+  // Human / UI identifiers
   vehicleNumber: string
+  name: string
   make: string
   model: string
   year: number
@@ -86,7 +92,11 @@ export class TelemetryService extends EventEmitter {
   private channelCache: Map<string, RadioChannel> = new Map()
   private geofenceCache: Map<string, Geofence> = new Map()
   private isInitialized: boolean = false
-  private useMockData: boolean = true // Will be set based on DB availability
+  private canPersistGps: boolean = false
+  private canPersistObd2: boolean = false
+  private hasRoutes: boolean = false
+  private hasGeofences: boolean = false
+  private hasRadioChannels: boolean = false
 
   // Batch write buffers
   private gpsBuffer: any[] = []
@@ -106,21 +116,53 @@ export class TelemetryService extends EventEmitter {
   public async initialize(dbConnection?: DatabaseConnection): Promise<void> {
     if (this.isInitialized) return
 
-    if (dbConnection) {
-      this.db = dbConnection
-      this.useMockData = false
+    const conn: DatabaseConnection =
+      dbConnection ??
+      ({
+        query: async (sql: string, params?: any[]) => (await pool.query(sql, params)).rows,
+        execute: async (sql: string, params?: any[]) => {
+          const res = await pool.query(sql, params)
+          return { rowCount: res.rowCount ?? 0 }
+        },
+      } as DatabaseConnection)
 
-      // Test the connection
-      try {
-        await this.db.query('SELECT 1')
-        console.log('TelemetryService: Database connection established')
-      } catch (error) {
-        console.warn('TelemetryService: Database connection failed, using mock data')
-        this.useMockData = true
-      }
-    } else {
-      console.log('TelemetryService: No database connection, using mock data')
-      this.useMockData = true
+    this.db = conn
+
+    // Test the connection
+    try {
+      await this.db.query('SELECT 1')
+      console.log('TelemetryService: Database connection established')
+    } catch (error) {
+      throw new Error(`TelemetryService: Database connection failed - ${error}`)
+    }
+
+    // Detect which persistence tables are available (avoid hammering missing tables).
+    try {
+      const [gpsTable] = await this.db.query(`SELECT to_regclass('public.gps_tracks') AS name`)
+      const [telemetryTable] = await this.db.query(`SELECT to_regclass('public.telemetry_data') AS name`)
+      this.canPersistGps = Boolean(gpsTable?.name)
+      this.canPersistObd2 = Boolean(telemetryTable?.name)
+    } catch (error) {
+      // If introspection fails, default to safe mode (no persistence).
+      this.canPersistGps = false
+      this.canPersistObd2 = false
+      console.warn('TelemetryService: table detection failed; telemetry persistence disabled', error)
+    }
+
+    // Detect optional configuration tables (routes/geofences/radio channels). Keep service resilient
+    // when demo DBs are missing some tables.
+    try {
+      const [routesTable] = await this.db.query(`SELECT to_regclass('public.routes') AS name`)
+      const [geofencesTable] = await this.db.query(`SELECT to_regclass('public.geofences') AS name`)
+      const [radioChannelsTable] = await this.db.query(`SELECT to_regclass('public.radio_channels') AS name`)
+      this.hasRoutes = Boolean(routesTable?.name)
+      this.hasGeofences = Boolean(geofencesTable?.name)
+      this.hasRadioChannels = Boolean(radioChannelsTable?.name)
+    } catch (error) {
+      this.hasRoutes = false
+      this.hasGeofences = false
+      this.hasRadioChannels = false
+      console.warn('TelemetryService: optional table detection failed; continuing with minimal telemetry', error)
     }
 
     // Load initial data
@@ -142,54 +184,70 @@ export class TelemetryService extends EventEmitter {
    * Load vehicles from database
    */
   private async loadVehicles(): Promise<void> {
-    if (!this.useMockData && this.db) {
-      try {
-        const results = await this.db.query(`
-          SELECT
-            v.id,
-            v.vehicle_number,
-            v.make,
-            v.model,
-            v.year,
-            v.vin,
-            v.license_plate,
-            v.status,
-            v.mileage,
-            v.fuel_type,
-            v.specifications,
-            f.name as facility_name,
-            f.coordinates as facility_coords
-          FROM vehicles v
-          LEFT JOIN facilities f ON v.facility_id = f.id
-          WHERE v.status = 'active'
-          ORDER BY v.id
-        `)
-
-        for (const row of results) {
-          const vehicle = this.mapDatabaseVehicle(row)
-          this.vehicleCache.set(vehicle.id, vehicle)
-        }
-        return
-      } catch (error) {
-        console.warn('Failed to load vehicles from database, using mock data')
-      }
+    if (!this.db) {
+      throw new Error('Database connection not available')
     }
 
-    // Load mock data based on realistic fleet composition
-    this.loadMockVehicles()
+    try {
+      const results = await this.db.query(`
+        SELECT
+          v.id,
+          v.tenant_id,
+          v.number as vehicle_number,
+          v.name,
+          v.make,
+          v.model,
+          v.year,
+          v.vin,
+          v.license_plate,
+          v.status,
+          v.odometer as mileage,
+          v.fuel_type,
+          v.latitude,
+          v.longitude,
+          v.metadata
+        FROM vehicles v
+        WHERE v.is_active = true AND v.status = 'active'
+        ORDER BY v.created_at, v.id
+      `)
+
+      let idx = 0
+      for (const row of results) {
+        idx += 1
+        const vehicle = this.mapDatabaseVehicle(row, idx)
+        this.vehicleCache.set(vehicle.id, vehicle)
+      }
+
+      console.log(`Loaded ${this.vehicleCache.size} vehicles from database`)
+    } catch (error) {
+      console.error('Failed to load vehicles from database:', error)
+      throw error
+    }
   }
 
   /**
    * Map database row to TelemetryVehicle
    */
-  private mapDatabaseVehicle(row: any): TelemetryVehicle {
-    const specs = row.specifications || {}
-    const coords = row.facility_coords || { lat: 30.4383, lng: -84.2807 }
+  private mapDatabaseVehicle(row: any, sequence: number): TelemetryVehicle {
+    const specs = row.metadata?.specifications || row.specifications || {}
+    const fallbackCoords = { lat: 30.4383, lng: -84.2807 }
+    const coords =
+      row.latitude != null && row.longitude != null
+        ? { lat: Number(row.latitude), lng: Number(row.longitude) }
+        : fallbackCoords
+    const driverBehavior =
+      row.metadata?.driverBehavior === 'aggressive' ||
+      row.metadata?.driverBehavior === 'cautious' ||
+      row.metadata?.driverBehavior === 'normal'
+        ? row.metadata.driverBehavior
+        : 'normal'
 
     return {
-      id: `VEH-${String(row.id).padStart(3, '0')}`,
-      vehicleId: row.id,
+      id: `VEH-${String(sequence).padStart(3, '0')}`,
+      dbId: String(row.id),
+      tenantId: String(row.tenant_id),
       vehicleNumber: row.vehicle_number,
+      name: row.name,
       make: row.make,
       model: row.model,
       year: row.year,
@@ -201,296 +259,192 @@ export class TelemetryService extends EventEmitter {
       batteryCapacity: specs.batteryCapacity,
       electricRange: specs.electricRange,
       startingLocation: {
-        lat: coords.lat + (Math.random() - 0.5) * 0.02,
-        lng: coords.lng + (Math.random() - 0.5) * 0.02
+        lat: coords.lat,
+        lng: coords.lng
       },
       homeBase: {
         lat: coords.lat,
         lng: coords.lng,
-        name: row.facility_name || 'Fleet Center'
+        name: row.metadata?.homeBaseName || 'Fleet Center'
       },
-      driverBehavior: this.randomDriverBehavior(),
+      driverBehavior,
       features: this.inferFeatures(row.make, row.model, row.fuel_type),
       mileage: row.mileage || 0,
       status: row.status
     }
   }
 
-  /**
-   * Load mock vehicles when database is unavailable
-   */
-  private loadMockVehicles(): void {
-    // Generate realistic fleet from database-like data
-    const fleetBase = { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center' }
-
-    const vehicleSpecs = [
-      // Trucks
-      { make: 'Ford', model: 'F-150', type: 'truck', tankSize: 26, efficiency: 18, count: 5 },
-      { make: 'Ford', model: 'F-250', type: 'truck', tankSize: 34, efficiency: 15, count: 3 },
-      { make: 'Chevrolet', model: 'Silverado', type: 'truck', tankSize: 26, efficiency: 19, count: 4 },
-      { make: 'Ram', model: '1500', type: 'truck', tankSize: 26, efficiency: 17, count: 3 },
-      { make: 'Toyota', model: 'Tacoma', type: 'truck', tankSize: 21, efficiency: 21, count: 2 },
-
-      // Vans
-      { make: 'Mercedes-Benz', model: 'Sprinter', type: 'van', tankSize: 25, efficiency: 20, count: 2 },
-      { make: 'Ford', model: 'Transit', type: 'van', tankSize: 25, efficiency: 19, count: 3 },
-      { make: 'Ram', model: 'ProMaster', type: 'van', tankSize: 24, efficiency: 18, count: 2 },
-
-      // SUVs
-      { make: 'Ford', model: 'Explorer', type: 'suv', tankSize: 18, efficiency: 24, count: 3 },
-      { make: 'Chevrolet', model: 'Tahoe', type: 'suv', tankSize: 24, efficiency: 20, count: 2 },
-      { make: 'Honda', model: 'CR-V', type: 'suv', tankSize: 22, efficiency: 28, count: 2 },
-
-      // Sedans
-      { make: 'Toyota', model: 'Camry', type: 'sedan', tankSize: 15, efficiency: 30, count: 3 },
-      { make: 'Honda', model: 'Accord', type: 'sedan', tankSize: 14, efficiency: 32, count: 2 },
-
-      // EVs
-      { make: 'Tesla', model: 'Model 3', type: 'sedan', tankSize: 0, efficiency: 0, batteryCapacity: 75, electricRange: 310, count: 2 },
-      { make: 'Tesla', model: 'Model Y', type: 'suv', tankSize: 0, efficiency: 0, batteryCapacity: 75, electricRange: 330, count: 2 },
-      { make: 'Chevrolet', model: 'Bolt EV', type: 'sedan', tankSize: 0, efficiency: 0, batteryCapacity: 66, electricRange: 259, count: 2 },
-
-      // Heavy Equipment
-      { make: 'Caterpillar', model: '320', type: 'excavator', tankSize: 75, efficiency: 4, count: 2 },
-      { make: 'John Deere', model: '200G', type: 'excavator', tankSize: 70, efficiency: 5, count: 1 },
-      { make: 'Mack', model: 'Granite', type: 'dump_truck', tankSize: 125, efficiency: 6, count: 2 },
-      { make: 'Peterbilt', model: '567', type: 'dump_truck', tankSize: 150, efficiency: 5, count: 1 },
-    ]
-
-    let vehicleIndex = 1
-    for (const spec of vehicleSpecs) {
-      for (let i = 0; i < spec.count; i++) {
-        const id = `VEH-${String(vehicleIndex).padStart(3, '0')}`
-        const isEV = spec.batteryCapacity !== undefined
-
-        this.vehicleCache.set(id, {
-          id,
-          vehicleId: vehicleIndex,
-          vehicleNumber: id,
-          make: spec.make,
-          model: spec.model,
-          year: 2021 + Math.floor(Math.random() * 3),
-          type: spec.type,
-          vin: this.generateVIN(),
-          licensePlate: this.generateLicensePlate(),
-          tankSize: spec.tankSize,
-          fuelEfficiency: spec.efficiency,
-          batteryCapacity: spec.batteryCapacity,
-          electricRange: spec.electricRange,
-          startingLocation: {
-            lat: fleetBase.lat + (Math.random() - 0.5) * 0.02,
-            lng: fleetBase.lng + (Math.random() - 0.5) * 0.02
-          },
-          homeBase: fleetBase,
-          driverBehavior: this.randomDriverBehavior(),
-          features: this.inferFeatures(spec.make, spec.model, isEV ? 'electric' : 'gasoline'),
-          mileage: Math.floor(Math.random() * 50000) + 10000,
-          status: 'active'
-        })
-        vehicleIndex++
-      }
-    }
-  }
 
   /**
-   * Load routes from database or generate realistic routes
+   * Load routes from database
    */
   private async loadRoutes(): Promise<void> {
-    if (!this.useMockData && this.db) {
+    if (!this.db) {
+      throw new Error('Database connection not available')
+    }
+    if (!this.hasRoutes) return
+
+    try {
+      // Support multiple schemas (the project contains both `route_name/total_distance` and `name/estimated_distance` styles).
+      // Prefer the "current" schema used by seeded demo DBs (name, description, type, estimated_distance).
+      let results: any[] = []
       try {
-        const results = await this.db.query(`
-          SELECT * FROM routes WHERE is_active = true ORDER BY id
+        results = await this.db.query(`
+          SELECT
+            id,
+            name,
+            description,
+            type,
+            status,
+            estimated_duration,
+            estimated_distance,
+            actual_distance,
+            waypoints
+          FROM routes
+          WHERE status::text NOT IN ('cancelled')
+          ORDER BY scheduled_start_time NULLS LAST, created_at DESC, id
+          LIMIT 250
         `)
+      } catch (err: any) {
+        // Fall back to older schema (route_name/total_distance, start/end_location, notes).
+        results = await this.db.query(`
+          SELECT
+            id,
+            route_name,
+            status,
+            start_location,
+            end_location,
+            estimated_duration,
+            total_distance,
+            waypoints,
+            notes
+          FROM routes
+          WHERE status::text NOT IN ('cancelled')
+          ORDER BY planned_start_time NULLS LAST, created_at DESC, id
+          LIMIT 250
+        `)
+      }
 
-        for (const row of results) {
-          const route: TelemetryRoute = {
-            id: row.route_id,
-            routeId: row.route_id,
-            name: row.name,
-            description: row.description,
-            type: row.type,
-            estimatedDuration: row.estimated_duration,
-            estimatedDistance: parseFloat(row.estimated_distance),
-            waypoints: row.waypoints || [],
-            roadTypes: row.road_types || [],
-            trafficPatterns: row.traffic_patterns || {},
-            priority: row.priority,
-            frequency: row.frequency
-          }
-          this.routeCache.set(route.id, route)
+      for (const row of results) {
+        const id = String(row.id)
+        const name = String(row.name || row.route_name || `Route ${id.slice(0, 8)}`)
+        const estimatedDuration = Number(row.estimated_duration ?? row.actual_duration ?? 0) || 0
+        const estimatedDistance =
+          Number(row.estimated_distance ?? row.total_distance ?? row.actual_distance ?? 0) || 0
+
+        const descriptionParts = [
+          row.description ? String(row.description) : null,
+          row.start_location ? `From ${row.start_location}` : null,
+          row.end_location ? `to ${row.end_location}` : null,
+          row.notes ? String(row.notes) : null,
+        ].filter(Boolean) as string[]
+
+        const waypointsRaw = Array.isArray(row.waypoints) ? row.waypoints : []
+        const waypoints = waypointsRaw
+          .map((w: any, idx: number) => {
+            const lat = Number(w.lat ?? w.latitude ?? w.center_lat ?? w.center_latitude)
+            const lng = Number(w.lng ?? w.lon ?? w.longitude ?? w.center_lng ?? w.center_longitude)
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+
+            const typeRaw = String(w.type || 'waypoint').toLowerCase()
+            const type =
+              typeRaw === 'depot' ||
+              typeRaw === 'delivery' ||
+              typeRaw === 'service' ||
+              typeRaw === 'break' ||
+              typeRaw === 'pickup' ||
+              typeRaw === 'emergency' ||
+              typeRaw === 'waypoint'
+                ? typeRaw
+                : 'waypoint'
+
+            return {
+              lat,
+              lng,
+              name: String(w.name ?? w.address ?? w.location ?? `Stop ${idx + 1}`),
+              type,
+              stopDuration: Number(w.stopDuration ?? w.stop_duration ?? 0) || 0,
+            }
+          })
+          .filter(Boolean) as TelemetryRoute['waypoints']
+
+        const route: TelemetryRoute = {
+          id,
+          routeId: id,
+          name,
+          description: descriptionParts.join(' ') || name,
+          type: this.normalizeRouteType(String(row.type || ''), name, estimatedDistance),
+          estimatedDuration,
+          estimatedDistance,
+          waypoints,
+          roadTypes: [],
+          trafficPatterns: {},
         }
-        return
-      } catch (error) {
-        console.warn('Failed to load routes from database, using mock data')
+        this.routeCache.set(route.id, route)
       }
-    }
 
-    // Generate realistic routes based on Tallahassee, FL
-    this.loadMockRoutes()
-  }
-
-  /**
-   * Load mock routes for Tallahassee area
-   */
-  private loadMockRoutes(): void {
-    const routes: TelemetryRoute[] = [
-      {
-        id: 'ROUTE-001',
-        routeId: 'ROUTE-001',
-        name: 'Downtown Tallahassee Loop',
-        description: 'Standard downtown delivery route covering Capitol area',
-        type: 'delivery',
-        estimatedDuration: 120,
-        estimatedDistance: 18,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.4518, lng: -84.2728, name: 'FSU Campus', type: 'delivery', stopDuration: 15 },
-          { lat: 30.4380, lng: -84.2812, name: 'Downtown', type: 'delivery', stopDuration: 10 },
-          { lat: 30.4550, lng: -84.2534, name: 'Midtown', type: 'delivery', stopDuration: 10 },
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'city', 'city', 'city', 'city'],
-        trafficPatterns: { morning: 'moderate', midday: 'light', afternoon: 'heavy', evening: 'moderate', night: 'light' }
-      },
-      {
-        id: 'ROUTE-002',
-        routeId: 'ROUTE-002',
-        name: 'I-10 Interstate Run',
-        description: 'Long-haul route to Jacksonville via I-10',
-        type: 'longhaul',
-        estimatedDuration: 180,
-        estimatedDistance: 165,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.4407, lng: -84.0834, name: 'I-10 East Entry', type: 'waypoint', stopDuration: 0 },
-          { lat: 30.3658, lng: -83.2232, name: 'Lake City Rest Stop', type: 'break', stopDuration: 20 },
-          { lat: 30.3322, lng: -81.6557, name: 'Jacksonville Downtown', type: 'delivery', stopDuration: 45 },
-          { lat: 30.3658, lng: -83.2232, name: 'Lake City Rest Stop', type: 'break', stopDuration: 15 },
-          { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'highway', 'highway', 'city', 'highway', 'city'],
-        trafficPatterns: { morning: 'heavy', midday: 'moderate', afternoon: 'heavy', evening: 'moderate', night: 'light' }
-      },
-      {
-        id: 'ROUTE-003',
-        routeId: 'ROUTE-003',
-        name: 'Construction Site Circuit',
-        description: 'Heavy equipment service route to construction sites',
-        type: 'service',
-        estimatedDuration: 240,
-        estimatedDistance: 35,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.4889, lng: -84.2276, name: 'North Site', type: 'service', stopDuration: 60 },
-          { lat: 30.4150, lng: -84.3050, name: 'West Development', type: 'service', stopDuration: 45 },
-          { lat: 30.3980, lng: -84.2420, name: 'South Project', type: 'service', stopDuration: 45 },
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'residential', 'residential', 'residential', 'city'],
-        trafficPatterns: { morning: 'light', midday: 'light', afternoon: 'light', evening: 'light', night: 'light' }
-      },
-      {
-        id: 'ROUTE-004',
-        routeId: 'ROUTE-004',
-        name: 'Airport Shuttle',
-        description: 'Regular shuttle to Tallahassee International Airport',
-        type: 'shuttle',
-        estimatedDuration: 30,
-        estimatedDistance: 8,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.3966, lng: -84.3503, name: 'Tallahassee Airport', type: 'pickup', stopDuration: 15 },
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'highway', 'city'],
-        trafficPatterns: { morning: 'moderate', midday: 'light', afternoon: 'moderate', evening: 'light', night: 'light' },
-        frequency: 'every_hour'
-      },
-      {
-        id: 'ROUTE-005',
-        routeId: 'ROUTE-005',
-        name: 'Emergency Response',
-        description: 'Priority emergency response route',
-        type: 'emergency',
-        estimatedDuration: 20,
-        estimatedDistance: 12,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.4550, lng: -84.2600, name: 'Zone Alpha', type: 'emergency', stopDuration: 5 },
-          { lat: 30.4250, lng: -84.2950, name: 'Zone Bravo', type: 'emergency', stopDuration: 5 },
-          { lat: 30.4450, lng: -84.3100, name: 'Zone Charlie', type: 'emergency', stopDuration: 5 },
-          { lat: 30.4383, lng: -84.2807, name: 'Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'city', 'city', 'city', 'city'],
-        priority: 'high',
-        trafficPatterns: { morning: 'light', midday: 'light', afternoon: 'light', evening: 'light', night: 'light' }
-      },
-      {
-        id: 'ROUTE-006',
-        routeId: 'ROUTE-006',
-        name: 'Coastal Delivery - Panama City',
-        description: 'Delivery route to Panama City Beach area',
-        type: 'longhaul',
-        estimatedDuration: 150,
-        estimatedDistance: 100,
-        waypoints: [
-          { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center', type: 'depot', stopDuration: 0 },
-          { lat: 30.1766, lng: -85.8055, name: 'Panama City', type: 'delivery', stopDuration: 30 },
-          { lat: 30.2116, lng: -85.8789, name: 'Panama City Beach', type: 'delivery', stopDuration: 20 },
-          { lat: 30.4383, lng: -84.2807, name: 'Tallahassee Fleet Center', type: 'depot', stopDuration: 0 }
-        ],
-        roadTypes: ['city', 'highway', 'city', 'highway'],
-        trafficPatterns: { morning: 'moderate', midday: 'light', afternoon: 'moderate', evening: 'light', night: 'light' }
-      }
-    ]
-
-    for (const route of routes) {
-      this.routeCache.set(route.id, route)
+      console.log(`Loaded ${this.routeCache.size} routes from database`)
+    } catch (error) {
+      console.error('Failed to load routes from database:', error)
+      // Routes are optional - continue without them
+      console.log('Continuing without routes')
     }
   }
+
+  private normalizeRouteType(raw: string, name: string, estimatedDistanceMiles: number): TelemetryRoute['type'] {
+    const normalized = raw.toLowerCase()
+    if (normalized === 'delivery' || normalized === 'longhaul' || normalized === 'service' || normalized === 'shuttle' || normalized === 'emergency') {
+      return normalized
+    }
+    return this.inferRouteType(name, estimatedDistanceMiles)
+  }
+
+  private inferRouteType(name: string, estimatedDistanceMiles: number): TelemetryRoute['type'] {
+    const n = name.toLowerCase()
+    if (n.includes('emerg')) return 'emergency'
+    if (n.includes('shuttle')) return 'shuttle'
+    if (n.includes('service') || n.includes('maintenance') || n.includes('repair')) return 'service'
+    if (n.includes('delivery') || n.includes('drop') || n.includes('pickup')) return 'delivery'
+    if (estimatedDistanceMiles >= 80) return 'longhaul'
+    return 'delivery'
+  }
+
 
   /**
    * Load radio channels
    */
   private async loadRadioChannels(): Promise<void> {
-    if (!this.useMockData && this.db) {
-      try {
-        const results = await this.db.query(`
-          SELECT * FROM radio_channels WHERE is_active = true ORDER BY priority DESC
-        `)
-
-        for (const row of results) {
-          const channel: RadioChannel = {
-            id: row.channel_id,
-            channelId: row.channel_id,
-            name: row.name,
-            frequency: row.frequency,
-            type: row.type,
-            priority: row.priority,
-            encryption: row.encryption,
-            maxUsers: row.max_users,
-            talkGroup: row.talk_group,
-            description: row.description
-          }
-          this.channelCache.set(channel.id, channel)
-        }
-        return
-      } catch (error) {
-        console.warn('Failed to load radio channels from database, using defaults')
-      }
+    if (!this.db) {
+      throw new Error('Database connection not available')
     }
+    if (!this.hasRadioChannels) return
 
-    // Default channels
-    const channels: RadioChannel[] = [
-      { id: 'channel-dispatch', channelId: 'channel-dispatch', name: 'Dispatch', frequency: '154.280', type: 'dispatch', priority: 10, encryption: true, maxUsers: 100, talkGroup: 'fleet-main' },
-      { id: 'channel-emergency', channelId: 'channel-emergency', name: 'Emergency', frequency: '155.475', type: 'emergency', priority: 100, encryption: true, maxUsers: 50, talkGroup: 'emergency' },
-      { id: 'channel-tactical', channelId: 'channel-tactical', name: 'Tactical 1', frequency: '154.340', type: 'tactical', priority: 50, encryption: true, maxUsers: 20, talkGroup: 'tactical-1' },
-      { id: 'channel-maintenance', channelId: 'channel-maintenance', name: 'Maintenance', frequency: '154.570', type: 'maintenance', priority: 5, encryption: false, maxUsers: 50, talkGroup: 'maintenance' },
-      { id: 'channel-common', channelId: 'channel-common', name: 'Common', frequency: '154.600', type: 'common', priority: 1, encryption: false, maxUsers: 200, talkGroup: 'common' }
-    ]
+    try {
+      const results = await this.db.query(`
+        SELECT * FROM radio_channels WHERE is_active = true ORDER BY priority DESC
+      `)
 
-    for (const channel of channels) {
-      this.channelCache.set(channel.id, channel)
+      for (const row of results) {
+        const channel: RadioChannel = {
+          id: row.channel_id,
+          channelId: row.channel_id,
+          name: row.name,
+          frequency: row.frequency,
+          type: row.type,
+          priority: row.priority,
+          encryption: row.encryption,
+          maxUsers: row.max_users,
+          talkGroup: row.talk_group,
+          description: row.description
+        }
+        this.channelCache.set(channel.id, channel)
+      }
+
+      console.log(`Loaded ${this.channelCache.size} radio channels from database`)
+    } catch (error) {
+      console.error('Failed to load radio channels from database:', error)
+      // Radio channels are optional - continue without them
+      console.log('Continuing without radio channels')
     }
   }
 
@@ -498,41 +452,64 @@ export class TelemetryService extends EventEmitter {
    * Load geofences
    */
   private async loadGeofences(): Promise<void> {
-    if (!this.useMockData && this.db) {
-      try {
-        const results = await this.db.query(`
-          SELECT * FROM geofences WHERE is_active = true ORDER BY id
-        `)
+    if (!this.db) {
+      throw new Error('Database connection not available')
+    }
+    if (!this.hasGeofences) return
 
-        for (const row of results) {
-          const geofence: Geofence = {
-            id: row.geofence_id,
-            name: row.name,
-            type: row.type,
-            center: { lat: parseFloat(row.center_lat), lng: parseFloat(row.center_lng) },
-            radius: parseFloat(row.radius),
-            alertOnEntry: row.alert_on_entry,
-            alertOnExit: row.alert_on_exit
-          }
-          this.geofenceCache.set(geofence.id, geofence)
+    try {
+      const results = await this.db.query(`
+        SELECT
+          id,
+          name,
+          type,
+          center_lat,
+          center_lng,
+          center_latitude,
+          center_longitude,
+          radius,
+          radius_meters,
+          notify_on_entry,
+          notify_on_exit,
+          alert_on_entry,
+          alert_on_exit
+        FROM geofences
+        WHERE is_active = true
+        ORDER BY created_at, id
+      `)
+
+      for (const row of results) {
+        const lat = Number(row.center_lat ?? row.center_latitude)
+        const lng = Number(row.center_lng ?? row.center_longitude)
+        if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue
+
+        const geofence: Geofence = {
+          id: String(row.id),
+          name: String(row.name),
+          type: this.inferGeofenceType(`${row.type ?? ''} ${row.name ?? ''}`),
+          center: {
+            lat,
+            lng,
+          },
+          radius: Number(row.radius_meters ?? row.radius) || 0,
+          alertOnEntry: Boolean(row.alert_on_entry ?? row.notify_on_entry),
+          alertOnExit: Boolean(row.alert_on_exit ?? row.notify_on_exit),
         }
-        return
-      } catch (error) {
-        console.warn('Failed to load geofences from database, using defaults')
+        this.geofenceCache.set(geofence.id, geofence)
       }
-    }
 
-    // Default geofences for Tallahassee
-    const geofences: Geofence[] = [
-      { id: 'GEO-001', name: 'Fleet Center Zone', type: 'operational', center: { lat: 30.4383, lng: -84.2807 }, radius: 5000, alertOnEntry: false, alertOnExit: true },
-      { id: 'GEO-002', name: 'Depot Perimeter', type: 'restricted', center: { lat: 30.4383, lng: -84.2807 }, radius: 500, alertOnEntry: true, alertOnExit: true },
-      { id: 'GEO-003', name: 'FSU Campus Zone', type: 'operational', center: { lat: 30.4518, lng: -84.2728 }, radius: 1500, alertOnEntry: true, alertOnExit: false },
-      { id: 'GEO-004', name: 'Airport Zone', type: 'restricted', center: { lat: 30.3966, lng: -84.3503 }, radius: 2000, alertOnEntry: true, alertOnExit: true }
-    ]
-
-    for (const geofence of geofences) {
-      this.geofenceCache.set(geofence.id, geofence)
+      console.log(`Loaded ${this.geofenceCache.size} geofences from database`)
+    } catch (error) {
+      console.error('Failed to load geofences from database:', error)
+      // Geofences are optional - continue without them
+      console.log('Continuing without geofences')
     }
+  }
+
+  private inferGeofenceType(name: string): Geofence['type'] {
+    const n = name.toLowerCase()
+    if (n.includes('restrict') || n.includes('no-go') || n.includes('nog o') || n.includes('secure')) return 'restricted'
+    return 'operational'
   }
 
   // ============================================================================
@@ -543,8 +520,11 @@ export class TelemetryService extends EventEmitter {
    * Save GPS telemetry data
    */
   public async saveGPSTelemetry(data: GPSTelemetry): Promise<void> {
+    const v = this.resolveVehicle(data.vehicleId)
+    if (!v) return
     this.gpsBuffer.push({
-      vehicleId: this.extractVehicleId(data.vehicleId),
+      tenantId: v.tenantId,
+      vehicleDbId: v.dbId,
       vehicleNumber: data.vehicleId,
       timestamp: data.timestamp,
       latitude: data.location.lat,
@@ -552,7 +532,8 @@ export class TelemetryService extends EventEmitter {
       altitude: data.location.altitude,
       speed: data.speed,
       heading: data.heading,
-      odometer: data.odometer,
+      // gps_tracks.odometer is an integer; emulator odometer is fractional miles.
+      odometer: Number.isFinite(data.odometer) ? Math.round(data.odometer) : null,
       accuracy: data.accuracy,
       satelliteCount: data.satelliteCount,
       isMoving: data.speed > 0
@@ -565,8 +546,11 @@ export class TelemetryService extends EventEmitter {
    * Save OBD2 telemetry data
    */
   public async saveOBD2Telemetry(data: OBD2Data): Promise<void> {
+    const v = this.resolveVehicle(data.vehicleId)
+    if (!v) return
     this.obd2Buffer.push({
-      vehicleId: this.extractVehicleId(data.vehicleId),
+      tenantId: v.tenantId,
+      vehicleDbId: v.dbId,
       vehicleNumber: data.vehicleId,
       timestamp: data.timestamp,
       rpm: data.rpm,
@@ -590,24 +574,8 @@ export class TelemetryService extends EventEmitter {
    * Save radio transmission data
    */
   public async saveRadioTransmission(data: RadioTransmission): Promise<void> {
-    this.radioBuffer.push({
-      transmissionId: data.id,
-      vehicleId: this.extractVehicleId(data.vehicleId),
-      vehicleNumber: data.vehicleId,
-      channelId: data.channelId,
-      timestamp: data.timestamp,
-      duration: data.duration,
-      signalStrength: data.signalStrength,
-      audioQuality: data.audioQuality,
-      interference: data.interference,
-      latitude: data.location.lat,
-      longitude: data.location.lng,
-      priority: data.priority,
-      transmissionType: data.transmissionType,
-      message: data.message,
-      isEmergency: data.isEmergency
-    })
-
+    // Current production schema does not include radio transmission tables.
+    // Keep the event stream for in-memory consumers but don't buffer/persist.
     this.emit('radio-saved', data)
   }
 
@@ -615,21 +583,8 @@ export class TelemetryService extends EventEmitter {
    * Save driver behavior event
    */
   public async saveDriverBehaviorEvent(data: DriverBehaviorEvent): Promise<void> {
-    this.driverBuffer.push({
-      vehicleId: this.extractVehicleId(data.vehicleId),
-      vehicleNumber: data.vehicleId,
-      timestamp: data.timestamp,
-      eventType: data.eventType,
-      severity: data.severity,
-      speed: data.speed,
-      speedLimit: data.speedLimit,
-      latitude: data.location.lat,
-      longitude: data.location.lng,
-      duration: data.duration,
-      scoreImpact: this.calculateScoreImpact(data),
-      driverScore: data.score
-    })
-
+    // Current production schema does not include driver behavior tables.
+    // Keep the event stream for in-memory consumers but don't buffer/persist.
     this.emit('driver-behavior-saved', data)
   }
 
@@ -637,29 +592,8 @@ export class TelemetryService extends EventEmitter {
    * Save IoT sensor data
    */
   public async saveIoTSensorData(data: IoTSensorData): Promise<void> {
-    this.iotBuffer.push({
-      vehicleId: this.extractVehicleId(data.vehicleId),
-      vehicleNumber: data.vehicleId,
-      timestamp: data.timestamp,
-      engineTemp: data.sensors.engineTemp,
-      cabinTemp: data.sensors.cabinTemp,
-      cargoTemp: data.sensors.cargoTemp,
-      tirePressureFrontLeft: data.sensors.tirePressure?.frontLeft,
-      tirePressureFrontRight: data.sensors.tirePressure?.frontRight,
-      tirePressureRearLeft: data.sensors.tirePressure?.rearLeft,
-      tirePressureRearRight: data.sensors.tirePressure?.rearRight,
-      cargoWeight: data.sensors.cargoWeight,
-      driverDoorOpen: data.sensors.doorStatus?.driver,
-      passengerDoorOpen: data.sensors.doorStatus?.passenger,
-      cargoDoorOpen: data.sensors.doorStatus?.cargo,
-      ignitionOn: data.sensors.ignitionStatus,
-      accelerometerX: data.sensors.accelerometer?.x,
-      accelerometerY: data.sensors.accelerometer?.y,
-      accelerometerZ: data.sensors.accelerometer?.z,
-      cellularSignalStrength: data.sensors.connectivity?.signalStrength,
-      cellularNetworkType: data.sensors.connectivity?.type
-    })
-
+    // Current production schema does not include IoT sensor tables.
+    // Keep the event stream for in-memory consumers but don't buffer/persist.
     this.emit('iot-saved', data)
   }
 
@@ -671,21 +605,13 @@ export class TelemetryService extends EventEmitter {
 
     const promises: Promise<void>[] = []
 
-    if (this.gpsBuffer.length > 0) {
+    if (this.canPersistGps && this.gpsBuffer.length > 0) {
       promises.push(this.flushGPSBuffer())
     }
-    if (this.obd2Buffer.length > 0) {
+    if (this.canPersistObd2 && this.obd2Buffer.length > 0) {
       promises.push(this.flushOBD2Buffer())
     }
-    if (this.radioBuffer.length > 0) {
-      promises.push(this.flushRadioBuffer())
-    }
-    if (this.driverBuffer.length > 0) {
-      promises.push(this.flushDriverBuffer())
-    }
-    if (this.iotBuffer.length > 0) {
-      promises.push(this.flushIoTBuffer())
-    }
+    // Radio/driver/IoT tables are not present in the current schema; do not attempt persistence.
 
     await Promise.all(promises)
   }
@@ -695,26 +621,49 @@ export class TelemetryService extends EventEmitter {
     if (items.length === 0 || !this.db) return
 
     try {
-      const values = items.map(item => `(
-        ${item.vehicleId},
-        '${item.vehicleNumber}',
-        '${item.timestamp.toISOString()}',
-        ${item.latitude},
-        ${item.longitude},
-        ${item.altitude || 'NULL'},
-        ${item.speed},
-        ${item.heading || 'NULL'},
-        ${item.odometer || 'NULL'},
-        ${item.accuracy || 'NULL'},
-        ${item.satelliteCount || 'NULL'},
-        ${item.isMoving}
-      )`).join(',')
+      const cols = [
+        'tenant_id',
+        'vehicle_id',
+        'timestamp',
+        'latitude',
+        'longitude',
+        'altitude',
+        'speed',
+        'heading',
+        'accuracy',
+        'odometer',
+        'metadata',
+      ]
+      const params: any[] = []
+      const valuesSql = items
+        .map((item, i) => {
+          const base = i * cols.length
+          params.push(
+            item.tenantId,
+            item.vehicleDbId,
+            item.timestamp,
+            item.latitude,
+            item.longitude,
+            item.altitude ?? null,
+            item.speed ?? null,
+            item.heading ?? null,
+            item.accuracy ?? null,
+            item.odometer ?? null,
+            {
+              vehicleNumber: item.vehicleNumber,
+              satelliteCount: item.satelliteCount ?? null,
+              isMoving: Boolean(item.isMoving),
+            }
+          )
+          const placeholders = cols.map((_, c) => `$${base + c + 1}`).join(',')
+          return `(${placeholders})`
+        })
+        .join(',')
 
-      await this.db.query(`
-        INSERT INTO gps_telemetry
-        (vehicle_id, vehicle_number, timestamp, latitude, longitude, altitude, speed, heading, odometer, accuracy, satellite_count, is_moving)
-        VALUES ${values}
-      `)
+      await this.db.query(
+        `INSERT INTO gps_tracks (${cols.join(',')}) VALUES ${valuesSql}`,
+        params
+      )
     } catch (error) {
       console.error('Failed to flush GPS buffer:', error)
       // Re-add items to buffer for retry
@@ -727,14 +676,56 @@ export class TelemetryService extends EventEmitter {
     if (items.length === 0 || !this.db) return
 
     try {
-      // Batch insert OBD2 data
-      for (const item of items) {
-        await this.db.query(`
-          INSERT INTO obd2_telemetry
-          (vehicle_id, vehicle_number, timestamp, rpm, speed, engine_load, throttle_position, coolant_temp, fuel_level, battery_voltage, maf, o2_sensor_bank1, dtc_codes, check_engine_light, mil)
-          VALUES (${item.vehicleId}, '${item.vehicleNumber}', '${item.timestamp.toISOString()}', ${item.rpm}, ${item.speed}, ${item.engineLoad}, ${item.throttlePosition}, ${item.coolantTemp}, ${item.fuelLevel}, ${item.batteryVoltage}, ${item.maf}, ${item.o2SensorBank1}, '${JSON.stringify(item.dtcCodes)}', ${item.checkEngineLight}, ${item.mil})
-        `)
-      }
+      const cols = [
+        'tenant_id',
+        'vehicle_id',
+        'timestamp',
+        'engine_rpm',
+        'engine_temperature',
+        'battery_voltage',
+        'diagnostic_codes',
+        'raw_data',
+      ]
+      const params: any[] = []
+      const valuesSql = items
+        .map((item, i) => {
+          const diagnosticCodes = Array.isArray(item.dtcCodes)
+            ? item.dtcCodes
+            : item.dtcCodes instanceof Set
+              ? Array.from(item.dtcCodes)
+              : item.dtcCodes
+                ? [String(item.dtcCodes)]
+                : []
+          const base = i * cols.length
+          params.push(
+            item.tenantId,
+            item.vehicleDbId,
+            item.timestamp,
+            item.rpm ?? null,
+            item.coolantTemp ?? null,
+            item.batteryVoltage ?? null,
+            diagnosticCodes.length > 0 ? diagnosticCodes : null,
+            {
+              vehicleNumber: item.vehicleNumber,
+              speed: item.speed ?? null,
+              engineLoad: item.engineLoad ?? null,
+              throttlePosition: item.throttlePosition ?? null,
+              fuelLevel: item.fuelLevel ?? null,
+              maf: item.maf ?? null,
+              o2Sensor: item.o2SensorBank1 ?? null,
+              checkEngineLight: Boolean(item.checkEngineLight),
+              mil: Boolean(item.mil),
+            }
+          )
+          const placeholders = cols.map((_, c) => `$${base + c + 1}`).join(',')
+          return `(${placeholders})`
+        })
+        .join(',')
+
+      await this.db.query(
+        `INSERT INTO telemetry_data (${cols.join(',')}) VALUES ${valuesSql}`,
+        params
+      )
     } catch (error) {
       console.error('Failed to flush OBD2 buffer:', error)
     }
@@ -848,18 +839,28 @@ export class TelemetryService extends EventEmitter {
     if (!this.db) return null
 
     try {
-      const numericId = this.extractVehicleId(vehicleId)
+      const v = this.resolveVehicle(vehicleId)
+      if (!v) return null
 
-      const [gpsResult, obd2Result, iotResult] = await Promise.all([
-        this.db.query(`SELECT * FROM gps_telemetry WHERE vehicle_id = ${numericId} ORDER BY timestamp DESC LIMIT 1`),
-        this.db.query(`SELECT * FROM obd2_telemetry WHERE vehicle_id = ${numericId} ORDER BY timestamp DESC LIMIT 1`),
-        this.db.query(`SELECT * FROM iot_sensor_readings WHERE vehicle_id = ${numericId} ORDER BY timestamp DESC LIMIT 1`)
+      const [gpsResult, obd2Result] = await Promise.all([
+        this.canPersistGps
+          ? this.db.query(
+              `SELECT * FROM gps_tracks WHERE tenant_id = $1 AND vehicle_id = $2 ORDER BY timestamp DESC LIMIT 1`,
+              [v.tenantId, v.dbId]
+            )
+          : Promise.resolve([]),
+        this.canPersistObd2
+          ? this.db.query(
+              `SELECT * FROM telemetry_data WHERE tenant_id = $1 AND vehicle_id = $2 ORDER BY timestamp DESC LIMIT 1`,
+              [v.tenantId, v.dbId]
+            )
+          : Promise.resolve([]),
       ])
 
       return {
-        gps: gpsResult[0] ? this.mapGPSRow(gpsResult[0]) : undefined,
-        obd2: obd2Result[0] ? this.mapOBD2Row(obd2Result[0]) : undefined,
-        iot: iotResult[0] ? this.mapIoTRow(iotResult[0]) : undefined
+        gps: gpsResult[0] ? this.mapGPSRow(gpsResult[0], v.id) : undefined,
+        obd2: obd2Result[0] ? this.mapOBD2Row(obd2Result[0], v.id) : undefined,
+        iot: undefined,
       }
     } catch (error) {
       console.error('Failed to get latest telemetry:', error)
@@ -879,26 +880,33 @@ export class TelemetryService extends EventEmitter {
   ): Promise<any[]> {
     if (!this.db) return []
 
-    const numericId = this.extractVehicleId(vehicleId)
-    const tables: Record<string, string> = {
-      gps: 'gps_telemetry',
-      obd2: 'obd2_telemetry',
-      iot: 'iot_sensor_readings',
-      radio: 'radio_transmissions',
-      driver: 'driver_behavior_events'
-    }
+    const v = this.resolveVehicle(vehicleId)
+    if (!v) return []
 
     try {
-      const results = await this.db.query(`
-        SELECT * FROM ${tables[type]}
-        WHERE vehicle_id = ${numericId}
-          AND timestamp >= '${startTime.toISOString()}'
-          AND timestamp <= '${endTime.toISOString()}'
-        ORDER BY timestamp DESC
-        LIMIT ${limit}
-      `)
+      if (type === 'gps' && this.canPersistGps) {
+        return await this.db.query(
+          `SELECT * FROM gps_tracks
+           WHERE tenant_id = $1 AND vehicle_id = $2
+             AND timestamp >= $3 AND timestamp <= $4
+           ORDER BY timestamp DESC
+           LIMIT $5`,
+          [v.tenantId, v.dbId, startTime, endTime, limit]
+        )
+      }
 
-      return results
+      if (type === 'obd2' && this.canPersistObd2) {
+        return await this.db.query(
+          `SELECT * FROM telemetry_data
+           WHERE tenant_id = $1 AND vehicle_id = $2
+             AND timestamp >= $3 AND timestamp <= $4
+           ORDER BY timestamp DESC
+           LIMIT $5`,
+          [v.tenantId, v.dbId, startTime, endTime, limit]
+        )
+      }
+
+      return []
     } catch (error) {
       console.error(`Failed to get ${type} telemetry history:`, error)
       return []
@@ -909,9 +917,14 @@ export class TelemetryService extends EventEmitter {
   // HELPER METHODS
   // ============================================================================
 
-  private extractVehicleId(vehicleId: string): number {
-    const match = vehicleId.match(/VEH-(\d+)/)
-    return match ? parseInt(match[1], 10) : parseInt(vehicleId, 10) || 1
+  private resolveVehicle(vehicleId: string): TelemetryVehicle | null {
+    const direct = this.vehicleCache.get(vehicleId)
+    if (direct) return direct
+    for (const v of this.vehicleCache.values()) {
+      if (v.dbId === vehicleId) return v
+      if (v.vehicleNumber === vehicleId) return v
+    }
+    return null
   }
 
   private inferVehicleType(make: string, model: string): string {
@@ -994,9 +1007,9 @@ export class TelemetryService extends EventEmitter {
     return impacts[event.eventType]?.[event.severity] || 5
   }
 
-  private mapGPSRow(row: any): GPSTelemetry {
+  private mapGPSRow(row: any, vehicleId: string): GPSTelemetry {
     return {
-      vehicleId: row.vehicle_number,
+      vehicleId,
       timestamp: new Date(row.timestamp),
       location: {
         lat: parseFloat(row.latitude),
@@ -1004,30 +1017,31 @@ export class TelemetryService extends EventEmitter {
         altitude: row.altitude ? parseFloat(row.altitude) : undefined,
         accuracy: row.accuracy ? parseFloat(row.accuracy) : undefined
       },
-      speed: parseFloat(row.speed),
+      speed: row.speed != null ? parseFloat(row.speed) : 0,
       heading: row.heading ? parseFloat(row.heading) : 0,
       odometer: row.odometer ? parseFloat(row.odometer) : 0,
       accuracy: row.accuracy ? parseFloat(row.accuracy) : 0,
-      satelliteCount: row.satellite_count
+      satelliteCount: typeof row.metadata?.satelliteCount === 'number' ? row.metadata.satelliteCount : undefined
     }
   }
 
-  private mapOBD2Row(row: any): OBD2Data {
+  private mapOBD2Row(row: any, vehicleId: string): OBD2Data {
+    const raw = row.raw_data || {}
     return {
-      vehicleId: row.vehicle_number,
+      vehicleId,
       timestamp: new Date(row.timestamp),
-      rpm: row.rpm,
-      speed: row.speed,
-      coolantTemp: parseFloat(row.coolant_temp),
-      fuelLevel: parseFloat(row.fuel_level),
-      batteryVoltage: parseFloat(row.battery_voltage),
-      engineLoad: parseFloat(row.engine_load),
-      throttlePosition: parseFloat(row.throttle_position),
-      maf: parseFloat(row.maf),
-      o2Sensor: parseFloat(row.o2_sensor_bank1),
-      dtcCodes: row.dtc_codes || [],
-      checkEngineLight: row.check_engine_light,
-      mil: row.mil
+      rpm: row.engine_rpm != null ? Number(row.engine_rpm) : 0,
+      speed: raw.speed != null ? Number(raw.speed) : 0,
+      coolantTemp: row.engine_temperature != null ? Number(row.engine_temperature) : 0,
+      fuelLevel: raw.fuelLevel != null ? Number(raw.fuelLevel) : 0,
+      batteryVoltage: row.battery_voltage != null ? Number(row.battery_voltage) : 0,
+      engineLoad: raw.engineLoad != null ? Number(raw.engineLoad) : 0,
+      throttlePosition: raw.throttlePosition != null ? Number(raw.throttlePosition) : 0,
+      maf: raw.maf != null ? Number(raw.maf) : 0,
+      o2Sensor: raw.o2Sensor != null ? Number(raw.o2Sensor) : 0,
+      dtcCodes: Array.isArray(row.diagnostic_codes) ? row.diagnostic_codes : [],
+      checkEngineLight: Boolean(raw.checkEngineLight),
+      mil: Boolean(raw.mil)
     }
   }
 

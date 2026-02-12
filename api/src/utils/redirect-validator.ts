@@ -174,7 +174,11 @@ export function safeRedirect(
  * @throws Error if frontend URL is not configured or invalid
  */
 export function getValidatedFrontendUrl(): string {
-  const frontendUrl = process.env.FRONTEND_URL || process.env.VITE_API_URL
+  const frontendUrl =
+    process.env.FRONTEND_URL ||
+    process.env.APP_URL ||
+    process.env.WEBAPP_URL ||
+    process.env.VITE_APP_URL
 
   if (!frontendUrl) {
     throw new Error(`FRONTEND_URL environment variable is not configured`)

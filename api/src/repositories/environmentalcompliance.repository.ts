@@ -1,5 +1,6 @@
 
 import { Pool } from 'pg';
+
 import { BaseRepository } from './base/BaseRepository';
 
 interface EnvironmentalCompliance {

@@ -11,7 +11,7 @@
  * - Auto-refresh every 30 seconds
  */
 
-import { Bell } from '@phosphor-icons/react'
+import { Bell } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 import { Badge } from '@/components/ui/badge'
@@ -128,7 +128,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
         return 'text-yellow-600 dark:text-yellow-400'
       case 'info':
       default:
-        return 'text-blue-800 dark:text-blue-400'
+        return 'text-blue-800 dark:text-blue-700'
     }
   }
 

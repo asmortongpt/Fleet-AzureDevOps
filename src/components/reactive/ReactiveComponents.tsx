@@ -3,7 +3,7 @@
  * Auto-updating components with real-time data and smooth animations
  */
 
-import { motion, AnimatePresence } from 'framer-motion'
+// motion removed - React 19 incompatible
 import { useAtom, useAtomValue } from 'jotai'
 import React, { useMemo, useEffect, useState } from 'react'
 
@@ -86,14 +86,12 @@ export function ReactiveMetricCard({
   const trendColors: Record<string, string> = {
     up: 'text-green-600 dark:text-green-400',
     down: 'text-red-600 dark:text-red-400',
-    neutral: 'text-slate-700 dark:text-gray-400',
+    neutral: 'text-slate-700 dark:text-gray-700',
   }
 
   return (
-    <motion.div
-      className={`rounded-lg p-3 shadow-sm ${colorClasses[color]}`}
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
+    <div
+      className={`rounded-lg p-3 shadow-sm transition-transform duration-200 hover:scale-[1.02] ${colorClasses[color]}`}
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium opacity-80">{title}</h3>
@@ -101,15 +99,11 @@ export function ReactiveMetricCard({
       </div>
 
       <div className="flex items-baseline gap-2">
-        <motion.span
+        <span
           className="text-base font-bold"
-          key={displayValue}
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
         >
           {typeof value === 'number' ? Math.round(displayValue) : value}
-        </motion.span>
+        </span>
         {unit && <span className="text-sm opacity-70">{unit}</span>}
       </div>
 
@@ -120,7 +114,7 @@ export function ReactiveMetricCard({
           <span className="opacity-70">vs last period</span>
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }
 
@@ -187,7 +181,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
 
   if (data.length === 0) {
     return (
-      <div className="flex items-center justify-center p-12 text-gray-500 dark:text-gray-400">
+      <div className="flex items-center justify-center p-12 text-gray-700 dark:text-gray-700">
         {emptyMessage}
       </div>
     )
@@ -201,7 +195,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
             {columns.map((column) => (
               <th
                 key={column.key}
-                className={`px-3 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider ${
+                className={`px-3 py-3 text-left text-xs font-medium text-gray-700 dark:text-gray-700 uppercase tracking-wider ${
                   column.sortable ? 'cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700' : ''
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
@@ -217,29 +211,23 @@ export function ReactiveDataTable<T extends Record<string, any>>({
           </tr>
         </thead>
         <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-800">
-          <AnimatePresence>
-            {sortedData.map((item, index) => (
-              <motion.tr
-                key={String(item[keyField])}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.2, delay: index * 0.02 }}
-                className={`${
-                  onRowClick
-                    ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800'
-                    : ''
-                }`}
-                onClick={() => onRowClick?.(item)}
-              >
-                {columns.map((column) => (
-                  <td key={column.key} className="px-3 py-2 whitespace-nowrap">
-                    {column.render ? column.render(item) : item[column.key]}
-                  </td>
-                ))}
-              </motion.tr>
-            ))}
-          </AnimatePresence>
+          {sortedData.map((item) => (
+            <tr
+              key={String(item[keyField])}
+              className={`${
+                onRowClick
+                  ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800'
+                  : ''
+              }`}
+              onClick={() => onRowClick?.(item)}
+            >
+              {columns.map((column) => (
+                <td key={column.key} className="px-3 py-2 whitespace-nowrap">
+                  {column.render ? column.render(item) : item[column.key]}
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
@@ -271,49 +259,44 @@ export function RealtimeAlertsFeed() {
 
   return (
     <div className="space-y-3">
-      <AnimatePresence>
-        {alerts.map((alert) => (
-          <motion.div
-            key={alert.id}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            className={`p-2 rounded-lg border-l-4 ${alertColors[alert.type]}`}
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-3">
-                <div className="text-sm">{alertIcons[alert.type]}</div>
-                <div>
-                  <h4 className="font-semibold text-sm">{alert.title}</h4>
-                  <p className="text-sm opacity-80 mt-1">{alert.message}</p>
-                  <p className="text-xs opacity-60 mt-2">
-                    {new Date(alert.timestamp).toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => acknowledgeAlert(alert.id)}
-                  className="text-xs px-3 py-1 rounded bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  aria-label="Acknowledge alert"
-                >
-                  ✓
-                </button>
-                <button
-                  onClick={() => removeAlert(alert.id)}
-                  className="text-xs px-3 py-1 rounded bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  aria-label="Dismiss alert"
-                >
-                  ✕
-                </button>
+      {alerts.map((alert) => (
+        <div
+          key={alert.id}
+          className={`p-2 rounded-lg border-l-4 ${alertColors[alert.type]}`}
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex items-start gap-3">
+              <div className="text-sm">{alertIcons[alert.type]}</div>
+              <div>
+                <h4 className="font-semibold text-sm">{alert.title}</h4>
+                <p className="text-sm opacity-80 mt-1">{alert.message}</p>
+                <p className="text-xs opacity-60 mt-2">
+                  {new Date(alert.timestamp).toLocaleString()}
+                </p>
               </div>
             </div>
-          </motion.div>
-        ))}
-      </AnimatePresence>
+            <div className="flex gap-2">
+              <button
+                onClick={() => acknowledgeAlert(alert.id)}
+                className="text-xs px-3 py-1 rounded bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                aria-label="Acknowledge alert"
+              >
+                ✓
+              </button>
+              <button
+                onClick={() => removeAlert(alert.id)}
+                className="text-xs px-3 py-1 rounded bg-white dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700"
+                aria-label="Dismiss alert"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      ))}
 
       {alerts.length === 0 && (
-        <div className="text-center py-3 text-gray-500 dark:text-gray-400">
+        <div className="text-center py-3 text-gray-700 dark:text-gray-700">
           No active alerts
         </div>
       )}
@@ -470,39 +453,21 @@ interface ConnectionStatusProps {
 
 export function ConnectionStatus({ isConnected, isReconnecting }: ConnectionStatusProps) {
   return (
-    <motion.div
+    <div
       className="flex items-center gap-2 px-3 py-1 rounded-full text-sm"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
     >
-      <motion.div
+      <div
         className={`w-2 h-2 rounded-full ${
           isConnected
             ? 'bg-green-500'
             : isReconnecting
-            ? 'bg-amber-500'
+            ? 'bg-amber-500 animate-pulse'
             : 'bg-red-500'
         }`}
-        animate={
-          isReconnecting
-            ? {
-                scale: [1, 1.3, 1],
-                opacity: [1, 0.5, 1],
-              }
-            : {}
-        }
-        transition={
-          isReconnecting
-            ? {
-                duration: 1,
-                repeat: Infinity,
-              }
-            : {}
-        }
       />
       <span className="text-xs font-medium">
         {isConnected ? 'Connected' : isReconnecting ? 'Reconnecting...' : 'Disconnected'}
       </span>
-    </motion.div>
+    </div>
   )
 }

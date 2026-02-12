@@ -12,7 +12,7 @@
  * Created: 2025-11-24
  */
 
-import { Warning, ArrowClockwise, Bug, Gauge } from '@phosphor-icons/react'
+import { AlertTriangle, RotateCw, Bug, Gauge } from 'lucide-react'
 import React, { Component, Suspense, useState, useEffect, useCallback } from 'react'
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -111,7 +111,7 @@ export class ModuleErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
         <Card className="border-destructive/50 bg-destructive/5">
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Warning className="w-3 h-3 text-destructive" />
+              <AlertTriangle className="w-3 h-3 text-destructive" />
               <CardTitle className="text-destructive">Module Error</CardTitle>
             </div>
             <CardDescription>
@@ -126,7 +126,7 @@ export class ModuleErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoun
             <div className="flex items-center gap-2">
               {canRetry && (
                 <Button onClick={this.handleRetry} variant="outline" size="sm">
-                  <ArrowClockwise className="w-4 h-4 mr-2" />
+                  <RotateCw className="w-4 h-4 mr-2" />
                   Retry ({(maxRetries ?? 3) - retryCount} attempts left)
                 </Button>
               )}

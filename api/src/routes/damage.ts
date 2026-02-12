@@ -98,7 +98,7 @@ router.post(
       }
 
       // Validate file size for images (10MB limit for damage analysis photos)
-      const sizeValidation = validateFileSize(req.file.buffer, contentValidation.mimeType!)
+      const sizeValidation = validateFileSize(req.file.size, contentValidation.mimeType!)
       if (!sizeValidation.valid) {
         return res.status(400).json({
           error: 'File size validation failed',

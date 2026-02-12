@@ -4,6 +4,8 @@
  */
 
 import type { Policy } from '../policy-engine/types'
+import logger from '@/utils/logger';
+import { secureFetch } from '@/hooks/use-api';
 
 export interface AIGenerationRequest {
   type: 'policy' | 'sop' | 'training' | 'workflow'
@@ -118,7 +120,7 @@ export async function generatePolicyWithAI(
       ruleEngineConfig
     }
   } catch (error) {
-    console.error('AI policy generation error:', error)
+    logger.error('AI policy generation error:', error)
     throw error
   }
 }
@@ -367,7 +369,7 @@ function parseAIResponse(response: string, type: string): any {
 
     return JSON.parse(jsonString)
   } catch (error) {
-    console.error('Error parsing AI response:', error)
+    logger.error('Error parsing AI response:', error)
     // Return basic structure if parsing fails
     return {
       metadata: { title: 'Generated ' + type, version: '1.0' },
@@ -483,7 +485,7 @@ export async function batchGeneratePolicies(
       const result = await generatePolicyWithAI(request)
       results.push(result)
     } catch (error) {
-      console.error(`Failed to generate ${request.category}:`, error)
+      logger.error(`Failed to generate ${request.category}:`, error)
       // Continue with other requests
     }
   }
@@ -563,18 +565,15 @@ function convertPolicyToRules(policy: Policy): any[] {
  * Register rule with the application's rule engine
  */
 async function registerRule(rule: any): Promise<void> {
-  // This would integrate with your actual rules engine
-  // For now, we'll store in localStorage as a demo
-  const existingRules = JSON.parse(localStorage.getItem('fleet_rules') || '[]')
-  const index = existingRules.findIndex((r: any) => r.id === rule.id)
+  const response = await secureFetch('/api/admin/config/apply-policy', {
+    method: 'POST',
+    body: JSON.stringify(rule),
+  });
 
-  if (index >= 0) {
-    existingRules[index] = rule
-  } else {
-    existingRules.push(rule)
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || 'Failed to register policy rule');
   }
-
-  localStorage.setItem('fleet_rules', JSON.stringify(existingRules))
 }
 
 export default {

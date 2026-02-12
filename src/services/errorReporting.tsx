@@ -146,8 +146,7 @@ class ErrorReportingService {
    * Initialize Sentry SDK
    */
   private async initializeSentry(config: any): Promise<void> {
-    // In production, dynamically import Sentry SDK
-    // For now, we'll create a mock implementation
+    // Initialize Sentry SDK when available on window (loaded by app shell)
     if (typeof (window as any).Sentry !== 'undefined') {
       const Sentry = (window as any).Sentry;
 

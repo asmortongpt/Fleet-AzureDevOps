@@ -29,14 +29,7 @@
  * ```
  */
 
-import {
-  CaretUp,
-  CaretDown,
-  CaretUpDown,
-  MagnifyingGlass,
-  Columns,
-  X,
-} from '@phosphor-icons/react'
+import { ChevronUp, ChevronDown, ChevronsUpDown, Search, Columns, X, ChevronsUpDown as CaretUpDown } from 'lucide-react'
 import { Download } from 'lucide-react'
 import { useState, useMemo, useCallback, ReactNode } from 'react'
 
@@ -498,7 +491,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           {/* Global Search */}
           {enableFiltering && (
             <div className="flex items-center gap-2 w-full sm:flex-1 sm:max-w-sm">
-              <MagnifyingGlass className="w-4 h-4 text-muted-foreground shrink-0" />
+              <Search className="w-4 h-4 text-muted-foreground shrink-0" />
               <Input
                 placeholder={isMobile ? "Search..." : "Search all columns..."}
                 value={globalFilter}
@@ -622,12 +615,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   {enableRowSelection && (
                     <th className="p-2 text-left border-r border-border w-12">
                       <Checkbox
-                        checked={allSelected}
-                        ref={(input) => {
-                          if (input) {
-                            input.indeterminate = someSelected
-                          }
-                        }}
+                        checked={someSelected ? "indeterminate" : allSelected}
                         onCheckedChange={handleSelectAll}
                         aria-label="Select all"
                       />
@@ -652,9 +640,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                         {enableSorting && column.sortable && (
                           <span className="text-muted-foreground">
                             {sorting.find((s) => s.key === column.key)?.direction === 'asc' ? (
-                              <CaretUp className="w-4 h-4" />
+                              <ChevronUp className="w-4 h-4" />
                             ) : sorting.find((s) => s.key === column.key)?.direction === 'desc' ? (
-                              <CaretDown className="w-4 h-4" />
+                              <ChevronDown className="w-4 h-4" />
                             ) : (
                               <CaretUpDown className="w-4 h-4 opacity-30" />
                             )}

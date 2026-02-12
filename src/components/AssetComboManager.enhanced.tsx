@@ -10,15 +10,7 @@
  * - Props match Task 4.4 specification
  */
 
-import {
-  Link,
-  LinkBreak,
-  Clock,
-  Plus,
-  Warning,
-  CheckCircle,
-  CalendarBlank
-} from '@phosphor-icons/react'
+import { Link, Unlink, Clock, Plus, AlertTriangle, CheckCircle, Calendar } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -328,7 +320,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* No available assets warning */}
       {availableAssets.length === 0 && !loading && (
         <div className="flex items-center gap-2 p-2 bg-yellow-50 border border-yellow-200 rounded-md text-yellow-700">
-          <Warning className="w-3 h-3 flex-shrink-0" />
+          <AlertTriangle className="w-3 h-3 flex-shrink-0" />
           <span>No compatible assets available to attach. All assets are either in use or incompatible.</span>
         </div>
       )}
@@ -342,9 +334,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
         </div>
         <div className="divide-y divide-gray-200">
           {loading ? (
-            <div className="p-3 text-center text-gray-500">Loading...</div>
+            <div className="p-3 text-center text-gray-700">Loading...</div>
           ) : currentAttachments.length === 0 ? (
-            <div className="p-3 text-center text-gray-500">
+            <div className="p-3 text-center text-gray-700">
               No assets currently attached to this {parentAssetType.toLowerCase().replace('_', ' ')}
             </div>
           ) : (
@@ -356,18 +348,18 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
                         {combo.relationship_type}
                       </div>
-                      <CheckCircle className="w-3 h-3 text-green-600" weight="fill" />
+                      <CheckCircle className="w-3 h-3 text-green-600" />
                     </div>
                     <div className="text-sm font-medium text-gray-900">
                       {combo.child_asset_name}
                     </div>
                     <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
-                        <CalendarBlank className="w-4 h-4" />
+                        <Calendar className="w-4 h-4" />
                         <span>Attached: {new Date(combo.effective_from).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-gray-400">Type:</span>
+                        <span className="text-gray-700">Type:</span>
                         <span className="font-medium">{combo.child_asset_name}</span>
                       </div>
                     </div>
@@ -377,7 +369,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive" size="sm">
-                        <LinkBreak className="w-4 h-4 mr-2" />
+                        <Unlink className="w-4 h-4 mr-2" />
                         Detach
                       </Button>
                     </AlertDialogTrigger>
@@ -423,7 +415,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
           </div>
           <div className="divide-y divide-gray-200">
             {relationshipHistory.length === 0 ? (
-              <div className="p-3 text-center text-gray-500">
+              <div className="p-3 text-center text-gray-700">
                 No relationship history found
               </div>
             ) : (

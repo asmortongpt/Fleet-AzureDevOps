@@ -86,7 +86,7 @@ export function ExcelDataTable<T>({
       <div className="flex items-center justify-between px-3 py-2 border-b border-slate-700/60">
         <div>
           {title && <h3 className="text-sm font-semibold text-slate-100">{title}</h3>}
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-sm text-slate-700 mt-0.5">
             {table.getFilteredRowModel().rows.length} of {data.length} records
           </p>
         </div>
@@ -94,7 +94,7 @@ export function ExcelDataTable<T>({
         <div className="flex items-center gap-3">
           {/* Global Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" />
             <input
               type="text"
               value={globalFilter}
@@ -138,7 +138,7 @@ export function ExcelDataTable<T>({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2">
             {table.getAllColumns().filter(col => col.getCanFilter()).map(column => (
               <div key={column.id} className="flex flex-col gap-2">
-                <label className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+                <label className="text-xs font-medium text-slate-700 uppercase tracking-wide">
                   {column.id}
                 </label>
                 <div className="relative">
@@ -149,12 +149,12 @@ export function ExcelDataTable<T>({
                     placeholder={`Filter ${column.id}...`}
                     className="w-full px-3 py-2 bg-slate-900/80 border border-slate-600/50 rounded-lg text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   />
-                  {column.getFilterValue() && (
+                  {column.getFilterValue() !== undefined && column.getFilterValue() !== '' && (
                     <button
                       onClick={() => column.setFilterValue('')}
                       className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-slate-700/50 rounded"
                     >
-                      <X className="w-3 h-3 text-slate-400" />
+                      <X className="w-3 h-3 text-slate-700" />
                     </button>
                   )}
                 </div>
@@ -187,7 +187,7 @@ export function ExcelDataTable<T>({
                     {header.isPlaceholder ? null : (
                       <div
                         className={`flex items-center gap-2 ${
-                          header.column.getCanSort() ? 'cursor-pointer select-none hover:text-blue-400' : ''
+                          header.column.getCanSort() ? 'cursor-pointer select-none hover:text-blue-700' : ''
                         }`}
                         onClick={header.column.getToggleSortingHandler()}
                       >
@@ -195,8 +195,8 @@ export function ExcelDataTable<T>({
                         {header.column.getCanSort() && (
                           <span className="text-slate-500">
                             {{
-                              asc: <ChevronUp className="w-4 h-4 text-blue-400" />,
-                              desc: <ChevronDown className="w-4 h-4 text-blue-400" />,
+                              asc: <ChevronUp className="w-4 h-4 text-blue-700" />,
+                              desc: <ChevronDown className="w-4 h-4 text-blue-700" />,
                             }[header.column.getIsSorted() as string] ?? <ChevronDown className="w-4 h-4 opacity-30" />}
                           </span>
                         )}
@@ -242,7 +242,7 @@ export function ExcelDataTable<T>({
             ))}
           </select>
 
-          <span className="text-sm text-slate-400">
+          <span className="text-sm text-slate-700">
             Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
           </span>
         </div>

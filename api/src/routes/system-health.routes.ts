@@ -4,6 +4,7 @@
  */
 
 import { Router } from 'express';
+
 import { connectionHealthService } from '../services/ConnectionHealthService';
 
 const router = Router();

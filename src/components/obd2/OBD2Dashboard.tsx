@@ -53,7 +53,8 @@ interface EmulatorSession {
 }
 
 // API base URL
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
+// Use same-origin by default; if VITE_API_URL is set (typically `https://host/api`), strip `/api`.
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/api\/?$/, '')
 
 export const OBD2Dashboard: React.FC = () => {
   // State
@@ -232,7 +233,7 @@ export const OBD2Dashboard: React.FC = () => {
         <h1 className="text-base font-bold text-gray-900 dark:text-white">
           OBD2 Vehicle Diagnostics
         </h1>
-        <p className="text-slate-700 dark:text-gray-400 mt-2">
+        <p className="text-slate-700 dark:text-gray-700 mt-2">
           Real-time vehicle data streaming from OBD2 devices
         </p>
       </div>
@@ -251,7 +252,7 @@ export const OBD2Dashboard: React.FC = () => {
         </div>
 
         {activeSession && (
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-700">
             Session: {activeSession.slice(0, 8)}...
           </span>
         )}
@@ -532,7 +533,7 @@ export const OBD2Dashboard: React.FC = () => {
                   <span className="font-medium">
                     Vehicle {session.vehicleId} - {session.profile}
                   </span>
-                  <span className="text-sm text-gray-500 ml-2">
+                  <span className="text-sm text-gray-700 ml-2">
                     {session.sessionId.slice(0, 8)}...
                   </span>
                 </div>
@@ -587,10 +588,10 @@ const GaugeCard: React.FC<GaugeCardProps> = ({ label, value, unit, max, color })
 
   return (
     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
-      <div className="text-sm text-slate-700 dark:text-gray-400 mb-1">{label}</div>
+      <div className="text-sm text-slate-700 dark:text-gray-700 mb-1">{label}</div>
       <div className="text-sm font-bold text-gray-900 dark:text-white">
         {typeof value === 'number' ? value.toLocaleString() : value}
-        <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>
+        <span className="text-sm font-normal text-gray-700 ml-1">{unit}</span>
       </div>
       <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">
         <div
@@ -617,10 +618,10 @@ const DataCard: React.FC<DataCardProps> = ({ label, value, unit, warning }) => {
         ? 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
         : 'bg-gray-50 dark:bg-gray-700'
     }`}>
-      <div className="text-sm text-slate-700 dark:text-gray-400 mb-1">{label}</div>
+      <div className="text-sm text-slate-700 dark:text-gray-700 mb-1">{label}</div>
       <div className={`text-base font-bold ${warning ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
         {value}
-        {unit && <span className="text-sm font-normal text-gray-500 ml-1">{unit}</span>}
+        {unit && <span className="text-sm font-normal text-gray-700 ml-1">{unit}</span>}
       </div>
     </div>
   )

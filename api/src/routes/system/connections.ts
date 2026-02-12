@@ -8,8 +8,12 @@
 import { Router } from 'express'
 import { Pool } from 'pg'
 import { createClient } from 'redis'
+import { authenticateJWT } from '../middleware/auth'
 
 const router = Router()
+
+// Apply authentication to all routes
+router.use(authenticateJWT)
 
 interface ConnectionEndpoint {
   id: string

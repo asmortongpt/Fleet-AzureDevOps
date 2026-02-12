@@ -65,6 +65,7 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import logger from '@/utils/logger';
 import {
   PolicyViolation,
   ViolationType,
@@ -169,9 +170,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const data = await response.json();
       setViolations(data.data || []);
     } catch (error) {
-      console.error('Failed to load violations:', error);
-      // Load demo data for development
-      setViolations(generateDemoViolations());
+      logger.error('Failed to load violations:', error);
+      // API unavailable - show empty state
+      setViolations([]);
     } finally {
       setLoading(false);
     }
@@ -183,8 +184,18 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const data = await response.json();
       setStatistics(data.data);
     } catch (error) {
-      console.error('Failed to load statistics:', error);
-      setStatistics(generateDemoStatistics());
+      logger.error('Failed to load statistics:', error);
+      // API unavailable - show empty state
+      setStatistics({
+        totalViolations: 0,
+        openViolations: 0,
+        resolvedViolations: 0,
+        criticalViolations: 0,
+        avgResolutionHours: 0,
+        topViolationType: undefined,
+        topViolatingVehicle: undefined,
+        topViolatingDriver: undefined,
+      } as ViolationStatistics);
     }
   };
 
@@ -267,7 +278,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const data = await response.json();
       setComments(data.data || []);
     } catch (error) {
-      console.error('Failed to load comments:', error);
+      logger.error('Failed to load comments:', error);
       setComments([]);
     }
   };
@@ -287,7 +298,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       loadViolations();
       loadStatistics();
     } catch (error) {
-      console.error('Failed to resolve violation:', error);
+      logger.error('Failed to resolve violation:', error);
     }
   };
 
@@ -305,7 +316,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       setOverrideReason('');
       loadViolations();
     } catch (error) {
-      console.error('Failed to request override:', error);
+      logger.error('Failed to request override:', error);
     }
   };
 
@@ -325,17 +336,17 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const data = await response.json();
       setComments(data.data || []);
     } catch (error) {
-      console.error('Failed to add comment:', error);
+      logger.error('Failed to add comment:', error);
     }
   };
 
-  const handleExport = async (format: 'csv' | 'pdf' | 'excel') => {
+  const handleExport = async (exportFormat: 'csv' | 'pdf' | 'excel') => {
     try {
       const response = await fetch(`/api/policy-violations/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          format,
+          format: exportFormat,
           filters,
           includeResolved: true,
           includeComments: true,
@@ -346,11 +357,11 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `violations-report-${format}-${format(new Date(), 'yyyy-MM-dd')}.${format}`;
+      a.download = `violations-report-${exportFormat}-${format(new Date(), 'yyyy-MM-dd')}.${exportFormat}`;
       a.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('Export failed:', error);
+      logger.error('Export failed:', error);
     }
   };
 
@@ -385,7 +396,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
           <h1 className="text-base font-bold text-slate-900 dark:text-white">
             Policy Violations
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-slate-600 dark:text-slate-700 mt-1">
             Monitor and manage policy violations across your fleet
           </p>
         </div>
@@ -428,7 +439,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{statistics?.totalViolations || 0}</div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
                   Last 30 days
                 </p>
               </CardContent>
@@ -443,7 +454,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold text-red-600">
                   {statistics?.openViolations || 0}
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
                   Requires attention
                 </p>
               </CardContent>
@@ -458,7 +469,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold text-red-700">
                   {statistics?.criticalViolations || 0}
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
                   High priority
                 </p>
               </CardContent>
@@ -473,7 +484,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold">
                   {statistics?.avgResolutionHours.toFixed(1) || '0'}h
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
                   Time to resolve
                 </p>
               </CardContent>
@@ -604,7 +615,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div>
                   <label className="text-sm font-medium mb-1 block">Search</label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-700" />
                     <Input
                       placeholder="Search violations..."
                       value={filters.search || ''}
@@ -764,7 +775,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
               <CardTitle>Compliance Reporting</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="text-slate-600 dark:text-slate-400">
+              <p className="text-slate-600 dark:text-slate-700">
                 Generate comprehensive compliance reports for audit and regulatory purposes.
               </p>
 
@@ -785,7 +796,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
               <div className="border-t pt-2 mt-2">
                 <h3 className="font-semibold mb-2">Policy Recommendations</h3>
-                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
+                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-700">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                     <span>Personal use policy is effective - only 5% violation rate</span>
@@ -1004,50 +1015,5 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
     </div>
   );
 };
-
-// Demo data generators
-function generateDemoViolations(): PolicyViolation[] {
-  const types: ViolationType[] = [
-    'personal_use_unauthorized',
-    'mileage_limit_exceeded',
-    'speed_violation',
-    'geofence_breach',
-    'after_hours_usage',
-  ];
-  const severities: ViolationSeverity[] = ['low', 'medium', 'high', 'critical'];
-  const statuses: ViolationStatus[] = ['open', 'acknowledged', 'under_review', 'resolved'];
-
-  return Array.from({ length: 25 }, (_, i) => ({
-    id: `demo-${i}`,
-    tenantId: 'demo',
-    violationType: types[Math.floor(Math.random() * types.length)],
-    severity: severities[Math.floor(Math.random() * severities.length)],
-    policyName: 'Demo Policy',
-    description: `Violation ${i + 1} - Auto-generated demo data`,
-    vehicleNumber: `V-${1000 + i}`,
-    driverName: `Driver ${i + 1}`,
-    status: statuses[Math.floor(Math.random() * statuses.length)],
-    occurredAt: subDays(new Date(), Math.floor(Math.random() * 30)).toISOString(),
-    detectedAt: new Date().toISOString(),
-    overrideRequested: false,
-    notificationSent: true,
-    escalationSent: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  }));
-}
-
-function generateDemoStatistics(): ViolationStatistics {
-  return {
-    totalViolations: 125,
-    openViolations: 18,
-    resolvedViolations: 107,
-    criticalViolations: 5,
-    avgResolutionHours: 24.5,
-    topViolationType: 'speed_violation',
-    topViolatingVehicle: 'V-1234',
-    topViolatingDriver: 'John Doe',
-  };
-}
 
 export default PolicyViolations;

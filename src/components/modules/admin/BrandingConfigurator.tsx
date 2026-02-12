@@ -8,13 +8,14 @@ import {
   Palette,
   FileText,
   Image as ImageIcon,
-  Type,
-  Save,
+  TextAa,
+  FloppyDisk,
   Eye,
-  RotateCcw,
+  ArrowCounterClockwise,
   Upload
 } from '@phosphor-icons/react'
-import { useState, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
+import useSWR from 'swr'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -45,6 +46,19 @@ import type { PolicyDocument } from '@/lib/document-generation/document-generato
 export function BrandingConfigurator() {
   const [config, setConfig] = useState<BrandingConfig>(loadBrandingConfig())
   const [hasChanges, setHasChanges] = useState(false)
+  const { data: policyResponse } = useSWR<{ data?: any[] }>(
+    '/api/policies?limit=1',
+    (url: string) =>
+      fetch(url, { credentials: 'include' })
+        .then(res => res.json())
+        .then(data => data?.data ?? data),
+    { shouldRetryOnError: false }
+  )
+
+  const policyForPreview = useMemo(() => {
+    const policies = Array.isArray(policyResponse?.data) ? policyResponse?.data : Array.isArray(policyResponse) ? policyResponse : []
+    return policies[0]
+  }, [policyResponse])
 
   useEffect(() => {
     const loaded = loadBrandingConfig()
@@ -71,56 +85,65 @@ export function BrandingConfigurator() {
   }
 
   const handlePreview = () => {
-    // Create sample policy document for preview
-    const sampleDocument: PolicyDocument = {
-      metadata: {
-        documentNumber: 'FLEET-POLICY-2024-0001-v1.0',
-        title: 'Sample Fleet Safety Policy',
-        version: '1.0',
-        status: 'draft',
-        effectiveDate: new Date(),
-        owner: 'Fleet Manager',
-        approver: 'Department Director',
-        department: 'Fleet Operations',
-        category: 'Safety'
-      },
-      purpose: 'This sample policy demonstrates the professional formatting and branding capabilities of the document generation system.',
-      scope: 'This policy applies to all fleet vehicles, drivers, and personnel involved in fleet operations.',
-      definitions: {
-        'Fleet Vehicle': 'Any vehicle owned, leased, or operated by the organization',
-        'Authorized Driver': 'An employee who has completed driver training and been approved to operate fleet vehicles'
-      },
-      policyStatements: [
-        'All drivers must complete mandatory safety training before operating any fleet vehicle.',
-        'Vehicles must be inspected daily before operation to ensure safety and compliance.',
-        'Seat belts must be worn at all times while the vehicle is in operation.'
-      ],
-      compliance: [
-        '49 CFR 391 - Qualifications of Drivers',
-        'OSHA 1910 - Occupational Safety Standards',
-        'State Vehicle Safety Inspection Requirements'
-      ],
-      relatedPolicies: [
-        'Driver Qualification Policy',
-        'Vehicle Inspection Policy',
-        'Accident Response Policy'
-      ],
-      kpis: [
-        'Driver training completion rate',
-        'Daily inspection compliance rate',
-        'Seat belt usage rate'
-      ],
-      revisionHistory: [
-        {
-          version: '1.0',
-          date: new Date(),
-          author: 'Fleet Manager',
-          description: 'Initial policy creation'
-        }
-      ]
+    if (!policyForPreview) {
+      toast.error('No policy data available for preview')
+      return
     }
 
-    previewDocument(sampleDocument, config)
+    const parseContent = (content: any) => {
+      if (!content) return {}
+      if (typeof content === 'string') {
+        try {
+          return JSON.parse(content)
+        } catch {
+          return {}
+        }
+      }
+      if (typeof content === 'object') return content
+      return {}
+    }
+
+    const content = parseContent(policyForPreview.content)
+    const document: PolicyDocument = {
+      metadata: {
+        documentNumber: String(content.documentNumber ?? policyForPreview.number ?? policyForPreview.id ?? ''),
+        title: String(content.title ?? policyForPreview.name ?? ''),
+        version: String(content.version ?? policyForPreview.version ?? ''),
+        status: (content.status ?? (policyForPreview.is_active ? 'active' : 'draft')) as PolicyDocument['metadata']['status'],
+        effectiveDate: content.effectiveDate ? new Date(content.effectiveDate) : undefined,
+        owner: String(content.owner ?? policyForPreview.created_by ?? ''),
+        approver: content.approver,
+        department: content.department,
+        category: String(content.category ?? policyForPreview.category ?? ''),
+        tags: Array.isArray(content.tags) ? content.tags : undefined
+      },
+      purpose: String(content.purpose ?? policyForPreview.description ?? ''),
+      scope: String(content.scope ?? ''),
+      definitions: content.definitions,
+      policyStatements: Array.isArray(content.policyStatements) ? content.policyStatements : [],
+      procedures: content.procedures,
+      compliance: Array.isArray(content.compliance) ? content.compliance : [],
+      relatedPolicies: Array.isArray(content.relatedPolicies) ? content.relatedPolicies : [],
+      kpis: Array.isArray(content.kpis) ? content.kpis : [],
+      revisionHistory: Array.isArray(content.revisionHistory)
+        ? content.revisionHistory.map((entry: any) => ({
+            version: String(entry.version ?? ''),
+            date: entry.date
+              ? new Date(entry.date)
+              : policyForPreview?.updated_at
+                ? new Date(policyForPreview.updated_at)
+                : policyForPreview?.created_at
+                  ? new Date(policyForPreview.created_at)
+                  : new Date(),
+            author: String(entry.author ?? ''),
+            description: String(entry.description ?? '')
+          }))
+        : undefined,
+      approvals: Array.isArray(content.approvals) ? content.approvals : undefined,
+      attachments: Array.isArray(content.attachments) ? content.attachments : undefined
+    }
+
+    previewDocument(document, config)
   }
 
   const updateConfig = (path: string, value: any) => {
@@ -155,7 +178,7 @@ export function BrandingConfigurator() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-white">Document Branding Configuration</h2>
-          <p className="text-slate-400 mt-1">Customize the appearance of exported policy and SOP documents</p>
+          <p className="text-slate-700 mt-1">Customize the appearance of exported policy and SOP documents</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handlePreview}>
@@ -163,11 +186,11 @@ export function BrandingConfigurator() {
             Preview
           </Button>
           <Button variant="outline" onClick={handleReset} disabled={!hasChanges}>
-            <RotateCcw className="w-4 h-4 mr-2" />
+            <ArrowCounterClockwise className="w-4 h-4 mr-2" />
             Reset
           </Button>
           <Button onClick={handleSave} disabled={!hasChanges}>
-            <Save className="w-4 h-4 mr-2" />
+            <FloppyDisk className="w-4 h-4 mr-2" />
             Save Changes
           </Button>
         </div>
@@ -215,7 +238,7 @@ export function BrandingConfigurator() {
             Colors
           </TabsTrigger>
           <TabsTrigger value="typography">
-            <Type className="w-4 h-4 mr-2" />
+            <TextAa className="w-4 h-4 mr-2" />
             Typography
           </TabsTrigger>
           <TabsTrigger value="layout">

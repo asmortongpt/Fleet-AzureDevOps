@@ -3,32 +3,34 @@
  * Production-ready error tracking
  */
 
+import logger from '@/utils/logger';
+
 export const initSentry = () => {
-  console.log('Sentry monitoring initialized')
+  logger.info('Sentry monitoring initialized')
 }
 
 export const logError = (error: Error, context?: any) => {
-  console.error('Error:', error, context)
+  logger.error('Error:', error, context)
 }
 
 export const setUser = (user: any) => {
-  console.debug('Set user:', user)
+  logger.debug('Set user:', user)
 }
 
 export const captureException = (error: Error) => {
-  console.error('Exception:', error)
+  logger.error('Exception:', error)
 }
 
 export const captureMessage = (message: string, level: string = 'info') => {
-  console.log(`[${level}]`, message)
+  logger.info(`[${level}]`, message)
 }
 
 export const addBreadcrumb = (breadcrumb: any) => {
-  console.debug('Breadcrumb:', breadcrumb)
+  logger.debug('Breadcrumb:', breadcrumb)
 }
 
 export const startTransaction = (context: any) => {
-  console.debug('Transaction:', context)
+  logger.debug('Transaction:', context)
   return {
     finish: () => {},
     setStatus: () => {},
@@ -47,5 +49,5 @@ export const getCurrentHub = () => {
 }
 
 export const showFeedbackWidget = () => {
-  console.debug('Feedback widget')
+  logger.debug('Feedback widget')
 }

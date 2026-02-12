@@ -1,4 +1,4 @@
-import { ArrowUp, ArrowDown, Minus } from "@phosphor-icons/react"
+import { ArrowUp, ArrowDown, Minus } from "lucide-react"
 import { ReactNode } from "react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -52,7 +52,7 @@ export interface MetricCardProps {
  *   value={523}
  *   change={2.5}
  *   trend="up"
- *   icon={<Truck weight="duotone" />}
+ *   icon={<Truck />}
  *   variant="info"
  * />
  * ```
@@ -83,22 +83,22 @@ export function MetricCard({
 
   const iconColorStyles = {
     default:
-      "text-slate-400 dark:text-slate-500 group-hover:text-blue-800 dark:group-hover:text-blue-400 group-hover:scale-110",
+      "text-slate-700 dark:text-slate-500 group-hover:text-blue-800 dark:group-hover:text-blue-700 group-hover:scale-110",
     success:
-      "text-emerald-400 dark:text-emerald-500 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 group-hover:scale-110",
+      "text-emerald-700 dark:text-emerald-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-700 group-hover:scale-110",
     warning:
       "text-amber-400 dark:text-amber-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:scale-110",
     danger:
       "text-red-400 dark:text-red-500 group-hover:text-red-600 dark:group-hover:text-red-400 group-hover:scale-110",
-    info: "text-blue-400 dark:text-blue-800 group-hover:text-blue-800 dark:group-hover:text-blue-400 group-hover:scale-110",
+    info: "text-blue-700 dark:text-blue-800 group-hover:text-blue-800 dark:group-hover:text-blue-700 group-hover:scale-110",
   }
 
   // Trend color mappings (semantic colors)
   const trendColors = {
-    up: "text-emerald-600 dark:text-emerald-500 bg-emerald-50 dark:bg-emerald-950/50",
+    up: "text-emerald-600 dark:text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50",
     down: "text-red-600 dark:text-red-500 bg-red-50 dark:bg-red-950/50",
     neutral:
-      "text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50",
+      "text-slate-600 dark:text-slate-700 bg-slate-50 dark:bg-slate-900/50",
   }
 
   // Trend icons
@@ -124,7 +124,7 @@ export function MetricCard({
       >
         <CardHeader className="pb-2 pt-2 px-2">
           <CardTitle className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-700 uppercase tracking-wider">
               {label}
             </span>
             {icon && (
@@ -152,7 +152,7 @@ export function MetricCard({
                   {value}
                 </span>
                 {unit && (
-                  <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                  <span className="text-sm font-semibold text-slate-500 dark:text-slate-700">
                     {unit}
                   </span>
                 )}
@@ -170,13 +170,13 @@ export function MetricCard({
                   >
                     <TrendIcon
                       className={`w-3.5 h-3.5 transition-transform duration-300 ${trend === "up" ? "group-hover:-translate-y-0.5" : trend === "down" ? "group-hover:translate-y-0.5" : ""}`}
-                      weight="bold"
+                     
                     />
                     <span className="text-xs font-bold tabular-nums">
                       {Math.abs(change).toFixed(1)}%
                     </span>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-400 font-medium ml-2">
+                  <span className="text-xs text-slate-500 dark:text-slate-700 font-medium ml-2">
                     vs last period
                   </span>
                 </div>

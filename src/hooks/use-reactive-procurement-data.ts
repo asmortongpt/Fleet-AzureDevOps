@@ -21,23 +21,20 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+
 import type {
   Vendor,
   PurchaseOrder,
   Contract,
   ProcurementMetrics,
-  ChartDataPoint,
   TrendDataPoint,
-  VendorPerformance,
-  SpendByCategory,
-  BudgetTracking,
   ProcurementAlert,
 } from '@/types/procurement'
+import logger from '@/utils/logger';
 import {
   VendorSchema,
   PurchaseOrderSchema,
   ContractSchema,
-  ProcurementMetricsSchema,
 } from '@/types/procurement'
 
 // ============================================================================
@@ -153,13 +150,13 @@ async function secureFetch<T>(
   } catch (error) {
     // Handle Zod validation errors
     if (error instanceof z.ZodError) {
-      console.error('Validation error:', error.errors)
+      logger.error('Validation error:', error.errors)
       throw new ValidationError('Invalid API response format', error.errors)
     }
 
     // Handle abort errors
     if (error instanceof Error && error.name === 'AbortError') {
-      console.warn('Request aborted:', url)
+      logger.warn('Request aborted:', url)
       throw error
     }
 
@@ -254,30 +251,6 @@ function getDaysUntil(dateStr: string): number {
   }
 }
 
-// ============================================================================
-// MOCK DATA GENERATORS (For development/fallback)
-// ============================================================================
-
-/**
- * Generate mock vendors for fallback
- */
-function generateMockVendors(): Vendor[] {
-  return [] // Return empty array, let components handle empty state
-}
-
-/**
- * Generate mock purchase orders for fallback
- */
-function generateMockPurchaseOrders(): PurchaseOrder[] {
-  return [] // Return empty array, let components handle empty state
-}
-
-/**
- * Generate mock contracts for fallback
- */
-function generateMockContracts(): Contract[] {
-  return [] // Return empty array, let components handle empty state
-}
 
 // ============================================================================
 // MAIN HOOK: useReactiveProcurementData
@@ -318,8 +291,8 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Vendors API unavailable, using fallback:', error)
-        return generateMockVendors()
+        logger.warn('Vendors API unavailable, returning empty array:', { error })
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.VENDORS,
@@ -348,8 +321,8 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Purchase Orders API unavailable, using fallback:', error)
-        return generateMockPurchaseOrders()
+        logger.warn('Purchase Orders API unavailable, returning empty array:', { error })
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.PURCHASE_ORDERS,
@@ -378,8 +351,8 @@ export function useReactiveProcurementData() {
           signal
         )
       } catch (error) {
-        console.warn('Contracts API unavailable, using fallback:', error)
-        return generateMockContracts()
+        logger.warn('Contracts API unavailable, returning empty array:', { error })
+        return []
       }
     },
     refetchInterval: REFETCH_INTERVALS.CONTRACTS,

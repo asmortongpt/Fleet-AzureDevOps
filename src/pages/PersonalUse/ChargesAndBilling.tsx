@@ -1,22 +1,12 @@
-import {
-  CurrencyDollar,
-  Receipt,
-  Calendar,
-  Download,
-  FileText,
-  Clock,
-  CheckCircle,
-  Warning,
-  TrendUp
-} from '@phosphor-icons/react'
+import { DollarSign, Receipt, Calendar, Download, FileText, Clock, CheckCircle, AlertTriangle, TrendingUp, Filter, User } from 'lucide-react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Section } from '@/components/ui/section'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -62,7 +52,7 @@ interface ApiResponse<T> {
   data: T
 }
 
-const apiClient = async <T extends unknown>(url: string): Promise<ApiResponse<T>> => {
+const apiClient = async <T,>(url: string): Promise<ApiResponse<T>> => {
   const token = localStorage.getItem('token')
   const response = await fetch(url, {
     headers: { Authorization: `Bearer ${token}` }
@@ -226,6 +216,59 @@ export function ChargesAndBilling() {
     return true
   })
 
+  const monthlyBillingTrend = useMemo(() => {
+    const map = new Map<string, { total: number; date: Date }>()
+    filteredCharges.forEach((charge) => {
+      const dateValue = charge.charge_period_start || charge.charge_period_end || charge.invoice_date
+      if (!dateValue) return
+      const date = new Date(dateValue)
+      if (Number.isNaN(date.getTime())) return
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      const label = date.toLocaleString('en-US', { month: 'short' })
+      const existing = map.get(key)
+      map.set(key, {
+        total: (existing?.total || 0) + charge.total_charge,
+        date,
+      })
+    })
+    return Array.from(map.entries())
+      .sort((a, b) => a[1].date.getTime() - b[1].date.getTime())
+      .map(([key, value]) => ({ key, label: value.date.toLocaleString('en-US', { month: 'short' }), total: value.total }))
+  }, [filteredCharges])
+
+  const collectionRate = useMemo(() => {
+    const total = filteredCharges.length || 1
+    const paidOnTime = filteredCharges.filter((charge) => charge.charge_status === 'paid' && !isOverdue(charge.due_date)).length
+    const paidLate = filteredCharges.filter((charge) => charge.charge_status === 'paid' && isOverdue(charge.due_date)).length
+    const overdue = filteredCharges.filter((charge) => charge.charge_status !== 'paid' && isOverdue(charge.due_date)).length
+    const waived = filteredCharges.filter((charge) => charge.charge_status === 'waived').length
+    const invoiced = filteredCharges.filter((charge) => charge.charge_status === 'invoiced' || charge.charge_status === 'billed').length
+
+    return [
+      { label: 'Paid on Time', value: Math.round((paidOnTime / total) * 100), color: 'bg-green-500' },
+      { label: 'Paid Late', value: Math.round((paidLate / total) * 100), color: 'bg-yellow-500' },
+      { label: 'Invoiced', value: Math.round((invoiced / total) * 100), color: 'bg-blue-500' },
+      { label: 'Overdue', value: Math.round((overdue / total) * 100), color: 'bg-red-500' },
+      { label: 'Waived', value: Math.round((waived / total) * 100), color: 'bg-gray-500' },
+    ].filter((item) => item.value > 0)
+  }, [filteredCharges])
+
+  const topDrivers = useMemo(() => {
+    const map = new Map<string, { miles: number; charges: number; status: string }>()
+    filteredCharges.forEach((charge) => {
+      const name = charge.driver_name || 'Unknown Driver'
+      const entry = map.get(name) || { miles: 0, charges: 0, status: charge.charge_status }
+      entry.miles += charge.miles_charged
+      entry.charges += charge.total_charge
+      entry.status = charge.charge_status
+      map.set(name, entry)
+    })
+    return Array.from(map.entries())
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.charges - a.charges)
+      .slice(0, 5)
+  }, [filteredCharges])
+
   const getStatusBadge = (status: string) => {
     const variants: Record<string, { variant: "default" | "destructive" | "outline" | "secondary"; icon: React.ComponentType<{ className?: string }>; label: string }> = {
       pending: { variant: 'outline', icon: Clock, label: 'Pending' },
@@ -256,7 +299,7 @@ export function ChargesAndBilling() {
       {/* Header */}
       <div>
         <h1 className="text-base font-bold flex items-center gap-2">
-          <CurrencyDollar className="w-4 h-4" />
+          <DollarSign className="w-4 h-4" />
           Charges & Billing
         </h1>
         <p className="text-muted-foreground">
@@ -267,60 +310,52 @@ export function ChargesAndBilling() {
       {/* Summary Cards */}
       {summary && (
         <div className="grid gap-2 md:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Charges</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-bold">${summary.total_pending.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">Awaiting invoice</p>
-            </CardContent>
-          </Card>
+          <Section
+            title="Pending Charges"
+            icon={<Clock className="h-4 w-4" />}
+            contentClassName="space-y-1"
+          >
+            <div className="text-sm font-bold">${Number(summary.total_pending || 0).toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Awaiting invoice</p>
+          </Section>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Billed</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-bold">${summary.total_billed.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">Invoiced, awaiting payment</p>
-            </CardContent>
-          </Card>
+          <Section
+            title="Billed"
+            icon={<FileText className="h-4 w-4" />}
+            contentClassName="space-y-1"
+          >
+            <div className="text-sm font-bold">${Number(summary.total_billed || 0).toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Invoiced, awaiting payment</p>
+          </Section>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Paid</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-bold">${summary.total_paid.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">Total collected</p>
-            </CardContent>
-          </Card>
+          <Section
+            title="Paid"
+            icon={<CheckCircle className="h-4 w-4" />}
+            contentClassName="space-y-1"
+          >
+            <div className="text-sm font-bold">${Number(summary.total_paid || 0).toFixed(2)}</div>
+            <p className="text-xs text-muted-foreground">Total collected</p>
+          </Section>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Overdue</CardTitle>
-              <Warning className="h-4 w-4 text-destructive" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm font-bold text-destructive">
-                ${summary.total_overdue.toFixed(2)}
-              </div>
-              <p className="text-xs text-muted-foreground">Past due date</p>
-            </CardContent>
-          </Card>
+          <Section
+            title="Overdue"
+            icon={<AlertTriangle className="h-4 w-4" />}
+            contentClassName="space-y-1"
+          >
+            <div className="text-sm font-bold text-destructive">
+              ${Number(summary.total_overdue || 0).toFixed(2)}
+            </div>
+            <p className="text-xs text-muted-foreground">Past due date</p>
+          </Section>
         </div>
       )}
 
       {/* Filters */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
+      <Section
+        title="Filters"
+        icon={<Filter className="h-4 w-4" />}
+        contentClassName="space-y-2"
+      >
           <div className="grid gap-2 md:grid-cols-4">
             <div className="space-y-2">
               <Label>Billing Period</Label>
@@ -371,8 +406,7 @@ export function ChargesAndBilling() {
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+      </Section>
 
       {/* Charges Table */}
       <Tabs defaultValue="charges">
@@ -382,18 +416,17 @@ export function ChargesAndBilling() {
             Charge Records
           </TabsTrigger>
           <TabsTrigger value="analytics">
-            <TrendUp className="w-4 h-4 mr-2" />
+            <TrendingUp className="w-4 h-4 mr-2" />
             Analytics
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="charges">
-          <Card>
-            <CardHeader>
-              <CardTitle>Charge Records</CardTitle>
-              <CardDescription>{filteredCharges.length} charges</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Section
+            title="Charge Records"
+            description={`${filteredCharges.length} charges`}
+            icon={<Receipt className="h-5 w-5" />}
+          >
               {loading ? (
                 <div className="text-center py-3">Loading...</div>
               ) : filteredCharges.length === 0 ? (
@@ -426,8 +459,8 @@ export function ChargesAndBilling() {
                           </div>
                         </TableCell>
                         <TableCell>{charge.miles_charged}</TableCell>
-                        <TableCell>${charge.rate_per_mile.toFixed(2)}</TableCell>
-                        <TableCell className="font-medium">${charge.total_charge.toFixed(2)}</TableCell>
+                        <TableCell>${Number(charge.rate_per_mile || 0).toFixed(2)}</TableCell>
+                        <TableCell className="font-medium">${Number(charge.total_charge || 0).toFixed(2)}</TableCell>
                         <TableCell>{getStatusBadge(charge.charge_status)}</TableCell>
                         <TableCell>{charge.invoice_number || '-'}</TableCell>
                         <TableCell>{charge.due_date || '-'}</TableCell>
@@ -468,38 +501,37 @@ export function ChargesAndBilling() {
                   </TableBody>
                 </Table>
               )}
-            </CardContent>
-          </Card>
+          </Section>
         </TabsContent>
 
         <TabsContent value="analytics">
           <div className="grid gap-2 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Monthly Billing Trend</CardTitle>
-              </CardHeader>
-              <CardContent>
+            <Section
+              title="Monthly Billing Trend"
+              icon={<TrendingUp className="h-5 w-5" />}
+            >
+              {monthlyBillingTrend.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">No billing trend data.</div>
+              ) : (
                 <div className="flex items-end justify-between h-40 gap-2">
-                  {[2400, 3200, 2800, 4100, 3600, 4500, 3900, 4200, 5100, 4800, 5400, 5800].map((v, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="w-full bg-blue-500 rounded-t" style={{ height: `${(v / 60)}px` }} />
-                      <span className="text-[9px] text-muted-foreground">{['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][i]}</span>
+                  {monthlyBillingTrend.map((entry) => (
+                    <div key={entry.key} className="flex-1 flex flex-col items-center gap-1">
+                      <div className="w-full bg-blue-500 rounded-t" style={{ height: `${Math.max(4, entry.total / 60)}px` }} />
+                      <span className="text-[9px] text-muted-foreground">{entry.label}</span>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>Collection Rate</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {[
-                  { label: 'Paid on Time', value: 78, color: 'bg-green-500' },
-                  { label: 'Paid Late', value: 15, color: 'bg-yellow-500' },
-                  { label: 'Overdue', value: 5, color: 'bg-red-500' },
-                  { label: 'Waived', value: 2, color: 'bg-gray-500' },
-                ].map(item => (
+              )}
+            </Section>
+            <Section
+              title="Collection Rate"
+              icon={<CheckCircle className="h-5 w-5" />}
+              contentClassName="space-y-2"
+            >
+              {collectionRate.length === 0 ? (
+                <div className="text-sm text-muted-foreground">No collection data.</div>
+              ) : (
+                collectionRate.map(item => (
                   <div key={item.label} className="space-y-1">
                     <div className="flex justify-between text-sm">
                       <span>{item.label}</span>
@@ -509,16 +541,19 @@ export function ChargesAndBilling() {
                       <div className={`${item.color} h-2 rounded-full`} style={{ width: `${item.value}%` }} />
                     </div>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                ))
+              )}
+            </Section>
           </div>
-          <Card className="mt-2">
-            <CardHeader>
-              <CardTitle>Top Personal Use Drivers</CardTitle>
-              <CardDescription>Highest personal use charges this period</CardDescription>
-            </CardHeader>
-            <CardContent>
+          <Section
+            title="Top Personal Use Drivers"
+            description="Highest personal use charges this period"
+            icon={<User className="h-5 w-5" />}
+            className="mt-2"
+          >
+            {topDrivers.length === 0 ? (
+              <div className="text-sm text-muted-foreground">No driver charge data.</div>
+            ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -529,23 +564,18 @@ export function ChargesAndBilling() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {[
-                    { name: 'John Smith', miles: 542, charges: 270.45, status: 'paid' },
-                    { name: 'Maria Garcia', miles: 428, charges: 214.00, status: 'invoiced' },
-                    { name: 'James Wilson', miles: 356, charges: 178.00, status: 'pending' },
-                    { name: 'Sarah Johnson', miles: 289, charges: 144.50, status: 'paid' },
-                  ].map(driver => (
+                  {topDrivers.map(driver => (
                     <TableRow key={driver.name}>
                       <TableCell className="font-medium">{driver.name}</TableCell>
                       <TableCell>{driver.miles}</TableCell>
-                      <TableCell>${driver.charges.toFixed(2)}</TableCell>
+                      <TableCell>${Number(driver.charges || 0).toFixed(2)}</TableCell>
                       <TableCell>{getStatusBadge(driver.status)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            )}
+          </Section>
         </TabsContent>
       </Tabs>
 

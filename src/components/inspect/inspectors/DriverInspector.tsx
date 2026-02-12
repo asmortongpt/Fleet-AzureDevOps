@@ -14,7 +14,7 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { apiClient } from '@/lib/api';
+import { apiClient } from "@/lib/api-client";
 import logger from '@/utils/logger';
 interface DriverInspectorProps {
   id: string;
@@ -88,7 +88,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
   if (!driver) {
     return (
-      <div className="p-3 text-gray-500">
+      <div className="p-3 text-gray-700">
         No driver data available
       </div>
     );
@@ -115,7 +115,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <h2 className="text-sm font-bold text-gray-900 dark:text-white">
                 {driver.name}
               </h2>
-              <p className="text-sm text-slate-700 dark:text-gray-400">
+              <p className="text-sm text-slate-700 dark:text-gray-700">
                 {driver.email} • {driver.phone}
               </p>
             </div>
@@ -301,7 +301,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
 
             <Card className="p-2">
               <h3 className="text-sm font-semibold mb-2">Violation History</h3>
-              <div className="text-center py-2 text-gray-500">
+              <div className="text-center py-2 text-gray-700">
                 <p className="text-green-600 font-medium">Clean Record</p>
                 <p className="text-sm">No violations in the past 12 months</p>
               </div>
@@ -317,9 +317,9 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <div className="border-l-4 border-blue-500 pl-2 py-2">
                 <p className="font-medium">Morning Route</p>
                 <p className="text-sm text-slate-700">7:00 AM - 11:30 AM</p>
-                <p className="text-sm text-gray-500">Route: Downtown Deliveries</p>
+                <p className="text-sm text-gray-700">Route: Downtown Deliveries</p>
                 {driver.currentVehicle && (
-                  <p className="text-sm text-gray-500">Vehicle: {driver.currentVehicle.name}</p>
+                  <p className="text-sm text-gray-700">Vehicle: {driver.currentVehicle.name}</p>
                 )}
               </div>
               <div className="border-l-4 border-green-500 pl-2 py-2">
@@ -329,10 +329,10 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <div className="border-l-4 border-blue-500 pl-2 py-2">
                 <p className="font-medium">Afternoon Route</p>
                 <p className="text-sm text-slate-700">12:30 PM - 5:00 PM</p>
-                <p className="text-sm text-gray-500">Route: Suburban Deliveries</p>
+                <p className="text-sm text-gray-700">Route: Suburban Deliveries</p>
               </div>
               <div className="border-l-4 border-gray-300 pl-2 py-2">
-                <p className="font-medium text-gray-500">Off-Duty</p>
+                <p className="font-medium text-gray-700">Off-Duty</p>
                 <p className="text-sm text-slate-700">After 5:00 PM</p>
               </div>
             </div>

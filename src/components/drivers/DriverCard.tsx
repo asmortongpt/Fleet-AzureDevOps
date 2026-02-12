@@ -70,7 +70,7 @@ export function DriverCard({ driver, onClick, compact = false }: DriverCardProps
                             <h3 className="font-semibold text-sm">{driver.name}</h3>
                             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                 <Badge variant="outline" className="text-[10px] px-1 h-4">
-                                    ID: {driver.id.slice(0, 4)}
+                                    ID: {String(driver.id).slice(0, 4)}
                                 </Badge>
                                 {driver.vehicle && (
                                     <span className="flex items-center gap-1">

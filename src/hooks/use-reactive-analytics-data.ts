@@ -16,9 +16,10 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, useCallback, useMemo } from 'react'
 import { z } from 'zod'
+import logger from '@/utils/logger';
 
 // Environment configuration with validation
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
 
 // Zod schemas for runtime validation
 const AnalyticsReportSchema = z.object({
@@ -138,55 +139,22 @@ async function secureFetch<T>(
     }
 
     const data = await response.json()
+    const payload = (data && typeof data === 'object' && Array.isArray((data as any).data))
+      ? (data as any).data
+      : data
 
     // Validate response with Zod
-    const validated = schema.parse(data)
+    const validated = schema.parse(payload)
     return validated
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('Validation error:', error.errors)
+      logger.error('Validation error:', error.errors)
       throw new ValidationError('Invalid API response format', error.errors)
     }
     throw error
   }
 }
 
-/**
- * Generate mock data for development/fallback
- * In production, all data should come from real APIs
- */
-function generateMockDashboards(): DashboardWidget[] {
-  return [
-    {
-      id: crypto.randomUUID(),
-      title: 'Fleet Overview',
-      type: 'chart',
-      dataSource: 'vehicles',
-      refreshInterval: 5000,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: 'Cost Analysis',
-      type: 'chart',
-      dataSource: 'costs',
-      refreshInterval: 10000,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: 'Performance Metrics',
-      type: 'stat',
-      dataSource: 'performance',
-      refreshInterval: 5000,
-    },
-    {
-      id: crypto.randomUUID(),
-      title: 'Route Map',
-      type: 'map',
-      dataSource: 'routes',
-      refreshInterval: 15000,
-    },
-  ]
-}
 
 /**
  * Main hook for reactive analytics data
@@ -213,7 +181,7 @@ export function useReactiveAnalyticsData() {
         )
         return data
       } catch (error) {
-        console.error('Failed to fetch reports:', error)
+        logger.error('Failed to fetch reports:', error instanceof Error ? error : new Error(String(error)))
         // Return empty array on error rather than throwing
         return []
       }
@@ -225,21 +193,21 @@ export function useReactiveAnalyticsData() {
     retryDelay: QUERY_CONFIG.RETRY_DELAY,
   })
 
-  // Fetch dashboard widgets (using mock data with validation)
+  // Fetch dashboard widgets
   const {
     data: dashboards = [],
     isLoading: dashboardsLoading,
     error: dashboardsError,
   } = useQuery<DashboardWidget[], Error>({
     queryKey: ['dashboards', realTimeUpdate],
-    queryFn: async () => {
-      // TODO: Replace with real API endpoint
-      // const data = await secureFetch('/dashboards', z.array(DashboardWidgetSchema))
-
-      // For now, use validated mock data
-      const mockData = generateMockDashboards()
-      const validated = z.array(DashboardWidgetSchema).parse(mockData)
-      return validated
+    queryFn: async ({ signal }) => {
+      try {
+        const data = await secureFetch('/dashboards', z.array(DashboardWidgetSchema), signal)
+        return data
+      } catch (error) {
+        logger.warn('Dashboards API unavailable, returning empty array:', { error })
+        return []
+      }
     },
     refetchInterval: QUERY_CONFIG.REFETCH_INTERVAL,
     staleTime: QUERY_CONFIG.STALE_TIME,
@@ -266,7 +234,7 @@ export function useReactiveAnalyticsData() {
         }
       }).length,
       activeDashboards: dashboards.length,
-      dataPoints: 2400000, // TODO: Get from backend API
+      dataPoints: reports.length,
     }
   }, [reports, dashboards])
 
@@ -309,50 +277,26 @@ export function useReactiveAnalyticsData() {
     }))
   }, [reportTypeDistribution])
 
-  // Mock trend data - TODO: Replace with real API data
-  const reportGenerationTrend = useMemo<TrendDataPoint[]>(
-    () => [
-      { name: 'Week 1', reports: 24, scheduled: 12, custom: 8 },
-      { name: 'Week 2', reports: 28, scheduled: 14, custom: 10 },
-      { name: 'Week 3', reports: 26, scheduled: 13, custom: 9 },
-      { name: 'Week 4', reports: 32, scheduled: 15, custom: 12 },
-    ],
-    []
-  )
+  const reportGenerationTrend = useMemo<TrendDataPoint[]>(() => {
+    const counts = new Map<string, number>()
+    reports.forEach((report) => {
+      if (!report.lastRun) return
+      try {
+        const key = new Date(report.lastRun).toISOString().split('T')[0]
+        counts.set(key, (counts.get(key) || 0) + 1)
+      } catch {
+        return
+      }
+    })
 
-  const performanceMetricsTrend = useMemo<TrendDataPoint[]>(
-    () => [
-      { name: 'Jan', utilization: 82, efficiency: 78, availability: 94 },
-      { name: 'Feb', utilization: 85, efficiency: 80, availability: 95 },
-      { name: 'Mar', utilization: 83, efficiency: 82, availability: 93 },
-      { name: 'Apr', utilization: 87, efficiency: 85, availability: 96 },
-      { name: 'May', utilization: 86, efficiency: 84, availability: 94 },
-      { name: 'Jun', utilization: 89, efficiency: 87, availability: 97 },
-    ],
-    []
-  )
+    return Array.from(counts.entries()).map(([name, value]) => ({ name, value }))
+  }, [reports])
 
-  const costTrends = useMemo<TrendDataPoint[]>(
-    () => [
-      { name: 'Jan', fuel: 45000, maintenance: 28000, operations: 35000, total: 108000 },
-      { name: 'Feb', fuel: 47000, maintenance: 26000, operations: 36000, total: 109000 },
-      { name: 'Mar', fuel: 46000, maintenance: 30000, operations: 34000, total: 110000 },
-      { name: 'Apr', fuel: 44000, maintenance: 27000, operations: 35000, total: 106000 },
-      { name: 'May', fuel: 43000, maintenance: 25000, operations: 33000, total: 101000 },
-      { name: 'Jun', fuel: 42000, maintenance: 24000, operations: 32000, total: 98000 },
-    ],
-    []
-  )
+  const performanceMetricsTrend = useMemo<TrendDataPoint[]>(() => [], [])
 
-  const revenueVsCost = useMemo<TrendDataPoint[]>(
-    () => [
-      { name: 'Q1', revenue: 450000, costs: 327000, margin: 27.3 },
-      { name: 'Q2', revenue: 480000, costs: 315000, margin: 34.4 },
-      { name: 'Q3', revenue: 465000, costs: 335000, margin: 27.9 },
-      { name: 'Q4', revenue: 510000, costs: 340000, margin: 33.3 },
-    ],
-    []
-  )
+  const costTrends = useMemo<TrendDataPoint[]>(() => [], [])
+
+  const revenueVsCost = useMemo<TrendDataPoint[]>(() => [], [])
 
   // Recent reports with safe date handling
   const recentReports = useMemo(() => {
@@ -386,31 +330,21 @@ export function useReactiveAnalyticsData() {
       .slice(0, CALCULATION_CONFIG.UPCOMING_REPORTS_LIMIT)
   }, [reports])
 
-  // Key performance indicators
-  const kpis = useMemo<MetricData[]>(
-    () => [
-      { name: 'Fleet Utilization', value: 87, unit: '%', trend: 'up', change: 5 },
-      { name: 'Cost per Mile', value: 0.42, unit: '$', trend: 'down', change: -0.03 },
-      { name: 'On-Time Delivery', value: 94, unit: '%', trend: 'up', change: 2 },
-      { name: 'Safety Score', value: 92, unit: '', trend: 'up', change: 4 },
-      { name: 'Fuel Efficiency', value: 8.5, unit: 'mpg', trend: 'up', change: 0.3 },
-      { name: 'Maintenance Cost', value: 25000, unit: '$', trend: 'down', change: -3000 },
-      { name: 'Driver Satisfaction', value: 88, unit: '%', trend: 'up', change: 3 },
-      { name: 'Customer NPS', value: 72, unit: '', trend: 'up', change: 5 },
-    ],
-    []
-  )
+  const kpis = useMemo<MetricData[]>(() => ([
+    { name: 'Active Reports', value: metrics.activeReports, unit: 'reports' },
+    { name: 'Scheduled Reports', value: metrics.scheduledReports, unit: 'reports' },
+    { name: 'Active Dashboards', value: metrics.activeDashboards, unit: 'dashboards' },
+  ]), [metrics])
 
-  // Dashboard usage statistics
   const dashboardStats = useMemo<DashboardStats>(
     () => ({
-      totalViews: 1250,
-      uniqueUsers: 45,
-      avgSessionDuration: 8.5,
-      mostViewedDashboard: 'Fleet Overview',
+      totalViews: dashboards.length,
+      uniqueUsers: 0,
+      avgSessionDuration: 0,
+      mostViewedDashboard: dashboards[0]?.title || '',
       lastRefresh: new Date(),
     }),
-    []
+    [dashboards]
   )
 
   // Refresh callback with useCallback to prevent unnecessary re-renders

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 import { maintenanceService, MaintenanceRecord } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
+import logger from '@/utils/logger';
 
 interface MaintenanceHistoryListProps {
   currentTheme: any;
@@ -38,7 +39,7 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
       setRecords(recordsData);
       setVehicles(vehiclesData);
     } catch (err: any) {
-      console.error('Failed to fetch data:', err);
+      logger.error('Failed to fetch data:', err);
       setError(err.message || 'Failed to load maintenance records');
     } finally {
       setLoading(false);
@@ -50,7 +51,7 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
       await maintenanceService.update(id, { status: 'Completed' });
       await fetchData();
     } catch (err: any) {
-      console.error('Failed to complete maintenance:', err);
+      logger.error('Failed to complete maintenance:', err);
       alert('Failed to mark as completed: ' + (err.message || 'Unknown error'))
     }
   };

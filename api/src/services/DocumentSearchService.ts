@@ -15,8 +15,9 @@
 
 import { Pool } from 'pg'
 
-import { pool } from '../db/connection'
 import logger from '../config/logger'
+import { pool } from '../db/connection'
+
 import SearchIndexService, { SearchQuery, SearchResult, SearchStats } from './SearchIndexService'
 import DocumentRAGService, { SearchResult as RAGSearchResult } from './document-rag.service'
 

@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -127,7 +128,7 @@ export function useWorker<T = any, R = any>(
 
         const pending = pendingRequests.current.get(id);
         if (!pending) {
-          console.warn('[useWorker] Received response for unknown request:', id);
+          logger.warn('[useWorker] Received response for unknown request:', id);
           return;
         }
 
@@ -158,7 +159,7 @@ export function useWorker<T = any, R = any>(
       // Handle worker errors
       workerRef.current.onerror = (event) => {
         const error = new Error(event.message || 'Worker error');
-        console.error('[useWorker] Worker error:', error);
+        logger.error('[useWorker] Worker error:', error);
         setError(error);
         setLoading(false);
 
@@ -173,18 +174,18 @@ export function useWorker<T = any, R = any>(
 
       // Worker is ready
       setIsReady(true);
-      console.log('[useWorker] Worker initialized:', workerPath);
+      logger.info('[useWorker] Worker initialized:', workerPath);
 
       return () => {
         if (terminateOnUnmount && workerRef.current) {
           workerRef.current.terminate();
           workerRef.current = null;
           setIsReady(false);
-          console.log('[useWorker] Worker terminated');
+          logger.info('[useWorker] Worker terminated');
         }
       };
     } catch (error) {
-      console.error('[useWorker] Failed to create worker:', error);
+      logger.error('[useWorker] Failed to create worker:', error);
       setError(error as Error);
       setIsReady(false);
     }
@@ -266,7 +267,7 @@ export function useWorker<T = any, R = any>(
       pendingRequests.current.clear();
       activeCount.current = 0;
 
-      console.log('[useWorker] Worker manually terminated');
+      logger.info('[useWorker] Worker manually terminated');
     }
   }, []);
 
@@ -307,7 +308,7 @@ export function useWorkerWithRetry<T = any, R = any>(
         return await worker.execute(action, data);
       } catch (error) {
         if (retryCount < maxRetries) {
-          console.log(`[useWorker] Retrying (${retryCount + 1}/${maxRetries})...`);
+          logger.info(`[useWorker] Retrying (${retryCount + 1}/${maxRetries})...`);
           // Exponential backoff
           await new Promise((resolve) =>
             setTimeout(resolve, Math.pow(2, retryCount) * 1000)
@@ -355,6 +356,7 @@ export function useWorkerBatch<T = any, R = any>(
 
 /*
 import { useDataProcessorWorker } from '@/hooks/useWorker';
+import logger from '@/utils/logger';
 
 function MyComponent() {
   const { execute, loading, result, error } = useDataProcessorWorker();
@@ -364,9 +366,9 @@ function MyComponent() {
       const analytics = await execute('calculateAnalytics', {
         vehicles: [...],
       });
-      console.log('Analytics:', analytics);
+      logger.info('Analytics:', analytics);
     } catch (error) {
-      console.error('Processing failed:', error);
+      logger.error('Processing failed:', error);
     }
   };
 

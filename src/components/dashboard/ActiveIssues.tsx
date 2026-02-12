@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 type IssueSeverity = 'critical' | 'warning' | 'info';
 
@@ -133,7 +134,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
 
         setIssues(sortedIssues);
       } catch (error) {
-        console.error('Failed to fetch active issues:', error);
+        logger.error('Failed to fetch active issues:', error);
         setIssues([]);
       } finally {
         setLoading(false);
@@ -166,7 +167,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
       icon: <Info className="h-5 w-5" />,
       bg: 'bg-blue-50 dark:bg-blue-950/30',
       border: 'border-blue-300 dark:border-blue-800',
-      text: 'text-blue-700 dark:text-blue-400',
+      text: 'text-blue-700 dark:text-blue-700',
       badge: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
       label: 'INFO'
     }
@@ -211,7 +212,7 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
       <CardContent>
         {issues.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
-            <AlertCircle className="h-12 w-12 text-emerald-500 mb-3" />
+            <AlertCircle className="h-12 w-12 text-emerald-600 mb-3" />
             <h3 className="font-semibold text-lg mb-1">All Systems Normal</h3>
             <p className="text-sm text-muted-foreground">
               No active issues detected. Fleet is operating smoothly.
