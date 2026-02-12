@@ -1,5 +1,5 @@
 // Stub for getSession - this module doesn't use next-auth in this React/Vite app
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 const getSession = async (): Promise<{ accessToken?: string } | null> => null;
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';

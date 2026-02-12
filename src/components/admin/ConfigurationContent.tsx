@@ -3,20 +3,21 @@
  * Extracted from ConfigurationHub.tsx and enhanced with admin-specific visualizations
  */
 
-import { memo, useMemo } from 'react'
 // motion removed - React 19 incompatible
-import { Database, Cpu, HardDrive, Activity, Plug, CheckCircle, XCircle, AlertTriangle, Shield, Eye, Server, TrendingUp, RefreshCw, Clock, Gauge, UploadCloud, Lock } from 'lucide-react'
-import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
+import { Database, Cpu, HardDrive, Activity, Plug, CheckCircle, XCircle, AlertTriangle, Shield, Server, Clock, Gauge, UploadCloud, Lock } from 'lucide-react'
+import { memo, useMemo } from 'react'
+
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Progress } from '@/components/ui/progress'
+import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
 
 // ============================================================================
 // SUB-COMPONENTS - System Resource Gauge

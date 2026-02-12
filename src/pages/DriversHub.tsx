@@ -9,7 +9,6 @@
  * - All data visible upfront
  */
 
-import { useMemo, useState } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import {
   User,
@@ -18,7 +17,6 @@ import {
   MapPin,
   Car,
   Calendar,
-  Award,
   AlertTriangle,
   TrendingUp,
   TrendingDown,
@@ -28,8 +26,10 @@ import {
   Shield,
   BadgeCheck,
 } from 'lucide-react'
-import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
+import { useMemo, useState } from 'react'
+
 import { Button } from '@/components/ui/button'
+import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
 import { cn } from '@/lib/utils'
 

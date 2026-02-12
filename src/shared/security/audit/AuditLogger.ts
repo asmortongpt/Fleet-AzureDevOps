@@ -9,6 +9,7 @@
  */
 
 import { EncryptionService } from '../encryption/EncryptionService'
+
 import logger from '@/utils/logger';
 
 export enum AuditEventType {

@@ -16,7 +16,6 @@
  * - Performance optimized
  */
 
-import { useState, Suspense, lazy, memo, useMemo } from 'react'
 import {
   DollarSign,
   ShoppingCart,
@@ -24,8 +23,6 @@ import {
   FileText,
   TrendingUp,
   TrendingDown,
-  Users,
-  Package,
   CreditCard,
   Wallet,
   PieChart,
@@ -39,30 +36,32 @@ import {
   Clock,
   Building,
   Receipt,
-  Tag,
-  Percent
+  Tag
 } from 'lucide-react'
-import HubPage from '@/components/ui/hub-page'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Section } from '@/components/ui/section'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { useAuth } from '@/contexts'
-import { getCsrfToken } from '@/hooks/use-api'
-import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
-import { useFleetData } from '@/hooks/use-fleet-data'
+import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
-import logger from '@/utils/logger';
+import useSWR from 'swr'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import HubPage from '@/components/ui/hub-page'
+import { Section } from '@/components/ui/section'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
-import useSWR from 'swr'
+import { useAuth } from '@/contexts'
+import { getCsrfToken } from '@/hooks/use-api'
+import { useFleetData } from '@/hooks/use-fleet-data'
+import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
+import logger from '@/utils/logger';
+
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' })

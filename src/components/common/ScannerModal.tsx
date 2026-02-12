@@ -4,6 +4,7 @@
  * Uses Tesseract.js for license plate OCR with adaptive thresholding preprocessing
  */
 
+import { Scanner } from '@yudiel/react-qr-scanner'
 import {
   Camera,
   X,
@@ -14,7 +15,6 @@ import {
   Loader2,
   Zap
 } from "lucide-react"
-import { Scanner } from '@yudiel/react-qr-scanner'
 import { useState, useRef, useEffect, useCallback } from "react"
 import { createWorker, Worker, OEM, PSM } from 'tesseract.js'
 

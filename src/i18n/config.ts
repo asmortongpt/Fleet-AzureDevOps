@@ -10,6 +10,7 @@ import enUS from './locales/en-US.json';
 import esES from './locales/es-ES.json';
 import frFR from './locales/fr-FR.json';
 import heIL from './locales/he-IL.json';
+
 import logger from '@/utils/logger';
 
 export const languages = {

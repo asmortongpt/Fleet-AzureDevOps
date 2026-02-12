@@ -4,15 +4,14 @@ import {
   Calendar,
   CheckCircle2,
   Clock,
-  Package,
   Truck,
   Building2,
   AlertCircle,
   Grid
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
-import useSWR from "swr"
 import { toast, ToastOptions } from "react-hot-toast"
+import useSWR from "swr"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { Badge } from "@/components/ui/badge"
@@ -24,8 +23,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { swrFetcher } from "@/lib/fetcher"
+import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { cn } from "@/lib/utils"
 
 /** Safely extract an array from an API response that may be nested as { data: [...] } or { data: { data: [...] } } */

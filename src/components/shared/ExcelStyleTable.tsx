@@ -29,8 +29,7 @@
  * ```
  */
 
-import { ChevronUp, ChevronDown, ChevronsUpDown, Search, Columns, X, ChevronsUpDown as CaretUpDown } from 'lucide-react'
-import { Download } from 'lucide-react'
+import { ChevronUp, ChevronDown, Search, Columns, X, ChevronsUpDown as CaretUpDown , Download } from 'lucide-react'
 import { useState, useMemo, useCallback, ReactNode } from 'react'
 
 import { Badge } from '@/components/ui/badge'

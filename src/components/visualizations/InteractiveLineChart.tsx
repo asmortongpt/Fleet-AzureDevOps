@@ -4,6 +4,7 @@
  */
 
 // motion removed - React 19 incompatible
+import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
 import { useState } from 'react'
 import {
   LineChart,
@@ -18,10 +19,10 @@ import {
   Area,
   AreaChart,
 } from 'recharts'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/button'
-import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface DataPoint {

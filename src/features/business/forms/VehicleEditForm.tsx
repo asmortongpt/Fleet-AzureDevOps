@@ -1,4 +1,3 @@
-import { Vehicle } from '@/core/multi-tenant/contexts/FleetDataContext';
 import {
   DirectionsCar,
   LocalGasStation,
@@ -28,6 +27,8 @@ import {
   alpha
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+
+import { Vehicle } from '@/core/multi-tenant/contexts/FleetDataContext';
 
 interface VehicleEditFormProps {
   vehicle: Vehicle;

@@ -8,7 +8,6 @@
  * - Professional typography with accessible spacing
  */
 
-import { useMemo, useState } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import {
   Car,
@@ -23,9 +22,11 @@ import {
   HeartPulse,
   Building2,
 } from 'lucide-react'
-import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
-import { Button } from '@/components/ui/button'
+import { useMemo, useState } from 'react'
+
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import { Progress } from '@/components/ui/progress'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import { cn } from '@/lib/utils'

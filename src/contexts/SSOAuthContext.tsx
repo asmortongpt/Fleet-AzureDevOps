@@ -9,10 +9,10 @@
  */
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+
 import {
   initializeMsal,
   isAuthenticated as checkIsAuthenticated,
-  getCurrentAccount,
   getUserProfile as getProfile,
   signInWithRedirect,
   signInWithPopup,

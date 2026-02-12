@@ -33,8 +33,8 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
-import { Geofence } from "@/lib/types"
 import { getCsrfToken } from "@/hooks/use-api"
+import { Geofence } from "@/lib/types"
 
 interface GeofenceControlPanelProps {
     isVisible: boolean;

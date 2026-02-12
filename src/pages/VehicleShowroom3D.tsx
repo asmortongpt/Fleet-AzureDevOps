@@ -44,8 +44,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTenant } from '@/contexts/TenantContext';
 import { useVehicles } from '@/hooks/use-api';
 import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/pbr-materials';
-
-
 import logger from '@/utils/logger';
 interface Vehicle {
   id: number;

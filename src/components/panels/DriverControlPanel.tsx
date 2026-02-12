@@ -24,8 +24,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Driver } from "@/lib/types"
 import { useDriverMutations } from "@/hooks/use-api"
+import { Driver } from "@/lib/types"
 
 interface DriverControlPanelProps {
     isVisible: boolean

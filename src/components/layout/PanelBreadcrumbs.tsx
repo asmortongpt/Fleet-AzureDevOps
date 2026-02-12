@@ -2,6 +2,7 @@
  * PanelBreadcrumbs - Navigation trail for the panel stack
  */
 import { ChevronRight, Home } from 'lucide-react'
+
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 

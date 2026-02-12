@@ -9,8 +9,8 @@
  * - Audit logs & reporting
  */
 
-import React, { useState, useEffect } from 'react';
 import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, Database, Cpu, Clock, TrendingUp, UserPlus, Download, Eye } from 'lucide-react';
+import React, { useState } from 'react';
 // motion removed - React 19 incompatible
 import toast from 'react-hot-toast';
 

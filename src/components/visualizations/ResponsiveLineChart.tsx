@@ -4,6 +4,7 @@
  */
 
 // motion removed - React 19 incompatible
+import { TrendingDown, TrendingUp } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -22,7 +23,6 @@ import {
 import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { TrendingDown, TrendingUp } from 'lucide-react';
 interface DataPoint {
   name: string
   value?: number

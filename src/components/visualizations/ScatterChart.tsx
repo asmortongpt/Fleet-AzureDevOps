@@ -4,6 +4,7 @@
  */
 
 // motion removed - React 19 incompatible
+import { useMemo } from 'react'
 import {
   ScatterChart as RechartsScatter,
   Scatter,
@@ -16,10 +17,10 @@ import {
   ReferenceLine,
   ZAxis,
 } from 'recharts'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
 import { useThemeContext } from '@/components/providers/ThemeProvider'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useMemo } from 'react'
 
 interface ScatterDataPoint {
   x: number

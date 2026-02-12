@@ -3,7 +3,6 @@ import { VehicleRepository } from '../repositories/VehicleRepository';
 
 import { Logger } from './Logger';
 
-import logger from '@/utils/logger';
 /**
  * Service for handling maintenance-related operations.
  */

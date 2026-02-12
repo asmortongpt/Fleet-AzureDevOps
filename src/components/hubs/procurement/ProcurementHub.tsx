@@ -10,11 +10,10 @@ import {
   DollarSign
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
-import useSWR from "swr"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
-import { useFleetData } from "@/hooks/use-fleet-data"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -24,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { usePolicies } from "@/contexts/PolicyContext"
+import { useFleetData } from "@/hooks/use-fleet-data"
 import {
   enforcePaymentPolicy,
   shouldBlockAction,

@@ -15,6 +15,7 @@
  */
 
 import { Client } from '@microsoft/microsoft-graph-client'
+
 import logger from '@/utils/logger';
 
 export interface CalendarEvent {

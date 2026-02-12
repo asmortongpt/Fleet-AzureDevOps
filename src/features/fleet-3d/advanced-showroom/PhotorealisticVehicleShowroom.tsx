@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 
-import { secureFetch } from '@/hooks/use-api';
 import { RealDataService } from '../../services/RealDataService';
+
+import { secureFetch } from '@/hooks/use-api';
 
 interface PhotorealisticVehicleShowroomProps {
   currentTheme: any;

@@ -21,11 +21,12 @@
  * ```
  */
 
+import { CreditCard } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-import { CreditCard } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -34,9 +35,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
@@ -44,9 +44,9 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
-import { useFuelMutations, type CreateFuelCardInput } from '@/hooks/use-reactive-fuel-data'
+import { Textarea } from '@/components/ui/textarea'
 import { useVehicles, useDrivers } from '@/hooks/use-api'
+import { useFuelMutations, type CreateFuelCardInput } from '@/hooks/use-reactive-fuel-data'
 import logger from '@/utils/logger'
 
 // ============================================================================

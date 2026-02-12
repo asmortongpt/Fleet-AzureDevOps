@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
 import { Card, CardContent } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vehicle } from "@/lib/types"
 

@@ -9,7 +9,6 @@
  * - All data visible upfront
  */
 
-import { useEffect, useMemo, useState } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import {
   User,
@@ -21,9 +20,7 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Settings,
   Database,
-  Server,
   Users,
   TrendingUp,
   TrendingDown,
@@ -31,11 +28,12 @@ import {
   Edit,
   Trash2,
 } from 'lucide-react'
-import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
+import { useEffect, useMemo, useState } from 'react'
+
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { cn } from '@/lib/utils'
+import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import { secureFetch } from '@/hooks/use-api'
+import { cn } from '@/lib/utils'
 
 interface AdminUser {
   id: number

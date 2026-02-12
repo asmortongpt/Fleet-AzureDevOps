@@ -14,7 +14,7 @@
  * Created: 2025-11-23
  */
 
-import { Search, Car, User, Wrench, Package, Truck, MapPin, FileText, Keyboard, ChevronRight, Loader2, Loader2 as Spinner } from 'lucide-react'
+import { Search, Car, User, Wrench, Package, Truck, MapPin, FileText, Keyboard, ChevronRight, Loader2 as Spinner } from 'lucide-react'
 // motion removed - React 19 incompatible
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
 

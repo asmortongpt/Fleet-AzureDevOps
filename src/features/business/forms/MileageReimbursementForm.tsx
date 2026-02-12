@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import logger from '@/utils/logger';
+
 
 interface MileageData {
   startMileage: number;

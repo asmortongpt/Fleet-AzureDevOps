@@ -8,8 +8,8 @@ import DOMPurify from 'dompurify'
 import { useState, useCallback, useMemo, useEffect } from 'react'
 import { z } from 'zod'
 
-import logger from '@/utils/logger';
 import { secureFetch } from '@/hooks/use-api';
+import logger from '@/utils/logger';
 
 // Enhanced Zod schemas with comprehensive validation
 const SafetyIncidentSchema = z.object({

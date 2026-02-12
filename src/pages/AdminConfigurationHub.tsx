@@ -18,8 +18,6 @@
  * - Performance optimized
  */
 
-import { useState, Suspense, lazy, memo, useMemo } from 'react'
-// motion removed - React 19 incompatible
 import {
   Settings,
   Users,
@@ -27,20 +25,14 @@ import {
   Database,
   Plug,
   FileText,
-  Key,
-  Lock,
   Server,
   HardDrive,
-  Globe,
   Code,
   Webhook,
-  Link,
   CloudCog,
   UserCog,
   Sliders,
   ToggleLeft,
-  Bell,
-  Mail,
   Palette,
   Languages,
   Clock,
@@ -49,29 +41,27 @@ import {
   FolderOpen,
   Upload,
   Download,
-  Archive,
-  Bookmark,
-  Tag,
-  Search
+  Archive
 } from 'lucide-react'
-import HubPage from '@/components/ui/hub-page'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
-import { Section } from '@/components/ui/section'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { useTenant } from '@/contexts'
+import { useState, memo, useMemo } from 'react'
+
+// motion removed - React 19 incompatible
 import toast from 'react-hot-toast'
-import logger from '@/utils/logger';
+import useSWR from 'swr'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import HubPage from '@/components/ui/hub-page'
+import { Section } from '@/components/ui/section'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   StatCard,
-  ResponsiveBarChart,
   ResponsiveLineChart,
-  ResponsivePieChart,
 } from '@/components/visualizations'
-import useSWR from 'swr'
+import { useTenant } from '@/contexts'
+import logger from '@/utils/logger';
+
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' })

@@ -7,10 +7,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-import { useAuth, UserRole } from '@/contexts';
 import { AUTH_CONFIG } from '../config';
 import { Permission, GovernmentRole, AuditEventType } from '../types';
 
+import { useAuth, UserRole } from '@/contexts';
 import { logger } from '@/utils/logger';
 
 // Map GovernmentRole to UserRole for compatibility

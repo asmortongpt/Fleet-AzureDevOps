@@ -21,8 +21,8 @@
  * ```
  */
 
-import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
 import logger from '@/utils/logger'
 
 // ============================================================================

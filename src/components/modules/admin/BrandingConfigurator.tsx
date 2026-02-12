@@ -15,8 +15,8 @@ import {
   Upload
 } from '@phosphor-icons/react'
 import { useMemo, useEffect, useState } from 'react'
-import useSWR from 'swr'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

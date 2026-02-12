@@ -17,6 +17,7 @@ import { Wifi, WifiOff, RefreshCw, AlertCircle, Clock } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 
 import { offlineSyncService, type SyncStatus } from '../../services/offline-sync.service';
+
 import logger from '@/utils/logger';
 
 interface OfflineIndicatorProps {

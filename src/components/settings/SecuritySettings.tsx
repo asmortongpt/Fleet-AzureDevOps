@@ -3,8 +3,8 @@
  * Password, 2FA, sessions, and API keys
  */
 
-import { ShieldCheck, Key, Smartphone, RotateCcw, Monitor, LogOut, Shield } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { ShieldCheck, Key, Smartphone, RotateCcw, Monitor, LogOut, Shield } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 

@@ -21,8 +21,8 @@ import {
   Info,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import useSWR from 'swr'
 import { toast } from 'sonner'
+import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
@@ -31,8 +31,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import logger from '@/utils/logger';
 import { secureFetch } from '@/hooks/use-api';
+import logger from '@/utils/logger';
 
 interface PolicyTemplateDetailPanelProps {
   templateId: string

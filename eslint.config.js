@@ -68,17 +68,25 @@ export default tseslint.config(
       'unused-imports': unusedImports,
     },
     rules: {
+      // React hooks (v5 flat config compatible)
       ...reactHooks.configs.recommended.rules,
+      'react-hooks/rules-of-hooks': 'warn',
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+
+      // TypeScript rules - relaxed for existing codebase
+      '@typescript-eslint/no-explicit-any': 'off', // Too many to fix now
+      '@typescript-eslint/no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      }],
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      '@typescript-eslint/no-non-null-assertion': 'off',
       '@typescript-eslint/no-extraneous-class': 'warn',
-      '@typescript-eslint/ban-types': 'off',
       '@typescript-eslint/no-namespace': 'warn',
-      '@typescript-eslint/ban-ts-comment': 'warn',
       '@typescript-eslint/no-dynamic-delete': 'warn',
       '@typescript-eslint/no-useless-constructor': 'warn',
       '@typescript-eslint/no-empty-object-type': 'warn',
@@ -87,18 +95,26 @@ export default tseslint.config(
       '@typescript-eslint/triple-slash-reference': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
       '@typescript-eslint/no-unnecessary-type-constraint': 'warn',
+      '@typescript-eslint/no-require-imports': 'warn',
+      // Note: @typescript-eslint/ban-types was removed in v8;
+      // replaced by no-empty-object-type, no-unsafe-function-type,
+      // and no-wrapper-object-types (all configured above)
+
+      // General code quality
+      'no-console': 'off', // Allow for now
+      'no-debugger': 'warn',
+      'no-unused-vars': 'off', // Using TS version instead
+      'prefer-const': 'warn',
       'no-useless-catch': 'warn',
       'no-control-regex': 'warn',
       'no-constant-binary-expression': 'warn',
-      'prefer-const': 'warn',
       'no-prototype-builtins': 'warn',
       'no-case-declarations': 'warn',
       'no-useless-escape': 'warn',
       'no-unsafe-optional-chaining': 'warn',
       'no-constant-condition': 'warn',
-      'react-hooks/rules-of-hooks': 'warn',
-      '@typescript-eslint/no-require-imports': 'warn',
-      '@typescript-eslint/no-unused-vars': 'off',
+
+      // Unused imports
       'unused-imports/no-unused-imports': 'error',
       'unused-imports/no-unused-vars': [
         'warn',
@@ -109,10 +125,14 @@ export default tseslint.config(
           argsIgnorePattern: '^_',
         },
       ],
+
+      // Accessibility
       'jsx-a11y/alt-text': 'error',
       'jsx-a11y/aria-props': 'error',
       'jsx-a11y/aria-role': 'warn',
       'jsx-a11y/label-has-associated-control': 'warn',
+
+      // Import ordering
       'import/no-duplicates': 'error',
       'import/order': [
         'warn',
@@ -122,23 +142,6 @@ export default tseslint.config(
           alphabetize: { order: 'asc' },
         },
       ],
-    },
-    rules: {
-      // TypeScript rules - relaxed for existing codebase
-      '@typescript-eslint/no-explicit-any': 'off', // Too many to fix now
-      '@typescript-eslint/no-unused-vars': ['warn', {
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_'
-      }],
-      '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/ban-ts-comment': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'off',
-
-      // General code quality
-      'no-console': 'off', // Allow for now
-      'no-debugger': 'warn',
-      'no-unused-vars': 'off', // Using TS version instead
-      'prefer-const': 'warn',
     },
   }
 );

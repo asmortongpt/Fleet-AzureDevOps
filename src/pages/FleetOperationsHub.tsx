@@ -17,8 +17,6 @@
  * - Comprehensive error handling
  */
 
-import { useState, Suspense, lazy, memo, useMemo } from 'react'
-// framer-motion removed - React 19 incompatible animation system caused invisible content
 import {
   Car,
   Users,
@@ -27,39 +25,27 @@ import {
   Wrench,
   MapPin,
   Gauge,
-  Video,
   Plug,
   BarChart,
   AlertTriangle,
   TrendingUp,
   Fuel,
-  ArrowUp,
-  ArrowDown,
-  XCircle,
   User as UserIcon,
   Shield,
   LineChart,
   Trophy,
-  BadgeCheck,
   Clock,
   Award,
-  CalendarX,
   Map,
-  Circle,
   CheckSquare,
   Calendar,
   Truck,
   Package,
   Plus,
-  Zap,
   Route as RouteIcon,
   CheckCircle,
-  X,
-  ArrowRight,
   ClipboardList,
   Wrench as Tool,
-  Settings as SettingsIcon,
-  FileText,
   DollarSign,
   LayoutDashboard,
   HeartPulse,
@@ -71,30 +57,34 @@ import {
   BedDouble,
   Siren
 } from 'lucide-react'
+import { useState, Suspense, lazy, memo, useMemo } from 'react'
+
+// framer-motion removed - React 19 incompatible animation system caused invisible content
+import toast from 'react-hot-toast'
+import useSWR from 'swr'
+
+import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
 // Tab navigation is custom (pill buttons) - no longer using Radix Tabs
-import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Button } from '@/components/ui/button'
 import { Section } from '@/components/ui/section'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { useAuth } from '@/contexts'
-import { useDrilldown } from '@/contexts/DrilldownContext'
-import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
-import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
-import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
-import { useReactiveMaintenanceData } from '@/hooks/use-reactive-maintenance-data'
-import { useReactiveAssetsData } from '@/hooks/use-reactive-assets-data'
-import toast from 'react-hot-toast'
-import logger from '@/utils/logger';
-import useSWR from 'swr'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
 } from '@/components/visualizations'
+import { useAuth } from '@/contexts'
+import { useReactiveAssetsData } from '@/hooks/use-reactive-assets-data'
+import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
+import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
+import { useReactiveMaintenanceData } from '@/hooks/use-reactive-maintenance-data'
+import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
+import logger from '@/utils/logger';
+
 
 // ============================================================================
 // LAZY-LOADED COMPONENTS

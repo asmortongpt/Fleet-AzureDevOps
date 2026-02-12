@@ -3,8 +3,8 @@
  * Email, push, in-app notifications, and quiet hours
  */
 
-import { Bell, Mail, Smartphone, Moon } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Bell, Mail, Smartphone, Moon } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

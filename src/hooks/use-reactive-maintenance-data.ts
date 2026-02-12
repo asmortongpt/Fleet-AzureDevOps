@@ -19,9 +19,10 @@
  * @accessibility Provides structured data for screen readers
  */
 
-import { useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
+
 import logger from '@/utils/logger';
 
 // ============================================================================

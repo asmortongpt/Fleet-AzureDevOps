@@ -1,7 +1,7 @@
 import { Mail, Send, Paperclip, Star, ArrowLeft } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-import useSWR from "swr"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -20,9 +20,9 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
+import { swrFetcher } from "@/lib/fetcher"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { MSOutlookEmail } from "@/lib/types"
-import { swrFetcher } from "@/lib/fetcher"
 
 type OutlookMessageRow = {
   id: string

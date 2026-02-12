@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePermissions } from "@/hooks/usePermissions"
-import apiClient from "@/lib/api-client"
 import logger from '@/utils/logger';
 
 interface CostSummary {

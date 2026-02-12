@@ -12,14 +12,13 @@
  */
 
 import {
-  Warning,
   Wrench,
   Users,
   FileText,
-  Calendar,
-  WarningCircle
+  Calendar
 } from '@phosphor-icons/react';
 import { useQuery } from '@tanstack/react-query';
+import { AlertCircle, AlertTriangle } from 'lucide-react';
 import React from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
@@ -31,7 +30,6 @@ import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { FleetStats, CostSummary } from '@/services/dashboardApi';
 
-import { AlertCircle, AlertTriangle } from 'lucide-react';
 export function FleetManagerDashboard() {
   const navigate = useNavigate();
 

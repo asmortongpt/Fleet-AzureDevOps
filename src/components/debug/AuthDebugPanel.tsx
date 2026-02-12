@@ -10,12 +10,7 @@
  *   {import.meta.env.DEV && <AuthDebugPanel />}
  */
 
-import { useState, useEffect } from 'react';
 import { useMsal } from '@azure/msal-react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/contexts';
 import {
   ChevronDown,
   ChevronUp,
@@ -23,12 +18,18 @@ import {
   RefreshCw,
   LogOut,
   CheckCircle,
-  XCircle,
   Clock,
   User,
   Key,
   Shield
 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { useAuth } from '@/contexts';
+
 
 interface DecodedToken {
   header: any;

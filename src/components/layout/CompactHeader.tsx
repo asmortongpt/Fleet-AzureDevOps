@@ -7,8 +7,9 @@
  */
 import { Search, Bell, User, Command } from 'lucide-react'
 import { useCallback } from 'react'
-import { usePanel } from '@/contexts/PanelContext'
+
 import { useAuth } from '@/contexts'
+import { usePanel } from '@/contexts/PanelContext'
 
 /**
  * ArchonY logo SVG - recreates the "Intelligent Pivot" logo from the ADELE branding document.

@@ -11,8 +11,8 @@ import {
   Clock
 } from "lucide-react"
 import { useMemo, useState } from "react"
-import useSWR from "swr"
 import { toast } from "sonner"
+import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -45,8 +45,8 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { CommunicationLog as CommunicationLogType } from "@/lib/types"
 import { useAuth } from "@/contexts"
+import { CommunicationLog as CommunicationLogType } from "@/lib/types"
 
 const fetcher = (url: string) =>
   fetch(url)

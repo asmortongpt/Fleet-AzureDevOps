@@ -30,8 +30,7 @@
  * ```
  */
 
-import { ChevronUp, ChevronDown } from 'lucide-react'
-import { ChevronRight, ExternalLink } from 'lucide-react'
+import { ChevronUp, ChevronDown , ChevronRight, ExternalLink } from 'lucide-react'
 import { useState, useMemo, ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'

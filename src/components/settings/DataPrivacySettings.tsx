@@ -3,8 +3,8 @@
  * Data retention, export, deletion, and privacy preferences
  */
 
-import { Lock, Download, Trash2, Cookie, LineChart, FileText, AlertTriangle } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Lock, Download, Trash2, Cookie, LineChart, FileText, AlertTriangle } from 'lucide-react'
 import { useState } from 'react'
 
 import {

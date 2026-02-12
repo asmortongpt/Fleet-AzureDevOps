@@ -3,7 +3,7 @@
  * Tracks recordable incidents, DART rate, TRIR, and regulatory compliance
  */
 
-import { ShieldCheck, AlertTriangle, Cross, FileText, TrendingDown, TrendingUp, Calendar, Clipboard, Download, HeartPulse as FirstAid } from 'lucide-react'
+import { ShieldCheck, AlertTriangle, FileText, TrendingDown, TrendingUp, Calendar, Clipboard, Download, HeartPulse as FirstAid } from 'lucide-react'
 import { useMemo } from 'react'
 import useSWR from 'swr'
 

@@ -7,10 +7,11 @@ import { AgGridReact } from 'ag-grid-react';
 import { Download, Filter } from 'lucide-react';
 import React, { useState, useCallback, useMemo } from 'react';
 import useSWR from 'swr';
+
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
-import logger from '@/utils/logger';
 import { secureFetch } from '@/hooks/use-api';
+import logger from '@/utils/logger';
 
 interface RowData {
   id: string;

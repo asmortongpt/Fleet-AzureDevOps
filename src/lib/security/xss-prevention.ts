@@ -72,7 +72,7 @@ export function sanitizeHTML(
   config?: Partial<DOMPurify.Config>
 ): string {
   const cleanConfig = { ...DOM_PURIFY_CONFIG, ...config };
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   
   return DOMPurify.sanitize(dirty, cleanConfig as any) as unknown as string;
 }
 

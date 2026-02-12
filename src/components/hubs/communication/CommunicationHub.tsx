@@ -21,8 +21,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts"
 import { swrFetcher } from "@/lib/fetcher"
-import { cn } from "@/lib/utils"
 import type { Vehicle } from "@/lib/types"
+import { cn } from "@/lib/utils"
 import logger from '@/utils/logger';
 
 interface CommunicationLog {

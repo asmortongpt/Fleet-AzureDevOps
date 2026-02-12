@@ -13,13 +13,12 @@ import {
   Wrench,
   Calendar,
   Package,
-  Warning,
   CheckCircle,
   Clock,
-  ListChecks,
-  CarSimple
+  ListChecks
 } from '@phosphor-icons/react';
 // motion removed - React 19 incompatible
+import { AlertTriangle, Car } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
@@ -27,7 +26,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-import { AlertTriangle, Car } from 'lucide-react';
 interface WorkOrderStats {
   open: number;
   in_progress: number;

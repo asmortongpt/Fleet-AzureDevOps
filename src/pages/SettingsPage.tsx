@@ -3,8 +3,8 @@
  * Tabbed interface with left sidebar navigation on desktop, top tabs on mobile
  */
 
-import { Settings, Palette, Bell, Car, ShieldCheck, Lock, Code, Save, Check } from 'lucide-react'
 import { useAtom } from 'jotai'
+import { Settings, Palette, Bell, Car, ShieldCheck, Lock, Code, Save, Check } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 import { AdvancedSettings } from '@/components/settings/AdvancedSettings'
@@ -26,8 +26,8 @@ import {
 } from '@/components/ui/alert-dialog'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Section } from '@/components/ui/section'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Section } from '@/components/ui/section'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { hasUnsavedChangesAtom } from '@/lib/reactive-state'
 

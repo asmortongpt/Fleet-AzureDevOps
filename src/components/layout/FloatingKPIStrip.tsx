@@ -4,9 +4,9 @@
  * Displays key intelligence indicators and opens modules on click.
  * Fetches live data from `/api/dashboard/stats` (DB-backed via backend).
  */
+import { Truck, Activity, Wrench, AlertTriangle, Gauge, Users } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 // motion removed - React 19 incompatible
-import { Truck, Activity, Wrench, AlertTriangle, Gauge, Users } from 'lucide-react'
 
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'

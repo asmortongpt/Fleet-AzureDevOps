@@ -22,8 +22,13 @@
  * ```
  */
 
-import { useState, useCallback, useMemo } from 'react'
 import { X, Plus, Trash2, Calendar, CheckCircle2, AlertTriangle } from 'lucide-react'
+import { useState, useCallback, useMemo } from 'react'
+import { toast } from 'sonner'
+
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   Dialog,
   DialogContent,
@@ -31,18 +36,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
 import {
   useIncidentMutations,
   type Incident,
   type CreateInvestigationInput,
 } from '@/hooks/use-reactive-incident-data'
-import { toast } from 'sonner'
+
 
 // ============================================================================
 // TYPES

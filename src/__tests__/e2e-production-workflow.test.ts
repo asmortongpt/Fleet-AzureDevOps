@@ -22,6 +22,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
+
 import type { Vehicle, Driver, MaintenanceRecord, FuelTransaction, Route } from './src/types';
 
 // ============================================================================
@@ -61,7 +62,7 @@ describe('E2E Production Workflow - Fleet Management System', () => {
     performance: any;
   };
 
-  let checkpointOutputs: Array<{
+  const checkpointOutputs: Array<{
     stage: string;
     timestamp: Date;
     inputCount: number;

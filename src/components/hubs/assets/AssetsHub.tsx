@@ -11,12 +11,12 @@
  * - ROI tracking metrics
  */
 
+import { GoogleMap, LoadScript, Marker, HeatmapLayer } from "@react-google-maps/api"
 import {
   Barcode,
   TrendingUp,
   LineChart
 } from "lucide-react"
-import { GoogleMap, LoadScript, Marker, HeatmapLayer } from "@react-google-maps/api"
 import { useState, useMemo } from "react"
 import useSWR from "swr"
 

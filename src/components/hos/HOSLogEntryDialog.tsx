@@ -26,9 +26,9 @@
  * ```
  */
 
+import { Clock, MapPin, AlertCircle, Navigation } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import { Clock, MapPin, AlertCircle, Navigation } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 import {

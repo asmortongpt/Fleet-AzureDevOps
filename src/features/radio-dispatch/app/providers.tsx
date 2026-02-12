@@ -1,8 +1,9 @@
 'use client';
 
-import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { ToastProvider, ToastViewport } from '../components/common/Toast';
 import { useCSRFProtection } from '../lib/use-csrf';
+
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   // Initialize CSRF protection when app loads

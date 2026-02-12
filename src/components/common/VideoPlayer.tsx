@@ -3,8 +3,8 @@
  * Uses HLS.js for adaptive bitrate streaming
  */
 
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Circle, Camera, AlertTriangle } from 'lucide-react'
 import Hls from 'hls.js'
+import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Circle, Camera, AlertTriangle } from 'lucide-react'
 import { useRef, useState, useEffect, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'

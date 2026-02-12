@@ -3,7 +3,6 @@
 // FedRAMP/SOC 2 compliance: Ensure all interfaces include tenant_id for multi-tenant isolation
 
 // Interface for ScanSession
-import logger from '@/utils/logger';
 export interface ScanSession {
   tenant_id: string;
   session_id: string;

@@ -16,7 +16,6 @@
  * - Loading states
  */
 
-import { useState, useMemo, useCallback } from 'react'
 import {
   flexRender,
   getCoreRowModel,
@@ -31,10 +30,18 @@ import {
   type RowSelectionState,
 } from '@tanstack/react-table'
 import { ChevronDown, ChevronUp, ChevronsUpDown, Search, X } from 'lucide-react'
+import { useState, useMemo, useCallback } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -43,13 +50,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 
 interface DataTableProps<TData, TValue> {

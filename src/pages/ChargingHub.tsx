@@ -11,15 +11,14 @@
  * - Sorting, filtering, pagination
  */
 
+import { ColumnDef } from '@tanstack/react-table';
 import { Zap, Battery, MapPin, Plus, RefreshCw, Car } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { ColumnDef } from '@tanstack/react-table';
-import { useFleetData } from '@/hooks/use-fleet-data';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table';
+import { useFleetData } from '@/hooks/use-fleet-data';
 import logger from '@/utils/logger';
 
 // =============================================================================

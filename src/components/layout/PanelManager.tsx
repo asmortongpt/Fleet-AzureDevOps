@@ -4,11 +4,13 @@
  * Handles side panel mode (400-600px) and full takeover mode (100% width).
  * Glass-morphism design consistent with ArchonY branding.
  */
-import { Suspense, useEffect } from 'react'
 import { ArrowLeft, X } from 'lucide-react'
-import { usePanel } from '@/contexts/PanelContext'
-import { getModule } from '@/config/module-registry'
+import { Suspense, useEffect } from 'react'
+
 import { PanelBreadcrumbs } from './PanelBreadcrumbs'
+
+import { getModule } from '@/config/module-registry'
+import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
 const panelWidthMap: Record<string, string> = {

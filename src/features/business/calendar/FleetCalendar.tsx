@@ -23,6 +23,7 @@ import { outlookCalendarService, CalendarEvent } from '../../services/outlookCal
 import { format } from 'date-fns';
 
 import EventCreateModal from './EventCreateModal';
+
 import { useAuth } from '@/contexts';
 
 const localizer = momentLocalizer(moment);

@@ -1,14 +1,15 @@
 // Fleet Hub - Main Fleet Management Dashboard
 // Displays: Vehicle grid with 50 vehicles, status indicators, drilldowns, Google Maps
 
+import { useQuery } from '@tanstack/react-query';
 import { Car, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react';
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+
+import { VehicleGrid } from './VehicleGrid';
 
 import { UniversalMap } from '@/components/UniversalMap';
-import { VehicleGrid } from './VehicleGrid';
-import type { Vehicle } from '@/lib/types';
 import { secureFetch } from '@/hooks/use-api';
+import type { Vehicle } from '@/lib/types';
 
 export const FleetHub: React.FC = () => {
   // Fetch vehicles from API for map markers
