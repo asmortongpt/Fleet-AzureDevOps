@@ -127,6 +127,15 @@ function sanitizeColor(color: string | undefined): string | null {
   return null
 }
 
+/**
+ * SECURITY NOTE: This component uses dangerouslySetInnerHTML to inject CSS custom properties
+ * (CSS variables) for chart theming. This is acceptable because:
+ * 1. The THEMES constant is hardcoded and never derived from user input.
+ * 2. All color values are validated through sanitizeColor() which only permits
+ *    hex, rgb/rgba, hsl/hsla, and a whitelist of named CSS colors.
+ * 3. The chart `id` is generated from React's useId() hook, not user input.
+ * No user-controlled data flows into the generated CSS string.
+ */
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([, config]) => config.theme || config.color

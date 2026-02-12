@@ -578,8 +578,8 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
     }
   };
 
-  const handleViewDetails = (entryId: string) => {
-    console.log('Viewing details for expense:', entryId);
+  const handleViewDetails = (_entryId: string) => {
+    // View details handler - integrate with expense detail panel
   };
 
   if (isLoading) {

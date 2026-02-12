@@ -168,7 +168,6 @@ class ReportLoaderService {
 
       const registry: ReportRegistry = await response.json();
       this.registry = registry;
-      console.log(`✓ Loaded report registry: ${registry.totalReports} reports`);
       return registry;
     } catch (error) {
       console.error('Error loading report registry:', error);
@@ -232,7 +231,6 @@ class ReportLoaderService {
 
       // Cache the report
       this.cachedReports.set(reportId, reportDef);
-      console.log(`✓ Loaded report: ${reportDef.title} (${reportDef.id})`);
 
       return reportDef;
     } catch (error) {
@@ -280,19 +278,15 @@ class ReportLoaderService {
   public clearCache(): void {
     this.cachedReports.clear();
     this.registry = null;
-    console.log('✓ Report cache cleared');
   }
 
   /**
    * Preload multiple reports (useful for performance)
    */
   public async preloadReports(reportIds: string[]): Promise<void> {
-    const promises = reportIds.map(id => this.loadReport(id).catch(err => {
-      console.warn(`Failed to preload report ${id}:`, err);
-    }));
+    const promises = reportIds.map(id => this.loadReport(id).catch(() => {}));
 
     await Promise.all(promises);
-    console.log(`✓ Preloaded ${reportIds.length} reports`);
   }
 
   /**

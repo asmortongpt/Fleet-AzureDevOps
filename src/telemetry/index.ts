@@ -20,7 +20,8 @@ const logger = {
  * This module provides no-op stub implementations that maintain the same API surface
  * so that existing code continues to work without modification.
  *
- * TODO: Re-enable when Microsoft updates ApplicationInsights SDK to support React 19
+ * When Microsoft releases an ApplicationInsights SDK version compatible with React 19,
+ * restore the real implementation by replacing stub methods with SDK calls.
  */
 
 // =============================================================================
@@ -719,8 +720,7 @@ export function initializeTelemetry(_options: TelemetryInitOptions = {}): boolea
 
   try {
     logger.info('[Telemetry] DISABLED - ApplicationInsights SDK incompatible with React 19');
-    logger.info('[Telemetry] Error: "Cannot set properties of undefined (setting \'Activity\')"');
-    logger.info('[Telemetry] TODO: Re-enable when Microsoft updates the SDK');
+    logger.info('[Telemetry] Stub implementation active - telemetry events are no-ops');
 
     // Mark as initialized (even though disabled) to prevent repeated init attempts
     _telemetryInitialized = true;

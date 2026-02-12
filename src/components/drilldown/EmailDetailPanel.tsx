@@ -177,6 +177,15 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
   )
 }
 
+/**
+ * SECURITY: Email HTML body is sanitized with DOMPurify using a strict whitelist.
+ * - ALLOWED_TAGS: Only safe formatting/layout tags permitted (no script, iframe, object, etc.)
+ * - ALLOWED_ATTR: Only href, target, rel, class, style (DOMPurify strips dangerous CSS/JS URIs)
+ * - ALLOW_DATA_ATTR: false - prevents data-* attribute abuse
+ * - ADD_ATTR: rel is added so sanitized anchor tags can carry rel="noopener noreferrer"
+ * DOMPurify automatically strips javascript: URIs, event handlers (onclick, onerror, etc.),
+ * and dangerous CSS expressions from style attributes.
+ */
 function EmailBody({ email }: { email: EmailRecord }) {
   return (
     <Card>
@@ -192,7 +201,7 @@ function EmailBody({ email }: { email: EmailRecord }) {
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(email.bodyHtml, {
                 ALLOWED_TAGS: ['p', 'br', 'b', 'i', 'u', 'a', 'ul', 'ol', 'li', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'code', 'pre', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'td', 'th'],
-                ALLOWED_ATTR: ['href', 'target', 'class', 'style'],
+                ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'style'],
                 ALLOW_DATA_ATTR: false,
               })
             }}

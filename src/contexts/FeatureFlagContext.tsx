@@ -52,9 +52,8 @@ export const FeatureFlagProvider = ({ children }: FeatureFlagProviderProps) => {
         }
 
         // 3. Check environment/global flags
-        // @ts-ignore - import.meta.env dynamic access
         const envKey = `VITE_FEATURE_${featureKey.toUpperCase().replace(/-/g, '_')}`;
-        const envFlag = import.meta.env[envKey];
+        const envFlag = (import.meta.env as Record<string, string | undefined>)[envKey];
 
         if (envFlag === 'false') return false;
         if (envFlag === 'true') return true;

@@ -313,7 +313,8 @@ export function PasswordReset() {
         </div>
       </div>
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      {/* Static CSS keyframe animations - safe to render as plain style children */}
+      <style>{`
         @keyframes shimmer {
           0% {
             transform: translateX(-100%);
@@ -335,7 +336,7 @@ export function PasswordReset() {
             opacity: 0.8;
           }
         }
-      `}} />
+      `}</style>
     </div>
   )
 }

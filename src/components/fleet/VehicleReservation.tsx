@@ -41,6 +41,7 @@ import {
 } from '@/components/ui/select'
 import { useTenant } from '@/contexts/TenantContext'
 import { useVehicles } from '@/hooks/use-api'
+import { useCreateReservation } from '@/hooks/use-reservations'
 import { useVehicleScheduleWithUtils } from '@/hooks/useVehicleSchedule'
 import toast from 'react-hot-toast'
 import logger from '@/utils/logger';
@@ -60,6 +61,9 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
 
   // Fetch real vehicles from API
   const { data: vehiclesData, isLoading: vehiclesLoading } = useVehicles({ tenant_id: tenantId || '' })
+
+  // Reservation mutation hook for real API submission
+  const createReservation = useCreateReservation()
 
   // Fetch vehicle schedule using the existing hook
   const {
@@ -110,31 +114,24 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
       return
     }
 
-    // TODO: Submit reservation to API
-    toast.success('Reservation request submitted! Pending approval.')
-    logger.info('Creating reservation:', {
-      vehicleId: selectedVehicle,
-      driverId,
-      startDate: start.toISOString(),
-      endDate: end.toISOString(),
-      purpose
-    })
+    try {
+      await createReservation.mutateAsync({
+        vehicle_id: selectedVehicle,
+        driver_id: driverId || '',
+        start_date: start.toISOString(),
+        end_date: end.toISOString(),
+        purpose: purpose,
+      })
 
-    // TODO: Add real API call to create reservation
-    // Example:
-    // const response = await apiClient.post('/api/reservations', {
-    //   vehicle_id: selectedVehicle,
-    //   driver_id: driverId,
-    //   start_date: start.toISOString(),
-    //   end_date: end.toISOString(),
-    //   purpose: purpose
-    // })
-
-    // Reset form
-    setStartDate('')
-    setEndDate('')
-    setPurpose('')
-    refresh()
+      // Reset form on success
+      setStartDate('')
+      setEndDate('')
+      setPurpose('')
+      refresh()
+    } catch (error) {
+      // Error toast is handled by the mutation's onError callback
+      logger.error('Reservation submission failed:', error)
+    }
   }
 
   // Map API vehicles for selection dropdown

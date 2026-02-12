@@ -90,7 +90,7 @@ export function CompactHeader() {
   return (
     <header className="relative shrink-0 z-20">
       {/* Main header bar */}
-      <div className="flex items-center justify-between h-10 sm:h-11 px-2 sm:px-4 bg-[#0A0E27]/95 backdrop-blur-sm border-b border-white/[0.06]">
+      <div className="flex items-center justify-between h-10 sm:h-11 px-2 sm:px-4 bg-background/90 backdrop-blur-sm border-b border-border/50">
         {/* Left: ArchonY wordmark */}
         <div className="sm:hidden shrink-0 w-7 h-7 rounded-lg bg-[#2F3359] flex items-center justify-center">
           <span className="text-[10px] font-extrabold text-white">A</span>
@@ -102,12 +102,12 @@ export function CompactHeader() {
         {/* Center: Search bar */}
         <button
           onClick={handleSearchClick}
-          className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] text-white/35 text-xs hover:bg-white/[0.07] hover:border-white/[0.12] transition-all max-w-[200px] sm:max-w-[320px] w-full mx-2 sm:mx-6"
+          className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-muted/40 border border-border/50 text-muted-foreground text-xs hover:bg-muted/60 transition-all max-w-[200px] sm:max-w-[320px] w-full mx-2 sm:mx-6"
         >
           <Search className="w-3.5 h-3.5 shrink-0" />
           <span className="sm:hidden truncate">Search...</span>
           <span className="hidden sm:inline truncate">Search modules, vehicles, drivers...</span>
-          <kbd className="hidden sm:flex items-center gap-0.5 ml-auto shrink-0 text-[10px] text-white/20 bg-white/[0.04] rounded px-1.5 py-0.5 border border-white/[0.06]">
+          <kbd className="hidden sm:flex items-center gap-0.5 ml-auto shrink-0 text-[10px] text-muted-foreground bg-muted/40 rounded px-1.5 py-0.5 border border-border/50">
             <Command className="w-2.5 h-2.5" />K
           </kbd>
         </button>
@@ -117,7 +117,7 @@ export function CompactHeader() {
           {/* Notification bell */}
           <button
             aria-label="Notifications"
-            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-all relative"
+            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all relative"
           >
             <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#DD3903] ring-2 ring-[#0A0E27]" />
@@ -128,8 +128,8 @@ export function CompactHeader() {
             aria-label="User profile"
             className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden"
           >
-            <div className="w-full h-full bg-gradient-to-br from-[#2F3359] to-[#0A0E27] flex items-center justify-center border border-white/10 rounded-lg">
-              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/60" />
+            <div className="w-full h-full bg-gradient-to-br from-[#2F3359] to-[#0A0E27] flex items-center justify-center border border-border/50 rounded-lg">
+              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
             </div>
           </button>
         </div>

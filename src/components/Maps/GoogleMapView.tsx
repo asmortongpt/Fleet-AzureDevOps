@@ -86,8 +86,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ center, zoom, children }) =
     <>
       <div ref={ref} className="w-full h-full" />
       {React.Children.map(children, (child) => {
-        if (React.isValidElement(child)) {
-          // @ts-ignore
+        if (React.isValidElement<{ map?: google.maps.Map }>(child)) {
           return React.cloneElement(child, { map })
         }
       })}

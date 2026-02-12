@@ -42,8 +42,7 @@ export function CreateIncidentExample() {
   const createIncident = useMutation<Incident, CreateIncidentInput>(
     (data: CreateIncidentInput) => api.post('/api/incidents', data),
     {
-      onSuccess: (incident: Incident) => {
-        console.log('Incident created successfully:', incident.id);
+      onSuccess: () => {
         // Clear form
         setTitle('');
         setDescription('');
@@ -208,9 +207,7 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
   const deleteIncident = useMutation<void, string>(
     (id: string) => api.delete(`/api/incidents/${id}`),
     {
-      onSuccess: () => {
-        console.log('Incident deleted successfully');
-      },
+      onSuccess: () => {},
       onError: (error: Error) => {
         console.error('Failed to delete incident:', error.message);
       },

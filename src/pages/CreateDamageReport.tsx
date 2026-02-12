@@ -195,7 +195,6 @@ export function CreateDamageReport() {
   }
 
   const handleSaveDraft = () => {
-    console.log('Saving draft:', formData)
     // Save to local storage or API
   }
 

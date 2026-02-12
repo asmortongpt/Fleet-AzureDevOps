@@ -188,10 +188,8 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
         }
 
         // For more complex expressions, would need a proper math parser
-        console.warn(`Unsupported expression: ${measure.expression}`);
         return 0;
-      } catch (error) {
-        console.warn(`Failed to evaluate expression: ${measure.expression}`, error);
+      } catch {
         return 0;
       }
     }

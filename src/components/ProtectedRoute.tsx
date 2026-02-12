@@ -32,9 +32,7 @@ if (SKIP_AUTH && import.meta.env.PROD) {
   throw new Error('Auth bypass is not allowed in production');
 }
 
-if (SKIP_AUTH) {
-  console.log('[ProtectedRoute] SKIP_AUTH enabled - all routes will bypass authentication');
-}
+// SKIP_AUTH mode - all routes will bypass authentication when enabled
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -88,19 +86,17 @@ export function ProtectedRoute({
 }: ProtectedRouteProps) {
   const { user, isLoading, isAuthenticated, canAccess } = useAuth();
 
-  // CRITICAL DEBUG: Log auth state on every render
-  logger.debug('[ProtectedRoute] Render check:', {
-    isLoading,
-    isAuthenticated,
-    hasUser: !!user,
-    userId: user?.id,
-    requireAuth,
-    timestamp: new Date().toISOString()
-  });
+  // Auth state logging (development only, suppressed during loading to reduce noise)
+  if (import.meta.env.DEV && !isLoading) {
+    logger.debug('[ProtectedRoute] Auth state:', {
+      isAuthenticated,
+      hasUser: !!user,
+      requireAuth,
+    });
+  }
 
   // Show loading state while auth is initializing
   if (isLoading) {
-    logger.debug('[ProtectedRoute] Showing loading state');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
@@ -142,10 +138,6 @@ export function ProtectedRoute({
   }
 
   // All checks passed, render the protected content
-  logger.debug('[ProtectedRoute] All checks passed, rendering protected content', {
-    userId: user?.id,
-    role: user?.role
-  });
   return <>{children}</>;
 }
 

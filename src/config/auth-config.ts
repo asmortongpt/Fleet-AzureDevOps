@@ -84,10 +84,6 @@ export function getRedirectUri(): string {
     if (import.meta.env.DEV && typeof window !== 'undefined') {
       const origin = window.location.origin;
       if (!envRedirectUri.startsWith(origin)) {
-        console.warn('[Auth] Ignoring VITE_AZURE_AD_REDIRECT_URI (wrong origin for this dev server)', {
-          envRedirectUri,
-          origin,
-        });
         return `${origin}/auth/callback`;
       }
     }
@@ -356,12 +352,6 @@ export function getMsalConfig() {
               break;
             case 1: // Warning
               console.warn(prefix, message);
-              break;
-            case 2: // Info
-              console.info(prefix, message);
-              break;
-            case 3: // Verbose
-              console.debug(prefix, message);
               break;
           }
         },

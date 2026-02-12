@@ -44,7 +44,7 @@ export const SinglePageShell = memo(function SinglePageShell() {
   }, [])
 
   return (
-    <div className="h-screen w-screen overflow-hidden flex bg-[#0A0E27]">
+    <div className="h-screen w-screen overflow-hidden flex cta-hub">
       {/* Left: Icon Rail (desktop only) */}
       {isDesktop && (
         <div

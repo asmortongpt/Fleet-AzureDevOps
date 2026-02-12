@@ -74,19 +74,16 @@ export class PushNotificationService {
    */
   private async initializeServiceWorker(): Promise<void> {
     if (!('serviceWorker' in navigator)) {
-      console.warn('[PushNotificationService] Service Worker not supported');
       return;
     }
 
     try {
       this.registration = await navigator.serviceWorker.ready;
-      console.log('[PushNotificationService] Service Worker ready');
 
       // Check for existing subscription
       this.subscription = await this.registration.pushManager.getSubscription();
 
       if (this.subscription) {
-        console.log('[PushNotificationService] Existing subscription found');
         await this.sendSubscriptionToServer(this.subscription);
       }
 
@@ -102,7 +99,6 @@ export class PushNotificationService {
    */
   public async requestPermission(): Promise<boolean> {
     if (!('Notification' in window)) {
-      console.warn('[PushNotificationService] Notifications not supported');
       return false;
     }
 
@@ -110,14 +106,9 @@ export class PushNotificationService {
       const permission = await Notification.requestPermission();
 
       if (permission === 'granted') {
-        console.log('[PushNotificationService] Permission granted');
         await this.subscribe();
         return true;
-      } else if (permission === 'denied') {
-        console.warn('[PushNotificationService] Permission denied');
-        return false;
       } else {
-        console.log('[PushNotificationService] Permission dismissed');
         return false;
       }
     } catch (error) {
@@ -142,7 +133,6 @@ export class PushNotificationService {
       };
 
       this.subscription = await this.registration.pushManager.subscribe(subscribeOptions);
-      console.log('[PushNotificationService] Subscribed successfully');
 
       // Send subscription to server
       await this.sendSubscriptionToServer(this.subscription);
@@ -159,7 +149,6 @@ export class PushNotificationService {
    */
   public async unsubscribe(): Promise<boolean> {
     if (!this.subscription) {
-      console.log('[PushNotificationService] No active subscription');
       return false;
     }
 
@@ -167,7 +156,6 @@ export class PushNotificationService {
       await this.subscription.unsubscribe();
       await this.deleteSubscriptionFromServer(this.subscription);
       this.subscription = null;
-      console.log('[PushNotificationService] Unsubscribed successfully');
       return true;
     } catch (error) {
       console.error('[PushNotificationService] Unsubscribe failed:', error);
@@ -180,19 +168,16 @@ export class PushNotificationService {
    */
   public async showNotification(payload: NotificationPayload): Promise<void> {
     if (!this.settings.enabled) {
-      console.log('[PushNotificationService] Notifications disabled');
       return;
     }
 
     // Check category permissions
     if (payload.category && !this.settings.categories[payload.category]) {
-      console.log(`[PushNotificationService] Category ${payload.category} disabled`);
       return;
     }
 
     // Check Do Not Disturb
     if (this.isDoNotDisturbActive()) {
-      console.log('[PushNotificationService] Do Not Disturb active');
       this.queueNotification(payload);
       return;
     }
@@ -333,8 +318,6 @@ export class PushNotificationService {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
-      console.log('[PushNotificationService] Subscription sent to server');
     } catch (error) {
       console.error('[PushNotificationService] Failed to send subscription:', error);
     }
@@ -356,8 +339,6 @@ export class PushNotificationService {
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
-      console.log('[PushNotificationService] Subscription deleted from server');
     } catch (error) {
       console.error('[PushNotificationService] Failed to delete subscription:', error);
     }
@@ -365,8 +346,6 @@ export class PushNotificationService {
 
   private handleServiceWorkerMessage(event: MessageEvent): void {
     if (event.data.type === 'NOTIFICATION_CLICK') {
-      console.log('[PushNotificationService] Notification clicked:', event.data);
-      // Handle notification click
       window.focus();
       if (event.data.url) {
         window.location.href = event.data.url;

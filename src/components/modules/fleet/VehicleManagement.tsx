@@ -80,9 +80,8 @@ export function VehicleManagement() {
     setEditingVehicle(vehicle)
   }
 
-  const handleDelete = (vehicle: Vehicle) => {
-    // Implement delete logic
-    console.log('Delete vehicle:', vehicle.id)
+  const handleDelete = (_vehicle: Vehicle) => {
+    // TODO: Implement delete logic
   }
 
   return (

@@ -32,20 +32,20 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
   // If needed, use sessionStorage or cookies for non-sensitive data
   // Object.freeze(localStorage); // Uncomment if strict security is required
 
-  console.log('[Fleet] Production mode: All authentication bypass mechanisms removed');
 }
 
 // Initialize Sentry before all other imports for proper error tracking
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-// @ts-ignore - virtual module provided by vite-plugin-pwa
+// @ts-expect-error - virtual module provided by vite-plugin-pwa; types require adding
+// `/// <reference types="vite-plugin-pwa/client" />` or referencing client.d.ts in tsconfig
 import { registerSW } from 'virtual:pwa-register'
 
 import App from "./App"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
 import { ThemeProvider } from "./components/providers/ThemeProvider"
-// TEMP DISABLED: Azure Key Vault should be backend-only, not frontend
-// import { validateSecrets, getSecret, checkKeyVaultHealth } from "./config/secrets"
+// Azure Key Vault integration is backend-only (Node.js packages cannot run in browser)
+// Frontend validates backend availability via /api/health endpoint instead
 import { AuthProvider } from "./contexts/AuthContext"
 import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
@@ -72,7 +72,6 @@ const msalInstance = new PublicClientApplication(msalConfig)
 import telemetryService from "./lib/telemetry"
 
 // PWA Service Worker registration
-// @ts-ignore
 
 const reactPlugin = telemetryService.initialize()
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
@@ -128,120 +127,46 @@ const SentryRoutes = Routes
  * and cannot run in browser environment. Secret validation should happen
  * in the backend API server, not in the frontend.
  *
- * TODO: Implement backend API endpoint for secret validation
- * TODO: Call backend /api/health or /api/config endpoint from frontend
+ * Secret validation (Key Vault, JWT) is handled server-side by the backend API.
+ * The frontend checks the backend /api/health endpoint to confirm it is operational.
  */
 async function validateStartupConfiguration(): Promise<void> {
-  console.log('[Fleet] Starting application configuration validation...');
-  console.log('[Fleet] ⚠️  NOTICE: Azure Key Vault validation disabled (frontend)');
-  console.log('[Fleet] ⚠️  Secret validation must be implemented in backend API');
+  const apiUrl = import.meta.env.VITE_API_URL || '';
+  const healthUrl = `${apiUrl}/api/health`;
 
-  // TEMP: Skip all Key Vault validation in frontend
-  // This allows the app to start in development mode
-  console.log('[Fleet] ✅ Frontend startup validation: PASSED (Key Vault disabled)');
-
-  /* COMMENTED OUT - CAUSES BROWSER CRASH
   try {
-    // Only validate secrets in production mode
-    if (import.meta.env.MODE === 'production') {
-      console.log('[Fleet] Production mode detected - validating Key Vault connectivity...');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-      // Step 1: Check Key Vault connectivity
-      const healthCheck = await checkKeyVaultHealth();
-      if (!healthCheck.healthy) {
-        throw new Error(`Key Vault health check failed: ${healthCheck.error}`);
-      }
-      console.log('[Fleet] ✓ Key Vault connectivity verified');
+    const response = await fetch(healthUrl, {
+      method: 'GET',
+      signal: controller.signal,
+      credentials: 'include',
+    });
+    clearTimeout(timeoutId);
 
-      // Step 2: Validate all required secrets
-      console.log('[Fleet] Validating required secrets...');
-      await validateSecrets();
-      console.log('[Fleet] ✓ All required secrets validated');
-
-      // Step 3: Validate JWT configuration
-      console.log('[Fleet] Validating JWT configuration...');
-      const jwtSecret = await getSecret("JWT-SECRET");
-
-      if (jwtSecret.length < 32) {
-        throw new Error(
-          `JWT-SECRET must be at least 32 characters for security (current: ${jwtSecret.length} chars)`
-        );
-      }
-      console.log('[Fleet] ✓ JWT configuration valid');
-
-      console.log('[Fleet] ✅ Startup validation: PASSED');
+    if (response.ok) {
+      const data = await response.json();
+      console.log('[Fleet] Backend health check passed:', data.status || 'ok');
     } else {
-      console.log('[Fleet] Development mode - skipping Key Vault validation');
-      console.log('[Fleet] ⚠️  WARNING: Using local environment variables');
+      console.warn(`[Fleet] Backend health check returned status ${response.status} - app will continue but some features may be unavailable`);
     }
   } catch (error) {
-    console.error('[Fleet] ❌ FATAL: Startup validation failed:', error);
-
-    // Show user-friendly error page instead of blank screen
-    const rootElement = document.getElementById("root");
-    if (rootElement) {
-      rootElement.innerHTML = `
-        <div style="
-          padding: 40px;
-          max-width: 800px;
-          margin: 100px auto;
-          text-align: center;
-          font-family: system-ui, -apple-system, sans-serif;
-          background: #fff;
-          border: 2px solid #ef4444;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        ">
-          <h1 style="color: #dc2626; margin-bottom: 20px;">
-            ⚠️ Configuration Error
-          </h1>
-          <p style="color: #374151; font-size: 18px; margin-bottom: 20px;">
-            The application could not start due to missing or invalid configuration.
-          </p>
-          <details style="
-            text-align: left;
-            background: #f9fafb;
-            padding: 20px;
-            border-radius: 4px;
-            margin-top: 20px;
-          ">
-            <summary style="cursor: pointer; font-weight: bold; color: #1f2937;">
-              Technical Details (Click to expand)
-            </summary>
-            <pre style="
-              margin-top: 10px;
-              padding: 10px;
-              background: #1f2937;
-              color: #f9fafb;
-              border-radius: 4px;
-              overflow: auto;
-              font-size: 14px;
-            ">${error instanceof Error ? error.message : 'Unknown error'}</pre>
-          </details>
-          <p style="color: #6b7280; margin-top: 30px; font-size: 14px;">
-            Please contact your system administrator or check the deployment configuration.
-          </p>
-        </div>
-      `;
-    }
-
-    // Re-throw to prevent app from starting
-    throw error;
+    // Non-blocking: log warning but allow app to render
+    // This handles cases where the backend is temporarily unavailable or network is slow
+    console.warn('[Fleet] Backend health check failed (non-blocking):', error instanceof Error ? error.message : 'Unknown error');
+    console.warn('[Fleet] The application will start, but API-dependent features may not work until the backend is reachable');
   }
-  */
 }
 
 // P0-3: Run validation BEFORE rendering app
 // This ensures app only starts if all security requirements are met
 validateStartupConfiguration().then(async () => {
-  console.log('[Fleet] Starting application...');
-
   // Initialize MSAL before rendering - required for MSAL v2+
   try {
     await msalInstance.initialize();
     // Handle any redirect promise from SSO callback
     await msalInstance.handleRedirectPromise();
-    console.log('[Fleet] MSAL initialized successfully');
   } catch (error) {
     console.error('[Fleet] MSAL initialization failed:', error);
   }
@@ -306,9 +231,7 @@ validateStartupConfiguration().then(async () => {
         updateSW(true)
       }
     },
-    onOfflineReady() {
-      console.log('App ready to work offline')
-    },
+    onOfflineReady() {},
   })
 }).catch((error) => {
   // P0-3: Validation failed - app will not start

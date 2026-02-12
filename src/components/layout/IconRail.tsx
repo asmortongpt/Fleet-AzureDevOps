@@ -53,7 +53,7 @@ export function IconRail() {
 
   return (
     <aside
-      className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-[#0F1535] border-r border-white/[0.06] z-30"
+      className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-background/90 border-r border-border/50 z-30"
     >
       {/* Dawn gradient accent bar at top */}
       <div className="w-full h-[3px] bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903] shrink-0" />
@@ -81,8 +81,8 @@ export function IconRail() {
                   isActive
                     ? 'text-[#41B2E3] bg-[#41B2E3]/[0.08]'
                     : isHovered
-                      ? 'text-white bg-white/[0.06]'
-                      : 'text-white/50 hover:text-white/70'
+                      ? 'text-foreground bg-muted/40'
+                      : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 {cat.icon}
@@ -100,8 +100,8 @@ export function IconRail() {
 
       {/* Bottom: CTA square logo mark - Option 2 from ADELE branding doc (page 6) */}
       <div className="pb-3 flex flex-col items-center">
-        <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg bg-[#2B3A67] flex flex-col items-center justify-center border border-white/[0.08] shadow-lg">
-          <span className="text-[9px] font-extrabold text-white tracking-wide leading-none">CTA</span>
+        <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg bg-card/80 flex flex-col items-center justify-center border border-border/50 shadow-lg">
+          <span className="text-[9px] font-extrabold text-foreground tracking-wide leading-none">CTA</span>
           <div className="w-5 h-[2px] mt-1 rounded-full bg-gradient-to-r from-[#FDB813] to-[#FF5722]" />
         </div>
       </div>

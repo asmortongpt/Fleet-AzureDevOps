@@ -1,6 +1,5 @@
-// @ts-ignore - Okta packages may not be installed in all environments
+// Type declarations for Okta provided by src/@types/okta.d.ts (packages not installed)
 import { OktaAuth, AuthState } from '@okta/okta-auth-js';
-// @ts-ignore - Okta packages may not be installed in all environments
 import { Security, LoginCallback } from '@okta/okta-react';
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 

@@ -255,7 +255,7 @@ export function CodeViewer({ document: docMetadata }: CodeViewerProps) {
                   <td className="px-2 py-0.5">
                     <pre
                       className="whitespace-pre-wrap break-all"
-                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(sanitizeHtml(highlightCode(line) || '&nbsp;')) }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeHtml(highlightCode(line) || '&nbsp;') }}
                     />
                   </td>
                 </tr>

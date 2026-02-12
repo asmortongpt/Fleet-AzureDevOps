@@ -57,9 +57,7 @@ export function CompleteGarageSystem() {
       await photoUploadService.uploadPhotos({
         assetId: 'vehicle-123',
         photos: capturedPhotos,
-        onProgress: (progress) => {
-          console.log('Upload progress:', progress);
-        },
+        onProgress: () => {},
       });
 
       // Run AI analysis
@@ -248,9 +246,7 @@ export function CompleteGarageSystem() {
           <VehicleConditionPanel
             condition={mockVehicleCondition}
             serviceHistory={mockServiceHistory}
-            onScheduleService={(type) => {
-              console.log('Schedule service:', type);
-            }}
+            onScheduleService={() => {}}
           />
         )}
       </main>

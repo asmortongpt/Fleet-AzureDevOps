@@ -223,7 +223,6 @@ export default function FleetHub() {
 
     return (
         <div className="flex h-full w-full flex-col cta-hub text-white overflow-hidden">
-            {/* Debug: FLEET HUB NEW RENDER */}
             {/* Fallback Navigation for Automation/Accessibility */}
             <div className="fixed top-0 left-0 z-50 flex gap-2 opacity-0 pointer-events-none">
                 <button className="pointer-events-auto" onClick={() => setActiveTab('work-orders')}>Work Orders</button>

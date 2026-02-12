@@ -363,6 +363,36 @@ export function useReactiveProcurementData() {
   })
 
   // ============================================================================
+  // FETCH BUDGET STATUS
+  // ============================================================================
+
+  const { data: budgetData } = useQuery<{ allocated: number }[], Error>({
+    queryKey: ['procurement-budget-status'],
+    queryFn: async ({ signal }) => {
+      try {
+        const response = await fetch(`${API_BASE}/cost-analysis/budget-status`, {
+          signal,
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+        })
+        if (!response.ok) return []
+        return await response.json()
+      } catch {
+        return []
+      }
+    },
+    staleTime: STALE_TIMES.CONTRACTS,
+    gcTime: CACHE_TIME,
+    retry: 1,
+  })
+
+  // Calculate total budget from budget allocations
+  const budgetTotal = useMemo(() => {
+    if (!Array.isArray(budgetData) || budgetData.length === 0) return 0
+    return budgetData.reduce((sum, b) => sum + Number(b.allocated || 0), 0)
+  }, [budgetData])
+
+  // ============================================================================
   // MEMOIZED METRICS CALCULATIONS
   // ============================================================================
 
@@ -397,8 +427,6 @@ export function useReactiveProcurementData() {
       .filter((po) => isCurrentMonth(po.createdAt))
       .reduce((sum, po) => sum + po.totalAmount, 0)
 
-    // TODO: Get budget from backend API
-    const budgetTotal = 100000
     const budgetUsed = monthlySpend
 
     return {
@@ -460,18 +488,27 @@ export function useReactiveProcurementData() {
   }, [vendors])
 
   /**
-   * Monthly spend trend - memoized (last 6 months)
-   * TODO: Replace with real API data
+   * Monthly spend trend - derived from real purchase order data (last 6 months)
    */
   const monthlySpendTrend = useMemo<TrendDataPoint[]>(() => {
-    const months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const baseSpend = [68500, 72100, 65800, 78300, 82400]
+    const now = new Date()
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    const result: TrendDataPoint[] = []
 
-    return months.map((month, index) => ({
-      name: month,
-      spend: index < baseSpend.length ? baseSpend[index] : metrics.monthlySpend,
-    }))
-  }, [metrics.monthlySpend])
+    for (let i = 5; i >= 0; i--) {
+      const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const monthKey = `${targetDate.getFullYear()}-${String(targetDate.getMonth() + 1).padStart(2, '0')}`
+      const monthSpend = purchaseOrders
+        .filter((po) => {
+          const poDate = new Date(po.createdAt)
+          return `${poDate.getFullYear()}-${String(poDate.getMonth() + 1).padStart(2, '0')}` === monthKey
+        })
+        .reduce((sum, po) => sum + po.totalAmount, 0)
+      result.push({ name: monthNames[targetDate.getMonth()], spend: monthSpend })
+    }
+
+    return result
+  }, [purchaseOrders])
 
   // ============================================================================
   // MEMOIZED FILTERED DATA
