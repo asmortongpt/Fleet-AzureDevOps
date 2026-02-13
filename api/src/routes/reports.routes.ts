@@ -23,6 +23,7 @@ import { body, validationResult } from 'express-validator';
 import { pool } from '../db/connection';
 import { authenticateJWT } from '../middleware/auth';
 import { multiLLMOrchestrator } from '../services/multi-llm-orchestrator.service';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -77,7 +78,7 @@ router.get(
         }))
       })
     } catch (error) {
-      console.error('Get report templates error:', error)
+      logger.error('Get report templates error:', error)
       res.status(500).json({ error: 'Failed to load report templates' })
     }
   }
@@ -115,7 +116,7 @@ router.get(
         }))
       })
     } catch (error) {
-      console.error('Get scheduled reports error:', error)
+      logger.error('Get scheduled reports error:', error)
       res.status(500).json({ error: 'Failed to load scheduled reports' })
     }
   }
@@ -181,7 +182,7 @@ router.post(
         }
       });
     } catch (error) {
-      console.error('Create report schedule error:', error);
+      logger.error('Create report schedule error:', error);
       res.status(500).json({ error: 'Failed to create report schedule' });
     }
   }
@@ -221,7 +222,7 @@ router.get(
         }))
       })
     } catch (error) {
-      console.error('Get report history error:', error)
+      logger.error('Get report history error:', error)
       res.status(500).json({ error: 'Failed to load report history' })
     }
   }
@@ -251,7 +252,7 @@ router.get(
 
       res.json(result.rows[0].definition)
     } catch (error) {
-      console.error('Get report definition error:', error)
+      logger.error('Get report definition error:', error)
       res.status(500).json({ error: 'Failed to load report definition' })
     }
   }
@@ -327,7 +328,7 @@ router.post(
         }
       });
     } catch (error) {
-      console.error('Report execution error:', error);
+      logger.error('Report execution error:', error);
       return res.status(500).json({ error: 'Failed to execute report' });
     }
   }
@@ -381,7 +382,7 @@ router.post(
 
       return res.json(result);
     } catch (error) {
-      console.error('AI generation error:', error);
+      logger.error('AI generation error:', error);
       return res.status(500).json({ error: 'Failed to generate report' });
     }
   }
@@ -441,7 +442,7 @@ router.post(
         reportData: null // Would be populated if chat generates data
       });
     } catch (error) {
-      console.error('Chat error:', error);
+      logger.error('Chat error:', error);
       return res.status(500).json({ error: 'Chat failed' });
     }
   }
@@ -517,7 +518,7 @@ router.post(
 
       return res.send(buffer);
     } catch (error) {
-      console.error('Export error:', error);
+      logger.error('Export error:', error);
       return res.status(500).json({ error: 'Export failed' });
     }
   }
@@ -553,7 +554,7 @@ router.post(
 
       return res.json({ reportId });
     } catch (error) {
-      console.error('Save custom report error:', error);
+      logger.error('Save custom report error:', error);
       return res.status(500).json({ error: 'Failed to save report' });
     }
   }
@@ -575,7 +576,7 @@ router.get(
 
       return res.json({ reports });
     } catch (error) {
-      console.error('Get custom reports error:', error);
+      logger.error('Get custom reports error:', error);
       return res.status(500).json({ error: 'Failed to load custom reports' });
     }
   }

@@ -9,6 +9,7 @@ import { Request, Response, NextFunction } from 'express';
 import { permissionEngine } from '../permissions/engine';
 import { User } from '../permissions/types';
 import { auditService } from '../services/auditService';
+import { logger } from '../utils/logger';
 
 /**
  * Require user to have access to a specific module
@@ -54,7 +55,7 @@ export function requireModule(moduleName: string) {
 
       next();
     } catch (error) {
-      console.error('Error in requireModule middleware:', error);
+      logger.error('Error in requireModule middleware:', error);
       res.status(500).json({
         error: 'Internal Server Error',
         message: 'Failed to check module permission'
@@ -112,7 +113,7 @@ export function requireAction(actionName: string, resourceGetter?: (req: Request
 
       next();
     } catch (error) {
-      console.error('Error in requireAction middleware:', error);
+      logger.error('Error in requireAction middleware:', error);
       res.status(500).json({
         error: 'Internal Server Error',
         message: 'Failed to check action permission'
@@ -165,7 +166,7 @@ export function filterResponse(resourceType: string) {
             return originalJson(filteredData);
           })
           .catch(error => {
-            console.error('Error filtering response:', error);
+            logger.error('Error filtering response:', error);
             return originalJson(data); // Fail open - return original data
           });
 
@@ -174,7 +175,7 @@ export function filterResponse(resourceType: string) {
 
       next();
     } catch (error) {
-      console.error('Error in filterResponse middleware:', error);
+      logger.error('Error in filterResponse middleware:', error);
       next();
     }
   };
@@ -202,7 +203,7 @@ export async function attachPermissions(req: Request, res: Response, next: NextF
 
     next();
   } catch (error) {
-    console.error('Error in attachPermissions middleware:', error);
+    logger.error('Error in attachPermissions middleware:', error);
     next(); // Don't block request if permission attachment fails
   }
 }
@@ -236,7 +237,7 @@ export function requireRole(...roles: string[]) {
           requiredRoles: roles,
           userRoles: user.roles
         }
-      }).catch(console.error);
+      }).catch(logger.error);
 
       return res.status(403).json({
         error: 'Forbidden',
@@ -286,7 +287,7 @@ export async function applyRecordFilters(
 
     next();
   } catch (error) {
-    console.error('Error applying record filters:', error);
+    logger.error('Error applying record filters:', error);
     next(); // Don't block request
   }
 }

@@ -298,7 +298,7 @@ router.post(
 
         // Alert if large increase
         if (ocrResult.reading - lastReading > 1000) {
-          console.warn(
+          logger.warn(
             `Large odometer increase for vehicle ${validatedData.vehicleId}: ${ocrResult.reading - lastReading} ${ocrResult.unit}`
           );
         }

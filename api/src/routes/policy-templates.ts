@@ -6,6 +6,7 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
@@ -94,7 +95,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy templates error:', error)
+      logger.error('Get policy templates error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -153,7 +154,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get policy template error:', error)
+      logger.error('Get policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -181,7 +182,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy template error:', error)
+      logger.error('Create policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -212,7 +213,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Update policy template error:', error)
+      logger.error('Update policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -242,7 +243,7 @@ router.get(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error('Get policy acknowledgments error:', error)
+      logger.error('Get policy acknowledgments error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -302,7 +303,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy acknowledgment error:', error)
+      logger.error('Create policy acknowledgment error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -344,7 +345,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get employee compliance error:', error)
+      logger.error('Get employee compliance error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -418,7 +419,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy violations error:', error)
+      logger.error('Get policy violations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -446,7 +447,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy violation error:', error)
+      logger.error('Create policy violation error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -502,7 +503,7 @@ router.delete(
 
       res.json({ message: 'Policy template deleted successfully', policy: result.rows[0] })
     } catch (error) {
-      console.error('Delete policy template error:', error)
+      logger.error('Delete policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -539,7 +540,7 @@ router.post(
         policy: result.rows[0]
       })
     } catch (error) {
-      console.error('Activate policy template error:', error)
+      logger.error('Activate policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -572,7 +573,7 @@ router.post(
         policy: result.rows[0]
       })
     } catch (error) {
-      console.error('Deactivate policy template error:', error)
+      logger.error('Deactivate policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -618,7 +619,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy violations error:', error)
+      logger.error('Get policy violations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -734,7 +735,7 @@ router.post(
         evaluation: evaluationResult
       })
     } catch (error) {
-      console.error('Execute policy template error:', error)
+      logger.error('Execute policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -788,7 +789,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error('Get policy compliance audits error:', error)
+      logger.error('Get policy compliance audits error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -817,7 +818,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error('Create policy compliance audit error:', error)
+      logger.error('Create policy compliance audit error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -875,7 +876,7 @@ router.get(
         violations: violationsResult.rows
       })
     } catch (error) {
-      console.error('Get policy templates dashboard error:', error)
+      logger.error('Get policy templates dashboard error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

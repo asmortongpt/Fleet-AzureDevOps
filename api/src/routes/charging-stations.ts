@@ -6,6 +6,7 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 
@@ -65,7 +66,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get charging-stations error:`, error)
+      logger.error(`Get charging-stations error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -110,7 +111,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get charging-stations error:', error)
+      logger.error('Get charging-stations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -137,7 +138,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create charging-stations error:`, error)
+      logger.error(`Create charging-stations error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -164,7 +165,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update charging-stations error:`, error)
+      logger.error(`Update charging-stations error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -188,7 +189,7 @@ router.delete(
 
       res.json({ message: 'ChargingStations deleted successfully' })
     } catch (error) {
-      console.error('Delete charging-stations error:', error)
+      logger.error('Delete charging-stations error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

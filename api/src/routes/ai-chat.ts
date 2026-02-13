@@ -20,6 +20,7 @@ import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import vectorSearchService from '../services/VectorSearchService'
 import { getErrorMessage } from '../utils/error-handler'
+import { logger } from '../utils/logger'
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -79,7 +80,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Create session error:', error)
+      logger.error('Create session error:', error)
       res.status(500).json({ error: 'Failed to create session', message: getErrorMessage(error) })
     }
   }
@@ -116,7 +117,7 @@ router.get(
         sessions: result.rows,
       })
     } catch (error: any) {
-      console.error('Get sessions error:', error)
+      logger.error('Get sessions error:', error)
       res.status(500).json({ error: 'Failed to get sessions', message: getErrorMessage(error) })
     }
   }
@@ -162,7 +163,7 @@ router.get(
         messages: messagesResult.rows,
       })
     } catch (error: any) {
-      console.error('Get session error:', error)
+      logger.error('Get session error:', error)
       res.status(500).json({ error: 'Failed to get session', message: getErrorMessage(error) })
     }
   }
@@ -195,7 +196,7 @@ router.delete(
 
       res.json({ success: true, message: 'Session deleted' })
     } catch (error: any) {
-      console.error('Delete session error:', error)
+      logger.error('Delete session error:', error)
       res.status(500).json({ error: 'Failed to delete session', message: getErrorMessage(error) })
     }
   }
@@ -397,7 +398,7 @@ router.post(
       if (error.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
-      console.error('Chat error:', error)
+      logger.error('Chat error:', error)
       res.status(500).json({ error: 'Chat failed', message: getErrorMessage(error) })
     }
   }
@@ -569,7 +570,7 @@ router.post(
 
       res.end()
     } catch (error: any) {
-      console.error('Streaming chat error:', error)
+      logger.error('Streaming chat error:', error)
       res.write(`data: ${JSON.stringify({ error: getErrorMessage(error) })}\n\n`)
       res.end()
     }
@@ -608,7 +609,7 @@ router.get(
 
       res.json({ suggestions })
     } catch (error: any) {
-      console.error('Suggestions error:', error)
+      logger.error('Suggestions error:', error)
       res.status(500).json({ error: 'Failed to get suggestions' })
     }
   }

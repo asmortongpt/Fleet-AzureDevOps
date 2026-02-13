@@ -8,6 +8,7 @@
 import { Router } from 'express'
 
 import { configurationService } from '../../services/configuration/configuration-service'
+import { logger } from '../../utils/logger'
 import type { PolicyRule } from '../../services/configuration/types'
 import { authenticateJWT } from '../middleware/auth'
 
@@ -58,7 +59,7 @@ router.get('/config', requireCTAOwner, async (req, res) => {
       }
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error fetching configs:', error)
+    logger.error('[Configuration API] Error fetching configs:', error)
     return res.status(500).json({
       error: 'Failed to fetch configurations',
       message: error.message
@@ -87,7 +88,7 @@ router.get('/config/:key', requireCTAOwner, async (req, res) => {
       data: config
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error fetching config:', error)
+    logger.error('[Configuration API] Error fetching config:', error)
     return res.status(500).json({
       error: 'Failed to fetch configuration',
       message: error.message
@@ -122,7 +123,7 @@ router.put('/config/:key', requireCTAOwner, async (req, res) => {
       message: `Configuration "${key}" updated successfully`
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error updating config:', error)
+    logger.error('[Configuration API] Error updating config:', error)
     return res.status(400).json({
       error: 'Failed to update configuration',
       message: error.message
@@ -146,7 +147,7 @@ router.post('/config/:changeId/rollback', requireCTAOwner, async (req, res) => {
       message: 'Configuration rolled back successfully'
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error rolling back config:', error)
+    logger.error('[Configuration API] Error rolling back config:', error)
     return res.status(400).json({
       error: 'Failed to rollback configuration',
       message: error.message
@@ -180,7 +181,7 @@ router.post('/config/profiles', requireCTAOwner, async (req, res) => {
       message: 'Configuration profile created successfully'
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error creating profile:', error)
+    logger.error('[Configuration API] Error creating profile:', error)
     return res.status(400).json({
       error: 'Failed to create profile',
       message: error.message
@@ -204,7 +205,7 @@ router.post('/config/profiles/:profileId/apply', requireCTAOwner, async (req, re
       message: 'Configuration profile applied successfully'
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error applying profile:', error)
+    logger.error('[Configuration API] Error applying profile:', error)
     return res.status(400).json({
       error: 'Failed to apply profile',
       message: error.message
@@ -239,7 +240,7 @@ router.post('/config/setup/start', requireCTAOwner, async (req, res) => {
       message: 'Initial setup wizard started'
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error starting setup:', error)
+    logger.error('[Configuration API] Error starting setup:', error)
     return res.status(400).json({
       error: 'Failed to start setup',
       message: error.message
@@ -263,7 +264,7 @@ router.post('/config/setup/steps/:stepId/complete', requireCTAOwner, async (req,
       message: 'Setup step completed successfully'
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error completing setup step:', error)
+    logger.error('[Configuration API] Error completing setup step:', error)
     return res.status(400).json({
       error: 'Failed to complete setup step',
       message: error.message
@@ -298,7 +299,7 @@ router.post('/config/apply-policy', requireCTAOwner, async (req, res) => {
       message: `Policy rule "${policyRule.name}" applied successfully`
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error applying policy:', error)
+    logger.error('[Configuration API] Error applying policy:', error)
     return res.status(400).json({
       error: 'Failed to apply policy rule',
       message: error.message
@@ -333,7 +334,7 @@ router.get('/config/history', requireCTAOwner, async (req, res) => {
       }
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error fetching history:', error)
+    logger.error('[Configuration API] Error fetching history:', error)
     return res.status(500).json({
       error: 'Failed to fetch change history',
       message: error.message
@@ -359,7 +360,7 @@ router.get('/config/export', requireCTAOwner, async (req, res) => {
       exportedAt: new Date().toISOString()
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error exporting config:', error)
+    logger.error('[Configuration API] Error exporting config:', error)
     return res.status(500).json({
       error: 'Failed to export configuration',
       message: error.message
@@ -399,7 +400,7 @@ router.get('/config/stats', requireCTAOwner, async (req, res) => {
       data: stats
     })
   } catch (error: any) {
-    console.error('[Configuration API] Error fetching stats:', error)
+    logger.error('[Configuration API] Error fetching stats:', error)
     return res.status(500).json({
       error: 'Failed to fetch statistics',
       message: error.message

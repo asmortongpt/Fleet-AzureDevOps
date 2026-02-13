@@ -17,6 +17,8 @@
 
 import { CorsOptions, CorsOptionsDelegate } from 'cors'
 
+import { logger } from '../utils/logger'
+
 /**
  * Interface for CORS rejection log entries
  */
@@ -74,8 +76,8 @@ function parseAllowedOrigins(): string[] {
 
   if (!corsOrigin) {
     if (isProduction()) {
-      console.warn('[CORS] WARNING: No CORS_ORIGIN configured in production environment')
-      console.warn('[CORS] Set CORS_ORIGIN environment variable with comma-separated origins')
+      logger.warn('[CORS] WARNING: No CORS_ORIGIN configured in production environment')
+      logger.warn('[CORS] Set CORS_ORIGIN environment variable with comma-separated origins')
     }
     return []
   }
@@ -90,9 +92,9 @@ function parseAllowedOrigins(): string[] {
   if (isProduction()) {
     const invalidOrigins = origins.filter(origin => !isValidProductionOrigin(origin))
     if (invalidOrigins.length > 0) {
-      console.error(`[CORS] SECURITY ERROR: Invalid production origins detected:`)
+      logger.error(`[CORS] SECURITY ERROR: Invalid production origins detected:`)
       invalidOrigins.forEach(origin => {
-        console.error(`[CORS]   - ${origin}: Production origins must use HTTPS`)
+        logger.error(`[CORS]   - ${origin}: Production origins must use HTTPS`)
       })
       // Filter out invalid origins
       return origins.filter(origin => isValidProductionOrigin(origin))
@@ -111,7 +113,7 @@ function isValidProductionOrigin(origin: string): boolean {
     const url = new URL(origin)
     // WARN but allow HTTP for flexibility (e.g. testing on IP address)
     if (url.protocol === 'http:') {
-      console.warn(`[CORS] WARNING: Allowing HTTP origin in production: ${origin}`)
+      logger.warn(`[CORS] WARNING: Allowing HTTP origin in production: ${origin}`)
       return true
     }
     return url.protocol === 'https:'
@@ -195,13 +197,13 @@ function logCorsRejection(
   }
 
   // Log in a structured format for log aggregation
-  console.warn(`[CORS REJECTED] ${JSON.stringify(logEntry)}`)
+  logger.warn(`[CORS REJECTED] ${JSON.stringify(logEntry)}`)
 
   // Additional security logging for production
   if (isProduction()) {
     // In production, you might want to send this to a SIEM or security monitoring system
     // For now, we log with a security prefix for easier filtering
-    console.warn(`[SECURITY] CORS rejection: origin=${origin}, method=${method}, path=${path}`)
+    logger.warn(`[SECURITY] CORS rejection: origin=${origin}, method=${method}, path=${path}`)
   }
 }
 
@@ -264,21 +266,21 @@ export function getCorsConfig(): CorsOptionsDelegate<any> {
   const allowedOrigins = parseAllowedOrigins()
 
   // Log configuration at startup
-  console.log('[CORS] Configuration initialized:')
-  console.log(`[CORS]   Environment: ${process.env.NODE_ENV || 'development'}`)
-  console.log(`[CORS]   Configured origins: ${allowedOrigins.length}`)
+  logger.info('[CORS] Configuration initialized:')
+  logger.info(`[CORS]   Environment: ${process.env.NODE_ENV || 'development'}`)
+  logger.info(`[CORS]   Configured origins: ${allowedOrigins.length}`)
 
   if (allowedOrigins.length > 0) {
     allowedOrigins.forEach(origin => {
-      console.log(`[CORS]     - ${origin}`)
+      logger.info(`[CORS]     - ${origin}`)
     })
   }
 
   if (isDevelopment()) {
-    console.log(`[CORS]   Development mode: localhost origins allowed`)
+    logger.info(`[CORS]   Development mode: localhost origins allowed`)
   } else {
-    console.log('[CORS]   Production mode: strict origin validation enabled')
-    console.log('[CORS]   Production mode: HTTPS enforcement enabled')
+    logger.info('[CORS]   Production mode: strict origin validation enabled')
+    logger.info('[CORS]   Production mode: HTTPS enforcement enabled')
   }
 
   return createCorsOptionsDelegate(allowedOrigins)
@@ -308,8 +310,8 @@ export function validateCorsConfiguration(): void {
   // Production validation
   if (nodeEnv === 'production') {
     if (!corsOrigin) {
-      console.error('[CORS] FATAL: CORS_ORIGIN must be set in production')
-      console.error('[CORS] Set CORS_ORIGIN=https://your-frontend-domain.com')
+      logger.error('[CORS] FATAL: CORS_ORIGIN must be set in production')
+      logger.error('[CORS] Set CORS_ORIGIN=https://your-frontend-domain.com')
       throw new Error('CORS_ORIGIN required in production')
     }
 
@@ -328,35 +330,35 @@ export function validateCorsConfiguration(): void {
     })
 
     if (httpOrigins.length > 0) {
-      console.warn(`[CORS] WARNING: HTTP origins detected in production configuration`)
-      console.warn(`[CORS] The following origins are using HTTP:`)
-      httpOrigins.forEach(o => console.warn(`[CORS]   - ${o}`))
+      logger.warn(`[CORS] WARNING: HTTP origins detected in production configuration`)
+      logger.warn(`[CORS] The following origins are using HTTP:`)
+      httpOrigins.forEach(o => logger.warn(`[CORS]   - ${o}`))
       // Do not throw error, just warn
     }
 
     // Check for wildcard patterns
     if (origins.some(o => o.includes('*'))) {
-      console.error('[CORS] FATAL: Wildcard origins not allowed in production')
-      console.error('[CORS] Use exact origin matching only')
+      logger.error('[CORS] FATAL: Wildcard origins not allowed in production')
+      logger.error('[CORS] Use exact origin matching only')
       throw new Error('Wildcard CORS origins not allowed in production')
     }
 
-    console.log('[CORS] Production configuration validated successfully')
+    logger.info('[CORS] Production configuration validated successfully')
   }
 
   // Staging validation (similar to production but allows warnings)
   if (nodeEnv === 'staging') {
     if (!corsOrigin) {
-      console.warn('[CORS] WARNING: CORS_ORIGIN should be set in staging')
+      logger.warn('[CORS] WARNING: CORS_ORIGIN should be set in staging')
     }
-    console.log('[CORS] Staging configuration validated')
+    logger.info('[CORS] Staging configuration validated')
   }
 
   // Development info
   if (nodeEnv === 'development' || !nodeEnv) {
-    console.log('[CORS] Development mode: relaxed CORS validation')
+    logger.info('[CORS] Development mode: relaxed CORS validation')
     if (corsOrigin) {
-      console.log(`[CORS] Additional origins configured: ${corsOrigin}`)
+      logger.info(`[CORS] Additional origins configured: ${corsOrigin}`)
     }
   }
 }

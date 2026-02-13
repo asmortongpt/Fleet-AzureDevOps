@@ -7,6 +7,8 @@ import helmet from 'helmet';
 import { JSDOM } from 'jsdom';
 import jwt from 'jsonwebtoken';
 
+import { logger } from '../utils/logger';
+
 // Security headers middleware
 export const securityHeaders = helmet({
   contentSecurityPolicy: {
@@ -140,7 +142,7 @@ export const requestLogger = (req: AuthenticatedRequest, res: Response, next: Ne
   const originalSend = res.send;
   res.send = function(body) {
     const duration = Date.now() - start;
-    console.log({
+    logger.info({
       requestId,
       method: req.method,
       url: req.url,
@@ -229,7 +231,7 @@ export const authenticateToken = async (req: AuthenticatedRequest, res: Response
 
     return next();
   } catch (error) {
-    console.error('Token validation error:', error);
+    logger.error('Token validation error:', error);
     return res.status(403).json({ error: 'Invalid or expired token' });
   }
 };
@@ -337,7 +339,7 @@ export const auditLogger = (action: string) => {
     };
 
     // In production, send to secure audit service
-    console.log('AUDIT:', auditEntry);
+    logger.info('AUDIT:', auditEntry);
 
     return next();
   };

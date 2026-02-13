@@ -99,6 +99,7 @@ app.get('/api/auth/me', function (req: Request, res: Response) {
 });
 
 // Define next for the logout error handler since it wasn't in scope
-const next = (err: any) => console.error(err);
+import { logger } from '../../utils/logger';
+const next = (err: any) => logger.error('Logout error', { error: err });
 
 export default app;

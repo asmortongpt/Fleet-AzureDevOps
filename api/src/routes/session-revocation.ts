@@ -13,6 +13,7 @@
  * - Comprehensive audit logging for all revocations
  * - Token validation to prevent arbitrary revocations
  *
+ * @module routes/session-revocation
  * Implementation Notes:
  * - Uses PostgreSQL revoked_tokens table (CREATE TABLE IF NOT EXISTS on startup)
  * - Tokens are stored as SHA-256 hashes (never plaintext)
@@ -30,6 +31,7 @@ import { asyncHandler } from '../middleware/async-handler'
 import { createAuditLog } from '../middleware/audit'
 import { authenticateJWT, authorize, AuthRequest, setCheckRevoked } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
+import { logger } from '../utils/logger'
 
 const router = express.Router()
 
@@ -61,7 +63,7 @@ void pool.query(`
     CREATE INDEX IF NOT EXISTS idx_revoked_tokens_expires ON revoked_tokens(expires_at);
   `)
 }).then(() => {
-  console.log('[JWT_BLACKLIST] revoked_tokens table initialized')
+  logger.info('[JWT_BLACKLIST] revoked_tokens table initialized')
 }).catch((err) => {
   console.error('[JWT_BLACKLIST] Failed to initialize revoked_tokens table:', err)
 })
@@ -78,7 +80,7 @@ setInterval(async () => {
       `DELETE FROM revoked_tokens WHERE expires_at < NOW()`
     )
     if (result.rowCount && result.rowCount > 0) {
-      console.log(`[JWT_BLACKLIST] Cleaned ${result.rowCount} expired tokens from blacklist`)
+      logger.info(`[JWT_BLACKLIST] Cleaned ${result.rowCount} expired tokens from blacklist`)
     }
   } catch (err) {
     console.error('[JWT_BLACKLIST] Cleanup error:', err)
@@ -119,7 +121,7 @@ export async function checkRevoked(req: AuthRequest, res: Response, next: NextFu
 
     if (result.rows.length > 0) {
       const expiry = result.rows[0].expires_at
-      console.log(`[JWT_BLACKLIST] Blocked revoked token - expires at ${new Date(expiry).toISOString()}`)
+      logger.info(`[JWT_BLACKLIST] Blocked revoked token - expires at ${new Date(expiry).toISOString()}`)
       return res.status(401).json({
         error: 'Token has been revoked',
         code: 'TOKEN_REVOKED',
@@ -279,7 +281,7 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
     const sizeResult = await pool.query(`SELECT COUNT(*) as cnt FROM revoked_tokens WHERE expires_at > NOW()`)
     const blacklistSize = parseInt(sizeResult.rows[0]?.cnt || '0', 10)
 
-    console.log(`[JWT_BLACKLIST] Token revoked for user ${targetEmail} - blacklist size: ${blacklistSize}`)
+    logger.info(`[JWT_BLACKLIST] Token revoked for user ${targetEmail} - blacklist size: ${blacklistSize}`)
 
     // Audit log for successful revocation
     await createAuditLog(

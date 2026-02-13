@@ -9,6 +9,7 @@ import { requirePermission } from '../middleware/permissions';
 import { validate } from '../middleware/validate';
 import { BreakGlassRepository } from '../repositories/BreakGlassRepository';
 import { TYPES } from '../types';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -104,7 +105,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation failed', details: error.issues });
       }
-      console.error('Break-glass request error:', error);
+      logger.error('Break-glass request error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -133,7 +134,7 @@ router.get(
 
       res.json({ data: requests });
     } catch (error) {
-      console.error('List elevation requests error:', error);
+      logger.error('List elevation requests error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -226,7 +227,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation failed', details: error.issues });
       }
-      console.error('Approve elevation error:', error);
+      logger.error('Approve elevation error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -275,7 +276,7 @@ router.post(
 
       res.json({ message: 'Elevation revoked successfully' });
     } catch (error) {
-      console.error('Revoke elevation error:', error);
+      logger.error('Revoke elevation error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -299,7 +300,7 @@ router.get(
 
       res.json({ data: elevations });
     } catch (error) {
-      console.error('Get active elevations error:', error);
+      logger.error('Get active elevations error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -343,7 +344,7 @@ async function notifyApprovers(
 
     await Promise.all(notifications);
   } catch (error) {
-    console.error('Failed to notify approvers:', error);
+    logger.error('Failed to notify approvers:', error);
     // Don't throw - notification failure shouldn't block the request
   }
 }
@@ -364,7 +365,7 @@ export async function expireBreakGlassSessions() {
     // Deactivate expired user_roles
     await breakGlassRepo.deactivateExpiredUserRoles();
   } catch (error) {
-    console.error('Error expiring break-glass sessions:', error);
+    logger.error('Error expiring break-glass sessions:', error);
   }
 }
 

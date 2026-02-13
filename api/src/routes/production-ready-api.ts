@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { db } from '../db/connection';
 import { authenticateJWT } from '../middleware/auth';
 import { schema } from '../schemas/production.schema';
+import { logger } from '../utils/logger';
 
 
 const router = Router();
@@ -138,7 +139,7 @@ const getTenantId = async (reqTenantId?: string): Promise<string> => {
 };
 
 const handleError = (res: Response, error: unknown, defaultMessage: string = 'Internal server error') => {
-  console.error('API Error:', error);
+  logger.error('API Error:', error);
 
   if (error instanceof z.ZodError) {
     return res.status(400).json({

@@ -12,6 +12,7 @@
 
 import { Router, Request, Response } from 'express'
 import pool from '../config/database'
+import { logger } from '../utils/logger'
 
 const router = Router()
 
@@ -124,7 +125,7 @@ router.get('/pm-schedules/:scheduleId', async (req: Request, res: Response) => {
 
     res.json(schedule)
   } catch (error) {
-    console.error('Error fetching PM schedule:', error)
+    logger.error('Error fetching PM schedule:', error)
     res.status(500).json({ error: 'Failed to fetch PM schedule' })
   }
 })
@@ -209,7 +210,7 @@ router.get('/vehicles/:vehicleId/service-history', async (req: Request, res: Res
 
     res.json(records)
   } catch (error) {
-    console.error('Error fetching service history:', error)
+    logger.error('Error fetching service history:', error)
     res.status(500).json({ error: 'Failed to fetch service history' })
   }
 })
@@ -370,7 +371,7 @@ router.get('/repairs/:repairId', async (req: Request, res: Response) => {
 
     res.json(repair)
   } catch (error) {
-    console.error('Error fetching repair:', error)
+    logger.error('Error fetching repair:', error)
     res.status(500).json({ error: 'Failed to fetch repair' })
   }
 })
@@ -563,7 +564,7 @@ router.get('/inspections/:inspectionId', async (req: Request, res: Response) => 
 
     res.json(inspection)
   } catch (error) {
-    console.error('Error fetching inspection:', error)
+    logger.error('Error fetching inspection:', error)
     res.status(500).json({ error: 'Failed to fetch inspection' })
   }
 })
@@ -673,7 +674,7 @@ router.get('/service-records/:serviceRecordId', async (req: Request, res: Respon
 
     res.json(record)
   } catch (error) {
-    console.error('Error fetching service record:', error)
+    logger.error('Error fetching service record:', error)
     res.status(500).json({ error: 'Failed to fetch service record' })
   }
 })
@@ -819,7 +820,7 @@ router.get('/vendors/:vendorId', async (req: Request, res: Response) => {
 
     res.json(vendor)
   } catch (error) {
-    console.error('Error fetching vendor:', error)
+    logger.error('Error fetching vendor:', error)
     res.status(500).json({ error: 'Failed to fetch vendor' })
   }
 })
@@ -998,7 +999,7 @@ router.get('/garage-bays/:bayNumber/work-order', async (req: Request, res: Respo
 
     res.json(workOrder)
   } catch (error) {
-    console.error('Error fetching garage bay work order:', error)
+    logger.error('Error fetching garage bay work order:', error)
     res.status(500).json({ error: 'Failed to fetch garage bay work order' })
   }
 })

@@ -23,6 +23,7 @@ import cors from 'cors';
 import { Request, Response, NextFunction } from 'express';
 
 import { getCorsConfig } from './corsConfig';
+import { logger } from '../utils/logger';
 
 /**
  * Main CORS middleware
@@ -47,7 +48,7 @@ export function setCustomCorsHeaders(req: Request, res: Response, next: NextFunc
 
   // Log for debugging
   if (process.env.NODE_ENV === 'development') {
-    console.log(`[CORS Custom] Request from origin: ${origin || 'none'}`);
+    logger.info(`[CORS Custom] Request from origin: ${origin || 'none'}`);
   }
 
   // Allow credentials
@@ -78,7 +79,7 @@ export function setCustomCorsHeaders(req: Request, res: Response, next: NextFunc
 export function corsErrorHandler(err: Error, req: Request, res: Response, next: NextFunction): void {
   // Check if this is a CORS error
   if (err.message && err.message.includes('CORS')) {
-    console.error(`[CORS ERROR] ${err.message}`, {
+    logger.error(`[CORS ERROR] ${err.message}`, {
       origin: req.headers.origin,
       method: req.method,
       path: req.path,
@@ -106,7 +107,7 @@ export function corsDebugLogger(req: Request, res: Response, next: NextFunction)
     return next();
   }
 
-  console.log('[CORS DEBUG] Request Headers:', {
+  logger.info('[CORS DEBUG] Request Headers:', {
     origin: req.headers.origin,
     referer: req.headers.referer,
     method: req.method,
@@ -118,7 +119,7 @@ export function corsDebugLogger(req: Request, res: Response, next: NextFunction)
   // Log response CORS headers after request completes
   const originalSend = res.send;
   res.send = function (data): Response {
-    console.log('[CORS DEBUG] Response Headers:', {
+    logger.info('[CORS DEBUG] Response Headers:', {
       'access-control-allow-origin': res.getHeader('access-control-allow-origin'),
       'access-control-allow-credentials': res.getHeader('access-control-allow-credentials'),
       'access-control-allow-methods': res.getHeader('access-control-allow-methods'),
@@ -157,7 +158,7 @@ export function applyCorsMiddleware(app: any): void {
   // Add CORS error handler
   app.use(corsErrorHandler);
 
-  console.log('[CORS] Middleware applied successfully');
+  logger.info('[CORS] Middleware applied successfully');
 }
 
 export default {

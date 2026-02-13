@@ -10,6 +10,7 @@ import jwt from 'jsonwebtoken';
 
 import { db } from '../db/connection';
 import { schema } from '../schemas/production.schema';
+import { logger } from '../utils/logger';
 
 
 // ============================================================================
@@ -29,7 +30,11 @@ export interface ProductionTokenPayload {
 // Note: Express Request.user type is extended in auth.middleware.ts
 // to avoid duplicate declarations across middleware files
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+  throw new Error('JWT_SECRET environment variable must be set in production');
+}
+const JWT_SECRET_RESOLVED = JWT_SECRET || 'dev-jwt-secret-' + process.pid;
 const BCRYPT_ROUNDS = 12; // Cost factor for bcrypt (FedRAMP compliant)
 
 // ============================================================================
@@ -45,7 +50,7 @@ export const verifyPassword = async (password: string, hash: string): Promise<bo
 };
 
 export const generateToken = (payload: ProductionTokenPayload): string => {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, JWT_SECRET_RESOLVED, {
     expiresIn: '24h',
     issuer: 'fleet-api',
     audience: 'fleet-app',
@@ -54,7 +59,7 @@ export const generateToken = (payload: ProductionTokenPayload): string => {
 
 export const verifyToken = (token: string): ProductionTokenPayload => {
   try {
-    return jwt.verify(token, JWT_SECRET, {
+    return jwt.verify(token, JWT_SECRET_RESOLVED, {
       issuer: 'fleet-api',
       audience: 'fleet-app',
     }) as ProductionTokenPayload;
@@ -113,7 +118,7 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
+    logger.error('Authentication error:', error);
     res.status(401).json({ error: 'Authentication failed' });
   }
 };
@@ -249,7 +254,7 @@ export const authorize = (permission: string) => {
 
       next();
     } catch (error) {
-      console.error('Authorization error:', error);
+      logger.error('Authorization error:', error);
       res.status(403).json({ error: 'Authorization failed' });
     }
   };
@@ -281,7 +286,7 @@ export const requireRole = (minRole: UserRole) => {
 
       next();
     } catch (error) {
-      console.error('Role check error:', error);
+      logger.error('Role check error:', error);
       res.status(403).json({ error: 'Role verification failed' });
     }
   };
@@ -314,7 +319,7 @@ export const enforceTenantIsolation = async (req: Request, res: Response, next: 
 
     next();
   } catch (error) {
-    console.error('Tenant isolation error:', error);
+    logger.error('Tenant isolation error:', error);
     res.status(500).json({ error: 'Tenant verification failed' });
   }
 };
@@ -388,7 +393,7 @@ export const loginHandler = async (req: Request, res: Response): Promise<void> =
       },
     });
   } catch (error) {
-    console.error('Login error:', error);
+    logger.error('Login error:', error);
     res.status(500).json({ error: 'Login failed' });
   }
 };
@@ -470,7 +475,7 @@ export const registerHandler = async (req: Request, res: Response): Promise<void
       },
     });
   } catch (error) {
-    console.error('Registration error:', error);
+    logger.error('Registration error:', error);
     res.status(500).json({ error: 'Registration failed' });
   }
 };
@@ -507,7 +512,7 @@ export const profileHandler = async (req: Request, res: Response): Promise<void>
       createdAt: user.createdAt,
     });
   } catch (error) {
-    console.error('Profile fetch error:', error);
+    logger.error('Profile fetch error:', error);
     res.status(500).json({ error: 'Failed to fetch profile' });
   }
 };

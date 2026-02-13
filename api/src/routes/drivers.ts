@@ -9,6 +9,7 @@ import { doubleCsrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 import { applyFieldMasking } from '../utils/fieldMasking'
+import { logger } from '../utils/logger'
 
 
 const router = express.Router()
@@ -132,7 +133,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get drivers error:`, error)
+      logger.error(`Get drivers error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -181,7 +182,7 @@ router.get(
         total: result.rows.length
       })
     } catch (error) {
-      console.error(`Get active drivers error:`, error)
+      logger.error(`Get active drivers error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -242,7 +243,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get driver statistics error:`, error)
+      logger.error(`Get driver statistics error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -296,7 +297,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Get driver error:`, error)
+      logger.error(`Get driver error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -387,7 +388,7 @@ router.get(
 
       res.json(performanceData)
     } catch (error) {
-      console.error(`Get driver performance error:`, error)
+      logger.error(`Get driver performance error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -476,7 +477,7 @@ router.get(
 
       res.json(trips)
     } catch (error) {
-      console.error(`Get driver trips error:`, error)
+      logger.error(`Get driver trips error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -561,7 +562,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid driver data', details: error.issues })
       }
-      console.error('Create driver error:', error)
+      logger.error('Create driver error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -684,7 +685,7 @@ router.put(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid driver data', details: error.issues })
       }
-      console.error('Update driver error:', error)
+      logger.error('Update driver error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -710,7 +711,7 @@ router.delete(
 
       res.json({ message: 'Driver deleted successfully' })
     } catch (error) {
-      console.error('Delete driver error:', error)
+      logger.error('Delete driver error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

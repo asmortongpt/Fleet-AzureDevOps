@@ -37,8 +37,7 @@ import { sentryService } from './monitoring/sentry'
 
 // Core Fleet Management Routes
 import adminJobsRouter from './routes/admin-jobs.routes'
-// DISABLED: import aiInsightsRouter from './routes/ai-insights.routes'
-// DISABLED: import attachmentsRouter from './routes/attachments.routes'
+import announcementsRouter from './routes/announcements'
 import batchRouter from './routes/batch'
 import billingReportsRouter from './routes/billing-reports'
 import breakGlassRouter from './routes/break-glass'
@@ -78,7 +77,6 @@ import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
 import langchainRouter from './routes/langchain.routes'
-// TEMP DISABLED: import alertsRouter from './routes/alerts.routes'
 import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 import analyticsRouter from './routes/analytics'
 import arcgisLayersRouter from './routes/arcgis-layers'
@@ -143,6 +141,7 @@ import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
 import incidentManagementRouter from './routes/incident-management'
 import inspectionsRouter from './routes/inspections-simple'
+import internalTeamsRouter from './routes/internal-teams'
 import hazardZonesRouter from './routes/hazard-zones'
 import invoicesRouter from './routes/invoices'
 import integrationsHealthRouter from './routes/integrations-health'
@@ -164,6 +163,7 @@ import mobileOcrRouter from './routes/mobile-ocr.routes'
 import mobilePhotosRouter from './routes/mobile-photos.routes'
 import mobileTripsRouter from './routes/mobile-trips.routes'
 import monitoringRouter from './routes/monitoring'
+import queryPerformanceRouter from './routes/monitoring/query-performance'
 import obd2EmulatorRouter, { setupOBD2WebSocket } from './routes/obd2-emulator.routes'
 import ocrRouter from './routes/ocr.routes'
 import dispatchRouter from './routes/dispatch.routes'
@@ -176,7 +176,6 @@ import warrantyRecallsRouter from './routes/warranty-recalls'
 import trainingRouter from './routes/training.routes'
 import securityEventsRouter from './routes/security-events'
 import certificationsRouter from './routes/certifications'
-// REMOVED: import performanceRouter from './routes/performance.routes'
 import permissionsRouter from './routes/permissions'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
@@ -214,6 +213,7 @@ import tasksRouter from './routes/tasks'
 import taskManagementRouter from './routes/task-management.routes'
 import teamsRouter from './routes/teams.routes'
 import tenantsRouter from './routes/tenants'
+import systemConnectionsRouter from './routes/system/connections'
 import systemMetricsRouter from './routes/system-metrics'
 import telematicsRouter from './routes/telematics.routes'
 import trafficCamerasRouter from './routes/traffic-cameras'
@@ -256,10 +256,10 @@ import e2eTestRouter from './routes/e2e-test.routes'
 // Job Processing Infrastructure
 import logger from './utils/logger'
 
-console.log('--- SERVER STARTING DEBUG ---')
+logger.info('--- SERVER STARTING DEBUG ---')
 // Initialize Datadog APM FIRST (must be before ALL other imports)
 // TODO: Re-enable when dd-trace package is properly installed
-console.log('Datadog APM disabled')
+logger.info('Datadog APM disabled')
 // TEMP: Disabled telemetry to resolve initialization loop
 // telemetryService.initialize()
 
@@ -269,7 +269,7 @@ console.log('Datadog APM disabled')
 // TEMP: Disabled to resolve initialization loop
 // sentryService.init()
 
-console.log('--- IMPORTS COMPLETED, CREATING APP ---');
+logger.info('--- IMPORTS COMPLETED, CREATING APP ---');
 const app = express()
 const PORT = process.env.PORT || 3000
 
@@ -342,7 +342,7 @@ app.use(telemetryMiddleware)
 // Sets req.user so authenticateJWT middleware skips JWT validation
 // SECURITY: Triple-gated - NODE_ENV + SKIP_AUTH + not production
 if (process.env.NODE_ENV !== 'production' && process.env.SKIP_AUTH === 'true') {
-  console.log('[DEV] Auth bypass middleware enabled - all API requests will use dev user')
+  logger.info('[DEV] Auth bypass middleware enabled - all API requests will use dev user')
   app.use((req: any, _res: any, next: any) => {
     if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/') && !req.path.startsWith('/api/csrf')) {
       req.user = {
@@ -408,6 +408,7 @@ app.use('/api/v1/me', meRouter)
 
 // Core Fleet Management Routes
 app.use('/api/alerts', alertsRouter)
+app.use('/api/announcements', announcementsRouter)
 app.use('/api/vehicles', vehiclesRouter)
 app.use('/api/drivers', driversRouter)
 app.use('/api/fuel-transactions', fuelRouter)
@@ -429,7 +430,6 @@ app.use('/api/purchase-orders', purchaseOrdersRouter)
 app.use('/api/tasks', tasksRouter)
 app.use('/api/task-management', taskManagementRouter)
 app.use('/api/reservations', reservationsRouter)
-// TEMP DISABLED: app.use('/api/hos', hosRouter)  // TODO: Import hosRouter from './routes/hos.routes'
 
 // Asset Management Routes
 app.use('/api/analytics', analyticsRouter)
@@ -440,6 +440,7 @@ app.use('/api/heavy-equipment', heavyEquipmentRouter)
 
 // Dispatch & Communication Routes
 app.use('/api/communication-logs', communicationLogsRouter)
+app.use('/api/internal-teams', internalTeamsRouter)
 app.use('/api/teams', teamsRouter)
 app.use('/api/tenants', tenantsRouter)
 app.use('/api/notifications', notificationsRouter)
@@ -580,15 +581,13 @@ app.use('/api/dashboard', dashboardRouter)
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 app.use('/api/dispatch', dispatchRouter)
-// app.use('/api/demo', demoRouter) // REMOVED: demo routes deleted during mock data cleanup
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)
+app.use('/api/monitoring/query-performance', queryPerformanceRouter)
 app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
 app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
-// TEMP DISABLED: app.use('/api/health', healthStartupRouter) // TODO: Import healthStartupRouter from './routes/health-startup.routes'
 app.use('/api/health-detailed', healthDetailedRouter)
-// REMOVED: app.use('/api/performance', performanceRouter)
 app.use('/api/telemetry', telemetryRouter)
 app.use('/api/security', securityEventsRouter)
 app.use('/api/queue', queueRouter)
@@ -600,7 +599,7 @@ app.use('/api/presence', presenceRouter)
 app.use('/api/storage-admin', storageAdminRouter)
 app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
-// TEMP DISABLED: app.use('/api/reservations', reservationsRouter) // TODO: Import reservationsRouter
+app.use('/api/system', systemConnectionsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
 
 // Medium-Priority Routes (Batch 2)
@@ -627,7 +626,7 @@ app.use('/api/weather', weatherRouter)
 // Never enable by default (even in development) so demos don't accidentally expose these endpoints.
 if (process.env.ENABLE_E2E_ROUTES === 'true' && process.env.NODE_ENV !== 'production') {
   app.use('/api/e2e-test', e2eTestRouter)
-  console.log('⚠️  E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
+  logger.warn('E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
 }
 
 // Route aliases for frontend compatibility
@@ -753,7 +752,7 @@ const initializeJobProcessors = () => {
   logger.info('  - Report queue: ready')
 }
 
-console.log('--- READY TO LISTEN ON PORT ' + PORT + ' ---');
+logger.info('--- READY TO LISTEN ON PORT ' + PORT + ' ---');
 
 let server: any;
 
@@ -768,7 +767,7 @@ async function listenWithRetry(port: number, maxRetries = 10): Promise<any> {
     } catch (err: any) {
       if (err?.code === 'EADDRINUSE' && attempt < maxRetries) {
         const delayMs = 250 + attempt * 250
-        console.warn(`Port ${port} in use; retrying listen in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
+        logger.warn(`Port ${port} in use; retrying listen in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
         await new Promise((r) => setTimeout(r, delayMs))
         continue
       }
@@ -783,9 +782,9 @@ const startServer = async () => {
     // Initialize database connection manager FIRST
     try {
       await initializeConnectionManager();
-      console.log('Database connection manager initialized');
+      logger.info('Database connection manager initialized');
     } catch (error) {
-      console.error('Failed to initialize Connection Manager (Running in Degraded Mode):', error);
+      logger.error('Failed to initialize Connection Manager (Running in Degraded Mode):', error);
     }
 
     server = await listenWithRetry(Number(PORT), 12)
@@ -793,22 +792,22 @@ const startServer = async () => {
     // NOTE: `listenWithRetry()` resolves only after the server is already listening.
     // Registering a `'listening'` handler *after* that can miss the event entirely.
     // Run startup hooks immediately after the server is bound.
-    console.log(`Server running on http://localhost:${PORT}`)
-    console.log(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
-    console.log(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
+    logger.info(`Server running on http://localhost:${PORT}`)
+    logger.info(`Application Insights: ${telemetryService.isActive() ? 'Enabled' : 'Disabled'}`)
+    logger.info(`Sentry: ${process.env.SENTRY_DSN ? 'Enabled' : 'Disabled (no DSN configured)'}`)
+    logger.info(`Environment: ${process.env.NODE_ENV || 'development'}`)
 
     try {
       const { initializeStartupHealthCheck } = await import('./routes/health-startup.routes')
       const healthReport = await initializeStartupHealthCheck()
       if (healthReport) {
-        console.log(`\nStartup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
-        console.log(`View full report: http://localhost:${PORT}/api/health/startup\n`)
+        logger.info(`Startup Health Check: ${healthReport.overallStatus.toUpperCase()}`)
+        logger.info(`View full report: http://localhost:${PORT}/api/health/startup`)
       }
     } catch (error) {
       // Startup health check is optional. Keep startup resilient when the module is
       // absent from the build or disabled in certain deployments.
-      console.warn('Startup health check skipped:', error)
+      logger.warn('Startup health check skipped:', { error })
     }
 
     // ARCHITECTURE FIX: Initialize process-level error handlers
@@ -843,10 +842,10 @@ const startServer = async () => {
       const { collaborationService } = require('./services/collaboration/real-time.service')
       collaborationService.initialize(server)
     } catch (err) {
-      console.error('Failed to initialize Collaboration Service:', err)
+      logger.error('Failed to initialize Collaboration Service:', err)
     }
   } catch (error) {
-    console.error('Failed to start server:', error);
+    logger.error('Failed to start server:', error);
     process.exit(1);
   }
 };
@@ -855,7 +854,7 @@ startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {
-  console.log('SIGTERM signal received: flushing telemetry and closing server')
+  logger.info('SIGTERM signal received: flushing telemetry and closing server')
 
   server.close(async () => {
     // Close Bull queues gracefully
@@ -866,13 +865,13 @@ process.on('SIGTERM', async () => {
       telemetryService.flush(),
       sentryService.flush(5000)
     ])
-    console.log('Server closed gracefully')
+    logger.info('Server closed gracefully')
     process.exit(0)
   })
 })
 
 process.on('SIGINT', async () => {
-  console.log('SIGINT signal received: flushing telemetry and closing server')
+  logger.info('SIGINT signal received: flushing telemetry and closing server')
 
   server.close(async () => {
     // Close Bull queues gracefully
@@ -883,7 +882,7 @@ process.on('SIGINT', async () => {
       telemetryService.flush(),
       sentryService.flush(5000)
     ])
-    console.log('Server closed gracefully')
+    logger.info('Server closed gracefully')
     process.exit(0)
   })
 })

@@ -8,6 +8,7 @@
 import { Router } from 'express'
 
 import { aiService } from '../../services/api-bus'
+import { logger } from '../../utils/logger'
 import type { AICompletionRequest } from '../../services/api-bus'
 import { authenticateJWT } from '../middleware/auth'
 
@@ -60,7 +61,7 @@ router.post('/chat', async (req, res) => {
       },
     })
   } catch (error: any) {
-    console.error('[AI Chat] Error:', error)
+    logger.error('[AI Chat] Error:', error)
     return res.status(500).json({
       error: 'AI completion failed',
       message: error.message,
@@ -102,7 +103,7 @@ router.post('/chat/stream', async (req, res) => {
     res.write('data: [DONE]\n\n')
     res.end()
   } catch (error: any) {
-    console.error('[AI Chat Stream] Error:', error)
+    logger.error('[AI Chat Stream] Error:', error)
     if (!res.headersSent) {
       return res.status(500).json({
         error: 'AI streaming failed',
@@ -129,7 +130,7 @@ router.get('/providers', async (req, res) => {
       },
     })
   } catch (error: any) {
-    console.error('[AI Providers] Error:', error)
+    logger.error('[AI Providers] Error:', error)
     return res.status(500).json({
       error: 'Failed to get provider info',
       message: error.message,
@@ -164,7 +165,7 @@ router.post('/switch-provider', async (req, res) => {
       provider,
     })
   } catch (error: any) {
-    console.error('[AI Switch Provider] Error:', error)
+    logger.error('[AI Switch Provider] Error:', error)
     return res.status(500).json({
       error: 'Failed to switch provider',
       message: error.message,

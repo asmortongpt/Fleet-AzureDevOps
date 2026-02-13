@@ -9,6 +9,7 @@ import {
   ReimbursementStatus
 } from '../types/trip-usage'
 import { getErrorMessage } from '../utils/error-handler'
+import { logger } from '../utils/logger'
 
 
 const router = express.Router()
@@ -175,7 +176,7 @@ router.post(
           : 'Reimbursement request submitted for review'
       })
     } catch (error: any) {
-      console.error('Create reimbursement error:', error)
+      logger.error('Create reimbursement error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to create reimbursement request',
@@ -290,7 +291,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       }
     })
   } catch (error: any) {
-    console.error('List reimbursements error:', error)
+    logger.error('List reimbursements error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement requests',
@@ -344,7 +345,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       data: result.rows[0]
     })
   } catch (error: any) {
-    console.error('Get reimbursement error:', error)
+    logger.error('Get reimbursement error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement request',
@@ -439,7 +440,7 @@ router.patch(
         message: `Reimbursement approved for $${finalApprovedAmount}`
       })
     } catch (error: any) {
-      console.error('Approve reimbursement error:', error)
+      logger.error('Approve reimbursement error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to approve reimbursement request',
@@ -526,7 +527,7 @@ router.patch(
         message: 'Reimbursement request rejected'
       })
     } catch (error: any) {
-      console.error('Reject reimbursement error:', error)
+      logger.error('Reject reimbursement error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to reject reimbursement request',
@@ -616,7 +617,7 @@ router.patch(
         message: `Payment of $${current.approved_amount} processed`
       })
     } catch (error: any) {
-      console.error('Process payment error:', error)
+      logger.error('Process payment error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to process payment',
@@ -666,7 +667,7 @@ router.get(
         summary: statsResult.rows[0]
       })
     } catch (error: any) {
-      console.error('Get pending queue error:', error)
+      logger.error('Get pending queue error:', error)
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve pending reimbursements',
@@ -712,7 +713,7 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
       data: result.rows
     })
   } catch (error: any) {
-    console.error('Get reimbursement summary error:', error)
+    logger.error('Get reimbursement summary error:', error)
     res.status(500).json({
       success: false,
       error: 'Failed to retrieve reimbursement summary',

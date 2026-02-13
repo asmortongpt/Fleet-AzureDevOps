@@ -13,6 +13,7 @@ import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
 import { pool } from '../db'
 import { csrfProtection } from '../middleware/csrf'
 import { telemetryService } from '../services/TelemetryService'
+import { logger } from '../utils/logger'
 import { getVideoDatasetService } from '../services/video-dataset.service'
 import { authenticateJWT } from '../middleware/auth'
 
@@ -41,10 +42,10 @@ async function ensureInitialized(): Promise<void> {
       },
     })
     isInitialized = true
-    console.log('Emulator routes: TelemetryService initialized')
+    logger.info('Emulator routes: TelemetryService initialized')
   } catch (error) {
     // Do not silently fall back to mock/synthetic data: emulator must be DB-backed.
-    console.error('Emulator routes: TelemetryService initialization failed:', error)
+    logger.error('Emulator routes: TelemetryService initialization failed:', error)
     isInitialized = false
     throw error
   }
@@ -1087,7 +1088,7 @@ router.get('/geofences', async (req: Request, res: Response) => {
 
 // Cleanup on process exit
 process.on('SIGINT', async () => {
-  console.log('\nShutting down emulator system...')
+  logger.info('\nShutting down emulator system...')
   if (orchestrator) {
     await orchestrator.shutdown()
   }

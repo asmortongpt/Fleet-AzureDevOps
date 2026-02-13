@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken'
 
 import { pool } from '../db'
 import { createAuditLog } from '../middleware/audit'
+import { logger } from '../utils/logger'
 import { getValidatedFrontendUrl, buildSafeRedirectUrl } from '../utils/redirect-validator'
 
 
@@ -77,10 +78,10 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
 
       if (tenantCheckResult.rows.length > 0) {
         tenantId = tenantCheckResult.rows[0].id
-        console.log(`Using validated tenant_id from state parameter:`, tenantId)
+        logger.info(`Using validated tenant_id from state parameter:`, tenantId)
       } else {
         // Invalid tenant_id provided, fall back to default
-        console.log(`Invalid tenant_id in state parameter:`, state, `- using default`)
+        logger.info(`Invalid tenant_id in state parameter:`, state, `- using default`)
         const defaultTenantResult = await pool.query(
           `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
         )
@@ -94,15 +95,15 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
       const defaultTenantResult = await pool.query(
         `SELECT id FROM tenants ORDER BY created_at LIMIT 1`
       )
-      console.log(`Query result for default tenant:`, defaultTenantResult.rows)
+      logger.info(`Query result for default tenant:`, defaultTenantResult.rows)
       if (!defaultTenantResult.rows[0]?.id) {
         throw new Error(`No tenants found in database`)
       }
       tenantId = defaultTenantResult.rows[0].id
-      console.log('Using default tenant_id from database:', tenantId)
+      logger.info('Using default tenant_id from database:', tenantId)
     }
 
-    console.log('Final VALIDATED tenant_id being used:', tenantId)
+    logger.info('Final VALIDATED tenant_id being used:', tenantId)
 
     // Check if user exists
     const userResult = await pool.query(
@@ -185,7 +186,7 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
     // SECURITY: Generate JWT token with validated secret
     // JWT_SECRET must be set and must be at least 32 characters
     if (!process.env.JWT_SECRET) {
-      console.error('FATAL: JWT_SECRET environment variable is not set')
+      logger.error('FATAL: JWT_SECRET environment variable is not set')
       const safeErrorUrl = buildSafeRedirectUrl('/login', {
         error: 'config_error',
         message: 'Server authentication configuration error'
@@ -194,7 +195,7 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
     }
 
     if (process.env.JWT_SECRET.length < 32) {
-      console.error('FATAL: JWT_SECRET must be at least 32 characters')
+      logger.error('FATAL: JWT_SECRET must be at least 32 characters')
       const safeErrorUrl = buildSafeRedirectUrl('/login', {
         error: 'config_error',
         message: 'Server authentication configuration error'
@@ -241,12 +242,12 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
       const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`)
       res.redirect(safeCallbackUrl)
     } catch (error: any) {
-      console.error(`Frontend URL validation failed:`, error.message)
+      logger.error(`Frontend URL validation failed:`, error.message)
       res.redirect('/login?error=config_error&message=Invalid+frontend+configuration')
     }
 
   } catch (error: any) {
-    console.error('Microsoft OAuth error:', error.response?.data || error.message)
+    logger.error('Microsoft OAuth error:', error.response?.data || error.message)
 
     const errorMessage = error.response?.data?.error_description || error.message || 'Authentication failed'
     const safeErrorUrl = buildSafeRedirectUrl('/login', {
@@ -307,7 +308,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
     res.redirect(authUrl)
   } catch (error: any) {
-    console.error(`Error initiating Microsoft OAuth:`, error.message)
+    logger.error(`Error initiating Microsoft OAuth:`, error.message)
     const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
       error: 'auth_failed',
       message: 'Failed to initiate authentication'
@@ -354,7 +355,7 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
 
     res.redirect(authUrl)
   } catch (error: any) {
-    console.error(`Error initiating Microsoft OAuth:`, error.message)
+    logger.error(`Error initiating Microsoft OAuth:`, error.message)
     const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
       error: 'auth_failed',
       message: 'Failed to initiate authentication'

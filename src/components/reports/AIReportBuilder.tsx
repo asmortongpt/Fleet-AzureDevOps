@@ -85,15 +85,15 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
   }, [generatedReport, onReportCreated]);
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 text-white px-3 py-3">
+      <div className="bg-gradient-to-r from-[#1E3A8A] via-[#1D4ED8] to-[#0F172A] text-white px-3 py-3">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
               onClick={onBack}
-              className="text-white hover:bg-white/20"
+              className="text-white hover:bg-white/15"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
@@ -112,13 +112,13 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 bg-gray-50">
+      <div className="flex-1 overflow-y-auto px-3 py-3 bg-muted/30">
         <div className="max-w-6xl mx-auto space-y-2">
           {/* Input section */}
           {!showPreview && (
             <>
-              <Card className="p-3">
-                <h2 className="text-sm font-semibold text-gray-900 mb-2">
+              <Card className="p-3 bg-card/90 border-border/50">
+                <h2 className="text-sm font-semibold text-foreground mb-2">
                   What report would you like to create?
                 </h2>
                 <Textarea
@@ -133,7 +133,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   }}
                 />
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-700">
+                  <p className="text-xs text-muted-foreground">
                     Press Ctrl+Enter to generate
                   </p>
                   <Button
@@ -142,7 +142,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   >
                     {generating ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        <div className="w-4 h-4 border-2 border-white/80 border-t-transparent rounded-full animate-spin mr-2" />
                         Generating...
                       </>
                     ) : (
@@ -156,8 +156,8 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* Example prompts */}
-              <Card className="p-3">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              <Card className="p-3 bg-card/90 border-border/50">
+                <h3 className="text-sm font-semibold text-muted-foreground mb-3">
                   Example Prompts
                 </h3>
                 <div className="space-y-2">
@@ -165,7 +165,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                     <button
                       key={index}
                       onClick={() => setPrompt(example)}
-                      className="w-full text-left px-2 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors text-sm text-gray-700"
+                      className="w-full text-left px-2 py-3 bg-muted/40 hover:bg-muted/60 rounded-lg transition-colors text-sm text-muted-foreground"
                     >
                       {example}
                     </button>
@@ -174,12 +174,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* How it works */}
-              <Card className="p-3 bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
-                <h3 className="text-sm font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+              <Card className="p-3 bg-[linear-gradient(135deg,rgba(15,23,42,0.6),rgba(30,58,138,0.4))] border-border/50">
+                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
                   How it works
                 </h3>
-                <ul className="space-y-2 text-sm text-indigo-800">
+                <ul className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="font-semibold">1.</span>
                     <span>Describe your report using natural language</span>
@@ -205,7 +205,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
           {showPreview && generatedReport && (
             <>
               <div className="flex items-center justify-between">
-                <h2 className="text-base font-bold text-gray-900">
+                <h2 className="text-base font-bold text-foreground">
                   Generated Report Preview
                 </h2>
                 <div className="flex gap-2">
@@ -227,12 +227,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                 </div>
               </div>
 
-              <Card className="p-3">
+              <Card className="p-3 bg-card/90 border-border/50">
                 <div className="mb-2">
-                  <h3 className="text-sm font-semibold text-gray-900">
+                  <h3 className="text-sm font-semibold text-foreground">
                     {generatedReport.title}
                   </h3>
-                  <p className="text-sm text-slate-700 mt-1">
+                  <p className="text-sm text-muted-foreground mt-1">
                     {generatedReport.description}
                   </p>
                 </div>
@@ -241,12 +241,12 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   {generatedReport.visuals?.map((visual: any, index: number) => (
                     <div
                       key={index}
-                      className="p-2 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+                      className="p-2 bg-muted/40 rounded-lg border-2 border-dashed border-border/50"
                     >
                       <div className="flex items-center justify-between mb-2">
                         <div>
-                          <div className="font-medium text-gray-900">{visual.title}</div>
-                          <div className="text-xs text-gray-700">Type: {visual.type}</div>
+                          <div className="font-medium text-foreground">{visual.title}</div>
+                          <div className="text-xs text-muted-foreground">Type: {visual.type}</div>
                         </div>
                         <Button variant="ghost" size="sm">
                           <Eye className="h-4 w-4 mr-1" />
@@ -254,7 +254,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                         </Button>
                       </div>
                       {visual.measures && (
-                        <div className="text-xs text-slate-700">
+                        <div className="text-xs text-muted-foreground">
                           {visual.measures.length} measures configured
                         </div>
                       )}
@@ -263,11 +263,11 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                 </div>
               </Card>
 
-              <Card className="p-3 bg-green-50 border-green-200">
-                <h3 className="text-sm font-semibold text-green-900 mb-2">
+              <Card className="p-3 bg-emerald-500/10 border-emerald-500/30">
+                <h3 className="text-sm font-semibold text-emerald-200 mb-2">
                   Report Generated Successfully
                 </h3>
-                <p className="text-sm text-green-800">
+                <p className="text-sm text-emerald-100/80">
                   Your report has been generated and is ready to save. You can customize
                   the layout, add more visuals, or save it directly to your account.
                 </p>
@@ -277,11 +277,11 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
 
           {/* Error */}
           {error && (
-            <Card className="p-3 bg-red-50 border-red-200">
-              <h3 className="text-sm font-semibold text-red-900 mb-2">
+            <Card className="p-3 bg-red-500/10 border-red-500/30">
+              <h3 className="text-sm font-semibold text-red-200 mb-2">
                 Generation Failed
               </h3>
-              <p className="text-sm text-red-800">{error}</p>
+              <p className="text-sm text-red-100/80">{error}</p>
             </Card>
           )}
         </div>

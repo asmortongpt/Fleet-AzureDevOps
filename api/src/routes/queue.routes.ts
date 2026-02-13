@@ -45,7 +45,7 @@ const requireAdmin = (req: Request, res: Response, next: any) => {
   }
 
   // Development mode allows through (with warning)
-  console.warn('⚠️  Admin endpoint accessed without authentication in development mode');
+  logger.warn('⚠️  Admin endpoint accessed without authentication in development mode');
   next();
 };
 

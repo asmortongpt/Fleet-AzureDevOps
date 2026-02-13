@@ -21,6 +21,8 @@ import helmet from 'helmet';
 import Redis from 'ioredis';
 import { Pool } from 'pg';
 
+import { logger } from './utils/logger';
+
 // Services
 import { createAuthMiddleware } from './middleware/auth.middleware';
 import { createAuthzMiddleware } from './middleware/authz.middleware';
@@ -157,7 +159,7 @@ export class FleetAPI {
       const start = Date.now();
       res.on('finish', () => {
         const duration = Date.now() - start;
-        console.log(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
+        logger.info(`${req.method} ${req.path} ${res.statusCode} ${duration}ms`);
       });
       next();
     });
@@ -371,52 +373,52 @@ export class FleetAPI {
     try {
       // Connect to Redis
       await this.redis.connect();
-      console.log('✓ Redis connected');
+      logger.info('Redis connected');
 
       // Initialize secrets service
       await this.secretsService.initialize();
-      console.log('✓ Secrets service initialized');
+      logger.info('Secrets service initialized');
 
       // Test database connection
       await this.pool.query('SELECT 1');
-      console.log('✓ Database connected');
+      logger.info('Database connected');
 
       // Start server
       this.app.listen(port, () => {
-        console.log(`✓ Fleet Management API running on port ${port}`);
-        console.log(`  Health: http://localhost:${port}/health`);
-        console.log(`  Environment: ${process.env.NODE_ENV || 'development'}`);
+        logger.info(`Fleet Management API running on port ${port}`);
+        logger.info(`  Health: http://localhost:${port}/health`);
+        logger.info(`  Environment: ${process.env.NODE_ENV || 'development'}`);
       });
 
       // Setup graceful shutdown
       this.setupGracefulShutdown();
     } catch (error) {
-      console.error('Failed to start server:', error);
+      logger.error('Failed to start server:', error);
       process.exit(1);
     }
   }
 
   private setupGracefulShutdown(): void {
     const shutdown = async (signal: string) => {
-      console.log(`\n${signal} received. Starting graceful shutdown...`);
+      logger.info(`${signal} received. Starting graceful shutdown...`);
 
       try {
         // Close Redis
         await this.redis.quit();
-        console.log('✓ Redis connection closed');
+        logger.info('Redis connection closed');
 
         // Close database pool
         await this.pool.end();
-        console.log('✓ Database pool closed');
+        logger.info('Database pool closed');
 
         // Shutdown secrets service
         await this.secretsService.shutdown();
-        console.log('✓ Secrets service shutdown complete');
+        logger.info('Secrets service shutdown complete');
 
-        console.log('✓ Graceful shutdown complete');
+        logger.info('Graceful shutdown complete');
         process.exit(0);
       } catch (error) {
-        console.error('Error during shutdown:', error);
+        logger.error('Error during shutdown:', error);
         process.exit(1);
       }
     };

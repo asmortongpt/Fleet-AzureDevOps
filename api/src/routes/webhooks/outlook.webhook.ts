@@ -18,6 +18,7 @@
 import express, { Request, Response } from 'express'
 
 import pool from '../../config/database'
+import { logger } from '../../utils/logger'
 import { AuthRequest, authenticateJWT } from '../../middleware/auth'
 import { csrfProtection } from '../../middleware/csrf'
 import { requirePermission } from '../../middleware/permissions'
@@ -49,11 +50,11 @@ router.post(
       const notifications = req.body?.value
 
       if (!notifications || !Array.isArray(notifications)) {
-        console.error('❌ Invalid webhook payload structure')
+        logger.error('❌ Invalid webhook payload structure')
         return res.status(400).json({ error: 'Invalid payload structure' })
       }
 
-      console.log(`📧 Received ${notifications.length} Outlook notification(s)`)
+      logger.info(`📧 Received ${notifications.length} Outlook notification(s)`)
 
       // Process notifications asynchronously
       // Return 202 Accepted immediately to avoid timeout
@@ -65,12 +66,12 @@ router.post(
       // Process each notification in the background
       for (const notification of notifications) {
         processNotificationAsync(notification).catch(error => {
-          console.error('Failed to process notification:', error)
+          logger.error('Failed to process notification:', error)
         })
       }
 
     } catch (error: any) {
-      console.error('Outlook webhook error:', error)
+      logger.error('Outlook webhook error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -83,7 +84,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
   try {
     const { changeType, resource, resourceData, subscriptionId, clientState } = notification
 
-    console.log('🔄 Processing Outlook notification:', {
+    logger.info('🔄 Processing Outlook notification:', {
       changeType,
       resource,
       subscriptionId: subscriptionId?.substring(0, 10) + '...'
@@ -104,11 +105,11 @@ async function processNotificationAsync(notification: any): Promise<void> {
         break
 
       default:
-        console.warn('⚠️  Unknown change type:', changeType)
+        logger.warn('⚠️  Unknown change type:', changeType)
     }
 
   } catch (error: any) {
-    console.error('Error processing Outlook notification:', error.message)
+    logger.error('Error processing Outlook notification:', error.message)
 
     // Log error to database for retry
     try {
@@ -127,7 +128,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
         [error.message, notification.subscriptionId, notification.resource]
       )
     } catch (dbError) {
-      console.error('Failed to log error to database:', dbError)
+      logger.error('Failed to log error to database:', dbError)
     }
 
     throw error
@@ -214,10 +215,10 @@ async function handleEmailUpdate(notification: any): Promise<void> {
       ]
     )
 
-    console.log('✅ Outlook email updated:', messageId)
+    logger.info('✅ Outlook email updated:', messageId)
 
   } catch (error: any) {
-    console.error('Failed to handle email update:', error.message)
+    logger.error('Failed to handle email update:', error.message)
     throw error
   }
 }
@@ -254,13 +255,13 @@ async function handleEmailDelete(notification: any): Promise<void> {
     )
 
     if (result.rows.length > 0) {
-      console.log('✅ Outlook email marked as deleted:', messageId)
+      logger.info('✅ Outlook email marked as deleted:', messageId)
     } else {
-      console.warn('⚠️  Email not found for deletion:', messageId)
+      logger.warn('⚠️  Email not found for deletion:', messageId)
     }
 
   } catch (error: any) {
-    console.error('Failed to handle email delete:', error.message)
+    logger.error('Failed to handle email delete:', error.message)
     throw error
   }
 }
@@ -293,7 +294,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error('Failed to list Outlook subscriptions:', error)
+      logger.error('Failed to list Outlook subscriptions:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -320,7 +321,7 @@ router.post(
 
       // Validate user can only create subscriptions for their own tenant
       if (tenantId !== req.user!.tenant_id) {
-        console.warn('Unauthorized tenant access attempt', {
+        logger.warn('Unauthorized tenant access attempt', {
           requestedTenant: tenantId,
           userTenant: req.user!.tenant_id,
           userId: req.user!.id
@@ -348,7 +349,7 @@ router.post(
       })
 
     } catch (error: any) {
-      console.error('Failed to create Outlook subscription:', error)
+      logger.error('Failed to create Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to create subscription',
         details: error.message
@@ -381,7 +382,7 @@ router.delete(
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
-        console.warn('Unauthorized subscription deletion attempt', {
+        logger.warn('Unauthorized subscription deletion attempt', {
           subscriptionId,
           userId: req.user!.id,
           userTenant: req.user!.tenant_id
@@ -399,7 +400,7 @@ router.delete(
       })
 
     } catch (error: any) {
-      console.error('Failed to delete Outlook subscription:', error)
+      logger.error('Failed to delete Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to delete subscription',
         details: error.message
@@ -432,7 +433,7 @@ router.post(
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
-        console.warn('Unauthorized subscription renewal attempt', {
+        logger.warn('Unauthorized subscription renewal attempt', {
           subscriptionId,
           userId: req.user!.id,
           userTenant: req.user!.tenant_id
@@ -450,7 +451,7 @@ router.post(
       })
 
     } catch (error: any) {
-      console.error('Failed to renew Outlook subscription:', error)
+      logger.error('Failed to renew Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to renew subscription',
         details: error.message
@@ -498,7 +499,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error('Failed to fetch webhook events:', error)
+      logger.error('Failed to fetch webhook events:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -607,7 +608,7 @@ router.post(
       })
 
     } catch (error: any) {
-      console.error('Failed to categorize email:', error)
+      logger.error('Failed to categorize email:', error)
       res.status(500).json({
         error: 'Failed to categorize',
         details: error.message
@@ -706,7 +707,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error('Failed to fetch stats:', error)
+      logger.error('Failed to fetch stats:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

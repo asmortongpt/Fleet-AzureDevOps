@@ -1,4 +1,5 @@
 import { Pool, PoolConfig } from 'pg';
+import { logger } from '../utils/logger';
 
 const poolConfig: PoolConfig = {
   max: 20,

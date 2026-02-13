@@ -1,7 +1,8 @@
 import { Car, Plus, PencilSimple, Trash, MapPin, Engine, Speedometer, HeartHalf, Buildings, Lightning } from "@phosphor-icons/react"
 import React, { useState, useMemo } from 'react'
+import toast from 'react-hot-toast'
 
-import { useVehicles, Vehicle } from "@/hooks/useVehicles"
+import { useVehicles, useDeleteVehicle, Vehicle } from "@/hooks/useVehicles"
 
 // StatusChip component following Fleet Design System
 const StatusChip: React.FC<{status: 'active'|'inactive'|'maintenance'|'retired'; label?: string}> = ({status, label}) => {
@@ -26,11 +27,13 @@ const StatusChip: React.FC<{status: 'active'|'inactive'|'maintenance'|'retired';
 export function VehicleManagement() {
   const { data, isLoading } = useVehicles()
   const vehicles = (data || []) as Vehicle[]
+  const deleteVehicleMutation = useDeleteVehicle()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set())
   const [isAddVehicleOpen, setIsAddVehicleOpen] = useState(false)
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null)
+  const [vehicleToDelete, setVehicleToDelete] = useState<Vehicle | null>(null)
 
   // Calculate metrics
   const metrics = useMemo(() => {
@@ -80,8 +83,21 @@ export function VehicleManagement() {
     setEditingVehicle(vehicle)
   }
 
-  const handleDelete = (_vehicle: Vehicle) => {
-    // TODO: Implement delete logic
+  const handleDelete = (vehicle: Vehicle) => {
+    setVehicleToDelete(vehicle)
+  }
+
+  const confirmDelete = async () => {
+    if (!vehicleToDelete) return
+    try {
+      await deleteVehicleMutation.mutateAsync(vehicleToDelete.id)
+      toast.success(`Vehicle ${vehicleToDelete.vehicleNumber} deleted successfully`)
+      setVehicleToDelete(null)
+    } catch (err) {
+      toast.error(
+        err instanceof Error ? err.message : 'Failed to delete vehicle'
+      )
+    }
   }
 
   return (
@@ -754,6 +770,102 @@ export function VehicleManagement() {
                 cursor:'pointer'
               }}>
                 Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Vehicle Confirmation Modal */}
+      {vehicleToDelete && (
+        <div
+          onClick={() => setVehicleToDelete(null)}
+          style={{
+            position:'fixed',
+            top:0,
+            left:0,
+            right:0,
+            bottom:0,
+            background:'rgba(0,0,0,0.85)',
+            zIndex:9999,
+            display:'flex',
+            alignItems:'center',
+            justifyContent:'center',
+            padding:24
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width:'100%',
+              maxWidth:480,
+              background:'var(--bg, #0f172a)',
+              borderRadius:16,
+              overflow:'hidden',
+              border:'1px solid rgba(239,68,68,0.3)'
+            }}
+          >
+            <div style={{
+              padding:'20px 24px',
+              borderBottom:'1px solid rgba(255,255,255,0.08)',
+              background:'rgba(239,68,68,0.05)'
+            }}>
+              <h3 style={{fontSize:18, fontWeight:600, color:'#ef4444'}}>
+                Delete Vehicle
+              </h3>
+            </div>
+            <div style={{padding:24}}>
+              <p style={{color:'var(--text, #f1f5f9)', fontSize:14, marginBottom:8}}>
+                Are you sure you want to delete vehicle <strong>{vehicleToDelete.vehicleNumber}</strong>?
+              </p>
+              <p style={{color:'var(--muted, #94a3b8)', fontSize:13}}>
+                {vehicleToDelete.make} {vehicleToDelete.model} ({vehicleToDelete.year}) &mdash; VIN: {vehicleToDelete.vin}
+              </p>
+              <p style={{color:'#f59e0b', fontSize:12, marginTop:12}}>
+                This action cannot be undone. All associated data will be permanently removed.
+              </p>
+            </div>
+            <div style={{
+              padding:'16px 24px',
+              borderTop:'1px solid rgba(255,255,255,0.08)',
+              background:'rgba(255,255,255,0.02)',
+              display:'flex',
+              justifyContent:'flex-end',
+              gap:12
+            }}>
+              <button
+                onClick={() => setVehicleToDelete(null)}
+                disabled={deleteVehicleMutation.isPending}
+                style={{
+                  padding:'10px 20px',
+                  borderRadius:12,
+                  border:'1px solid rgba(255,255,255,0.08)',
+                  background:'rgba(255,255,255,0.03)',
+                  color:'var(--text, #f1f5f9)',
+                  fontSize:14,
+                  fontWeight:600,
+                  cursor:'pointer',
+                  opacity: deleteVehicleMutation.isPending ? 0.5 : 1
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={deleteVehicleMutation.isPending}
+                style={{
+                  padding:'10px 20px',
+                  borderRadius:12,
+                  border:'1px solid rgba(239,68,68,0.5)',
+                  background:'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(239,68,68,0.15))',
+                  color:'#ef4444',
+                  fontSize:14,
+                  fontWeight:600,
+                  cursor: deleteVehicleMutation.isPending ? 'not-allowed' : 'pointer',
+                  opacity: deleteVehicleMutation.isPending ? 0.7 : 1
+                }}
+              >
+                {deleteVehicleMutation.isPending ? 'Deleting...' : 'Delete Vehicle'}
               </button>
             </div>
           </div>

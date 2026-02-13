@@ -15,6 +15,7 @@ import {
   getCommunicationsQuerySchema,
   createCommunicationTemplateSchema
 } from '../schemas/communications.schema'
+import { logger } from '../utils/logger'
 import { buildInsertClause } from '../utils/sql-safety'
 
 
@@ -116,7 +117,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get communications error:`, error)
+      logger.error(`Get communications error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -176,7 +177,7 @@ router.get(
         attachments: attachmentsResult.rows
       })
     } catch (error) {
-      console.error(`Get communication error:`, error)
+      logger.error(`Get communication error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -235,7 +236,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create communication error:`, error)
+      logger.error(`Create communication error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -271,7 +272,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update communication error:`, error)
+      logger.error(`Update communication error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -312,7 +313,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Link communication to entity error:`, error)
+      logger.error(`Link communication to entity error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -343,7 +344,7 @@ router.delete(
 
       res.json({ message: 'Link deleted successfully' })
     } catch (error) {
-      console.error('Delete communication link error:', error)
+      logger.error('Delete communication link error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -398,7 +399,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get entity communications error:`, error)
+      logger.error(`Get entity communications error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -440,7 +441,7 @@ router.get(
 
       res.json({ data: result.rows })
     } catch (error) {
-      console.error('Get pending follow-ups error:', error)
+      logger.error('Get pending follow-ups error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -483,7 +484,7 @@ router.get(
       const result = await pool.query(query, params)
       res.json({ data: result.rows })
     } catch (error) {
-      console.error(`Get communication templates error:`, error)
+      logger.error(`Get communication templates error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -513,7 +514,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create communication template error:`, error)
+      logger.error(`Create communication template error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -582,7 +583,7 @@ router.get(
         overdue: overdueResult.rows[0]
       })
     } catch (error) {
-      console.error(`Get communications dashboard error:`, error)
+      logger.error(`Get communications dashboard error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }

@@ -3,6 +3,7 @@ import { Pool } from 'pg'
 import * as promClient from 'prom-client'
 
 import { ConnectionError } from '../services/dal/errors'
+import { logger } from '../utils/logger'
 
 dotenv.config()
 
@@ -139,7 +140,7 @@ export class ConnectionManager {
         this.setupPoolEventHandlers(pool, poolType)
         this.pools.set(poolType, pool)
       } catch (error) {
-        console.error(`❌ Failed to create ${poolType} pool:`, error)
+        logger.error(`❌ Failed to create ${poolType} pool:`, error)
       }
     }
   }
@@ -255,11 +256,11 @@ export class ConnectionManager {
    */
   async initialize(): Promise<void> {
     if (this.initialized) {
-      console.warn('Connection manager already initialized')
+      logger.warn('Connection manager already initialized')
       return
     }
 
-    console.log(`Initializing database connection pools...`)
+    logger.info(`Initializing database connection pools...`)
 
     // Verify connections and start health checks
     for (const [poolType, pool] of this.pools.entries()) {
@@ -269,12 +270,12 @@ export class ConnectionManager {
         // Test connection
         await this.testConnection(pool, poolType)
 
-        console.log(`✅ ${poolType} pool initialized (user: ${config.user}, max: ${config.max})`)
+        logger.info(`✅ ${poolType} pool initialized (user: ${config.user}, max: ${config.max})`)
 
         // Start health check monitoring
         this.startHealthCheck(poolType)
       } catch (error) {
-        console.error(`❌ Failed to initialize ${poolType} pool:`, error)
+        logger.error(`❌ Failed to initialize ${poolType} pool:`, error)
 
         // For WEBAPP pool, this is critical - throw error
         if (poolType === PoolType.WEBAPP) {
@@ -282,7 +283,7 @@ export class ConnectionManager {
         }
 
         // For other pools, log warning and continue
-        console.warn(`⚠️  ${poolType} pool not available, falling back to webapp pool`)
+        logger.warn(`⚠️  ${poolType} pool not available, falling back to webapp pool`)
       }
     }
 
@@ -300,7 +301,7 @@ export class ConnectionManager {
       this.updatePoolMetrics()
     }, interval)
 
-    console.log(`[ConnectionManager] Prometheus metrics collection started (interval: ${interval}ms)`)
+    logger.info(`[ConnectionManager] Prometheus metrics collection started (interval: ${interval}ms)`)
   }
 
   /**
@@ -326,7 +327,7 @@ export class ConnectionManager {
 
       // P0-5: Alert on high utilization
       if (utilization > 80) {
-        console.warn(
+        logger.warn(
           `[ConnectionManager] HIGH UTILIZATION WARNING: ${poolType} pool at ${utilization.toFixed(1)}% ` +
           `(${activeCount}/${config.max} connections in use)`
         )
@@ -334,7 +335,7 @@ export class ConnectionManager {
 
       // P0-5: Alert on waiting clients (connection pool exhaustion)
       if (waitingCount > 0) {
-        console.error(
+        logger.error(
           `[ConnectionManager] POOL EXHAUSTION: ${poolType} has ${waitingCount} clients waiting for connections!`
         )
         poolMetrics.connectionErrors.inc({
@@ -345,7 +346,7 @@ export class ConnectionManager {
 
       // P0-5: Alert on near-capacity
       if (waitingCount > 5 || utilization > 90) {
-        console.error(
+        logger.error(
           `[ConnectionManager] CRITICAL: ${poolType} pool near capacity - ` +
           `waiting: ${waitingCount}, utilization: ${utilization.toFixed(1)}%`
         )
@@ -358,7 +359,7 @@ export class ConnectionManager {
    */
   private setupPoolEventHandlers(pool: Pool, poolType: PoolType): void {
     pool.on(`connect`, (client) => {
-      console.log(`[${poolType}] Database connection established`)
+      logger.info(`[${poolType}] Database connection established`)
     })
 
     pool.on(`acquire`, (client) => {
@@ -366,11 +367,11 @@ export class ConnectionManager {
     })
 
     pool.on(`remove`, (client) => {
-      console.log(`[${poolType}] Client removed from pool`)
+      logger.info(`[${poolType}] Client removed from pool`)
     })
 
     pool.on(`error`, (err, client) => {
-      console.error(`[${poolType}] Database pool error:`, err)
+      logger.error(`[${poolType}] Database pool error:`, err)
       // P0-5: Track errors in Prometheus
       poolMetrics.connectionErrors.inc({
         pool_type: poolType,
@@ -386,7 +387,7 @@ export class ConnectionManager {
     try {
       const client = await pool.connect()
       const result = await client.query(`SELECT NOW() as now, current_user, version()`)
-      console.log(`[${poolType}] Connection test successful:`, {
+      logger.info(`[${poolType}] Connection test successful:`, {
         user: result.rows[0].current_user,
         timestamp: result.rows[0].now
       })
@@ -410,7 +411,7 @@ export class ConnectionManager {
     let pool = this.pools.get(poolType)
 
     if (!pool) {
-      console.warn(`Pool ${poolType} not available, falling back to webapp pool`)
+      logger.warn(`Pool ${poolType} not available, falling back to webapp pool`)
       pool = this.pools.get(PoolType.WEBAPP)
     }
 
@@ -473,7 +474,7 @@ export class ConnectionManager {
 
       // P0-5: Warn on slow connection acquisition
       if (acquisitionTime > 1.0) {
-        console.warn(
+        logger.warn(
           `[ConnectionManager] SLOW CONNECTION ACQUISITION: ${poolType} took ${acquisitionTime.toFixed(3)}s ` +
           `(pool stats: total=${pool.totalCount}, idle=${pool.idleCount}, waiting=${pool.waitingCount})`
         )
@@ -507,7 +508,7 @@ export class ConnectionManager {
         client = await pool.connect()
         await client.query(`SELECT 1`)
       } catch (error) {
-        console.error(`[${poolType}] Health check failed:`, error)
+        logger.error(`[${poolType}] Health check failed:`, error)
         // P0-5: Track health check failures
         poolMetrics.healthCheckFailures.inc({ pool_type: poolType })
       } finally {
@@ -515,7 +516,7 @@ export class ConnectionManager {
           try {
             client.release()
           } catch (releaseError) {
-            console.error(`[${poolType}] Error releasing client:`, releaseError)
+            logger.error(`[${poolType}] Error releasing client:`, releaseError)
           }
         }
       }
@@ -615,7 +616,7 @@ export class ConnectionManager {
       client.release()
       return result.rows[0]?.lag_ms || 0
     } catch (error) {
-      console.error('[READ_REPLICA] Failed to check replica lag:', error)
+      logger.error('[READ_REPLICA] Failed to check replica lag:', error)
       return null
     }
   }
@@ -690,7 +691,7 @@ export class ConnectionManager {
    * Close all connection pools
    */
   async closeAll(): Promise<void> {
-    console.log(`Closing all database connection pools...`)
+    logger.info(`Closing all database connection pools...`)
 
     // P0-5: Clear metrics collection interval
     if (this.metricsInterval) {
@@ -710,9 +711,9 @@ export class ConnectionManager {
     for (const [poolType, pool] of this.pools.entries()) {
       closePromises.push(
         pool.end().then(() => {
-          console.log(`✅ ${poolType} pool closed`)
+          logger.info(`✅ ${poolType} pool closed`)
         }).catch((error) => {
-          console.error(`❌ Error closing ${poolType} pool:`, error)
+          logger.error(`❌ Error closing ${poolType} pool:`, error)
         })
       )
     }
@@ -720,7 +721,7 @@ export class ConnectionManager {
     await Promise.all(closePromises)
     this.pools.clear()
     this.initialized = false
-    console.log(`All database pools closed`)
+    logger.info(`All database pools closed`)
   }
 
   /**
@@ -745,7 +746,7 @@ export class ConnectionManager {
    */
   setupGracefulShutdown(): void {
     const shutdown = async () => {
-      console.log(`Received shutdown signal, closing database connections...`)
+      logger.info(`Received shutdown signal, closing database connections...`)
       await this.closeAll()
       process.exit(0)
     }

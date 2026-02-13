@@ -223,34 +223,34 @@ export function AuthCallback() {
             className="h-12 w-auto mb-6 drop-shadow-[0_0_20px_rgba(65,178,227,0.4)] mix-blend-lighten"
           />
           <div className="flex items-center gap-3">
-            <div className="h-px w-6 bg-white/20" />
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40">Secure Synchronization</span>
-            <div className="h-px w-6 bg-white/20" />
+            <div className="h-px w-6 bg-border/50" />
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground">Secure Synchronization</span>
+            <div className="h-px w-6 bg-border/50" />
           </div>
         </div>
 
         {/* LOADING CORE */}
-        <div className="flex flex-col items-center gap-8 glass-premium p-10 rounded-[32px] border-white/5 shadow-2xl">
+        <div className="flex flex-col items-center gap-8 glass-premium p-10 rounded-[32px] border-border/50 shadow-2xl">
           <div className="relative">
             <div
-              className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[#41B2E3] border-b-2 border-l-2 border-white/5 animate-spin"
+              className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[#41B2E3] border-b-2 border-l-2 border-border/50 animate-spin"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+              <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
             </div>
             <div className="absolute -inset-4 bg-blue-500/10 blur-2xl rounded-full" />
           </div>
 
           <div className="flex flex-col items-center gap-2">
-            <h3 className="text-sm font-black text-white uppercase tracking-widest text-shadow-premium">
+            <h3 className="text-sm font-black text-foreground uppercase tracking-widest text-shadow-premium">
               {errorMessage ? 'Authentication Error' : 'Establishing Protocol'}
             </h3>
-            <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em]">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.1em]">
               {errorMessage || 'Verified by Microsoft Azure AD'}
             </p>
           </div>
 
-          <div className="w-48 h-1 bg-white/5 rounded-full overflow-hidden relative">
+          <div className="w-48 h-1 bg-muted/40 rounded-full overflow-hidden relative">
             <div
               className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-[#41B2E3] to-transparent shadow-[0_0_10px_#41B2E3] animate-pulse"
             />
@@ -259,13 +259,13 @@ export function AuthCallback() {
 
         {/* SECURITY FOOTER */}
         <div
-          className="mt-16 flex items-center gap-6 text-white/20"
+          className="mt-16 flex items-center gap-6 text-muted-foreground"
         >
           <div className="flex items-center gap-2">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span className="text-[9px] font-black uppercase tracking-widest">Safe Redirection</span>
           </div>
-          <div className="w-1 h-1 rounded-full bg-white/10" />
+          <div className="w-1 h-1 rounded-full bg-border/50" />
           <div className="flex items-center gap-2">
             <Zap className="w-3.5 h-3.5" />
             <span className="text-[9px] font-black uppercase tracking-widest">ArchonY V3</span>

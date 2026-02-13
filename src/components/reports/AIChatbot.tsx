@@ -147,7 +147,7 @@ export function AIChatbot() {
         } flex flex-col shadow-sm z-50 transition-all duration-200`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-2 py-3 rounded-t-lg flex items-center justify-between">
+      <div className="bg-gradient-to-r from-[#1D4ED8] via-[#2563EB] to-[#1E40AF] text-white px-2 py-3 rounded-t-lg flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
           <span className="font-semibold">Fleet AI Assistant</span>
@@ -157,7 +157,7 @@ export function AIChatbot() {
             variant="ghost"
             size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-white hover:bg-white/20 h-8 w-8 p-0"
+            className="text-white hover:bg-white/15 h-8 w-8 p-0"
           >
             {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </Button>
@@ -165,7 +165,7 @@ export function AIChatbot() {
             variant="ghost"
             size="sm"
             onClick={() => setIsOpen(false)}
-            className="text-white hover:bg-white/20 h-8 w-8 p-0"
+            className="text-white hover:bg-white/15 h-8 w-8 p-0"
           >
             <X className="h-4 w-4" />
           </Button>
@@ -173,7 +173,7 @@ export function AIChatbot() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2 bg-muted/40">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -182,12 +182,12 @@ export function AIChatbot() {
             <div
               className={`max-w-[80%] rounded-lg px-2 py-2 ${message.role === 'user'
                 ? 'bg-indigo-600 text-white'
-                : 'bg-white text-gray-900 border border-gray-200'
+                : 'bg-card/90 text-foreground border border-border/50'
                 }`}
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               {message.reportData && (
-                <div className="mt-2 pt-2 border-t border-gray-200">
+                <div className="mt-2 pt-2 border-t border-border/50">
                   <Button variant="outline" size="sm" className="text-xs">
                     <Download className="h-3 w-3 mr-1" />
                     Export as Report
@@ -202,7 +202,7 @@ export function AIChatbot() {
         ))}
         {sending && (
           <div className="flex justify-start">
-            <div className="bg-white border border-gray-200 rounded-lg px-2 py-2">
+            <div className="bg-card/90 border border-border/50 rounded-lg px-2 py-2">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" />
                 <div className="w-2 h-2 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
@@ -216,14 +216,14 @@ export function AIChatbot() {
 
       {/* Example queries (show when no user messages) */}
       {messages.filter((m) => m.role === 'user').length === 0 && (
-        <div className="px-2 py-2 bg-white border-t border-gray-200">
-          <p className="text-xs text-slate-700 mb-2">Try asking:</p>
+        <div className="px-2 py-2 bg-card/90 border-t border-border/50">
+          <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
           <div className="space-y-1">
             {exampleQueries.slice(0, 3).map((query, index) => (
               <button
                 key={index}
                 onClick={() => handleExampleClick(query)}
-                className="w-full text-left text-xs px-2 py-1 bg-gray-50 hover:bg-gray-100 rounded transition-colors text-gray-700"
+                className="w-full text-left text-xs px-2 py-1 bg-muted/40 hover:bg-muted/60 rounded transition-colors text-muted-foreground"
               >
                 {query}
               </button>
@@ -233,7 +233,7 @@ export function AIChatbot() {
       )}
 
       {/* Input */}
-      <div className="border-t border-gray-200 p-2 bg-white rounded-b-lg">
+      <div className="border-t border-border/50 p-2 bg-card/90 rounded-b-lg">
         <div className="flex gap-2">
           <Input
             value={input}
@@ -253,7 +253,7 @@ export function AIChatbot() {
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <p className="text-xs text-gray-700">
+          <p className="text-xs text-muted-foreground">
             Press Enter to send
           </p>
           <Button

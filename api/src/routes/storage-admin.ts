@@ -21,6 +21,7 @@ import { csrfProtection } from '../middleware/csrf'
 import StorageManager from '../services/StorageManager';
 import { getErrorMessage } from '../utils/error-handler'
 import { authenticateJWT } from '../middleware/auth'
+import { logger } from '../utils/logger'
 
 
 const router = express.Router();
@@ -110,7 +111,7 @@ router.post('/upload', csrfProtection, upload.single('file'), async (req: Reques
       data: result
     });
   } catch (error: any) {
-    console.error('Upload error:', error);
+    logger.error('Upload error:', error);
     res.status(500).json({
       error: 'Upload failed',
       message: getErrorMessage(error)
@@ -158,7 +159,7 @@ router.get('/download/:key(*)', async (req: Request, res: Response) => {
     // Pipe stream to response
     result.stream.pipe(res);
   } catch (error: any) {
-    console.error(`Download error:`, error);
+    logger.error(`Download error:`, error);
     res.status(error.statusCode || 500).json({
       error: 'Download failed',
       message: getErrorMessage(error)
@@ -205,7 +206,7 @@ router.get('/url/:key(*)', async (req: Request, res: Response) => {
       data: { url, expiresIn }
     });
   } catch (error: any) {
-    console.error('Get URL error:', error);
+    logger.error('Get URL error:', error);
     res.status(error.statusCode || 500).json({
       error: 'Failed to generate URL',
       message: getErrorMessage(error)
@@ -243,7 +244,7 @@ router.delete('/delete/:key(*)', csrfProtection, csrfProtection, async (req: Req
       message: 'File deleted successfully'
     });
   } catch (error: any) {
-    console.error('Delete error:', error);
+    logger.error('Delete error:', error);
     res.status(error.statusCode || 500).json({
       error: 'Delete failed',
       message: getErrorMessage(error)
@@ -299,7 +300,7 @@ router.get('/list', async (req: Request, res: Response) => {
       data: result
     });
   } catch (error: any) {
-    console.error('List error:', error);
+    logger.error('List error:', error);
     res.status(500).json({
       error: 'List failed',
       message: getErrorMessage(error)
@@ -329,7 +330,7 @@ router.get('/stats', async (req: Request, res: Response) => {
       data: stats
     });
   } catch (error: any) {
-    console.error('Stats error:', error);
+    logger.error('Stats error:', error);
     res.status(500).json({
       error: 'Failed to get stats',
       message: getErrorMessage(error)
@@ -377,7 +378,7 @@ router.post('/migrate', csrfProtection, async (req: Request, res: Response) => {
       deleteSource,
       onProgress: (progress) => {
         // Could emit progress via WebSocket
-        console.log(`Migration progress: ${progress.completed}/${progress.total} - ${progress.current}`);
+        logger.info(`Migration progress: ${progress.completed}/${progress.total} - ${progress.current}`);
       }
     });
 
@@ -386,7 +387,7 @@ router.post('/migrate', csrfProtection, async (req: Request, res: Response) => {
       data: job
     });
   } catch (error: any) {
-    console.error(`Migration error:`, error);
+    logger.error(`Migration error:`, error);
     res.status(500).json({
       error: 'Migration failed',
       message: getErrorMessage(error)
@@ -423,7 +424,7 @@ router.post('/tier/auto', csrfProtection, async (req: Request, res: Response) =>
       data: result
     });
   } catch (error: any) {
-    console.error('Auto-tiering error:', error);
+    logger.error('Auto-tiering error:', error);
     res.status(500).json({
       error: 'Auto-tiering failed',
       message: getErrorMessage(error)
@@ -461,7 +462,7 @@ router.get('/config', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Config error:', error);
+    logger.error('Config error:', error);
     res.status(500).json({
       error: 'Failed to get config',
       message: getErrorMessage(error)
@@ -503,7 +504,7 @@ router.get('/health', async (req: Request, res: Response) => {
       data: health
     });
   } catch (error: any) {
-    console.error('Health check error:', error);
+    logger.error('Health check error:', error);
     res.status(500).json({
       success: false,
       status: 'unhealthy',
@@ -579,7 +580,7 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
       }
     });
   } catch (error: any) {
-    console.error('Batch upload error:', error);
+    logger.error('Batch upload error:', error);
     res.status(500).json({
       error: 'Batch upload failed',
       message: getErrorMessage(error)
@@ -643,7 +644,7 @@ router.post('/batch/delete', csrfProtection, async (req: Request, res: Response)
       }
     });
   } catch (error: any) {
-    console.error('Batch delete error:', error);
+    logger.error('Batch delete error:', error);
     res.status(500).json({
       error: 'Batch delete failed',
       message: getErrorMessage(error)

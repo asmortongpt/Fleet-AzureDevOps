@@ -5,6 +5,7 @@ import { Router } from 'express'
 import multer from 'multer'
 
 import { getDocumentService } from '../../services/documents/document-service'
+import { logger } from '../../utils/logger'
 import { getIndexingService } from '../../services/documents/indexing-service'
 import {
   DocumentSearchQuery,
@@ -81,7 +82,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Upload error:', error)
+    logger.error('[DocumentAPI] Upload error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -112,7 +113,7 @@ router.get('/:id', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Get document error:', error)
+    logger.error('[DocumentAPI] Get document error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -146,7 +147,7 @@ router.put('/:id', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Update error:', error)
+    logger.error('[DocumentAPI] Update error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -177,7 +178,7 @@ router.delete('/:id', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Delete error:', error)
+    logger.error('[DocumentAPI] Delete error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -216,7 +217,7 @@ router.get('/:id/download', async (req, res) => {
     return res.send(buffer)
 
   } catch (error) {
-    console.error('[DocumentAPI] Download error:', error)
+    logger.error('[DocumentAPI] Download error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -240,7 +241,7 @@ router.get('/:id/versions', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Version history error:', error)
+    logger.error('[DocumentAPI] Version history error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -266,7 +267,7 @@ router.post('/search', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Search error:', error)
+    logger.error('[DocumentAPI] Search error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -301,7 +302,7 @@ router.post('/:id/reindex', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Re-index error:', error)
+    logger.error('[DocumentAPI] Re-index error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -332,7 +333,7 @@ router.get('/indexing/jobs/:jobId', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Job status error:', error)
+    logger.error('[DocumentAPI] Job status error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -356,7 +357,7 @@ router.get('/analytics', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Analytics error:', error)
+    logger.error('[DocumentAPI] Analytics error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message
@@ -389,7 +390,7 @@ router.post('/bulk', async (req, res) => {
     })
 
   } catch (error) {
-    console.error('[DocumentAPI] Bulk operation error:', error)
+    logger.error('[DocumentAPI] Bulk operation error:', error)
     return res.status(500).json({
       success: false,
       error: (error as Error).message

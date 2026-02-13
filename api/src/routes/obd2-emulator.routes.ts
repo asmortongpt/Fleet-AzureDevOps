@@ -315,7 +315,7 @@ export function setupOBD2WebSocket(server: any): void {
     const sessionId = pathParts[pathParts.length - 1]
     const clientId = uuidv4()
 
-    console.log(`[OBD2 WebSocket] Client ${clientId} connected for session ${sessionId}`)
+    logger.info(`[OBD2 WebSocket] Client ${clientId} connected for session ${sessionId}`)
 
     // Register client
     obd2Emulator.registerWSClient(clientId, ws)
@@ -376,7 +376,7 @@ export function setupOBD2WebSocket(server: any): void {
 
     // Handle disconnection
     ws.on(`close`, () => {
-      console.log(`[OBD2 WebSocket] Client ${clientId} disconnected`)
+      logger.info(`[OBD2 WebSocket] Client ${clientId} disconnected`)
       obd2Emulator.unregisterWSClient(clientId)
     })
 
@@ -394,7 +394,7 @@ export function setupOBD2WebSocket(server: any): void {
     }))
   })
 
-  console.log('[OBD2 Emulator] WebSocket server initialized')
+  logger.info('[OBD2 Emulator] WebSocket server initialized')
 }
 
 export default router

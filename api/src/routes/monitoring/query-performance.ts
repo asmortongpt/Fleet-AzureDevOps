@@ -8,10 +8,11 @@
 import { Router, Request, Response } from 'express';
 
 import { getPoolStats, getDatabaseHealth } from '../../config/database'
+import { authenticateJWT } from '../../middleware/auth'
 import { csrfProtection } from '../../middleware/csrf';
 import { getDatabaseStats } from '../../utils/database';
+import { logger } from '../../utils/logger';
 import { queryMonitor } from '../../utils/query-monitor';
-import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
 
@@ -38,7 +39,7 @@ router.get('/stats', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error fetching query performance stats:', error);
+    logger.error('Error fetching query performance stats:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch query performance statistics',
@@ -65,7 +66,7 @@ router.get('/slow-queries', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error fetching slow queries:', error);
+    logger.error('Error fetching slow queries:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch slow queries',
@@ -92,7 +93,7 @@ router.get('/top-slow', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error fetching top slow queries:', error);
+    logger.error('Error fetching top slow queries:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch top slow queries',
@@ -119,7 +120,7 @@ router.get('/frequency', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error fetching query frequency:', error);
+    logger.error('Error fetching query frequency:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch query frequency',
@@ -145,7 +146,7 @@ router.get('/errors', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error fetching query errors:', error);
+    logger.error('Error fetching query errors:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch query errors',
@@ -170,7 +171,7 @@ router.get('/health', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error fetching database health:', error);
+    logger.error('Error fetching database health:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch database health',
@@ -203,7 +204,7 @@ router.get('/detailed-stats', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error fetching detailed stats:', error);
+    logger.error('Error fetching detailed stats:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch detailed statistics',
@@ -226,7 +227,7 @@ router.post('/reset',csrfProtection, async (req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {
-    console.error('Error resetting query stats:', error);
+    logger.error('Error resetting query stats:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to reset query statistics',
@@ -261,7 +262,7 @@ router.get('/summary', async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    console.error('Error fetching performance summary:', error);
+    logger.error('Error fetching performance summary:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch performance summary',

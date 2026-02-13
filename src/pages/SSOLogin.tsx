@@ -227,10 +227,10 @@ export function SSOLogin() {
 
         {/* Footer */}
         <div className="mt-6 space-y-1 text-center">
-          <p className="text-xs font-semibold text-white/70">
+          <p className="text-xs font-semibold text-muted-foreground">
             ArchonY Enterprise Solutions v2.0
           </p>
-          <p className="text-xs text-white/50">
+          <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} Capital Tech Alliance. All rights reserved.
           </p>
         </div>

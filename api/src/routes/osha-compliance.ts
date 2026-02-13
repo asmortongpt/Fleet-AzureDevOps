@@ -6,6 +6,7 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 
@@ -86,7 +87,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get OSHA 300 log error:`, error)
+      logger.error(`Get OSHA 300 log error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -116,7 +117,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get OSHA 300 log entry error:', error)
+      logger.error('Get OSHA 300 log entry error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -144,7 +145,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create OSHA log entry error:`, error)
+      logger.error(`Create OSHA log entry error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -174,7 +175,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update OSHA log entry error:`, error)
+      logger.error(`Update OSHA log entry error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -246,7 +247,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get safety inspections error:`, error)
+      logger.error(`Get safety inspections error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -274,7 +275,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create safety inspection error:`, error)
+      logger.error(`Create safety inspection error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -339,7 +340,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get training records error:`, error)
+      logger.error(`Get training records error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -367,7 +368,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create training record error:`, error)
+      logger.error(`Create training record error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -429,7 +430,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get accident investigations error:`, error)
+      logger.error(`Get accident investigations error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -457,7 +458,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create accident investigation error:`, error)
+      logger.error(`Create accident investigation error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -523,7 +524,7 @@ router.get(
         accidents: accidentsResult.rows
       })
     } catch (error) {
-      console.error(`Get OSHA compliance dashboard error:`, error)
+      logger.error(`Get OSHA compliance dashboard error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

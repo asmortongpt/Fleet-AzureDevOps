@@ -2,7 +2,13 @@ import { doubleCsrf } from "csrf-csrf";
 import { Request } from "express";
 
 const csrfMethods = doubleCsrf({
-  getSecret: () => process.env.CSRF_SECRET || "complex-secret-key-that-should-be-in-env",
+  getSecret: () => {
+    const secret = process.env.CSRF_SECRET;
+    if (!secret && process.env.NODE_ENV === 'production') {
+      throw new Error('CSRF_SECRET environment variable must be set in production');
+    }
+    return secret || 'dev-csrf-secret-' + process.pid;
+  },
   cookieName: "x-csrf-token", // The name of the cookie to be used, recommend using x-csrf-token
   cookieOptions: {
     sameSite: "strict",

@@ -18,6 +18,7 @@ import { doubleCsrfProtection } from '../middleware/csrf';
 import { requirePermission } from '../middleware/permissions';
 import { tenantSafeQuery } from '../utils/dbHelpers';
 import { applyFieldMasking } from '../utils/fieldMasking';
+import { logger } from '../utils/logger';
 
 import {
   CreateVehicleContractDTO,
@@ -147,7 +148,7 @@ router.get(
         },
       });
     } catch (error) {
-      console.error('Get vehicle contracts error:', error);
+      logger.error('Get vehicle contracts error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -244,7 +245,7 @@ router.post(
 
       res.status(201).json(result.rows[0]);
     } catch (error: any) {
-      console.error('Create vehicle contract error:', error);
+      logger.error('Create vehicle contract error:', error);
       if (error.code === '23505') { // Unique violation
         return res.status(409).json({ error: 'Contract number already exists' });
       }
@@ -277,7 +278,7 @@ router.get(
         total: result.rows.length,
       });
     } catch (error) {
-      console.error('Get expiring contracts error:', error);
+      logger.error('Get expiring contracts error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -320,7 +321,7 @@ router.get(
 
       res.json(result.rows[0]);
     } catch (error) {
-      console.error('Get vehicle contract error:', error);
+      logger.error('Get vehicle contract error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -390,7 +391,7 @@ router.put(
 
       res.json(result.rows[0]);
     } catch (error: any) {
-      console.error('Update vehicle contract error:', error);
+      logger.error('Update vehicle contract error:', error);
       if (error.code === '23505') {
         return res.status(409).json({ error: 'Contract number already exists' });
       }
@@ -541,7 +542,7 @@ router.get(
         },
       });
     } catch (error) {
-      console.error('Get lease status error:', error);
+      logger.error('Get lease status error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -616,7 +617,7 @@ router.post(
 
       res.status(201).json(result.rows[0]);
     } catch (error: any) {
-      console.error('Create lease-end inspection error:', error);
+      logger.error('Create lease-end inspection error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }
@@ -659,7 +660,7 @@ router.get(
 
       res.json(result.rows[0]);
     } catch (error) {
-      console.error('Get lease-end inspection error:', error);
+      logger.error('Get lease-end inspection error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   }

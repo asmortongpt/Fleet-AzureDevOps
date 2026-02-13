@@ -8,6 +8,7 @@ import { Router } from 'express';
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator';
 import { connectionHealthService } from '../services/ConnectionHealthService';
 import { authenticateJWT } from '../middleware/auth'
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -42,7 +43,7 @@ router.get('/status', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error getting status:', error);
+    logger.error('[Emulators] Error getting status:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -83,7 +84,7 @@ router.post('/start-all', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error starting emulators:', error);
+    logger.error('[Emulators] Error starting emulators:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -119,7 +120,7 @@ router.post('/stop-all', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error stopping emulators:', error);
+    logger.error('[Emulators] Error stopping emulators:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -142,7 +143,7 @@ router.post('/pause', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error pausing emulators:', error);
+    logger.error('[Emulators] Error pausing emulators:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -165,7 +166,7 @@ router.post('/resume', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error resuming emulators:', error);
+    logger.error('[Emulators] Error resuming emulators:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -190,7 +191,7 @@ router.post('/scenario/:scenarioId', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error running scenario:', error);
+    logger.error('[Emulators] Error running scenario:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -222,7 +223,7 @@ router.get('/vehicle/:vehicleId', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error getting vehicle telemetry:', error);
+    logger.error('[Emulators] Error getting vehicle telemetry:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -252,7 +253,7 @@ router.get('/inventory', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error getting inventory data:', error);
+    logger.error('[Emulators] Error getting inventory data:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -277,7 +278,7 @@ router.get('/inventory/category/:category', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error getting inventory by category:', error);
+    logger.error('[Emulators] Error getting inventory by category:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -302,7 +303,7 @@ router.get('/inventory/search/:sku', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error searching inventory:', error);
+    logger.error('[Emulators] Error searching inventory:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -338,7 +339,7 @@ router.get('/types', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[Emulators] Error getting emulator types:', error);
+    logger.error('[Emulators] Error getting emulator types:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
