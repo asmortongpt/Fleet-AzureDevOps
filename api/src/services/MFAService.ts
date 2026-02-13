@@ -1,6 +1,6 @@
 
 import QRCode from 'qrcode';
-// @ts-ignore
+// @ts-expect-error - speakeasy lacks TypeScript type definitions
 import speakeasy from 'speakeasy';
 
 import { pool } from '../config/database';

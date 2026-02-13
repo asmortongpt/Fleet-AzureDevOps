@@ -44,14 +44,13 @@ import {
  * LiDAR 3D Scanning Service
  */
 export class LiDAR3DScanningService {
-  private blobServiceClient: BlobServiceClient;
+  private blobServiceClient: BlobServiceClient | null;
   private containerName = 'lidar-scans';
 
   constructor() {
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
     if (!connectionString) {
       logger.warn('Azure Storage connection string not configured for LiDAR service - running in degraded mode');
-      // @ts-ignore - allow internal initialization to continue for development
       this.blobServiceClient = null;
     } else {
       this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
@@ -1620,6 +1619,9 @@ export class LiDAR3DScanningService {
     scanId: string,
     pointCloud: LiDARPoint[]
   ): Promise<string> {
+    if (!this.blobServiceClient) {
+      throw new Error('Azure Blob Storage client is not configured. Set AZURE_STORAGE_CONNECTION_STRING environment variable.');
+    }
     const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
     await containerClient.createIfNotExists();
 
@@ -1638,6 +1640,9 @@ export class LiDAR3DScanningService {
     format: Model3DFormat,
     data: Buffer | string
   ): Promise<string> {
+    if (!this.blobServiceClient) {
+      throw new Error('Azure Blob Storage client is not configured. Set AZURE_STORAGE_CONNECTION_STRING environment variable.');
+    }
     const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
     await containerClient.createIfNotExists();
 
@@ -1651,6 +1656,9 @@ export class LiDAR3DScanningService {
   }
 
   private async loadPointCloudFromStorage(tenantId: string, scanId: string): Promise<LiDARPoint[]> {
+    if (!this.blobServiceClient) {
+      throw new Error('Azure Blob Storage client is not configured. Set AZURE_STORAGE_CONNECTION_STRING environment variable.');
+    }
     const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
     const blobName = `${tenantId}/scans/${scanId}/pointcloud.json`;
     const blockBlobClient = containerClient.getBlockBlobClient(blobName);

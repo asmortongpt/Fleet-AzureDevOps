@@ -15,11 +15,11 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
-  PutObjectCommand
+  PutObjectCommand,
+  CopyObjectCommand,
+  DeleteObjectsCommand,
+  ListObjectsV2Command
 } from '@aws-sdk/client-s3';
-// Import commands that TypeScript incorrectly thinks don't exist
-// @ts-ignore - These commands exist at runtime despite TypeScript errors
-import { CopyObjectCommand, DeleteObjectsCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import {

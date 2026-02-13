@@ -297,7 +297,6 @@ export class ActionableMessagesService {
       await createAuditLog(
         tenantId,
         userId,
-        // @ts-ignore - 'APPROVE' might not be in the enum but used in legacy code
         'APPROVE',
         'approvals',
         approvalId || '',
@@ -337,7 +336,6 @@ export class ActionableMessagesService {
       await createAuditLog(
         tenantId,
         userId,
-        // @ts-ignore
         'REJECT',
         'approvals',
         approvalId || '',
