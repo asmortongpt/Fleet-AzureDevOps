@@ -4,6 +4,8 @@ import { createEvent as createICSEvent } from 'ics'
 import nodemailer from 'nodemailer'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
+
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
@@ -111,7 +113,7 @@ export class CalendarService {
       .api(`/users/${userId}/calendar/events`)
       .post(event)
 
-    console.log(`Calendar event created:`, response.id)
+    logger.info('Calendar event created', { eventId: response.id })
 
     // Store in our database
     await this.db.query(
@@ -130,7 +132,7 @@ export class CalendarService {
 
     return response
   } catch (error: any) {
-    console.error(`Error creating calendar event:`, error.message)
+    logger.error('Error creating calendar event', { error: error.message })
     throw error
   }
 }
@@ -158,7 +160,7 @@ export class CalendarService {
 
     return response.value
   } catch (error: any) {
-    console.error(`Error fetching calendar events:`, error.message)
+    logger.error('Error fetching calendar events', { error: error.message })
     throw error
   }
 }
@@ -176,7 +178,7 @@ export class CalendarService {
 
     return response
   } catch (error: any) {
-    console.error(`Error fetching calendar event:`, error.message)
+    logger.error('Error fetching calendar event', { error: error.message })
     throw error
   }
 }
@@ -241,10 +243,10 @@ eventUpdate.subject = updates.subject
       [eventId]
     )
 
-    console.log('Calendar event updated:', response.id)
+    logger.info('Calendar event updated', { eventId: response.id })
     return response
   } catch (error: any) {
-    console.error(`Error updating calendar event:`, error.message)
+    logger.error('Error updating calendar event', { error: error.message })
     throw error
   }
 }
@@ -268,9 +270,9 @@ eventUpdate.subject = updates.subject
       [eventId]
     )
 
-    console.log('Calendar event deleted:', eventId)
+    logger.info('Calendar event deleted', { eventId })
   } catch (error: any) {
-    console.error(`Error deleting calendar event:`, error.message)
+    logger.error('Error deleting calendar event', { error: error.message })
     throw error
   }
 }
@@ -289,9 +291,9 @@ eventUpdate.subject = updates.subject
         sendResponse: true
       })
 
-    console.log('Meeting accepted:', eventId)
+    logger.info('Meeting accepted', { eventId })
   } catch (error: any) {
-    console.error(`Error accepting meeting:`, error.message)
+    logger.error('Error accepting meeting', { error: error.message })
     throw error
   }
 }
@@ -310,9 +312,9 @@ eventUpdate.subject = updates.subject
         sendResponse: true
       })
 
-    console.log('Meeting declined:', eventId)
+    logger.info('Meeting declined', { eventId })
   } catch (error: any) {
-    console.error(`Error declining meeting:`, error.message)
+    logger.error('Error declining meeting', { error: error.message })
     throw error
   }
 }
@@ -331,9 +333,9 @@ eventUpdate.subject = updates.subject
         sendResponse: true
       })
 
-    console.log('Meeting tentatively accepted:', eventId)
+    logger.info('Meeting tentatively accepted', { eventId })
   } catch (error: any) {
-    console.error('Error tentatively accepting meeting:', error.message)
+    logger.error('Error tentatively accepting meeting', { error: error.message })
     throw error
   }
 }
@@ -387,7 +389,7 @@ eventUpdate.subject = updates.subject
 
     return response.meetingTimeSuggestions || []
   } catch (error: any) {
-    console.error(`Error finding meeting times:`, error.message)
+    logger.error('Error finding meeting times', { error: error.message })
     throw error
   }
 }
@@ -423,7 +425,7 @@ eventUpdate.subject = updates.subject
 
     return response.value
   } catch (error: any) {
-    console.error('Error getting availability:', error.message)
+    logger.error('Error getting availability', { error: error.message })
     throw error
   }
 }
@@ -510,7 +512,7 @@ eventUpdate.subject = updates.subject
 
     return event
   } catch (error: any) {
-    console.error('Error scheduling maintenance:', error.message)
+    logger.error('Error scheduling maintenance', { error: error.message })
     throw error
   }
 }
@@ -589,7 +591,7 @@ attendees.push(trainerEmail)
 
     return event
   } catch (error: any) {
-    console.error('Error scheduling driver training:', error.message)
+    logger.error('Error scheduling driver training', { error: error.message })
     throw error
   }
 }
@@ -620,7 +622,7 @@ attendees.push(trainerEmail)
 
     createICSEvent(event as any, (error, value) => {
       if (error) {
-        console.error('Error creating ICS event:', error)
+        logger.error('Error creating ICS event', { error })
         return
       }
 
@@ -655,14 +657,14 @@ attendees.push(trainerEmail)
 
       transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-          console.error('Error sending calendar invite email:', error)
+          logger.error('Error sending calendar invite email', { error })
         } else {
-          console.log('Calendar invite email sent:', info.messageId)
+          logger.info('Calendar invite email sent', { messageId: info.messageId })
         }
       })
     })
   } catch (error: any) {
-    console.error('Error sending calendar invite:', error.message)
+    logger.error('Error sending calendar invite', { error: error.message })
     throw error
   }
 }

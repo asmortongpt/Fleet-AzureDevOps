@@ -18,6 +18,8 @@ import { Pool } from 'pg';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 
+import logger from '../config/logger';
+
 import { getTableColumns } from '../utils/column-resolver';
 
 import OcrService from './ocr.service';
@@ -87,9 +89,9 @@ export class PhotoProcessingService {
       // Ensure containers exist
       await this.ensureContainersExist();
 
-      console.log('PhotoProcessingService initialized successfully');
+      logger.info('PhotoProcessingService initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize PhotoProcessingService:', error);
+      logger.error('Failed to initialize PhotoProcessingService', { error });
       throw error;
     }
   }
@@ -99,11 +101,11 @@ export class PhotoProcessingService {
    */
   startProcessingQueue(): void {
     if (this.processingInterval) {
-      console.log('Processing queue already running');
+      logger.info('Processing queue already running');
       return;
     }
 
-    console.log('Starting photo processing queue worker...');
+    logger.info('Starting photo processing queue worker');
 
     this.processingInterval = setInterval(async () => {
       if (!this.isProcessing) {
@@ -113,7 +115,7 @@ export class PhotoProcessingService {
 
     // Process immediately on start
     this.processPendingPhotos().catch(err =>
-      console.error('Initial processing failed:', err)
+      logger.error('Initial processing failed', { error: err })
     );
   }
 
@@ -124,7 +126,7 @@ export class PhotoProcessingService {
     if (this.processingInterval) {
       clearInterval(this.processingInterval);
       this.processingInterval = null;
-      console.log('Photo processing queue worker stopped');
+      logger.info('Photo processing queue worker stopped');
     }
   }
 
@@ -148,7 +150,7 @@ export class PhotoProcessingService {
         [jobId, tenantId, userId, photoId, blobUrl, priority]
       );
 
-      console.log(`Photo ${photoId} added to processing queue (job: ${jobId})`);
+      logger.info(`Photo ${photoId} added to processing queue`, { jobId });
 
       // If high priority, trigger immediate processing
       if (priority === `high` && !this.isProcessing) {
@@ -157,7 +159,7 @@ export class PhotoProcessingService {
 
       return jobId;
     } catch (error) {
-      console.error(`Failed to add photo to processing queue:`, error);
+      logger.error('Failed to add photo to processing queue', { error });
       throw error;
     }
   }
@@ -173,7 +175,7 @@ export class PhotoProcessingService {
     const startTime = Date.now();
 
     try {
-      console.log(`Processing photo ${photoId}...`);
+      logger.info(`Processing photo ${photoId}`);
 
       // Download photo from blob storage
       const photoBuffer = await this.downloadBlob(blobUrl);
@@ -195,7 +197,7 @@ export class PhotoProcessingService {
         try {
           result.exif_data = await this.extractExifData(photoBuffer);
         } catch (error) {
-          console.warn(`EXIF extraction failed:`, error);
+          logger.warn('EXIF extraction failed', { error });
         }
       }
 
@@ -209,7 +211,7 @@ export class PhotoProcessingService {
             thumbnailSize
           );
         } catch (error) {
-          console.error('Thumbnail generation failed:', error);
+          logger.error('Thumbnail generation failed', { error });
         }
       }
 
@@ -223,7 +225,7 @@ export class PhotoProcessingService {
             options.maxDimension || 1920
           );
         } catch (error) {
-          console.error('Image compression failed:', error);
+          logger.error('Image compression failed', { error });
         }
       }
 
@@ -238,17 +240,17 @@ export class PhotoProcessingService {
 
           result.ocr_text = ocrResult.text;
         } catch (error) {
-          console.error(`OCR processing failed:`, error);
+          logger.error('OCR processing failed', { error });
         }
       }
 
       result.processing_time_ms = Date.now() - startTime;
 
-      console.log(`Photo ${photoId} processed successfully in ${result.processing_time_ms}ms`);
+      logger.info(`Photo ${photoId} processed successfully`, { processingTimeMs: result.processing_time_ms });
 
       return result;
     } catch (error: any) {
-      console.error(`Failed to process photo ${photoId}:`, error);
+      logger.error(`Failed to process photo ${photoId}`, { error });
 
       return {
         success: false,
@@ -296,7 +298,7 @@ export class PhotoProcessingService {
         details: result.rows,
       };
     } catch (error) {
-      console.error(`Failed to get queue stats:`, error);
+      logger.error('Failed to get queue stats', { error });
       throw error;
     }
   }
@@ -323,11 +325,11 @@ export class PhotoProcessingService {
 
       const result = await this.db.query(query, params);
 
-      console.log(`Retrying ${result.rowCount} failed jobs`);
+      logger.info(`Retrying ${result.rowCount} failed jobs`);
 
       return result.rowCount || 0;
     } catch (error) {
-      console.error(`Failed to retry failed jobs:`, error);
+      logger.error('Failed to retry failed jobs', { error });
       throw error;
     }
   }
@@ -344,11 +346,11 @@ export class PhotoProcessingService {
         [daysOld]
       );
 
-      console.log(`Cleared ${result.rowCount} completed jobs older than ${daysOld} days`);
+      logger.info(`Cleared ${result.rowCount} completed jobs older than ${daysOld} days`);
 
       return result.rowCount || 0;
     } catch (error) {
-      console.error(`Failed to clear completed jobs:`, error);
+      logger.error('Failed to clear completed jobs', { error });
       throw error;
     }
   }
@@ -388,14 +390,14 @@ export class PhotoProcessingService {
         return;
       }
 
-      console.log(`Processing ${result.rows.length} photos from queue...`);
+      logger.info(`Processing ${result.rows.length} photos from queue`);
 
       // Process each photo
       for (const job of result.rows) {
         await this.processQueuedPhoto(job);
       }
     } catch (error) {
-      console.error(`Error processing pending photos:`, error);
+      logger.error('Error processing pending photos', { error });
     } finally {
       this.isProcessing = false;
     }
@@ -469,13 +471,13 @@ export class PhotoProcessingService {
           [job.id]
         );
 
-        console.log(`Photo processing job ${job.id} completed successfully`);
+        logger.info(`Photo processing job ${job.id} completed successfully`);
       } else {
         // Handle failure
         throw new Error(processingResult.error || 'Processing failed');
       }
     } catch (error: any) {
-      console.error(`Photo processing job ${job.id} failed:`, error);
+      logger.error(`Photo processing job ${job.id} failed`, { error });
 
       // Update job with error
       const retryCount = job.retry_count + 1;
@@ -546,7 +548,7 @@ export class PhotoProcessingService {
         );
       }
     } catch (error) {
-      console.error(`Failed to update photo record:`, error);
+      logger.error('Failed to update photo record', { error });
     }
   }
 
@@ -595,7 +597,7 @@ export class PhotoProcessingService {
         );
       }
     } catch (error) {
-      console.error('Failed to update related records:', error);
+      logger.error('Failed to update related records', { error });
     }
   }
 
@@ -628,7 +630,7 @@ export class PhotoProcessingService {
 
       return Buffer.concat(chunks);
     } catch (error) {
-      console.error('Failed to download blob:', error);
+      logger.error('Failed to download blob', { error });
       throw error;
     }
   }
@@ -661,7 +663,7 @@ export class PhotoProcessingService {
         height: tags.ImageHeight?.value,
       };
     } catch (error) {
-      console.warn('EXIF extraction error:', error);
+      logger.warn('EXIF extraction error', { error });
       return {};
     }
   }
@@ -703,7 +705,7 @@ export class PhotoProcessingService {
 
       return blockBlobClient.url;
     } catch (error) {
-      console.error('Thumbnail generation error:', error);
+      logger.error('Thumbnail generation error', { error });
       throw error;
     }
   }
@@ -746,7 +748,7 @@ export class PhotoProcessingService {
 
       return blockBlobClient.url;
     } catch (error) {
-      console.error('Image compression error:', error);
+      logger.error('Image compression error', { error });
       throw error;
     }
   }
@@ -771,9 +773,9 @@ return;
         await containerClient.createIfNotExists({ access: 'blob' });
       }
 
-      console.log('All blob containers ensured');
+      logger.info('All blob containers ensured');
     } catch (error) {
-      console.error('Failed to create containers:', error);
+      logger.error('Failed to create containers', { error });
     }
   }
 

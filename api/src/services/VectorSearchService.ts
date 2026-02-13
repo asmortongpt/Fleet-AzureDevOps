@@ -103,12 +103,12 @@ return
       )
 
       if (result.rows.length === 0) {
-        console.warn('⚠ pgvector extension not installed. Install with: CREATE EXTENSION vector;')
+        this.logger.warn('pgvector extension not installed. Install with: CREATE EXTENSION vector;')
       } else {
-        console.log('✓ PostgreSQL pgvector backend initialized')
+        this.logger.info('PostgreSQL pgvector backend initialized')
       }
     } catch (error) {
-      console.error('Error initializing pgvector:', error)
+      this.logger.error('Error initializing pgvector', { error })
     }
   }
 
@@ -117,7 +117,7 @@ return
    */
   private async initializePinecone(): Promise<void> {
     if (!process.env.PINECONE_API_KEY) {
-      console.warn('Pinecone API key not found, using pgvector fallback')
+      this.logger.warn('Pinecone API key not found, using pgvector fallback')
       this.backend = 'pgvector'
       await this.initializePgVector()
       return
@@ -129,9 +129,9 @@ return
         apiKey: process.env.PINECONE_API_KEY,
         environment: process.env.PINECONE_ENVIRONMENT || 'us-west1-gcp'
       })
-      console.log('✓ Pinecone backend initialized')
+      this.logger.info('Pinecone backend initialized')
     } catch (error) {
-      console.warn('Pinecone SDK not available, falling back to pgvector')
+      this.logger.warn('Pinecone SDK not available, falling back to pgvector')
       this.backend = 'pgvector'
       await this.initializePgVector()
     }
@@ -142,7 +142,7 @@ return
    */
   private async initializeQdrant(): Promise<void> {
     if (!process.env.QDRANT_URL) {
-      console.warn('Qdrant URL not found, using pgvector fallback')
+      this.logger.warn('Qdrant URL not found, using pgvector fallback')
       this.backend = 'pgvector'
       await this.initializePgVector()
       return
@@ -154,9 +154,9 @@ return
         url: process.env.QDRANT_URL,
         apiKey: process.env.QDRANT_API_KEY,
       })
-      console.log('✓ Qdrant backend initialized')
+      this.logger.info('Qdrant backend initialized')
     } catch (error) {
-      console.warn('Qdrant SDK not available, falling back to pgvector')
+      this.logger.warn('Qdrant SDK not available, falling back to pgvector')
       this.backend = 'pgvector'
       await this.initializePgVector()
     }
@@ -214,13 +214,13 @@ return
               await this.indexDocument(tenantId, doc)
               indexed++
             } catch (error) {
-              console.error(`Failed to index document ${doc.id}:`, error)
+              this.logger.error(`Failed to index document ${doc.id}`, { error })
               failed++
             }
           })
         )
       } catch (error) {
-        console.error(`Batch indexing error:`, error)
+        this.logger.error('Batch indexing error', { error })
         failed += batch.length
       }
     }
@@ -337,7 +337,7 @@ return
       )
       return true
     } catch (error) {
-      console.error(`Error updating metadata:`, error)
+      this.logger.error('Error updating metadata', { error })
       return false
     }
   }
@@ -372,7 +372,7 @@ return
 
       return { id: document.id, success: true }
     } catch (error) {
-      console.error('Error indexing document in pgvector:', error)
+      this.logger.error('Error indexing document in pgvector', { error })
       return { id: document.id, success: false }
     }
   }
@@ -425,7 +425,7 @@ return
           metadata: row.metadata,
         }))
     } catch (error) {
-      console.error(`Error searching in pgvector:`, error)
+      this.logger.error('Error searching in pgvector', { error })
       return []
     }
   }
@@ -438,7 +438,7 @@ return
       )
       return true
     } catch (error) {
-      console.error('Error deleting document from pgvector:', error)
+      this.logger.error('Error deleting document from pgvector', { error })
       return false
     }
   }
@@ -472,7 +472,7 @@ return
 
       return { id: document.id, success: true }
     } catch (error) {
-      console.error('Error indexing document in Pinecone:', error)
+      this.logger.error('Error indexing document in Pinecone', { error })
       return { id: document.id, success: false }
     }
   }
@@ -508,7 +508,7 @@ return
           metadata: match.metadata,
         }))
     } catch (error) {
-      console.error('Error searching in Pinecone:', error)
+      this.logger.error('Error searching in Pinecone', { error })
       return []
     }
   }
@@ -525,7 +525,7 @@ return
       await index.namespace(tenantId).deleteOne(documentId)
       return true
     } catch (error) {
-      console.error('Error deleting document from Pinecone:', error)
+      this.logger.error('Error deleting document from Pinecone', { error })
       return false
     }
   }
@@ -560,7 +560,7 @@ return
 
       return { id: document.id, success: true }
     } catch (error) {
-      console.error(`Error indexing document in Qdrant:`, error)
+      this.logger.error('Error indexing document in Qdrant', { error })
       return { id: document.id, success: false }
     }
   }
@@ -594,7 +594,7 @@ return
           metadata: result.payload,
         }))
     } catch (error) {
-      console.error(`Error searching in Qdrant:`, error)
+      this.logger.error('Error searching in Qdrant', { error })
       return []
     }
   }
@@ -611,7 +611,7 @@ return
       })
       return true
     } catch (error) {
-      console.error(`Error deleting document from Qdrant:`, error)
+      this.logger.error('Error deleting document from Qdrant', { error })
       return false
     }
   }
@@ -650,7 +650,7 @@ return
         metadata: row.metadata,
       }))
     } catch (error) {
-      console.error('Error in keyword search:', error)
+      this.logger.error('Error in keyword search', { error })
       return []
     }
   }
@@ -728,7 +728,7 @@ return 'qdrant'
         ...result.rows[0],
       }
     } catch (error) {
-      console.error('Error getting statistics:', error)
+      this.logger.error('Error getting statistics', { error })
       return { backend: this.backend, total_documents: 0 }
     }
   }

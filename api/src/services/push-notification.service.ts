@@ -11,6 +11,7 @@
 import apn from '@parse/node-apn';
 import * as admin from 'firebase-admin';
 
+import logger from '../config/logger';
 import { PushNotificationRepository } from '../repositories/push-notification.repository';
 import type {
   MobileDevice,
@@ -77,7 +78,7 @@ class PushNotificationService {
       // Check if FCM is already initialized
       if ((admin as any).apps.length > 0) {
         this.fcmInitialized = true;
-        console.log('FCM already initialized');
+        logger.info('FCM already initialized');
         return;
       }
 
@@ -88,12 +89,12 @@ class PushNotificationService {
           credential: admin.credential.cert(serviceAccount),
         });
         this.fcmInitialized = true;
-        console.log('FCM initialized with service account');
+        logger.info('FCM initialized with service account');
       } else {
-        console.warn('Firebase service account not configured, push notifications disabled');
+        logger.warn('Firebase service account not configured, push notifications disabled');
       }
     } catch (error) {
-      console.error('Failed to initialize FCM:', error);
+      logger.error('Failed to initialize FCM', { error });
     }
   }
 
@@ -111,12 +112,12 @@ class PushNotificationService {
           },
           production: true,
         });
-        console.log('APNS initialized');
+        logger.info('APNS initialized');
       } else {
-        console.warn('APNS credentials not configured, iOS push notifications disabled');
+        logger.warn('APNS credentials not configured, iOS push notifications disabled');
       }
     } catch (error) {
-      console.error('Failed to initialize APNS:', error);
+      logger.error('Failed to initialize APNS', { error });
     }
   }
 
@@ -139,7 +140,7 @@ class PushNotificationService {
       const newDevice = await this.repository.createDevice(deviceData);
       return newDevice;
     } catch (error) {
-      console.error('Error registering device:', error);
+      logger.error('Error registering device', { error });
       throw new Error('Failed to register device');
     }
   }
@@ -152,7 +153,7 @@ class PushNotificationService {
     try {
       return await this.repository.deactivateDevice(deviceId);
     } catch (error) {
-      console.error('Error unregistering device:', error);
+      logger.error('Error unregistering device', { error });
       return false;
     }
   }
@@ -184,7 +185,7 @@ class PushNotificationService {
 
       return notificationId;
     } catch (error) {
-      console.error('Error sending notification:', error);
+      logger.error('Error sending notification', { error });
       throw new Error('Failed to send notification');
     }
   }
@@ -224,7 +225,7 @@ class PushNotificationService {
 
       return notificationId;
     } catch (error) {
-      console.error('Error scheduling notification:', error);
+      logger.error('Error scheduling notification', { error });
       throw new Error('Failed to schedule notification');
     }
   }
@@ -241,7 +242,7 @@ class PushNotificationService {
         await this.processScheduledNotification(notification);
       }
     } catch (error) {
-      console.error('Error processing scheduled notifications:', error);
+      logger.error('Error processing scheduled notifications', { error });
     }
   }
 
@@ -253,7 +254,7 @@ class PushNotificationService {
     try {
       await this.repository.trackNotificationOpened(recipientId);
     } catch (error) {
-      console.error('Error tracking notification open:', error);
+      logger.error('Error tracking notification open', { error });
     }
   }
 
@@ -265,7 +266,7 @@ class PushNotificationService {
     try {
       await this.repository.trackNotificationClicked(recipientId, action);
     } catch (error) {
-      console.error('Error tracking notification click:', error);
+      logger.error('Error tracking notification click', { error });
     }
   }
 
@@ -280,7 +281,7 @@ class PushNotificationService {
     try {
       return await this.repository.getNotificationHistory(tenantId, filters);
     } catch (error) {
-      console.error('Error getting notification history:', error);
+      logger.error('Error getting notification history', { error });
       throw new Error('Failed to get notification history');
     }
   }
@@ -293,7 +294,7 @@ class PushNotificationService {
     try {
       return await this.repository.getDeliveryStats(tenantId, dateRange);
     } catch (error) {
-      console.error('Error getting delivery stats:', error);
+      logger.error('Error getting delivery stats', { error });
       throw new Error('Failed to get delivery stats');
     }
   }
@@ -306,7 +307,7 @@ class PushNotificationService {
     try {
       return await this.repository.getTemplates(tenantId, category);
     } catch (error) {
-      console.error('Error getting templates:', error);
+      logger.error('Error getting templates', { error });
       throw new Error('Failed to get templates');
     }
   }
@@ -344,7 +345,7 @@ class PushNotificationService {
         sound: template.sound,
       };
     } catch (error) {
-      console.error('Error creating from template:', error);
+      logger.error('Error creating from template', { error });
       throw new Error('Failed to create notification from template');
     }
   }
@@ -377,7 +378,7 @@ class PushNotificationService {
       // Update status to sent using repository
       await this.repository.updateNotificationStatus(notification.id, 'sent');
     } catch (error) {
-      console.error('Error processing scheduled notification:', error);
+      logger.error('Error processing scheduled notification', { error });
       await this.repository.updateNotificationStatus(notification.id, 'failed');
     }
   }
@@ -424,7 +425,7 @@ class PushNotificationService {
   private async sendToIOS(notification: any, devices: any[], notificationId: string) {
     if (!this.apnProvider) {
       const error = 'APNS not initialized - iOS push notifications are disabled';
-      console.error(error);
+      logger.error(error);
       for (const device of devices) {
         await this.updateRecipientStatus(notificationId, device.id, 'failed', error);
       }
@@ -453,7 +454,7 @@ class PushNotificationService {
           await this.updateRecipientStatus(notificationId, device.id, 'failed', result.failed[0]?.response?.reason);
         }
       } catch (error: any) {
-        console.error('Error sending to iOS device:', error);
+        logger.error('Error sending to iOS device', { error });
         await this.updateRecipientStatus(notificationId, device.id, 'failed', error.message);
       }
     }
@@ -462,7 +463,7 @@ class PushNotificationService {
   private async sendToAndroid(notification: any, devices: any[], notificationId: string) {
     if (!this.fcmInitialized) {
       const error = 'FCM not initialized - Android push notifications are disabled';
-      console.error(error);
+      logger.error(error);
       for (const device of devices) {
         await this.updateRecipientStatus(notificationId, device.id, 'failed', error);
       }
@@ -492,7 +493,7 @@ class PushNotificationService {
         await (admin as any).messaging().send(message);
         await this.updateRecipientStatus(notificationId, device.id, 'delivered');
       } catch (error: any) {
-        console.error('Error sending to Android device:', error);
+        logger.error('Error sending to Android device', { error });
         await this.updateRecipientStatus(notificationId, device.id, 'failed', error.message);
       }
     }
