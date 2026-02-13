@@ -1,20 +1,29 @@
+import { Request, Response } from 'express'
 import { initAIPlatform } from "../ai";
 import { chatWithAI } from "../ai/gateway/aiGateway";
 
-/**
- * Example route handler (Express/Fastify compatible signature).
- * Replace with your actual router framework.
- */
-export async function aiChatRoute(req: any, res: any) {
+interface AuthRequest extends Request {
+  user?: {
+    id?: string
+    orgId?: string
+    roles?: string[]
+    permissions?: string[]
+  }
+}
+
+export async function aiChatRoute(req: AuthRequest, res: Response) {
+  if (!req.user?.id) {
+    return res.status(401).json({ error: 'Authentication required' })
+  }
+
   initAIPlatform();
   const { message } = req.body ?? {};
 
-  // TODO: replace with real auth context
   const user = {
-    userId: req.user?.id ?? "demo-user",
-    orgId: req.user?.orgId ?? "demo-org",
-    roles: req.user?.roles ?? ["fleet_manager"],
-    permissions: req.user?.permissions ?? ["ai.chat"],
+    userId: req.user.id,
+    orgId: req.user.orgId ?? req.user.id,
+    roles: req.user.roles ?? [],
+    permissions: req.user.permissions ?? [],
   };
 
   const result = await chatWithAI({ user, message, enableRag: true });

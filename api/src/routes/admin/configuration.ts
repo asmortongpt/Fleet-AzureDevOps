@@ -5,7 +5,7 @@
  * Requires CTA_OWNER role for all operations
  */
 
-import { Router } from 'express'
+import { Router, Request, Response, NextFunction } from 'express'
 
 import { configurationService } from '../../services/configuration/configuration-service'
 import { logger } from '../../utils/logger'
@@ -18,9 +18,9 @@ const router = Router()
 router.use(authenticateJWT)
 
 // Middleware to check CTA Owner role
-const requireCTAOwner = (req: any, res: any, next: any) => {
-  // TODO: Implement actual role check from JWT/session
-  const userRole = (req.user?.role || req.headers['x-user-role'] || '').toString().toUpperCase()
+const requireCTAOwner = (req: Request, res: Response, next: NextFunction) => {
+  const authReq = req as Request & { user?: { role?: string } }
+  const userRole = (authReq.user?.role ?? '').toUpperCase()
 
   if (userRole !== 'CTA_OWNER' && userRole !== 'ADMIN' && userRole !== 'SUPERADMIN') {
     return res.status(403).json({
