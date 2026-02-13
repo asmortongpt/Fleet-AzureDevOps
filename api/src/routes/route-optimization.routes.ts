@@ -192,10 +192,10 @@ router.post(
       )
 
       res.json(result)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Route optimization error:', error)
 
-      if (error.name === 'ZodError') {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({
           error: 'Validation error',
           details: error.issues

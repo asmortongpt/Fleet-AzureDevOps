@@ -202,7 +202,7 @@ router.post('/start', csrfProtection, requirePermission('route:create:own'), aud
       trip_id: trip.id,
       trip
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error starting trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -334,7 +334,7 @@ router.post('/:id/end', csrfProtection, requirePermission('route:update:own'), a
       message: 'Trip ended',
       trip: result.rows[0]
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error ending trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -508,7 +508,7 @@ router.post('/:id/metrics', csrfProtection, requirePermission('route:update:own'
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error saving metrics:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -614,7 +614,7 @@ router.get('/:id', requirePermission('route:view:own'), async (req: Request, res
       success: true,
       trip
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting trip:', error);
     res.status(500).json({ error: 'Failed to get trip' });
   }
@@ -737,7 +737,7 @@ router.patch('/:id/classify', csrfProtection, requirePermission('route:update:ow
       message: 'Trip classified',
       trip: result.rows[0]
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error classifying trip:', error);
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -878,7 +878,7 @@ router.get('/', requirePermission('route:view:fleet'), async (req: Request, res:
         has_more: parseInt(offset as string) + result.rows.length < total
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting trips:', error);
     res.status(500).json({ error: 'Failed to get trips' });
   }

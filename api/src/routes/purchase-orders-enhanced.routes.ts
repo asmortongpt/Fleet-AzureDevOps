@@ -440,7 +440,7 @@ router.post('/:id/submit-for-approval', [
         approvalLevels: approvalLevels.length,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {
@@ -520,7 +520,7 @@ router.post('/:id/approve', [
       success: true,
       message: `Purchase order ${action}d successfully`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {
@@ -689,7 +689,7 @@ router.post('/:id/receive', [
         total_ordered: totalOrdered,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {
@@ -862,7 +862,7 @@ router.post('/auto-create-from-alerts', [
       message: `Created ${createdPOs.length} purchase order(s) from low stock alerts`,
       data: createdPOs,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {

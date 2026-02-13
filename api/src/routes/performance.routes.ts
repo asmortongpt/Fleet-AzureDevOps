@@ -57,7 +57,7 @@ router.get('/health', authenticateJWT, async (req: Request, res: Response) => {
     }
 
     res.json(health)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting health status:', error) // Wave 22: Winston logger
     res.status(500).json({
       status: 'error',
@@ -76,7 +76,7 @@ router.get('/database/pools', authenticateJWT, async (req: Request, res: Respons
   try {
     const diagnostics = await connectionManager.getPoolDiagnostics()
     res.json(diagnostics)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting pool diagnostics:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve pool diagnostics',
@@ -100,7 +100,7 @@ router.get('/database/replica-lag', authenticateJWT, async (req: Request, res: R
       status: lag === null ? 'no_replica' : lag < 1000 ? 'healthy' : lag < 5000 ? 'warning' : 'critical',
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting replica lag:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve replica lag',
@@ -123,7 +123,7 @@ router.get('/database/connection-leaks', authenticateJWT, async (req: Request, r
       timestamp: new Date().toISOString(),
       hasLeaks: Object.keys(leaks).length > 0
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error detecting connection leaks:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to detect connection leaks',
@@ -141,7 +141,7 @@ router.get('/queries/stats', authenticateJWT, (req: Request, res: Response) => {
   try {
     const stats = queryPerformanceService.getQueryStats()
     res.json(stats)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting query stats:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve query statistics',
@@ -165,7 +165,7 @@ router.get('/queries/slow', authenticateJWT, (req: Request, res: Response) => {
       count: slowQueries.length,
       threshold: process.env.SLOW_QUERY_THRESHOLD_MS || 1000
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting slow queries:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve slow queries',
@@ -188,7 +188,7 @@ router.get('/queries/recent', authenticateJWT, (req: Request, res: Response) => 
       queries: recentQueries,
       count: recentQueries.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting recent queries:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve recent queries',
@@ -206,7 +206,7 @@ router.get('/queries/summary', authenticateJWT, (req: Request, res: Response) =>
   try {
     const summary = queryPerformanceService.getPerformanceSummary()
     res.json(summary)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting performance summary:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve performance summary',
@@ -232,7 +232,7 @@ router.post('/queries/analyze',csrfProtection, authenticateJWT, async (req: Requ
     const analysis = await queryPerformanceService.analyzeQueryPlan(pool, query, params)
 
     res.json(analysis)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error analyzing query:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to analyze query',
@@ -254,7 +254,7 @@ router.delete('/queries/metrics',csrfProtection, authenticateJWT, (req: Request,
       message: 'Query metrics cleared',
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error clearing metrics:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to clear metrics',
@@ -272,7 +272,7 @@ router.get('/workers/stats', authenticateJWT, (req: Request, res: Response) => {
   try {
     const stats = workerPool.getStats()
     res.json(stats)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting worker stats:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve worker statistics',
@@ -293,7 +293,7 @@ router.get('/workers/info', authenticateJWT, (req: Request, res: Response) => {
       workers: info,
       count: info.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting worker info:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve worker information',
@@ -344,7 +344,7 @@ router.get('/memory', authenticateJWT, (req: Request, res: Response) => {
     }
 
     res.json(memory)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting memory stats:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to retrieve memory statistics',
@@ -381,7 +381,7 @@ router.post('/gc',csrfProtection, authenticateJWT, (req: Request, res: Response)
         message: 'Garbage collection not available. Start Node with --expose-gc flag'
       })
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error triggering GC:', error) // Wave 22: Winston logger
     res.status(500).json({
       message: 'Failed to trigger garbage collection',

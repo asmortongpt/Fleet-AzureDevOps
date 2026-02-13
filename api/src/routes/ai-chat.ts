@@ -76,8 +76,8 @@ router.post(
       res.json({
         session: result.rows[0],
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('Create session error:', error)
@@ -116,7 +116,7 @@ router.get(
       res.json({
         sessions: result.rows,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get sessions error:', error)
       res.status(500).json({ error: 'Failed to get sessions', message: getErrorMessage(error) })
     }
@@ -162,7 +162,7 @@ router.get(
         session: sessionResult.rows[0],
         messages: messagesResult.rows,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get session error:', error)
       res.status(500).json({ error: 'Failed to get session', message: getErrorMessage(error) })
     }
@@ -195,7 +195,7 @@ router.delete(
       )
 
       res.json({ success: true, message: 'Session deleted' })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete session error:', error)
       res.status(500).json({ error: 'Failed to delete session', message: getErrorMessage(error) })
     }
@@ -394,8 +394,8 @@ router.post(
           responseTimeMs: responseTime,
         },
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('Chat error:', error)
@@ -569,7 +569,7 @@ router.post(
       )
 
       res.end()
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Streaming chat error:', error)
       res.write(`data: ${JSON.stringify({ error: getErrorMessage(error) })}\n\n`)
       res.end()
@@ -608,7 +608,7 @@ router.get(
       ]
 
       res.json({ suggestions })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Suggestions error:', error)
       res.status(500).json({ error: 'Failed to get suggestions' })
     }

@@ -115,7 +115,7 @@ router.get(
           pages: Math.ceil(total / parseInt(limit as string)),
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching reauthorization cycles:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to fetch reauthorization cycles',
@@ -191,7 +191,7 @@ router.post(
         message: `Annual reauthorization cycle created successfully`,
         cycle: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating reauthorization cycle:', error) // Wave 33: Winston logger (FINAL WAVE!);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -267,7 +267,7 @@ router.get(
       const result = await pool.query(query, params);
 
       res.json(result.rows);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching assignments for review:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to fetch assignments for review',
@@ -350,7 +350,7 @@ router.post(
         message: 'Reauthorization decision recorded successfully',
         decision: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating reauthorization decision:', error) // Wave 33: Winston logger (FINAL WAVE!);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -427,7 +427,7 @@ router.post(
         message: 'Reauthorization cycle submitted to Fleet Management successfully',
         cycle: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error submitting reauthorization cycle:', error) // Wave 33: Winston logger (FINAL WAVE!);
       res.status(500).json({
         error: 'Failed to submit reauthorization cycle',

@@ -110,7 +110,7 @@ router.get(
         total_assignments: result.rows.length,
         assignments: result.rows,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error generating assignment inventory report:', error) // Wave 30: Winston logger;
       res.status(500).json({
         error: 'Failed to generate assignment inventory report',
@@ -163,7 +163,7 @@ router.get(
         exceptions_by_type: summaryResult.rows,
         exceptions: result.rows,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error generating policy compliance report:', error) // Wave 30: Winston logger;
       res.status(500).json({
         error: 'Failed to generate policy compliance report',
@@ -256,7 +256,7 @@ router.get(
         changes_by_type: summaryResult.rows,
         changes: result.rows,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error generating assignment changes report:', error) // Wave 30: Winston logger;
       res.status(500).json({
         error: 'Failed to generate assignment changes report',
@@ -304,7 +304,7 @@ router.get(
         total_regions: result.rows.length,
         distribution: result.rows,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error generating region distribution report:', error) // Wave 30: Winston logger;
       res.status(500).json({
         error: 'Failed to generate region distribution report',
@@ -355,7 +355,7 @@ router.get(
         total_departments: result.rows.length,
         departments: result.rows,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error generating department summary report:', error) // Wave 30: Winston logger;
       res.status(500).json({
         error: 'Failed to generate department summary report',
@@ -434,7 +434,7 @@ router.get(
         filters: { start_date, end_date },
         summary: result.rows,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error generating on-call summary report:', error) // Wave 30: Winston logger;
       res.status(500).json({
         error: 'Failed to generate on-call summary report',
@@ -485,7 +485,7 @@ router.get(
         generated_by: req.user!.email,
         summary: result.rows,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error generating cost/benefit summary report:', error) // Wave 30: Winston logger;
       res.status(500).json({
         error: 'Failed to generate cost/benefit summary report',
@@ -687,7 +687,7 @@ router.post(
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
         res.send(csv);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error exporting report:', error) // Wave 30: Winston logger;
       res.status(500).json({
         error: 'Failed to export report',

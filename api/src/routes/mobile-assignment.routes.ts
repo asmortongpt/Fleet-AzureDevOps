@@ -174,7 +174,7 @@ router.get(
           pending_reimbursement_amount: parseFloat(reimbursementResult.rows[0].pending_amount) || 0,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching mobile employee dashboard:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch employee dashboard',
@@ -233,7 +233,7 @@ router.post(
         message: 'On-call period acknowledged successfully',
         period: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error acknowledging on-call period:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to acknowledge on-call period',
@@ -321,7 +321,7 @@ router.post(
         trip: result.rows[0],
         estimated_reimbursement: reimbursementAmount,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error logging callback trip:', error) // Wave 31: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -447,7 +447,7 @@ router.get(
           active_on_call_count: onCallResult.rows.length,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching manager mobile dashboard:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch manager dashboard',
@@ -525,7 +525,7 @@ router.post(
         message: `Assignment ${action}d successfully from mobile`,
         assignment: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error processing mobile approval:`, error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to process approval',
@@ -594,7 +594,7 @@ router.get(
         offline_data: offlineData,
         ttl_hours: 24, // Data valid for 24 hours
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching offline data:', error) // Wave 31: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch offline data',

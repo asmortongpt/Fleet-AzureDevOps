@@ -112,7 +112,7 @@ router.post(
         message: 'LiDAR scan processed successfully',
         data: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Process LiDAR scan error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -148,9 +148,9 @@ router.get(
         success: true,
         data: scanData,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get LiDAR scan error:', error);
-      if (error.message === 'Scan not found') {
+      if (error instanceof Error && error.message === 'Scan not found') {
         throw new NotFoundError('LiDAR scan not found');
       }
       res.status(500).json({
@@ -193,7 +193,7 @@ router.get(
           totalPages: Math.ceil(result.total / result.pageSize),
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('List LiDAR scans error:', error);
       res.status(500).json({
         success: false,
@@ -230,7 +230,7 @@ router.post(
         message: 'Volume calculation completed',
         data: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Calculate volume error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -275,7 +275,7 @@ router.post(
         message: 'Scan comparison completed',
         data: result,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Compare scans error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -323,7 +323,7 @@ router.post(
           status: 'processing',
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Generate model error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -359,7 +359,7 @@ router.get(
         success: true,
         data: arData,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get AR data error:', error);
       res.status(500).json({
         success: false,
@@ -392,7 +392,7 @@ router.post(
         message: 'Damage annotation added successfully',
         data: annotation,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Add annotation error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -432,7 +432,7 @@ router.get(
 
       // Redirect to blob storage URL
       res.redirect(model.fileUrl);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Download model error:', error);
       if (error instanceof NotFoundError) {
         res.status(404).json({
@@ -478,7 +478,7 @@ router.get(
         success: true,
         data: scanData,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get latest scan error:', error);
       if (error instanceof NotFoundError) {
         res.status(404).json({
@@ -525,7 +525,7 @@ router.get(
         success: true,
         data: stats,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get LiDAR stats error:', error);
       res.status(500).json({
         success: false,
@@ -556,7 +556,7 @@ router.delete(
         success: true,
         message: 'LiDAR scan deleted successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete LiDAR scan error:', error);
       res.status(500).json({
         success: false,

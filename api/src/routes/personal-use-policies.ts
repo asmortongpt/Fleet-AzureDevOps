@@ -115,7 +115,7 @@ router.get(
 	        success: true,
 	        data: policy
 	      });
-	    } catch (error: any) {
+	    } catch (error: unknown) {
 	      logger.error('Get policy error:', error);
 	      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
 	    }
@@ -184,7 +184,7 @@ router.put(
           ? 'Personal use policy updated successfully'
           : 'Personal use policy created successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update policy error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -297,7 +297,7 @@ router.get(
         success: true,
         data: response
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get usage limits error:', error);
       res.status(500).json({ error: 'Failed to calculate usage limits' });
     }
@@ -351,7 +351,7 @@ router.get(
           monthly_limit: policy.max_personal_miles_per_month
         }
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get drivers at limit error:', error);
       res.status(500).json({ error: 'Failed to retrieve drivers at limit' });
     }

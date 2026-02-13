@@ -75,7 +75,7 @@ router.post(`/teams/:teamId/channels/:channelId`, csrfProtection, async (req: Re
       errors: result.errors,
       message: `Synced ${result.synced} messages with ${result.errors} errors`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error syncing Teams channel:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -123,7 +123,7 @@ router.post(`/outlook/folders/:folderId`, csrfProtection, async (req: Request, r
       errors: result.errors,
       message: `Synced ${result.synced} emails with ${result.errors} errors`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error syncing Outlook folder:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -156,7 +156,7 @@ router.get('/status', async (req: Request, res: Response) => {
       status,
       totalResources: status.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sync status:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -215,7 +215,7 @@ router.post('/full',csrfProtection, async (req: Request, res: Response) => {
       },
       message: `Full re-sync completed`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error during full re-sync:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -256,7 +256,7 @@ router.get('/errors', async (req: Request, res: Response) => {
       errors,
       totalErrors: errors.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sync errors:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -306,7 +306,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
       jobs: result.rows,
       totalJobs: result.rows.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sync jobs:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -344,7 +344,7 @@ router.post(`/teams/all`, csrfProtection, async (req: Request, res: Response) =>
       errors: result.totalErrors,
       message: `Synced ${result.totalSynced} messages with ${result.totalErrors} errors`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error syncing all Teams channels:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -382,7 +382,7 @@ router.post(`/outlook/all`, csrfProtection, async (req: Request, res: Response) 
       errors: result.totalErrors,
       message: `Synced ${result.totalSynced} emails with ${result.totalErrors} errors`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error syncing all Outlook folders:`, error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -426,7 +426,7 @@ router.delete('/errors/:id',csrfProtection, async (req: Request, res: Response) 
       success: true,
       message: `Error marked as resolved`
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error resolving sync error:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,
@@ -512,7 +512,7 @@ router.get('/health', async (req: Request, res: Response) => {
         syncState: syncStateStats.rows
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting sync health:', error) // Wave 26: Winston logger
     res.status(500).json({
       success: false,

@@ -112,7 +112,7 @@ router.post('/process', csrfProtection, csrfProtection, upload.single('file'), a
         result,
       })
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OCR processing error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'OCR processing failed',
@@ -161,7 +161,7 @@ router.post('/batch', csrfProtection, csrfProtection, upload.array('files', 100)
       totalDocuments: documents.length,
       status: 'pending',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Batch OCR error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Batch OCR processing failed',
@@ -186,7 +186,7 @@ router.get('/job/:jobId', async (req: Request, res: Response) => {
     }
 
     return res.status(200).json(job)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting job status:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get job status',
@@ -211,7 +211,7 @@ router.get('/batch/:batchId', async (req: Request, res: Response) => {
     }
 
     return res.status(200).json(batch)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting batch status:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get batch status',
@@ -236,7 +236,7 @@ router.get('/result/:documentId', async (req: Request, res: Response) => {
     }
 
     return res.status(200).json(result)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting OCR result:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get OCR result',
@@ -266,7 +266,7 @@ router.post('/search', csrfProtection, csrfProtection, async (req: Request, res:
       totalResults: results.length,
       results,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('OCR search error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'OCR search failed',
@@ -290,7 +290,7 @@ router.delete('/job/:jobId', csrfProtection, csrfProtection, async (req: Request
       message: 'Job cancelled',
       jobId,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error cancelling job:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to cancel job',
@@ -315,7 +315,7 @@ router.post('/job/:jobId/retry', csrfProtection, csrfProtection, async (req: Req
       originalJobId: jobId,
       newJobId,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error retrying job:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to retry job',
@@ -336,7 +336,7 @@ router.get('/statistics', async (req: Request, res: Response) => {
     const stats = await ocrQueueService.getStatistics(tenantId)
 
     return res.status(200).json(stats)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting OCR statistics:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get statistics',
@@ -388,7 +388,7 @@ router.get('/providers', async (req: Request, res: Response) => {
     ]
 
     return res.status(200).json({ providers })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting providers:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get providers',
@@ -429,7 +429,7 @@ router.get('/languages', async (req: Request, res: Response) => {
     ]
 
     return res.status(200).json({ languages })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting languages:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Failed to get languages',
@@ -467,7 +467,7 @@ router.post('/cleanup', csrfProtection, requireAdmin, async (req: Request, res: 
       message: 'Cleanup completed',
       deletedJobs: deletedCount,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Cleanup error:', error) // Wave 25: Winston logger;
     return res.status(500).json({
       error: 'Cleanup failed',

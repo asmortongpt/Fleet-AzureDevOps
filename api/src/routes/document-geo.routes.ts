@@ -106,7 +106,7 @@ router.post('/nearby', csrfProtection, async (req: AuthRequest, res) => {
       total: documents.length,
       search_params: { lat, lng, radius }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error finding nearby documents:', error)
     res.status(500).json({
       error: 'Failed to find nearby documents',
@@ -169,7 +169,7 @@ router.post('/within-polygon', csrfProtection, async (req: AuthRequest, res) => 
       documents,
       total: documents.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error finding documents in polygon:', error)
     res.status(500).json({
       error: 'Failed to find documents in polygon',
@@ -248,7 +248,7 @@ router.post('/along-route', csrfProtection, async (req: AuthRequest, res) => {
       documents,
       total: documents.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error finding documents along route:', error)
     res.status(500).json({
       error: 'Failed to find documents along route',
@@ -289,7 +289,7 @@ router.get('/heatmap', async (req: AuthRequest, res) => {
       heatmap,
       total_cells: heatmap.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error generating heatmap:', error)
     res.status(500).json({
       error: 'Failed to generate heatmap',
@@ -331,7 +331,7 @@ router.get('/clusters', async (req: AuthRequest, res) => {
       total_clusters: clusters.length,
       total_documents: clusters.reduce((sum, c) => sum + c.document_count, 0)
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error clustering documents:', error)
     res.status(500).json({
       error: 'Failed to cluster documents',
@@ -372,7 +372,7 @@ router.post('/geocode', csrfProtection, async (req: AuthRequest, res) => {
     }
 
     res.json({ result })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error geocoding address:', error)
     res.status(500).json({
       error: 'Failed to geocode address',
@@ -423,7 +423,7 @@ router.post('/reverse-geocode', csrfProtection, async (req: AuthRequest, res) =>
     }
 
     res.json({ result })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error reverse geocoding:', error)
     res.status(500).json({
       error: 'Failed to reverse geocode',
@@ -480,7 +480,7 @@ router.put('/:id/location', csrfProtection, async (req: AuthRequest, res) => {
       message: 'Document location updated successfully',
       location: { lat, lng }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error setting document location:', error)
     res.status(500).json({
       error: 'Failed to set document location',
@@ -510,7 +510,7 @@ router.get('/all', async (req: AuthRequest, res) => {
       documents,
       total: documents.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting geolocated documents:', error)
     res.status(500).json({
       error: 'Failed to get geolocated documents',
@@ -556,7 +556,7 @@ router.post('/:id/extract-location', csrfProtection, async (req: AuthRequest, re
       document_id: id,
       note: 'Location will be extracted from EXIF data or text content'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error extracting location:', error)
     res.status(500).json({
       error: 'Failed to extract location',

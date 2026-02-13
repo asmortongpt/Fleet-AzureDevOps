@@ -29,8 +29,8 @@ try {
   } else if (process.env.SMARTCAR_CLIENT_ID) {
     logger.warn('⚠️  Smartcar partially configured - missing SMARTCAR_REDIRECT_URI or SMARTCAR_CLIENT_SECRET')
   }
-} catch (error: any) {
-  logger.warn('⚠️  Smartcar service not initialized:', error.message)
+} catch (error: unknown) {
+  logger.warn('⚠️  Smartcar service not initialized:', error instanceof Error ? error.message : 'Unknown error')
 }
 
 /**
@@ -75,9 +75,9 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
       authUrl,
       message: 'Redirect user to this URL to connect their vehicle'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Smartcar connect error:', error) // Wave 24: Winston logger
-    res.status(500).json({ error: error.message || 'Internal server error' })
+    res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
   }
 })
 
@@ -184,11 +184,11 @@ router.get('/callback', async (req: Request, res: Response) => {
       smartcar_connected: 'true'
     })
     res.redirect(safeSuccessUrl)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Smartcar callback error:', error) // Wave 24: Winston logger
     const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
       error: 'smartcar_auth_failed',
-      message: error.message || 'Connection failed'
+      message: error instanceof Error ? error.message : 'Connection failed'
     })
     res.redirect(safeErrorUrl)
   }
@@ -220,9 +220,9 @@ router.get(
       const location = await smartcarService.getLocation(connection.external_vehicle_id, accessToken)
 
       res.json(location)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get Smartcar location error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -253,9 +253,9 @@ router.get(
       const battery = await smartcarService.getBattery(connection.external_vehicle_id, accessToken)
 
       res.json(battery)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get Smartcar battery error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -286,9 +286,9 @@ router.get(
       const charge = await smartcarService.getChargeStatus(connection.external_vehicle_id, accessToken)
 
       res.json(charge)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get Smartcar charge error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -319,9 +319,9 @@ router.post(
       const result = await smartcarService.lockDoors(connection.external_vehicle_id, accessToken)
 
       res.json(result)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Lock vehicle error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -352,9 +352,9 @@ router.post(
       const result = await smartcarService.unlockDoors(connection.external_vehicle_id, accessToken)
 
       res.json(result)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Unlock vehicle error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -385,9 +385,9 @@ router.post(
       const result = await smartcarService.startCharging(connection.external_vehicle_id, accessToken)
 
       res.json(result)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Start charging error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -418,9 +418,9 @@ router.post(
       const result = await smartcarService.stopCharging(connection.external_vehicle_id, accessToken)
 
       res.json(result)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Stop charging error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -460,9 +460,9 @@ router.delete(
       )
 
       res.json({ message: 'Smartcar disconnected successfully' })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Disconnect Smartcar error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -487,9 +487,9 @@ router.post(
       await smartcarService.syncVehicleData(vehicleId)
 
       res.json({ message: 'Vehicle data synced successfully' })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Sync Smartcar data error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )

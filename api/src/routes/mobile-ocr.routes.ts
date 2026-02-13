@@ -201,7 +201,7 @@ router.post(
         confidenceScores: ocrResult.confidenceScores,
         documentId,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Fuel receipt OCR error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       // Clean up uploaded file on error
@@ -375,7 +375,7 @@ router.post(
         confidence: ocrResult.confidence,
         documentId,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Odometer OCR error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       // Clean up uploaded file on error
@@ -435,7 +435,7 @@ router.post(
               }
             );
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             validationResult.errors = error.issues.map(e => ({
               field: e.path.join(`.`),
@@ -458,7 +458,7 @@ router.post(
               `Low confidence (${(validatedData.data.confidence * 100).toFixed(0)}%) for odometer reading`
             );
           }
-        } catch (error: any) {
+        } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             validationResult.errors = error.issues.map(e => ({
               field: e.path.join(`.`),
@@ -469,7 +469,7 @@ router.post(
       }
 
       return res.status(200).json(validationResult);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Validation error:', error) // Wave 33: Winston logger (FINAL WAVE!);
 
       if (error instanceof z.ZodError) {
@@ -525,7 +525,7 @@ router.get(
           total: result.rows.length,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching OCR history:`, error) // Wave 33: Winston logger (FINAL WAVE!);
       return res.status(500).json({
         error: 'Failed to fetch OCR history',

@@ -177,17 +177,18 @@ async function executeInternalRequest(
       status,
       data
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('[Batch] Internal request failed:', {
       url: batchReq.url,
-      error: error.message,
-      stack: error.stack
+      error: errMsg,
+      stack: error instanceof Error ? error.stack : undefined
     });
 
     return {
       success: false,
       status: 500,
-      error: error.message || 'Internal server error'
+      error: errMsg
     };
   }
 }

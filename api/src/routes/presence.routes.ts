@@ -33,7 +33,7 @@ router.get('/:userId', authenticateJWT, async (req: Request, res: Response) => {
       success: true,
       presence
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching user presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -59,7 +59,7 @@ router.post('/', csrfProtection, authenticateJWT, async (req: Request, res: Resp
       success: true,
       message: 'Presence updated successfully'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error setting user presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -86,7 +86,7 @@ router.get('/batch/users', authenticateJWT, async (req: Request, res: Response) 
       count: presences.length,
       presences
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching batch presence:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -107,7 +107,7 @@ router.get('/driver/:driverId', authenticateJWT, async (req: Request, res: Respo
       driverId,
       ...availability
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching driver availability:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -128,7 +128,7 @@ router.get('/drivers/all', authenticateJWT, async (req: Request, res: Response) 
       count: drivers.length,
       drivers
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching all drivers availability:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -149,7 +149,7 @@ router.get('/drivers/available', authenticateJWT, async (req: Request, res: Resp
       count: availableDrivers.length,
       drivers: availableDrivers
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching available drivers:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -182,7 +182,7 @@ router.post('/intelligent-routing', csrfProtection, authenticateJWT, async (req:
       success: true,
       suggestion
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting intelligent routing suggestion:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -220,7 +220,7 @@ router.post('/subscribe', csrfProtection, authenticateJWT, async (req: Request, 
     let graphSubscription = null
     try {
       graphSubscription = await subscribeToPresence(userIds, webhookUrl)
-    } catch (graphError: any) {
+    } catch (graphError: unknown) {
       // Log but do not fail -- the local DB subscription is still stored
       logger.warn('Microsoft Graph presence subscription failed (local DB subscription still active):', getErrorMessage(graphError))
     }
@@ -233,7 +233,7 @@ router.post('/subscribe', csrfProtection, authenticateJWT, async (req: Request, 
       graphSubscriptionId: graphSubscription?.id || null,
       monitoredUserIds: userIds
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error creating presence subscription:', getErrorMessage(error)) // Wave 29: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }

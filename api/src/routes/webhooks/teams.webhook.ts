@@ -70,7 +70,7 @@ router.post(
         })
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Teams webhook error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -108,8 +108,9 @@ async function processNotificationAsync(notification: any): Promise<void> {
         logger.warn('⚠️  Unknown change type:', changeType)
     }
 
-  } catch (error: any) {
-    logger.error('Error processing Teams notification:', error.message)
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error processing Teams notification:', errMsg)
 
     // Log error to database for retry
     try {
@@ -125,7 +126,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
            ORDER BY received_at DESC
            LIMIT 1
          )`,
-        [error.message, notification.subscriptionId, notification.resource]
+        [errMsg, notification.subscriptionId, notification.resource]
       )
     } catch (dbError) {
       logger.error('Failed to log error to database:', dbError)
@@ -210,8 +211,8 @@ async function handleMessageUpdate(notification: any): Promise<void> {
 
     logger.info('✅ Teams message updated:', messageId)
 
-  } catch (error: any) {
-    logger.error('Failed to handle message update:', error.message)
+  } catch (error: unknown) {
+    logger.error('Failed to handle message update:', error instanceof Error ? error.message : 'An unexpected error occurred')
     throw error
   }
 }
@@ -253,8 +254,8 @@ async function handleMessageDelete(notification: any): Promise<void> {
       logger.warn('⚠️  Message not found for deletion:', messageId)
     }
 
-  } catch (error: any) {
-    logger.error('Failed to handle message delete:', error.message)
+  } catch (error: unknown) {
+    logger.error('Failed to handle message delete:', error instanceof Error ? error.message : 'An unexpected error occurred')
     throw error
   }
 }
@@ -286,7 +287,7 @@ router.get(
         count: result.rows.length
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to list Teams subscriptions:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -341,11 +342,11 @@ router.post(
         }
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to create Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to create subscription',
-        details: error.message
+        details: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
     }
   }
@@ -392,11 +393,11 @@ router.delete(
         subscriptionId
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to delete Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to delete subscription',
-        details: error.message
+        details: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
     }
   }
@@ -443,11 +444,11 @@ router.post(
         subscriptionId
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to renew Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to renew subscription',
-        details: error.message
+        details: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
     }
   }
@@ -491,7 +492,7 @@ router.get(
         count: result.rows.length
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to fetch webhook events:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
