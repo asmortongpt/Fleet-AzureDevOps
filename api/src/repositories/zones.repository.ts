@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
 import { BaseRepository } from './base/BaseRepository';
 import { pool as sharedPool } from '../db';
 
@@ -38,7 +39,7 @@ export class ZonesRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
-      console.error('Error in findAll:', error);
+      logger.error('ZonesRepository.findAll failed', { error });
       throw new Error('Failed to fetch records');
     }
   }
@@ -55,7 +56,7 @@ export class ZonesRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [id, tenantId]);
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Error in findById:', error);
+      logger.error('ZonesRepository.findById failed', { error });
       throw new Error('Failed to fetch record');
     }
   }
@@ -73,7 +74,7 @@ export class ZonesRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [tenantId, data.name]);
       return result.rows[0];
     } catch (error) {
-      console.error('Error in create:', error);
+      logger.error('ZonesRepository.create failed', { error });
       throw new Error('Failed to create record');
     }
   }
@@ -92,7 +93,7 @@ export class ZonesRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [data.name, id, tenantId]);
       return result.rows[0] ?? null;
     } catch (error) {
-      console.error('Error in update:', error);
+      logger.error('ZonesRepository.update failed', { error });
       throw new Error('Failed to update record');
     }
   }
@@ -110,7 +111,7 @@ export class ZonesRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [id, tenantId]);
       return (result.rowCount ?? 0) > 0;
     } catch (error) {
-      console.error('Error in softDelete:', error);
+      logger.error('ZonesRepository.softDelete failed', { error });
       throw new Error('Failed to delete record');
     }
   }

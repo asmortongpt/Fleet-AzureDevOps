@@ -8,6 +8,7 @@
 import { AxiosInstance } from 'axios';
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
 import { createSafeAxiosInstance } from '../utils/ssrf-protection';
 
 const SAMSARA_API_TOKEN = process.env.SAMSARA_API_TOKEN;
@@ -98,10 +99,10 @@ class SamsaraService {
       const response = await this.api.get(`/fleet/vehicles`, {
         params: { limit: 1 }
       });
-      console.log(`✅ Samsara connected: ${response.data.data?.length || 0} vehicles accessible`);
+      logger.info('Samsara connected', { vehicleCount: response.data.data?.length || 0 });
       return true;
     } catch (error: any) {
-      console.error(`❌ Samsara connection failed:`, error.message);
+      logger.error('Samsara connection failed', { error: error.message });
       return false;
     }
   }
@@ -210,7 +211,7 @@ class SamsaraService {
    * Sync all vehicles from Samsara to database
    */
   async syncVehicles(): Promise<number> {
-    console.log('🔄 Syncing vehicles from Samsara...');
+    logger.info('Syncing vehicles from Samsara');
 
     const samsaraVehicles = await this.getVehicles();
     let synced = 0;
@@ -254,11 +255,11 @@ class SamsaraService {
 
         synced++;
       } catch (error: any) {
-        console.error(`Error syncing vehicle ${vehicle.name}:`, error.message);
+        logger.error('Error syncing vehicle', { vehicleName: vehicle.name, error: error.message });
       }
     }
 
-    console.log(`✅ Synced ${synced} vehicles from Samsara`);
+    logger.info('Synced vehicles from Samsara', { count: synced });
     return synced;
   }
 
@@ -266,7 +267,7 @@ class SamsaraService {
    * Sync telemetry data for all connected vehicles
    */
   async syncTelemetry(): Promise<number> {
-    console.log(`🔄 Syncing telemetry from Samsara...`);
+    logger.info('Syncing telemetry from Samsara');
 
     // Get all Samsara-connected vehicles
     const connections = await this.db.query(
@@ -277,7 +278,7 @@ class SamsaraService {
     );
 
     if (connections.rows.length === 0) {
-      console.log('No Samsara vehicles to sync');
+      logger.info('No Samsara vehicles to sync');
       return 0;
     }
 
@@ -337,7 +338,7 @@ continue;
 
         synced++;
       } catch (error: any) {
-        console.error(`Error syncing telemetry for vehicle ${conn.vehicle_id}:`, error.message);
+        logger.error('Error syncing telemetry for vehicle', { vehicleId: conn.vehicle_id, error: error.message });
 
         // Mark connection as error
         await this.db.query(
@@ -347,7 +348,7 @@ continue;
       }
     }
 
-    console.log(`✅ Synced telemetry for ${synced} vehicles`);
+    logger.info('Synced telemetry for vehicles', { count: synced });
     return synced;
   }
 
@@ -355,7 +356,7 @@ continue;
    * Sync safety events from the last hour
    */
   async syncSafetyEvents(): Promise<number> {
-    console.log(`🔄 Syncing safety events from Samsara...`);
+    logger.info('Syncing safety events from Samsara');
 
     const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
     const now = new Date().toISOString();
@@ -408,11 +409,11 @@ continue;
 
         synced++;
       } catch (error: any) {
-        console.error(`Error syncing safety event ${event.id}:`, error.message);
+        logger.error('Error syncing safety event', { eventId: event.id, error: error.message });
       }
     }
 
-    console.log(`✅ Synced ${synced} safety events`);
+    logger.info('Synced safety events', { count: synced });
     return synced;
   }
 
@@ -420,13 +421,13 @@ continue;
    * Full sync: vehicles, telemetry, and safety events
    */
   async fullSync(): Promise<{ vehicles: number; telemetry: number; events: number }> {
-    console.log(`🔄 Starting full Samsara sync...`);
+    logger.info('Starting full Samsara sync');
 
     const vehicles = await this.syncVehicles();
     const telemetry = await this.syncTelemetry();
     const events = await this.syncSafetyEvents();
 
-    console.log(`✅ Full sync complete: ${vehicles} vehicles, ${telemetry} telemetry records, ${events} events`);
+    logger.info('Full Samsara sync complete', { vehicles, telemetry, events });
 
     return { vehicles, telemetry, events };
   }

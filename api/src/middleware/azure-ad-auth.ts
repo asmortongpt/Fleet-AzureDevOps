@@ -8,15 +8,6 @@ interface UserPayload {
   exp: number;
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      // @ts-expect-error - Build compatibility fix
-      user?: UserPayload;
-    }
-  }
-}
-
 const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
 
@@ -40,7 +31,6 @@ const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {
     // In production, use environment variable for secret or key
     const secret = process.env.JWT_SECRET || 'default-secret';
     const decoded = jwt.verify(token, secret) as UserPayload;
-    // @ts-expect-error - Build compatibility fix
     req.user = decoded;
     return next();
   } catch (err) {

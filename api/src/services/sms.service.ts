@@ -7,6 +7,8 @@ import Bottleneck from 'bottleneck';
 import { Pool } from 'pg';
 import twilio from 'twilio';
 
+import logger from '../config/logger';
+
 export interface SMSMessage {
   to: string;
   body: string;
@@ -77,12 +79,12 @@ class SMSService {
 
       if (accountSid && authToken) {
         this.client = twilio(accountSid, authToken);
-        console.log('Twilio client initialized');
+        logger.info('Twilio client initialized');
       } else {
-        console.warn('Twilio credentials not configured, SMS functionality disabled');
+        logger.warn('Twilio credentials not configured, SMS functionality disabled');
       }
     } catch (error) {
-      console.error('Failed to initialize Twilio:', error);
+      logger.error('Failed to initialize Twilio', { error });
     }
   }
 
@@ -132,7 +134,7 @@ class SMSService {
 
       return result.sid;
     } catch (error: any) {
-      console.error('Error sending SMS:', error);
+      logger.error('Error sending SMS', { error });
 
       // Log error
       if (error.logId) {
@@ -186,7 +188,7 @@ class SMSService {
 
       return result.sid;
     } catch (error: any) {
-      console.error(`Error sending MMS:`, error);
+      logger.error('Error sending MMS', { error });
       throw error;
     }
   }
@@ -262,7 +264,7 @@ class SMSService {
         createdBy
       );
     } catch (error) {
-      console.error(`Error sending from template:`, error);
+      logger.error('Error sending from template', { error });
       throw error;
     }
   }
@@ -286,9 +288,9 @@ class SMSService {
         [MessageStatus, ErrorCode, ErrorMessage, MessageSid]
       );
 
-      console.log(`SMS status updated: ${MessageSid} -> ${MessageStatus}`);
+      logger.info('SMS status updated', { messageSid: MessageSid, status: MessageStatus });
     } catch (error) {
-      console.error(`Error handling webhook:`, error);
+      logger.error('Error handling webhook', { error });
     }
   }
 
@@ -351,7 +353,7 @@ class SMSService {
       const result = await this.db.query(query, params);
       return result.rows;
     } catch (error) {
-      console.error(`Error getting SMS history:`, error);
+      logger.error('Error getting SMS history', { error });
       throw error;
     }
   }
@@ -374,7 +376,7 @@ class SMSService {
       const result = await this.db.query(query, params);
       return result.rows;
     } catch (error) {
-      console.error('Error getting templates:', error);
+      logger.error('Error getting templates', { error });
       throw error;
     }
   }
@@ -391,7 +393,7 @@ class SMSService {
 
       return result.rows.length > 0 ? result.rows[0] : null;
     } catch (error) {
-      console.error('Error getting template:', error);
+      logger.error('Error getting template', { error });
       return null;
     }
   }
@@ -416,7 +418,7 @@ class SMSService {
 
       return result.rows[0].id;
     } catch (error) {
-      console.error('Error creating template:', error);
+      logger.error('Error creating template', { error });
       throw error;
     }
   }
@@ -464,7 +466,7 @@ class SMSService {
         deliveryRate: totalSent > 0 ? (delivered / totalSent) * 100 : 0,
       };
     } catch (error) {
-      console.error(`Error getting statistics:`, error);
+      logger.error('Error getting statistics', { error });
       throw error;
     }
   }
@@ -476,9 +478,9 @@ class SMSService {
    */
   private async sendViaTwilio(message: SMSMessage, from: string): Promise<any> {
     if (!this.client) {
-      const error = 'Twilio not initialized - SMS functionality is disabled';
-      console.error(error);
-      throw new Error(error);
+      const errorMsg = 'Twilio not initialized - SMS functionality is disabled';
+      logger.error(errorMsg);
+      throw new Error(errorMsg);
     }
 
     try {
@@ -491,7 +493,7 @@ class SMSService {
 
       return result;
     } catch (error) {
-      console.error('Twilio API error:', error);
+      logger.error('Twilio API error', { error });
       throw error;
     }
   }
@@ -517,7 +519,7 @@ class SMSService {
 
       return result.rows[0].id;
     } catch (error) {
-      console.error(`Error logging message:`, error);
+      logger.error('Error logging message', { error });
       throw error;
     }
   }
@@ -584,7 +586,7 @@ class SMSService {
 
       await this.db.query(query, params);
     } catch (error) {
-      console.error('Error updating message log:', error);
+      logger.error('Error updating message log', { error });
     }
   }
 

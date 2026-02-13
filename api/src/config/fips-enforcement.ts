@@ -11,6 +11,8 @@
 
 import crypto from 'crypto'
 
+import logger from './logger'
+
 interface FIPSStatus {
   enabled: boolean
   mode: 'FIPS 140-2' | 'Standard' | 'Error'
@@ -57,7 +59,7 @@ export class FIPSEnforcement {
       }
     } catch (error) {
       mode = 'Error'
-      console.error('❌ Error checking FIPS status:', error)
+      logger.error('Error checking FIPS status', { error })
     }
 
     // Determine enforcement level
@@ -89,59 +91,30 @@ export class FIPSEnforcement {
   public enforceFIPS(): void {
     const status = this.fipsStatus
 
-    console.log('\n╔═══════════════════════════════════════════════════════════════╗')
-    console.log('║              FIPS 140-2 COMPLIANCE CHECK                      ║')
-    console.log('╠═══════════════════════════════════════════════════════════════╣')
-    console.log(`║ FIPS Mode:           ${status.enabled ? '✅ ENABLED' : '❌ DISABLED'}                             ║`)
-    console.log(`║ Mode:                ${status.mode.padEnd(38)}║`)
-    console.log(`║ Node.js Version:     ${status.nodeVersion.padEnd(38)}║`)
-    console.log(`║ OpenSSL Version:     ${status.openSSLVersion.padEnd(38)}║`)
-    console.log(`║ Environment:         ${(process.env.NODE_ENV || 'development').toUpperCase().padEnd(38)}║`)
-    console.log(`║ Enforcement:         ${status.enforcement.padEnd(38)}║`)
-    console.log('╠═══════════════════════════════════════════════════════════════╣')
-    console.log(`║ FIPS-Approved Algorithms:                                     ║`)
-    console.log(`║  • Password Hashing: ${status.algorithms.passwordHashing.padEnd(38)}║`)
-    console.log(`║  • JWT Signing:      ${status.algorithms.jwtSigning.padEnd(38)}║`)
-    console.log(`║  • Hashing:          ${status.algorithms.hashing.padEnd(38)}║`)
-    console.log(`║  • MAC:              ${status.algorithms.mac.padEnd(38)}║`)
-    console.log(`║  • RNG:              ${status.algorithms.rng.padEnd(38)}║`)
-    console.log(`╚═══════════════════════════════════════════════════════════════╝\n`)
+    logger.info('FIPS 140-2 compliance check', {
+      fipsEnabled: status.enabled,
+      mode: status.mode,
+      nodeVersion: status.nodeVersion,
+      openSSLVersion: status.openSSLVersion,
+      environment: (process.env.NODE_ENV || 'development').toUpperCase(),
+      enforcement: status.enforcement,
+      algorithms: status.algorithms
+    })
 
     if (status.enforcement === 'STRICT' && !status.enabled) {
       // PRODUCTION: Refuse to start without FIPS mode
-      console.error('╔═══════════════════════════════════════════════════════════════╗')
-      console.error('║                    ⛔ FATAL ERROR ⛔                           ║')
-      console.error('╠═══════════════════════════════════════════════════════════════╣')
-      console.error('║ FIPS 140-2 mode is REQUIRED in production but is NOT enabled ║')
-      console.error('║                                                               ║')
-      console.error('║ To enable FIPS mode:                                          ║')
-      console.error('║   NODE_OPTIONS="--enable-fips" node server.js                 ║')
-      console.error('║                                                               ║')
-      console.error('║ OR set environment variable:                                  ║')
-      console.error('║   export NODE_OPTIONS="--enable-fips"                         ║')
-      console.error('║                                                               ║')
-      console.error('║ Note: Requires OpenSSL built with FIPS support               ║')
-      console.error('╚═══════════════════════════════════════════════════════════════╝\n')
+      logger.error('FATAL: FIPS 140-2 mode is REQUIRED in production but is NOT enabled. To enable: NODE_OPTIONS="--enable-fips" node server.js. Requires OpenSSL built with FIPS support.')
 
       throw new Error('FIPS 140-2 mode is required in production but is not enabled')
     }
 
     if (status.enforcement === 'WARNING' && !status.enabled) {
       // DEVELOPMENT: Warn but continue
-      console.warn('╔═══════════════════════════════════════════════════════════════╗')
-      console.warn('║                    ⚠️  WARNING ⚠️                              ║')
-      console.warn('╠═══════════════════════════════════════════════════════════════╣')
-      console.warn('║ FIPS 140-2 mode is NOT enabled (Development Mode)            ║')
-      console.warn('║                                                               ║')
-      console.warn('║ This is acceptable for development on macOS, but:            ║')
-      console.warn('║  • All cryptographic algorithms are FIPS-approved            ║')
-      console.warn('║  • Production deployment MUST enable FIPS mode               ║')
-      console.warn('║  • Use Linux with FIPS-enabled OpenSSL for production       ║')
-      console.warn('╚═══════════════════════════════════════════════════════════════╝\n')
+      logger.warn('FIPS 140-2 mode is NOT enabled (Development Mode). All cryptographic algorithms are FIPS-approved. Production deployment MUST enable FIPS mode with FIPS-enabled OpenSSL on Linux.')
     }
 
     if (status.enabled) {
-      console.log('✅ FIPS 140-2 mode is ENABLED - All cryptographic operations are validated\n')
+      logger.info('FIPS 140-2 mode is ENABLED - All cryptographic operations are validated')
     }
   }
 
@@ -167,14 +140,12 @@ export class FIPSEnforcement {
     try {
       if (crypto.getFips() === 0) {
         crypto.setFips(true)
-        console.log('✅ Successfully enabled FIPS mode at runtime')
+        logger.info('Successfully enabled FIPS mode at runtime')
         return true
       }
       return true // Already enabled
     } catch (error) {
-      console.error('❌ Failed to enable FIPS mode:', error)
-      console.error('   This system does not support FIPS mode')
-      console.error('   OpenSSL must be built with FIPS support')
+      logger.error('Failed to enable FIPS mode. This system does not support FIPS mode. OpenSSL must be built with FIPS support.', { error })
       return false
     }
   }

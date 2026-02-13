@@ -18,6 +18,8 @@ import { EventEmitter } from 'events';
 import { Pool } from 'pg';
 import WebSocket from 'ws';
 
+import logger from '../config/logger';
+
 // OCPP 2.0.1 Message Types
 enum MessageType {
   CALL = 2,           // Request
@@ -167,20 +169,20 @@ class OCPPService extends EventEmitter {
       );
 
       if (result.rows.length === 0) {
-        console.error(`Station ${stationId} not found in database`);
+        logger.error('Station not found in database', { stationId });
         return false;
       }
 
       const station = result.rows[0];
 
       if (!station.ws_url) {
-        console.error(`Station ${stationId} has no WebSocket URL configured`);
+        logger.error('Station has no WebSocket URL configured', { stationId });
         return false;
       }
 
       // Check if already connected
       if (this.connections.has(stationId)) {
-        console.log(`Station ${stationId} already connected`);
+        logger.info('Station already connected', { stationId });
         return true;
       }
 
@@ -188,7 +190,7 @@ class OCPPService extends EventEmitter {
       const ws = new WebSocket(station.ws_url, `ocpp2.0.1`);
 
       ws.on(`open`, () => {
-        console.log(`✅ Connected to station ${stationId}`);
+        logger.info('Connected to station', { stationId });
         this.connections.set(stationId, ws);
         this.updateStationStatus(stationId, { is_online: true, last_heartbeat: new Date() });
         this.emit('stationConnected', stationId);
@@ -199,7 +201,7 @@ class OCPPService extends EventEmitter {
       });
 
       ws.on(`close`, () => {
-        console.log(`❌ Disconnected from station ${stationId}`);
+        logger.info('Disconnected from station', { stationId });
         this.connections.delete(stationId);
         this.updateStationStatus(stationId, { is_online: false });
         this.emit('stationDisconnected', stationId);
@@ -209,13 +211,13 @@ class OCPPService extends EventEmitter {
       });
 
       ws.on(`error`, (error) => {
-        console.error(`WebSocket error for station ${stationId}:`, error.message);
+        logger.error('WebSocket error for station', { stationId, error: error.message });
         this.emit('stationError', { stationId, error: error.message });
       });
 
       return true;
     } catch (error: any) {
-      console.error(`Error connecting to station ${stationId}:`, error.message);
+      logger.error('Error connecting to station', { stationId, error: error.message });
       return false;
     }
   }
@@ -248,7 +250,7 @@ class OCPPService extends EventEmitter {
           break;
       }
     } catch (error: any) {
-      console.error(`Error handling message from ${stationId}:`, error.message);
+      logger.error('Error handling message from station', { stationId, error: error.message });
     }
   }
 
@@ -281,7 +283,7 @@ class OCPPService extends EventEmitter {
           break;
 
         default:
-          console.warn(`Unhandled action: ${action}`);
+          logger.warn('Unhandled action', { action });
           response = {};
       }
 
@@ -297,7 +299,7 @@ class OCPPService extends EventEmitter {
    * Handle BootNotification
    */
   private async handleBootNotification(stationId: string, payload: any): Promise<any> {
-    console.log(`📡 Boot notification from ${stationId}:`, payload);
+    logger.info('Boot notification received', { stationId, payload });
 
     // Update station info
     await this.db.query(
@@ -335,7 +337,7 @@ class OCPPService extends EventEmitter {
   private async handleStatusNotification(stationId: string, payload: any): Promise<any> {
     const { connectorId, connectorStatus, evseId } = payload;
 
-    console.log(`📊 Status update from ${stationId} connector ${connectorId}: ${connectorStatus}`);
+    logger.info('Status update from station connector', { stationId, connectorId, connectorStatus });
 
     // Update connector status
     await this.db.query(
@@ -360,7 +362,7 @@ class OCPPService extends EventEmitter {
   private async handleTransactionEvent(stationId: string, payload: any): Promise<any> {
     const { eventType, transactionInfo, meterValue, idToken } = payload;
 
-    console.log(`💳 Transaction event from ${stationId}: ${eventType}`, transactionInfo);
+    logger.info('Transaction event received', { stationId, eventType, transactionInfo });
 
     if (eventType === `Started`) {
       // Start new charging session
@@ -506,7 +508,7 @@ class OCPPService extends EventEmitter {
 
     if (response.status === `Accepted`) {
       // Will create session when TransactionEvent is received
-      console.log(`✅ Remote start accepted for station ${stationId}`);
+      logger.info('Remote start accepted for station', { stationId });
     }
 
     return response;

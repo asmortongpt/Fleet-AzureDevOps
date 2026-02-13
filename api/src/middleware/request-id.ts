@@ -16,16 +16,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 import logger from '../config/logger'
 
-// Extend Express Request type to include requestId
-declare global {
-  namespace Express {
-    interface Request {
-      requestId?: string
-      startTime?: number
-    }
-  }
-}
-
 /**
  * Request ID configuration
  */

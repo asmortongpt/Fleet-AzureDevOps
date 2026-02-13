@@ -6,6 +6,7 @@
 
 import { BlobServiceClient, ContainerClient, BlobSASPermissions } from '@azure/storage-blob'
 
+import logger from '../../config/logger'
 import { StorageAdapter, StorageMetadata, UploadOptions } from './storage-adapter.base'
 
 export interface CloudStorageConfig {
@@ -68,9 +69,9 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
         access: 'blob' // Allow public read access to blobs
       })
 
-      console.log(`✅ Azure Blob Storage initialized: ${this.containerName}`)
+      logger.info('Azure Blob Storage initialized', { containerName: this.containerName })
     } catch (error) {
-      console.error(`❌ Failed to initialize Azure Blob Storage:`, error)
+      logger.error('Failed to initialize Azure Blob Storage', { error })
       throw new Error(`Failed to initialize Azure Blob Storage: ${error}`)
     }
   }
@@ -96,10 +97,10 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
         metadata: options?.metadata
       })
 
-      console.log(`✅ File uploaded to Azure Blob: ${filePath}`)
+      logger.info('File uploaded to Azure Blob', { filePath })
       return blobClient.url
     } catch (error) {
-      console.error(`❌ Failed to upload file to Azure Blob:`, error)
+      logger.error('Failed to upload file to Azure Blob', { error })
       throw new Error(`Failed to upload file: ${error}`)
     }
   }
@@ -122,10 +123,10 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
         chunks.push(Buffer.from(chunk))
       }
 
-      console.log(`✅ File downloaded from Azure Blob: ${filePath}`)
+      logger.info('File downloaded from Azure Blob', { filePath })
       return Buffer.concat(chunks)
     } catch (error) {
-      console.error(`❌ Failed to download file from Azure Blob:`, error)
+      logger.error('Failed to download file from Azure Blob', { error })
       throw new Error(`Failed to download file: ${error}`)
     }
   }
@@ -139,9 +140,9 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
       const blobClient = this.containerClient.getBlockBlobClient(filePath)
       await blobClient.deleteIfExists()
 
-      console.log(`✅ File deleted from Azure Blob: ${filePath}`)
+      logger.info('File deleted from Azure Blob', { filePath })
     } catch (error) {
-      console.error(`❌ Failed to delete file from Azure Blob:`, error)
+      logger.error('Failed to delete file from Azure Blob', { error })
       throw new Error(`Failed to delete file: ${error}`)
     }
   }
@@ -155,7 +156,7 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
       const blobClient = this.containerClient.getBlockBlobClient(filePath)
       return await blobClient.exists()
     } catch (error) {
-      console.error(`❌ Failed to check file existence:`, error)
+      logger.error('Failed to check file existence', { error })
       return false
     }
   }
@@ -177,7 +178,7 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
         ...properties.metadata
       }
     } catch (error) {
-      console.error(`❌ Failed to get metadata from Azure Blob:`, error)
+      logger.error('Failed to get metadata from Azure Blob', { error })
       throw new Error(`Failed to get metadata: ${error}`)
     }
   }
@@ -194,10 +195,10 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
       const copyPoller = await destBlob.beginCopyFromURL(sourceBlob.url)
       await copyPoller.pollUntilDone()
 
-      console.log(`✅ File copied in Azure Blob: ${sourcePath} -> ${destPath}`)
+      logger.info('File copied in Azure Blob', { sourcePath, destPath })
       return destBlob.url
     } catch (error) {
-      console.error(`❌ Failed to copy file in Azure Blob:`, error)
+      logger.error('Failed to copy file in Azure Blob', { error })
       throw new Error(`Failed to copy file: ${error}`)
     }
   }
@@ -208,10 +209,10 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
       const url = await this.copy(sourcePath, destPath)
       await this.delete(sourcePath)
 
-      console.log(`✅ File moved in Azure Blob: ${sourcePath} -> ${destPath}`)
+      logger.info('File moved in Azure Blob', { sourcePath, destPath })
       return url
     } catch (error) {
-      console.error(`❌ Failed to move file in Azure Blob:`, error)
+      logger.error('Failed to move file in Azure Blob', { error })
       throw new Error(`Failed to move file: ${error}`)
     }
   }
@@ -242,7 +243,7 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
 
       return files
     } catch (error) {
-      console.error(`❌ Failed to list files in Azure Blob:`, error)
+      logger.error('Failed to list files in Azure Blob', { error })
       return []
     }
   }
@@ -267,7 +268,7 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
 
       return sasUrl
     } catch (error) {
-      console.error(`❌ Failed to generate signed URL:`, error)
+      logger.error('Failed to generate signed URL', { error })
       throw new Error(`Failed to generate signed URL: ${error}`)
     }
   }
@@ -293,9 +294,7 @@ export class AzureBlobStorageAdapter extends StorageAdapter {
 export class S3StorageAdapter extends StorageAdapter {
   constructor(config: CloudStorageConfig) {
     super(config)
-    console.warn(
-      `⚠️  S3 Storage Adapter is a template. Integrate with AWS SDK for production use.`
-    )
+    logger.warn('S3 Storage Adapter is a template. Integrate with AWS SDK for production use.')
   }
 
   async initialize(): Promise<void> {

@@ -10,6 +10,7 @@ import path from 'path'
 
 import { validatePathWithinDirectory } from '../../utils/safe-file-operations'
 
+import logger from '../../config/logger'
 import { StorageAdapter, StorageMetadata, UploadOptions } from './storage-adapter.base'
 
 export interface LocalStorageConfig {
@@ -34,9 +35,9 @@ export class LocalStorageAdapter extends StorageAdapter {
   async initialize(): Promise<void> {
     try {
       await fs.mkdir(this.basePath, { recursive: true })
-      console.log(`✅ Local storage initialized at: ${this.basePath}`)
+      logger.info('Local storage initialized', { basePath: this.basePath })
     } catch (error) {
-      console.error(`❌ Failed to initialize local storage:`, error)
+      logger.error('Failed to initialize local storage', { error })
       throw new Error(`Failed to initialize local storage: ${error}`)
     }
   }
@@ -77,10 +78,10 @@ export class LocalStorageAdapter extends StorageAdapter {
         )
       }
 
-      console.log(`✅ File uploaded to local storage: ${filePath}`)
+      logger.info('File uploaded to local storage', { filePath })
       return filePath
     } catch (error) {
-      console.error(`❌ Failed to upload file:`, error)
+      logger.error('Failed to upload file', { error })
       throw new Error(`Failed to upload file: ${error}`)
     }
   }
@@ -94,10 +95,10 @@ export class LocalStorageAdapter extends StorageAdapter {
       }
 
       const buffer = await fs.readFile(fullPath)
-      console.log(`✅ File downloaded from local storage: ${filePath}`)
+      logger.info('File downloaded from local storage', { filePath })
       return buffer
     } catch (error) {
-      console.error(`❌ Failed to download file:`, error)
+      logger.error('Failed to download file', { error })
       throw new Error(`Failed to download file: ${error}`)
     }
   }
@@ -117,10 +118,10 @@ export class LocalStorageAdapter extends StorageAdapter {
           // Metadata file might not exist
         }
 
-        console.log(`✅ File deleted from local storage: ${filePath}`)
+        logger.info('File deleted from local storage', { filePath })
       }
     } catch (error) {
-      console.error(`❌ Failed to delete file:`, error)
+      logger.error('Failed to delete file', { error })
       throw new Error(`Failed to delete file: ${error}`)
     }
   }
@@ -161,7 +162,7 @@ export class LocalStorageAdapter extends StorageAdapter {
         ...customMetadata
       }
     } catch (error) {
-      console.error(`❌ Failed to get metadata:`, error)
+      logger.error('Failed to get metadata', { error })
       throw new Error(`Failed to get metadata: ${error}`)
     }
   }
@@ -190,10 +191,10 @@ export class LocalStorageAdapter extends StorageAdapter {
         // Metadata file might not exist
       }
 
-      console.log(`✅ File copied: ${sourcePath} -> ${destPath}`)
+      logger.info('File copied', { sourcePath, destPath })
       return destPath
     } catch (error) {
-      console.error(`❌ Failed to copy file:`, error)
+      logger.error('Failed to copy file', { error })
       throw new Error(`Failed to copy file: ${error}`)
     }
   }
@@ -222,10 +223,10 @@ export class LocalStorageAdapter extends StorageAdapter {
         // Metadata file might not exist
       }
 
-      console.log(`✅ File moved: ${sourcePath} -> ${destPath}`)
+      logger.info('File moved', { sourcePath, destPath })
       return destPath
     } catch (error) {
-      console.error(`❌ Failed to move file:`, error)
+      logger.error('Failed to move file', { error })
       throw new Error(`Failed to move file: ${error}`)
     }
   }
@@ -260,7 +261,7 @@ export class LocalStorageAdapter extends StorageAdapter {
 
       return files
     } catch (error) {
-      console.error(`❌ Failed to list files:`, error)
+      logger.error('Failed to list files', { error })
       return []
     }
   }
@@ -306,7 +307,7 @@ export class LocalStorageAdapter extends StorageAdapter {
         available: 0 // Would need platform-specific code
       }
     } catch (error) {
-      console.error(`❌ Failed to get disk usage:`, error)
+      logger.error('Failed to get disk usage', { error })
       throw error
     }
   }

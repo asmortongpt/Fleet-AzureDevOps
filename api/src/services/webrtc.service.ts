@@ -279,6 +279,8 @@
 
 import { EventEmitter } from 'events'
 
+import logger from '../config/logger'
+
 export interface RTCSessionDescription {
   type: 'offer' | 'answer' | 'pranswer' | 'rollback'
   sdp: string
@@ -327,7 +329,7 @@ class WebRTCService extends EventEmitter {
 
   constructor() {
     super()
-    console.log('🎙️  WebRTC Service initialized')
+    logger.info('WebRTC Service initialized')
   }
 
   /**
@@ -363,10 +365,10 @@ class WebRTCService extends EventEmitter {
 
       this.connections.set(connectionId, connection)
 
-      console.log(`📞 Created WebRTC offer for connection ${connectionId}`)
+      logger.info('Created WebRTC offer for connection', { connectionId })
       return offer
     } catch (error) {
-      console.error(`Error creating WebRTC offer:`, error)
+      logger.error('Error creating WebRTC offer', { error })
       throw error
     }
   }
@@ -387,10 +389,10 @@ class WebRTCService extends EventEmitter {
       // In production, this would set the remote description on RTCPeerConnection
       connection.state = `connecting`
 
-      console.log(`📞 Received WebRTC answer for connection ${connectionId}`)
+      logger.info('Received WebRTC answer for connection', { connectionId })
       this.emit('answer', { connectionId, answer })
     } catch (error) {
-      console.error('Error handling WebRTC answer:', error)
+      logger.error('Error handling WebRTC answer', { error })
       throw error
     }
   }
@@ -409,10 +411,10 @@ class WebRTCService extends EventEmitter {
       }
 
       // In production, this would add the ICE candidate to RTCPeerConnection
-      console.log(`🧊 Added ICE candidate for connection ${connectionId}`)
+      logger.info('Added ICE candidate for connection', { connectionId })
       this.emit('icecandidate', { connectionId, candidate })
     } catch (error) {
-      console.error('Error adding ICE candidate:', error)
+      logger.error('Error adding ICE candidate', { error })
       throw error
     }
   }
@@ -430,9 +432,9 @@ class WebRTCService extends EventEmitter {
       this.emit('connectionStateChange', { connectionId, state })
 
       if (state === `connected`) {
-        console.log(`✅ WebRTC connection ${connectionId} established`)
+        logger.info('WebRTC connection established', { connectionId })
       } else if (state === `failed` || state === `closed`) {
-        console.log(`❌ WebRTC connection ${connectionId} ${state}`)
+        logger.info('WebRTC connection state changed', { connectionId, state })
         this.closeConnection(connectionId)
       }
     }
@@ -468,7 +470,7 @@ class WebRTCService extends EventEmitter {
 
       return processedAudio
     } catch (error) {
-      console.error(`Error processing audio data:`, error)
+      logger.error('Error processing audio data', { error })
       throw error
     }
   }
@@ -532,10 +534,10 @@ class WebRTCService extends EventEmitter {
       // Remove connection
       this.connections.delete(connectionId)
 
-      console.log(`🔌 Closed WebRTC connection ${connectionId}`)
+      logger.info('Closed WebRTC connection', { connectionId })
       this.emit('connectionClosed', { connectionId })
     } catch (error) {
-      console.error('Error closing connection:', error)
+      logger.error('Error closing connection', { error })
     }
   }
 
@@ -691,7 +693,7 @@ a=ssrc:${Math.floor(Math.random() * 1000000000)} label:audio`
     })
 
     if (toRemove.length > 0) {
-      console.log(`🧹 Cleaned up ${toRemove.length} inactive WebRTC connections`)
+      logger.info('Cleaned up inactive WebRTC connections', { count: toRemove.length })
     }
   }
 

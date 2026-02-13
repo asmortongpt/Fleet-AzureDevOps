@@ -8,6 +8,7 @@
 import { injectable } from 'inversify';
 
 import { connectionManager } from '../config/connection-manager';
+import logger from '../config/logger';
 import { DatabaseError } from '../errors/ApplicationError';
 
 export interface DatabaseStats {
@@ -108,7 +109,7 @@ export class HealthCheckRepository {
       return result.rows[0];
     } catch (error) {
       // pg_stat_statements may not be enabled - return 0 instead of failing
-      console.warn('pg_stat_statements not available, returning 0 slow queries');
+      logger.warn('pg_stat_statements not available, returning 0 slow queries');
       return { slow_query_count: 0 };
     }
   }

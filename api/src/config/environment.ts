@@ -1,5 +1,7 @@
 import * as dotenv from 'dotenv';
 
+import logger from './logger';
+
 // Load environment variables
 dotenv.config();
 
@@ -121,9 +123,7 @@ class Environment {
     // Development warnings - JWT_SECRET still required even in development
     if (this.config.NODE_ENV === 'development') {
       if (!this.config.JWT_SECRET) {
-        console.warn('⚠️  WARNING: JWT_SECRET not set even in development.');
-        console.warn('⚠️  Set JWT_SECRET environment variable to prevent startup errors.');
-        console.warn('⚠️  Generate one with: openssl rand -base64 48');
+        logger.warn('JWT_SECRET not set in development. Set JWT_SECRET environment variable to prevent startup errors. Generate one with: openssl rand -base64 48');
       }
     }
 
@@ -135,18 +135,18 @@ class Environment {
     }
 
     if (errors.length > 0) {
-      console.error(`❌ Environment configuration errors:`);
-      errors.forEach(error => console.error(`  - ${error}`));
+      logger.error('Environment configuration errors', { errors });
       throw new Error(`Invalid environment configuration. Check logs above.`);
     }
 
-    console.log(`✅ Environment configuration validated`);
-    console.log(`   - Environment: ${this.config.NODE_ENV}`);
-    console.log(`   - Port: ${this.config.PORT}`);
-    console.log(`   - Database: ${this.config.DATABASE_URL ? 'Configured' : 'Using individual params'}`);
-    console.log(`   - Redis: ${this.config.REDIS_URL ? 'Enabled' : 'Disabled'}`);
-    console.log(`   - JWT Secret: ${this.config.JWT_SECRET ? '✅ Set' : '❌ Missing'}`);
-    console.log(`   - Microsoft OAuth: ${this.config.MICROSOFT_CLIENT_ID ? 'Configured' : 'Not configured'}`);
+    logger.info('Environment configuration validated', {
+      environment: this.config.NODE_ENV,
+      port: this.config.PORT,
+      database: this.config.DATABASE_URL ? 'Configured' : 'Using individual params',
+      redis: this.config.REDIS_URL ? 'Enabled' : 'Disabled',
+      jwtSecret: this.config.JWT_SECRET ? 'Set' : 'Missing',
+      microsoftOAuth: this.config.MICROSOFT_CLIENT_ID ? 'Configured' : 'Not configured'
+    });
   }
 
   get<K extends keyof EnvironmentConfig>(key: K): EnvironmentConfig[K] {
