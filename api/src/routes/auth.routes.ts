@@ -191,7 +191,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
         throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }
 
-      const result = await authService.setupMFA(user.userId);
+      const result = await authService.setupMFA(Number(user.userId));
 
       res.json({
         success: true,
@@ -218,7 +218,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
       }
 
       const { code } = mfaVerifySchema.parse(req.body);
-      await authService.enableMFA(user.userId, code);
+      await authService.enableMFA(Number(user.userId), code);
 
       await auditService.log({
         userId: String(user.userId),

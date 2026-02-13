@@ -213,8 +213,8 @@ router.post(
           const field = condition.field ?? condition.key ?? condition.attribute
           const operator = condition.operator ?? condition.op ?? 'equals'
           const expected = condition.value
-          const actual = field ? context[field] : undefined
-          const passed = evaluateCondition(actual, operator, expected)
+          const actual = field ? context[field as string] : undefined
+          const passed = evaluateCondition(actual, operator as string, expected)
 
           evaluation.checks.push({
             check: `condition_${index + 1}`,

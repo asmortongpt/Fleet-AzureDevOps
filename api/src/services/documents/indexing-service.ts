@@ -114,7 +114,7 @@ Text: ${text.substring(0, 4000)}`
       })
 
       // Parse JSON response
-      const content = response.choices[0]?.message?.content || '[]'
+      const content = response.choices?.[0]?.message?.content || '[]'
       let entities: ExtractedEntity[] = []
 
       try {
@@ -220,7 +220,7 @@ ${text.substring(0, 8000)}`
         maxTokens: 200
       })
 
-      return response.choices[0]?.message?.content || ''
+      return response.choices?.[0]?.message?.content || ''
 
     } catch (error) {
       logger.error('[Indexing] Error generating summary', { error })
@@ -258,7 +258,7 @@ Text: ${text.substring(0, 4000)}`
         maxTokens: 100
       })
 
-      const content = response.choices[0]?.message?.content || '{}'
+      const content = response.choices?.[0]?.message?.content || '{}'
       const jsonMatch = content.match(/\{[\s\S]*\}/)
 
       if (jsonMatch) {
@@ -307,7 +307,7 @@ Text: ${text.substring(0, 6000)}`
         maxTokens: 150
       })
 
-      const content = response.choices[0]?.message?.content || '[]'
+      const content = response.choices?.[0]?.message?.content || '[]'
       const jsonMatch = content.match(/\[[\s\S]*\]/)
 
       if (jsonMatch) {

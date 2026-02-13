@@ -49,7 +49,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const kpis = await executiveDashboardService.getKPIs(req.user!.tenant_id)
+      const kpis = await executiveDashboardService.getKPIs(req.user!.tenant_id ?? '')
       res.json(kpis)
     } catch (error) {
       logger.error('Get executive KPIs error:', error) // Wave 32: Winston logger
@@ -91,7 +91,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const days = parseInt(req.query.days as string) || 30
-      const trends = await executiveDashboardService.getTrends(req.user!.tenant_id, days)
+      const trends = await executiveDashboardService.getTrends(req.user!.tenant_id ?? '', days)
       res.json(trends)
     } catch (error) {
       logger.error('Get trends error:', error) // Wave 32: Winston logger
@@ -144,7 +144,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const insights = await executiveDashboardService.getAIInsights(req.user!.tenant_id)
+      const insights = await executiveDashboardService.getAIInsights(req.user!.tenant_id ?? '')
       res.json(insights)
     } catch (error) {
       logger.error('Get AI insights error:', error) // Wave 32: Winston logger
@@ -177,7 +177,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const summary = await executiveDashboardService.getAlertsSummary(req.user!.tenant_id)
+      const summary = await executiveDashboardService.getAlertsSummary(req.user!.tenant_id ?? '')
       res.json(summary)
     } catch (error) {
       logger.error('Get alerts summary error:', error) // Wave 32: Winston logger
@@ -225,7 +225,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const health = await executiveDashboardService.getFleetHealth(req.user!.tenant_id)
+      const health = await executiveDashboardService.getFleetHealth(req.user!.tenant_id ?? '')
       res.json(health)
     } catch (error) {
       logger.error('Get fleet health error:', error) // Wave 32: Winston logger
@@ -258,7 +258,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'executive_dashboard' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const costs = await executiveDashboardService.getCostAnalysis(req.user!.tenant_id)
+      const costs = await executiveDashboardService.getCostAnalysis(req.user!.tenant_id ?? '')
       res.json(costs)
     } catch (error) {
       logger.error('Get cost analysis error:', error) // Wave 32: Winston logger

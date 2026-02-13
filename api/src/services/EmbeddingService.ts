@@ -90,7 +90,7 @@ export class EmbeddingService {
 
   constructor(
     private db: Pool,
-    private logger: any
+    private logger: import('winston').Logger
   ) {
     // Don't call async initialization in constructor
   }
@@ -117,7 +117,7 @@ return
         const { CohereClient } = await import('cohere-ai')
         this.cohere = new CohereClient({
           apiKey: process.env.COHERE_API_KEY,
-        }) as any
+        }) as unknown as CohereClient
         logger.info('Cohere embedding provider initialized')
       } catch (error) {
         logger.warn('Cohere SDK not available, skipping initialization')
@@ -557,7 +557,8 @@ return 'cohere'
    * Calculate embedding cost
    */
   private calculateCost(provider: string, model: string, tokens: number): number {
-    const config = (this.providerConfigs as any)[provider]?.[model]
+    const providerConfig = this.providerConfigs[provider as keyof typeof this.providerConfigs] as Record<string, { dimensions: number; costPer1M: number }> | undefined
+    const config = providerConfig?.[model]
     if (!config) {
 return 0
 }
@@ -609,7 +610,7 @@ return 0
     // Limit cache size
     if (this.cache.size > 1000) {
       const firstKey = this.cache.keys().next().value
-      this.cache.delete(firstKey)
+      if (firstKey !== undefined) this.cache.delete(firstKey)
     }
   }
 

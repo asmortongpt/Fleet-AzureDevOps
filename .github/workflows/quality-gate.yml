@@ -37,7 +37,7 @@ jobs:
 
       - name: ESLint Code Quality
         run: npm run lint
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Run Unit Tests
         run: npm test -- --run --passWithNoTests

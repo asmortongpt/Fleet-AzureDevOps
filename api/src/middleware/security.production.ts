@@ -9,6 +9,8 @@ import rateLimit from 'express-rate-limit';
 import DOMPurify from 'isomorphic-dompurify';
 import { z, ZodSchema } from 'zod';
 
+import { logger } from './logger';
+
 // ============================================================================
 // RATE LIMITING
 // ============================================================================
@@ -155,11 +157,11 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction): 
   }
 
   if (req.query) {
-    req.query = sanitizeObject(req.query);
+    req.query = sanitizeObject(req.query) as typeof req.query;
   }
 
   if (req.params) {
-    req.params = sanitizeObject(req.params);
+    req.params = sanitizeObject(req.params) as typeof req.params;
   }
 
   next();
@@ -398,7 +400,7 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   // Check if error has a statusCode property (AppError, HTTP errors, etc.)
-  const errRecord = err as Record<string, unknown>;
+  const errRecord = err as unknown as Record<string, unknown>;
   const statusCode = (typeof errRecord.statusCode === 'number' ? errRecord.statusCode : null)
     || (typeof errRecord.status === 'number' ? errRecord.status : null)
     || 500;

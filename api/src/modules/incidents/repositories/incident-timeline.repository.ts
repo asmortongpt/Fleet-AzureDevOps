@@ -25,7 +25,7 @@ export interface TimelineCreateData {
 @injectable()
 export class IncidentTimelineRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super('incident_timeline');
+    super(pool, 'incident_timeline');
   }
 
   /**
@@ -109,7 +109,7 @@ export class IncidentTimelineRepository extends BaseRepository<any> {
       [id]
     );
 
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   /**
@@ -121,7 +121,7 @@ export class IncidentTimelineRepository extends BaseRepository<any> {
       [incidentId]
     );
 
-    return result.rowCount;
+    return result.rowCount ?? 0;
   }
 
   /**

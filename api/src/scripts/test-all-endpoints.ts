@@ -233,7 +233,7 @@ class EndpointTester {
         error: error instanceof Error ? error.message : 'An unexpected error occurred',
       };
       this.connectionResults.push(result);
-      console.log(`${colors.red}✗ PostgreSQL connection failed: ${error.message}${colors.reset}`);
+      console.log(`${colors.red}✗ PostgreSQL connection failed: ${error instanceof Error ? error.message : String(error)}${colors.reset}`);
       return result;
     }
   }
@@ -272,7 +272,7 @@ class EndpointTester {
         error: error instanceof Error ? error.message : 'An unexpected error occurred',
       };
       this.connectionResults.push(result);
-      console.log(`${colors.yellow}⚠ Redis not available: ${error.message}${colors.reset}`);
+      console.log(`${colors.yellow}⚠ Redis not available: ${error instanceof Error ? error.message : String(error)}${colors.reset}`);
       return result;
     }
   }
@@ -459,7 +459,7 @@ async function main() {
     process.exit(failed.length > 0 ? 1 : 0);
 
   } catch (error: unknown) {
-    console.error(`${colors.red}Fatal error: ${error.message}${colors.reset}`);
+    console.error(`${colors.red}Fatal error: ${error instanceof Error ? error.message : String(error)}${colors.reset}`);
     process.exit(1);
   }
 }

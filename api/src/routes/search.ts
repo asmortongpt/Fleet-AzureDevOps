@@ -70,7 +70,7 @@ router.post(
 
       const results = await DocumentSearchService.search({
         query: validated.query,
-        tenantId: req.user!.tenant_id,
+        tenantId: req.user!.tenant_id ?? '',
         userId: req.user!.id,
         mode: validated.mode,
         fuzzy: validated.fuzzy,
@@ -78,7 +78,7 @@ router.post(
         operator: validated.operator,
         categoryId: validated.categoryId,
         documentType: validated.documentType,
-        tags: validated.tags,
+        tags: validated.tags?.filter((t: string | undefined): t is string => t !== undefined),
         dateFrom: validated.dateFrom ? new Date(validated.dateFrom) : undefined,
         dateTo: validated.dateTo ? new Date(validated.dateTo) : undefined,
         uploadedBy: validated.uploadedBy,
@@ -141,7 +141,7 @@ router.get(
       }
 
       const suggestions = await DocumentSearchService.autocomplete(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         q,
         Number(limit)
       )
@@ -179,7 +179,7 @@ router.get(
       }
 
       const suggestions = await SearchIndexService.getSpellingSuggestions(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         q
       )
 
@@ -283,7 +283,7 @@ router.post(
       const validated = schema.parse(req.body)
 
       const savedSearch = await DocumentSearchService.saveSearch(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         validated.name,
         validated.query,
@@ -390,7 +390,7 @@ router.get(
       const { days = 30 } = req.query
 
       const analytics = await DocumentSearchService.getSearchAnalytics(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         Number(days)
       )
 
@@ -426,7 +426,7 @@ router.post(
 
       await DocumentIndexer.indexDocument(
         req.params.id,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         priority
       )
 
@@ -463,8 +463,8 @@ router.post(
       const validated = schema.parse(req.body)
 
       const job = await DocumentIndexer.createReindexJob(
-        req.user!.tenant_id,
-        validated
+        req.user!.tenant_id ?? '',
+        { ...validated, documentIds: validated.documentIds?.filter((id: string | undefined): id is string => id !== undefined) }
       )
 
       res.status(202).json({
@@ -501,7 +501,7 @@ router.get(
       const { status, limit = 20 } = req.query
 
       const jobs = await DocumentIndexer.getIndexingJobs(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         {
           status: status as string,
           limit: Number(limit)
@@ -532,7 +532,7 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'search_index' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      await DocumentIndexer.optimizeIndexes(req.user!.tenant_id)
+      await DocumentIndexer.optimizeIndexes(req.user!.tenant_id ?? '')
 
       res.json({
         success: true,
@@ -557,7 +557,7 @@ router.get(
   authorize('admin', 'fleet_manager'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const stats = await DocumentIndexer.getIndexStats(req.user!.tenant_id)
+      const stats = await DocumentIndexer.getIndexStats(req.user!.tenant_id ?? '')
 
       res.json({
         success: true,
@@ -608,7 +608,7 @@ router.post(
   authorize('admin'),
   async (req: AuthRequest, res: Response) => {
     try {
-      await SearchIndexService.warmCache(req.user!.tenant_id)
+      await SearchIndexService.warmCache(req.user!.tenant_id ?? '')
 
       res.json({
         success: true,

@@ -307,7 +307,7 @@ export class TelemetryService extends EventEmitter {
           ORDER BY scheduled_start_time NULLS LAST, created_at DESC, id
           LIMIT 250
         `)
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Fall back to older schema (route_name/total_distance, start/end_location, notes).
         results = await this.db.query(`
           SELECT
@@ -814,14 +814,11 @@ export class TelemetryService extends EventEmitter {
         id: route.id,
         name: route.name,
         description: route.description,
-        type: route.type as any,
+        type: route.type as Route['type'],
         estimatedDuration: route.estimatedDuration,
         estimatedDistance: route.estimatedDistance,
-        waypoints: route.waypoints.map(wp => ({
-          ...wp,
-          type: wp.type as any
-        })),
-        roadTypes: route.roadTypes as any[],
+        waypoints: route.waypoints as Route['waypoints'],
+        roadTypes: route.roadTypes as Route['roadTypes'],
         trafficPatterns: route.trafficPatterns,
         priority: route.priority,
         frequency: route.frequency

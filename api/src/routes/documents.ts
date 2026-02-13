@@ -271,15 +271,7 @@ router.post(
       if (!validation.valid) {
         return res.status(400).json({
           error: 'File validation failed',
-          message: validation.error
-        })
-      }
-
-      // Virus scan check
-      if (validation.virusScanResult && !validation.virusScanResult.clean) {
-        return res.status(400).json({
-          error: 'File failed security scan',
-          message: validation.virusScanResult.threat
+          message: validation.errors.join(', ')
         })
       }
 
@@ -359,15 +351,7 @@ router.post(
       if (!validation.valid) {
         return res.status(400).json({
           error: 'File validation failed',
-          message: validation.error
-        })
-      }
-
-      // Virus scan check
-      if (validation.virusScanResult && !validation.virusScanResult.clean) {
-        return res.status(400).json({
-          error: 'File failed security scan',
-          message: validation.virusScanResult.threat
+          message: validation.errors.join(', ')
         })
       }
 

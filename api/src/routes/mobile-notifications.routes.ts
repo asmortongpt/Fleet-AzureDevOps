@@ -49,8 +49,8 @@ router.post('/register-device',csrfProtection, authenticateJWT, async (req, res)
     }
 
     const device = await pushNotificationService.registerDevice({
-      userId: req.user.id,
-      tenantId: req.user.tenantId,
+      userId: req.user!.id,
+      tenantId: req.user!.tenantId ?? '',
       deviceToken,
       platform,
       deviceName,
@@ -141,7 +141,7 @@ router.post(
       }
 
       const notification = {
-        tenantId: req.user.tenantId,
+        tenantId: req.user!.tenantId ?? '',
         notificationType: notificationType || 'general',
         category: category || 'administrative',
         priority: priority || 'normal',
@@ -152,7 +152,7 @@ router.post(
         imageUrl,
         sound,
         badgeCount,
-        createdBy: req.user.id,
+        createdBy: req.user!.id,
       };
 
       const notificationId = await pushNotificationService.sendNotification(
@@ -203,7 +203,7 @@ router.post('/send-to-user',csrfProtection, authenticateJWT, async (req, res) =>
     }
 
     const notification = {
-      tenantId: req.user.tenantId,
+      tenantId: req.user!.tenantId ?? '',
       notificationType: type || 'general',
       category: category || 'administrative',
       priority: priority || 'normal',
@@ -213,7 +213,7 @@ router.post('/send-to-user',csrfProtection, authenticateJWT, async (req, res) =>
         ...data,
         screen,
       },
-      createdBy: req.user.id,
+      createdBy: req.user!.id,
     };
 
     const notificationId = await pushNotificationService.sendNotification(
@@ -241,8 +241,8 @@ router.post('/send-to-user',csrfProtection, authenticateJWT, async (req, res) =>
  */
 router.get('/preferences', authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user?.id;
-    const tenantId = req.user?.tenantId || req.user?.tenant_id;
+    const userId = req.user?.id ?? '';
+    const tenantId = req.user?.tenantId || req.user?.tenant_id || '';
 
     // Query notification_preferences table for this user
     const result = await pool.query(
@@ -319,8 +319,8 @@ router.get('/preferences', authenticateJWT, async (req, res) => {
  */
 router.put('/preferences',csrfProtection, authenticateJWT, async (req, res) => {
   try {
-    const userId = req.user?.id;
-    const tenantId = req.user?.tenantId || req.user?.tenant_id;
+    const userId = req.user?.id ?? '';
+    const tenantId = req.user?.tenantId || req.user?.tenant_id || '';
     const preferences = req.body;
 
     // Upsert notification preferences into the database
@@ -413,8 +413,8 @@ router.post(
           body: message,
           mediaUrl,
         },
-        req.user.tenantId,
-        req.user.id
+        req.user!.tenantId ?? '',
+        req.user!.id
       );
 
       res.json({
@@ -464,8 +464,8 @@ router.post(
           body: message,
           mediaUrl,
         },
-        req.user.tenantId,
-        req.user.id
+        req.user!.tenantId ?? '',
+        req.user!.id
       );
 
       res.json({
@@ -504,10 +504,10 @@ router.post(
 
       const messageSid = await smsService.sendFromTemplate(
         templateName,
-        req.user.tenantId,
+        req.user!.tenantId ?? '',
         to,
         variables || {},
-        req.user.id
+        req.user!.id
       );
 
       res.json({
@@ -552,7 +552,7 @@ filters.startDate = new Date(startDate as string);
 filters.endDate = new Date(endDate as string);
 }
 
-      const history = await smsService.getSMSHistory(req.user.tenantId, filters);
+      const history = await smsService.getSMSHistory(req.user!.tenantId ?? '', filters);
 
       res.json({
         success: true,
@@ -586,7 +586,7 @@ router.get(
       const { category } = req.query;
 
       const templates = await smsService.getTemplates(
-        req.user.tenantId,
+        req.user!.tenantId ?? '',
         category as string
       );
 
@@ -624,7 +624,7 @@ router.post(
       }
 
       const templateId = await smsService.createTemplate({
-        tenantId: req.user.tenantId,
+        tenantId: req.user!.tenantId ?? '',
         name,
         body,
         category: category || 'general',
@@ -666,7 +666,7 @@ router.get(
         };
       }
 
-      const stats = await smsService.getStatistics(req.user.tenantId, dateRange);
+      const stats = await smsService.getStatistics(req.user!.tenantId ?? '', dateRange);
 
       res.json({
         success: true,

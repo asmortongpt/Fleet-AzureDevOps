@@ -223,7 +223,7 @@ export class SyncServiceWithQueue {
       resourceType: 'messages',
       teamId,
       channelId,
-      userId
+      userId: userId || ''
     });
 
     return { jobId };

@@ -188,8 +188,8 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
     // Admin-only: Revoking someone else's session
     if (req.user.role !== 'admin') {
       await createAuditLog(
-        req.user.tenant_id,
-        req.user.id,
+        req.user.tenant_id ?? null,
+        req.user.id ?? null,
         'LOGOUT',
         'auth',
         user_id || email,
@@ -247,8 +247,8 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
     // Validate token belongs to target user (prevent revoking arbitrary tokens)
     if (decoded.id !== targetUserId && decoded.email !== targetEmail) {
       await createAuditLog(
-        req.user.tenant_id,
-        req.user.id,
+        req.user.tenant_id ?? null,
+        req.user.id ?? null,
         'LOGOUT',
         'auth',
         targetUserId,
@@ -285,8 +285,8 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
 
     // Audit log for successful revocation
     await createAuditLog(
-      req.user.tenant_id,
-      req.user.id,
+      req.user.tenant_id ?? null,
+      req.user.id ?? null,
       'LOGOUT',
       'auth',
       targetUserId,
@@ -348,8 +348,8 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
     // Log unexpected errors
     logger.error('[JWT_BLACKLIST] Revocation error:', error)
     await createAuditLog(
-      req.user.tenant_id,
-      req.user.id,
+      req.user.tenant_id ?? null,
+      req.user.id ?? null,
       'LOGOUT',
       'auth',
       targetUserId,

@@ -81,7 +81,7 @@ export class QueueMonitor {
       // Check each queue
       for (const [queueName, queueStats] of Object.entries(health.queues)) {
         // Check backlog
-        if (queueStats.backlog > this.alertThresholds.maxBacklog) {
+        if ((queueStats.backlog ?? 0) > this.alertThresholds.maxBacklog) {
           this.addAlert({
             level: 'warning',
             queueName,
@@ -94,7 +94,7 @@ export class QueueMonitor {
         }
 
         // Check failure rate
-        if (queueStats.failureRate > this.alertThresholds.maxFailureRate) {
+        if ((queueStats.failureRate ?? 0) > this.alertThresholds.maxFailureRate) {
           this.addAlert({
             level: 'critical',
             queueName,
@@ -107,7 +107,7 @@ export class QueueMonitor {
         }
 
         // Check processing time
-        if (queueStats.avgProcessingTime > this.alertThresholds.maxProcessingTime) {
+        if ((queueStats.avgProcessingTime ?? 0) > this.alertThresholds.maxProcessingTime) {
           this.addAlert({
             level: 'warning',
             queueName,
@@ -131,7 +131,7 @@ export class QueueMonitor {
       }
 
       // Check dead letter queue
-      if (health.deadLetterCount > this.alertThresholds.maxDeadLetterJobs) {
+      if ((health.deadLetterCount ?? 0) > this.alertThresholds.maxDeadLetterJobs) {
         this.addAlert({
           level: 'critical',
           message: `Dead letter queue has too many jobs`,

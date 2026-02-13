@@ -65,7 +65,7 @@ router.post(
         ) VALUES ($1, $2, $3, $4, $5)
         RETURNING id, title, created_at`,
         [
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           req.user!.id,
           sessionData.title || 'New Chat',
           JSON.stringify(sessionData.documentIds || []),
@@ -110,7 +110,7 @@ router.get(
          WHERE tenant_id = $1 AND user_id = $2
          ORDER BY updated_at DESC
          LIMIT 50`,
-        [req.user!.tenant_id, req.user!.id]
+        [req.user!.tenant_id ?? '', req.user!.id]
       )
 
       res.json({
@@ -143,7 +143,7 @@ router.get(
       const sessionResult = await pool.query(
         `SELECT id, tenant_id, user_id, title, created_at, updated_at, closed_at FROM chat_sessions
          WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (sessionResult.rows.length === 0) {
@@ -191,7 +191,7 @@ router.delete(
       // Delete session
       await pool.query(
         `DELETE FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       res.json({ success: true, message: 'Session deleted' })
@@ -263,7 +263,7 @@ router.post(
       last_message_at,
       is_active,
       deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
-        [chatData.sessionId, req.user!.tenant_id]
+        [chatData.sessionId, req.user!.tenant_id ?? '']
       )
 
       if (sessionResult.rows.length === 0) {
@@ -300,7 +300,7 @@ router.post(
         const documentScope = JSON.parse(session.document_scope || '[]')
 
         const searchResults = await vectorSearchService.search(
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           chatData.message,
           {
             limit: chatData.maxSources,
@@ -458,7 +458,7 @@ router.post(
       last_message_at,
       is_active,
       deleted_at FROM chat_sessions WHERE id = $1 AND tenant_id = $2`,
-        [chatData.sessionId, req.user!.tenant_id]
+        [chatData.sessionId, req.user!.tenant_id ?? '']
       )
 
       if (sessionResult.rows.length === 0) {
@@ -488,7 +488,7 @@ router.post(
       if (chatData.searchDocuments) {
         const documentScope = JSON.parse(session.document_scope || '[]')
         searchResults = await vectorSearchService.search(
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           chatData.message,
           {
             limit: chatData.maxSources || 5,

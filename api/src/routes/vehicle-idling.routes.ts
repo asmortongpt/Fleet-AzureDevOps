@@ -550,7 +550,7 @@ router.post(
       const { alertId } = req.params
       const userId = req.user?.id // From auth middleware
 
-      await idlingService.acknowledgeAlert(parseInt(alertId), userId)
+      await idlingService.acknowledgeAlert(parseInt(alertId), userId ? Number(userId) : undefined)
 
       res.json({
         success: true,

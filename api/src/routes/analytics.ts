@@ -109,7 +109,7 @@ const cacheMiddleware = (keyPrefix: string) => {
             const cached = await redisClient.get(cacheKey)
 
             if (cached) {
-                const data = JSON.parse(typeof cached === 'string' ? cached : cached.toString())
+                const data = JSON.parse(String(cached))
                 return res.json({
                     ...data,
                     metadata: {
@@ -148,7 +148,7 @@ const cacheMiddleware = (keyPrefix: string) => {
  */
 router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Request, res: Response) => {
     try {
-        const tenantId = req.user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
         if (!tenantId) return res.status(401).json({ error: 'Unauthorized' })
 
         const daysRaw = Array.isArray(req.query.days) ? req.query.days[0] : req.query.days
@@ -308,28 +308,28 @@ router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Req
 router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = req.user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let whereClause = 'WHERE tenant_id = $1'
-        const params: unknown[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
             whereClause += ` AND period_end >= $${paramIndex}`
-            params.push(startDate)
+            params.push(startDate as string)
             paramIndex++
         }
 
         if (endDate) {
             whereClause += ` AND period_end <= $${paramIndex}`
-            params.push(endDate)
+            params.push(endDate as string)
             paramIndex++
         }
 
         if (vehicleIds && typeof vehicleIds === 'string') {
             const ids = vehicleIds.split(',')
             whereClause += ` AND entity_id = ANY($${paramIndex})`
-            params.push(ids)
+            params.push(ids as unknown as string)
             paramIndex++
         }
 
@@ -385,24 +385,24 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
 router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = req.user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let tripWhere = 'WHERE tenant_id = $1'
         let fuelWhere = 'WHERE tenant_id = $1'
-        const params: unknown[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
             tripWhere += ` AND period_end >= $${paramIndex}`
             fuelWhere += ` AND transaction_date >= $${paramIndex}`
-            params.push(startDate)
+            params.push(startDate as string)
             paramIndex++
         }
 
         if (endDate) {
             tripWhere += ` AND period_end <= $${paramIndex}`
             fuelWhere += ` AND transaction_date <= $${paramIndex}`
-            params.push(endDate)
+            params.push(endDate as string)
             paramIndex++
         }
 
@@ -410,7 +410,7 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
             const ids = vehicleIds.split(',')
             tripWhere += ` AND vehicle_id = ANY($${paramIndex})`
             fuelWhere += ` AND vehicle_id = ANY($${paramIndex})`
-            params.push(ids)
+            params.push(ids as unknown as string)
             paramIndex++
         }
 
@@ -490,20 +490,20 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
 router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate } = req.query
-        const tenantId = req.user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let dateFilter = ''
-        const params: unknown[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
-            params.push(startDate)
+            params.push(startDate as string)
             dateFilter += ` AND period_end >= $${paramIndex}`
             paramIndex++
         }
 
         if (endDate) {
-            params.push(endDate)
+            params.push(endDate as string)
             dateFilter += ` AND period_end <= $${paramIndex}`
             paramIndex++
         }
@@ -623,20 +623,20 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
 router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate } = req.query
-        const tenantId = req.user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let dateFilter = ''
-        const params: unknown[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
-            params.push(startDate)
+            params.push(startDate as string)
             dateFilter += ` AND period_end >= $${paramIndex}`
             paramIndex++
         }
 
         if (endDate) {
-            params.push(endDate)
+            params.push(endDate as string)
             dateFilter += ` AND period_end <= $${paramIndex}`
             paramIndex++
         }
@@ -775,24 +775,24 @@ router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Reque
 router.get('/performance', cacheMiddleware('analytics:performance'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = req.user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let tripWhere = 'WHERE tenant_id = $1'
         let fuelWhere = 'WHERE tenant_id = $1'
-        const params: unknown[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
             tripWhere += ` AND period_end >= $${paramIndex}`
             fuelWhere += ` AND transaction_date >= $${paramIndex}`
-            params.push(startDate)
+            params.push(startDate as string)
             paramIndex++
         }
 
         if (endDate) {
             tripWhere += ` AND period_end <= $${paramIndex}`
             fuelWhere += ` AND transaction_date <= $${paramIndex}`
-            params.push(endDate)
+            params.push(endDate as string)
             paramIndex++
         }
 
@@ -800,7 +800,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
             const ids = vehicleIds.split(',')
             tripWhere += ` AND vehicle_id = ANY($${paramIndex})`
             fuelWhere += ` AND vehicle_id = ANY($${paramIndex})`
-            params.push(ids)
+            params.push(ids as unknown as string)
             paramIndex++
         }
 
@@ -902,27 +902,27 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
 router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, interval = 'day', vehicleIds } = req.query
-        const tenantId = req.user?.tenant_id
+        const tenantId = req.user?.tenant_id ?? ''
 
         let whereClause = 'WHERE tenant_id = $1'
-        const params: unknown[] = [tenantId]
+        const params: (string | number | boolean | null)[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
-            params.push(startDate)
+            params.push(startDate as string)
             whereClause += ` AND period_end >= $${paramIndex}`
             paramIndex++
         }
 
         if (endDate) {
-            params.push(endDate)
+            params.push(endDate as string)
             whereClause += ` AND period_end <= $${paramIndex}`
             paramIndex++
         }
 
         if (vehicleIds && typeof vehicleIds === 'string') {
             const ids = vehicleIds.split(',')
-            params.push(ids)
+            params.push(ids as unknown as string)
             whereClause += ` AND entity_id = ANY($${paramIndex})`
             paramIndex++
         }

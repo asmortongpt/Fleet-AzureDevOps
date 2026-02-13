@@ -772,7 +772,7 @@ export class RealisticGPSEmulator extends EventEmitter {
 
     const roadTypes = this.currentRoute.roadTypes || []
     const index = Math.min(this.currentWaypointIndex, roadTypes.length - 1)
-    return (roadTypes[index] || 'city') as any
+    return (roadTypes[index] || 'city') as 'highway' | 'city' | 'residential' | 'parking' | 'construction'
   }
 
   /**

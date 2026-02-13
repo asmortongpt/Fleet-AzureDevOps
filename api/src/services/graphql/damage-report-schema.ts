@@ -605,13 +605,13 @@ const RootMutationType = new GraphQLObjectType({
       },
       resolve: async (parent, args, context) => {
         const results = await Promise.all(
-          args.ids.map(id =>
+          args.ids.map((id: string) =>
             context.services.damageReportService.update(id, args.update)
           )
         )
 
         // Bulk cache invalidation
-        const keys = args.ids.map(id => `report:${id}`)
+        const keys = args.ids.map((id: string) => `report:${id}`)
         await context.redis.del(...keys)
 
         return results

@@ -20,7 +20,7 @@ const announcementSchema = z.object({
   target_roles: z.array(z.string()).optional().default([]),
   published_at: z.string().datetime().optional(),
   expires_at: z.string().datetime().optional(),
-  metadata: z.record(z.any()).optional().default({}),
+  metadata: z.record(z.string(), z.any()).optional().default({}),
   is_active: z.boolean().optional().default(true),
 })
 

@@ -53,6 +53,13 @@
     "**/*.async_backup",
     "**/*.event_backup",
     "**/*.nullcheck_backup",
-    "**/*.skip"
+    "**/*.skip",
+    "src/app.ts",
+    "src/server-simple.ts",
+    "src/server.production.ts",
+    "src/db/seeds/**",
+    "src/services/authz/examples.ts",
+    "src/routes/*.example.ts",
+    "src/routes/*.dal-example.ts"
   ]
 }

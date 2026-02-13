@@ -75,33 +75,34 @@ class ApplicationInsightsService implements CustomMetrics {
   private telemetryProcessor = (envelope: appInsights.Contracts.Envelope): boolean => {
     // Filter out sensitive headers
     if (envelope.data && 'baseData' in envelope.data) {
-      const baseData = envelope.data.baseData as any
+      const baseData = envelope.data.baseData as Record<string, unknown>
 
       // Remove sensitive headers
-      if (baseData?.properties?.requestHeaders) {
-        delete baseData.properties.requestHeaders['authorization']
-        delete baseData.properties.requestHeaders['cookie']
-        delete baseData.properties.requestHeaders['x-csrf-token']
+      const aiProps = baseData?.properties as Record<string, Record<string, unknown>> | undefined
+      if (aiProps?.requestHeaders) {
+        delete aiProps.requestHeaders['authorization']
+        delete aiProps.requestHeaders['cookie']
+        delete aiProps.requestHeaders['x-csrf-token']
       }
 
       // Remove sensitive response headers
-      if (baseData?.properties?.responseHeaders) {
-        delete baseData.properties.responseHeaders['set-cookie']
+      if (aiProps?.responseHeaders) {
+        delete aiProps.responseHeaders['set-cookie']
       }
 
       // Mask sensitive URLs
       if (baseData?.url) {
-        baseData.url = this.maskSensitiveUrl(baseData.url)
+        baseData.url = this.maskSensitiveUrl(baseData.url as string)
       }
 
       // Remove sensitive data from exceptions
       if (baseData?.exceptions) {
-        baseData.exceptions.forEach((exception: any) => {
+        (baseData.exceptions as Array<Record<string, unknown>>).forEach((exception) => {
           if (exception.parsedStack) {
             // Keep stack traces but remove local file paths
-            exception.parsedStack = exception.parsedStack.map((frame: any) => ({
+            exception.parsedStack = (exception.parsedStack as Array<Record<string, unknown>>).map((frame) => ({
               ...frame,
-              fileName: frame.fileName?.replace(/.*\/src\//, 'src/')
+              fileName: (frame.fileName as string | undefined)?.replace(/.*\/src\//, 'src/')
             }))
           }
         })

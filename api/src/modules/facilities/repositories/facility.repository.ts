@@ -11,7 +11,7 @@ export class FacilityRepository extends BaseRepository<Facility> {
     super(pool, "facilities");
   }
 
-  async findAll(tenantId: number): Promise<Facility[]> {
+  async findAll(tenantId: string | number): Promise<Facility[]> {
     const result = await this.pool.query(
       `SELECT * FROM ${this.tableName} WHERE tenant_id = $1 ORDER BY name ASC`,
       [tenantId]
@@ -19,7 +19,7 @@ export class FacilityRepository extends BaseRepository<Facility> {
     return result.rows;
   }
 
-  async findById(id: number, tenantId: number): Promise<Facility | null> {
+  async findById(id: string | number, tenantId: string | number): Promise<Facility | null> {
     const result = await this.pool.query(
       `SELECT * FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
@@ -27,7 +27,7 @@ export class FacilityRepository extends BaseRepository<Facility> {
     return result.rows[0] || null;
   }
 
-  async create(data: Partial<Facility>, tenantId: number): Promise<Facility> {
+  async create(data: Partial<Facility>, tenantId: string | number): Promise<Facility> {
     const fields = ['tenant_id', ...Object.keys(data)];
     const values = [tenantId, ...Object.values(data)];
     const placeholders = fields.map((_, i) => `$${i + 1}`).join(', ');
@@ -41,7 +41,7 @@ export class FacilityRepository extends BaseRepository<Facility> {
     return result.rows[0];
   }
 
-  async update(id: number, data: Partial<Facility>, tenantId: number): Promise<Facility | null> {
+  async update(id: string | number, data: Partial<Facility>, tenantId: string | number): Promise<Facility | null> {
     const fields = Object.keys(data);
     const setClause = fields.map((key, i) => `${key} = $${i + 3}`).join(', ');
 
@@ -55,7 +55,7 @@ export class FacilityRepository extends BaseRepository<Facility> {
     return result.rows[0] || null;
   }
 
-  async delete(id: number, tenantId: number): Promise<boolean> {
+  async delete(id: string | number, tenantId: string | number): Promise<boolean> {
     const result = await this.pool.query(
       `DELETE FROM ${this.tableName} WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
@@ -63,7 +63,7 @@ export class FacilityRepository extends BaseRepository<Facility> {
     return (result.rowCount ?? 0) > 0;
   }
 
-  async findByType(facilityType: string, tenantId: number): Promise<Facility[]> {
+  async findByType(facilityType: string, tenantId: string | number): Promise<Facility[]> {
     const result = await this.pool.query(
       `SELECT * FROM ${this.tableName} WHERE facility_type = $1 AND tenant_id = $2 ORDER BY name ASC`,
       [facilityType, tenantId]
@@ -71,7 +71,7 @@ export class FacilityRepository extends BaseRepository<Facility> {
     return result.rows;
   }
 
-  async findActive(tenantId: number): Promise<Facility[]> {
+  async findActive(tenantId: string | number): Promise<Facility[]> {
     const result = await this.pool.query(
       `SELECT * FROM ${this.tableName} WHERE is_active = true AND tenant_id = $1 ORDER BY name ASC`,
       [tenantId]
@@ -79,7 +79,7 @@ export class FacilityRepository extends BaseRepository<Facility> {
     return result.rows;
   }
 
-  async findByLocation(city: string, state: string, tenantId: number): Promise<Facility[]> {
+  async findByLocation(city: string, state: string, tenantId: string | number): Promise<Facility[]> {
     const result = await this.pool.query(
       `SELECT * FROM ${this.tableName} WHERE city = $1 AND state = $2 AND tenant_id = $3 ORDER BY name ASC`,
       [city, state, tenantId]

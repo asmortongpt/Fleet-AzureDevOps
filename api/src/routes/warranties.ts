@@ -155,7 +155,7 @@ router.get('/',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { status, vehicle_id, warranty_type } = req.query;
 
         let query = 'SELECT * FROM warranties WHERE tenant_id = $1';
@@ -200,7 +200,7 @@ router.get('/expiring',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const daysThreshold = parseInt(req.query.days as string) || 30;
 
         const expiring = await warrantyEligibilityService.getExpiringWarranties(tenantId, daysThreshold);
@@ -224,7 +224,7 @@ router.get('/statistics',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
 
         const stats = await warrantyRecoveryService.getWarrantyStatistics(tenantId);
 
@@ -245,7 +245,7 @@ router.get('/:id',
     }),
     validateParams(warrantyIdSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
 
         const result = await pool.query<Warranty>(
@@ -275,7 +275,7 @@ router.post('/',
     }),
     validateBody(createWarrantySchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const data: CreateWarrantyRequest = req.body;
 
         const result = await pool.query<Warranty>(
@@ -334,7 +334,7 @@ router.put('/:id',
     validateParams(warrantyIdSchema),
     validateBody(updateWarrantySchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
         const data: UpdateWarrantyRequest = req.body;
 
@@ -392,7 +392,7 @@ router.get('/claims/all',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { status, warranty_id } = req.query;
 
         let query = 'SELECT * FROM warranty_claims WHERE tenant_id = $1';
@@ -432,7 +432,7 @@ router.get('/claims/pending',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
 
         const pending = await warrantyRecoveryService.getPendingClaims(tenantId);
 
@@ -456,7 +456,7 @@ router.get('/claims/:id',
     }),
     validateParams(claimIdSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
 
         const result = await pool.query<WarrantyClaim>(
@@ -486,8 +486,8 @@ router.post('/claims',
     }),
     validateBody(createClaimSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
-        const userId = req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
+        const userId = req.user?.id ?? '';
         const data: CreateWarrantyClaimRequest = req.body;
 
         const result = await pool.query<WarrantyClaim>(
@@ -548,7 +548,7 @@ router.put('/claims/:id/status',
     validateParams(claimIdSchema),
     validateBody(updateClaimStatusSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { id } = req.params;
         const data: UpdateWarrantyClaimStatusRequest = req.body;
 
@@ -587,7 +587,7 @@ router.get('/work-orders/:workOrderId/eligibility',
     }),
     validateParams(workOrderIdParamSchema),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const { workOrderId } = req.params;
 
         // Get work order details
@@ -637,7 +637,7 @@ router.get('/recovery/report',
         resourceType: 'warranty'
     }),
     asyncHandler(async (req: Request, res: Response) => {
-        const tenantId = req.user?.tenant_id || req.user?.id;
+        const tenantId = req.user?.tenant_id || req.user?.id || '';
         const periodStart = req.query.start_date ? new Date(req.query.start_date as string) : new Date(new Date().getFullYear(), 0, 1);
         const periodEnd = req.query.end_date ? new Date(req.query.end_date as string) : new Date();
 

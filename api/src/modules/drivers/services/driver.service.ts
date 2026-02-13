@@ -23,33 +23,33 @@ throw new Error("Driver email is required");
 }
   }
 
-  async getAllDrivers(tenantId: number): Promise<Driver[]> {
+  async getAllDrivers(tenantId: string): Promise<Driver[]> {
     return this.executeInTransaction(async () => {
       return await this.driverRepository.findAll(tenantId);
     });
   }
 
-  async getDriverById(id: number, tenantId: number): Promise<Driver | null> {
+  async getDriverById(id: string, tenantId: string): Promise<Driver | null> {
     return this.executeInTransaction(async () => {
       return await this.driverRepository.findById(id, tenantId);
     });
   }
 
-  async createDriver(data: Partial<Driver>, tenantId: number): Promise<Driver> {
+  async createDriver(data: Partial<Driver>, tenantId: string): Promise<Driver> {
     await this.validate(data);
     return this.executeInTransaction(async () => {
       return await this.driverRepository.create(data, tenantId);
     });
   }
 
-  async updateDriver(id: number, data: Partial<Driver>, tenantId: number): Promise<Driver | null> {
+  async updateDriver(id: string, data: Partial<Driver>, tenantId: string): Promise<Driver | null> {
     await this.validate(data);
     return this.executeInTransaction(async () => {
       return await this.driverRepository.update(id, data, tenantId);
     });
   }
 
-  async deleteDriver(id: number, tenantId: number): Promise<boolean> {
+  async deleteDriver(id: string, tenantId: string): Promise<boolean> {
     return this.executeInTransaction(async () => {
       return await this.driverRepository.delete(id, tenantId);
     });

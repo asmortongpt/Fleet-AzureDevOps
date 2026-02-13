@@ -559,7 +559,7 @@ Return as JSON object with field names as keys.`
         temperature: 0.1
       })
 
-      const content = response.choices[0]?.message?.content || '{}'
+      const content = response.choices?.[0]?.message?.content || '{}'
       const jsonMatch = content.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         const extracted = JSON.parse(jsonMatch[0])
@@ -584,7 +584,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
 
       document.metadata = {
         ...document.metadata,
-        analysis: response.choices[0]?.message?.content || ''
+        analysis: response.choices?.[0]?.message?.content || ''
       }
     }
   }

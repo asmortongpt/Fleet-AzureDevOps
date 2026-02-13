@@ -1,15 +1,7 @@
-import { Request, Response, NextFunction } from 'express'
+import { Response, NextFunction } from 'express'
 
 import logger from '../config/logger'
-
-export interface AuthRequest extends Request {
-  user?: {
-    id: string
-    email: string
-    role: string
-    tenant_id: string
-  }
-}
+import { AuthRequest } from './auth'
 
 /**
  * Role-based access control middleware
@@ -27,7 +19,7 @@ export const checkRole = (roles: string[]) => {
 
     // SECURITY: Enforce RBAC for ALL HTTP methods (CWE-862)
     // Check if user's role is in the allowed roles array
-    if (!roles.includes(req.user.role)) {
+    if (!roles.includes(req.user.role ?? '')) {
       logger.warn('❌ ROLE CHECK - Permission denied:', {
         method: req.method,
         path: req.path,

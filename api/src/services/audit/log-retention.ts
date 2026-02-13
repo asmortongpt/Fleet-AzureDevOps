@@ -353,7 +353,7 @@ export class LogRetention extends EventEmitter {
       }
 
       let totalRecords = 0
-      tierResult.rows.forEach(row => {
+      tierResult.rows.forEach((row: { tier: RetentionTier; count: string }) => {
         recordsByTier[row.tier] = parseInt(row.count)
         totalRecords += parseInt(row.count)
       })

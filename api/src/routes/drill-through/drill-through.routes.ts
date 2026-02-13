@@ -4,7 +4,7 @@ import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
 import { Pool } from 'pg';
 
 import { csrfProtection } from '../../middleware/csrf'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT } from '../../middleware/auth'
 import { logger } from '../../utils/logger'
 
 const router = Router();

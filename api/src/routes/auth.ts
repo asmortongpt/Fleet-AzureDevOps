@@ -1139,11 +1139,11 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       id: payload.oid || payload.sub,
       mail: payload.email || payload.preferred_username || payload.upn,
       userPrincipalName: payload.preferred_username || payload.upn,
-      givenName: payload.given_name || payload.name?.split(' ')[0] || 'User',
-      surname: payload.family_name || payload.name?.split(' ').slice(1).join(' ') || ''
+      givenName: payload.given_name || String(payload.name ?? '').split(' ')[0] || 'User',
+      surname: payload.family_name || String(payload.name ?? '').split(' ').slice(1).join(' ') || ''
     }
 
-    const email = (microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
+    const email = String(microsoftUser.mail || microsoftUser.userPrincipalName || '').toLowerCase()
 
     if (!email) {
       logger.error('[Auth Exchange] Unable to extract email from ID token')

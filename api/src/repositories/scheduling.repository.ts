@@ -25,8 +25,9 @@ export class SchedulingRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM scheduling WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY start_time';
       const result: QueryResult<SchedulingEntity> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Failed to find all scheduling entries: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find all scheduling entries: ${message}`);
     }
   }
 
@@ -35,8 +36,9 @@ export class SchedulingRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM scheduling WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<SchedulingEntity> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to find scheduling entry by id: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find scheduling entry by id: ${message}`);
     }
   }
 
@@ -45,8 +47,9 @@ export class SchedulingRepository extends BaseRepository<any> {
       const query = 'INSERT INTO scheduling (tenant_id, title, start_time, end_time, created_at, updated_at) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING *';
       const result: QueryResult<SchedulingEntity> = await this.pool.query(query, [tenantId, title, startTime, endTime]);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to create scheduling entry: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create scheduling entry: ${message}`);
     }
   }
 
@@ -58,8 +61,9 @@ export class SchedulingRepository extends BaseRepository<any> {
         throw new Error('Scheduling entry not found or already deleted');
       }
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to update scheduling entry: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update scheduling entry: ${message}`);
     }
   }
 
@@ -70,8 +74,9 @@ export class SchedulingRepository extends BaseRepository<any> {
       if (result.rowCount === 0) {
         throw new Error('Scheduling entry not found or already deleted');
       }
-    } catch (error) {
-      throw new Error(`Failed to soft delete scheduling entry: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to soft delete scheduling entry: ${message}`);
     }
   }
 }

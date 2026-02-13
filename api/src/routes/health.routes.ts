@@ -78,7 +78,7 @@ router.get('/microsoft',
     results.services.microsoft_graph = {
       status: 'down',
       message: getErrorMessage(error),
-      details: { error: error.toString() }
+      details: { error: error instanceof Error ? error.toString() : String(error) }
     };
   }
 
@@ -193,7 +193,7 @@ router.get('/microsoft',
     results.services.sync = {
       status: 'up',
       message: 'Sync service is operational',
-      details: syncState.rows as Record<string, unknown>[]
+      details: { rows: syncState.rows } as Record<string, unknown>
     };
   } catch (error: unknown) {
     results.services.sync = {

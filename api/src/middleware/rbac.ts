@@ -282,7 +282,7 @@ export function requirePermission(permissions: string[], requireAll: boolean = f
 
         await logAuthorizationFailure({
           userId: req.user.id,
-          tenantId: req.user.tenant_id,
+          tenantId: req.user.tenant_id || '',
           action: req.method + ' ' + req.path,
           reason: 'Insufficient permissions',
           requiredPermissions: permissions,
@@ -340,7 +340,7 @@ export function requireTenantIsolation(resourceType?: string) {
 
     // Admin users bypass tenant isolation (they can access all tenants)
     // Normalize role values (DB enum uses capitalized strings like "Admin").
-    if (hasRole(req.user.role, [Role.SUPERADMIN, Role.ADMIN])) {
+    if (hasRole(req.user.role ?? '', [Role.SUPERADMIN, Role.ADMIN])) {
       return next()
     }
 

@@ -89,8 +89,8 @@ class GoogleCalendarService {
 
     return {
       access_token: tokens.access_token!,
-      refresh_token: tokens.refresh_token,
-      expiry_date: tokens.expiry_date
+      refresh_token: tokens.refresh_token ?? undefined,
+      expiry_date: tokens.expiry_date ?? undefined
     }
   }
 
@@ -213,8 +213,8 @@ class GoogleCalendarService {
       const oauth2Client = this.getOAuth2Client()
     oauth2Client.setCredentials({
       access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
-      expiry_date: tokens.expiry_date
+      refresh_token: tokens.refresh_token ?? undefined,
+      expiry_date: tokens.expiry_date ?? undefined
     })
 
     const calendar = google.calendar({ version: 'v3', auth: oauth2Client })
@@ -515,8 +515,8 @@ updatedEvent.location = eventData.location
       for (const attendee of Object.keys(busyPeriods)) {
         const busy = busyPeriods[attendee].busy || []
         for (const period of busy) {
-          const busyStart = new Date(period.start)
-          const busyEnd = new Date(period.end)
+          const busyStart = new Date(period.start as string)
+          const busyEnd = new Date(period.end as string)
 
           if (
             (currentTime >= busyStart && currentTime < busyEnd) ||

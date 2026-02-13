@@ -3,7 +3,6 @@
  * Implements: Multi-threaded processing, Bull queues, TripoSR integration, and CDN delivery
  */
 
-// @ts-expect-error - Type mismatch
 import { EventEmitter } from 'events'
 import path from 'path'
 import { Worker } from 'worker_threads'
@@ -22,7 +21,7 @@ interface Model3DProcessingJob {
   photos: Array<{
     url: string
     angle?: string
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   }>
   vehicleInfo?: {
     make: string
@@ -56,6 +55,40 @@ interface ProcessingResult {
     high: string
     original: string
   }
+}
+
+interface PreprocessResult {
+  reportId: string
+  processedPhotos: ProcessedPhoto[]
+  metadata: ImageMetadata
+  originalJob: Model3DProcessingJob
+}
+
+interface ProcessedPhoto {
+  url: string
+  buffer: Buffer
+  angle?: string
+}
+
+interface ImageMetadata {
+  count: number
+  totalSize: number
+  angles: string[]
+}
+
+interface GenerationResult {
+  reportId: string
+  modelUrl: string
+  modelData: { vertices: number; faces: number; textureSize: number }
+  metadata: Record<string, unknown>
+  originalJob: Model3DProcessingJob
+}
+
+interface WorkerMessage {
+  type: string
+  reportId?: string
+  result?: ProcessedPhoto
+  error?: string
 }
 
 interface QueueMetrics {
@@ -99,13 +132,13 @@ const S3_CONFIG = {
 // 3D Model Processing Pipeline
 export class Model3DProcessingPipeline extends EventEmitter {
   private preprocessQueue: Queue<Model3DProcessingJob>
-  private modelGenerationQueue: Queue<any>
-  private postprocessQueue: Queue<any>
+  private modelGenerationQueue: Queue<PreprocessResult>
+  private postprocessQueue: Queue<GenerationResult>
   private s3Client: S3Client
   private cloudfrontClient: CloudFrontClient
   private concurrencyLimit: ReturnType<typeof pLimit>
   private workerPool: Worker[] = []
-  private metrics: Map<string, any> = new Map()
+  private metrics: Map<string, number> = new Map()
 
   constructor() {
     super()
@@ -168,12 +201,12 @@ export class Model3DProcessingPipeline extends EventEmitter {
     })
 
     // Model Generation: TripoSR processing
-    this.modelGenerationQueue.process(2, async (job: Job<any>) => {
+    this.modelGenerationQueue.process(2, async (job: Job<PreprocessResult>) => {
       return this.generate3DModel(job)
     })
 
     // Postprocessing: Optimization, compression, and CDN upload
-    this.postprocessQueue.process(3, async (job: Job<any>) => {
+    this.postprocessQueue.process(3, async (job: Job<GenerationResult>) => {
       return this.postprocessModel(job)
     })
   }
@@ -255,9 +288,9 @@ export class Model3DProcessingPipeline extends EventEmitter {
   }
 
   // Image preprocessing stage
-  private async preprocessImages(job: Job<Model3DProcessingJob>): Promise<any> {
+  private async preprocessImages(job: Job<Model3DProcessingJob>): Promise<PreprocessResult> {
     const { photos, reportId } = job.data
-    const processedPhotos = []
+    const processedPhotos: ProcessedPhoto[] = []
 
     try {
       // Process images in parallel with concurrency control
@@ -286,8 +319,8 @@ export class Model3DProcessingPipeline extends EventEmitter {
         metadata,
         originalJob: job.data,
       }
-    } catch (error) {
-      throw new Error(`Preprocessing failed: ${error.message}`)
+    } catch (error: unknown) {
+      throw new Error(`Preprocessing failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
@@ -296,7 +329,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
     photo: { url: string; angle?: string },
     index: number,
     reportId: string
-  ): Promise<any> {
+  ): Promise<ProcessedPhoto> {
     return new Promise((resolve, reject) => {
       // Select worker from pool
       const worker = this.workerPool[index % this.workerPool.length]
@@ -318,10 +351,10 @@ export class Model3DProcessingPipeline extends EventEmitter {
       })
 
       // Handle worker response
-      const messageHandler = (message: any) => {
+      const messageHandler = (message: WorkerMessage) => {
         if (message.type === 'process-complete' && message.reportId === reportId) {
           worker.off('message', messageHandler)
-          resolve(message.result)
+          resolve(message.result!)
         } else if (message.type === 'process-error' && message.reportId === reportId) {
           worker.off('message', messageHandler)
           reject(new Error(message.error))
@@ -339,7 +372,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
   }
 
   // Generate 3D model using TripoSR
-  private async generate3DModel(job: Job<any>): Promise<any> {
+  private async generate3DModel(job: Job<PreprocessResult>): Promise<GenerationResult> {
     const { reportId, processedPhotos, metadata } = job.data
 
     try {
@@ -379,7 +412,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
           headers: formData.getHeaders(),
           timeout: 300000, // 5 minutes timeout
           onUploadProgress: (progressEvent) => {
-            const progress = 33 + (progressEvent.loaded / progressEvent.total) * 33
+            const progress = 33 + (progressEvent.loaded / (progressEvent.total ?? 1)) * 33
             job.progress(progress)
           },
         }
@@ -405,13 +438,13 @@ export class Model3DProcessingPipeline extends EventEmitter {
         },
         originalJob: job.data.originalJob,
       }
-    } catch (error) {
-      throw new Error(`3D generation failed: ${error.message}`)
+    } catch (error: unknown) {
+      throw new Error(`3D generation failed: ${error instanceof Error ? error.message : String(error)}`)
     }
   }
 
   // Postprocess and optimize model
-  private async postprocessModel(job: Job<any>): Promise<ProcessingResult> {
+  private async postprocessModel(job: Job<GenerationResult>): Promise<ProcessingResult> {
     const { reportId, modelUrl, modelData, metadata, originalJob } = job.data
     const startTime = Date.now()
 
@@ -461,12 +494,12 @@ export class Model3DProcessingPipeline extends EventEmitter {
       await this.cacheModelMetadata(reportId, result)
 
       return result
-    } catch (error) {
+    } catch (error: unknown) {
       return {
         jobId: job.id?.toString() || '',
         reportId,
         status: 'failed',
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       }
     }
   }
@@ -660,16 +693,16 @@ export class Model3DProcessingPipeline extends EventEmitter {
   }
 
   private determineQualityLevel(priority: string): 'low' | 'medium' | 'high' | 'ultra' {
-    const qualityMap = {
+    const qualityMap: Record<string, 'low' | 'medium' | 'high' | 'ultra'> = {
       urgent: 'medium',
       high: 'high',
       normal: 'high',
       low: 'medium',
     }
-    return qualityMap[priority] as any || 'high'
+    return qualityMap[priority] || 'high'
   }
 
-  private validateProcessedImages(images: any[]): void {
+  private validateProcessedImages(images: ProcessedPhoto[]): void {
     for (const image of images) {
       if (!image.url || !image.buffer) {
         throw new Error('Invalid processed image')
@@ -677,15 +710,15 @@ export class Model3DProcessingPipeline extends EventEmitter {
     }
   }
 
-  private async generateImageMetadata(images: any[]): Promise<any> {
+  private async generateImageMetadata(images: ProcessedPhoto[]): Promise<ImageMetadata> {
     return {
       count: images.length,
       totalSize: images.reduce((sum, img) => sum + img.buffer.length, 0),
-      angles: images.map(img => img.angle).filter(Boolean),
+      angles: images.map(img => img.angle).filter((a): a is string => Boolean(a)),
     }
   }
 
-  private async validateGeneratedModel(modelData: any): Promise<void> {
+  private async validateGeneratedModel(modelData: { url?: string; vertices?: number; faces?: number }): Promise<void> {
     if (!modelData.url || !modelData.vertices || !modelData.faces) {
       throw new Error('Invalid model data from TripoSR')
     }
@@ -752,13 +785,13 @@ export class Model3DProcessingPipeline extends EventEmitter {
     }
   }
 
-  private async getJobData(jobId: string): Promise<any> {
+  private async getJobData(jobId: string): Promise<(Model3DProcessingJob & { createdAt: number; status: string }) | null> {
     const key = `job:${jobId}`
     const data = await this.preprocessQueue.client.get(key)
     return data ? JSON.parse(data) : null
   }
 
-  private handleJobFailure(job: Job<any>, error: Error): void {
+  private handleJobFailure(job: Job<Model3DProcessingJob> | Job<PreprocessResult> | Job<GenerationResult>, error: Error): void {
     this.emit('job-failed', {
       jobId: job.id,
       reportId: job.data.reportId,
@@ -826,7 +859,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
     }
   }
 
-  private updateMetrics(type: 'completed' | 'failed', job: Job<any>): void {
+  private updateMetrics(type: 'completed' | 'failed', _job: Job<Model3DProcessingJob> | Job<PreprocessResult> | Job<GenerationResult>): void {
     const key = `metrics:${type}:${new Date().toISOString().split('T')[0]}`
     this.metrics.set(key, (this.metrics.get(key) || 0) + 1)
   }
@@ -837,7 +870,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
   }
 
   // Public methods
-  async getJobStatus(jobId: string): Promise<any> {
+  async getJobStatus(jobId: string): Promise<Record<string, unknown> | null> {
     const [preprocessJob, generationJob, postprocessJob] = await Promise.all([
       this.preprocessQueue.getJob(jobId),
       this.modelGenerationQueue.getJob(jobId),

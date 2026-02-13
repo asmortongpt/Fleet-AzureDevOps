@@ -21,7 +21,7 @@ const safeLog = (
   message: string,
   meta: Record<string, unknown>
 ) => {
-  const logger = securityLogger as Record<string, unknown>
+  const logger = securityLogger as unknown as Record<string, unknown>
   const logFn =
     (logger && (logger[level] as unknown)) ||
     (logger && (logger.incident as unknown)) ||
@@ -319,12 +319,12 @@ export function sanitizeRequest(config: SanitizationConfig = {}) {
 
       // Sanitize query parameters
       if (req.query) {
-        req.query = sanitizeValue(req.query, fullConfig, 'query')
+        req.query = sanitizeValue(req.query, fullConfig, 'query') as typeof req.query
       }
 
       // Sanitize URL parameters
       if (req.params) {
-        req.params = sanitizeValue(req.params, fullConfig, 'params')
+        req.params = sanitizeValue(req.params, fullConfig, 'params') as typeof req.params
       }
 
       next()
@@ -378,11 +378,11 @@ export function sanitizeFields(...fields: string[]) {
       }
 
       if (req.query && req.query[field] !== undefined) {
-        req.query[field] = sanitizeValue(req.query[field], config, field)
+        (req.query as Record<string, unknown>)[field] = sanitizeValue(req.query[field], config, field)
       }
 
       if (req.params && req.params[field] !== undefined) {
-        req.params[field] = sanitizeValue(req.params[field], config, field)
+        (req.params as Record<string, string>)[field] = sanitizeValue(req.params[field], config, field) as string
       }
     }
 

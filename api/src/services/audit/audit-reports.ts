@@ -463,7 +463,7 @@ export class AuditReports {
   }
 
   private analyzeAccessPatterns(events: any[]): any {
-    const anomalies = []
+    const anomalies: Array<Record<string, unknown>> = []
     const accessByUser = new Map<string, any[]>()
 
     events.forEach(event => {

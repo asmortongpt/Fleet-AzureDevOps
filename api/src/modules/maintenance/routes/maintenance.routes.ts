@@ -21,7 +21,7 @@ const maintenanceRBAC = requireRBAC({
 
 const maintenanceWriteRBAC = requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
-    permissions: [PERMISSIONS.MAINTENANCE_WRITE],
+    permissions: [PERMISSIONS.MAINTENANCE_CREATE],
     enforceTenantIsolation: true,
     resourceType: 'maintenance'
 });

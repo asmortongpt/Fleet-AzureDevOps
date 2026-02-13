@@ -27,8 +27,9 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
       const query = 'SELECT id, created_at, updated_at FROM fuel_transactions WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY transaction_date DESC';
       const result: QueryResult<FuelTransaction> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Error fetching fuel transactions: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error fetching fuel transactions: ${message}`);
     }
   }
 
@@ -37,8 +38,9 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
       const query = 'SELECT id, created_at, updated_at FROM fuel_transactions WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<FuelTransaction> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Error fetching fuel transaction by ID: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error fetching fuel transaction by ID: ${message}`);
     }
   }
 
@@ -52,8 +54,9 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
       const values = [tenantId, transaction.transaction_date, transaction.vehicle_id, transaction.fuel_type, transaction.quantity, transaction.unit_price, transaction.total_cost];
       const result: QueryResult<FuelTransaction> = await this.pool.query(query, values);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Error creating fuel transaction: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error creating fuel transaction: ${message}`);
     }
   }
 
@@ -72,8 +75,9 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
         throw new Error('Fuel transaction not found or already deleted');
       }
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Error updating fuel transaction: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error updating fuel transaction: ${message}`);
     }
   }
 
@@ -84,8 +88,9 @@ export class FuelTransactionsRepository extends BaseRepository<any> {
       if (result.rowCount === 0) {
         throw new Error('Fuel transaction not found or already deleted');
       }
-    } catch (error) {
-      throw new Error(`Error soft deleting fuel transaction: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Error soft deleting fuel transaction: ${message}`);
     }
   }
 }

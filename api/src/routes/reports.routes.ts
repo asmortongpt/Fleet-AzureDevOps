@@ -50,7 +50,6 @@ const reportRateLimiter = rateLimit({
  */
 router.get(
   '/templates',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
@@ -90,7 +89,6 @@ router.get(
  */
 router.get(
   '/scheduled',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
@@ -128,7 +126,6 @@ router.get(
  */
 router.post(
   '/scheduled',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   reportRateLimiter,
   [
@@ -194,7 +191,6 @@ router.post(
  */
 router.get(
   '/history',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
@@ -234,7 +230,6 @@ router.get(
  */
 router.get(
   '/definitions/:id',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
@@ -282,7 +277,6 @@ router.get(
  */
 router.post(
   '/execute',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   reportRateLimiter,
   [
@@ -357,7 +351,6 @@ router.post(
  */
 router.post(
   '/ai/generate',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   aiRateLimiter,
   [
@@ -371,7 +364,7 @@ router.post(
     }
 
     const { prompt } = req.body;
-    const user = req.user;
+    const user = req.user!;
 
     try {
       const result = await multiLLMOrchestrator.generateReport({
@@ -413,7 +406,6 @@ router.post(
  */
 router.post(
   '/chat',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   aiRateLimiter,
   [
@@ -427,7 +419,7 @@ router.post(
     }
 
     const { message, history } = req.body;
-    const user = req.user;
+    const user = req.user!;
 
     try {
       const response = await multiLLMOrchestrator.chat(message, {
@@ -469,7 +461,6 @@ router.post(
  */
 router.post(
   '/export',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   reportRateLimiter,
   [
@@ -534,7 +525,6 @@ router.post(
  */
 router.post(
   '/custom',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   [
     body('definition').isObject(),
@@ -547,7 +537,7 @@ router.post(
     }
 
     const { definition, name } = req.body;
-    const user = req.user;
+    const user = req.user!;
 
     try {
       const reportId = await saveCustomReport(user.id, name, definition);
@@ -566,10 +556,9 @@ router.post(
  */
 router.get(
   '/custom',
-  // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
-    const user = req.user;
+    const user = req.user!;
 
     try {
       const reports = await getUserCustomReports(user.id);
@@ -599,12 +588,12 @@ async function loadReportDefinition(reportId: string): Promise<Record<string, un
 
 async function checkReportAccess(user: Express.Request['user'], reportDefinition: Record<string, unknown> | null): Promise<boolean> {
   // SuperAdmin and admin bypass RBAC checks
-  if (user?.role === 'SuperAdmin' || user?.role === 'admin') {
+  if ((user as Record<string, unknown>)?.role === 'SuperAdmin' || (user as Record<string, unknown>)?.role === 'admin') {
     return true;
   }
 
-  const userId = user?.id;
-  const tenantId = user?.tenant_id;
+  const userId = (user as Record<string, unknown>)?.id as string | undefined;
+  const tenantId = (user as Record<string, unknown>)?.tenant_id as string | undefined;
   if (!userId || !tenantId) {
     return false;
   }
@@ -681,7 +670,7 @@ async function executeReport(
   drilldown: Record<string, unknown>,
   user: Express.Request['user']
 ): Promise<Record<string, unknown>> {
-  const tenantId = user?.tenant_id
+  const tenantId = (user as Record<string, unknown>)?.tenant_id as string | undefined
   const dateRange = filters?.dateRange as { start?: string; end?: string } | undefined
   const startDate = dateRange?.start ? new Date(dateRange.start) : null
   const endDate = dateRange?.end ? new Date(dateRange.end) : null

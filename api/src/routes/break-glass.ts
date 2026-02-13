@@ -52,7 +52,7 @@ router.post(
     try {
       const validated = elevationRequestSchema.parse(req.body);
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       // Check if role allows JIT elevation
       // SECURITY: Repository validates role belongs to tenant
@@ -89,7 +89,7 @@ router.post(
       });
 
       // Send notification to approvers (FleetAdmin role)
-      await notifyApprovers(breakGlassRepo, req.user!.tenant_id, session.id, {
+      await notifyApprovers(breakGlassRepo, req.user!.tenant_id ?? '', session.id, {
         requester: req.user!.email,
         role: role.name,
         reason: validated.reason,
@@ -125,7 +125,7 @@ router.get(
     try {
       const { status = 'pending' } = req.query;
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       const requests = await breakGlassRepo.findRequestsWithDetails(
         status as string || null,
@@ -160,7 +160,7 @@ router.post(
       const validated = approvalSchema.parse(req.body);
       const sessionId = req.params.id;
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       // Get the session
       // SECURITY: Repository verifies session belongs to approver's tenant
@@ -247,7 +247,7 @@ router.post(
     try {
       const sessionId = req.params.id;
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       // SECURITY: Repository validates session belongs to current user's tenant
       const session = await breakGlassRepo.findSessionByIdWithTenant(sessionId, context);
@@ -259,7 +259,7 @@ router.post(
       // Check if user can revoke (self or admin)
       const canRevoke =
         session.user_id === req.user!.id ||
-        session.tenant_id === req.user!.tenant_id;
+        session.tenant_id === (req.user!.tenant_id ?? '');
 
       if (!canRevoke) {
         return res.status(403).json({ error: 'Access denied' });
@@ -294,7 +294,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const breakGlassRepo = container.get<BreakGlassRepository>(TYPES.BreakGlassRepository);
-      const context = { tenantId: req.user!.tenant_id };
+      const context = { tenantId: req.user!.tenant_id ?? '' };
 
       const elevations = await breakGlassRepo.findActiveElevations(req.user!.id, context);
 

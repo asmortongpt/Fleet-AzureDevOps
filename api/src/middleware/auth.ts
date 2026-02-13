@@ -18,18 +18,32 @@ export interface AuthUser {
   id: string
   email: string
   role?: string
+  roles?: string[]
+  permissions?: string[]
   tenant_id?: string
   scope_level?: string
   team_driver_ids?: string[]
+  team_vehicle_ids?: string[]
   // Session management
   sessionId?: string
+  sessionUuid?: string
   // Aliases for compatibility
   userId?: string
+  userUuid?: string
   tenantId?: string
   name?: string
+  username?: string
   org_id?: string
   // Azure AD flag
   azureAD?: boolean
+  // JWT claims
+  iat?: number
+  exp?: number
+  iss?: string
+  aud?: string
+  jti?: string
+  // Allow extensibility
+  [key: string]: any
 }
 
 export interface AuthRequest extends Request {

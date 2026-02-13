@@ -89,8 +89,8 @@ router.post(
       // SECURITY: Verify vehicle belongs to tenant before connecting
       const vehicleCheck = await tenantSafeQuery(
         `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
-        [vehicle_id, req.user!.tenant_id],
-        req.user!.tenant_id
+        [vehicle_id, req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       if (vehicleCheck.rows.length === 0) {
@@ -123,8 +123,8 @@ router.post(
            updated_at = NOW()
          WHERE vehicle_telematics_connections.tenant_id = $6
          RETURNING *`,
-        [vehicle_id, provider_id, external_vehicle_id, access_token, JSON.stringify(metadata || {}), req.user!.tenant_id],
-        req.user!.tenant_id
+        [vehicle_id, provider_id, external_vehicle_id, access_token, JSON.stringify(metadata || {}), req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       res.status(201).json({
@@ -161,8 +161,8 @@ router.get(
          JOIN vehicles v ON vtc.vehicle_id = v.id
          WHERE v.tenant_id = $1 AND vtc.tenant_id = $1
          ORDER BY v.name, tp.display_name`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       res.json({ connections: result.rows })
@@ -196,8 +196,8 @@ router.get(
          WHERE vt.vehicle_id = $1 AND v.tenant_id = $2 AND vt.tenant_id = $2
          ORDER BY vt.timestamp DESC
          LIMIT 1`,
-        [req.params.id, req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.params.id, req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       if (result.rows.length === 0) {
@@ -239,8 +239,8 @@ router.get(
          WHERE vt.vehicle_id = $1 AND v.tenant_id = $2 AND vt.tenant_id = $2
          ORDER BY vt.timestamp DESC
          LIMIT 1`,
-        [req.params.id, req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.params.id, req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       if (result.rows.length === 0) {
@@ -277,7 +277,7 @@ router.get(
         JOIN vehicles v ON vt.vehicle_id = v.id
         WHERE vt.vehicle_id = $1 AND v.tenant_id = $2 AND vt.tenant_id = $2
       `
-      const params: any[] = [req.params.id, req.user!.tenant_id]
+      const params: any[] = [req.params.id, req.user!.tenant_id ?? '']
 
       if (start_time) {
         params.push(start_time)
@@ -292,7 +292,7 @@ router.get(
       query += ` ORDER BY vt.timestamp DESC LIMIT $${params.length + 1}`
       params.push(limit)
 
-      const result = await tenantSafeQuery(query, params, req.user!.tenant_id)
+      const result = await tenantSafeQuery(query, params, req.user!.tenant_id ?? '')
 
       res.json({
         vehicle_id: req.params.id,
@@ -335,7 +335,7 @@ router.get(
         LEFT JOIN telematics_providers tp ON dse.provider_id = tp.id
         WHERE v.tenant_id = $1 AND dse.tenant_id = $1
       `
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
 
       if (vehicle_id) {
         params.push(vehicle_id)
@@ -370,10 +370,10 @@ router.get(
       query += ` ORDER BY dse.timestamp DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`
       params.push(limit, offset)
 
-      const result = await tenantSafeQuery(query, params, req.user!.tenant_id)
+      const result = await tenantSafeQuery(query, params, req.user!.tenant_id ?? '')
 
       const countQuery = query.split('ORDER BY')[0].replace(/SELECT .* FROM/, 'SELECT COUNT(*) FROM')
-      const countResult = await tenantSafeQuery(countQuery, params.slice(0, -2), req.user!.tenant_id)
+      const countResult = await tenantSafeQuery(countQuery, params.slice(0, -2), req.user!.tenant_id ?? '')
 
       res.json({
         events: result.rows,
@@ -420,8 +420,8 @@ router.post(
          AND v.tenant_id = $2
          AND vtc.tenant_id = $2
          AND vtc.provider_id = (SELECT id FROM telematics_providers WHERE name = 'samsara')`,
-        [vehicle_id, req.user!.tenant_id],
-        req.user!.tenant_id
+        [vehicle_id, req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       if (connResult.rows.length === 0) {
@@ -589,8 +589,8 @@ router.get(
          LEFT JOIN latest_vehicle_telemetry lvt ON v.id = lvt.vehicle_id
          WHERE v.tenant_id = $1 AND v.status = 'active'
          ORDER BY v.id, lvt.timestamp DESC`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       // SECURITY: Get recent safety events (last 24 hours) with tenant isolation
@@ -601,8 +601,8 @@ router.get(
          WHERE v.tenant_id = $1 AND dse.tenant_id = $1 AND dse.timestamp >= NOW() - INTERVAL '24 hours'
          GROUP BY event_type, severity
          ORDER BY count DESC`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       // SECURITY: Get active diagnostic codes with tenant isolation
@@ -612,8 +612,8 @@ router.get(
          JOIN vehicles v ON vdc.vehicle_id = v.id
          WHERE v.tenant_id = $1 AND vdc.tenant_id = $1 AND vdc.cleared_at IS NULL
          GROUP BY severity`,
-        [req.user!.tenant_id],
-        req.user!.tenant_id
+        [req.user!.tenant_id ?? ''],
+        req.user!.tenant_id ?? ''
       )
 
       res.json({

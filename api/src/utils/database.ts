@@ -1,7 +1,7 @@
 // Typed Database Query Wrapper
 // Provides type-safe database operations with proper error handling
 
-import { Pool, PoolClient } from 'pg';
+import { Pool, PoolClient, QueryResultRow } from 'pg';
 
 import pool from '../config/database';
 import logger from '../config/logger';
@@ -15,7 +15,7 @@ import { monitoredQuery } from './query-monitor';
  * @param params Query parameters
  * @returns Typed query result
  */
-export async function query<T = unknown>(
+export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: SqlParams
 ): Promise<QueryResult<T>> {
@@ -39,7 +39,7 @@ export async function query<T = unknown>(
  * @param params Query parameters
  * @returns Single row or null
  */
-export async function queryOne<T = unknown>(
+export async function queryOne<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: SqlParams
 ): Promise<T | null> {
@@ -53,7 +53,7 @@ export async function queryOne<T = unknown>(
  * @param params Query parameters
  * @returns Array of rows
  */
-export async function queryMany<T = unknown>(
+export async function queryMany<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: SqlParams
 ): Promise<T[]> {
@@ -68,7 +68,7 @@ export async function queryMany<T = unknown>(
  * @returns Single row
  * @throws Error if no rows found
  */
-export async function queryOneRequired<T = unknown>(
+export async function queryOneRequired<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: SqlParams
 ): Promise<T> {
@@ -124,7 +124,7 @@ export async function transaction<T>(
  * @param params Query parameters
  * @returns Typed query result
  */
-export async function clientQuery<T = unknown>(
+export async function clientQuery<T extends QueryResultRow = QueryResultRow>(
   client: PoolClient,
   text: string,
   params?: SqlParams
@@ -215,7 +215,7 @@ export function sanitizeIdentifier(name: string): string {
  * @param limit Items per page
  * @returns Paginated result with metadata
  */
-export async function queryPaginated<T = unknown>(
+export async function queryPaginated<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params: SqlParams = [],
   page: number = 1,

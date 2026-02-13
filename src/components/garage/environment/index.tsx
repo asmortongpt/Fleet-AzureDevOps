@@ -65,6 +65,7 @@ export function RainEffect() {
           count={1000}
           array={new Float32Array(3000).map(() => (Math.random() - 0.5) * 100)}
           itemSize={3}
+          args={[new Float32Array(3000).map(() => (Math.random() - 0.5) * 100), 3]}
         />
       </bufferGeometry>
       <pointsMaterial size={0.1} color="#4A90E2" transparent opacity={0.6} />
@@ -81,6 +82,7 @@ export function SnowEffect() {
           count={500}
           array={new Float32Array(1500).map(() => (Math.random() - 0.5) * 100)}
           itemSize={3}
+          args={[new Float32Array(1500).map(() => (Math.random() - 0.5) * 100), 3]}
         />
       </bufferGeometry>
       <pointsMaterial size={0.2} color="#FFFFFF" transparent opacity={0.8} />

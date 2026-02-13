@@ -1,5 +1,15 @@
 import { logger } from '../middleware/logger';
 
+declare const global: typeof globalThis & {
+  appInsights?: {
+    defaultClient: {
+      trackMetric: (metric: { name: string; value: number; properties?: Record<string, string> }) => void;
+      trackEvent: (event: { name: string; properties?: Record<string, string> }) => void;
+    };
+  };
+  gc?: () => void;
+};
+
 // Memory monitoring configuration
 const MEMORY_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const HIGH_MEMORY_THRESHOLD = 80; // 80% heap usage

@@ -699,7 +699,7 @@ const initializeEmulatorTracking = async () => {
 
     const configPath = path.resolve(process.cwd(), 'src/emulators/config/default.json')
     const orchestrator = new EmulatorOrchestrator(configPath)
-    ;(globalThis as any).__fleetEmulatorOrchestrator = orchestrator
+    ;(globalThis as unknown as Record<string, unknown>).__fleetEmulatorOrchestrator = orchestrator
 
     const maxVehicles = Number(process.env.EMULATOR_STREAM_VEHICLE_COUNT || 50)
     const vehicleIds = fleetTelemetryService.getVehicles().slice(0, maxVehicles).map((v) => v.id)
@@ -764,8 +764,8 @@ async function listenWithRetry(port: number, maxRetries = 10): Promise<any> {
         srv.on('error', (err: any) => reject(err))
       })
       return s
-    } catch (err: any) {
-      if (err?.code === 'EADDRINUSE' && attempt < maxRetries) {
+    } catch (err: unknown) {
+      if (err instanceof Error && 'code' in err && (err as Record<string, unknown>).code === 'EADDRINUSE' && attempt < maxRetries) {
         const delayMs = 250 + attempt * 250
         logger.warn(`Port ${port} in use; retrying listen in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
         await new Promise((r) => setTimeout(r, delayMs))

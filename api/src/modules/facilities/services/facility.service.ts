@@ -23,45 +23,45 @@ throw new Error("Address is required");
 }
   }
 
-  async getAllFacilities(tenantId: number): Promise<Facility[]> {
+  async getAllFacilities(tenantId: string): Promise<Facility[]> {
     return this.executeInTransaction(async () => {
       return await this.facilityRepository.findAll(tenantId);
     });
   }
 
-  async getFacilityById(id: number, tenantId: number): Promise<Facility | null> {
+  async getFacilityById(id: string, tenantId: string): Promise<Facility | null> {
     return this.executeInTransaction(async () => {
       return await this.facilityRepository.findById(id, tenantId);
     });
   }
 
-  async getFacilitiesByType(facilityType: string, tenantId: number): Promise<Facility[]> {
+  async getFacilitiesByType(facilityType: string, tenantId: string): Promise<Facility[]> {
     return this.executeInTransaction(async () => {
       return await this.facilityRepository.findByType(facilityType, tenantId);
     });
   }
 
-  async getActiveFacilities(tenantId: number): Promise<Facility[]> {
+  async getActiveFacilities(tenantId: string): Promise<Facility[]> {
     return this.executeInTransaction(async () => {
       return await this.facilityRepository.findActive(tenantId);
     });
   }
 
-  async createFacility(data: Partial<Facility>, tenantId: number): Promise<Facility> {
+  async createFacility(data: Partial<Facility>, tenantId: string): Promise<Facility> {
     await this.validate(data);
     return this.executeInTransaction(async () => {
       return await this.facilityRepository.create(data, tenantId);
     });
   }
 
-  async updateFacility(id: number, data: Partial<Facility>, tenantId: number): Promise<Facility | null> {
+  async updateFacility(id: string, data: Partial<Facility>, tenantId: string): Promise<Facility | null> {
     await this.validate(data);
     return this.executeInTransaction(async () => {
       return await this.facilityRepository.update(id, data, tenantId);
     });
   }
 
-  async deleteFacility(id: number, tenantId: number): Promise<boolean> {
+  async deleteFacility(id: string, tenantId: string): Promise<boolean> {
     return this.executeInTransaction(async () => {
       return await this.facilityRepository.delete(id, tenantId);
     });

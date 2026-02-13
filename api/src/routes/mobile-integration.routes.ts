@@ -14,7 +14,7 @@ import { auditLog } from '../middleware/audit'
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
-import mobileIntegrationService from '../services/mobile-integration.service'
+import mobileIntegrationService, { MobileSyncRequest } from '../services/mobile-integration.service'
 import { getErrorMessage } from '../utils/error-handler'
 
 
@@ -123,7 +123,7 @@ const DamageDetectionSchema = z.object({
 router.post('/register',csrfProtection, requirePermission('driver:create:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = DeviceRegistrationSchema.parse(req.body)
-    const userId = req.user.id
+    const userId = Number(req.user!.id)
 
     const device = await mobileIntegrationService.registerDevice(
       userId,
@@ -183,8 +183,8 @@ router.post('/register',csrfProtection, requirePermission('driver:create:global'
 router.post('/sync',csrfProtection, requirePermission('driver:update:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = MobileSyncSchema.parse(req.body)
-    const tenantId = req.user.tenant_id
-    const userId = req.user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const syncRequest = {
       device_id: validated.device_id,
@@ -195,7 +195,7 @@ router.post('/sync',csrfProtection, requirePermission('driver:update:global'), a
     const result = await mobileIntegrationService.syncMobileData(
       tenantId,
       userId,
-      syncRequest
+      syncRequest as MobileSyncRequest
     )
 
     res.json(result)
@@ -226,8 +226,8 @@ router.post('/sync',csrfProtection, requirePermission('driver:update:global'), a
 router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
     const vehicleId = parseInt(req.params.vehicleId)
-    const tenantId = req.user.tenant_id
-    const userId = req.user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const route = await mobileIntegrationService.getMobileRoute(
       tenantId,
@@ -286,7 +286,7 @@ router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (re
 router.post('/ar-navigation',csrfProtection, requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = ARNavigationSchema.parse(req.body)
-    const tenantId = req.user.tenant_id
+    const tenantId = Number(req.user!.tenant_id)
 
     const data = await mobileIntegrationService.getARNavigationData(tenantId, validated)
 
@@ -334,8 +334,8 @@ router.post('/ar-navigation',csrfProtection, requirePermission('route:view:fleet
 router.post('/keyless-entry',csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = KeylessEntrySchema.parse(req.body)
-    const tenantId = req.user.tenant_id
-    const userId = req.user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const result = await mobileIntegrationService.executeKeylessEntry(
       tenantId,
@@ -383,13 +383,13 @@ router.post('/keyless-entry',csrfProtection, requirePermission('vehicle:update:f
 router.post('/damage-detection',csrfProtection, requirePermission('safety_incident:create:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = DamageDetectionSchema.parse(req.body)
-    const tenantId = req.user.tenant_id
-    const userId = req.user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
 
     const result = await mobileIntegrationService.submitDamageDetection(
       tenantId,
       userId,
-      validated
+      validated as { vehicle_id: number; photo_url: string; ai_detections: Record<string, unknown>[]; severity: string; estimated_cost?: number }
     )
 
     res.status(201).json(result)
@@ -423,8 +423,8 @@ router.post('/damage-detection',csrfProtection, requirePermission('safety_incide
  */
 router.get('/dispatch/messages', requirePermission('communication:view:global'), async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user.tenant_id
-    const userId = req.user.id
+    const tenantId = Number(req.user!.tenant_id)
+    const userId = Number(req.user!.id)
     const channelId = req.query.channel_id ? parseInt(req.query.channel_id as string) : undefined
     const since = req.query.since ? new Date(req.query.since as string) : undefined
 
@@ -472,7 +472,7 @@ router.get('/dispatch/messages', requirePermission('communication:view:global'),
  */
 router.get('/charging-stations/nearby', requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user.tenant_id
+    const tenantId = Number(req.user!.tenant_id)
     const latitude = parseFloat(req.query.latitude as string)
     const longitude = parseFloat(req.query.longitude as string)
     const radius = req.query.radius ? parseFloat(req.query.radius as string) : 10
@@ -528,7 +528,7 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
 router.post('/push-notification',csrfProtection, requirePermission('communication:send:global'), auditLog, async (req: Request, res: Response) => {
   try {
     // Check if user is admin
-    const userRole = req.user.role
+    const userRole = req.user!.role
     if (userRole !== 'admin' && userRole !== 'fleet_manager') {
       return res.status(403).json({ error: 'Unauthorized' })
     }

@@ -115,7 +115,7 @@ export class OCRService {
         text: result.data.text,
         confidence: result.data.confidence,
         language: config.language as string,
-        blocks: this.parseBlocks(result.data.blocks),
+        blocks: this.parseBlocks(result.data.blocks ?? []),
         words: this.parseWords(result.data.words),
         processingTime: Date.now() - startTime
       }
@@ -182,7 +182,7 @@ export class OCRService {
 
     try {
       const result = await worker.detect(imagePath)
-      return (result.data as any).languages?.[0]?.code || 'eng'
+      return (result.data as { languages?: Array<{ code: string }> }).languages?.[0]?.code || 'eng'
     } finally {
       this.releaseWorker(workerId)
     }
@@ -310,5 +310,5 @@ export function getOCRService(): OCRService {
 // Helper function to access worker
 async function getWorker(): Promise<{ worker: Worker; workerId: string }> {
   const service = getOCRService()
-  return (service as any).getWorker()
+  return (service as unknown as { getWorker(): Promise<{ worker: Worker; workerId: string }> }).getWorker()
 }

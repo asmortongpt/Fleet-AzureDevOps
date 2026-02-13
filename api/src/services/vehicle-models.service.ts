@@ -58,7 +58,7 @@ interface Vehicle3DInstance {
   lastDamageScan?: Date;
 }
 
-interface DamageMarker {
+export interface DamageMarker {
   location: { x: number; y: number; z: number };
   severity: 'minor' | 'moderate' | 'severe';
   type: string;
@@ -314,7 +314,7 @@ class VehicleModelsService {
         throw new Error('Vehicle 3D model not found');
       }
 
-      return fallback.rows[0] as any;
+      return fallback.rows[0] as unknown as Vehicle3DInstance;
     }
 
     const query = `
@@ -667,7 +667,7 @@ class VehicleModelsService {
     );
 
     if (existing.rows.length > 0) {
-      return existing.rows[0] as any;
+      return existing.rows[0] as unknown as Vehicle3DInstance;
     }
 
     const vehicleResult = await this.db.query(
@@ -748,7 +748,7 @@ class VehicleModelsService {
       ]
     );
 
-    return insertResult.rows[0] as any;
+    return insertResult.rows[0] as unknown as Vehicle3DInstance;
   }
 
   /**

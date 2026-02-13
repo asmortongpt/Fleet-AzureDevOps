@@ -194,7 +194,7 @@ router.get(
       offset = 0
     } = req.query;
 
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     let whereClause = `WHERE tenant_id = $1`;
     const params: any[] = [tenantId];
@@ -213,7 +213,7 @@ router.get(
     }
 
     if (type) {
-      const mappedType = safetyTypeMap[type] || type;
+      const mappedType = safetyTypeMap[type as string] || type;
       whereClause += ` AND alert_type = $${paramIndex}`;
       params.push(mappedType);
       paramIndex++;
@@ -298,7 +298,7 @@ router.get(
   validateParams(idSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     const query = `SELECT * FROM alerts WHERE id = $1 AND tenant_id = $2`;
     const result = await tenantSafeQuery(query, [id, tenantId], tenantId);
@@ -333,7 +333,7 @@ router.post(
   validateBody(safetyAlertSchema),
   asyncHandler(async (req, res) => {
     const alertData = req.body;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     const reportedAt = alertData.reportedAt ? new Date(alertData.reportedAt) : new Date();
     const entityType = alertData.facilityId ? 'facility' : alertData.vehicleId ? 'vehicle' : alertData.driverId ? 'driver' : null;
@@ -415,7 +415,7 @@ router.put(
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     const setClauses: string[] = [];
     const params: any[] = [];
@@ -553,7 +553,7 @@ router.delete(
   validateParams(idSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
     const metadataPatch = {
       deleted: true,
@@ -600,10 +600,10 @@ router.get(
   validateQuery(oshaMetricsQuerySchema),
   asyncHandler(async (req, res) => {
     const { year, startDate, endDate } = req.query;
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
 
-    let start = startDate ? new Date(startDate) : undefined;
-    let end = endDate ? new Date(endDate) : undefined;
+    let start = startDate ? new Date(startDate as string) : undefined;
+    let end = endDate ? new Date(endDate as string) : undefined;
 
     if (year) {
       start = new Date(`${year}-01-01T00:00:00.000Z`);
@@ -689,8 +689,8 @@ router.post(
   validateParams(idSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params;
-    const tenantId = req.user?.tenant_id;
-    const userId = req.user?.id;
+    const tenantId = req.user?.tenant_id ?? '';
+    const userId = req.user?.id ?? '';
 
     const query = `
       UPDATE alerts
@@ -742,8 +742,8 @@ router.post(
   asyncHandler(async (req, res) => {
     const { id } = req.params;
     const { rootCause, correctiveActions, preventiveMeasures } = req.body;
-    const tenantId = req.user?.tenant_id;
-    const userId = req.user?.id;
+    const tenantId = req.user?.tenant_id ?? '';
+    const userId = req.user?.id ?? '';
 
     const metadataPatch = {
       rootCause,

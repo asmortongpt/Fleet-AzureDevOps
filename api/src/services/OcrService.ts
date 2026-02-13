@@ -719,7 +719,7 @@ class OcrService {
         FeatureTypes: [
           ...(options.detectTables ? ['TABLES'] : []),
           ...(options.detectForms ? ['FORMS'] : [])
-        ] as any
+        ] as string[]
       })
       : new DetectDocumentTextCommand({
         Document: { Bytes: imageBuffer }
@@ -808,7 +808,7 @@ class OcrService {
     }
 
     // Use Read API for OCR
-    const readResult = await this.azureVisionClient.readInStream(imageBuffer as any);
+    const readResult = await this.azureVisionClient.readInStream(imageBuffer);
     const operationLocation = readResult.operationLocation;
     const operationId = operationLocation.split('/').pop();
 
@@ -1162,8 +1162,8 @@ class OcrService {
 }
 
 // Export singleton instance
-import { db } from '../db'
-const ocrService = new OcrService(db as any)
+import { pool } from '../db'
+const ocrService = new OcrService(pool)
 
 export { OcrService }
 export default ocrService

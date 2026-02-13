@@ -30,7 +30,7 @@ export interface VehicleAssignment {
   denied_at?: Date
   approval_notes?: string
   denial_reason?: string
-  geographic_constraints?: Record<string, any>
+  geographic_constraints?: Record<string, unknown>
   requires_secured_parking?: boolean
   secured_parking_location_id?: string
   cost_benefit_analysis_id?: string
@@ -83,7 +83,7 @@ export class VehicleAssignmentRepository extends BaseRepository<VehicleAssignmen
     const offset = (page - 1) * limit
 
     // Build WHERE conditions
-    const where: Record<string, any> = { tenant_id: tenantId }
+    const where: Record<string, unknown> = { tenant_id: tenantId }
 
     if (filters.assignment_type) {
       where.assignment_type = filters.assignment_type
@@ -291,7 +291,7 @@ export class VehicleAssignmentRepository extends BaseRepository<VehicleAssignmen
     client?: PoolClient
   ): Promise<VehicleAssignment> {
     const updateData: Partial<VehicleAssignment> = {
-      lifecycle_state: state as any
+      lifecycle_state: state as VehicleAssignment['lifecycle_state']
     }
 
     if (notes) {

@@ -446,7 +446,7 @@ export const securityLogger = {
       timestamp: new Date().toISOString(),
     };
 
-    securityLogTransport.log(securityEntry, () => {});
+    securityLogTransport.log!(securityEntry, () => {});
   },
 
   /**
@@ -467,7 +467,7 @@ export const securityLogger = {
       timestamp: new Date().toISOString(),
     });
 
-    securityLogTransport.log({
+    securityLogTransport.log!({
       level: 'warn',
       message: 'Permission denied',
       category: 'security',
@@ -494,7 +494,7 @@ export const securityLogger = {
       timestamp: new Date().toISOString(),
     });
 
-    securityLogTransport.log({
+    securityLogTransport.log!({
       level: 'warn',
       message: 'Rate limit exceeded',
       category: 'security',
@@ -521,7 +521,7 @@ export const securityLogger = {
       timestamp: new Date().toISOString(),
     });
 
-    securityLogTransport.log({
+    securityLogTransport.log!({
       level: 'warn',
       message: 'Invalid token',
       category: 'security',
@@ -549,7 +549,7 @@ export const securityLogger = {
       timestamp: new Date().toISOString(),
     });
 
-    securityLogTransport.log({
+    securityLogTransport.log!({
       level: 'error',
       message: 'CSRF violation',
       category: 'security',

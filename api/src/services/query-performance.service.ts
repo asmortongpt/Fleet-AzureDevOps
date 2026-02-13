@@ -58,22 +58,23 @@ export class QueryPerformanceService extends EventEmitter {
   wrapPoolQuery(pool: Pool, poolType: string = `default`): Pool {
     const originalQuery = pool.query.bind(pool)
 
-    pool.query = (async (...args: any[]): Promise<QueryResult<any>> => {
+    pool.query = (async (...args: unknown[]): Promise<QueryResult<Record<string, unknown>>> => {
       const startTime = Date.now()
       let query: string = ''
-      let params: any[] | undefined
+      let params: unknown[] | undefined
 
       // Parse arguments (query can be string or QueryConfig)
       if (typeof args[0] === 'string') {
         query = args[0]
-        params = args[1]
-      } else if (typeof args[0] === 'object') {
-        query = args[0].text
-        params = args[0].values
+        params = Array.isArray(args[1]) ? args[1] : undefined
+      } else if (args[0] != null && typeof args[0] === 'object') {
+        const queryConfig = args[0] as Record<string, unknown>
+        query = (queryConfig.text as string) || ''
+        params = Array.isArray(queryConfig.values) ? queryConfig.values : undefined
       }
 
       try {
-        const result = await (originalQuery as any)(...args)
+        const result = await (originalQuery as (...queryArgs: unknown[]) => Promise<QueryResult<Record<string, unknown>>>)(...args)
         const duration = Date.now() - startTime
 
         // Record metrics
@@ -115,7 +116,7 @@ export class QueryPerformanceService extends EventEmitter {
 
         throw error
       }
-    }) as any
+    }) as Pool['query']
 
     return pool
   }

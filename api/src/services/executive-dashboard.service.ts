@@ -474,7 +474,7 @@ class ExecutiveDashboardService {
       // Use OpenAI for advanced pattern detection if API key is available
       if (process.env.OPENAI_API_KEY && insights.length > 0) {
         try {
-          const aiAnalysis = await openai.chat.completions.create({
+          const aiAnalysis = await openai!.chat.completions.create({
             model: `gpt-4`,
             messages: [{
               role: 'system',
@@ -783,7 +783,7 @@ class ExecutiveDashboardService {
 
 // Export singleton instance
 import { db } from '../db'
-const executiveDashboardService = new ExecutiveDashboardService(db as any)
+const executiveDashboardService = new ExecutiveDashboardService(db as unknown as Pool)
 
 export { ExecutiveDashboardService }
 export default executiveDashboardService

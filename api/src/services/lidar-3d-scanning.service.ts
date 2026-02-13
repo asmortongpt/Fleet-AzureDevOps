@@ -80,7 +80,7 @@ export class LiDAR3DScanningService {
       // Process point cloud
       const processedCloud = await this.processPointCloud(
         pointCloud,
-        request.processingOptions || {} as any
+        request.processingOptions || ({} as PointCloudProcessingOptions)
       );
 
       // Store scan metadata in database
@@ -105,7 +105,7 @@ export class LiDAR3DScanningService {
             scanId,
             processedCloud,
             format,
-            request.meshOptions || {} as any
+            request.meshOptions || ({} as MeshGenerationOptions)
           );
           models.push(model);
         } catch (error) {

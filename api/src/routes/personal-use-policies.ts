@@ -10,7 +10,7 @@ import { setTenantContext } from '../middleware/tenant-context';
 import { QueryContext } from '../repositories/BaseRepository';
 import { PersonalUsePoliciesRepository } from '../repositories/PersonalUsePoliciesRepository';
 import { TYPES } from '../types';
-import { ApprovalWorkflow, DriverUsageLimits } from '../types/trip-usage';
+import { ApprovalWorkflow, DriverUsageLimits, PaymentMethod } from '../types/trip-usage';
 import { logger } from '../utils/logger';
 
 const router = express.Router();
@@ -264,7 +264,7 @@ router.get(
           allow_personal_use: policy?.allow_personal_use ?? false,
           require_approval: policy?.require_approval ?? true,
           charge_personal_use: policy?.charge_personal_use ?? false,
-          payment_method: (policy?.payment_method as string) || 'payroll_deduction'
+          payment_method: (policy?.payment_method || 'payroll_deduction') as PaymentMethod
         }
       };
 
@@ -318,7 +318,7 @@ router.get(
 
       const context: QueryContext = {
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id
+        tenantId: req.user!.tenant_id ?? ''
       };
 
       // Get policy

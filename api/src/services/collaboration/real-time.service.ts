@@ -98,7 +98,7 @@ export class CollaborationService {
           return next(new Error('Authentication required'))
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any
+        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as jwt.JwtPayload & { id: string; email: string; first_name: string; last_name: string; tenant_id: string }
         socket.data.user = decoded
         next()
       } catch (error) {

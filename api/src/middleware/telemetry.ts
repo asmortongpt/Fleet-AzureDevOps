@@ -139,7 +139,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
     }
 
     // Call original end
-    return originalEnd.apply(res, args)
+    return originalEnd.apply(res, args as unknown as [chunk: unknown, encoding: BufferEncoding, cb?: () => void])
   }
 
   next()

@@ -215,7 +215,7 @@ export class RouteEmulator {
 
     // Randomly mark some routes as active or completed
     const statusOptions = ['planned', 'active', 'completed'];
-    const status = statusOptions[Math.floor(Math.random() * statusOptions.length)] as any;
+    const status = statusOptions[Math.floor(Math.random() * statusOptions.length)] as OptimizedRoute['status'];
 
     // If completed, add actual times
     if (status === 'completed') {
@@ -242,7 +242,7 @@ export class RouteEmulator {
       id: this.routeIdCounter++,
       vehicleId,
       driverId,
-      routeType: routeType as any,
+      routeType: routeType as OptimizedRoute['routeType'],
       status,
       stops: optimized,
       totalDistance: optimizedDistance,

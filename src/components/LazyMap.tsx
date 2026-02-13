@@ -1,5 +1,5 @@
 import { lazy, Suspense, useState, useEffect, useRef, ComponentType } from 'react';
-import { ErrorBoundary } from 'react-error-boundary';
+import { ErrorBoundary, type FallbackProps } from 'react-error-boundary';
 
 import type { GoogleMapProps } from './GoogleMap';
 import type { LeafletMapProps } from './LeafletMap';
@@ -45,7 +45,7 @@ interface BaseLazyMapProps {
   maxHeight?: number;
   onLoadStart?: () => void;
   onLoadComplete?: () => void;
-  errorFallback?: ComponentType<{ error: Error; resetErrorBoundary: () => void }>;
+  errorFallback?: ComponentType<FallbackProps>;
 }
 
 // Combined type using intersection instead of extends to avoid conflicts
@@ -196,10 +196,7 @@ function getLoadingSkeleton(variant: SkeletonVariant, minHeight: number) {
 function DefaultErrorFallback({
   error,
   resetErrorBoundary,
-}: {
-  error: Error;
-  resetErrorBoundary: () => void;
-}) {
+}: FallbackProps) {
   return (
     <div
       className="flex items-center justify-center bg-muted/30 border border-destructive/20 rounded-lg"
@@ -225,7 +222,7 @@ function DefaultErrorFallback({
           </svg>
         </div>
         <h3 className="text-sm font-semibold text-destructive mb-3">Failed to Load Map</h3>
-        <p className="text-sm text-muted-foreground mb-1">{error.message}</p>
+        <p className="text-sm text-muted-foreground mb-1">{error instanceof Error ? error.message : String(error)}</p>
         <p className="text-xs text-muted-foreground/70 mb-3">
           This may be due to network issues or missing dependencies.
         </p>
@@ -241,7 +238,7 @@ function DefaultErrorFallback({
               Error Details (Dev Only)
             </summary>
             <pre className="mt-2 text-xs bg-muted p-3 rounded overflow-auto max-h-40">
-              {error.stack}
+              {error instanceof Error ? error.stack : String(error)}
             </pre>
           </details>
         )}

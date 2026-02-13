@@ -52,7 +52,7 @@ export interface AttachmentFilter {
 @injectable()
 export class AttachmentRepository extends BaseRepository<Attachment> {
   constructor() {
-    super('communication_attachments');
+    super(pool, 'communication_attachments');
   }
 
   /**

@@ -15,7 +15,7 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
-import VehicleModelsService from '../services/vehicle-models.service'
+import VehicleModelsService, { DamageMarker } from '../services/vehicle-models.service'
 import { getErrorMessage } from '../utils/error-handler'
 
 
@@ -27,10 +27,10 @@ const vehicleModelsService = new VehicleModelsService(pool)
 
 // Optional authentication - allow public access for some endpoints
 const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
-  authenticateJWT(req, res, (err?: Error) => {
+  authenticateJWT(req, res, (() => {
     // Continue even if not authenticated
     next()
-  })
+  }) as NextFunction)
 }
 
 /**
@@ -224,7 +224,7 @@ router.post(
 
       const damageMarkers = schema.parse(req.body)
 
-      await vehicleModelsService.updateDamageMarkers(vehicleId, damageMarkers)
+      await vehicleModelsService.updateDamageMarkers(vehicleId, damageMarkers as unknown as DamageMarker[])
 
       res.json({
         message: 'Damage markers updated successfully',
@@ -366,7 +366,7 @@ router.post(
       const renderData = schema.parse(req.body)
 
       const renderId = await vehicleModelsService.createRenderRequest({
-        vehicleId,
+        vehicleId: String(vehicleId),
         ...renderData,
       })
 
@@ -496,7 +496,7 @@ router.post(
 
       const vehicle = vehicleResult.rows[0]
 
-      const instance = await vehicleModelsService.findOrCreateModelForVehicle(vehicleId, {
+      const instance = await vehicleModelsService.findOrCreateModelForVehicle(String(vehicleId), {
         make: vehicle.make,
         model: vehicle.model,
         year: vehicle.year,

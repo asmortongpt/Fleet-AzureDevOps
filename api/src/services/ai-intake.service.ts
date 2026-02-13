@@ -108,7 +108,7 @@ class AIIntakeService {
           }
         })
 
-        this.requestQueue.on('error', (error) => {
+        this.requestQueue.on('error', (error: Error) => {
           this.logger.error('AI Request Queue Error:', error)
         })
 

@@ -23,8 +23,9 @@ export class MobileLoggingRepository extends BaseRepository<any> {
       const query = 'SELECT id, created_at, updated_at FROM mobile_logs WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY created_at DESC';
       const result: QueryResult<MobileLog> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Failed to find all mobile logs: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find all mobile logs: ${message}`);
     }
   }
 
@@ -33,8 +34,9 @@ export class MobileLoggingRepository extends BaseRepository<any> {
       const query = 'SELECT id, created_at, updated_at FROM mobile_logs WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<MobileLog> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to find mobile log by id: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find mobile log by id: ${message}`);
     }
   }
 
@@ -43,8 +45,9 @@ export class MobileLoggingRepository extends BaseRepository<any> {
       const query = 'INSERT INTO mobile_logs (tenant_id, log_type, log_data) VALUES ($1, $2, $3) RETURNING *';
       const result: QueryResult<MobileLog> = await this.pool.query(query, [tenantId, logType, logData]);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to create mobile log: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create mobile log: ${message}`);
     }
   }
 
@@ -56,8 +59,9 @@ export class MobileLoggingRepository extends BaseRepository<any> {
         throw new Error('Mobile log not found or already deleted');
       }
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to update mobile log: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update mobile log: ${message}`);
     }
   }
 
@@ -68,8 +72,9 @@ export class MobileLoggingRepository extends BaseRepository<any> {
       if (result.rowCount === 0) {
         throw new Error('Mobile log not found or already deleted');
       }
-    } catch (error) {
-      throw new Error(`Failed to soft delete mobile log: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to soft delete mobile log: ${message}`);
     }
   }
 }

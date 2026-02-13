@@ -13,8 +13,8 @@ import { pushNotificationService } from '../services/push-notification.service';
 
 const router = express.Router();
 
-function getTenantId(req: Request): string | undefined {
-  return req.user?.tenant_id || req.user?.tenantId;
+function getTenantId(req: Request): string {
+  return req.user?.tenant_id || req.user?.tenantId || '';
 }
 
 /**
@@ -44,7 +44,7 @@ router.post(
       }
 
 	      const device = await pushNotificationService.registerDevice({
-	        userId: req.user?.id,
+	        userId: req.user?.id ?? '',
 	        tenantId: getTenantId(req),
 	        deviceToken,
 	        platform,
@@ -146,7 +146,7 @@ router.post(
 	        imageUrl,
 	        sound,
 	        badgeCount,
-	        createdBy: req.user?.id,
+	        createdBy: req.user?.id ?? '',
 	      };
 
       const notificationId = await pushNotificationService.sendNotification(
@@ -221,7 +221,7 @@ router.post(
 	        imageUrl,
 	        sound,
 	        badgeCount,
-	        createdBy: req.user?.id,
+	        createdBy: req.user?.id ?? '',
 	      };
 
       const notificationId = await pushNotificationService.sendBulkNotification(
@@ -304,7 +304,7 @@ router.post(
 	        imageUrl,
 	        sound,
 	        badgeCount,
-	        createdBy: req.user?.id,
+	        createdBy: req.user?.id ?? '',
 	      };
 
       const notificationId = await pushNotificationService.scheduleNotification(
@@ -364,7 +364,7 @@ router.post(
 	        variables || {}
 	      );
 
-      notification.createdBy = req.user?.id;
+      notification.createdBy = req.user?.id ?? '';
 
       // Send notification
       const notificationId = await pushNotificationService.sendNotification(
@@ -580,11 +580,11 @@ router.post('/test', csrfProtection, authenticateJWT, async (req, res) => {
         { id: 'acknowledge', title: 'Got It' },
         { id: 'dismiss', title: 'Dismiss' },
       ],
-      createdBy: req.user?.id,
+      createdBy: req.user?.id ?? '',
     };
 
     const notificationId = await pushNotificationService.sendNotification(notification, [
-      { userId: req.user?.id },
+      { userId: req.user?.id ?? '' },
     ]);
 
     res.json({

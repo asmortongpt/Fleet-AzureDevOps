@@ -10,7 +10,7 @@ import { Router, Request, Response, NextFunction } from 'express'
 import { configurationService } from '../../services/configuration/configuration-service'
 import { logger } from '../../utils/logger'
 import type { PolicyRule } from '../../services/configuration/types'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT } from '../../middleware/auth'
 
 const router = Router()
 

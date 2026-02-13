@@ -125,7 +125,7 @@ export function generateItemCacheKey(
  * Extract tenant ID from request with validation
  */
 export function extractTenantId(req: Request): number {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = (req as Request & { user?: { tenant_id?: string | number } }).user?.tenant_id;
   if (!tenantId) {
     throw new ValidationError('Tenant ID is required');
   }

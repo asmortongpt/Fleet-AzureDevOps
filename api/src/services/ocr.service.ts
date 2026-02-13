@@ -166,7 +166,7 @@ export class OcrService {
         for (const line of page.lines || []) {
           // Note: Azure Computer Vision Read API may not provide line-level confidence
           // Use appearance confidence if available, otherwise default to 0.9
-          const lineConfidence = (line as any).confidence || 0.9
+          const lineConfidence = (line as { confidence?: number }).confidence || 0.9
 
           lines.push({
             text: line.text || '',

@@ -346,13 +346,13 @@ export async function initializeDefaultMCPServers(): Promise<void> {
       name: 'task-optimizer',
       command: 'npx',
       args: ['-y', '@modelcontextprotocol/server-optimizer'],
-      env: { ...process.env }
+      env: { ...(process.env as Record<string, string>) }
     },
     {
       name: 'asset-analyzer',
       command: 'npx',
       args: ['-y', '@modelcontextprotocol/server-analyzer'],
-      env: { ...process.env }
+      env: { ...(process.env as Record<string, string>) }
     }
   ]
 

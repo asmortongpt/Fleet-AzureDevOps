@@ -28,7 +28,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
 
   constructor(config: StorageConfig) {
     super(config);
-    this.containerName = (config as any).container || 'fleet-documents';
+    this.containerName = (config as StorageConfig & { container?: string }).container || 'fleet-documents';
   }
 
   async initialize(): Promise<void> {
@@ -77,7 +77,7 @@ export class AzureBlobStorageAdapter extends BaseStorageAdapter {
   }
 
   getPublicUrl(key: string): string {
-    return `https://${(this.config as any).bucket}.blob.core.windows.net/${this.containerName}/${key}`;
+    return `https://${(this.config as StorageConfig & { bucket?: string }).bucket}.blob.core.windows.net/${this.containerName}/${key}`;
   }
 
   async getStats(): Promise<StorageStats> {

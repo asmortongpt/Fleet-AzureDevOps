@@ -180,17 +180,17 @@ program
   .option('-f, --format <format>', 'Format: custom, tar, plain', 'custom')
   .option('--data-only', 'Snapshot data only (no schema)')
   .option('--schema-only', 'Snapshot schema only (no data)')
-  .action(async (name, options) => {
+  .action(async (name: string, options: Record<string, unknown>) => {
     const spinner = ora(`Creating snapshot: ${name}...`).start();
 
     try {
       const snapshotMgr = getSnapshotManager();
 
       const metadata = await snapshotMgr.createSnapshot(name, {
-        compress: options.compress,
-        format: options.format,
-        dataOnly: options.dataOnly,
-        schemaOnly: options.schemaOnly,
+        compress: options.compress as boolean | undefined,
+        format: options.format as 'custom' | 'plain' | 'tar' | undefined,
+        dataOnly: options.dataOnly as boolean | undefined,
+        schemaOnly: options.schemaOnly as boolean | undefined,
       });
 
       spinner.succeed(`Snapshot created: ${name}`);
@@ -217,7 +217,7 @@ program
   .argument('<name>', 'Snapshot name')
   .option('-p, --parallel <jobs>', 'Parallel restore jobs', '4')
   .option('--no-clean', 'Don\'t clean existing objects')
-  .action(async (name, options) => {
+  .action(async (name: string, options: Record<string, unknown>) => {
     const spinner = ora(`Restoring snapshot: ${name}...`).start();
 
     try {
@@ -231,8 +231,8 @@ program
       }
 
       await snapshotMgr.restoreSnapshot(name, {
-        parallel: parseInt(options.parallel),
-        clean: options.clean,
+        parallel: parseInt(options.parallel as string),
+        clean: options.clean as boolean | undefined,
         ifExists: true,
       });
 
@@ -289,7 +289,7 @@ program
   .command('delete')
   .description('Delete a snapshot')
   .argument('<name>', 'Snapshot name')
-  .action(async (name) => {
+  .action(async (name: string) => {
     const spinner = ora(`Deleting snapshot: ${name}...`).start();
 
     try {

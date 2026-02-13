@@ -6,16 +6,4 @@
 
 export {
   SecretsManagementService,
-  createSecretsService,
-  SecretMetadata,
-  RotationPolicy,
-  SecretVersion,
-  AccessLog,
-  ExpiringSecret,
-  SecretHealthReport,
-  RotationResult,
-  SecretPermission,
 } from './SecretsManagementService';
-
-// Re-export for convenience
-export type { Pool } from 'pg';

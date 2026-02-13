@@ -52,7 +52,7 @@ const getSigningKey = (kid: string): Promise<string> => {
         return reject(err)
       }
 
-      const signingKey = key.getPublicKey()
+      const signingKey = key!.getPublicKey()
       resolve(signingKey)
     })
   })

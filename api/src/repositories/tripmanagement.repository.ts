@@ -24,8 +24,9 @@ export class TripManagementRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM trips WHERE tenant_id = $1 AND deleted_at IS NULL';
       const result: QueryResult<Trip> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Failed to find all trips: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find all trips: ${message}`);
     }
   }
 
@@ -34,8 +35,9 @@ export class TripManagementRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM trips WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<Trip> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to find trip by id: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find trip by id: ${message}`);
     }
   }
 
@@ -44,8 +46,9 @@ export class TripManagementRepository extends BaseRepository<any> {
       const query = 'INSERT INTO trips (tenant_id, name, start_date, end_date) VALUES ($1, $2, $3, $4) RETURNING *';
       const result: QueryResult<Trip> = await this.pool.query(query, [tenantId, trip.name, trip.start_date, trip.end_date]);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to create trip: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create trip: ${message}`);
     }
   }
 
@@ -59,8 +62,9 @@ export class TripManagementRepository extends BaseRepository<any> {
         throw new Error('Trip not found or already deleted');
       }
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to update trip: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update trip: ${message}`);
     }
   }
 
@@ -71,8 +75,9 @@ export class TripManagementRepository extends BaseRepository<any> {
       if (result.rowCount === 0) {
         throw new Error('Trip not found or already deleted');
       }
-    } catch (error) {
-      throw new Error(`Failed to soft delete trip: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to soft delete trip: ${message}`);
     }
   }
 }

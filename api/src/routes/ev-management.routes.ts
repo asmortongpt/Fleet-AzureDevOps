@@ -220,7 +220,7 @@ router.post(
         message: 'Charging station reserved successfully',
       })
     } catch (error: unknown) {
-      if (error.name === 'ZodError') {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',
@@ -341,7 +341,7 @@ router.post(
         message: 'Smart charging schedule created',
       })
     } catch (error: unknown) {
-      if (error.name === 'ZodError') {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({
           success: false,
           error: 'Validation error',

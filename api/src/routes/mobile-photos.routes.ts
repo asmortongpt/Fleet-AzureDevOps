@@ -200,9 +200,9 @@ router.post(
 
       // Add to processing queue
       await photoProcessingService.addToQueue(
-        tenantId,
-        userId,
-        photo.id,
+        Number(tenantId),
+        Number(userId),
+        Number(photo.id),
         blobUrl,
         priority as 'high' | 'normal' | 'low'
       );
@@ -344,11 +344,11 @@ router.post(
 
           // Add to processing queue
           await photoProcessingService.addToQueue(
-            tenantId,
-            userId,
-            photo.id,
+            Number(tenantId),
+            Number(userId),
+            Number(photo.id),
             blobUrl,
-            metadata.priority || 'normal'
+            (((metadata as Record<string, unknown>).priority as string) || 'normal') as 'high' | 'normal' | 'low'
           );
 
           results.push({
@@ -749,7 +749,7 @@ router.get(
         ? tenantId
         : undefined;
 
-      const stats = await photoProcessingService.getQueueStats(statsForTenant);
+      const stats = await photoProcessingService.getQueueStats(statsForTenant ? Number(statsForTenant) : undefined);
 
       res.json({
         success: true,

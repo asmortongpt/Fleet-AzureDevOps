@@ -49,7 +49,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/budgets',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
+      const tenantId = req.user?.tenant_id ?? '';
       if (!tenantId) throw new Error('Tenant ID is required');
 
       const filters: BudgetFilters = {
@@ -116,8 +116,8 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/budgets',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
-      const userId = req.user?.id;
+      const tenantId = req.user?.tenant_id ?? '';
+      const userId = req.user?.id ?? '';
       if (!tenantId) throw new Error('Tenant ID is required');
 
       const input: BudgetCreateInput = req.body;
@@ -161,7 +161,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/budgets/:id',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
+      const tenantId = req.user?.tenant_id ?? '';
       const budgetId = req.params.id as UUID;
       // `pool` is available from initializeBudgetRoutes closure.
 
@@ -199,7 +199,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/budgets/:id',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
+      const tenantId = req.user?.tenant_id ?? '';
       const budgetId = req.params.id as UUID;
       const input: BudgetUpdateInput = req.body;
       // `pool` is available from initializeBudgetRoutes closure.
@@ -281,7 +281,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/budgets/variance-report',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
+      const tenantId = req.user?.tenant_id ?? '';
 
       const filters: BudgetFilters = {
         fiscal_year: req.query.fiscal_year
@@ -339,8 +339,8 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/purchase-requisitions',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
-      const userId = req.user?.id;
+      const tenantId = req.user?.tenant_id ?? '';
+      const userId = req.user?.id ?? '';
       if (!tenantId) throw new Error('Tenant ID is required');
 
       const input: PurchaseRequisitionCreateInput = req.body;
@@ -398,7 +398,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/purchase-requisitions/:id',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
+      const tenantId = req.user?.tenant_id ?? '';
       const requisitionId = req.params.id as UUID;
       // `pool` is available from initializeBudgetRoutes closure.
 
@@ -423,7 +423,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/purchase-requisitions/:id/approve',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const userId = req.user?.id;
+      const userId = req.user?.id ?? '';
       const requisitionId = req.params.id as UUID;
       const { comments } = req.body;
 
@@ -455,7 +455,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/purchase-requisitions/:id/deny',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const userId = req.user?.id;
+      const userId = req.user?.id ?? '';
       const requisitionId = req.params.id as UUID;
       const { comments } = req.body;
 
@@ -491,8 +491,8 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/purchase-requisitions/:id/convert-to-po',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
-      const userId = req.user?.id;
+      const tenantId = req.user?.tenant_id ?? '';
+      const userId = req.user?.id ?? '';
       const requisitionId = req.params.id as UUID;
       const input: ConvertToPOInput = req.body;
       // `pool` is available from initializeBudgetRoutes closure.
@@ -592,8 +592,8 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     '/purchase-requisitions/pending',
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
-      const tenantId = req.user?.tenant_id;
-      const userId = req.user?.id;
+      const tenantId = req.user?.tenant_id ?? '';
+      const userId = req.user?.id ?? '';
 
       const requisitions = await approvalWorkflowService.getPendingApprovalsForUser(
         userId,

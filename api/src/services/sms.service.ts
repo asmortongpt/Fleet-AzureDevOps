@@ -200,11 +200,11 @@ class SMSService {
     bulkMessage: BulkSMSMessage,
     tenantId: string,
     createdBy?: string
-  ): Promise<{ successful: number; failed: number; errors: any[] }> {
+  ): Promise<{ successful: number; failed: number; errors: Array<{ recipient: string; error: string }> }> {
     const results = {
       successful: 0,
       failed: 0,
-      errors: [] as any[],
+      errors: [] as Array<{ recipient: string; error: string }>,
     };
 
     for (const recipient of bulkMessage.recipients) {
@@ -240,7 +240,7 @@ class SMSService {
     templateName: string,
     tenantId: string,
     to: string,
-    variables: Record<string, any>,
+    variables: Record<string, string | number | boolean>,
     createdBy?: string
   ): Promise<string> {
     try {
@@ -316,7 +316,7 @@ class SMSService {
         WHERE tenant_id = $1
       `;
 
-      const params: any[] = [tenantId];
+      const params: (string | number | Date)[] = [tenantId];
       let paramIndex = 2;
 
       if (filters?.status) {
@@ -364,7 +364,7 @@ class SMSService {
   async getTemplates(tenantId: string, category?: string): Promise<SMSTemplate[]> {
     try {
       let query = 'SELECT id, tenant_id, name, body, category, variables, created_at, updated_at FROM sms_templates WHERE tenant_id = $1';
-      const params: any[] = [tenantId];
+      const params: (string | number)[] = [tenantId];
 
       if (category) {
         query += ' AND category = $2';
@@ -445,7 +445,7 @@ class SMSService {
         WHERE tenant_id = $1
       `;
 
-      const params: any[] = [tenantId];
+      const params: (string | Date)[] = [tenantId];
 
       if (dateRange) {
         query += ` AND created_at BETWEEN $2 AND $3`;
@@ -476,7 +476,7 @@ class SMSService {
   /**
    * Send via Twilio API
    */
-  private async sendViaTwilio(message: SMSMessage, from: string): Promise<any> {
+  private async sendViaTwilio(message: SMSMessage, from: string): Promise<{ sid: string }> {
     if (!this.client) {
       const errorMsg = 'Twilio not initialized - SMS functionality is disabled';
       logger.error(errorMsg);
@@ -540,7 +540,7 @@ class SMSService {
   ): Promise<void> {
     try {
       const sets: string[] = [];
-      const params: any[] = [];
+      const params: (string | Date)[] = [];
       let paramIndex = 1;
 
       if (updates.status) {
@@ -593,7 +593,7 @@ class SMSService {
   /**
    * Replace variables in template
    */
-  private replaceVariables(template: string, variables: Record<string, any>): string {
+  private replaceVariables(template: string, variables: Record<string, string | number | boolean>): string {
     let result = template;
 
     for (const [key, value] of Object.entries(variables)) {

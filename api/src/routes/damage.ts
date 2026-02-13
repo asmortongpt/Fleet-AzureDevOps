@@ -411,12 +411,12 @@ router.post(
       }
 
       // Validate vehicle belongs to user's tenant
-      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id)
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id ?? '')
       if (!hasAccess) {
         logger.warn('Unauthorized vehicle access attempt', {
           vehicleId,
           userId: req.user!.id,
-          tenantId: req.user!.tenant_id,
+          tenantId: req.user!.tenant_id ?? '',
         })
         return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' })
       }
@@ -425,7 +425,7 @@ router.post(
         vehicleId,
         damageCount: damages.length,
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id,
+        tenantId: req.user!.tenant_id ?? '',
       })
 
       const client = await pool.connect()
@@ -513,12 +513,12 @@ router.get(
       const { vehicleId } = req.params
 
       // Validate vehicle belongs to user's tenant
-      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id)
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id ?? '')
       if (!hasAccess) {
         logger.warn('Unauthorized vehicle access attempt', {
           vehicleId,
           userId: req.user!.id,
-          tenantId: req.user!.tenant_id,
+          tenantId: req.user!.tenant_id ?? '',
         })
         return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' })
       }
@@ -526,7 +526,7 @@ router.get(
       logger.info('Fetching damage records', {
         vehicleId,
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id,
+        tenantId: req.user!.tenant_id ?? '',
       })
 
       const result = await pool.query(
@@ -581,12 +581,12 @@ router.get(
       const { vehicleId } = req.params
 
       // Validate vehicle belongs to user's tenant
-      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id)
+      const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id ?? '')
       if (!hasAccess) {
         logger.warn('Unauthorized vehicle access attempt', {
           vehicleId,
           userId: req.user!.id,
-          tenantId: req.user!.tenant_id,
+          tenantId: req.user!.tenant_id ?? '',
         })
         return res.status(403).json({ error: 'Access denied: Vehicle not found or not accessible' })
       }
@@ -594,12 +594,12 @@ router.get(
       logger.info('Fetching damage summary', {
         vehicleId,
         userId: req.user!.id,
-        tenantId: req.user!.tenant_id,
+        tenantId: req.user!.tenant_id ?? '',
       })
 
       const result = await pool.query(
         'SELECT vehicle_id, damage_type, severity, repair_cost, incident_date FROM v_vehicle_damage_summary WHERE tenant_id = $1 AND vehicle_id = $2',
-        [req.user!.tenant_id, vehicleId]
+        [req.user!.tenant_id ?? '', vehicleId]
       )
 
       if (result.rows.length === 0) {

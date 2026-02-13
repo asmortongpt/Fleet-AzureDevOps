@@ -42,7 +42,7 @@ export interface SeasonalTrend {
 
 export class FuelPriceForecastingModel {
   // Seasonal patterns (based on historical data)
-  private readonly SEASONAL_FACTORS = {
+  private readonly SEASONAL_FACTORS: Record<number, number> = {
     1: 0.95,  // January - Lower demand, winter blend
     2: 0.96,  // February
     3: 0.98,  // March - Transition to summer blend

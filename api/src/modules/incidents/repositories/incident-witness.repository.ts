@@ -25,7 +25,7 @@ export interface WitnessCreateData {
 @injectable()
 export class IncidentWitnessRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super('incident_witnesses');
+    super(pool, 'incident_witnesses');
   }
 
   /**
@@ -110,7 +110,7 @@ export class IncidentWitnessRepository extends BaseRepository<any> {
       [id]
     );
 
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   /**
@@ -122,7 +122,7 @@ export class IncidentWitnessRepository extends BaseRepository<any> {
       [incidentId]
     );
 
-    return result.rowCount;
+    return result.rowCount ?? 0;
   }
 
   /**

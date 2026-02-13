@@ -65,7 +65,7 @@ router.get(
     try {
       const { page = '1', limit = '50', year, status } = req.query;
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
 
       const whereConditions = [`arc.tenant_id = $1`];
       const params: any[] = [tenant_id];
@@ -137,7 +137,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = createReauthCycleSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Check if cycle for this year already exists
@@ -220,7 +220,7 @@ router.get(
     try {
       const { id } = req.params;
       const { department_id, assignment_type } = req.query;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
 
       const whereConditions = [
         'va.tenant_id = $1',
@@ -289,7 +289,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = createReauthDecisionSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Validate decision type requirements
@@ -378,7 +378,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Check if all assignments have decisions

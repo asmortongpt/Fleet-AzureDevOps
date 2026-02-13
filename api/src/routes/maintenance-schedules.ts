@@ -188,12 +188,12 @@ router.get(
 
       if (vehicle_id) {
         filters += `${filters ? ' AND' : 'WHERE'} vehicle_id = $${paramIndex++}`
-        params.push(vehicle_id)
+        params.push(vehicle_id as string)
       }
 
       if (service_type) {
         filters += `${filters ? ' AND' : 'WHERE'} type = $${paramIndex++}`
-        params.push(service_type)
+        params.push(service_type as string)
       }
 
       const result = await client.query(
@@ -401,7 +401,7 @@ router.post(
       const data: CreateRecurringScheduleRequest = req.body
 
       // Validate recurrence pattern
-      const validation = validateRecurrencePattern(data.recurrence_pattern)
+      const validation = validateRecurrencePattern(data.recurrence_pattern as unknown as Record<string, unknown>)
       if (!validation.valid) {
         return res.status(400).json({
           error: 'Invalid recurrence pattern',
@@ -413,7 +413,7 @@ router.post(
       const now = new Date()
       const nextDue = await calculateNextDueDate(
         {
-          recurrence_pattern: data.recurrence_pattern as Record<string, unknown>
+          recurrence_pattern: data.recurrence_pattern as unknown as Record<string, unknown>
         },
         now
       )
@@ -429,13 +429,13 @@ router.post(
         [
           req.user!.tenant_id,
           data.vehicle_id,
-          data.name || data.service_type || 'Recurring Maintenance',
-          data.description || data.notes || '',
-          data.type || data.service_type || 'preventive',
-          data.recurrence_pattern?.interval || 30,
+          data.service_type || 'Recurring Maintenance',
+          data.notes || '',
+          data.service_type || 'preventive',
+          data.recurrence_pattern?.interval_value || 30,
           nextDue,
           data.estimated_cost || 0,
-          data.is_active !== false && data.auto_create_work_order !== false,
+          data.auto_create_work_order !== false,
           JSON.stringify({
             recurrence_pattern: data.recurrence_pattern,
             work_order_template: data.work_order_template,
@@ -473,7 +473,7 @@ router.put(
       const data: UpdateRecurrencePatternRequest = req.body
 
       // Validate recurrence pattern
-      const validation = validateRecurrencePattern(data.recurrence_pattern)
+      const validation = validateRecurrencePattern(data.recurrence_pattern as unknown as Record<string, unknown>)
       if (!validation.valid) {
         return res.status(400).json({
           error: 'Invalid recurrence pattern',
@@ -575,7 +575,7 @@ router.get(
       if (priority) {
         const priorityFilter = priority as string
         dueSchedules = dueSchedules.filter((s) => {
-          const metadata = s.schedule.metadata || {}
+          const metadata = (s.schedule.metadata || {}) as Record<string, unknown>
           return metadata.priority === priorityFilter
         })
       }
@@ -586,7 +586,7 @@ router.get(
           total: dueSchedules.length,
           overdue: dueSchedules.filter((s) => s.is_overdue).length,
           due_within_7_days: dueSchedules.filter((s) => s.days_until_due <= 7 && !s.is_overdue).length,
-          total_estimated_cost: dueSchedules.reduce((sum, s) => sum + s.schedule.estimated_cost, 0)
+          total_estimated_cost: dueSchedules.reduce((sum, s) => sum + (Number(s.schedule.estimated_cost) || 0), 0)
         }
       })
     } catch (error: unknown) {
@@ -903,7 +903,7 @@ router.get(
 
       if (trigger_metric) {
         filters += `${filters ? ' AND' : 'WHERE'} trigger_metric = $${paramIndex++}`
-        params.push(trigger_metric)
+        params.push(trigger_metric as string)
       }
 
       if (is_overdue !== undefined) {
@@ -913,7 +913,7 @@ router.get(
 
       if (vehicle_id) {
         filters += `${filters ? ' AND' : 'WHERE'} vehicle_id = $${paramIndex++}`
-        params.push(vehicle_id)
+        params.push(vehicle_id as string)
       }
 
       const result = await client.query(

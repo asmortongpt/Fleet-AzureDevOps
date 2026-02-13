@@ -4,8 +4,10 @@ import jwt from 'jsonwebtoken';
 
 interface UserPayload {
   id: string;
+  email: string;
   iat: number;
   exp: number;
+  [key: string]: any;
 }
 
 const jwtMiddleware = (req: Request, res: Response, next: NextFunction) => {

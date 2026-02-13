@@ -535,7 +535,7 @@ export class CustomReportService {
       // Export to file
       const exportOptions: ExportOptions = {
         title: report.title,
-        columns: report.definition.columns.map(col => ({
+        columns: report.definition.columns.map((col: { field: string; label: string; type: string }) => ({
           field: col.field,
           label: col.label,
           type: col.type

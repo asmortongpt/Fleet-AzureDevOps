@@ -106,7 +106,7 @@ export function downloadFile(content: string | Blob | Uint8Array, filename: stri
   if (content instanceof Blob) {
     blob = content;
   } else if (content instanceof Uint8Array) {
-    blob = new Blob([content], { type: mimeType });
+    blob = new Blob([content as BlobPart], { type: mimeType });
   } else {
     blob = new Blob([content], { type: mimeType });
   }
