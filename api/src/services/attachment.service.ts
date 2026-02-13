@@ -22,6 +22,7 @@ import { Pool } from 'pg'
 import sharp from 'sharp'
 
 
+import logger from '../config/logger'
 import { pool } from '../db'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
 
@@ -103,7 +104,7 @@ export class AttachmentService {
     // Lazy initialization - only initialize when Azure Storage is configured
     const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING
     if (!connectionString) {
-      console.warn('⚠️  AZURE_STORAGE_CONNECTION_STRING is not configured - attachment features will be disabled')
+      logger.warn('AZURE_STORAGE_CONNECTION_STRING is not configured - attachment features will be disabled')
       return
     }
 
@@ -115,7 +116,7 @@ export class AttachmentService {
       const accountKeyMatch = connectionString.match(/AccountKey=([^;]+)/)
 
       if (!accountNameMatch || !accountKeyMatch) {
-        console.error('Invalid Azure Storage connection string format')
+        logger.error('Invalid Azure Storage connection string format')
         return
       }
 
@@ -139,14 +140,14 @@ export class AttachmentService {
       })
 
       this.isInitialized = true
-      console.log('✅ AttachmentService initialized successfully')
+      logger.info('AttachmentService initialized successfully')
 
       // Initialize containers
       this.initializeContainers().catch(err => {
-        console.error('Error initializing containers:', err)
+        logger.error('Error initializing containers', { error: err })
       })
     } catch (error) {
-      console.error(`Error initializing AttachmentService:`, error)
+      logger.error('Error initializing AttachmentService', { error })
       this.isInitialized = false
     }
   }
@@ -168,9 +169,9 @@ export class AttachmentService {
       try {
         const containerClient = this.blobServiceClient.getContainerClient(containerName)
         await containerClient.createIfNotExists()
-        console.log(`✅ Container initialized: ${containerName}`)
+        logger.info(`Container initialized: ${containerName}`)
       } catch (error) {
-        console.error(`Error creating container ${containerName}:`, error)
+        logger.error(`Error creating container ${containerName}`, { error })
       }
     }
   }
@@ -294,7 +295,7 @@ export class AttachmentService {
         thumbnailUrl
       }
     } catch (error) {
-      console.error('Error uploading to Azure:', error)
+      logger.error('Error uploading to Azure', { error })
       throw error
     }
   }
@@ -316,7 +317,7 @@ export class AttachmentService {
         })
       } catch (error) {
         if (error instanceof SSRFError) {
-          console.error(`SSRF Protection blocked blob download from ${blobUrl}`, {
+          logger.error(`SSRF Protection blocked blob download from ${blobUrl}`, {
             reason: error.reason
           })
           throw new Error(`Unauthorized blob URL: ${error.reason}`)
@@ -346,7 +347,7 @@ export class AttachmentService {
 
       return Buffer.concat(chunks)
     } catch (error) {
-      console.error('Error downloading from Azure:', error)
+      logger.error('Error downloading from Azure', { error })
       throw error
     }
   }
@@ -386,9 +387,9 @@ export class AttachmentService {
         [`Deleted`, blobUrl]
       )
 
-      console.log(`✅ Deleted blob: ${blobUrl}`)
+      logger.info(`Deleted blob: ${blobUrl}`)
     } catch (error) {
-      console.error(`Error deleting from Azure:`, error)
+      logger.error('Error deleting from Azure', { error })
       throw error
     }
   }
@@ -436,7 +437,7 @@ export class AttachmentService {
 
       return sasUrl
     } catch (error) {
-      console.error(`Error generating SAS URL:`, error)
+      logger.error('Error generating SAS URL', { error })
       throw error
     }
   }
@@ -485,7 +486,7 @@ export class AttachmentService {
 
       return uploadResult
     } catch (error) {
-      console.error(`Error uploading to Teams:`, error)
+      logger.error('Error uploading to Teams', { error })
       throw error
     }
   }
@@ -575,7 +576,7 @@ export class AttachmentService {
 
       return Buffer.concat(chunks)
     } catch (error) {
-      console.error(`Error downloading from Teams:`, error)
+      logger.error('Error downloading from Teams', { error })
       throw error
     }
   }
@@ -609,7 +610,7 @@ export class AttachmentService {
 
       return result
     } catch (error) {
-      console.error('Error uploading to Outlook:', error)
+      logger.error('Error uploading to Outlook', { error })
       throw error
     }
   }
@@ -656,7 +657,7 @@ export class AttachmentService {
 
       return result
     } catch (error) {
-      console.error(`Error sending email with attachment:`, error)
+      logger.error('Error sending email with attachment', { error })
       throw error
     }
   }
@@ -676,7 +677,7 @@ export class AttachmentService {
 
       throw new Error('Attachment content not available')
     } catch (error) {
-      console.error('Error downloading email attachment:', error)
+      logger.error('Error downloading email attachment', { error })
       throw error
     }
   }
@@ -703,7 +704,7 @@ export class AttachmentService {
       for (const pattern of suspiciousPatterns) {
         if (file.buffer.includes(pattern)) {
           // Additional validation needed - might be legitimate
-          console.warn(`Suspicious pattern found in ${file.originalname}`)
+          logger.warn(`Suspicious pattern found in ${file.originalname}`)
         }
       }
 
@@ -711,7 +712,7 @@ export class AttachmentService {
       // TODO: Integrate with actual antivirus service
       return `clean`
     } catch (error) {
-      console.error('Error scanning file:', error)
+      logger.error('Error scanning file', { error })
       return 'error'
     }
   }
@@ -751,7 +752,7 @@ export class AttachmentService {
 
       return thumbnailBlobClient.url
     } catch (error) {
-      console.error('Error generating thumbnail:', error)
+      logger.error('Error generating thumbnail', { error })
       return ''
     }
   }
@@ -765,11 +766,11 @@ export class AttachmentService {
 
       const compressed = await gzip(file.buffer, { level: 9 })
 
-      console.log(`Compressed ${file.originalname}: ${file.buffer.length} -> ${compressed.length} bytes`)
+      logger.info(`Compressed ${file.originalname}`, { originalSize: file.buffer.length, compressedSize: compressed.length })
 
       return compressed
     } catch (error) {
-      console.error(`Error compressing file:`, error)
+      logger.error('Error compressing file', { error })
       throw error
     }
   }
@@ -797,7 +798,7 @@ export class AttachmentService {
           await this.deleteFromAzure(row.blob_url)
           deletedCount++
         } catch (error) {
-          console.error(`Failed to delete ${row.blob_url}:`, error)
+          logger.error(`Failed to delete ${row.blob_url}`, { error })
         }
       }
 
@@ -809,10 +810,10 @@ export class AttachmentService {
         [daysOldNum]
       )
 
-      console.log(`✅ Cleaned up ${deletedCount} orphaned files`)
+      logger.info(`Cleaned up ${deletedCount} orphaned files`)
       return deletedCount
     } catch (error) {
-      console.error(`Error cleaning up orphaned files:`, error)
+      logger.error('Error cleaning up orphaned files', { error })
       throw error
     }
   }

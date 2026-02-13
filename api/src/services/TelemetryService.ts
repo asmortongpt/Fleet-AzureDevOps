@@ -6,6 +6,8 @@
 
 import { EventEmitter } from 'events'
 
+import logger from '../config/logger'
+
 // Import types
 import {
   GPSTelemetry,
@@ -131,7 +133,7 @@ export class TelemetryService extends EventEmitter {
     // Test the connection
     try {
       await this.db.query('SELECT 1')
-      console.log('TelemetryService: Database connection established')
+      logger.info('TelemetryService: Database connection established')
     } catch (error) {
       throw new Error(`TelemetryService: Database connection failed - ${error}`)
     }
@@ -146,7 +148,7 @@ export class TelemetryService extends EventEmitter {
       // If introspection fails, default to safe mode (no persistence).
       this.canPersistGps = false
       this.canPersistObd2 = false
-      console.warn('TelemetryService: table detection failed; telemetry persistence disabled', error)
+      logger.warn('TelemetryService: table detection failed; telemetry persistence disabled', { error })
     }
 
     // Detect optional configuration tables (routes/geofences/radio channels). Keep service resilient
@@ -162,7 +164,7 @@ export class TelemetryService extends EventEmitter {
       this.hasRoutes = false
       this.hasGeofences = false
       this.hasRadioChannels = false
-      console.warn('TelemetryService: optional table detection failed; continuing with minimal telemetry', error)
+      logger.warn('TelemetryService: optional table detection failed; continuing with minimal telemetry', { error })
     }
 
     // Load initial data
@@ -173,11 +175,11 @@ export class TelemetryService extends EventEmitter {
 
     // Start batch flush interval
     this.flushInterval = setInterval(() => {
-      this.flushBuffers().catch(console.error)
+      this.flushBuffers().catch((error) => logger.error('Error flushing telemetry buffers', { error }))
     }, 5000) // Flush every 5 seconds
 
     this.isInitialized = true
-    console.log(`TelemetryService initialized with ${this.vehicleCache.size} vehicles, ${this.routeCache.size} routes`)
+    logger.info(`TelemetryService initialized with ${this.vehicleCache.size} vehicles, ${this.routeCache.size} routes`)
   }
 
   /**
@@ -218,9 +220,9 @@ export class TelemetryService extends EventEmitter {
         this.vehicleCache.set(vehicle.id, vehicle)
       }
 
-      console.log(`Loaded ${this.vehicleCache.size} vehicles from database`)
+      logger.info(`Loaded ${this.vehicleCache.size} vehicles from database`)
     } catch (error) {
-      console.error('Failed to load vehicles from database:', error)
+      logger.error('Failed to load vehicles from database', { error })
       throw error
     }
   }
@@ -383,11 +385,11 @@ export class TelemetryService extends EventEmitter {
         this.routeCache.set(route.id, route)
       }
 
-      console.log(`Loaded ${this.routeCache.size} routes from database`)
+      logger.info(`Loaded ${this.routeCache.size} routes from database`)
     } catch (error) {
-      console.error('Failed to load routes from database:', error)
+      logger.error('Failed to load routes from database', { error })
       // Routes are optional - continue without them
-      console.log('Continuing without routes')
+      logger.info('Continuing without routes')
     }
   }
 
@@ -440,11 +442,11 @@ export class TelemetryService extends EventEmitter {
         this.channelCache.set(channel.id, channel)
       }
 
-      console.log(`Loaded ${this.channelCache.size} radio channels from database`)
+      logger.info(`Loaded ${this.channelCache.size} radio channels from database`)
     } catch (error) {
-      console.error('Failed to load radio channels from database:', error)
+      logger.error('Failed to load radio channels from database', { error })
       // Radio channels are optional - continue without them
-      console.log('Continuing without radio channels')
+      logger.info('Continuing without radio channels')
     }
   }
 
@@ -498,11 +500,11 @@ export class TelemetryService extends EventEmitter {
         this.geofenceCache.set(geofence.id, geofence)
       }
 
-      console.log(`Loaded ${this.geofenceCache.size} geofences from database`)
+      logger.info(`Loaded ${this.geofenceCache.size} geofences from database`)
     } catch (error) {
-      console.error('Failed to load geofences from database:', error)
+      logger.error('Failed to load geofences from database', { error })
       // Geofences are optional - continue without them
-      console.log('Continuing without geofences')
+      logger.info('Continuing without geofences')
     }
   }
 
@@ -665,7 +667,7 @@ export class TelemetryService extends EventEmitter {
         params
       )
     } catch (error) {
-      console.error('Failed to flush GPS buffer:', error)
+      logger.error('Failed to flush GPS buffer', { error })
       // Re-add items to buffer for retry
       this.gpsBuffer.unshift(...items)
     }
@@ -727,7 +729,7 @@ export class TelemetryService extends EventEmitter {
         params
       )
     } catch (error) {
-      console.error('Failed to flush OBD2 buffer:', error)
+      logger.error('Failed to flush OBD2 buffer', { error })
     }
   }
 
@@ -863,7 +865,7 @@ export class TelemetryService extends EventEmitter {
         iot: undefined,
       }
     } catch (error) {
-      console.error('Failed to get latest telemetry:', error)
+      logger.error('Failed to get latest telemetry', { error })
       return null
     }
   }
@@ -908,7 +910,7 @@ export class TelemetryService extends EventEmitter {
 
       return []
     } catch (error) {
-      console.error(`Failed to get ${type} telemetry history:`, error)
+      logger.error(`Failed to get ${type} telemetry history`, { error })
       return []
     }
   }
@@ -1093,7 +1095,7 @@ export class TelemetryService extends EventEmitter {
     await this.flushBuffers()
 
     this.isInitialized = false
-    console.log('TelemetryService shutdown complete')
+    logger.info('TelemetryService shutdown complete')
   }
 }
 
