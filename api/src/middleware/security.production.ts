@@ -123,7 +123,7 @@ export const sanitizeString = (input: string): string => {
 /**
  * Sanitize object recursively
  */
-export const sanitizeObject = (obj: any): any => {
+export const sanitizeObject = (obj: unknown): unknown => {
   if (typeof obj === 'string') {
     return sanitizeString(obj);
   }
@@ -133,10 +133,11 @@ export const sanitizeObject = (obj: any): any => {
   }
 
   if (obj !== null && typeof obj === 'object') {
-    const sanitized: any = {};
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        sanitized[key] = sanitizeObject(obj[key]);
+    const sanitized: Record<string, unknown> = {};
+    const record = obj as Record<string, unknown>;
+    for (const key in record) {
+      if (Object.prototype.hasOwnProperty.call(record, key)) {
+        sanitized[key] = sanitizeObject(record[key]);
       }
     }
     return sanitized;
@@ -197,7 +198,7 @@ export const validateQuery = <T>(schema: ZodSchema<T>) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     try {
       const validated = schema.parse(req.query);
-      req.query = validated as any;
+      req.query = validated as Record<string, string | string[] | undefined> & T;
       next();
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -302,14 +303,15 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
   const startTime = Date.now();
 
   // Log request details
+  const authReq = req as Request & { user?: { id?: string; tenantId?: string } };
   const logData = {
     timestamp: new Date().toISOString(),
     method: req.method,
     path: req.path,
     ip: req.ip || req.socket.remoteAddress,
     userAgent: req.headers['user-agent'],
-    userId: (req as any).user?.id,
-    tenantId: (req as any).user?.tenantId,
+    userId: authReq.user?.id,
+    tenantId: authReq.user?.tenantId,
   };
 
   // Log response
@@ -353,7 +355,7 @@ const SENSITIVE_FIELDS = [
 /**
  * Filter sensitive data from response
  */
-export const filterSensitiveData = (data: any): any => {
+export const filterSensitiveData = (data: unknown): unknown => {
   if (typeof data !== 'object' || data === null) {
     return data;
   }
@@ -362,18 +364,19 @@ export const filterSensitiveData = (data: any): any => {
     return data.map(filterSensitiveData);
   }
 
-  const filtered: any = {};
-  for (const key in data) {
-    if (data.hasOwnProperty(key)) {
+  const record = data as Record<string, unknown>;
+  const filtered: Record<string, unknown> = {};
+  for (const key in record) {
+    if (Object.prototype.hasOwnProperty.call(record, key)) {
       const lowerKey = key.toLowerCase();
       const isSensitive = SENSITIVE_FIELDS.some(field => lowerKey.includes(field.toLowerCase()));
 
       if (isSensitive) {
         filtered[key] = '***REDACTED***';
-      } else if (typeof data[key] === 'object') {
-        filtered[key] = filterSensitiveData(data[key]);
+      } else if (typeof record[key] === 'object') {
+        filtered[key] = filterSensitiveData(record[key]);
       } else {
-        filtered[key] = data[key];
+        filtered[key] = record[key];
       }
     }
   }
@@ -395,8 +398,11 @@ export const errorHandler = (err: Error, req: Request, res: Response, next: Next
   const isDevelopment = process.env.NODE_ENV === 'development';
 
   // Check if error has a statusCode property (AppError, HTTP errors, etc.)
-  const statusCode = (err as any).statusCode || (err as any).status || 500;
-  const isOperational = (err as any).isOperational !== false; // Default to true if not specified
+  const errRecord = err as Record<string, unknown>;
+  const statusCode = (typeof errRecord.statusCode === 'number' ? errRecord.statusCode : null)
+    || (typeof errRecord.status === 'number' ? errRecord.status : null)
+    || 500;
+  const isOperational = errRecord.isOperational !== false; // Default to true if not specified
 
   const errorResponse = {
     error: statusCode === 404 ? 'Not Found' : 'Internal server error',
