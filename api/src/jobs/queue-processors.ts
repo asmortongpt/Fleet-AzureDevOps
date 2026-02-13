@@ -4,6 +4,7 @@
  * Production implementation using Microsoft Graph API
  */
 
+import logger from '../config/logger';
 import { pool } from '../config/database';
 import microsoftGraphService from '../services/microsoft-graph.service';
 import {
@@ -23,7 +24,7 @@ export async function processTeamsOutbound(job: any): Promise<any> {
   const data: JobData = job.data;
   const payload = data.payload as TeamsMessagePayload;
 
-  console.log(`📤 Processing Teams outbound message: ${job.id}`);
+  logger.info('Processing Teams outbound message', { jobId: job.id });
 
   try {
     // Determine the endpoint based on chat type
@@ -66,10 +67,10 @@ export async function processTeamsOutbound(job: any): Promise<any> {
       ]
     );
 
-    console.log(`✅ Teams message sent successfully: ${result.id}`);
+    logger.info('Teams message sent successfully', { messageId: result.id });
     return result;
   } catch (error: any) {
-    console.error(`❌ Failed to send Teams message:`, error);
+    logger.error('Failed to send Teams message', { error });
 
     // Log failed attempt
     await pool.query(
@@ -98,7 +99,7 @@ export async function processOutlookOutbound(job: any): Promise<any> {
   const data: JobData = job.data;
   const payload = data.payload as OutlookEmailPayload;
 
-  console.log(`📧 Processing Outlook outbound email: ${job.id}`);
+  logger.info('Processing Outlook outbound email', { jobId: job.id });
 
   try {
     // Construct email message
@@ -161,10 +162,10 @@ export async function processOutlookOutbound(job: any): Promise<any> {
       ]
     );
 
-    console.log(`✅ Email sent successfully: ${result.id}`);
+    logger.info('Email sent successfully', { emailId: result.id });
     return result;
   } catch (error: any) {
-    console.error(`❌ Failed to send email:`, error);
+    logger.error('Failed to send email', { error });
 
     // Log failed attempt
     await pool.query(
@@ -193,7 +194,7 @@ export async function processTeamsInbound(job: any): Promise<any> {
   const data: JobData = job.data;
   const payload = data.payload as TeamsMessagePayload;
 
-  console.log(`📥 Processing Teams inbound message: ${job.id}`);
+  logger.info('Processing Teams inbound message', { jobId: job.id });
 
   try {
     // Store incoming message
@@ -220,10 +221,10 @@ export async function processTeamsInbound(job: any): Promise<any> {
     // TODO: Process message (e.g., trigger AI response, update records, etc.)
     // Example: Check for mentions, extract commands, etc.
 
-    console.log(`✅ Teams inbound message processed: ${result.rows[0].id}`);
+    logger.info('Teams inbound message processed', { messageId: result.rows[0].id });
     return result.rows[0];
   } catch (error: any) {
-    console.error(`❌ Failed to process Teams inbound message:`, error);
+    logger.error('Failed to process Teams inbound message', { error });
     throw error;
   }
 }
@@ -236,7 +237,7 @@ export async function processOutlookInbound(job: any): Promise<any> {
   const data: JobData = job.data;
   const payload = data.payload as OutlookEmailPayload;
 
-  console.log(`📥 Processing Outlook inbound email: ${job.id}`);
+  logger.info('Processing Outlook inbound email', { jobId: job.id });
 
   try {
     // Store incoming email
@@ -264,7 +265,7 @@ export async function processOutlookInbound(job: any): Promise<any> {
 
     // Process attachments if any
     if (payload.attachments && payload.attachments.length > 0) {
-      console.log(`📎 Processing ${payload.attachments.length} attachments`);
+      logger.info('Processing email attachments', { count: payload.attachments.length });
 
       for (const attachment of payload.attachments) {
         // TODO: Queue OCR processing for each attachment
@@ -278,14 +279,14 @@ export async function processOutlookInbound(job: any): Promise<any> {
         //   metadata: { emailId }
         // });
 
-        console.log(`📄 Attachment queued for processing: ${attachment.name}`);
+        logger.info('Attachment queued for processing', { fileName: attachment.name });
       }
     }
 
-    console.log(`✅ Outlook inbound email processed: ${emailId}`);
+    logger.info('Outlook inbound email processed', { emailId });
     return result.rows[0];
   } catch (error: any) {
-    console.error(`❌ Failed to process Outlook inbound email:`, error);
+    logger.error('Failed to process Outlook inbound email', { error });
     throw error;
   }
 }
@@ -298,7 +299,7 @@ export async function processAttachment(job: any): Promise<any> {
   const data: JobData = job.data;
   const payload = data.payload as AttachmentPayload;
 
-  console.log(`📎 Processing attachment ${payload.operation}: ${payload.fileName}`);
+  logger.info('Processing attachment', { operation: payload.operation, fileName: payload.fileName });
 
   try {
     let result: any = {};
@@ -320,10 +321,10 @@ export async function processAttachment(job: any): Promise<any> {
         throw new Error(`Unknown attachment operation: ${payload.operation}`);
     }
 
-    console.log(`✅ Attachment ${payload.operation} completed: ${payload.fileName}`);
+    logger.info('Attachment operation completed', { operation: payload.operation, fileName: payload.fileName });
     return result;
   } catch (error: any) {
-    console.error(`❌ Failed to process attachment:`, error);
+    logger.error('Failed to process attachment', { error });
     throw error;
   }
 }
@@ -333,7 +334,7 @@ export async function processAttachment(job: any): Promise<any> {
  */
 async function handleAttachmentUpload(payload: AttachmentPayload): Promise<any> {
   // TODO: Implement actual file upload to storage (Azure Blob, S3, etc.)
-  console.log(`⬆️ Uploading file: ${payload.fileName}`);
+  logger.info('Uploading file', { fileName: payload.fileName });
 
   return {
     fileId: payload.fileId,
@@ -349,7 +350,7 @@ async function handleAttachmentUpload(payload: AttachmentPayload): Promise<any> 
  */
 async function handleAttachmentDownload(payload: AttachmentPayload): Promise<any> {
   // TODO: Implement actual file download from storage
-  console.log(`⬇️ Downloading file: ${payload.fileName}`);
+  logger.info('Downloading file', { fileName: payload.fileName });
 
   return {
     fileId: payload.fileId,
@@ -364,7 +365,7 @@ async function handleAttachmentDownload(payload: AttachmentPayload): Promise<any
  */
 async function handleAttachmentDelete(payload: AttachmentPayload): Promise<any> {
   // TODO: Implement actual file deletion from storage
-  console.log(`🗑️ Deleting file: ${payload.fileName}`);
+  logger.info('Deleting file', { fileName: payload.fileName });
 
   return {
     fileId: payload.fileId,
@@ -378,7 +379,7 @@ async function handleAttachmentDelete(payload: AttachmentPayload): Promise<any> 
  */
 async function handleAttachmentScan(payload: AttachmentPayload): Promise<any> {
   // TODO: Implement actual file scanning (OCR, malware detection, etc.)
-  console.log(`🔍 Scanning file: ${payload.fileName}`);
+  logger.info('Scanning file', { fileName: payload.fileName });
 
   // Simulate scan results
   return {
@@ -402,7 +403,7 @@ export async function processWebhook(job: any): Promise<any> {
   const data: JobData = job.data;
   const payload = data.payload as WebhookPayload;
 
-  console.log(`🔔 Processing webhook: ${payload.eventType} from ${payload.source}`);
+  logger.info('Processing webhook', { eventType: payload.eventType, source: payload.source });
 
   try {
     // Store webhook event
@@ -426,24 +427,24 @@ export async function processWebhook(job: any): Promise<any> {
     switch (payload.eventType) {
       case 'message.received':
         // Queue inbound message processing
-        console.log(`📨 New message received, queuing for processing`);
+        logger.info('New message received, queuing for processing');
         result = { action: 'queued_inbound_message' };
         break;
 
       case 'subscription.reauthorizationRequired':
         // Renew subscription
-        console.log(`🔄 Subscription requires reauthorization`);
+        logger.info('Subscription requires reauthorization');
         result = { action: 'renew_subscription' };
         break;
 
       case 'subscription.deleted':
         // Handle deleted subscription
-        console.log(`🗑️ Subscription deleted`);
+        logger.info('Subscription deleted');
         result = { action: 'subscription_deleted' };
         break;
 
       default:
-        console.log(`ℹ️ Unhandled webhook event: ${payload.eventType}`);
+        logger.warn('Unhandled webhook event', { eventType: payload.eventType });
         result = { action: 'logged' };
     }
 
@@ -453,10 +454,10 @@ export async function processWebhook(job: any): Promise<any> {
       [payload.webhookId]
     );
 
-    console.log(`✅ Webhook processed: ${payload.webhookId}`);
+    logger.info('Webhook processed', { webhookId: payload.webhookId });
     return result;
   } catch (error: any) {
-    console.error(`❌ Failed to process webhook:`, error);
+    logger.error('Failed to process webhook', { error });
     throw error;
   }
 }
@@ -469,7 +470,7 @@ export async function processSync(job: any): Promise<any> {
   const data: JobData = job.data;
   const payload = data.payload as SyncPayload;
 
-  console.log(`🔄 Processing sync: ${payload.resourceType}`);
+  logger.info('Processing sync', { resourceType: payload.resourceType });
 
   try {
     let result: any = {};
@@ -509,10 +510,10 @@ export async function processSync(job: any): Promise<any> {
       ]
     );
 
-    console.log(`✅ Sync completed: ${payload.resourceType}, ${result.itemsSynced} items`);
+    logger.info('Sync completed', { resourceType: payload.resourceType, itemsSynced: result.itemsSynced });
     return result;
   } catch (error: any) {
-    console.error(`❌ Failed to sync ${payload.resourceType}:`, error);
+    logger.error('Failed to sync resource', { resourceType: payload.resourceType, error });
 
     // Store failed sync
     await pool.query(
@@ -536,7 +537,7 @@ export async function processSync(job: any): Promise<any> {
  * Sync Teams messages
  */
 async function syncMessages(payload: SyncPayload): Promise<any> {
-  console.log(`📨 Syncing Teams messages...`);
+  logger.info('Syncing Teams messages');
 
   // TODO: Implement actual sync with Microsoft Graph API delta query
   // const graphClient = getGraphClient();
@@ -555,7 +556,7 @@ async function syncMessages(payload: SyncPayload): Promise<any> {
  * Sync Outlook emails
  */
 async function syncEmails(payload: SyncPayload): Promise<any> {
-  console.log(`📧 Syncing Outlook emails...`);
+  logger.info('Syncing Outlook emails');
 
   // TODO: Implement actual sync with Microsoft Graph API delta query
   return {
@@ -569,7 +570,7 @@ async function syncEmails(payload: SyncPayload): Promise<any> {
  * Sync calendar events
  */
 async function syncCalendar(payload: SyncPayload): Promise<any> {
-  console.log(`📅 Syncing calendar events...`);
+  logger.info('Syncing calendar events');
 
   // TODO: Implement actual sync with Microsoft Graph API delta query
   return {
@@ -583,7 +584,7 @@ async function syncCalendar(payload: SyncPayload): Promise<any> {
  * Sync contacts
  */
 async function syncContacts(payload: SyncPayload): Promise<any> {
-  console.log(`👥 Syncing contacts...`);
+  logger.info('Syncing contacts');
 
   // TODO: Implement actual sync with Microsoft Graph API delta query
   return {
@@ -597,7 +598,7 @@ async function syncContacts(payload: SyncPayload): Promise<any> {
  * Sync files
  */
 async function syncFiles(payload: SyncPayload): Promise<any> {
-  console.log(`📁 Syncing files...`);
+  logger.info('Syncing files');
 
   // TODO: Implement actual sync with Microsoft Graph API delta query
   return {
@@ -611,7 +612,7 @@ async function syncFiles(payload: SyncPayload): Promise<any> {
  * Initialize all queue processors
  */
 export async function initializeQueueProcessors(queueService: any): Promise<void> {
-  console.log(`🔧 Initializing queue processors...`);
+  logger.info('Initializing queue processors');
 
   // Register processors for each queue type
   await queueService.processQueue('teams-outbound', processTeamsOutbound);
@@ -622,5 +623,5 @@ export async function initializeQueueProcessors(queueService: any): Promise<void
   await queueService.processQueue('webhooks', processWebhook);
   await queueService.processQueue('sync', processSync);
 
-  console.log('✅ Queue processors initialized');
+  logger.info('Queue processors initialized');
 }

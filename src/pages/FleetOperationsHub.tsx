@@ -62,6 +62,7 @@ import { useState, Suspense, lazy, memo, useMemo } from 'react'
 // framer-motion removed - React 19 incompatible animation system caused invisible content
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
+import { useNavigate } from 'react-router-dom'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -1367,6 +1368,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
  * Assets Tab - Asset tracking and lifecycle management
  */
 const AssetsTabContent = memo(function AssetsTabContent() {
+  const navigate = useNavigate()
   const {
     assets,
     metrics,
@@ -1381,21 +1383,21 @@ const AssetsTabContent = memo(function AssetsTabContent() {
   const handleViewAsset = (assetId: string) => {
     toast.success(`Opening asset details: ${assetId}`)
     logger.info('View asset clicked:', assetId)
-    // TODO: Navigate to asset details page or open modal
+    navigate(`/assets/${assetId}`)
   }
 
   // Handler for adding new asset
   const handleAddAsset = () => {
     toast.success('Opening add asset form')
     logger.info('Add asset clicked')
-    // TODO: Add real API call to create new asset
+    navigate('/assets/new')
   }
 
   // Handler for scheduling asset maintenance
   const handleScheduleAssetMaintenance = (assetId: string) => {
     toast.success(`Scheduling maintenance for asset: ${assetId}`)
     logger.info('Schedule asset maintenance clicked:', assetId)
-    // TODO: Add real API call to schedule asset maintenance
+    navigate(`/maintenance/schedule?assetId=${assetId}`)
   }
 
   const formatCurrency = (value: number) =>

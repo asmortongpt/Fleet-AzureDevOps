@@ -80,6 +80,12 @@ export default defineConfig({
           'query-vendor': ['@tanstack/react-query'],
           'ag-grid-vendor': ['ag-grid-react', 'ag-grid-community'],
           'icons-vendor': ['lucide-react'],
+          'recharts-vendor': ['recharts'],
+          'three-vendor': ['three'],
+          'three-fiber-vendor': ['@react-three/fiber', '@react-three/drei'],
+          'date-vendor': ['date-fns'],
+          'motion-vendor': ['framer-motion'],
+          'msal-vendor': ['@azure/msal-browser', '@azure/msal-react'],
         },
       },
       // P0-1: Explicitly exclude .env files and msw from being bundled
