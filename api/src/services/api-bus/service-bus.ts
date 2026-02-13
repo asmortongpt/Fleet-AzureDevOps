@@ -11,6 +11,7 @@
  */
 
 import type { ServiceAdapter, ServiceHealth, ServiceType } from './types'
+import logger from '../../config/logger'
 
 export class ServiceBus {
   private services: Map<string, ServiceAdapter> = new Map()
@@ -22,7 +23,7 @@ export class ServiceBus {
    */
   register(service: ServiceAdapter): void {
     this.services.set(service.name, service)
-    console.log(`[Service Bus] Registered service: ${service.name} (${service.type})`)
+    logger.info('[Service Bus] Registered service', { name: service.name, type: service.type })
   }
 
   /**
@@ -33,7 +34,7 @@ export class ServiceBus {
     if (service) {
       this.services.delete(serviceName)
       this.healthStatus.delete(serviceName)
-      console.log(`[Service Bus] Unregistered service: ${serviceName}`)
+      logger.info('[Service Bus] Unregistered service', { serviceName })
     }
   }
 
@@ -55,26 +56,26 @@ export class ServiceBus {
    * Initialize all registered services
    */
   async initializeAll(): Promise<void> {
-    console.log('[Service Bus] Initializing all services...')
+    logger.info('[Service Bus] Initializing all services...')
 
     const initPromises = Array.from(this.services.entries()).map(async ([name, service]) => {
       try {
         await service.initialize()
-        console.log(`[Service Bus] ✅ ${name} initialized`)
+        logger.info('[Service Bus] Service initialized', { name })
       } catch (error: any) {
-        console.error(`[Service Bus] ❌ ${name} initialization failed:`, error.message)
+        logger.error('[Service Bus] Service initialization failed', { name, error: error.message })
       }
     })
 
     await Promise.all(initPromises)
-    console.log('[Service Bus] All services initialized')
+    logger.info('[Service Bus] All services initialized')
   }
 
   /**
    * Shutdown all services gracefully
    */
   async shutdownAll(): Promise<void> {
-    console.log('[Service Bus] Shutting down all services...')
+    logger.info('[Service Bus] Shutting down all services...')
 
     if (this.healthCheckInterval) {
       clearInterval(this.healthCheckInterval)
@@ -84,21 +85,21 @@ export class ServiceBus {
     const shutdownPromises = Array.from(this.services.entries()).map(async ([name, service]) => {
       try {
         await service.shutdown()
-        console.log(`[Service Bus] ✅ ${name} shut down`)
+        logger.info('[Service Bus] Service shut down', { name })
       } catch (error: any) {
-        console.error(`[Service Bus] ❌ ${name} shutdown failed:`, error.message)
+        logger.error('[Service Bus] Service shutdown failed', { name, error: error.message })
       }
     })
 
     await Promise.all(shutdownPromises)
-    console.log('[Service Bus] All services shut down')
+    logger.info('[Service Bus] All services shut down')
   }
 
   /**
    * Start periodic health checks for all services
    */
   startHealthChecks(intervalMs: number = 30000): void {
-    console.log(`[Service Bus] Starting health checks (interval: ${intervalMs}ms)`)
+    logger.info('[Service Bus] Starting health checks', { intervalMs })
 
     this.healthCheckInterval = setInterval(async () => {
       await this.checkAllHealth()

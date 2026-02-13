@@ -10,6 +10,8 @@
 import fs from 'fs/promises'
 import path from 'path'
 
+import logger from '../config/logger'
+
 // Note: Install exceljs package for full functionality
 // import ExcelJS from 'exceljs'
 
@@ -50,7 +52,7 @@ export class ExcelExportService {
     try {
       await fs.mkdir(this.OUTPUT_DIR, { recursive: true })
     } catch (error) {
-      console.error('Error creating output directory:', error)
+      logger.error('Error creating output directory', { error })
     }
   }
 
@@ -211,7 +213,7 @@ export class ExcelExportService {
     */
 
     // Fallback: Generate CSV for now
-    console.warn(`ExcelJS not installed. Falling back to CSV export. Run: npm install exceljs`)
+    logger.warn('ExcelJS not installed. Falling back to CSV export. Run: npm install exceljs')
     return this.exportToCSV({ ...options, format: 'csv' })
   }
 
@@ -328,7 +330,7 @@ export class ExcelExportService {
     */
 
     // Fallback: Generate CSV for now
-    console.warn('PDF generation not available. Falling back to CSV export. Install pdfkit or puppeteer for PDF support.')
+    logger.warn('PDF generation not available. Falling back to CSV export. Install pdfkit or puppeteer for PDF support.')
     return this.exportToCSV({ ...options, format: 'csv' })
   }
 
@@ -432,7 +434,7 @@ export class ExcelExportService {
     try {
       await fs.unlink(filepath)
     } catch (error) {
-      console.error('Error deleting file:', error)
+      logger.error('Error deleting file', { error })
     }
   }
 
@@ -447,7 +449,7 @@ export class ExcelExportService {
         created: stats.birthtime
       }
     } catch (error) {
-      console.error('Error getting file stats:', error)
+      logger.error('Error getting file stats', { error })
       return null
     }
   }
@@ -474,7 +476,7 @@ export class ExcelExportService {
 
       return deletedCount
     } catch (error) {
-      console.error('Error cleaning old files:', error)
+      logger.error('Error cleaning old files', { error })
       return 0
     }
   }

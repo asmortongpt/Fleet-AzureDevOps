@@ -12,6 +12,8 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import { Pool } from 'pg'
+
+import logger from '../../config/logger'
 // Note: embeddings.service doesn't exist - EmbeddingService is at ../EmbeddingService.ts
 // import embeddingService from '../EmbeddingService'
 
@@ -121,7 +123,7 @@ Format your response as JSON with keys: suggestedPriority, estimatedHours, recom
         recommendations: suggestions.recommendations || []
       }
     } catch (error) {
-      console.error('Error analyzing task:', error)
+      logger.error('Error analyzing task', { error })
       return {
         recommendations: ['Unable to generate AI suggestions']
       }
@@ -202,7 +204,7 @@ Return as JSON array: [{ userId, confidence, reason }]`
         }
       })
     } catch (error) {
-      console.error(`Error suggesting assignee:`, error)
+      logger.error('Error suggesting assignee', { error })
       return []
     }
   }
@@ -291,7 +293,7 @@ Return as JSON: { predictedDate, confidence, reasoning, estimatedCost, urgency }
         urgency: prediction.urgency
       }
     } catch (error) {
-      console.error('Error predicting asset maintenance:', error)
+      logger.error('Error predicting asset maintenance', { error })
       return null
     }
   }
@@ -389,7 +391,7 @@ Return as JSON: { nextActions (array), dependencies (array), estimatedCompletion
         riskFactors: workflow.riskFactors || []
       }
     } catch (error) {
-      console.error(`Error suggesting workflow:`, error)
+      logger.error('Error suggesting workflow', { error })
       return null
     }
   }
@@ -435,7 +437,7 @@ Extract and return as JSON:
       const responseText = message.content[0].type === 'text' ? message.content[0].text : '{}'
       return JSON.parse(responseText)
     } catch (error) {
-      console.error('Error parsing natural language task:', error)
+      logger.error('Error parsing natural language task', { error })
       throw new Error('Failed to parse task')
     }
   }
@@ -499,7 +501,7 @@ Provide a clear, concise answer based only on the information in the context. If
 
       return message.content[0].type === 'text' ? message.content[0].text : 'Unable to answer'
     } catch (error) {
-      console.error('Error answering question:', error)
+      logger.error('Error answering question', { error })
       throw new Error('Failed to answer question')
     }
   }

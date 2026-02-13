@@ -17,6 +17,7 @@
 
 import axios, { AxiosInstance } from 'axios';
 import { Pool } from 'pg';
+import logger from '../config/logger';
 
 interface MicrosoftGraphConfig {
   clientId: string;
@@ -159,7 +160,7 @@ export class MicrosoftIntegrationService {
 
       return this.accessToken;
     } catch (error: any) {
-      console.error('Error getting Microsoft Graph access token:', error.response?.data || error.message);
+      logger.error('Error getting Microsoft Graph access token', { error: error.response?.data || error.message });
       throw new Error('Failed to authenticate with Microsoft Graph');
     }
   }
@@ -207,10 +208,10 @@ export class MicrosoftIntegrationService {
         event
       );
 
-      console.log(`✅ Calendar event created: ${response.data.id}`);
+      logger.info('Calendar event created', { eventId: response.data.id });
       return response.data.id;
     } catch (error: any) {
-      console.error(`Error creating calendar event:`, error.response?.data || error.message);
+      logger.error('Error creating calendar event', { error: error.response?.data || error.message });
       // Don`t throw error - calendar creation is not critical
       return null;
     }
@@ -251,9 +252,9 @@ export class MicrosoftIntegrationService {
         event
       );
 
-      console.log(`✅ Calendar event updated: ${eventId}`);
+      logger.info('Calendar event updated', { eventId });
     } catch (error: any) {
-      console.error(`Error updating calendar event:`, error.response?.data || error.message);
+      logger.error('Error updating calendar event', { error: error.response?.data || error.message });
       // Don`t throw error - calendar update is not critical
     }
   }
@@ -269,9 +270,9 @@ export class MicrosoftIntegrationService {
         `/users/${userEmail}/calendar/events/${eventId}`
       );
 
-      console.log(`✅ Calendar event deleted: ${eventId}`);
+      logger.info('Calendar event deleted', { eventId });
     } catch (error: any) {
-      console.error(`Error deleting calendar event:`, error.response?.data || error.message);
+      logger.error('Error deleting calendar event', { error: error.response?.data || error.message });
       // Don't throw error - calendar deletion is not critical
     }
   }
@@ -286,7 +287,7 @@ export class MicrosoftIntegrationService {
     action: 'created' | 'approved' | 'rejected' | 'cancelled' | 'completed'
   ): Promise<void> {
     if (!this.config.teamsChannelId) {
-      console.warn('⚠️  Microsoft Teams channel ID not configured, skipping notification');
+      logger.warn('Microsoft Teams channel ID not configured, skipping notification');
       return;
     }
 
@@ -303,7 +304,7 @@ export class MicrosoftIntegrationService {
         message
       );
 
-      console.log(`✅ Teams notification sent for reservation ${reservation.id}`);
+      logger.info('Teams notification sent for reservation', { reservationId: reservation.id });
 
       // Update the database to track that notification was sent
       await this.pool.query(
@@ -313,7 +314,7 @@ export class MicrosoftIntegrationService {
         [reservation.id]
       );
     } catch (error: any) {
-      console.error('Error sending Teams notification:', error.response?.data || error.message);
+      logger.error('Error sending Teams notification', { error: error.response?.data || error.message });
       // Don't throw error - Teams notification is not critical
     }
   }
@@ -352,9 +353,9 @@ export class MicrosoftIntegrationService {
       // Send from the service account
       await this.graphClient.post(`/me/sendMail`, email);
 
-      console.log(`✅ Email confirmation sent to ${recipientEmail || reservation.reserved_by_email}`);
+      logger.info('Email confirmation sent', { recipient: recipientEmail || reservation.reserved_by_email });
     } catch (error: any) {
-      console.error(`Error sending Outlook email:`, error.response?.data || error.message);
+      logger.error('Error sending Outlook email', { error: error.response?.data || error.message });
       // Don't throw error - email notification is not critical
     }
   }
@@ -382,9 +383,9 @@ export class MicrosoftIntegrationService {
       // Send Teams notification
       await this.sendTeamsNotification(reservation, `created`);
 
-      console.log(`✅ Notified ${result.rows.length} fleet managers`);
+      logger.info('Notified fleet managers', { count: result.rows.length });
     } catch (error: any) {
-      console.error(`Error notifying fleet managers:`, error);
+      logger.error('Error notifying fleet managers', { error });
       // Don`t throw error - notifications are not critical
     }
   }
@@ -526,10 +527,10 @@ export class MicrosoftIntegrationService {
 
       // Try a simple API call to verify authentication
       await this.graphClient.get('/me');
-      console.log('✅ Microsoft Graph connection successful');
+      logger.info('Microsoft Graph connection successful');
       return true;
     } catch (error: any) {
-      console.error('❌ Microsoft Graph connection failed:', error.response?.data || error.message);
+      logger.error('Microsoft Graph connection failed', { error: error.response?.data || error.message });
       return false;
     }
   }

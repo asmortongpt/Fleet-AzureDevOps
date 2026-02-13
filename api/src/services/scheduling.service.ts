@@ -7,6 +7,7 @@
 import { Pool  } from 'pg'
 
 import { pool } from '../db/connection'
+import logger from '../config/logger'
 
 import { CalendarService } from './calendar.service'
 import { GoogleCalendarService } from './google-calendar.service'
@@ -157,7 +158,7 @@ class SchedulingService {
       }
 
     } catch (error) {
-      console.error('Error checking vehicle conflicts:', error)
+      logger.error('Error checking vehicle conflicts', { error })
       throw error
     }
 
@@ -211,7 +212,7 @@ class SchedulingService {
       }
 
     } catch (error) {
-      console.error('Error checking service bay conflicts:', error)
+      logger.error('Error checking service bay conflicts', { error })
       throw error
     }
 
@@ -280,7 +281,7 @@ class SchedulingService {
       }
 
     } catch (error) {
-      console.error('Error checking technician availability:', error)
+      logger.error('Error checking technician availability', { error })
       throw error
     }
 
@@ -350,7 +351,7 @@ class SchedulingService {
         try {
           await this.syncReservationToCalendars(tenantId, createdReservation, reservation.reservedBy)
         } catch (error) {
-          console.error('Error syncing to calendar:', error)
+          logger.error('Error syncing to calendar', { error })
           // Don't fail the reservation if calendar sync fails
         }
       }
@@ -360,7 +361,7 @@ class SchedulingService {
       return createdReservation
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error creating vehicle reservation:', error)
+      logger.error('Error creating vehicle reservation', { error })
       throw error
     } finally {
       client.release()
@@ -450,7 +451,7 @@ class SchedulingService {
         try {
           await this.syncMaintenanceToCalendars(tenantId, createdAppointment, userId)
         } catch (error) {
-          console.error('Error syncing to calendar:', error)
+          logger.error('Error syncing to calendar', { error })
           // Don't fail the appointment if calendar sync fails
         }
       }
@@ -460,7 +461,7 @@ class SchedulingService {
       return createdAppointment
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error creating maintenance appointment:', error)
+      logger.error('Error creating maintenance appointment', { error })
       throw error
     } finally {
       client.release()
@@ -508,7 +509,7 @@ class SchedulingService {
 
       return result.rows
     } catch (error) {
-      console.error('Error finding available service bays:', error)
+      logger.error('Error finding available service bays', { error })
       throw error
     }
   }
@@ -562,7 +563,7 @@ class SchedulingService {
 
       return result.rows
     } catch (error) {
-      console.error(`Error finding available vehicles:`, error)
+      logger.error('Error finding available vehicles', { error })
       throw error
     }
   }
@@ -673,12 +674,12 @@ return
           }
 
         } catch (error) {
-          console.error(`Error syncing to ${integration.provider} calendar:`, error)
+          logger.error('Error syncing to calendar provider', { provider: integration.provider, error })
         }
       }
 
     } catch (error) {
-      console.error('Error syncing reservation to calendars:', error)
+      logger.error('Error syncing reservation to calendars', { error })
       throw error
     }
   }
@@ -772,12 +773,12 @@ return
           }
 
         } catch (error) {
-          console.error(`Error syncing to ${integration.provider} calendar:`, error)
+          logger.error('Error syncing to calendar provider', { provider: integration.provider, error })
         }
       }
 
     } catch (error) {
-      console.error('Error syncing maintenance to calendars:', error)
+      logger.error('Error syncing maintenance to calendars', { error })
       throw error
     }
   }
@@ -812,7 +813,7 @@ return
 
       return result.rows
     } catch (error) {
-      console.error('Error getting upcoming reservations:', error)
+      logger.error('Error getting upcoming reservations', { error })
       throw error
     }
   }
@@ -866,7 +867,7 @@ return
         maintenance: maintenance.rows
       }
     } catch (error) {
-      console.error('Error getting vehicle schedule:', error)
+      logger.error('Error getting vehicle schedule', { error })
       throw error
     }
   }

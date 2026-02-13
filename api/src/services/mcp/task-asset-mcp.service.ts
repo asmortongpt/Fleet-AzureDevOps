@@ -10,6 +10,8 @@
  * - Custom AI workflows
  */
 
+import logger from '../../config/logger';
+
 // Optional MCP SDK dependencies - lazy loaded
 let Client: any = null
 let StdioClientTransport: any = null
@@ -29,7 +31,7 @@ return true
 
     return true
   } catch (err) {
-    console.warn(`MCP SDK not available - MCP server integration will be disabled. Install @modelcontextprotocol/sdk for MCP support.`)
+    logger.warn('MCP SDK not available - MCP server integration will be disabled. Install @modelcontextprotocol/sdk for MCP support.')
     return false
   }
 }
@@ -60,7 +62,7 @@ export class MCPServerManager {
     const sdkAvailable = await loadMcpSdk()
 
     if (!sdkAvailable) {
-      console.warn(`MCP SDK not available - cannot connect to server ${config.name}`)
+      logger.warn('MCP SDK not available - cannot connect to server', { serverName: config.name })
       return
     }
 
@@ -83,9 +85,9 @@ export class MCPServerManager {
       this.clients.set(config.name, client)
       this.transports.set(config.name, transport)
 
-      console.log(`Connected to MCP server: ${config.name}`)
+      logger.info('Connected to MCP server', { serverName: config.name })
     } catch (error) {
-      console.error(`Failed to connect to MCP server ${config.name}:`, error)
+      logger.error('Failed to connect to MCP server', { serverName: config.name, error })
       throw error
     }
   }
@@ -102,7 +104,7 @@ export class MCPServerManager {
       await transport.close()
       this.clients.delete(serverName)
       this.transports.delete(serverName)
-      console.log(`Disconnected from MCP server: ${serverName}`)
+      logger.info('Disconnected from MCP server', { serverName })
     }
   }
 
@@ -191,7 +193,7 @@ export async function optimizeTaskSchedule(
       ? JSON.parse(result.content[0].text)
       : { optimizedSchedule: [], efficiency: 0, warnings: [] }
   } catch (error) {
-    console.error('Error optimizing task schedule:', error)
+    logger.error('Error optimizing task schedule', { error })
     return {
       optimizedSchedule: tasks,
       efficiency: 0,
@@ -241,7 +243,7 @@ export async function analyzeAssetLifecycle(asset: any): Promise<{
         costProjections: []
       }
   } catch (error) {
-    console.error('Error analyzing asset lifecycle:', error)
+    logger.error('Error analyzing asset lifecycle', { error })
     return {
       currentPhase: 'unknown',
       remainingLifeYears: 0,
@@ -290,7 +292,7 @@ export async function predictMaintenanceWithMCP(
       preventiveMeasures: prediction?.preventiveMeasures || []
     }
   } catch (error) {
-    console.error('Error predicting maintenance:', error)
+    logger.error('Error predicting maintenance', { error })
     return {
       nextMaintenanceDate: new Date(),
       confidence: 0,
@@ -330,7 +332,7 @@ export async function queryWithNaturalLanguage(
       ? result.content[0].text
       : 'Unable to process query'
   } catch (error) {
-    console.error('Error processing natural language query:', error)
+    logger.error('Error processing natural language query', { error })
     return 'Query service unavailable'
   }
 }
@@ -358,7 +360,7 @@ export async function initializeDefaultMCPServers(): Promise<void> {
     try {
       await mcpManager.connect(server)
     } catch (error) {
-      console.warn(`Could not connect to MCP server ${server.name}:`, error)
+      logger.warn('Could not connect to MCP server', { serverName: server.name, error })
       // Continue with other servers
     }
   }
