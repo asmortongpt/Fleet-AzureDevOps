@@ -133,15 +133,15 @@ class SMSService {
       });
 
       return result.sid;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error sending SMS', { error });
 
       // Log error
-      if (error.logId) {
-        await this.updateMessageLog(error.logId, {
+      if ((error as Record<string, unknown>).logId) {
+        await this.updateMessageLog((error as Record<string, unknown>).logId as string, {
           status: 'failed',
-          errorCode: error.code?.toString(),
-          errorMessage: error.message,
+          errorCode: (error as Record<string, unknown>).code?.toString(),
+          errorMessage: error instanceof Error ? error.message : 'An unexpected error occurred',
         });
       }
 
@@ -187,7 +187,7 @@ class SMSService {
       });
 
       return result.sid;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error sending MMS', { error });
       throw error;
     }
@@ -221,11 +221,11 @@ class SMSService {
         );
 
         results.successful++;
-      } catch (error: any) {
+      } catch (error: unknown) {
         results.failed++;
         results.errors.push({
           recipient,
-          error: error.message,
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
         });
       }
     }

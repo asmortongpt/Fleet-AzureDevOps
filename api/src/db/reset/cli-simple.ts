@@ -42,8 +42,8 @@ async function main() {
         showHelp();
         process.exit(1);
     }
-  } catch (error: any) {
-    console.error('\n❌ Error:', error.message);
+  } catch (error: unknown) {
+    console.error('\n❌ Error:', error instanceof Error ? error.message : 'An unexpected error occurred');
     process.exit(1);
   }
 }

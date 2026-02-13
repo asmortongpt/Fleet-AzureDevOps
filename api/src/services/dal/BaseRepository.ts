@@ -42,9 +42,9 @@ export abstract class BaseRepository<T = any> {
       const result = await queryClient.query<R>(text, params)
       this.logger.logSuccess(text, params, Date.now() - startTime, result.rowCount || 0)
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.logError(text, params, Date.now() - startTime, error)
-      throw this.handleQueryError(error)
+      throw this.handleQueryError(error as Record<string, any>)
     }
   }
 

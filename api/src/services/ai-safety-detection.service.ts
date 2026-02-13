@@ -68,8 +68,8 @@ class AISafetyDetectionService {
 
       this.modelLoaded = true;
       logger.info('AI detection models initialized');
-    } catch (error: any) {
-      logger.error('Failed to initialize AI models:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to initialize AI models:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -126,8 +126,8 @@ class AISafetyDetectionService {
         confidence,
         processingTime
       };
-    } catch (error: any) {
-      logger.error('Image analysis failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Image analysis failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
       throw error;
     }
   }
@@ -210,8 +210,8 @@ class AISafetyDetectionService {
           }
         }
       }
-    } catch (error: any) {
-      logger.error('Object detection failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Object detection failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
 
     return detections;
@@ -312,8 +312,8 @@ class AISafetyDetectionService {
           });
         }
       }
-    } catch (error: any) {
-      logger.error('Face analysis failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Face analysis failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
 
     return detections;
@@ -412,8 +412,8 @@ class AISafetyDetectionService {
           });
         }
       }
-    } catch (error: any) {
-      logger.error('Pose analysis failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Pose analysis failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
 
     return detections;
@@ -453,8 +453,8 @@ class AISafetyDetectionService {
       try {
         const result = await this.analyzeImage(image);
         results.push(result);
-      } catch (error: any) {
-        logger.error('Batch analysis failed for image:', error.message);
+      } catch (error: unknown) {
+        logger.error('Batch analysis failed for image:', error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
 
@@ -488,8 +488,8 @@ class AISafetyDetectionService {
           metrics.avgProcessingTime
         ]
       );
-    } catch (error: any) {
-      logger.error('Failed to update model metrics:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to update model metrics:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 }

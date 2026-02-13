@@ -45,10 +45,11 @@ export class CameraSyncService {
       for (const source of sources) {
         try {
           await this.syncSource(source)
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
           logger.error(`Failed to sync source ${source.name}`, {
             sourceId: source.id,
-            error: error.message
+            error: errMsg
           })
 
           // Update sync status to failed
@@ -59,14 +60,14 @@ export class CameraSyncService {
                  last_sync_error = $1,
                  updated_at = NOW()
              WHERE id = $2`,
-            [error.message, source.id]
+            [errMsg, source.id]
           )
         }
       }
 
       logger.info('Camera sync completed for all sources')
-    } catch (error: any) {
-      logger.error(`Fatal error in camera sync`, { error: error.message })
+    } catch (error: unknown) {
+      logger.error(`Fatal error in camera sync`, { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
       throw error
     }
   }
@@ -94,11 +95,11 @@ export class CameraSyncService {
       try {
         await this.upsertCamera(source, camera)
         successCount++
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Failed to upsert camera`, {
           sourceId: source.id,
           camera: camera.attributes,
-          error: error.message
+          error: error instanceof Error ? error.message : 'An unexpected error occurred'
         })
       }
     }
@@ -136,7 +137,7 @@ export class CameraSyncService {
           'services3.arcgis.com',
         ]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof SSRFError) {
         logger.error(`SSRF Protection blocked request to ${url}`, {
           sourceId: source.id,

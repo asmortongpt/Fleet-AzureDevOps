@@ -249,9 +249,9 @@ return
         embedding: response.data[0].embedding,
         tokens: response.usage.total_tokens,
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('OpenAI embedding error', { error })
-      throw new Error(`OpenAI embedding failed: ${error.message}`)
+      throw new Error(`OpenAI embedding failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 
@@ -277,9 +277,9 @@ return
         embedding: response.embeddings[0],
         tokens: this.estimateTokenCount(text),
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Cohere embedding error', { error })
-      throw new Error(`Cohere embedding failed: ${error.message}`)
+      throw new Error(`Cohere embedding failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 

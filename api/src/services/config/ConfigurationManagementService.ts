@@ -896,13 +896,19 @@ export class ConfigurationManagementService {
     try {
       schema.parse(value);
       return { valid: true };
-    } catch (error: any) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
+        return {
+          valid: false,
+          errors: error.errors.map((e) => ({
+            path: e.path.join('.'),
+            message: e.message
+          }))
+        };
+      }
       return {
         valid: false,
-        errors: error.errors?.map((e: any) => ({
-          path: e.path.join('.'),
-          message: e.message
-        })) || []
+        errors: [{ path: '', message: error instanceof Error ? error.message : 'An unexpected error occurred' }]
       };
     }
   }

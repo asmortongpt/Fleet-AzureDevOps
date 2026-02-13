@@ -123,9 +123,9 @@ export class AIService {
         }
 
         return response
-      } catch (error: any) {
-        logger.error('[AI Service] Provider failed', { provider: providerName, error: error.message })
-        lastError = error
+      } catch (error: unknown) {
+        logger.error('[AI Service] Provider failed', { provider: providerName, error: error instanceof Error ? error.message : 'An unexpected error occurred' })
+        lastError = error instanceof Error ? error : new Error(String(error))
         continue
       }
     }

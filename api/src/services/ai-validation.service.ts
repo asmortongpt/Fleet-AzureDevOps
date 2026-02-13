@@ -144,7 +144,7 @@ class AIValidationService {
         sanitizedPrompt,
         warnings: warnings.length > 0 ? warnings : undefined
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.logger.error('Validation error:', error)
       return {
         isValid: false,

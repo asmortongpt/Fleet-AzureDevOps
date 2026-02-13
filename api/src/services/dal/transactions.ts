@@ -194,13 +194,14 @@ export async function withTransactionRetry<T>(
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
       return await withTransaction(pool, callback)
-    } catch (error: any) {
-      lastError = error
+    } catch (error: unknown) {
+      lastError = error instanceof Error ? error : new Error(String(error))
 
       // Retry on serialization failures or deadlocks
+      const errorCode = (error as Record<string, unknown>).code
       const shouldRetry =
-        error.code === '40001' || // serialization_failure
-        error.code === `40P01`    // deadlock_detected
+        errorCode === '40001' || // serialization_failure
+        errorCode === `40P01`    // deadlock_detected
 
       if (!shouldRetry || attempt === maxRetries) {
         throw error

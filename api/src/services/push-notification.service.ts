@@ -453,9 +453,9 @@ class PushNotificationService {
         } else {
           await this.updateRecipientStatus(notificationId, device.id, 'failed', result.failed[0]?.response?.reason);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('Error sending to iOS device', { error });
-        await this.updateRecipientStatus(notificationId, device.id, 'failed', error.message);
+        await this.updateRecipientStatus(notificationId, device.id, 'failed', error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
   }
@@ -492,9 +492,9 @@ class PushNotificationService {
 
         await (admin as any).messaging().send(message);
         await this.updateRecipientStatus(notificationId, device.id, 'delivered');
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('Error sending to Android device', { error });
-        await this.updateRecipientStatus(notificationId, device.id, 'failed', error.message);
+        await this.updateRecipientStatus(notificationId, device.id, 'failed', error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
   }

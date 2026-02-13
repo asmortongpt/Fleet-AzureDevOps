@@ -344,7 +344,7 @@ return;
 
         logger.info(`Job ${job.id} completed`, { processingTime });
         return result;
-      } catch (error: any) {
+      } catch (error: unknown) {
         const processingTime = Date.now() - startTime;
         logger.error(`Job ${job.id} failed`, { error });
 

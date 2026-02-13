@@ -84,8 +84,8 @@ class FleetCognitionService {
       this.logger.info('Fleet insights generated', { tenantId, count: insights.length })
 
       return insights
-    } catch (error: any) {
-      this.logger.error('Error generating fleet insights', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error generating fleet insights', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -123,8 +123,8 @@ class FleetCognitionService {
       this.logger.info('Patterns detected', { tenantId, count: patterns.length })
 
       return patterns
-    } catch (error: any) {
-      this.logger.error('Error detecting patterns', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error detecting patterns', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -162,8 +162,8 @@ class FleetCognitionService {
       this.logger.info('Anomalies detected', { tenantId, count: anomalies.length })
 
       return anomalies
-    } catch (error: any) {
-      this.logger.error('Error detecting anomalies', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error detecting anomalies', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -209,8 +209,8 @@ class FleetCognitionService {
       this.logger.info('Recommendations generated', { tenantId, count: recommendations.length })
 
       return recommendations
-    } catch (error: any) {
-      this.logger.error('Error generating recommendations', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error generating recommendations', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -254,8 +254,8 @@ class FleetCognitionService {
       }
 
       this.logger.info('Feedback loop processed', { tenantId, feedbackProcessed: feedbackItems.length })
-    } catch (error: any) {
-      this.logger.error('Error processing feedback loop', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error processing feedback loop', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -291,8 +291,8 @@ class FleetCognitionService {
         incident_rate_score: Math.round(incidentRate),
         timestamp: new Date().toISOString()
       }
-    } catch (error: any) {
-      this.logger.error('Error calculating fleet health score', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      this.logger.error('Error calculating fleet health score', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }

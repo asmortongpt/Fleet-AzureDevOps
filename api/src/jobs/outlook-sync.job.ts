@@ -151,17 +151,18 @@ async function runOutlookSync(): Promise<void> {
       categorized: categorizedCount,
       receipts_parsed: receiptsParsed
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
 
     logger.error('Fatal error in Outlook sync', {
       jobId,
-      error: error.message,
-      stack: error.stack
+      error: errMsg,
+      stack: error instanceof Error ? error.stack : undefined
     })
 
     await logSyncJobMetrics(jobId, 'failed', 0, 1, 0, duration, {
-      error: error.message
+      error: errMsg
     })
   }
 }
@@ -180,9 +181,9 @@ async function checkActiveUsers(): Promise<boolean> {
 
     const activeUsers = parseInt(result.rows[0].count) || 0
     return activeUsers > 0
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error checking active users', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
     return true // Assume users are active if check fails
   }
@@ -219,15 +220,15 @@ async function categorizeNewEmails(): Promise<number> {
         )
 
         categorizedCount++
-      } catch (error: any) {
-        logger.error(`Error categorizing email ${email.id}:`, error.message)
+      } catch (error: unknown) {
+        logger.error(`Error categorizing email ${email.id}:`, error instanceof Error ? error.message : 'An unexpected error occurred')
       }
     }
 
     logger.info(`Categorized ${categorizedCount} emails`)
     return categorizedCount
-  } catch (error: any) {
-    logger.error(`Error in AI categorization:`, error.message)
+  } catch (error: unknown) {
+    logger.error(`Error in AI categorization:`, error instanceof Error ? error.message : 'An unexpected error occurred')
     return 0
   }
 }
@@ -309,15 +310,15 @@ async function parseReceipts(): Promise<number> {
 
           parsedCount++
         }
-      } catch (error: any) {
-        logger.error(`Error parsing receipt ${email.id}:`, error.message)
+      } catch (error: unknown) {
+        logger.error(`Error parsing receipt ${email.id}:`, error instanceof Error ? error.message : 'An unexpected error occurred')
       }
     }
 
     logger.info(`Parsed ${parsedCount} receipts/invoices`)
     return parsedCount
-  } catch (error: any) {
-    logger.error(`Error in receipt parsing:`, error.message)
+  } catch (error: unknown) {
+    logger.error(`Error in receipt parsing:`, error instanceof Error ? error.message : 'An unexpected error occurred')
     return 0
   }
 }
@@ -371,9 +372,9 @@ async function logSyncJobMetrics(
         'outlook-sync-cron'
       ]
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error logging sync job metrics', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }
@@ -386,9 +387,9 @@ async function syncOnStartup(): Promise<void> {
 
   try {
     await runOutlookSync()
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error during startup sync', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }

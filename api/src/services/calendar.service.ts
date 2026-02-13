@@ -131,8 +131,8 @@ export class CalendarService {
     )
 
     return response
-  } catch (error: any) {
-    logger.error('Error creating calendar event', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error creating calendar event', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -159,8 +159,8 @@ export class CalendarService {
       .get()
 
     return response.value
-  } catch (error: any) {
-    logger.error('Error fetching calendar events', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error fetching calendar events', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -177,8 +177,8 @@ export class CalendarService {
       .get()
 
     return response
-  } catch (error: any) {
-    logger.error('Error fetching calendar event', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error fetching calendar event', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -245,8 +245,8 @@ eventUpdate.subject = updates.subject
 
     logger.info('Calendar event updated', { eventId: response.id })
     return response
-  } catch (error: any) {
-    logger.error('Error updating calendar event', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error updating calendar event', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -271,8 +271,8 @@ eventUpdate.subject = updates.subject
     )
 
     logger.info('Calendar event deleted', { eventId })
-  } catch (error: any) {
-    logger.error('Error deleting calendar event', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error deleting calendar event', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -292,8 +292,8 @@ eventUpdate.subject = updates.subject
       })
 
     logger.info('Meeting accepted', { eventId })
-  } catch (error: any) {
-    logger.error('Error accepting meeting', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error accepting meeting', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -313,8 +313,8 @@ eventUpdate.subject = updates.subject
       })
 
     logger.info('Meeting declined', { eventId })
-  } catch (error: any) {
-    logger.error('Error declining meeting', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error declining meeting', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -334,8 +334,8 @@ eventUpdate.subject = updates.subject
       })
 
     logger.info('Meeting tentatively accepted', { eventId })
-  } catch (error: any) {
-    logger.error('Error tentatively accepting meeting', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error tentatively accepting meeting', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -388,8 +388,8 @@ eventUpdate.subject = updates.subject
       .post(requestBody)
 
     return response.meetingTimeSuggestions || []
-  } catch (error: any) {
-    logger.error('Error finding meeting times', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error finding meeting times', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -424,8 +424,8 @@ eventUpdate.subject = updates.subject
       .post(requestBody)
 
     return response.value
-  } catch (error: any) {
-    logger.error('Error getting availability', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error getting availability', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -511,8 +511,8 @@ eventUpdate.subject = updates.subject
     )
 
     return event
-  } catch (error: any) {
-    logger.error('Error scheduling maintenance', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error scheduling maintenance', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -590,8 +590,8 @@ attendees.push(trainerEmail)
     )
 
     return event
-  } catch (error: any) {
-    logger.error('Error scheduling driver training', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error scheduling driver training', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -663,8 +663,8 @@ attendees.push(trainerEmail)
         }
       })
     })
-  } catch (error: any) {
-    logger.error('Error sending calendar invite', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error sending calendar invite', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }

@@ -547,11 +547,11 @@ export class DatabaseConnectionManager {
           lastError: null,
           reconnectAttempts: state.reconnectAttempts
         };
-      } catch (error: any) {
+      } catch (error: unknown) {
         status[poolType] = {
           healthy: false,
           initialized: state.initialized,
-          error: error.message,
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
           lastError: state.lastError?.message || null,
           lastErrorTime: state.lastErrorTime?.toISOString() || null,
           reconnectAttempts: state.reconnectAttempts

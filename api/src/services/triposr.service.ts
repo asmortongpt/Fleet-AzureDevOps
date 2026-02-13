@@ -83,7 +83,7 @@ export class TripoSRService {
         created_at: new Date(),
         updated_at: new Date(),
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('TripoSR generation failed', { error: error instanceof Error ? error.message : String(error) });
 
       // Update status to failed
@@ -93,7 +93,7 @@ export class TripoSRService {
         'failed'
       );
 
-      throw new Error(`Failed to generate 3D model: ${error.message}`);
+      throw new Error(`Failed to generate 3D model: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -143,7 +143,7 @@ export class TripoSRService {
           this.pollTaskStatus(tenantId, damageReportId, taskId);
         }, this.pollInterval);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error polling TripoSR task', { taskId, error: error instanceof Error ? error.message : String(error) });
 
       // Retry after interval
@@ -176,8 +176,8 @@ export class TripoSRService {
         updated_at: new Date(response.data.updated_at),
         error: response.data.error,
       };
-    } catch (error: any) {
-      throw new Error(`Failed to get task status: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to get task status: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -196,7 +196,7 @@ export class TripoSRService {
         if (report.photos && report.photos.length > 0) {
           await this.generate3DModel(tenantId, report.id, report.photos);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error('Failed to generate 3D model for report', { reportId: report.id, error: error instanceof Error ? error.message : String(error) });
       }
     }

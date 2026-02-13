@@ -209,12 +209,13 @@ export class PolicyEnforcementService {
       })
 
       return result
-    } catch (error: any) {
+    } catch (error: unknown) {
       const executionTime = performance.now() - startTime
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
 
       logger.error('Policy evaluation failed', {
         policyId,
-        error: error.message,
+        error: errMsg,
         executionTime
       })
 
@@ -223,10 +224,10 @@ export class PolicyEnforcementService {
         user_id: context.user?.id || 'system',
         action: 'policy:evaluate:error',
         allowed: false,
-        reason: `Policy evaluation error: ${error.message}`,
+        reason: `Policy evaluation error: ${errMsg}`,
         context: {
           policyId,
-          error: error.message
+          error: errMsg
         },
         // @ts-expect-error - Build compatibility fix
         retentionYears: 7
@@ -237,7 +238,7 @@ export class PolicyEnforcementService {
         policyId,
         policyName: 'unknown',
         decision: PolicyDecision.DENY,
-        reason: `Policy evaluation error: ${error.message}`,
+        reason: `Policy evaluation error: ${errMsg}`,
         executionTime,
         timestamp: new Date(),
         context
@@ -325,8 +326,8 @@ export class PolicyEnforcementService {
       )
 
       return rule
-    } catch (error: any) {
-      throw new Error(`Policy compilation failed: ${error.message}`)
+    } catch (error: unknown) {
+      throw new Error(`Policy compilation failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 
@@ -388,10 +389,10 @@ export class PolicyEnforcementService {
       }
 
       return decision as PolicyDecision
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Rule execution failed', {
         ruleId: rule.id,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
       // Fail-secure
       return PolicyDecision.DENY

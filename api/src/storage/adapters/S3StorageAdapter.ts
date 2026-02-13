@@ -138,11 +138,11 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         lastModified: response.LastModified,
         contentLength: response.ContentLength || 0
       };
-    } catch (error: any) {
-      if (error.name === 'NoSuchKey' || error.Code === 'NoSuchKey') {
+    } catch (error: unknown) {
+      if ((error instanceof Error && error.name === 'NoSuchKey') || (error as Record<string, unknown>).Code === 'NoSuchKey') {
         throw new FileNotFoundError(normalizedKey);
       }
-      throw new StorageError(`Failed to download file from S3: ${error.message}`, 'DOWNLOAD_FAILED');
+      throw new StorageError(`Failed to download file from S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'DOWNLOAD_FAILED');
     }
   }
 
@@ -155,8 +155,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         Bucket: this.bucket,
         Key: normalizedKey
       }));
-    } catch (error: any) {
-      throw new StorageError(`Failed to delete file from S3: ${error.message}`, 'DELETE_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to delete file from S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'DELETE_FAILED');
     }
   }
 
@@ -174,8 +174,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
           Quiet: true
         }
       }));
-    } catch (error: any) {
-      throw new StorageError(`Failed to delete multiple files from S3: ${error.message}`, 'DELETE_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to delete multiple files from S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'DELETE_FAILED');
     }
   }
 
@@ -212,8 +212,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         continuationToken: response.NextContinuationToken,
         isTruncated: response.IsTruncated || false
       };
-    } catch (error: any) {
-      throw new StorageError(`Failed to list files in S3: ${error.message}`, 'LIST_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to list files in S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'LIST_FAILED');
     }
   }
 
@@ -240,8 +240,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         metadata: options?.metadata
       };
 
-    } catch (error: any) {
-      throw new StorageError(`Failed to copy file in S3: ${error.message}`, 'COPY_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to copy file in S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'COPY_FAILED');
     }
   }
 
@@ -262,11 +262,12 @@ export class S3StorageAdapter extends BaseStorageAdapter {
         contentType: response.ContentType,
         customMetadata: response.Metadata
       };
-    } catch (error: any) {
-      if (error.name === 'NotFound' || error.name === 'NoSuchKey' || (error.Code === 'NotFound')) {
+    } catch (error: unknown) {
+      const errName = error instanceof Error ? error.name : 'Error';
+      if (errName === 'NotFound' || errName === 'NoSuchKey' || (error as Record<string, unknown>).Code === 'NotFound') {
         throw new FileNotFoundError(normalizedKey);
       }
-      throw new StorageError(`Failed to get metadata from S3: ${error.message}`, 'METADATA_FAILED');
+      throw new StorageError(`Failed to get metadata from S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'METADATA_FAILED');
     }
   }
 
@@ -288,8 +289,8 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       });
 
       return await getSignedUrl(this.client, command, { expiresIn: options?.expiresIn || 3600 });
-    } catch (error: any) {
-      throw new StorageError(`Failed to generate signed URL for S3: ${error.message}`, 'URL_GENERATION_FAILED');
+    } catch (error: unknown) {
+      throw new StorageError(`Failed to generate signed URL for S3: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`, 'URL_GENERATION_FAILED');
     }
   }
 

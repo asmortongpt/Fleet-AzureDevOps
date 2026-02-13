@@ -320,14 +320,14 @@ if (parentPort) {
         success: true,
         result
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Send error back to main thread
       parentPort!.postMessage({
         taskId,
         success: false,
         error: {
-          message: error.message,
-          stack: error.stack
+          message: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
         }
       })
     }

@@ -194,11 +194,11 @@ export async function processNotificationJob(job: Job): Promise<any> {
       totalTokens: tokens.length,
       sentAt: new Date().toISOString(),
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Failed to send notification in job ${job.id}:`, error)
 
     // Log failed notification
-    await saveNotificationLog(userId, title, body, data, 'failed', error.message)
+    await saveNotificationLog(userId, title, body, data, 'failed', error instanceof Error ? error.message : 'An unexpected error occurred')
 
     throw error
   }

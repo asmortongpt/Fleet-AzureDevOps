@@ -78,8 +78,8 @@ export class OpenAIAdapter implements AIProviderAdapter {
         finishReason: this.mapFinishReason(choice.finish_reason),
         timestamp: new Date(),
       }
-    } catch (error: any) {
-      throw new Error(`[OpenAI] Completion failed: ${error.message}`)
+    } catch (error: unknown) {
+      throw new Error(`[OpenAI] Completion failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 
@@ -106,8 +106,8 @@ export class OpenAIAdapter implements AIProviderAdapter {
           yield content
         }
       }
-    } catch (error: any) {
-      throw new Error(`[OpenAI] Streaming failed: ${error.message}`)
+    } catch (error: unknown) {
+      throw new Error(`[OpenAI] Streaming failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`)
     }
   }
 

@@ -147,8 +147,8 @@ export async function safeDeleteFile(
 
   try {
     await fs.unlink(validatedPath);
-  } catch (error: any) {
-    if (error.code === `ENOENT`) {
+  } catch (error: unknown) {
+    if ((error as Record<string, unknown>).code === 'ENOENT') {
       throw new Error(`File not found: ${filePath}`);
     }
     throw error;
@@ -166,8 +166,8 @@ export async function safeStatFile(
 
   try {
     return await fs.stat(validatedPath);
-  } catch (error: any) {
-    if (error.code === `ENOENT`) {
+  } catch (error: unknown) {
+    if ((error as Record<string, unknown>).code === 'ENOENT') {
       throw new Error(`File not found: ${filePath}`);
     }
     throw error;

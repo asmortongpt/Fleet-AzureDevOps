@@ -112,8 +112,8 @@ class VideoPrivacyService {
         outputImage: processedImage,
         metadata
       };
-    } catch (error: any) {
-      logger.error('Privacy filtering failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Privacy filtering failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
       throw error;
     }
   }
@@ -218,8 +218,8 @@ class VideoPrivacyService {
           }
         }
       }
-    } catch (error: any) {
-      logger.error('Face detection failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Face detection failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
 
     return faces;
@@ -336,8 +336,8 @@ class VideoPrivacyService {
           }
         }
       }
-    } catch (error: any) {
-      logger.error('License plate detection failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('License plate detection failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
 
     return plates;
@@ -393,8 +393,8 @@ class VideoPrivacyService {
       }
 
       return await image.jpeg({ quality: 90 }).toBuffer();
-    } catch (error: any) {
-      logger.error('Region blurring failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Region blurring failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
       throw error;
     }
   }
@@ -458,8 +458,8 @@ class VideoPrivacyService {
       );
 
       logger.info(`Privacy processing completed for event ${eventId}`);
-    } catch (error: any) {
-      logger.error(`Privacy processing failed for event ${eventId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Privacy processing failed for event ${eventId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
 
       await this.db.query(
         `UPDATE video_safety_events
@@ -496,8 +496,8 @@ class VideoPrivacyService {
           preserveDriverFace: false
         });
         processed++;
-      } catch (error: any) {
-        logger.error(`Failed to process privacy for event ${event.id}:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Failed to process privacy for event ${event.id}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
 
@@ -520,8 +520,8 @@ class VideoPrivacyService {
          VALUES ($1, $2, $3, $4, NOW())`,
         [eventId, userId, accessType, reason]
       );
-    } catch (error: any) {
-      logger.error('Failed to audit privacy access:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to audit privacy access:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -540,8 +540,8 @@ class VideoPrivacyService {
       );
 
       return result.rows;
-    } catch (error: any) {
-      logger.error('Failed to get privacy audit log:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to get privacy audit log:', error instanceof Error ? error.message : 'An unexpected error occurred');
       return [];
     }
   }

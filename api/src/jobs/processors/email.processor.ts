@@ -185,7 +185,7 @@ export async function processEmailJob(job: Job): Promise<any> {
       subject: mailOptions.subject,
       sentAt: new Date().toISOString(),
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Failed to send email in job ${job.id}:`, error)
 
     // Log failed email
@@ -198,7 +198,7 @@ export async function processEmailJob(job: Job): Promise<any> {
         'outbound',
         subject || 'Unknown Subject',
         'failed',
-        error.message,
+        error instanceof Error ? error.message : 'An unexpected error occurred',
         JSON.stringify({
           to: Array.isArray(to) ? to.join(', ') : to,
           template,

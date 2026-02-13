@@ -74,8 +74,8 @@ class VideoRetentionPolicyJob {
       const duration = Date.now() - startTime;
       logger.info(`Video retention policy enforcement completed in ${duration}ms`);
       logger.info(`Total deleted: ${standardDeleted + extendedDeleted}, Extended: ${extended}`);
-    } catch (error: any) {
-      logger.error('Retention policy enforcement failed:', error.message);
+    } catch (error: unknown) {
+      logger.error('Retention policy enforcement failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     } finally {
       this.isRunning = false;
     }
@@ -122,14 +122,14 @@ class VideoRetentionPolicyJob {
              VALUES ($1, 'deleted', $2, 'Retention period expired', NOW())`,
             [video.id, retentionPolicy]
           );
-        } catch (error: any) {
-          logger.error(`Failed to delete video ${video.id}:`, error.message);
+        } catch (error: unknown) {
+          logger.error(`Failed to delete video ${video.id}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
         }
       }
 
       return deleted;
-    } catch (error: any) {
-      logger.error(`Failed to delete expired ${retentionPolicy} videos:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to delete expired ${retentionPolicy} videos:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       return 0;
     }
   }
@@ -164,8 +164,8 @@ class VideoRetentionPolicyJob {
       }
 
       return extended;
-    } catch (error: any) {
-      logger.error('Failed to extend retention for pending cases:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to extend retention for pending cases:', error instanceof Error ? error.message : 'An unexpected error occurred');
       return 0;
     }
   }
@@ -207,8 +207,8 @@ class VideoRetentionPolicyJob {
          DO UPDATE SET report_data = $1, updated_at = NOW()`,
         [JSON.stringify(result.rows)]
       );
-    } catch (error: any) {
-      logger.error('Failed to generate retention report:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to generate retention report:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -247,8 +247,8 @@ class VideoRetentionPolicyJob {
         // In production, would send email notifications to admins
         // await this.sendExpirationNotification(result.rows);
       }
-    } catch (error: any) {
-      logger.error('Failed to check upcoming expirations:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to check upcoming expirations:', error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -272,8 +272,8 @@ class VideoRetentionPolicyJob {
       );
 
       return result.rows[0];
-    } catch (error: any) {
-      logger.error('Failed to get retention stats:', error.message);
+    } catch (error: unknown) {
+      logger.error('Failed to get retention stats:', error instanceof Error ? error.message : 'An unexpected error occurred');
       return {};
     }
   }

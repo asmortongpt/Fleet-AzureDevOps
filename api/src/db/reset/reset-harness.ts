@@ -104,14 +104,15 @@ export class DatabaseResetHarness {
         method: 'snapshot',
         tablesReset: tableCount,
       };
-    } catch (error: any) {
-      console.error('❌ Snapshot reset failed:', error.message);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+      console.error('❌ Snapshot reset failed:', errMsg);
       return {
         success: false,
         duration: (Date.now() - startTime) / 1000,
         method: 'snapshot',
         tablesReset: 0,
-        errors: [error.message],
+        errors: [errMsg],
       };
     }
   }
@@ -159,9 +160,10 @@ export class DatabaseResetHarness {
         tablesReset: tableCount,
         rowsSeeded,
       };
-    } catch (error: any) {
-      console.error('❌ Full reset failed:', error.message);
-      errors.push(error.message);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+      console.error('❌ Full reset failed:', errMsg);
+      errors.push(errMsg);
 
       return {
         success: false,
@@ -271,8 +273,8 @@ export class DatabaseResetHarness {
       await this.pool.query('SET session_replication_role = DEFAULT;');
 
       console.log('✅ All tables dropped');
-    } catch (error: any) {
-      throw new Error(`Failed to drop tables: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Failed to drop tables: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -299,8 +301,8 @@ export class DatabaseResetHarness {
       }
 
       console.log('✅ Migrations completed');
-    } catch (error: any) {
-      throw new Error(`Migration failed: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`Migration failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -323,8 +325,8 @@ export class DatabaseResetHarness {
         console.log(`  Running: ${file}`);
         await this.pool.query(sql);
       }
-    } catch (error: any) {
-      throw new Error(`SQL migration failed: ${error.message}`);
+    } catch (error: unknown) {
+      throw new Error(`SQL migration failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 
@@ -360,8 +362,8 @@ export class DatabaseResetHarness {
       console.log(`✅ Seeded ${totalRows} rows`);
 
       return totalRows;
-    } catch (error: any) {
-      console.warn('⚠️  Seed failed:', error.message);
+    } catch (error: unknown) {
+      console.warn('⚠️  Seed failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
       return 0;
     }
   }

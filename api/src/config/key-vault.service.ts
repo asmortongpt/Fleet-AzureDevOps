@@ -88,9 +88,10 @@ export class KeyVaultService {
         cacheEnabled: this.config.enableCache,
         cacheTTL: this.config.cacheTTL
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
       logger.error('Failed to initialize Key Vault service', {
-        error: error.message,
+        error: errMsg,
         vaultUrl: this.config.vaultUrl
       });
 
@@ -115,9 +116,10 @@ export class KeyVaultService {
       const secretsIterator = this.client.listPropertiesOfSecrets();
       await secretsIterator.next();
       logger.info('Key Vault connection test successful');
-    } catch (error: any) {
-      logger.error('Key Vault connection test failed', { error: error.message });
-      throw new Error(`Key Vault connection failed: ${error.message}`);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+      logger.error('Key Vault connection test failed', { error: errMsg });
+      throw new Error(`Key Vault connection failed: ${errMsg}`);
     }
   }
 
@@ -148,8 +150,8 @@ export class KeyVaultService {
           logger.debug(`Secret '${secretName}' retrieved from Key Vault`);
           return secret.value;
         }
-      } catch (error: any) {
-        logger.warn(`Failed to get secret '${secretName}' from Key Vault: ${error.message}`);
+      } catch (error: unknown) {
+        logger.warn(`Failed to get secret '${secretName}' from Key Vault: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       }
     }
 
@@ -195,9 +197,9 @@ export class KeyVaultService {
 
       // Invalidate cache
       this.cache.delete(secretName);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Failed to set secret '${secretName}' in Key Vault`, {
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     }
@@ -218,9 +220,9 @@ export class KeyVaultService {
 
       // Invalidate cache
       this.cache.delete(secretName);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Failed to delete secret '${secretName}' from Key Vault`, {
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     }
@@ -245,9 +247,9 @@ export class KeyVaultService {
 
       logger.info(`Listed ${secretNames.length} secrets from Key Vault`);
       return secretNames;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to list secrets from Key Vault', {
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     }

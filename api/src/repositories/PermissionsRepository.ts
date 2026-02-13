@@ -106,8 +106,8 @@ export class PermissionsRepository {
       );
 
       return result.rows[0];
-    } catch (error: any) {
-      if (error.code === '23505') {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === '23505') {
         throw new DatabaseError('Role with this name already exists', { name });
       }
       throw new DatabaseError('Failed to create role', { name, error });

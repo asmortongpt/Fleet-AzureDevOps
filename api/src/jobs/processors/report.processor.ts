@@ -466,7 +466,7 @@ export async function processReportJob(job: Job): Promise<any> {
       deliveryMethod,
       generatedAt: new Date().toISOString(),
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Failed to generate report in job ${job.id}:`, error)
 
     // Log failed report
@@ -474,7 +474,7 @@ export async function processReportJob(job: Job): Promise<any> {
       `INSERT INTO report_history
        (user_id, report_type, parameters, format, status, error, created_at)
        VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
-      [userId, reportType, JSON.stringify(parameters), format, 'failed', error.message]
+      [userId, reportType, JSON.stringify(parameters), format, 'failed', error instanceof Error ? error.message : 'An unexpected error occurred']
     )
 
     throw error

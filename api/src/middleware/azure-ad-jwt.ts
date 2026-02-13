@@ -198,17 +198,17 @@ export const authenticateAzureAdJWT = async (
     })
 
     next()
-  } catch (error: any) {
-    logger.error('❌ AZURE AD AUTH - Validation failed:', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('❌ AZURE AD AUTH - Validation failed:', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
 
-    if (error.name === 'TokenExpiredError') {
+    if (error instanceof Error && error.name === 'TokenExpiredError') {
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'Token has expired'
       })
     }
 
-    if (error.name === 'JsonWebTokenError') {
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return res.status(401).json({
         error: 'Unauthorized',
         message: 'Invalid token'

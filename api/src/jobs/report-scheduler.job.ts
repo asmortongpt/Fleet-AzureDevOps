@@ -105,12 +105,12 @@ async function runReportScheduler(): Promise<void> {
         await updateScheduleAfterExecution(schedule.id, schedule.schedule_type, schedule.schedule_config)
 
         successCount++
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Error executing scheduled report ${schedule.id}`, {
           scheduleId: schedule.id,
           reportId: schedule.report_id,
-          error: error.message,
-          stack: error.stack
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
         })
         failureCount++
       }
@@ -123,10 +123,10 @@ async function runReportScheduler(): Promise<void> {
       failureCount,
       totalSchedules: dueSchedules.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Fatal error in report scheduler`, {
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined
     })
   }
 }

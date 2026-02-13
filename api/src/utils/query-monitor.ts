@@ -326,10 +326,12 @@ export class QueryMonitor {
         }
 
         return result;
-      } catch (error: any) {
-        ctx.error = error;
+      } catch (error: unknown) {
+        ctx.error = error instanceof Error ? error : new Error(String(error));
         ctx.endTime = Date.now();
         ctx.duration = ctx.endTime - ctx.startTime;
+
+        const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
 
         // Update error stats
         const stats = this.stats.get(queryKey);
@@ -338,10 +340,10 @@ export class QueryMonitor {
         }
 
         // Record error in span
-        span.recordException(error);
+        span.recordException(error instanceof Error ? error : new Error(String(error)));
         span.setStatus({
           code: SpanStatusCode.ERROR,
-          message: error.message
+          message: errMsg
         });
         span.setAttribute('db.error', true);
 
@@ -349,14 +351,14 @@ export class QueryMonitor {
         logger.error('Query error', {
           query: ctx.query,
           duration: ctx.duration,
-          error: error.message,
+          error: errMsg,
           stackTrace: ctx.stackTrace
         });
 
         // Track error in Application Insights
         if (appInsights.defaultClient) {
           appInsights.defaultClient.trackException({
-            exception: error,
+            exception: error instanceof Error ? error : new Error(String(error)),
             properties: {
               query: ctx.query,
               duration: ctx.duration?.toString() || '0'

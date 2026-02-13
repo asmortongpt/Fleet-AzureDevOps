@@ -249,13 +249,13 @@ export class PhotoProcessingService {
       logger.info(`Photo ${photoId} processed successfully`, { processingTimeMs: result.processing_time_ms });
 
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Failed to process photo ${photoId}`, { error });
 
       return {
         success: false,
         photo_id: photoId,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
         processing_time_ms: Date.now() - startTime,
       };
     }
@@ -476,7 +476,7 @@ export class PhotoProcessingService {
         // Handle failure
         throw new Error(processingResult.error || 'Processing failed');
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Photo processing job ${job.id} failed`, { error });
 
       // Update job with error
@@ -489,7 +489,7 @@ export class PhotoProcessingService {
              retry_count = $2,
              error_message = $3
          WHERE id = $4`,
-        [status, retryCount, error.message, job.id]
+        [status, retryCount, error instanceof Error ? error.message : 'An unexpected error occurred', job.id]
       );
     }
   }

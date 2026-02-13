@@ -736,12 +736,12 @@ missing.push('MICROSOFT_TENANT_ID or AZURE_AD_TENANT_ID')
         tenantId: this.config.tenantId?.substring(0, 8) + '...',
         error: !hasClientId ? 'Missing clientId' : !hasTenantId ? 'Missing tenantId' : !hasClientSecret ? 'Missing clientSecret' : undefined
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         healthy: false,
         clientId: 'unknown',
         tenantId: 'unknown',
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       }
     }
   }

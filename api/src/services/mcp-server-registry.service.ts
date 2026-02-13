@@ -140,8 +140,8 @@ class MCPServerRegistryService {
       await this.refreshServerPools(tenantId)
 
       logger.info('Fleet MCP servers registered successfully', { tenantId })
-    } catch (error: any) {
-      logger.error('Failed to register fleet MCP servers', { error: error.message, tenantId })
+    } catch (error: unknown) {
+      logger.error('Failed to register fleet MCP servers', { error: error instanceof Error ? error.message : 'An unexpected error occurred', tenantId })
       throw error
     }
   }
@@ -211,11 +211,11 @@ class MCPServerRegistryService {
           this.updateHealthMetrics(serverId, true, result.execution_time_ms)
           return result
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.warn('Server execution failed, trying failover', {
           serverId,
           toolName,
-          error: error.message
+          error: error instanceof Error ? error.message : 'An unexpected error occurred'
         })
         this.updateHealthMetrics(serverId, false, 0)
       }
@@ -390,8 +390,8 @@ class MCPServerRegistryService {
 
       this.healthStatus.set(serverId, health)
       return health
-    } catch (error: any) {
-      logger.error('Health check failed', { serverId, error: error.message })
+    } catch (error: unknown) {
+      logger.error('Health check failed', { serverId, error: error instanceof Error ? error.message : 'An unexpected error occurred' })
 
       const health: MCPServerHealth = {
         serverId,

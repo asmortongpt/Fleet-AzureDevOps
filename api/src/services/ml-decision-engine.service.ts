@@ -99,8 +99,8 @@ class MLDecisionEngineService {
       )
 
       return prediction
-    } catch (error: any) {
-      this.logger.error('Maintenance prediction error', { error: error.message, vehicleId })
+    } catch (error: unknown) {
+      this.logger.error('Maintenance prediction error', { error: error instanceof Error ? error.message : 'An unexpected error occurred', vehicleId })
       throw error
     }
   }
@@ -134,8 +134,8 @@ class MLDecisionEngineService {
       )
 
       return score
-    } catch (error: any) {
-      this.logger.error('Driver behavior scoring error', { error: error.message, driverId })
+    } catch (error: unknown) {
+      this.logger.error('Driver behavior scoring error', { error: error instanceof Error ? error.message : 'An unexpected error occurred', driverId })
       throw error
     }
   }
@@ -165,8 +165,8 @@ class MLDecisionEngineService {
       )
 
       return riskPrediction
-    } catch (error: any) {
-      this.logger.error('Incident risk prediction error', { error: error.message, entityType, entityId })
+    } catch (error: unknown) {
+      this.logger.error('Incident risk prediction error', { error: error instanceof Error ? error.message : 'An unexpected error occurred', entityType, entityId })
       throw error
     }
   }
@@ -198,8 +198,8 @@ class MLDecisionEngineService {
       )
 
       return forecast
-    } catch (error: any) {
-      this.logger.error('Cost forecasting error', { error: error.message, forecastPeriod })
+    } catch (error: unknown) {
+      this.logger.error('Cost forecasting error', { error: error instanceof Error ? error.message : 'An unexpected error occurred', forecastPeriod })
       throw error
     }
   }
@@ -233,8 +233,8 @@ class MLDecisionEngineService {
       )
 
       return optimizedRoute
-    } catch (error: any) {
-      this.logger.error(`Route optimization error`, { error: error.message })
+    } catch (error: unknown) {
+      this.logger.error(`Route optimization error`, { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
       throw error
     }
   }
@@ -313,8 +313,8 @@ class MLDecisionEngineService {
       )
 
       this.logger.info('Actual outcome recorded for prediction', { predictionId })
-    } catch (error: any) {
-      this.logger.error('Error recording actual outcome', { error: error.message, predictionId })
+    } catch (error: unknown) {
+      this.logger.error('Error recording actual outcome', { error: error instanceof Error ? error.message : 'An unexpected error occurred', predictionId })
       throw error
     }
   }

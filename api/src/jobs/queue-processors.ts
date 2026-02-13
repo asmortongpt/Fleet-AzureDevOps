@@ -69,7 +69,7 @@ export async function processTeamsOutbound(job: any): Promise<any> {
 
     logger.info('Teams message sent successfully', { messageId: result.id });
     return result;
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to send Teams message', { error });
 
     // Log failed attempt
@@ -82,7 +82,7 @@ export async function processTeamsOutbound(job: any): Promise<any> {
         'outbound',
         payload.content,
         `failed`,
-        error.message,
+        error instanceof Error ? error.message : 'An unexpected error occurred',
         JSON.stringify(data.metadata)
       ]
     );
@@ -164,7 +164,7 @@ export async function processOutlookOutbound(job: any): Promise<any> {
 
     logger.info('Email sent successfully', { emailId: result.id });
     return result;
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to send email', { error });
 
     // Log failed attempt
@@ -177,7 +177,7 @@ export async function processOutlookOutbound(job: any): Promise<any> {
         'outbound',
         payload.subject,
         `failed`,
-        error.message,
+        error instanceof Error ? error.message : 'An unexpected error occurred',
         JSON.stringify({ to: payload.to, ...data.metadata })
       ]
     );
@@ -223,7 +223,7 @@ export async function processTeamsInbound(job: any): Promise<any> {
 
     logger.info('Teams inbound message processed', { messageId: result.rows[0].id });
     return result.rows[0];
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to process Teams inbound message', { error });
     throw error;
   }
@@ -285,7 +285,7 @@ export async function processOutlookInbound(job: any): Promise<any> {
 
     logger.info('Outlook inbound email processed', { emailId });
     return result.rows[0];
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to process Outlook inbound email', { error });
     throw error;
   }
@@ -323,7 +323,7 @@ export async function processAttachment(job: any): Promise<any> {
 
     logger.info('Attachment operation completed', { operation: payload.operation, fileName: payload.fileName });
     return result;
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to process attachment', { error });
     throw error;
   }
@@ -456,7 +456,7 @@ export async function processWebhook(job: any): Promise<any> {
 
     logger.info('Webhook processed', { webhookId: payload.webhookId });
     return result;
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to process webhook', { error });
     throw error;
   }
@@ -512,7 +512,7 @@ export async function processSync(job: any): Promise<any> {
 
     logger.info('Sync completed', { resourceType: payload.resourceType, itemsSynced: result.itemsSynced });
     return result;
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to sync resource', { resourceType: payload.resourceType, error });
 
     // Store failed sync
@@ -525,7 +525,7 @@ export async function processSync(job: any): Promise<any> {
         payload.userId,
         payload.teamId,
         `failed`,
-        error.message
+        error instanceof Error ? error.message : 'An unexpected error occurred'
       ]
     );
 

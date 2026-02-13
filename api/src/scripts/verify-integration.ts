@@ -102,11 +102,11 @@ class IntegrationVerifier {
       } else {
         throw new Error(`HTTP ${response.status}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.checks.push({
         name: `Token Acquisition`,
         status: 'fail',
-        message: `Failed: ${error.message}`,
+        message: `Failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         duration: Date.now() - start
       });
     }
@@ -141,11 +141,11 @@ class IntegrationVerifier {
       } else {
         throw new Error(`HTTP ${response.status}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.checks.push({
         name: `Graph API Connection`,
         status: 'fail',
-        message: `Failed: ${error.message}`,
+        message: `Failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         duration: Date.now() - start
       });
     }
@@ -180,11 +180,11 @@ class IntegrationVerifier {
       } else {
         throw new Error(`HTTP ${response.status}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.checks.push({
         name: `Teams API`,
         status: 'warn',
-        message: `Limited access: ${error.message}`,
+        message: `Limited access: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         duration: Date.now() - start
       });
     }
@@ -219,11 +219,11 @@ class IntegrationVerifier {
       } else {
         throw new Error(`HTTP ${response.status}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.checks.push({
         name: `Outlook API`,
         status: 'warn',
-        message: `Limited access: ${error.message}`,
+        message: `Limited access: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         duration: Date.now() - start
       });
     }
@@ -258,11 +258,11 @@ class IntegrationVerifier {
       } else {
         throw new Error(`HTTP ${response.status}`);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       this.checks.push({
         name: `Webhook Endpoints`,
         status: 'warn',
-        message: `Check failed: ${error.message}`,
+        message: `Check failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         duration: Date.now() - start
       });
     }

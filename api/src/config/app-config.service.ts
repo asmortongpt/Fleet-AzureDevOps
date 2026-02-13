@@ -163,12 +163,13 @@ class AppConfigService {
         keyVaultEnabled: this.config.azure.keyVault.enabled,
         databaseHost: this.config.database.host
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
       logger.error('Failed to initialize application configuration', {
-        error: error.message,
-        stack: error.stack
+        error: errMsg,
+        stack: error instanceof Error ? error.stack : undefined
       });
-      throw new Error(`Configuration initialization failed: ${error.message}`);
+      throw new Error(`Configuration initialization failed: ${errMsg}`);
     }
   }
 

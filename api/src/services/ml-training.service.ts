@@ -128,8 +128,9 @@ class MLTrainingService {
         performance_metrics: performanceMetrics,
         duration_seconds: duration
       }
-    } catch (error: any) {
-      this.logger.error('Model training failed', { error: error.message, config })
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Model training failed', { error: errorMessage, config })
 
       return {
         job_id: 'unknown',
@@ -137,7 +138,7 @@ class MLTrainingService {
         status: 'failed',
         performance_metrics: {},
         duration_seconds: Math.round((Date.now() - startTime) / 1000),
-        error_message: error.message
+        error_message: errorMessage
       }
     }
   }

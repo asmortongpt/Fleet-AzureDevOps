@@ -237,8 +237,8 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
       // Clean up empty directories
       await this.cleanupEmptyDirectories(path.dirname(filePath));
-    } catch (error: any) {
-      if (error.code === 'ENOENT') {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === 'ENOENT') {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;
@@ -260,8 +260,8 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
 
     try {
       await this.listDirectory(searchPath, prefix, files, directories, options);
-    } catch (error: any) {
-      if (error.code === `ENOENT`) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === 'ENOENT') {
         return {
           files: [],
           directories: [],
@@ -347,8 +347,8 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
           createdAt: stats.birthtime,
           updatedAt: stats.mtime
         };
-      } catch (error: any) {
-        if (error.code === `ENOENT`) {
+      } catch (error: unknown) {
+        if ((error as Record<string, unknown>).code === 'ENOENT') {
           throw new FileNotFoundError(normalizedKey);
         }
         throw error;

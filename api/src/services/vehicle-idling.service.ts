@@ -477,8 +477,8 @@ export class VehicleIdlingService extends EventEmitter {
           logger.warn('[IdlingService] Azure Maps API returned error', { status: response.status, statusText: response.statusText });
         }
       }
-    } catch (error: any) {
-      logger.error('[IdlingService] Error reverse geocoding location', { error: error.message });
+    } catch (error: unknown) {
+      logger.error('[IdlingService] Error reverse geocoding location', { error: error instanceof Error ? error.message : 'An unexpected error occurred' });
       // Fall back to coordinates if geocoding fails
     }
 

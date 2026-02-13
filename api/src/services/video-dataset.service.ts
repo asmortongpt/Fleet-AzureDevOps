@@ -102,9 +102,9 @@ export class VideoDatasetService extends EventEmitter {
       });
 
       this.emit('initialized');
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to initialize Video Dataset Service', {
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
       throw error;
     }
