@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import { Pool, PoolClient } from 'pg';
 import WebSocket from 'ws';
 
+import logger from '../../config/logger';
+
 config();
 
 interface ExtendedWebSocket extends WebSocket {
@@ -52,18 +54,18 @@ wss.on('connection', (ws: ExtendedWebSocket, req) => {
         }
       });
     } catch (err) {
-      console.error(err);
+      logger.error('WebSocket message processing error', { error: err instanceof Error ? err.message : String(err) });
     } finally {
       client.release();
     }
   });
 
   ws.on('close', () => {
-    console.log(`Client disconnected: ${ws.vehicleId}`);
+    logger.info('Client disconnected', { vehicleId: ws.vehicleId });
   });
 
   ws.on('error', (err) => {
-    console.error(`Client error: ${err}`);
+    logger.error('Client error', { error: err instanceof Error ? err.message : String(err) });
   });
 });
 

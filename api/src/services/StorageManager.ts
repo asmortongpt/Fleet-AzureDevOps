@@ -16,6 +16,7 @@ import { Readable } from 'stream';
 import { Pool } from 'pg';
 
 import pool from '../config/database';
+import logger from '../config/logger';
 import {
   IStorageAdapter,
   StorageConfig,
@@ -362,7 +363,7 @@ export class StorageManager {
     };
 
     // Process migration in background
-    this.processMigration(job, filteredFiles, sourceAdapter, targetAdapter, options).catch(console.error);
+    this.processMigration(job, filteredFiles, sourceAdapter, targetAdapter, options).catch((err) => logger.error('Migration processing failed', { error: err instanceof Error ? err.message : String(err) }));
 
     return job;
   }
@@ -387,7 +388,7 @@ export class StorageManager {
           moved++;
         }
       } catch (error) {
-        console.error(`Failed to tier file ${file.key}:`, error);
+        logger.error('Failed to tier file', { fileKey: file.key, error: error instanceof Error ? error.message : String(error) });
         errors++;
       }
     }
@@ -615,7 +616,7 @@ return;
         try {
           return await adapter.upload(key, data, options);
         } catch (error) {
-          console.error(`Failover upload to ${provider} failed:`, error);
+          logger.error('Failover upload failed', { provider, error: error instanceof Error ? error.message : String(error) });
           continue;
         }
       }
@@ -630,7 +631,7 @@ return;
         try {
           return await adapter.download(key, options);
         } catch (error) {
-          console.error(`Failover download from ${provider} failed:`, error);
+          logger.error('Failover download failed', { provider, error: error instanceof Error ? error.message : String(error) });
           continue;
         }
       }
@@ -762,7 +763,7 @@ return 'cold';
           });
         }
       } catch (error) {
-        console.error(`Failed to migrate file ${file.key}:`, error);
+        logger.error('Failed to migrate file', { fileKey: file.key, error: error instanceof Error ? error.message : String(error) });
         job.failedFiles++;
       }
     }

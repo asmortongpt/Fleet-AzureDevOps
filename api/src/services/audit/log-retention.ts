@@ -15,6 +15,8 @@ import { EventEmitter } from 'events'
 
 import { Pool } from 'pg'
 
+import logger from '../../config/logger'
+
 export enum RetentionTier {
   HOT = 'HOT',      // Recent logs (0-90 days) - Fast access
   WARM = 'WARM',    // Active logs (90 days - 1 year) - Moderate access
@@ -177,7 +179,7 @@ export class LogRetention extends EventEmitter {
 
       return newPolicy
     } catch (error) {
-      console.error('Failed to create retention policy:', error)
+      logger.error('Failed to create retention policy', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Policy creation failed')
     }
   }
@@ -253,7 +255,7 @@ export class LogRetention extends EventEmitter {
 
       return event
     } catch (error) {
-      console.error('Failed to archive logs:', error)
+      logger.error('Failed to archive logs', { error: error instanceof Error ? error.message : String(error) })
       event.status = 'FAILED'
       event.error = error instanceof Error ? error.message : 'Unknown error'
       await this.logRetentionEvent(event)
@@ -316,7 +318,7 @@ export class LogRetention extends EventEmitter {
 
       return event
     } catch (error) {
-      console.error('Failed to purge logs:', error)
+      logger.error('Failed to purge logs', { error: error instanceof Error ? error.message : String(error) })
       event.status = 'FAILED'
       event.error = error instanceof Error ? error.message : 'Unknown error'
       await this.logRetentionEvent(event)
@@ -381,7 +383,7 @@ export class LogRetention extends EventEmitter {
         estimatedStorageSize: totalRecords * 2048 // Approximate 2KB per record
       }
     } catch (error) {
-      console.error('Failed to get retention statistics:', error)
+      logger.error('Failed to get retention statistics', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Statistics retrieval failed')
     }
   }
@@ -440,7 +442,7 @@ export class LogRetention extends EventEmitter {
         purgedRecords: parseInt(purgedResult.rows[0].count)
       }
     } catch (error) {
-      console.error('Failed to generate compliance report:', error)
+      logger.error('Failed to generate compliance report', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Compliance report generation failed')
     }
   }
@@ -467,7 +469,7 @@ export class LogRetention extends EventEmitter {
         ]
       )
     } catch (error) {
-      console.error('Failed to log retention event:', error)
+      logger.error('Failed to log retention event', { error: error instanceof Error ? error.message : String(error) })
     }
   }
 }

@@ -21,6 +21,8 @@
 
 import OpenAI from 'openai';
 
+import logger from '../config/logger';
+
 // Type definitions
 export interface LLMRequest {
   prompt: string;
@@ -116,7 +118,7 @@ export class MultiLLMOrchestrator {
 
       return response;
     } catch (error) {
-      console.error(`Error with ${modelChoice}:`, error);
+      logger.error('LLM routing error', { modelChoice, error: error instanceof Error ? error.message : String(error) });
       // Fallback to GPT-4 if primary model fails
       if (modelChoice !== 'gpt-4-turbo') {
         return await this.callGPT4(request);
@@ -233,7 +235,7 @@ Requirements:
         modelUsed: 'gpt-4-turbo'
       };
     } catch (error) {
-      console.error('Report generation error:', error);
+      logger.error('Report generation error', { error: error instanceof Error ? error.message : String(error) });
       throw new Error('Failed to generate report definition');
     }
   }
@@ -352,7 +354,7 @@ Be concise, accurate, and helpful. Use bullet points for clarity.`;
         cost: this.calculateCost('grok', tokens)
       };
     } catch (error) {
-      console.error('Grok API error:', error);
+      logger.error('Grok API error', { error: error instanceof Error ? error.message : String(error) });
       // Fallback to GPT-4
       return await this.callGPT4(request);
     }
@@ -400,7 +402,7 @@ Be concise, accurate, and helpful. Use bullet points for clarity.`;
         cost: this.calculateCost('gemini', tokens)
       };
     } catch (error) {
-      console.error('Gemini API error:', error);
+      logger.error('Gemini API error', { error: error instanceof Error ? error.message : String(error) });
       // Fallback to GPT-4
       return await this.callGPT4(request);
     }

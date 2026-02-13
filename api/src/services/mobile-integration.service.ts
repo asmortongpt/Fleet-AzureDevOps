@@ -19,6 +19,7 @@
 
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
 import OfflineStorageService from './offline-storage.service'
 
 export interface MobileDevice {
@@ -146,7 +147,7 @@ class MobileIntegrationService {
 conflicts.push(conflict)
 }
         } catch (error: any) {
-          console.error('Error syncing inspection:', error)
+          logger.error('Error syncing inspection', { error: error instanceof Error ? error.message : String(error) })
         }
       }
     }
@@ -160,7 +161,7 @@ conflicts.push(conflict)
 conflicts.push(conflict)
 }
         } catch (error: any) {
-          console.error('Error syncing report:', error)
+          logger.error('Error syncing report', { error: error instanceof Error ? error.message : String(error) })
         }
       }
     }
@@ -171,7 +172,7 @@ conflicts.push(conflict)
         try {
           await this.syncPhoto(tenantId, userId, photo)
         } catch (error: any) {
-          console.error('Error syncing photo:', error)
+          logger.error('Error syncing photo', { error: error instanceof Error ? error.message : String(error) })
         }
       }
     }
@@ -182,7 +183,7 @@ conflicts.push(conflict)
         try {
           await this.syncHOSLog(tenantId, userId, hosLog)
         } catch (error: any) {
-          console.error('Error syncing HOS log:', error)
+          logger.error('Error syncing HOS log', { error: error instanceof Error ? error.message : String(error) })
         }
       }
     }
@@ -571,7 +572,7 @@ conflicts.push(conflict)
     )
 
     if (deviceResult.rows.length === 0 || !deviceResult.rows[0].push_token) {
-      console.warn(`No push token for device ${deviceId}`)
+      logger.warn('No push token for device', { deviceId })
       return false
     }
 
@@ -579,7 +580,7 @@ conflicts.push(conflict)
 
     // TODO: Implement actual push notification via FCM (Android) or APNs (iOS)
     // For now, log the notification
-    console.log(`Push notification to ${device.device_type}:`, notification)
+    logger.info('Push notification sent', { deviceType: device.device_type, notification })
 
     return true
   }

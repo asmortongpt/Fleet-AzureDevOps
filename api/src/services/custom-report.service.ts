@@ -11,6 +11,7 @@ import nodemailer from 'nodemailer'
 import { Pool } from 'pg'
 
 import pool from '../config/database'
+import logger from '../config/logger'
 
 import excelExportService, { ExportOptions } from './excel-export.service'
 
@@ -316,7 +317,7 @@ export class CustomReportService {
       return this.mapReportRow(result.rows[0])
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error creating report:', error)
+      logger.error('Error creating report', { error: error instanceof Error ? error.message : String(error) })
       throw error
     } finally {
       client.release()
@@ -376,7 +377,7 @@ export class CustomReportService {
       return this.mapReportRow(result.rows[0])
     } catch (error) {
       await client.query('ROLLBACK')
-      console.error('Error updating report:', error)
+      logger.error('Error updating report', { error: error instanceof Error ? error.message : String(error) })
       throw error
     } finally {
       client.release()
@@ -876,7 +877,7 @@ export class CustomReportService {
     const filePath = execution.rows[0].file_url
 
     if (!process.env.SMTP_HOST) {
-      console.warn('SMTP not configured. Skipping email send.')
+      logger.warn('SMTP not configured. Skipping email send.')
       return
     }
 

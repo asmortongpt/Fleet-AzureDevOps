@@ -9,6 +9,7 @@
 import { AxiosInstance } from 'axios'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
 import { createSafeAxiosInstance, safePost, safeDelete } from '../utils/ssrf-protection'
 
 // Allowed domains for Smartcar requests
@@ -28,7 +29,7 @@ const SMARTCAR_MODE = process.env.SMARTCAR_MODE || 'live' // 'test' or 'live'
 // This prevents the server from crashing when SmartCar is not configured
 const isSmartcarConfigured = (): boolean => {
   if (SMARTCAR_CLIENT_ID && !SMARTCAR_REDIRECT_URI) {
-    console.warn('SMARTCAR_REDIRECT_URI not set - SmartCar integration will be disabled')
+    logger.warn('SMARTCAR_REDIRECT_URI not set - SmartCar integration will be disabled')
     return false
   }
   return !!(SMARTCAR_CLIENT_ID && SMARTCAR_CLIENT_SECRET && SMARTCAR_REDIRECT_URI)
@@ -480,7 +481,7 @@ class SmartcarService {
     const fiveMinutesFromNow = new Date(now.getTime() + 5 * 60 * 1000)
 
     if (expiresAt <= fiveMinutesFromNow) {
-      console.log(`Refreshing Smartcar token for vehicle ${vehicleId}`)
+      logger.info('Refreshing Smartcar token', { vehicleId })
 
       // Refresh token
       const refreshed = await this.refreshAccessToken(connection.refresh_token)
@@ -551,9 +552,9 @@ return
         [vehicleId, location.latitude, location.longitude, odometer.distance, batteryPercent, fuelPercent, range]
       )
 
-      console.log(`✅ Synced Smartcar data for vehicle ${vehicleId}`)
+      logger.info('Synced Smartcar data for vehicle', { vehicleId })
     } catch (error: any) {
-      console.error(`Error syncing Smartcar vehicle ${vehicleId}:`, error.message)
+      logger.error('Error syncing Smartcar vehicle', { vehicleId, error: error.message })
 
       // Update connection status
       await this.db.query(
