@@ -184,7 +184,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
       success: true,
       reservations: result.rows,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching reservations:', error);
     res.status(500).json({
       error: 'Failed to fetch reservations',
@@ -207,13 +207,14 @@ router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) 
       pending_reservations: pendingReservations,
       count: pendingReservations.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching pending reservations:', error);
-    
-    if (error.message.includes('permission')) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errMsg.includes('permission')) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: error.message,
+        message: errMsg,
       });
     }
 
@@ -236,12 +237,13 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
     const reservation = await reservationsService.getReservationById(id, userContext);
     res.json(reservation);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching reservation:', error);
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
 
-    if (error.message.includes('not found') || error.message.includes('access denied')) {
+    if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: error.message,
+        error: errMsg,
       });
     }
 
@@ -282,7 +284,7 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error creating reservation:', error);
 
     if (error instanceof z.ZodError) {
@@ -292,16 +294,18 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
       });
     }
 
-    if (error.message.includes('not found')) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errMsg.includes('not found')) {
       return res.status(404).json({
-        error: error.message,
+        error: errMsg,
       });
     }
 
-    if (error.message.includes('conflict') || error.message.includes('reserved')) {
+    if (errMsg.includes('conflict') || errMsg.includes('reserved')) {
       return res.status(409).json({
         error: 'Reservation conflict',
-        message: error.message,
+        message: errMsg,
       });
     }
 
@@ -346,7 +350,7 @@ router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating reservation:', error);
 
     if (error instanceof z.ZodError) {
@@ -356,16 +360,18 @@ router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res
       });
     }
 
-    if (error.message.includes('not found') || error.message.includes('access denied')) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: error.message,
+        error: errMsg,
       });
     }
 
-    if (error.message.includes('Only pending') || error.message.includes('conflict')) {
+    if (errMsg.includes('Only pending') || errMsg.includes('conflict')) {
       return res.status(400).json({
         error: 'Cannot update reservation',
-        message: error.message,
+        message: errMsg,
       });
     }
 
@@ -403,12 +409,13 @@ router.delete('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, 
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error cancelling reservation:', error);
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
 
-    if (error.message.includes('not found') || error.message.includes('access denied')) {
+    if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: error.message,
+        error: errMsg,
       });
     }
 
@@ -453,7 +460,7 @@ router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthReq
     } finally {
       client.release();
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error processing approval:', error);
 
     if (error instanceof z.ZodError) {
@@ -463,23 +470,25 @@ router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthReq
       });
     }
 
-    if (error.message.includes('permission')) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+    if (errMsg.includes('permission')) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: error.message,
+        message: errMsg,
       });
     }
 
-    if (error.message.includes('not found')) {
+    if (errMsg.includes('not found')) {
       return res.status(404).json({
-        error: error.message,
+        error: errMsg,
       });
     }
 
-    if (error.message.includes('Only pending')) {
+    if (errMsg.includes('Only pending')) {
       return res.status(400).json({
         error: 'Invalid status',
-        message: error.message,
+        message: errMsg,
       });
     }
 
@@ -521,7 +530,7 @@ router.get('/vehicles/:vehicleId/availability', authenticateJWT, async (req: Aut
       end_date,
       availability,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error checking vehicle availability:', error);
     res.status(500).json({
       error: 'Failed to check vehicle availability',
@@ -557,7 +566,7 @@ router.get('/vehicles/:vehicleId/reservations', authenticateJWT, async (req: Aut
       vehicle_id: vehicleId,
       reservations,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching vehicle reservations:', error);
     res.status(500).json({
       error: 'Failed to fetch vehicle reservations',

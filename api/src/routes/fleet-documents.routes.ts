@@ -182,7 +182,7 @@ router.post(
         success: true,
         document: result.rows[0]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Upload fleet document error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: `Internal server error`,
@@ -341,7 +341,7 @@ router.get(
           pages: Math.ceil(countResult.rows[0].count / Number(limit))
         }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Get fleet documents error:`, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -410,7 +410,7 @@ router.get(
           downloadUrl
         }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Get fleet document error: `, error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -464,7 +464,7 @@ router.delete(
         success: true,
         message: 'Document archived successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete fleet document error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -531,7 +531,7 @@ router.get(
         count: result.rows.length,
         days: daysInt
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get expiring documents error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -627,7 +627,7 @@ router.post(
         documentId: req.params.id,
         status: 'pending'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Trigger OCR processing error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',
@@ -684,7 +684,7 @@ router.get(
         // In production, this would be a signed URL with SAS token
         downloadUrl: document.blob_url
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Download fleet document error:', error) // Wave 31: Winston logger
       res.status(500).json({
         error: 'Internal server error',

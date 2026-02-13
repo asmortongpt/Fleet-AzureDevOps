@@ -241,15 +241,17 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
       // Redirect without token param - frontend will verify via cookie
       const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`)
       res.redirect(safeCallbackUrl)
-    } catch (error: any) {
-      logger.error(`Frontend URL validation failed:`, error.message)
+    } catch (error: unknown) {
+      logger.error(`Frontend URL validation failed:`, error instanceof Error ? error.message : 'An unexpected error occurred')
       res.redirect('/login?error=config_error&message=Invalid+frontend+configuration')
     }
 
-  } catch (error: any) {
-    logger.error('Microsoft OAuth error:', error.response?.data || error.message)
+  } catch (error: unknown) {
+    const axiosData = (error as any)?.response?.data
+    const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+    logger.error('Microsoft OAuth error:', axiosData || errorMsg)
 
-    const errorMessage = error.response?.data?.error_description || error.message || 'Authentication failed'
+    const errorMessage = axiosData?.error_description || errorMsg || 'Authentication failed'
     const safeErrorUrl = buildSafeRedirectUrl('/login', {
       error: 'auth_failed',
       message: errorMessage
@@ -307,8 +309,8 @@ router.get('/microsoft', async (req: Request, res: Response) => {
       `&prompt=select_account`
 
     res.redirect(authUrl)
-  } catch (error: any) {
-    logger.error(`Error initiating Microsoft OAuth:`, error.message)
+  } catch (error: unknown) {
+    logger.error(`Error initiating Microsoft OAuth:`, error instanceof Error ? error.message : 'An unexpected error occurred')
     const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
       error: 'auth_failed',
       message: 'Failed to initiate authentication'
@@ -354,8 +356,8 @@ router.get('/microsoft/login', async (req: Request, res: Response) => {
       `&prompt=select_account`
 
     res.redirect(authUrl)
-  } catch (error: any) {
-    logger.error(`Error initiating Microsoft OAuth:`, error.message)
+  } catch (error: unknown) {
+    logger.error(`Error initiating Microsoft OAuth:`, error instanceof Error ? error.message : 'An unexpected error occurred')
     const safeErrorUrl = buildSafeRedirectUrl(`/login`, {
       error: 'auth_failed',
       message: 'Failed to initiate authentication'

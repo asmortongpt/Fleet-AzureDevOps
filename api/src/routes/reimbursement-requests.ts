@@ -175,7 +175,7 @@ router.post(
           ? `Auto-approved - reimbursement of $${request_amount} approved`
           : 'Reimbursement request submitted for review'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create reimbursement error:', error)
       res.status(500).json({
         success: false,
@@ -290,7 +290,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
           parseInt(offset as string) + result.rows.length
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('List reimbursements error:', error)
     res.status(500).json({
       success: false,
@@ -344,7 +344,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
       success: true,
       data: result.rows[0]
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get reimbursement error:', error)
     res.status(500).json({
       success: false,
@@ -439,7 +439,7 @@ router.patch(
         data: result.rows[0],
         message: `Reimbursement approved for $${finalApprovedAmount}`
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Approve reimbursement error:', error)
       res.status(500).json({
         success: false,
@@ -526,7 +526,7 @@ router.patch(
         data: result.rows[0],
         message: 'Reimbursement request rejected'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Reject reimbursement error:', error)
       res.status(500).json({
         success: false,
@@ -616,7 +616,7 @@ router.patch(
         data: result.rows[0],
         message: `Payment of $${current.approved_amount} processed`
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Process payment error:', error)
       res.status(500).json({
         success: false,
@@ -666,7 +666,7 @@ router.get(
         data: result.rows,
         summary: statsResult.rows[0]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get pending queue error:', error)
       res.status(500).json({
         success: false,
@@ -712,7 +712,7 @@ router.get('/summary/driver/:driver_id', async (req: AuthRequest, res: Response)
       success: true,
       data: result.rows
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get reimbursement summary error:', error)
     res.status(500).json({
       success: false,

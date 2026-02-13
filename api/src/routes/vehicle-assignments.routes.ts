@@ -124,7 +124,7 @@ router.get(
           pages: Math.ceil(total / pagination.limit),
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching vehicle assignments:', error);
       res.status(500).json({
         error: 'Failed to fetch vehicle assignments',
@@ -156,7 +156,7 @@ router.get(
       }
 
       res.json(assignment);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching vehicle assignment:', error);
       res.status(500).json({
         error: 'Failed to fetch vehicle assignment',
@@ -220,7 +220,7 @@ router.post(
         message: 'Vehicle assignment created successfully',
         assignment,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating vehicle assignment:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -267,7 +267,7 @@ router.put(
         message: 'Vehicle assignment updated successfully',
         assignment,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error updating vehicle assignment:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -310,7 +310,7 @@ router.post(
         message: `Assignment lifecycle updated to ${data.lifecycle_state}`,
         assignment,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error updating lifecycle state:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -357,7 +357,7 @@ router.post(
         message: 'Assignment recommended for approval',
         assignment,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error recommending assignment:', error);
       res.status(500).json({
         error: 'Failed to recommend assignment',
@@ -411,7 +411,7 @@ router.post(
         message: `Assignment ${data.action === 'approve' ? 'approved' : 'denied'} successfully`,
         assignment,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error processing approval:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -458,7 +458,7 @@ router.post(
         message: 'Assignment activated successfully',
         assignment,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error activating assignment:', error);
       res.status(500).json({
         error: 'Failed to activate assignment',
@@ -501,7 +501,7 @@ router.post(
         message: 'Assignment terminated successfully',
         assignment,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error terminating assignment:', error);
       res.status(500).json({
         error: 'Failed to terminate assignment',
@@ -529,7 +529,7 @@ router.get(
       const history = await vehicleAssignmentsRepo.getHistory(id, tenant_id);
 
       res.json(history);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching assignment history:', error);
       res.status(500).json({
         error: 'Failed to fetch assignment history',
@@ -566,7 +566,7 @@ router.delete(
       res.json({
         message: 'Vehicle assignment deleted successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error deleting vehicle assignment:', error);
       res.status(500).json({
         error: 'Failed to delete vehicle assignment',

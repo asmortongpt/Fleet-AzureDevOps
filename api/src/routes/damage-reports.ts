@@ -399,7 +399,7 @@ router.post(
             fileName: file.originalname,
             size: file.size,
           })
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error(`Failed to upload file ${file.originalname}:`, error)
           // Continue with other files even if one fails
         }
@@ -418,11 +418,11 @@ router.post(
         totalFiles: req.files.length,
         successfulUploads: uploadedFiles.length,
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Upload media error:', error)
       res.status(500).json({
         error: 'Failed to upload media',
-        details: error.message,
+        details: error instanceof Error ? error.message : 'An unexpected error occurred',
       })
     }
   }

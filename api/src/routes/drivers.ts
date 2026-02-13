@@ -558,7 +558,7 @@ router.post(
       )
 
       res.status(201).json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid driver data', details: error.issues })
       }
@@ -681,7 +681,7 @@ router.put(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid driver data', details: error.issues })
       }

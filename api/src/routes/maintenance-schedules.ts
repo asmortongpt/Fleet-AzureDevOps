@@ -415,9 +415,9 @@ router.post(
       )
 
       res.status(201).json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Create recurring schedule error:`, error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -495,9 +495,9 @@ router.put(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Update recurrence pattern error:`, error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -558,9 +558,9 @@ router.get(
           total_estimated_cost: dueSchedules.reduce((sum, s) => sum + s.schedule.estimated_cost, 0)
         }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get due schedules error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -636,9 +636,9 @@ router.post(
         work_order: workOrderResult.rows[0],
         schedule: schedule
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Generate work order error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -701,9 +701,9 @@ router.get(
             : 0
         }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Get schedule history error:`, error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -726,9 +726,9 @@ router.get(
 
       const stats = await getRecurringScheduleStats(client)
       res.json(stats)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get recurring schedule stats error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -767,9 +767,9 @@ router.patch(
         message: `Auto work order generation paused`,
         schedule: result.rows[0]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Pause schedule error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -808,9 +808,9 @@ router.patch(
         message: `Auto work order generation resumed`,
         schedule: result.rows[0]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Resume schedule error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -919,9 +919,9 @@ router.get(
         data: schedules,
         summary
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get multi-metric maintenance due error:', error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )
@@ -988,9 +988,9 @@ router.get(
           metrics_tracked: Object.keys(byMetric)
         }
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Get vehicle multi-metric schedules error:`, error)
-      res.status(500).json({ error: error.message || 'Internal server error' })
+      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
     }
   }
 )

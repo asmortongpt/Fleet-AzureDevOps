@@ -729,7 +729,7 @@ router.post('/change-password', authenticateJWT, csrfProtection, async (req: Aut
     )
 
     res.json({ success: true })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Change password error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
@@ -863,14 +863,14 @@ router.get('/me', async (req: Request, res: Response) => {
       },
       token // Return the token so frontend can store it for API calls
     })
-  } catch (error: any) {
-    if (error.name === 'TokenExpiredError') {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'TokenExpiredError') {
       return res.status(401).json({ error: 'Token expired' })
     }
-    if (error.name === 'JsonWebTokenError') {
+    if (error instanceof Error && error.name === 'JsonWebTokenError') {
       return res.status(401).json({ error: 'Invalid token' })
     }
-    logger.error('Error in /auth/me:', error.message) // Wave 16: Winston logger
+    logger.error('Error in /auth/me:', error instanceof Error ? error.message : 'An unexpected error occurred') // Wave 16: Winston logger
     return res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -1076,11 +1076,11 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       // Redirect to dashboard without token in URL
       res.redirect('/')
     }
-  } catch (error: any) {
-    logger.error('Microsoft SSO callback error:', error.message) // Wave 16: Winston logger
+  } catch (error: unknown) {
+    logger.error('Microsoft SSO callback error:', error instanceof Error ? error.message : 'An unexpected error occurred') // Wave 16: Winston logger
     const acceptsJson = req.headers.accept?.includes('application/json')
     if (acceptsJson) {
-      return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error.message })
+      return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error instanceof Error ? error.message : 'An unexpected error occurred' })
     } else {
       res.redirect('/login?error=sso_failed')
     }
@@ -1310,13 +1310,13 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
         tenant_id: user.tenant_id
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Microsoft SSO exchange error:', {
-      message: error.message,
-      stack: error.stack,
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined,
       error: error
     })
-    return res.status(500).json({ error: 'Microsoft SSO exchange failed', details: error.message })
+    return res.status(500).json({ error: 'Microsoft SSO exchange failed', details: error instanceof Error ? error.message : 'An unexpected error occurred' })
   }
 })
 
@@ -1447,22 +1447,24 @@ router.get('/verify', async (req: Request, res: Response) => {
         name: validatedUser.name
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    const errorName = error instanceof Error ? error.name : undefined
     logger.error('[AUTH /verify] Token verification error:', {
-      message: error.message,
-      name: error.name
+      message: errorMessage,
+      name: errorName
     })
 
     let errorCode = 'VALIDATION_FAILED'
-    if (error.name === 'TokenExpiredError') {
+    if (errorName === 'TokenExpiredError') {
       errorCode = 'TOKEN_EXPIRED'
-    } else if (error.name === 'JsonWebTokenError') {
+    } else if (errorName === 'JsonWebTokenError') {
       errorCode = 'INVALID_TOKEN'
     }
 
     res.status(401).json({
       authenticated: false,
-      error: error.message,
+      error: errorMessage,
       errorCode
     })
   }
@@ -1623,21 +1625,23 @@ router.get('/userinfo', async (req: Request, res: Response) => {
       user: userInfo,
       tokenInfo
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+    const errorName = error instanceof Error ? error.name : undefined
     logger.error('[AUTH /userinfo] Error extracting user info:', {
-      message: error.message,
-      name: error.name
+      message: errorMessage,
+      name: errorName
     })
 
     let errorCode = 'EXTRACTION_FAILED'
-    if (error.name === 'TokenExpiredError') {
+    if (errorName === 'TokenExpiredError') {
       errorCode = 'TOKEN_EXPIRED'
-    } else if (error.name === 'JsonWebTokenError') {
+    } else if (errorName === 'JsonWebTokenError') {
       errorCode = 'INVALID_TOKEN'
     }
 
     res.status(401).json({
-      error: error.message,
+      error: errorMessage,
       errorCode
     })
   }
