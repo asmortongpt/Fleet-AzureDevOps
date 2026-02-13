@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify';
 import { Pool } from 'pg';
+import crypto from 'crypto';
 import { TYPES } from '../types';
 import {
   FuelCard,
@@ -58,7 +59,6 @@ export class FuelCardService {
       metadata = {}
     } = data;
 
-    // TODO: Encrypt api_key before storage using Azure Key Vault or similar
     const api_key_encrypted = api_key ? this.encryptApiKey(api_key) : null;
 
     const query = `
@@ -91,7 +91,7 @@ export class FuelCardService {
     }
 
     const updates: string[] = [];
-    const values: any[] = [];
+    const values: (string | number | boolean | null)[] = [];
     let paramCounter = 1;
 
     const allowedFields: (keyof UpdateFuelCardProviderInput)[] = [
@@ -191,7 +191,6 @@ export class FuelCardService {
       metadata = {}
     } = data;
 
-    // TODO: Encrypt card_number before storage
     const card_number_encrypted = this.encryptCardNumber(card_number);
 
     const query = `
@@ -523,18 +522,34 @@ export class FuelCardService {
   }
 
   // ============================================================================
-  // Helper Methods (Encryption Placeholders)
+  // Helper Methods (AES-256-GCM Encryption)
   // ============================================================================
 
   private encryptApiKey(apiKey: string): string {
-    // TODO: Implement actual encryption using Azure Key Vault or crypto library
-    // For now, this is a placeholder that should be replaced with proper encryption
-    return Buffer.from(apiKey).toString('base64');
+    const key = process.env.FUEL_CARD_ENCRYPTION_KEY;
+    if (!key) {
+      throw new Error('FUEL_CARD_ENCRYPTION_KEY environment variable is required for fuel card encryption');
+    }
+    const keyBuffer = Buffer.from(key, 'hex');
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', keyBuffer, iv);
+    let encrypted = cipher.update(apiKey, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag().toString('hex');
+    return `${iv.toString('hex')}:${authTag}:${encrypted}`;
   }
 
   private encryptCardNumber(cardNumber: string): string {
-    // TODO: Implement actual encryption using Azure Key Vault or crypto library
-    // For now, this is a placeholder that should be replaced with proper encryption
-    return Buffer.from(cardNumber).toString('base64');
+    const key = process.env.FUEL_CARD_ENCRYPTION_KEY;
+    if (!key) {
+      throw new Error('FUEL_CARD_ENCRYPTION_KEY environment variable is required for fuel card encryption');
+    }
+    const keyBuffer = Buffer.from(key, 'hex');
+    const iv = crypto.randomBytes(16);
+    const cipher = crypto.createCipheriv('aes-256-gcm', keyBuffer, iv);
+    let encrypted = cipher.update(cardNumber, 'utf8', 'hex');
+    encrypted += cipher.final('hex');
+    const authTag = cipher.getAuthTag().toString('hex');
+    return `${iv.toString('hex')}:${authTag}:${encrypted}`;
   }
 }
