@@ -36,27 +36,68 @@ export interface MobileDevice {
   updated_at: Date
 }
 
+export interface MobileInspectionData {
+  id: string
+  vehicle_id: number
+  inspection_type: string
+  checklist_data: Record<string, unknown>
+  notes?: string
+  status: string
+  inspected_at: string
+  updated_at: string
+}
+
+export interface MobileReportData {
+  id: string
+  report_type: string
+  data: Record<string, unknown>
+  submitted_at: string
+}
+
+export interface MobilePhotoData {
+  id: string
+  photo_url: string
+  metadata: Record<string, unknown>
+  taken_at: string
+}
+
+export interface MobileHOSLogData {
+  id: string
+  duty_status: string
+  start_time: string
+  end_time?: string
+  location: Record<string, unknown>
+  notes?: string
+}
+
 export interface MobileSyncRequest {
   device_id: string
   last_sync_at?: Date
   data: {
-    inspections?: any[]
-    reports?: any[]
-    photos?: any[]
-    hos_logs?: any[]
+    inspections?: MobileInspectionData[]
+    reports?: MobileReportData[]
+    photos?: MobilePhotoData[]
+    hos_logs?: MobileHOSLogData[]
   }
+}
+
+export interface SyncConflict {
+  type: string
+  mobile_id: string
+  server_id: string
+  resolution: string
 }
 
 export interface MobileSyncResponse {
   success: boolean
   synced_at: Date
-  conflicts?: any[]
+  conflicts?: SyncConflict[]
   server_data: {
-    vehicles?: any[]
-    routes?: any[]
-    dispatch_messages?: any[]
-    charging_stations?: any[]
-    safety_events?: any[]
+    vehicles?: Record<string, unknown>[]
+    routes?: Record<string, unknown>[]
+    dispatch_messages?: Record<string, unknown>[]
+    charging_stations?: Record<string, unknown>[]
+    safety_events?: Record<string, unknown>[]
   }
 }
 
@@ -135,7 +176,7 @@ class MobileIntegrationService {
     userId: number,
     request: MobileSyncRequest
   ): Promise<MobileSyncResponse> {
-    const conflicts: any[] = []
+    const conflicts: SyncConflict[] = []
     const syncedAt = new Date()
 
     // 1. Process inspections from mobile
@@ -218,7 +259,7 @@ conflicts.push(conflict)
     tenantId: number,
     userId: number,
     vehicleId: number
-  ): Promise<any> {
+  ): Promise<Record<string, unknown> | null> {
     // Get active route for driver
     const result = await this.db.query(
       `SELECT r.*, v.make, v.model, v.license_plate
@@ -259,8 +300,20 @@ conflicts.push(conflict)
   async getARNavigationData(
     tenantId: number,
     data: ARNavigationData
-  ): Promise<any> {
-    const result: any = {
+  ): Promise<{
+    vehicle: Record<string, unknown> | null
+    route: Record<string, unknown> | null
+    next_stop: Record<string, unknown> | null
+    pois: Record<string, unknown>[]
+    geofences: Record<string, unknown>[]
+  }> {
+    const result: {
+      vehicle: Record<string, unknown> | null
+      route: Record<string, unknown> | null
+      next_stop: Record<string, unknown> | null
+      pois: Record<string, unknown>[]
+      geofences: Record<string, unknown>[]
+    } = {
       vehicle: null,
       route: null,
       next_stop: null,
@@ -386,7 +439,13 @@ conflicts.push(conflict)
     tenantId: number,
     userId: number,
     request: KeylessEntryRequest
-  ): Promise<any> {
+  ): Promise<{
+    success: boolean
+    vehicle_id: number
+    command: string
+    executed_at: Date
+    message: string
+  }> {
     // 1. Verify user has access to vehicle
     const accessResult = await this.db.query(
       `SELECT v.* FROM vehicles v
@@ -440,11 +499,11 @@ conflicts.push(conflict)
     data: {
       vehicle_id: number
       photo_url: string
-      ai_detections: any[]
+      ai_detections: Record<string, unknown>[]
       severity: string
       estimated_cost?: number
     }
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     const result = await this.db.query(
       `INSERT INTO damage_detections
        (tenant_id, vehicle_id, reported_by, photo_url, ai_detections,
@@ -488,7 +547,7 @@ conflicts.push(conflict)
     userId: number,
     channelId?: number,
     since?: Date
-  ): Promise<any[]> {
+  ): Promise<Record<string, unknown>[]> {
     let query = `
       SELECT dm.*, dc.name as channel_name, u.name as sender_name
       FROM dispatch_messages dm
@@ -497,7 +556,7 @@ conflicts.push(conflict)
       WHERE dm.tenant_id = $1
     `
 
-    const params: any[] = [tenantId]
+    const params: (number | Date)[] = [tenantId]
 
     if (channelId) {
       params.push(channelId)
@@ -523,7 +582,7 @@ conflicts.push(conflict)
     latitude: number,
     longitude: number,
     radiusMiles: number = 10
-  ): Promise<any[]> {
+  ): Promise<Record<string, unknown>[]> {
     // Use PostGIS for geospatial query
     const result = await this.db.query(
       `SELECT
@@ -561,7 +620,7 @@ conflicts.push(conflict)
     notification: {
       title: string
       body: string
-      data?: any
+      data?: Record<string, unknown>
       priority?: 'high' | 'normal'
     }
   ): Promise<boolean> {
@@ -590,8 +649,8 @@ conflicts.push(conflict)
   private async syncInspection(
     tenantId: number,
     userId: number,
-    inspection: any
-  ): Promise<any | null> {
+    inspection: MobileInspectionData
+  ): Promise<SyncConflict | null> {
     // Check for conflicts
     const existing = await this.db.query(
       `SELECT id, tenant_id, vehicle_id, inspection_type, inspection_date, status, notes, created_at FROM vehicle_inspections
@@ -642,8 +701,8 @@ conflicts.push(conflict)
   private async syncReport(
     tenantId: number,
     userId: number,
-    report: any
-  ): Promise<any | null> {
+    report: MobileReportData
+  ): Promise<SyncConflict | null> {
     // Similar conflict resolution as inspections
     await this.db.query(
       `INSERT INTO driver_reports
@@ -669,7 +728,7 @@ conflicts.push(conflict)
   private async syncPhoto(
     tenantId: number,
     userId: number,
-    photo: any
+    photo: MobilePhotoData
   ): Promise<void> {
     await this.db.query(
       `INSERT INTO mobile_photos
@@ -690,7 +749,7 @@ conflicts.push(conflict)
   private async syncHOSLog(
     tenantId: number,
     userId: number,
-    hosLog: any
+    hosLog: MobileHOSLogData
   ): Promise<void> {
     await this.db.query(
       `INSERT INTO hos_logs
@@ -718,8 +777,8 @@ conflicts.push(conflict)
     tenantId: number,
     userId: number,
     since?: Date
-  ): Promise<any> {
-    const data: any = {}
+  ): Promise<MobileSyncResponse['server_data']> {
+    const data: MobileSyncResponse['server_data'] = {}
 
     // Get vehicles
     const vehicles = await this.db.query(
@@ -770,7 +829,7 @@ conflicts.push(conflict)
     latitude: number,
     longitude: number,
     radiusMiles: number
-  ): Promise<any[]> {
+  ): Promise<Record<string, unknown>[]> {
     // This would integrate with a POI database or API (Google Places, etc.)
     // For now, return empty array
     return []
@@ -779,7 +838,7 @@ conflicts.push(conflict)
 
 // Export singleton instance
 import { db } from '../db'
-const mobileIntegrationService = new MobileIntegrationService(db as any)
+const mobileIntegrationService = new MobileIntegrationService(db as unknown as Pool)
 
 export { MobileIntegrationService }
 export default mobileIntegrationService

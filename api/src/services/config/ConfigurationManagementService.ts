@@ -415,7 +415,7 @@ export class ConfigurationManagementService {
           requestedBy: userId,
           justification: comment || 'Configuration change',
           impactLevel
-        } as any);
+        });
 
         throw new Error(
           `This change requires approval. Change request created: ${requestId}`
@@ -625,8 +625,8 @@ export class ConfigurationManagementService {
       throw new Error('One or both versions not found');
     }
 
-    const valueA = result.rows.find((r: any) => r.version === versionA)?.value;
-    const valueB = result.rows.find((r: any) => r.version === versionB)?.value;
+    const valueA = result.rows.find((r: { version: string; value: unknown }) => r.version === versionA)?.value;
+    const valueB = result.rows.find((r: { version: string; value: unknown }) => r.version === versionB)?.value;
 
     return this.calculateDiff(valueA, valueB);
   }

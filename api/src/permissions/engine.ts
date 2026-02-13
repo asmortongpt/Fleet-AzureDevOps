@@ -54,8 +54,8 @@ export class PermissionEngine implements IPermissionEngine {
   async can(
     user: User,
     action: string,
-    resource?: any,
-    context?: any
+    resource?: Record<string, unknown>,
+    context?: Record<string, unknown>
   ): Promise<PermissionCheckResult> {
     // Admin always has full access
     if (user.roles.includes('Admin')) {
@@ -128,10 +128,10 @@ export class PermissionEngine implements IPermissionEngine {
    * Apply record-level filters based on user role and org
    */
   async applyRecordFilter(
-    query: any,
+    query: Record<string, unknown>,
     user: User,
     resourceType: string
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     // Admin sees everything in their org (or all orgs if super admin)
     if (user.roles.includes('Admin')) {
       // Only filter by org if user has org_id
@@ -142,7 +142,7 @@ export class PermissionEngine implements IPermissionEngine {
     }
 
     // Base filter: user's organization
-    const filters: any = {
+    const filters: Record<string, unknown> = {
       ...query,
       org_id: user.org_id
     };
@@ -182,7 +182,7 @@ export class PermissionEngine implements IPermissionEngine {
   async filterFields(
     user: User,
     resourceType: string,
-    payload: any
+    payload: Record<string, unknown> | Record<string, unknown>[]
   ): Promise<FieldFilterResult> {
     const fieldConfig = this.config.fields[resourceType];
 
@@ -204,12 +204,12 @@ export class PermissionEngine implements IPermissionEngine {
       };
     }
 
-    const filteredData: any = Array.isArray(payload) ? [] : {};
+    const filteredData: Record<string, unknown>[] | Record<string, unknown> = Array.isArray(payload) ? [] : {};
     const redactedFields: string[] = [];
     const anonymizedFields: string[] = [];
 
-    const processItem = (item: any): any => {
-      const result: any = {};
+    const processItem = (item: Record<string, unknown>): Record<string, unknown> => {
+      const result: Record<string, unknown> = {};
 
       // Always include always_visible fields
       if (fieldConfig.always_visible) {
@@ -437,7 +437,7 @@ export class PermissionEngine implements IPermissionEngine {
   /**
    * Summarize a field (e.g., show total but not breakdown)
    */
-  private summarizeField(fieldName: string, value: any): any {
+  private summarizeField(fieldName: string, value: unknown): unknown {
     if (fieldName.includes('cost') || fieldName.includes('price') || fieldName.includes('value')) {
       // For financial fields, return rounded total
       if (typeof value === 'number') {
@@ -451,7 +451,7 @@ export class PermissionEngine implements IPermissionEngine {
   /**
    * Anonymize a field (e.g., hide PII)
    */
-  private anonymizeField(fieldName: string, value: any): any {
+  private anonymizeField(fieldName: string, value: unknown): unknown {
     if (fieldName.includes('name')) {
       return 'Anonymous';
     }

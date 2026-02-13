@@ -1,4 +1,4 @@
-import { Configuration, PublicClientApplication, TokenCache } from "@azure/msal-node";
+import { Configuration, PublicClientApplication, TokenCache, LogLevel } from "@azure/msal-node";
 import axios from "axios";
 import { config as dotenvConfig } from "dotenv";
 
@@ -20,11 +20,11 @@ const config: Configuration = {
   },
   system: {
     loggerOptions: {
-      loggerCallback(loglevel: any, message: string, containsPii: boolean) {
+      loggerCallback(loglevel: LogLevel, message: string, containsPii: boolean) {
         logger.info(message);
       },
       piiLoggingEnabled: false,
-      logLevel: process.env.LOG_LEVEL as any,
+      logLevel: Number(process.env.LOG_LEVEL) as LogLevel,
     },
   },
 };

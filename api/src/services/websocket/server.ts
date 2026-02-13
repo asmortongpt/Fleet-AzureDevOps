@@ -32,7 +32,7 @@ wss.on('connection', (ws: ExtendedWebSocket, req) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    ws.vehicleId = (decoded as any).vehicleId;
+    ws.vehicleId = (decoded as jwt.JwtPayload & { vehicleId?: string }).vehicleId;
   } catch (err) {
     ws.terminate();
     return;

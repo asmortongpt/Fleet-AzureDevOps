@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
 
 import { cacheService } from '../../../config/cache';
 import logger from '../../../config/logger';
 import { ValidationError, NotFoundError } from '../../../errors/app-error';
+import { AuthRequest } from '../../../middleware/auth';
 import { TYPES } from '../../../types';
+import type { Inspection } from '../../../types/inspection';
 import { InspectionService } from '../services/inspection.service';
 
 @injectable()
@@ -14,17 +16,17 @@ export class InspectionController {
     private inspectionService: InspectionService
   ) {}
 
-  async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getAll(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = 1, pageSize = 20, inspection_type, status, vehicle_id, driver_id, inspector_id, failed, start_date, end_date } = req.query;
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
       }
 
       const cacheKey = `inspections:list:${tenantId}:${page}:${pageSize}:${inspection_type || ''}:${status || ''}:${failed || ''}`;
-      const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey);
+      const cached = await cacheService.get<{ data: Inspection[], total: number }>(cacheKey);
 
       if (cached) {
         res.json(cached);
@@ -66,9 +68,9 @@ export class InspectionController {
     }
   }
 
-  async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {
@@ -76,7 +78,7 @@ export class InspectionController {
       }
 
       const cacheKey = `inspection:${tenantId}:${id}`;
-      const cached = await cacheService.get<any>(cacheKey);
+      const cached = await cacheService.get<Inspection>(cacheKey);
 
       if (cached) {
         res.json({ data: cached });
@@ -96,9 +98,9 @@ export class InspectionController {
     }
   }
 
-  async create(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async create(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -112,9 +114,9 @@ export class InspectionController {
     }
   }
 
-  async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async update(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {
@@ -135,9 +137,9 @@ export class InspectionController {
     }
   }
 
-  async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async delete(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {

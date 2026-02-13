@@ -97,8 +97,8 @@ router.post('/sources', authenticateJWT, async (req: Request, res: Response, nex
       ]
     );
     res.status(201).json(result.rows[0]);
-  } catch (err: any) {
-    if (err.code === '23505') {
+  } catch (err: unknown) {
+    if (err instanceof Error && 'code' in err && (err as Record<string, unknown>).code === '23505') {
       return res.status(409).json({ error: 'A camera data source with that name already exists' });
     }
     next(err);
@@ -143,8 +143,8 @@ router.put('/sources/:id', authenticateJWT, async (req: Request, res: Response, 
       return res.status(404).json({ error: 'Camera source not found' });
     }
     res.json(result.rows[0]);
-  } catch (err: any) {
-    if (err.code === '23505') {
+  } catch (err: unknown) {
+    if (err instanceof Error && 'code' in err && (err as Record<string, unknown>).code === '23505') {
       return res.status(409).json({ error: 'A camera data source with that name already exists' });
     }
     next(err);

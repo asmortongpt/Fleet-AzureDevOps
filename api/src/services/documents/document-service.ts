@@ -383,7 +383,7 @@ export class DocumentService {
     const documentsByType = documents.reduce((acc, doc) => {
       acc[doc.documentType] = (acc[doc.documentType] || 0) + 1
       return acc
-    }, {} as any)
+    }, {} as Record<string, number>)
 
     const sevenDaysAgo = new Date()
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
@@ -569,7 +569,7 @@ export class DocumentService {
     if (filters.dateRange) {
       const { field, from, to } = filters.dateRange
       results = results.filter(doc => {
-        const docDate = new Date((doc as any)[field])
+        const docDate = new Date((doc as Record<string, unknown>)[field] as string)
         if (from && docDate < new Date(from)) return false
         if (to && docDate > new Date(to)) return false
         return true
@@ -590,8 +590,8 @@ export class DocumentService {
 
   private applySorting(documents: Document[], sort: any): Document[] {
     return documents.sort((a, b) => {
-      const aValue = (a as any)[sort.field]
-      const bValue = (b as any)[sort.field]
+      const aValue = (a as Record<string, unknown>)[sort.field]
+      const bValue = (b as Record<string, unknown>)[sort.field]
 
       if (sort.order === 'asc') {
         return aValue > bValue ? 1 : -1

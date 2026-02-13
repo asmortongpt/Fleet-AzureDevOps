@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
 
 import { cacheService } from '../../../config/cache';
 import logger from '../../../config/logger';
 import { ValidationError, NotFoundError } from '../../../errors/app-error';
+import { AuthRequest } from '../../../middleware/auth';
 import { TYPES } from '../../../types';
+import type { Vehicle } from '../../../types/vehicle';
 import { VehicleService } from '../services/vehicle.service';
 
 @injectable()
@@ -14,10 +16,10 @@ export class VehicleController {
     private vehicleService: VehicleService
   ) {}
 
-  async getAllVehicles(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getAllVehicles(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = 1, pageSize = 20, search, status } = req.query;
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -25,7 +27,7 @@ export class VehicleController {
 
       // Cache-aside pattern
       const cacheKey = `vehicles:list:${tenantId}:${page}:${pageSize}:${search || ''}:${status || ''}`;
-      const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey);
+      const cached = await cacheService.get<{ data: Vehicle[], total: number }>(cacheKey);
 
       if (cached) {
         res.json(cached);
@@ -38,7 +40,7 @@ export class VehicleController {
       // Apply filters (TODO: move to service layer)
       if (search && typeof search === 'string') {
         const searchLower = search.toLowerCase();
-        vehicles = vehicles.filter((v: any) =>
+        vehicles = vehicles.filter((v: Vehicle) =>
           v.vin?.toLowerCase().includes(searchLower) ||
           v.license_plate?.toLowerCase().includes(searchLower) ||
           v.make?.toLowerCase().includes(searchLower) ||
@@ -47,7 +49,7 @@ export class VehicleController {
       }
 
       if (status && typeof status === 'string') {
-        vehicles = vehicles.filter((v: any) => v.status === status);
+        vehicles = vehicles.filter((v: Vehicle) => v.status === status);
       }
 
       // Apply pagination
@@ -67,9 +69,9 @@ export class VehicleController {
     }
   }
 
-  async getVehicleById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getVehicleById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const vehicleId = Number(req.params.id);
 
       if (!tenantId) {
@@ -78,7 +80,7 @@ export class VehicleController {
 
       // Cache-aside pattern
       const cacheKey = `vehicle:${tenantId}:${vehicleId}`;
-      const cached = await cacheService.get<any>(cacheKey);
+      const cached = await cacheService.get<Vehicle>(cacheKey);
 
       if (cached) {
         logger.debug('Vehicle cache hit', { vehicleId, tenantId });
@@ -102,9 +104,9 @@ export class VehicleController {
     }
   }
 
-  async createVehicle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createVehicle(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -119,9 +121,9 @@ export class VehicleController {
     }
   }
 
-  async updateVehicle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateVehicle(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const vehicleId = Number(req.params.id);
 
       if (!tenantId) {
@@ -145,9 +147,9 @@ export class VehicleController {
     }
   }
 
-  async deleteVehicle(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async deleteVehicle(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const vehicleId = Number(req.params.id);
 
       if (!tenantId) {

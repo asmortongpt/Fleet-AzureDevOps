@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
 
 import { cacheService } from '../../../config/cache';
 import logger from '../../../config/logger';
 import { ValidationError, NotFoundError } from '../../../errors/app-error';
+import { AuthRequest } from '../../../middleware/auth';
 import { TYPES } from '../../../types';
+import type { Driver } from '../../../types/driver';
 import { DriverService } from '../services/driver.service';
 
 @injectable()
@@ -14,10 +16,10 @@ export class DriverController {
     private driverService: DriverService
   ) {}
 
-  async getAllDrivers(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getAllDrivers(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = 1, pageSize = 20, search, status } = req.query;
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -25,7 +27,7 @@ export class DriverController {
 
       // Cache-aside pattern
       const cacheKey = `drivers:list:${tenantId}:${page}:${pageSize}:${search || ''}:${status || ''}`;
-      const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey);
+      const cached = await cacheService.get<{ data: Driver[], total: number }>(cacheKey);
 
       if (cached) {
         res.json(cached);
@@ -38,7 +40,7 @@ export class DriverController {
       // Apply filters (TODO: move to service layer)
       if (search && typeof search === 'string') {
         const searchLower = search.toLowerCase();
-        drivers = drivers.filter((d: any) =>
+        drivers = drivers.filter((d: Driver) =>
           d.first_name?.toLowerCase().includes(searchLower) ||
           d.last_name?.toLowerCase().includes(searchLower) ||
           d.email?.toLowerCase().includes(searchLower) ||
@@ -47,7 +49,7 @@ export class DriverController {
       }
 
       if (status && typeof status === 'string') {
-        drivers = drivers.filter((d: any) => d.status === status);
+        drivers = drivers.filter((d: Driver) => d.status === status);
       }
 
       // Apply pagination
@@ -67,9 +69,9 @@ export class DriverController {
     }
   }
 
-  async getDriverById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getDriverById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const driverId = Number(req.params.id);
 
       if (!tenantId) {
@@ -78,7 +80,7 @@ export class DriverController {
 
       // Cache-aside pattern
       const cacheKey = `driver:${tenantId}:${driverId}`;
-      const cached = await cacheService.get<any>(cacheKey);
+      const cached = await cacheService.get<Driver>(cacheKey);
 
       if (cached) {
         logger.debug('Driver cache hit', { driverId, tenantId });
@@ -102,9 +104,9 @@ export class DriverController {
     }
   }
 
-  async createDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -119,9 +121,9 @@ export class DriverController {
     }
   }
 
-  async updateDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const driverId = Number(req.params.id);
 
       if (!tenantId) {
@@ -145,9 +147,9 @@ export class DriverController {
     }
   }
 
-  async deleteDriver(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async deleteDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const driverId = Number(req.params.id);
 
       if (!tenantId) {

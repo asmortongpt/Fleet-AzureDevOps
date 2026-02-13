@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
 
 import { cacheService } from '../../../config/cache';
 import logger from '../../../config/logger';
 import { ValidationError, NotFoundError } from '../../../errors/app-error';
+import { AuthRequest } from '../../../middleware/auth';
 import { TYPES } from '../../../types';
+import type { Facility } from '../../../types/facility';
 import { FacilityService } from '../services/facility.service';
 
 @injectable()
@@ -14,10 +16,10 @@ export class FacilityController {
     private facilityService: FacilityService
   ) {}
 
-  async getAllFacilities(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getAllFacilities(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = 1, limit = 50, facilityType, active } = req.query;
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -25,7 +27,7 @@ export class FacilityController {
 
       // Cache-aside pattern
       const cacheKey = `facilities:list:${tenantId}:${page}:${limit}:${facilityType || ''}:${active || ''}`;
-      const cached = await cacheService.get<{ data: any[], pagination: any }>(cacheKey);
+      const cached = await cacheService.get<{ data: Facility[], pagination: { page: number; limit: number; total: number; pages: number } }>(cacheKey);
 
       if (cached) {
         res.json(cached);
@@ -37,11 +39,11 @@ export class FacilityController {
 
       // Apply filters
       if (facilityType && typeof facilityType === 'string') {
-        facilities = facilities.filter((f: any) => f.facility_type === facilityType);
+        facilities = facilities.filter((f: Facility) => f.facility_type === facilityType);
       }
 
       if (active === 'true') {
-        facilities = facilities.filter((f: any) => f.is_active === true);
+        facilities = facilities.filter((f: Facility) => f.is_active === true);
       }
 
       // Apply pagination
@@ -69,9 +71,9 @@ export class FacilityController {
     }
   }
 
-  async getFacilityById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getFacilityById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const facilityId = Number(req.params.id);
 
       if (!tenantId) {
@@ -80,7 +82,7 @@ export class FacilityController {
 
       // Cache-aside pattern
       const cacheKey = `facility:${tenantId}:${facilityId}`;
-      const cached = await cacheService.get<any>(cacheKey);
+      const cached = await cacheService.get<Facility>(cacheKey);
 
       if (cached) {
         logger.debug('Facility cache hit', { facilityId, tenantId });
@@ -104,9 +106,9 @@ export class FacilityController {
     }
   }
 
-  async createFacility(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async createFacility(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -121,9 +123,9 @@ export class FacilityController {
     }
   }
 
-  async updateFacility(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async updateFacility(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const facilityId = Number(req.params.id);
 
       if (!tenantId) {
@@ -147,9 +149,9 @@ export class FacilityController {
     }
   }
 
-  async deleteFacility(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async deleteFacility(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const facilityId = Number(req.params.id);
 
       if (!tenantId) {
