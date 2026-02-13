@@ -62,7 +62,7 @@ router.get(
       updated_by,
       approved_at,
       approved_by FROM policy_templates WHERE 1=1`
-      const params: any[] = []
+      const params: unknown[] = []
       let paramIndex = 1
 
       if (category) {
@@ -375,7 +375,7 @@ router.get(
         JOIN drivers d ON pv.employee_id = d.id
         WHERE d.tenant_id = $1
       `
-      const params: any[] = [req.user!.tenant_id]
+      const params: unknown[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (employee_id) {
@@ -654,9 +654,9 @@ router.post(
         policy_name: policy.policy_name,
         evaluated_at: new Date().toISOString(),
         context,
-        checks: [] as any[],
+        checks: [] as { check: string; passed: boolean; message: string; data?: unknown; applies?: boolean }[],
         compliant: true,
-        violations: [] as any[]
+        violations: [] as { violation_type: string; severity: string; message: string }[]
       }
 
       // Example policy checks (customize based on your needs)
@@ -762,7 +762,7 @@ router.get(
         JOIN policy_templates pt ON pca.policy_id = pt.id
         WHERE 1=1
       `
-      const params: any[] = []
+      const params: unknown[] = []
       let paramIndex = 1
 
       if (policy_id) {

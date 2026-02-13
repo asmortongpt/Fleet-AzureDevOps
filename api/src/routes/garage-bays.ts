@@ -73,7 +73,7 @@ router.get(
       const { page = 1, limit = 50, status, location } = req.query
       const offset = (Number(page) - 1) * Number(limit)
 
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -84,7 +84,7 @@ router.get(
 
       // Build dynamic query
       let whereClause = ''
-      const queryParams: any[] = []
+      const queryParams: unknown[] = []
 
       if (status) {
         queryParams.push(status)
@@ -156,7 +156,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'garage_bays' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -391,7 +391,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -400,7 +400,7 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       let whereClause = 'WHERE wo.garage_bay_id = $1'
-      const queryParams: any[] = [req.params.id]
+      const queryParams: unknown[] = [req.params.id]
 
       if (status) {
         queryParams.push(status)
@@ -469,7 +469,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'garage_bay_equipment' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -515,7 +515,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const validatedData = createGarageBaySchema.parse(req.body)
-      const client = (req as any).dbClient
+      const client = req.dbClient
 
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -594,7 +594,7 @@ router.patch(
   async (req: AuthRequest, res: Response) => {
     try {
       const validatedData = updateGarageBaySchema.parse(req.body)
-      const client = (req as any).dbClient
+      const client = req.dbClient
 
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -630,7 +630,7 @@ router.patch(
 
       // Build update query dynamically
       const updates: string[] = []
-      const values: any[] = []
+      const values: unknown[] = []
       let paramCount = 1
 
       Object.entries(validatedData).forEach(([key, value]) => {
@@ -691,7 +691,7 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'garage_bays' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
 
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })

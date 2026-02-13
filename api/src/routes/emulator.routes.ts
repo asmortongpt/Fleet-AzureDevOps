@@ -10,6 +10,14 @@ import path from 'path'
 import express, { Request, Response } from 'express'
 
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
+import type { CameraAngle, VideoLibraryFilter, VideoScenario, WeatherCondition } from '../services/video-dataset.service'
+
+type TelemetryType = 'gps' | 'obd2' | 'iot' | 'radio' | 'driver'
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __fleetEmulatorOrchestrator: EmulatorOrchestrator | undefined
+}
 import { pool } from '../db'
 import { csrfProtection } from '../middleware/csrf'
 import { telemetryService } from '../services/TelemetryService'
@@ -60,7 +68,7 @@ async function getOrchestrator(): Promise<EmulatorOrchestrator> {
   if (!orchestrator) {
     // Reuse the orchestrator instance created during API startup (server.ts) to avoid
     // double-binding the emulator WebSocket port (and crashing with EADDRINUSE).
-    const globalOrchestrator = (globalThis as any).__fleetEmulatorOrchestrator as EmulatorOrchestrator | undefined
+    const globalOrchestrator = globalThis.__fleetEmulatorOrchestrator
     if (globalOrchestrator) {
       orchestrator = globalOrchestrator
       return orchestrator
@@ -505,7 +513,7 @@ router.get('/vehicles/:vehicleId/telemetry/history', async (req: Request, res: R
 
     const history = await telemetryService.getTelemetryHistory(
       vehicleId,
-      type as any,
+      type as TelemetryType,
       new Date(startTime as string),
       new Date(endTime as string),
       parseInt(limit as string, 10)
@@ -877,12 +885,12 @@ router.get('/video/library', async (req: Request, res: Response) => {
 
     const { cameraAngle, scenario, weather, timeOfDay, tags } = req.query
 
-    const filter: any = {}
-    if (cameraAngle) filter.cameraAngle = cameraAngle
-    if (scenario) filter.scenario = scenario
-    if (weather) filter.weather = weather
-    if (timeOfDay) filter.timeOfDay = timeOfDay
-    if (tags) filter.tags = Array.isArray(tags) ? tags : [tags]
+    const filter: VideoLibraryFilter = {}
+    if (cameraAngle) filter.cameraAngle = cameraAngle as CameraAngle
+    if (scenario) filter.scenario = scenario as VideoScenario
+    if (weather) filter.weather = weather as WeatherCondition
+    if (timeOfDay) filter.timeOfDay = timeOfDay as string
+    if (tags) filter.tags = (Array.isArray(tags) ? tags : [tags]) as string[]
 
     const videos = videoService.getVideos(filter)
 
@@ -955,7 +963,7 @@ router.post('/video/stream/:vehicleId/:cameraAngle/start', csrfProtection, async
       await videoService.initialize()
     }
 
-    const stream = videoService.startStream(vehicleId, cameraAngle as any, videoId)
+    const stream = videoService.startStream(vehicleId, cameraAngle as CameraAngle, videoId)
 
     if (!stream) {
       return res.status(400).json({
@@ -993,7 +1001,7 @@ router.post('/video/stream/:vehicleId/:cameraAngle/stop', csrfProtection, async 
       await videoService.initialize()
     }
 
-    const stopped = videoService.stopStream(vehicleId, cameraAngle as any)
+    const stopped = videoService.stopStream(vehicleId, cameraAngle as CameraAngle)
 
     res.json({
       success: true,
@@ -1024,7 +1032,7 @@ router.get('/video/stream/:vehicleId/:cameraAngle', async (req: Request, res: Re
       await videoService.initialize()
     }
 
-    const stream = videoService.getStream(vehicleId, cameraAngle as any)
+    const stream = videoService.getStream(vehicleId, cameraAngle as CameraAngle)
 
     if (!stream) {
       return res.status(404).json({

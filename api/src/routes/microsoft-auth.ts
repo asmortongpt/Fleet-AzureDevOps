@@ -247,7 +247,8 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
     }
 
   } catch (error: unknown) {
-    const axiosData = (error as any)?.response?.data
+    const axiosError = error as { response?: { data?: { error_description?: string } } }
+    const axiosData = axiosError?.response?.data
     const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     logger.error('Microsoft OAuth error:', axiosData || errorMsg)
 

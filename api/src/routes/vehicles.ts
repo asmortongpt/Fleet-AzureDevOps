@@ -40,12 +40,12 @@ router.get("/",
   validateQuery(vehicleQuerySchema),
   asyncHandler(async (req: Request, res: Response) => {
     // Support both `limit` (current API schema) and `pageSize` (legacy UI).
-    const page = Number((req.query as any).page ?? 1)
-    const rawLimit = (req.query as any).pageSize ?? (req.query as any).limit ?? 20
+    const page = Number(req.query.page ?? 1)
+    const rawLimit = req.query.pageSize ?? req.query.limit ?? 20
     const limit = Math.min(Number(rawLimit) || 20, 200)
-    const search = (req.query as any).search
-    const status = (req.query as any).status
-    const tenantId = (req as any).user?.tenant_id
+    const search = req.query.search as string | undefined
+    const status = req.query.status as string | undefined
+    const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
       throw new ValidationError('Tenant ID is required')
@@ -85,7 +85,7 @@ router.get("/:id",
   validateParams(vehicleIdSchema),
   asyncHandler(async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const vehicleId = req.params.id // Keep as string (UUID)
 
       if (!tenantId) {
@@ -152,7 +152,7 @@ router.get("/:id/trips",
   }),
   validateParams(vehicleIdSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     const vehicleId = req.params.id
 
     if (!tenantId) {
@@ -189,13 +189,27 @@ router.get("/:id/trips",
       [tenantId, vehicleId]
     )
 
-    const trips = tripsResult.rows.map((row: any) => {
-      const metadata = row.metadata && typeof row.metadata === 'object'
-        ? row.metadata
+    interface TripRow {
+      id: string
+      status: string
+      start_time: string
+      end_time: string | null
+      duration_minutes: string | null
+      start_location: string | null
+      end_location: string | null
+      distance_miles: string | null
+      metadata: Record<string, unknown> | string | null
+      first_name: string | null
+      last_name: string | null
+    }
+
+    const trips = (tripsResult.rows as TripRow[]).map((row) => {
+      const metadata: Record<string, unknown> = row.metadata && typeof row.metadata === 'object'
+        ? row.metadata as Record<string, unknown>
         : row.metadata
           ? (() => {
               try {
-                return JSON.parse(row.metadata)
+                return JSON.parse(row.metadata as string) as Record<string, unknown>
               } catch {
                 return {}
               }
@@ -206,7 +220,7 @@ router.get("/:id/trips",
       const avgSpeed = durationMinutes && distanceMiles
         ? distanceMiles / (durationMinutes / 60)
         : null
-      const fuelUsed = metadata?.fuelUsed ?? metadata?.fuel_used ?? null
+      const fuelUsed = (metadata?.fuelUsed ?? metadata?.fuel_used ?? null) as number | null
 
       const durationString = durationMinutes !== null
         ? `${Math.floor(durationMinutes / 60)}h ${Math.round(durationMinutes % 60)}m`
@@ -248,7 +262,7 @@ router.post("/",
   }),
   validateBody(vehicleCreateSchema),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
       throw new ValidationError('Tenant ID is required')
@@ -289,7 +303,7 @@ router.put("/:id",
   }),
   asyncHandler(async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const vehicleId = req.params.id // Keep as string (UUID)
 
       if (!tenantId) {
@@ -333,7 +347,7 @@ router.post(
   csrfProtection,
   requirePermission('telemetry:create:fleet'),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     if (!tenantId) {
       throw new ValidationError('Tenant ID is required')
     }
@@ -381,7 +395,7 @@ router.delete("/:id",
   validateParams(vehicleIdSchema),
   asyncHandler(async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const vehicleId = req.params.id // Keep as string (UUID)
 
       if (!tenantId) {
@@ -426,7 +440,7 @@ router.get("/statistics",
     resourceType: 'vehicle'
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
       throw new ValidationError('Tenant ID is required')
@@ -449,10 +463,10 @@ router.get("/statistics",
     const statistics = {
       total: vehicles.length,
       byStatus: {
-        active: vehicles.filter((v: any) => v.status === 'active').length,
-        inactive: vehicles.filter((v: any) => v.status === 'inactive').length,
-        maintenance: vehicles.filter((v: any) => v.status === 'maintenance').length,
-        retired: vehicles.filter((v: any) => v.status === 'retired').length
+        active: vehicles.filter((v: Record<string, unknown>) => v.status === 'active').length,
+        inactive: vehicles.filter((v: Record<string, unknown>) => v.status === 'inactive').length,
+        maintenance: vehicles.filter((v: Record<string, unknown>) => v.status === 'maintenance').length,
+        retired: vehicles.filter((v: Record<string, unknown>) => v.status === 'retired').length
       }
     }
 

@@ -2,6 +2,19 @@ import { Router } from 'express'
 import { z } from 'zod'
 
 import logger from '../config/logger'
+
+interface VehicleRow {
+  id: string | number
+  name: string
+  make: string
+  model: string
+  year: number
+  license_plate: string
+  status: string
+  mileage: number | null
+  fuel_level: number | null
+  metadata: Record<string, unknown> | string | null
+}
 import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
@@ -57,12 +70,12 @@ router.get(
   validateQuery(facilityQuerySchema),
   asyncHandler(async (req, res) => {
     const { page = 1, limit = 50, type, active } = req.query
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
 
     const offset = (Number(page) - 1) * Number(limit)
 
     let whereClause = 'WHERE f.tenant_id = $1'
-    const params: any[] = [tenantId]
+    const params: (string | number | boolean | null | undefined)[] = [tenantId]
     let paramIndex = 2
 
     if (type) {
@@ -122,7 +135,7 @@ router.get(
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
 
     const query = `
       SELECT
@@ -179,7 +192,7 @@ router.post(
   }),
   validateBody(facilityCreateSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     const data = req.body
 
     const query = `
@@ -232,12 +245,12 @@ router.put(
   validateParams(facilityIdSchema),
   validateBody(facilityUpdateSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     const { id } = req.params
     const updates = req.body
 
     const setClauses: string[] = []
-    const params: any[] = []
+    const params: (string | number | boolean | null | undefined)[] = []
     let paramIndex = 1
 
     Object.entries(updates).forEach(([key, value]) => {
@@ -284,7 +297,7 @@ router.delete(
   }),
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     const { id } = req.params
 
     const result = await tenantSafeQuery(
@@ -313,7 +326,7 @@ router.get(
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
     const facilityId = req.params.id
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
 
     const result = await tenantSafeQuery(
       `SELECT
@@ -334,13 +347,13 @@ router.get(
       tenantId
     )
 
-    const vehicles = result.rows.map((row: any) => {
-      const metadata = row.metadata && typeof row.metadata === 'object'
-        ? row.metadata
-        : row.metadata
+    const vehicles = result.rows.map((row: VehicleRow) => {
+      const metadata: Record<string, unknown> = row.metadata && typeof row.metadata === 'object'
+        ? row.metadata as Record<string, unknown>
+        : typeof row.metadata === 'string'
           ? (() => {
               try {
-                return JSON.parse(row.metadata)
+                return JSON.parse(row.metadata) as Record<string, unknown>
               } catch {
                 return {}
               }

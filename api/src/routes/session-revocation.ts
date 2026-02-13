@@ -242,7 +242,7 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
 
   try {
     // Verify token and extract expiry
-    const decoded = jwt.verify(tokenToRevoke, process.env.JWT_SECRET!) as any
+    const decoded = jwt.verify(tokenToRevoke, process.env.JWT_SECRET!) as jwt.JwtPayload
 
     // Validate token belongs to target user (prevent revoking arbitrary tokens)
     if (decoded.id !== targetUserId && decoded.email !== targetEmail) {

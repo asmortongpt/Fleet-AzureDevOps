@@ -139,8 +139,8 @@ router.post(
         });
       }
 
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
       const priority = req.body.priority || 'normal';
 
       // Parse metadata if provided
@@ -276,11 +276,11 @@ router.post(
         });
       }
 
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
 
       // Parse metadata array if provided
-      let metadataArray: any[] = [];
+      let metadataArray: Record<string, unknown>[] = [];
       if (req.body.metadata) {
         try {
           metadataArray = JSON.parse(req.body.metadata);
@@ -294,8 +294,8 @@ router.post(
       const containerClient = blobServiceClient.getContainerClient('mobile-photos');
       await containerClient.createIfNotExists({ access: 'blob' });
 
-      const results: any[] = [];
-      const errors: any[] = [];
+      const results: { success: boolean; photo: { id: number; url: string; fileName: string } }[] = [];
+      const errors: { index: number; fileName: string; error: string }[] = [];
 
       // Upload each photo
       for (let i = 0; i < req.files.length; i++) {
@@ -411,8 +411,8 @@ router.get(
   requirePermission('driver:view:global'),
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
       const since = req.query.since ? new Date(req.query.since as string) : null;
 
       let query = `
@@ -432,7 +432,7 @@ router.get(
         WHERE mp.tenant_id = $1 AND mp.user_id = $2
       `;
 
-      const params: any[] = [tenantId, userId];
+      const params: (string | number | Date)[] = [tenantId as string, userId as string | number];
 
       if (since) {
         params.push(since);
@@ -493,8 +493,8 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const validated = SyncCompleteSchema.parse(req.body);
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
 
       // Update mobile_photos to mark as synced
       const result = await pool.query(
@@ -547,7 +547,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       const result = await pool.query(
         `SELECT
@@ -608,10 +608,10 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       const result = await pool.query(
-        `SELECT 
+        `SELECT
       id,
       tenant_id,
       user_id,
@@ -668,8 +668,8 @@ router.delete(
   async (req: Request, res: Response) => {
     try {
       const photoId = parseInt(req.params.id);
-      const tenantId = (req as any).user.tenant_id;
-      const userId = (req as any).user.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
 
       // Get photo details first
       const photoResult = await pool.query(
@@ -694,7 +694,7 @@ router.delete(
       const photo = photoResult.rows[0];
 
       // Check if user owns the photo or is admin
-      const userRole = (req as any).user.role;
+      const userRole = req.user?.role;
       if (photo.user_id !== userId && userRole !== 'admin' && userRole !== 'fleet_manager') {
         return res.status(403).json({
           error: 'Unauthorized to delete this photo',
@@ -741,8 +741,8 @@ router.get(
   requirePermission('driver:view:global'),
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user.tenant_id;
-      const userRole = (req as any).user.role;
+      const tenantId = req.user?.tenant_id;
+      const userRole = req.user?.role;
 
       // Only admins can see global stats
       const statsForTenant = userRole === 'admin' || userRole === 'fleet_manager'

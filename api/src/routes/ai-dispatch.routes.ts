@@ -158,7 +158,7 @@ router.post(
       }
 
       const { description, requestId } = req.body
-      const userId = (req as any).user?.id
+      const userId = req.user?.id
 
       logger.info('AI incident parse request', {
         userId,
@@ -191,7 +191,7 @@ router.post(
     } catch (error) {
       logger.error('Error parsing incident', {
         error: error instanceof Error ? error.message : 'Unknown error',
-        userId: (req as any).user?.id
+        userId: req.user?.id
       })
 
       res.status(500).json({
@@ -260,7 +260,7 @@ router.post(
       }
 
       const { incident, location } = req.body
-      const userId = (req as any).user?.id
+      const userId = req.user?.id
 
       logger.info('AI vehicle recommendation request', {
         userId,
@@ -362,7 +362,7 @@ router.post(
       }
 
       const { description, location, vehicleId, autoAssign = false } = req.body
-      const userId = (req as any).user?.id
+      const userId = req.user?.id
 
       logger.info('AI dispatch request', {
         userId,

@@ -186,9 +186,9 @@ router.put('/drivers/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const validatedData = validateRequest(updateDriverSchema, req.body);
 
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
     Object.keys(validatedData).forEach(key => {
-      const value = (validatedData as any)[key];
+      const value = (validatedData as Record<string, unknown>)[key];
       if (value !== undefined) {
         if (key.includes('Date') && typeof value === 'string') {
           updateData[key] = new Date(value);
@@ -379,9 +379,9 @@ router.put('/work-orders/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const validatedData = validateRequest(updateWorkOrderSchema, req.body);
 
-    const updateData: Record<string, any> = {};
+    const updateData: Record<string, unknown> = {};
     Object.keys(validatedData).forEach(key => {
-      const value = (validatedData as any)[key];
+      const value = (validatedData as Record<string, unknown>)[key];
       if (value !== undefined) {
         if (key.includes('Date') && typeof value === 'string') {
           updateData[key] = new Date(value);
@@ -504,7 +504,7 @@ router.get('/fuel-analytics', async (req: Request, res: Response) => {
 
     let query = db.select().from(schema.fuelTransactions);
     if (conditions.length > 0) {
-      query = query.where(and(...conditions)) as any;
+      query = query.where(and(...conditions)) as typeof query;
     }
 
     const transactions = await query;
@@ -529,7 +529,7 @@ router.get('/fuel-analytics', async (req: Request, res: Response) => {
       acc[t.vehicleId].cost += Number(t.totalCost);
       acc[t.vehicleId].transactions += 1;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, { vehicleId: string; gallons: number; cost: number; transactions: number }>);
 
     res.json({
       summary: {

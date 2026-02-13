@@ -132,7 +132,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
 router.post('/analytics', csrfProtection, async (req: Request, res: Response) => {
   try {
     const { entityType, filters, recordCount, exported, exportFormat } = req.body;
-    const userId = (req as any).user?.id || null;
+    const userId = req.user?.id || null;
 
     await pool.query(
       `INSERT INTO drill_through_analytics

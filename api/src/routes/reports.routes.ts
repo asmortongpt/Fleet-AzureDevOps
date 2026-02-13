@@ -54,7 +54,7 @@ router.get(
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const result = await pool.query(
         `SELECT id, title, domain, category, description,
                 is_core, popularity, last_used_at, created_at
@@ -94,7 +94,7 @@ router.get(
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const result = await pool.query(
         `SELECT id, template_id, schedule, recipients, format, status, next_run, last_run
          FROM report_schedules
@@ -144,7 +144,7 @@ router.post(
     }
 
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const { templateId, schedule, recipients, format } = req.body;
 
       const now = new Date();
@@ -198,7 +198,7 @@ router.get(
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const result = await pool.query(
         `SELECT id, template_id, title, generated_at, generated_by, format, size_bytes, status, download_url
          FROM report_generations
@@ -238,7 +238,7 @@ router.get(
   authenticateJWT,
   async (req: Request, res: Response) => {
     try {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       const result = await pool.query(
         `SELECT definition
          FROM report_templates
@@ -298,7 +298,7 @@ router.post(
     }
 
     const { reportId, filters, drilldown, userId } = req.body;
-    const user = (req as any).user; // From JWT middleware
+    const user = req.user; // From JWT middleware
 
     try {
       const startTime = Date.now();
@@ -324,7 +324,7 @@ router.post(
         data,
         metadata: {
           executionTime,
-          rowCount: Object.values(data).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
+          rowCount: Object.values(data).reduce<number>((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
         }
       });
     } catch (error) {
@@ -371,7 +371,7 @@ router.post(
     }
 
     const { prompt } = req.body;
-    const user = (req as any).user;
+    const user = req.user;
 
     try {
       const result = await multiLLMOrchestrator.generateReport({
@@ -427,7 +427,7 @@ router.post(
     }
 
     const { message, history } = req.body;
-    const user = (req as any).user;
+    const user = req.user;
 
     try {
       const response = await multiLLMOrchestrator.chat(message, {
@@ -484,7 +484,7 @@ router.post(
     }
 
     const { reportId, format, filters } = req.body;
-    const user = (req as any).user;
+    const user = req.user;
 
     try {
       // Load report definition
@@ -547,7 +547,7 @@ router.post(
     }
 
     const { definition, name } = req.body;
-    const user = (req as any).user;
+    const user = req.user;
 
     try {
       const reportId = await saveCustomReport(user.id, name, definition);
@@ -569,7 +569,7 @@ router.get(
   // @ts-expect-error - Build compatibility fix
   authenticateJWT,
   async (req: Request, res: Response) => {
-    const user = (req as any).user;
+    const user = req.user;
 
     try {
       const reports = await getUserCustomReports(user.id);
@@ -586,7 +586,7 @@ router.get(
 // HELPER FUNCTIONS (would be in separate service files in production)
 // ============================================================================
 
-async function loadReportDefinition(reportId: string): Promise<any> {
+async function loadReportDefinition(reportId: string): Promise<Record<string, unknown> | null> {
   const result = await pool.query(
     `SELECT definition
      FROM report_templates
@@ -597,7 +597,7 @@ async function loadReportDefinition(reportId: string): Promise<any> {
   return result.rows[0]?.definition || null
 }
 
-async function checkReportAccess(user: any, reportDefinition: any): Promise<boolean> {
+async function checkReportAccess(user: Express.Request['user'], reportDefinition: Record<string, unknown> | null): Promise<boolean> {
   // SuperAdmin and admin bypass RBAC checks
   if (user?.role === 'SuperAdmin' || user?.role === 'admin') {
     return true;
@@ -609,7 +609,7 @@ async function checkReportAccess(user: any, reportDefinition: any): Promise<bool
     return false;
   }
 
-  const reportDomain = reportDefinition?.domain || 'general';
+  const reportDomain = (reportDefinition?.domain as string) || 'general';
 
   // Build the permission key for this report domain (e.g. "reports.read" or "maintenance.read")
   const permissionKey = `${reportDomain}.read`;
@@ -676,19 +676,20 @@ async function checkReportAccess(user: any, reportDefinition: any): Promise<bool
 }
 
 async function executeReport(
-  reportDefinition: any,
-  filters: any,
-  drilldown: any,
-  user: any
-): Promise<Record<string, any>> {
+  reportDefinition: Record<string, unknown> | null,
+  filters: Record<string, unknown>,
+  drilldown: Record<string, unknown>,
+  user: Express.Request['user']
+): Promise<Record<string, unknown>> {
   const tenantId = user?.tenant_id
-  const startDate = filters?.dateRange?.start ? new Date(filters.dateRange.start) : null
-  const endDate = filters?.dateRange?.end ? new Date(filters.dateRange.end) : null
+  const dateRange = filters?.dateRange as { start?: string; end?: string } | undefined
+  const startDate = dateRange?.start ? new Date(dateRange.start) : null
+  const endDate = dateRange?.end ? new Date(dateRange.end) : null
 
   const dateClause = startDate && endDate ? 'AND created_at BETWEEN $2 AND $3' : ''
   const dateParams = startDate && endDate ? [startDate, endDate] : []
 
-  const domain = reportDefinition?.domain || 'general'
+  const domain = (reportDefinition?.domain as string) || 'general'
 
   if (domain === 'maintenance') {
     const kpiResult = await pool.query(
@@ -907,16 +908,17 @@ async function executeReport(
 }
 
 async function generateExport(
-  reportDefinition: any,
-  data: any,
+  reportDefinition: Record<string, unknown> | null,
+  data: Record<string, unknown>,
   format: string
 ): Promise<Buffer> {
-  const rows = Array.isArray(data?.detail) ? data.detail : []
+  const detail = data?.detail
+  const rows: Record<string, unknown>[] = Array.isArray(detail) ? detail : []
   const headers = rows.length > 0 ? Object.keys(rows[0]) : []
 
   const csv = [
     headers.join(','),
-    ...rows.map((row: any) =>
+    ...rows.map((row: Record<string, unknown>) =>
       headers.map((h) => JSON.stringify(row[h] ?? '')).join(',')
     )
   ].join('\n')
@@ -924,7 +926,7 @@ async function generateExport(
   return Buffer.from(csv)
 }
 
-async function saveCustomReport(userId: string, name: string, definition: any): Promise<string> {
+async function saveCustomReport(userId: string, name: string, definition: Record<string, unknown>): Promise<string> {
   const userResult = await pool.query(
     `SELECT tenant_id FROM users WHERE id = $1`,
     [userId]
@@ -949,7 +951,7 @@ async function saveCustomReport(userId: string, name: string, definition: any): 
   return result.rows[0].id
 }
 
-async function getUserCustomReports(userId: string): Promise<any[]> {
+async function getUserCustomReports(userId: string): Promise<Record<string, unknown>[]> {
   const userResult = await pool.query(
     `SELECT tenant_id FROM users WHERE id = $1`,
     [userId]

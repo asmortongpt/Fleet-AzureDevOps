@@ -23,9 +23,13 @@ const router = Router()
  * Extended Request type that includes the DI container
  * This is set by the containerMiddleware in server.ts
  */
+interface ExampleDIService {
+  getVehicleCount(): Promise<number>
+  performAction(vehicleId: number): Promise<{ success: boolean; [key: string]: unknown }>
+}
+
 interface RequestWithContainer extends Request {
   container: Container
-  user?: any
 }
 
 /**
@@ -60,7 +64,7 @@ router.get('/vehicle-count', authenticateJWT, async (req: Request, res: Response
 
     // Resolve the service from the container
     // This gives us a fresh instance for this request (SCOPED lifetime)
-    const exampleService = reqWithContainer.container.get('exampleDIService') as any as any
+    const exampleService = reqWithContainer.container.get('exampleDIService') as unknown as ExampleDIService
 
     // Use the service
     const count = await exampleService.getVehicleCount()
@@ -116,7 +120,7 @@ router.post('/vehicle-action/:vehicleId', csrfProtection, authenticateJWT, async
     }
 
     // Resolve service from container
-    const exampleService = reqWithContainer.container.get('exampleDIService') as any
+    const exampleService = reqWithContainer.container.get('exampleDIService') as unknown as ExampleDIService
 
     // Perform action
     const result = await exampleService.performAction(vehicleId)
@@ -153,27 +157,27 @@ router.get('/test-di', async (req: Request, res: Response) => {
 
     // Test container availability
     const hasContainer = !!reqWithContainer.container
-    const hasExampleService = hasContainer && !!(reqWithContainer.container as any).resolve
+    const hasExampleService = hasContainer && !!(reqWithContainer.container as unknown as Record<string, unknown>).resolve
 
     // Try to resolve services
     const servicesAvailable: string[] = []
     if (hasContainer) {
       try {
-        reqWithContainer.container.get('exampleDIService') as any
+        reqWithContainer.container.get('exampleDIService')
         servicesAvailable.push('exampleDIService')
       } catch (e) {
         // Service not available
       }
 
       try {
-        reqWithContainer.container.get('dispatchService') as any
+        reqWithContainer.container.get('dispatchService')
         servicesAvailable.push('dispatchService')
       } catch (e) {
         // Service not available
       }
 
       try {
-        reqWithContainer.container.get('documentService') as any
+        reqWithContainer.container.get('documentService')
         servicesAvailable.push('documentService')
       } catch (e) {
         // Service not available
@@ -210,8 +214,8 @@ router.post('/complex-operation/:vehicleId', csrfProtection, authenticateJWT, as
     const vehicleId = parseInt(req.params.vehicleId, 10)
 
     // Resolve multiple services
-    const exampleService = reqWithContainer.container.get('exampleDIService') as any
-    const documentService = reqWithContainer.container.get('documentService') as any
+    const exampleService = reqWithContainer.container.get('exampleDIService') as unknown as ExampleDIService
+    const documentService = reqWithContainer.container.get('documentService') as unknown as Record<string, unknown>
     // logger is imported independently, but could also be resolved if bound to container
     // const logger = reqWithContainer.container.get('logger') 
 

@@ -508,7 +508,7 @@ router.post('/:cardType/action', csrfProtection, authenticateJWT, async (req: Re
   try {
     const { cardType } = req.params
     const { action, cardId, teamId, channelId, messageId } = req.body
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
     if (!userId) {
       return res.status(401).json({ error: 'User not authenticated' })

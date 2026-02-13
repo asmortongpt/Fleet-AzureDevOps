@@ -78,7 +78,7 @@ router.get(
         is_reimbursement,
         limit = 50,
         offset = 0
-      } = req.query as any;
+      } = req.query as Record<string, string | undefined>;
 
 	      let query = `
 	        SELECT c.*,
@@ -90,7 +90,7 @@ router.get(
 	        LEFT JOIN vehicles v ON c.vehicle_id = v.id
 	        WHERE c.tenant_id = $1
 	      `;
-	      const params: any[] = [req.user!.tenant_id];
+	      const params: unknown[] = [req.user!.tenant_id];
 	      let paramCount = 1;
 
       if (driver_id) {
@@ -321,7 +321,7 @@ router.put(
 
       // Build update query dynamically
       const updates: string[] = [];
-      const values: any[] = [];
+      const values: unknown[] = [];
       let paramCount = 2; // id is $1, tenant_id is $2
 
       if (validated.charge_status !== undefined) {
@@ -467,7 +467,7 @@ router.post(
       const trips = tripsResult.rows;
 
       // Calculate breakdown
-      const charge_breakdown: ChargeBreakdownItem[] = trips.map((trip: any) => {
+      const charge_breakdown: ChargeBreakdownItem[] = trips.map((trip: { id: string; trip_date: string; miles_personal: number | null; miles_total: number; business_percentage: number | null }) => {
         let miles_personal = trip.miles_personal;
 
         // If miles_personal is not set, calculate from miles_total and business_percentage

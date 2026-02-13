@@ -32,7 +32,7 @@ router.use(authenticateJWT);
  * List all fuel card providers for tenant
  */
 router.get('/providers', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -48,7 +48,7 @@ router.get('/providers', asyncHandler(async (req: Request, res: Response) => {
  * Create new fuel card provider
  */
 router.post('/providers', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -66,7 +66,7 @@ router.post('/providers', csrfProtection, asyncHandler(async (req: Request, res:
  * Update fuel card provider
  */
 router.put('/providers/:id', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -92,7 +92,7 @@ router.put('/providers/:id', csrfProtection, asyncHandler(async (req: Request, r
  * List all fuel cards with optional filters
  */
 router.get('/', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -114,7 +114,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
  * Get fuel card details
  */
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -134,7 +134,7 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
  * Create new fuel card
  */
 router.post('/', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -152,7 +152,7 @@ router.post('/', csrfProtection, asyncHandler(async (req: Request, res: Response
  * Update fuel card
  */
 router.put('/:id', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -174,7 +174,7 @@ router.put('/:id', csrfProtection, asyncHandler(async (req: Request, res: Respon
  * Soft delete fuel card (sets status to 'suspended')
  */
 router.delete('/:id', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -194,7 +194,7 @@ router.delete('/:id', csrfProtection, asyncHandler(async (req: Request, res: Res
  * Get all transactions for a specific fuel card
  */
 router.get('/:id/transactions', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -228,7 +228,7 @@ router.get('/:id/transactions', asyncHandler(async (req: Request, res: Response)
  * List all fuel card transactions with filters
  */
 router.get('/transactions', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -252,7 +252,7 @@ router.get('/transactions', asyncHandler(async (req: Request, res: Response) => 
     fuel_card_id: fuel_card_id as string,
     vehicle_id: vehicle_id as string,
     driver_id: driver_id as string,
-    reconciliation_status: reconciliation_status as any,
+    reconciliation_status: reconciliation_status as FuelCardTransactionFilters['reconciliation_status'],
     is_disputed: is_disputed === 'true',
     start_date: start_date as string,
     end_date: end_date as string,
@@ -280,7 +280,7 @@ router.get('/transactions', asyncHandler(async (req: Request, res: Response) => 
  * Get specific fuel card transaction
  */
 router.get('/transactions/:id', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -300,7 +300,7 @@ router.get('/transactions/:id', asyncHandler(async (req: Request, res: Response)
  * Bulk import fuel card transactions from provider
  */
 router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -320,7 +320,7 @@ router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Req
     skipped_count: 0,
     error_count: 0,
     transaction_ids: [] as string[],
-    errors: [] as any[]
+    errors: [] as { row: number; error: string; data: unknown }[]
   };
 
   // Import each transaction
@@ -356,7 +356,7 @@ router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Req
  * Run auto-reconciliation on pending transactions
  */
 router.post('/transactions/reconcile', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -372,8 +372,8 @@ router.post('/transactions/reconcile', csrfProtection, asyncHandler(async (req: 
  * Dispute a fuel card transaction
  */
 router.post('/transactions/:id/dispute', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
-  const userId = (req as any).user?.id;
+  const tenantId = req.user?.tenant_id;
+  const userId = req.user?.id;
   if (!tenantId || !userId) {
     throw new Error('Tenant ID and User ID are required');
   }
@@ -394,8 +394,8 @@ router.post('/transactions/:id/dispute', csrfProtection, asyncHandler(async (req
  * Manually link a fuel card transaction to a fuel transaction
  */
 router.post('/transactions/manual-reconcile', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
-  const userId = (req as any).user?.id;
+  const tenantId = req.user?.tenant_id;
+  const userId = req.user?.id;
   if (!tenantId || !userId) {
     throw new Error('Tenant ID and User ID are required');
   }
@@ -421,7 +421,7 @@ router.post('/transactions/manual-reconcile', csrfProtection, asyncHandler(async
  * Update fuel card transaction (approval, dispute, etc.)
  */
 router.put('/transactions/:id', csrfProtection, asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -447,7 +447,7 @@ router.put('/transactions/:id', csrfProtection, asyncHandler(async (req: Request
  * Get fuel card utilization summary
  */
 router.get('/utilization', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }
@@ -463,7 +463,7 @@ router.get('/utilization', asyncHandler(async (req: Request, res: Response) => {
  * Get fraud detection alerts
  */
 router.get('/transactions/fraud-alerts', asyncHandler(async (req: Request, res: Response) => {
-  const tenantId = (req as any).user?.tenant_id;
+  const tenantId = req.user?.tenant_id;
   if (!tenantId) {
     throw new Error('Tenant ID is required');
   }

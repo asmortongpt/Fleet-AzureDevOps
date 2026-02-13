@@ -13,7 +13,7 @@ import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 const router = express.Router()
 router.use(authenticateJWT)
 
-const parsePolicyContent = (content: any) => {
+const parsePolicyContent = (content: unknown): Record<string, unknown> => {
   if (!content) return {}
   if (typeof content === 'string') {
     try {
@@ -22,11 +22,11 @@ const parsePolicyContent = (content: any) => {
       return {}
     }
   }
-  if (typeof content === 'object') return content
+  if (typeof content === 'object') return content as Record<string, unknown>
   return {}
 }
 
-const evaluateCondition = (actual: any, operator: string, expected: any): boolean => {
+const evaluateCondition = (actual: unknown, operator: string, expected: unknown): boolean => {
   const op = operator?.toLowerCase()
   switch (op) {
     case 'equals':
@@ -172,9 +172,9 @@ router.post(
         policy_name: policy.name,
         evaluated_at: new Date().toISOString(),
         context,
-        checks: [] as any[],
+        checks: [] as Record<string, unknown>[],
         compliant: true,
-        violations: [] as any[]
+        violations: [] as Record<string, unknown>[]
       }
 
       evaluation.checks.push({
@@ -207,9 +207,9 @@ router.post(
 
       const conditions = Array.isArray(content.conditions) ? content.conditions : []
       if (conditions.length > 0) {
-        const failedConditions: any[] = []
+        const failedConditions: Record<string, unknown>[] = []
 
-        conditions.forEach((condition: any, index: number) => {
+        conditions.forEach((condition: Record<string, unknown>, index: number) => {
           const field = condition.field ?? condition.key ?? condition.attribute
           const operator = condition.operator ?? condition.op ?? 'equals'
           const expected = condition.value

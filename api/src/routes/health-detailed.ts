@@ -75,7 +75,7 @@ const requireAdmin = (req: Request, res: Response, next: express.NextFunction) =
   }
 
   // Check for JWT with admin role (if using JWT authentication)
-  const user = (req as any).user;
+  const user = req.user;
   if (user && (user.role === 'admin' || user.role === 'system_admin')) {
     return next();
   }

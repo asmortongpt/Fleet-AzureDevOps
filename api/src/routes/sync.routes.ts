@@ -63,7 +63,7 @@ router.use(authenticateJWT)
 router.post(`/teams/:teamId/channels/:channelId`, csrfProtection, async (req: Request, res: Response) => {
   try {
     const { teamId, channelId } = req.params
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
     logger.info(`Manual Teams sync requested: ${teamId}/${channelId} by user ${userId}`)
 
@@ -111,7 +111,7 @@ router.post(`/teams/:teamId/channels/:channelId`, csrfProtection, async (req: Re
 router.post(`/outlook/folders/:folderId`, csrfProtection, async (req: Request, res: Response) => {
   try {
     const { folderId } = req.params
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
     logger.info(`Manual Outlook sync requested: ${folderId} by user ${userId}`)
 
@@ -184,7 +184,7 @@ router.get('/status', async (req: Request, res: Response) => {
  */
 router.post('/full',csrfProtection, async (req: Request, res: Response) => {
   try {
-    const userRole = (req as any).user?.role
+    const userRole = req.user?.role
 
     // Only admins can trigger full re-sync
     if (userRole !== 'admin' && userRole !== 'fleet_manager') {
@@ -194,7 +194,7 @@ router.post('/full',csrfProtection, async (req: Request, res: Response) => {
       })
     }
 
-    logger.info(`Full re-sync requested by ${(req as any).user?.email}`)
+    logger.info(`Full re-sync requested by ${req.user?.email}`)
 
     // Clear all delta tokens
     await pool.query(`UPDATE sync_state SET delta_token = NULL`)
@@ -332,7 +332,7 @@ router.get('/jobs', async (req: Request, res: Response) => {
  */
 router.post(`/teams/all`, csrfProtection, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
     logger.info(`Manual sync all Teams channels requested by user ${userId}`)
 
@@ -370,7 +370,7 @@ router.post(`/teams/all`, csrfProtection, async (req: Request, res: Response) =>
  */
 router.post(`/outlook/all`, csrfProtection, async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
 
     logger.info(`Manual sync all Outlook folders requested by user ${userId}`)
 

@@ -54,7 +54,7 @@ const ReportDTCsSchema = z.object({
     description: z.string(),
     severity: z.enum(['critical', 'major', 'moderate', 'minor', 'informational']),
     is_mil_on: z.boolean(),
-    freeze_frame_data: z.any().optional(),
+    freeze_frame_data: z.record(z.string(), z.unknown()).optional(),
     detected_at: z.string().datetime()
   })),
 })
@@ -90,7 +90,7 @@ const LiveDataSchema = z.object({
       altitude: z.number().optional(),
       accuracy: z.number().optional()
     }).optional(),
-    all_pids: z.any().optional()
+    all_pids: z.record(z.string(), z.unknown()).optional()
   })
 })
 
@@ -171,8 +171,8 @@ const ConnectionLogSchema = z.object({
 router.post('/connect',csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = RegisterAdapterSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
 
     const adapter = await obd2Service.registerAdapter(tenantId, userId, validated)
 
@@ -199,8 +199,8 @@ router.post('/connect',csrfProtection, requirePermission('vehicle:update:fleet')
  */
 router.get('/adapters', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
 
     const adapters = await obd2Service.getUserAdapters(tenantId, userId)
 
@@ -233,7 +233,7 @@ router.get('/adapters', requirePermission('vehicle:view:fleet'), async (req: Req
  */
 router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
     const adapterId = parseInt(req.params.adapterId)
 
     const adapter = await obd2Service.getAdapterById(tenantId, adapterId)
@@ -303,8 +303,8 @@ router.get('/adapters/:adapterId', requirePermission('vehicle:view:fleet'), asyn
 router.post('/dtcs',csrfProtection, requirePermission('maintenance:create:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = ReportDTCsSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
 
     const dtcs = await obd2Service.reportDiagnosticCodes(
       tenantId,
@@ -349,9 +349,9 @@ router.post('/dtcs',csrfProtection, requirePermission('maintenance:create:fleet'
  */
 router.get('/dtcs/:vehicleId', requirePermission('maintenance:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
     const vehicleId = parseInt(req.params.vehicleId)
-    const status = req.query.status as any
+    const status = req.query.status as string | undefined
 
     const dtcs = await obd2Service.getVehicleDiagnosticCodes(tenantId, vehicleId, status)
 
@@ -384,8 +384,8 @@ router.get('/dtcs/:vehicleId', requirePermission('maintenance:view:fleet'), asyn
  */
 router.delete(`/dtcs/:vehicleId`, csrfProtection, requirePermission(`maintenance:update:fleet`), auditLog, async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
     const vehicleId = parseInt(req.params.vehicleId)
 
     const count = await obd2Service.clearDiagnosticCodes(tenantId, vehicleId, userId)
@@ -461,8 +461,8 @@ router.delete(`/dtcs/:vehicleId`, csrfProtection, requirePermission(`maintenance
 router.post('/live-data',csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = LiveDataSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
 
     const liveData = await obd2Service.storeLiveData(
       tenantId,
@@ -505,7 +505,7 @@ router.post('/live-data',csrfProtection, requirePermission('vehicle:view:fleet')
  */
 router.get('/live-data/:vehicleId', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
     const vehicleId = parseInt(req.params.vehicleId)
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 100
 
@@ -566,8 +566,8 @@ router.get('/live-data/:vehicleId', requirePermission('vehicle:view:fleet'), asy
 router.post('/connection-log',csrfProtection, requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = ConnectionLogSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
 
     const log = await obd2Service.logConnection(
       tenantId,
@@ -615,7 +615,7 @@ router.post('/connection-log',csrfProtection, requirePermission('vehicle:view:fl
  */
 router.get('/health/:vehicleId', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
     const vehicleId = parseInt(req.params.vehicleId)
 
     const health = await obd2Service.getVehicleHealthSummary(tenantId, vehicleId)
@@ -661,7 +661,7 @@ router.get('/health/:vehicleId', requirePermission('vehicle:view:fleet'), async 
  */
 router.get('/fuel-economy/:vehicleId', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
     const vehicleId = parseInt(req.params.vehicleId)
     const days = req.query.days ? parseInt(req.query.days as string) : 30
 

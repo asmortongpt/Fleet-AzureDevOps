@@ -48,7 +48,7 @@ router.get("/upcoming",
   }),
   asyncHandler(async (req, res, next) => {
     const pool = (await import('../db/connection')).pool
-    const tenantId = (req as any).user?.tenant_id || 1
+    const tenantId = req.user?.tenant_id || '1'
     const { vehicleId } = req.query
 
     let query = `
@@ -57,11 +57,11 @@ router.get("/upcoming",
       AND status = 'scheduled'
       AND scheduled_date > NOW()
     `
-    const params: any[] = [tenantId]
+    const params: (string | number | boolean | null | undefined)[] = [tenantId]
 
     if (vehicleId) {
       query += ` AND vehicle_id = $2`
-      params.push(vehicleId)
+      params.push(String(vehicleId))
     }
 
     query += ` ORDER BY scheduled_date ASC`
@@ -81,7 +81,7 @@ router.get("/overdue",
   }),
   asyncHandler(async (req, res, next) => {
     const pool = (await import('../db/connection')).pool
-    const tenantId = (req as any).user?.tenant_id || 1
+    const tenantId = req.user?.tenant_id || '1'
 
     const result = await pool.query(
       `SELECT * FROM maintenance_records
@@ -106,7 +106,7 @@ router.get("/statistics",
   }),
   asyncHandler(async (req, res, next) => {
     const pool = (await import('../db/connection')).pool
-    const tenantId = (req as any).user?.tenant_id || 1
+    const tenantId = req.user?.tenant_id || '1'
 
     // Get comprehensive maintenance statistics
     const statsResult = await pool.query(
@@ -151,7 +151,7 @@ router.get("/history",
   }),
   asyncHandler(async (req, res, next) => {
     const pool = (await import('../db/connection')).pool
-    const tenantId = (req as any).user?.tenant_id || 1
+    const tenantId = req.user?.tenant_id || '1'
     const { vehicleId } = req.query
 
     if (!vehicleId) {
@@ -181,7 +181,7 @@ router.get("/costs",
   }),
   asyncHandler(async (req, res, next) => {
     const pool = (await import('../db/connection')).pool
-    const tenantId = (req as any).user?.tenant_id || 1
+    const tenantId = req.user?.tenant_id || '1'
     const { vehicleId } = req.query
 
     if (!vehicleId) {

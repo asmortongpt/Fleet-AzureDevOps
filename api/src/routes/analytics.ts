@@ -124,12 +124,12 @@ const cacheMiddleware = (keyPrefix: string) => {
             const originalJson = res.json.bind(res)
 
             // Override json function to cache response
-            res.json = function (body: any) {
+            res.json = function (body: unknown) {
                 if (res.statusCode === 200) {
                     redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(body)).catch(logger.error)
                 }
                 return originalJson(body)
-            } as any
+            } as typeof res.json
 
             next()
         } catch (error) {
@@ -148,7 +148,7 @@ const cacheMiddleware = (keyPrefix: string) => {
  */
 router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Request, res: Response) => {
     try {
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id
         if (!tenantId) return res.status(401).json({ error: 'Unauthorized' })
 
         const daysRaw = Array.isArray(req.query.days) ? req.query.days[0] : req.query.days
@@ -284,7 +284,7 @@ router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Req
                 costPerMile: Number(costPerMile.toFixed(3)),
                 totalOperatingCost: Number(totalOperatingCost.toFixed(2)),
             },
-            vehiclesByFuelType: (byFuelTypeResult.rows || []).map((r: any) => ({
+            vehiclesByFuelType: (byFuelTypeResult.rows || []).map((r: Record<string, unknown>) => ({
                 fuelType: r.fuel_type,
                 count: Number(r.count || 0),
             })),
@@ -308,10 +308,10 @@ router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Req
 router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id
 
         let whereClause = 'WHERE tenant_id = $1'
-        const params: any[] = [tenantId]
+        const params: unknown[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
@@ -356,7 +356,7 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
         const data = result.rows
 
         res.json({
-            data: data.map((row: any) => ({
+            data: data.map((row: Record<string, string>) => ({
                 date: new Date(row.date).toISOString().split('T')[0],
                 fuel: parseFloat(row.fuel),
                 maintenance: parseFloat(row.maintenance),
@@ -385,11 +385,11 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
 router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id
 
         let tripWhere = 'WHERE tenant_id = $1'
         let fuelWhere = 'WHERE tenant_id = $1'
-        const params: any[] = [tenantId]
+        const params: unknown[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
@@ -452,7 +452,7 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
         const data = result.rows
 
         res.json({
-            data: data.map((row: any) => {
+            data: data.map((row: Record<string, string>) => {
                 const miles = parseFloat(row.miles || '0')
                 const hours = parseFloat(row.hours || '0')
                 const gallons = parseFloat(row.gallons || '0')
@@ -490,10 +490,10 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
 router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id
 
         let dateFilter = ''
-        const params: any[] = [tenantId]
+        const params: unknown[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
@@ -623,10 +623,10 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
 router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id
 
         let dateFilter = ''
-        const params: any[] = [tenantId]
+        const params: unknown[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
@@ -775,11 +775,11 @@ router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Reque
 router.get('/performance', cacheMiddleware('analytics:performance'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, vehicleIds } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id
 
         let tripWhere = 'WHERE tenant_id = $1'
         let fuelWhere = 'WHERE tenant_id = $1'
-        const params: any[] = [tenantId]
+        const params: unknown[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
@@ -858,7 +858,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
         const performanceData = efficiencyResult.rows
 
         const performance = {
-            timeSeries: performanceData.map((row: any) => ({
+            timeSeries: performanceData.map((row: Record<string, string>) => ({
                 date: new Date(row.date).toISOString().split('T')[0],
                 avgMPG: row.gallons ? parseFloat((parseFloat(row.miles || '0') / parseFloat(row.gallons || '1')).toFixed(2)) : 0,
                 avgUtilization: row.vehicle_count ? parseFloat((Math.min(100, (parseFloat(row.hours || '0') / (parseInt(row.vehicle_count || '1', 10) * 24)) * 100)).toFixed(2)) : 0,
@@ -902,10 +902,10 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
 router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (req: Request, res: Response) => {
     try {
         const { startDate, endDate, interval = 'day', vehicleIds } = req.query
-        const tenantId = (req as any).user?.tenant_id
+        const tenantId = req.user?.tenant_id
 
         let whereClause = 'WHERE tenant_id = $1'
-        const params: any[] = [tenantId]
+        const params: unknown[] = [tenantId]
         let paramIndex = 2
 
         if (startDate) {
@@ -955,7 +955,7 @@ router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (re
         const trends = result.rows
 
         // Calculate period-over-period changes
-        const trendsWithChanges = trends.map((row: any, index: number) => {
+        const trendsWithChanges = trends.map((row: Record<string, string>, index: number) => {
             const current = parseFloat(row.total_cost)
             const previous = index < trends.length - 1 ? parseFloat(trends[index + 1].total_cost) : current
 

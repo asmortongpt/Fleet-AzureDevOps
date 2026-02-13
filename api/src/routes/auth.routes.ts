@@ -129,7 +129,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
    */
   router.post('/logout', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
-      const user = (req as any).user;
+      const user = req.user;
       if (!user || !user.sessionUuid) {
         throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }
@@ -137,7 +137,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
       await authService.revokeSession(user.sessionUuid);
 
       await auditService.log({
-        userId: user.userId.toString(),
+        userId: String(user.userId),
         action: 'user_logout',
         category: AuditCategory.AUTHENTICATION,
         severity: AuditSeverity.INFO,
@@ -186,7 +186,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
    */
   router.post('/mfa/setup', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
-      const user = (req as any).user;
+      const user = req.user;
       if (!user) {
         throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }
@@ -212,7 +212,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
    */
   router.post('/mfa/verify', authenticateJWT, async (req: Request, res: Response, next) => {
     try {
-      const user = (req as any).user;
+      const user = req.user;
       if (!user) {
         throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }
@@ -221,7 +221,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
       await authService.enableMFA(user.userId, code);
 
       await auditService.log({
-        userId: user.userId.toString(),
+        userId: String(user.userId),
         action: 'mfa_enabled',
         category: AuditCategory.SECURITY_EVENT,
         severity: AuditSeverity.INFO,
@@ -247,7 +247,7 @@ export function createAuthRoutes(pool: Pool, redis: Redis, auditService: AuditSe
    */
   router.get('/me', async (req: Request, res: Response, next) => {
     try {
-      const user = (req as any).user;
+      const user = req.user;
       if (!user) {
         throw new ApiError('Not authenticated', 401, 'UNAUTHORIZED');
       }

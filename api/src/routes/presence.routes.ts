@@ -119,7 +119,7 @@ router.get('/driver/:driverId', authenticateJWT, async (req: Request, res: Respo
  */
 router.get('/drivers/all', authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
 
     const drivers = await getAllDriversAvailability(tenantId)
 
@@ -140,7 +140,7 @@ router.get('/drivers/all', authenticateJWT, async (req: Request, res: Response) 
  */
 router.get('/drivers/available', authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
 
     const availableDrivers = await findAvailableDrivers(tenantId)
 
@@ -202,8 +202,8 @@ router.post('/subscribe', csrfProtection, authenticateJWT, async (req: Request, 
       })
     }
 
-    const userId = (req as any).user?.id || null
-    const tenantId = (req as any).user?.tenant_id || null
+    const userId = req.user?.id || null
+    const tenantId = req.user?.tenant_id || null
 
     // Store the webhook subscription in the database
     const insertResult = await pool.query(

@@ -5,7 +5,7 @@
  */
 
 
-import express, { Response } from 'express'
+import express, { NextFunction, Response } from 'express'
 import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 21: Add Winston logger
@@ -26,8 +26,8 @@ router.use(authenticateJWT)
 const vehicleModelsService = new VehicleModelsService(pool)
 
 // Optional authentication - allow public access for some endpoints
-const optionalAuth = (req: AuthRequest, res: Response, next: any) => {
-  authenticateJWT(req, res, (err?: any) => {
+const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
+  authenticateJWT(req, res, (err?: Error) => {
     // Continue even if not authenticated
     next()
   })
@@ -224,7 +224,7 @@ router.post(
 
       const damageMarkers = schema.parse(req.body)
 
-      await vehicleModelsService.updateDamageMarkers(vehicleId, damageMarkers as any)
+      await vehicleModelsService.updateDamageMarkers(vehicleId, damageMarkers)
 
       res.json({
         message: 'Damage markers updated successfully',

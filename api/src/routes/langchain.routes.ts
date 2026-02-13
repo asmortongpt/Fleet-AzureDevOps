@@ -29,8 +29,8 @@ router.use(authenticateJWT)
 router.post('/execute',csrfProtection, requirePermission('report:generate:global'), async (req: Request, res: Response) => {
   try {
     const { workflowType, parameters } = req.body
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.userId
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.userId
     const sessionId = req.body.sessionId || uuidv4()
 
     if (!workflowType) {
@@ -97,8 +97,8 @@ router.post('/execute',csrfProtection, requirePermission('report:generate:global
 router.post('/chat',csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { message, sessionId, config } = req.body
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.userId
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.userId
 
     if (!message) {
       throw new ValidationError("Message is required")
@@ -180,8 +180,8 @@ router.post('/chat',csrfProtection, requirePermission('report:view:global'), asy
 router.post('/supervisor/query',csrfProtection, requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
     const { query, sessionId } = req.body
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.userId
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.userId
 
     if (!query) {
       throw new ValidationError("Query is required")
@@ -545,7 +545,7 @@ router.get('/mcp/servers', requirePermission('report:view:global'), async (req: 
  */
 router.get('/mcp/tools', requirePermission('report:view:global'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user?.tenant_id
     const tools = await mcpServerRegistryService.getAvailableFleetTools(tenantId)
 
     res.json({

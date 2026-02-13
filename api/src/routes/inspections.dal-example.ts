@@ -299,7 +299,7 @@ router.post(
       // Create inspection
       const inspection = await inspectionRepo.createInspection(
         Number(req.user!.tenant_id),
-        validatedData as any
+        validatedData as z.infer<typeof inspectionCreateSchema>
       )
 
       res.status(201).json(inspection)
@@ -331,7 +331,7 @@ router.put(
       const inspection = await inspectionRepo.updateInspection(
         Number(req.params.id),
         Number(req.user!.tenant_id),
-        validatedData as any
+        validatedData as Partial<z.infer<typeof inspectionCreateSchema>>
       )
 
       res.json(inspection)
@@ -468,7 +468,7 @@ router.post(
                 inspection_type,
                 scheduled_date,
                 status: 'pending'
-              } as any
+              } as z.infer<typeof inspectionCreateSchema> & { status: string }
             )
             results.push(inspection)
           }

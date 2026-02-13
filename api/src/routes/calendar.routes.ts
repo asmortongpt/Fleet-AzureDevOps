@@ -75,7 +75,7 @@ router.post('/events',csrfProtection, authenticateJWT, async (req: Request, res:
  */
 router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const userId = (req.query.userId as string | undefined) || (req as any).user?.id
+    const userId = (req.query.userId as string | undefined) || req.user?.id
     const { startDate, endDate } = req.query
 
     if (!userId || !startDate || !endDate) {
@@ -92,7 +92,7 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
     // This keeps demos functional without requiring external integrations.
     const useLocal = req.query.source === 'local' || process.env.CALENDAR_SOURCE !== 'graph'
     if (useLocal) {
-      const tenantId = (req as any).user?.tenant_id
+      const tenantId = req.user?.tenant_id
       if (!tenantId) return res.status(401).json({ error: 'Tenant ID required' })
 
       const result = await pool.query(
@@ -183,7 +183,7 @@ router.patch('/events/:eventId',csrfProtection, authenticateJWT, async (req: Req
       throw new ValidationError("Missing required field: userId")
     }
 
-    const updates: any = {}
+    const updates: Record<string, unknown> = {}
     if (subject) {
 updates.subject = subject
 }
@@ -333,7 +333,7 @@ async function handleFindTimes(req: Request, res: Response) {
       })
     }
 
-    const timeConstraints: any = {}
+    const timeConstraints: Record<string, unknown> = {}
     if (startTime) {
       timeConstraints.startTime = new Date(startTime)
     }

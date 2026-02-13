@@ -32,7 +32,7 @@ router.get(
         LEFT JOIN drivers d ON i.driver_id = d.id
         LEFT JOIN users u ON i.reported_by_id = u.id
       `
-      const params: any[] = [req.user!.tenant_id]
+      const params: unknown[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (status) {

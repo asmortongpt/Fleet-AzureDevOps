@@ -13,6 +13,8 @@ import {
   CreateAccountsPayableInput,
   PaymentInput,
   APQueryOptions,
+  APStatus,
+  AgingBucket,
   CreateDepreciationInput
 } from '../types/accounts-payable';
 import { logger } from '../utils/logger';
@@ -42,8 +44,8 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
     const options: APQueryOptions = {
       tenant_id: tenantId,
       vendor_id: req.query.vendor_id as string,
-      status: req.query.status as any,
-      aging_bucket: req.query.aging_bucket as any,
+      status: req.query.status as APStatus | undefined,
+      aging_bucket: req.query.aging_bucket as AgingBucket | undefined,
       due_date_from: req.query.due_date_from ? new Date(req.query.due_date_from as string) : undefined,
       due_date_to: req.query.due_date_to ? new Date(req.query.due_date_to as string) : undefined,
       min_amount: req.query.min_amount ? parseFloat(req.query.min_amount as string) : undefined,

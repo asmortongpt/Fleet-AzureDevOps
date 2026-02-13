@@ -25,11 +25,11 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { page = 1, limit = 50, status, type } = req.query as any
+      const { page = 1, limit = 50, status, type } = req.query as Record<string, string | undefined>
       const offset = (Number(page) - 1) * Number(limit)
 
       const where: string[] = ['i.tenant_id = $1']
-      const params: any[] = [req.user!.tenant_id]
+      const params: unknown[] = [req.user!.tenant_id]
       let idx = 2
 
       if (status) {

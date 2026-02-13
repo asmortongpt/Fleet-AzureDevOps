@@ -1112,7 +1112,7 @@ router.post('/microsoft/exchange', async (req: Request, res: Response) => {
       hasCookie: Boolean(req.headers.cookie),
       authCookiePresent: Boolean(req.cookies?.auth_token)
     })
-    const decodedUnverified = jwt.decode(idToken, { complete: true }) as any
+    const decodedUnverified = jwt.decode(idToken, { complete: true }) as { payload: Record<string, string | number | undefined> } | null
     if (!decodedUnverified || !decodedUnverified.payload) {
       logger.error('[Auth Exchange] Failed to decode ID token')
       return res.status(400).json({ error: 'Invalid ID token format' })

@@ -291,7 +291,7 @@ router.get('/config/business-rules', async (req: AuthRequest, res) => {
     const { entity } = req.query
     const configManager = new TaskAssetConfigManager(tenantId!, pool)
 
-    const rules = await configManager.getBusinessRules(entity as any)
+    const rules = await configManager.getBusinessRules(entity as 'task' | 'asset' | undefined)
 
     res.json({ rules })
   } catch (error) {

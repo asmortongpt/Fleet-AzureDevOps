@@ -113,8 +113,9 @@ router.get('/connections', async (req, res) => {
     // Apply sorting
     const { sortBy = 'name', order = 'asc' } = req.query
     filtered.sort((a, b) => {
-      const aVal = (a as any)[sortBy as string] || ''
-      const bVal = (b as any)[sortBy as string] || ''
+      const sortKey = sortBy as keyof ConnectionEndpoint
+      const aVal = a[sortKey] || ''
+      const bVal = b[sortKey] || ''
 
       if (order === 'desc') {
         return bVal.toString().localeCompare(aVal.toString())

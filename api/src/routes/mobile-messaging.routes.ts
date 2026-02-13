@@ -16,6 +16,7 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions';
 import { outlookService } from '../services/outlook.service';
 import teamsService from '../services/teams.service';
+import { CommunicationEntityLink } from '../types/teams.types'
 import { getErrorMessage } from '../utils/error-handler'
 
 
@@ -217,7 +218,7 @@ router.post(
       }
 
       // Send SMS via Twilio
-      const messageOptions: any = {
+      const messageOptions: { body: string; from: string | undefined; to: string; mediaUrl?: string[] } = {
         body: validated.body,
         from: twilioPhoneNumber,
         to: validated.to,
@@ -347,7 +348,7 @@ router.post(
           importance: validated.importance,
         },
         req.user!.id ? parseInt(req.user!.id) : undefined,
-        validated.entityLinks as any
+        validated.entityLinks as Partial<CommunicationEntityLink>[] | undefined
       );
 
       res.json({
@@ -393,7 +394,7 @@ router.get(
         SELECT id, tenant_id, template_name, template_type, subject, body, active, created_at, updated_at FROM communication_templates
         WHERE is_active = TRUE
       `;
-      const params: any[] = [];
+      const params: unknown[] = [];
 
       if (type) {
         params.push(type);

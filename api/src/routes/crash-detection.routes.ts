@@ -80,7 +80,7 @@ router.post('/crash',
 
     try {
       const validated = CrashReportSchema.parse(req.body)
-      const user = (req as any).user
+      const user = req.user!
       const tenantId = user.tenant_id
       const userId = user.id
 
@@ -170,7 +170,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
   const client = await pool.connect()
 
   try {
-    const user = (req as any).user
+    const user = req.user!
     const tenantId = user.tenant_id
     const userId = user.id
     const days = parseInt(req.query.days as string) || 90
@@ -226,7 +226,7 @@ router.get('/crash/fleet', async (req: Request, res: Response) => {
   const client = await pool.connect()
 
   try {
-    const user = (req as any).user
+    const user = req.user!
     const tenantId = user.tenant_id
     const days = parseInt(req.query.days as string) || 30
 
@@ -278,7 +278,18 @@ router.get('/crash/fleet', async (req: Request, res: Response) => {
 /**
  * Trigger emergency response for a confirmed crash
  */
-async function triggerEmergencyResponse(incident: any, client: any) {
+interface CrashIncident {
+  id: string | number
+  tenant_id: string
+  user_id: string | number
+  driver_id: string | number
+  max_acceleration: number
+  latitude?: number
+  longitude?: number
+  timestamp: string
+}
+
+async function triggerEmergencyResponse(incident: CrashIncident, client: { query: (sql: string, params: unknown[]) => Promise<unknown> }) {
   try {
     // 1. Create high-priority alert
     await client.query(
