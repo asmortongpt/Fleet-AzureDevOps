@@ -32,9 +32,7 @@ export interface User {
 export type UserRole = 'admin' | 'fleet_manager' | 'driver' | 'technician' | 'viewer';
 export type ScopeLevel = 'own' | 'team' | 'fleet' | 'global';
 
-export interface AuthRequest extends Request {
-  user?: JWTPayload;
-}
+export { AuthRequest } from '../middleware/auth';
 
 export interface LoginRequest {
   email: string;

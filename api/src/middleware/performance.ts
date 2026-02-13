@@ -2,6 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 
 import { logger } from './logger';
 
+declare const global: typeof globalThis & {
+  appInsights?: {
+    defaultClient: {
+      trackMetric: (metric: { name: string; value: number; properties?: Record<string, string> }) => void;
+    };
+  };
+};
+
 // Performance monitoring middleware
 export function performanceMonitoring(req: Request, res: Response, next: NextFunction) {
   const start = Date.now();

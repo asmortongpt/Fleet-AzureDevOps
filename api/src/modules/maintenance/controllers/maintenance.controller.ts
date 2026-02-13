@@ -38,35 +38,35 @@ export class MaintenanceController {
       // Apply filters (TODO: move to service layer)
       if (search && typeof search === 'string') {
         const searchLower = search.toLowerCase();
-        records = records.filter((r: Record<string, unknown>) =>
-          (r.description as string | undefined)?.toLowerCase().includes(searchLower) ||
-          (r.service_type as string | undefined)?.toLowerCase().includes(searchLower) ||
-          (r.category as string | undefined)?.toLowerCase().includes(searchLower)
+        records = records.filter((r) =>
+          r.description?.toLowerCase().includes(searchLower) ||
+          r.service_type?.toLowerCase().includes(searchLower) ||
+          r.category?.toLowerCase().includes(searchLower)
         );
       }
 
       if (serviceType && typeof serviceType === 'string') {
-        records = records.filter((r: Record<string, unknown>) => r.service_type === serviceType);
+        records = records.filter((r) => r.service_type === serviceType);
       }
 
       if (status && typeof status === 'string') {
-        records = records.filter((r: Record<string, unknown>) => r.status === status);
+        records = records.filter((r) => r.status === status);
       }
 
       if (category && typeof category === 'string') {
-        records = records.filter((r: Record<string, unknown>) => r.category === category);
+        records = records.filter((r) => r.category === category);
       }
 
       if (vehicleNumber && typeof vehicleNumber === 'string') {
-        records = records.filter((r: Record<string, unknown>) => r.vehicle_number === vehicleNumber);
+        records = records.filter((r) => r.vehicle_number === vehicleNumber);
       }
 
       if (startDate && endDate && typeof startDate === 'string' && typeof endDate === 'string') {
         const start = new Date(startDate);
         const end = new Date(endDate);
-        records = records.filter((r: Record<string, unknown>) => {
-          const serviceDate = new Date(r.service_date as string);
-          return serviceDate >= start && serviceDate <= end;
+        records = records.filter((r) => {
+          const serviceDate = r.service_date ? new Date(r.service_date as unknown as string) : null;
+          return serviceDate ? serviceDate >= start && serviceDate <= end : false;
         });
       }
 

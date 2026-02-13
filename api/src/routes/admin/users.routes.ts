@@ -15,7 +15,6 @@ import { authenticateJWT } from '../../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../../middleware/rbac';
 import { asyncHandler } from '../../middleware/errorHandler';
 import logger from '../../config/logger';
-import { authenticateJWT } from '../middleware/auth'
 
 const router = Router();
 
@@ -23,7 +22,7 @@ const router = Router();
 router.use(authenticateJWT);
 router.use(requireRBAC({
   roles: [Role.ADMIN],
-  permissions: [PERMISSIONS.USERS_MANAGE],
+  permissions: [PERMISSIONS.USER_MANAGE],
   enforceTenantIsolation: false
 }));
 

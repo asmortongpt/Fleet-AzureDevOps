@@ -24,6 +24,10 @@ export const depreciationRouter = Router();
 // Here we assume middleware attaches req.asset or you implement an AssetRepository.
 depreciationRouter.get("/assets/:assetId/depreciation", async (req: AssetRequest, res) => {
   const asset = req.asset;
+  if (!asset) {
+    res.status(400).json({ error: 'Asset not found on request' });
+    return;
+  }
   const asOf = String(req.query.asOf ?? new Date().toISOString().slice(0,10));
   const out = await calculateAssetDepreciation({ asset, asOfDate: asOf });
   res.json(out);

@@ -234,7 +234,7 @@ export class RedisCacheManager extends EventEmitter {
 
       // Decompress if needed
       if (entry.metadata.compressed && entry.data) {
-        entry.data = await this.decompress(entry.data as unknown as Buffer)
+        entry.data = await this.decompress(entry.data as unknown as Buffer) as T
       }
 
       return entry.data
@@ -278,7 +278,7 @@ export class RedisCacheManager extends EventEmitter {
           lastAccessedAt: Date.now(),
           ttl,
           tags: options?.tags || [],
-          compressed: shouldCompress,
+          compressed: !!shouldCompress,
           version: this.generateVersion()
         }
       }

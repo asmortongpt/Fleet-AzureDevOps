@@ -147,9 +147,9 @@ router.get(
 	        data: result.rows,
 	        pagination: {
 	          total: parseInt(countResult.rows[0].count),
-          limit: parseInt(limit),
-          offset: parseInt(offset),
-          has_more: parseInt(offset) + result.rows.length < parseInt(countResult.rows[0].count)
+          limit: parseInt(String(limit)),
+          offset: parseInt(String(offset)),
+          has_more: parseInt(String(offset)) + result.rows.length < parseInt(countResult.rows[0].count)
         }
       });
     } catch (error: unknown) {

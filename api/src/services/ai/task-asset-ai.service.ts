@@ -65,7 +65,7 @@ export class TaskAssetAIService {
       // const embedding = await embed(taskText)
 
       // Temporarily disabled - embedding service import needs fixing
-      const similarTasks = { rows: [] }
+      const similarTasks: { rows: Array<Record<string, unknown>> } = { rows: [] }
 
       // const similarTasks = await this.db.query(
       //   `SELECT

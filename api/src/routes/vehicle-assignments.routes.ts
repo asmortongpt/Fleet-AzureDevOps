@@ -82,6 +82,10 @@ router.get(
   requirePermission('vehicle_assignment:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+
       const {
         page = '1',
         limit = '50',
@@ -92,8 +96,8 @@ router.get(
         department_id,
       } = req.query;
 
-      const tenant_id = req.user!.tenant_id;
-      const user_scope = req.user!.scope_level;
+      const tenant_id = req.user.tenant_id ?? '';
+      const user_scope = req.user.scope_level;
 
       const filters = {
         assignment_type: assignment_type as string,
@@ -102,8 +106,8 @@ router.get(
         vehicle_id: vehicle_id as string,
         department_id: department_id as string,
         user_scope: user_scope as 'own' | 'team' | 'fleet',
-        user_id: user_scope === 'own' ? req.user!.id : undefined,
-        team_driver_ids: user_scope === 'team' ? req.user!.team_driver_ids : undefined,
+        user_id: user_scope === 'own' ? req.user.id : undefined,
+        team_driver_ids: user_scope === 'team' ? req.user.team_driver_ids : undefined,
       };
 
       const pagination = {
@@ -145,8 +149,11 @@ router.get(
   requirePermission('vehicle_assignment:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user.tenant_id ?? '';
 
       // Use repository method instead of direct query
       const assignment = await vehicleAssignmentsRepo.findById(id, tenant_id);
@@ -178,9 +185,12 @@ router.post(
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const data = createAssignmentSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
-      const user_id = req.user!.id;
+      const tenant_id = req.user.tenant_id ?? '';
+      const user_id = req.user.id;
 
       // Validate temporary assignment duration (max 1 week)
       if (data.assignment_type === 'temporary') {
@@ -248,9 +258,12 @@ router.put(
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
       const data = updateAssignmentSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user.tenant_id ?? '';
 
       if (Object.keys(data).length === 0) {
         return res.status(400).json({ error: 'No fields to update' });
@@ -295,9 +308,12 @@ router.post(
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
       const data = assignmentLifecycleSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user.tenant_id ?? '';
 
       // Use repository method instead of direct query
       const assignment = await vehicleAssignmentsRepo.updateLifecycleState(id, tenant_id, data.lifecycle_state);
@@ -338,10 +354,13 @@ router.post(
   requirePermission('vehicle_assignment:recommend:team'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
       const { notes } = req.body;
-      const tenant_id = req.user!.tenant_id;
-      const user_id = req.user!.id;
+      const tenant_id = req.user.tenant_id ?? '';
+      const user_id = req.user.id;
 
       // Use repository method instead of direct query
       const assignment = await vehicleAssignmentsRepo.recommend(id, tenant_id, user_id, notes);
@@ -379,10 +398,13 @@ router.post(
   requirePermission('vehicle_assignment:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
       const data = approvalActionSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
-      const user_id = req.user!.id;
+      const tenant_id = req.user.tenant_id ?? '';
+      const user_id = req.user.id;
 
       let assignment;
 
@@ -439,8 +461,11 @@ router.post(
   requirePermission('vehicle_assignment:approve:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user.tenant_id ?? '';
 
       // Use repository method instead of direct query
       const assignment = await vehicleAssignmentsRepo.activate(id, tenant_id);
@@ -452,7 +477,7 @@ router.post(
       }
 
       // BR-6.4 & BR-11.5: Send activation notification to driver (mobile push + in-app)
-      await notificationService.notifyAssignmentActivated(id, req.user!.id, tenant_id);
+      await notificationService.notifyAssignmentActivated(id, req.user.id, tenant_id);
 
       res.json({
         message: 'Assignment activated successfully',
@@ -480,9 +505,12 @@ router.post(
   requirePermission('vehicle_assignment:terminate:fleet'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
       const { reason, effective_date } = req.body;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user.tenant_id ?? '';
 
       const effectiveDate = effective_date || new Date().toISOString().split('T')[0];
       const terminationReason = reason || 'Terminated by fleet manager';
@@ -495,7 +523,7 @@ router.post(
       }
 
       // BR-6.4: Send termination notification to all stakeholders
-      await notificationService.notifyAssignmentTerminated(id, req.user!.id, tenant_id, reason);
+      await notificationService.notifyAssignmentTerminated(id, req.user.id, tenant_id, reason);
 
       res.json({
         message: 'Assignment terminated successfully',
@@ -522,8 +550,11 @@ router.get(
   requirePermission('vehicle_assignment:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user.tenant_id ?? '';
 
       // Use repository method instead of direct query
       const history = await vehicleAssignmentsRepo.getHistory(id, tenant_id);
@@ -551,8 +582,11 @@ router.delete(
   requirePermission('vehicle_assignment:create:team'),
   async (req: AuthRequest, res: Response) => {
     try {
+      if (!req.user) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
       const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user.tenant_id ?? '';
 
       // Use repository method instead of direct query
       const deleted = await vehicleAssignmentsRepo.deleteDraft(id, tenant_id);

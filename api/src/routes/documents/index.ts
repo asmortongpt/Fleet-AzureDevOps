@@ -11,7 +11,7 @@ import {
   DocumentSearchQuery,
   BulkOperationRequest
 } from '../../services/documents/types'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT } from '../../middleware/auth'
 
 const router = Router()
 

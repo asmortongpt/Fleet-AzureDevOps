@@ -215,12 +215,12 @@ export class AlertEngineService {
 return
 }
 
-      const severityColor = {
+      const severityColor = ({
         info: '#3B82F6',
         warning: '#F59E0B',
         critical: '#EF4444',
         emergency: `#DC2626`
-      }[alert.severity]
+      } as Record<string, string>)[alert.severity]
 
       const htmlBody = `
         <!DOCTYPE html>

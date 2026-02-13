@@ -72,7 +72,7 @@ export class DriverController {
   async getDriverById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const driverId = Number(req.params.id);
+      const driverId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -124,7 +124,7 @@ export class DriverController {
   async updateDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const driverId = Number(req.params.id);
+      const driverId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -150,7 +150,7 @@ export class DriverController {
   async deleteDriver(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const driverId = Number(req.params.id);
+      const driverId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');

@@ -814,14 +814,11 @@ export class TelemetryService extends EventEmitter {
         id: route.id,
         name: route.name,
         description: route.description,
-        type: route.type,
+        type: route.type as Route['type'],
         estimatedDuration: route.estimatedDuration,
         estimatedDistance: route.estimatedDistance,
-        waypoints: route.waypoints.map(wp => ({
-          ...wp,
-          type: wp.type
-        })),
-        roadTypes: route.roadTypes,
+        waypoints: route.waypoints as Route['waypoints'],
+        roadTypes: route.roadTypes as Route['roadTypes'],
         trafficPatterns: route.trafficPatterns,
         priority: route.priority,
         frequency: route.frequency

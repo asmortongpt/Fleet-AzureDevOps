@@ -21,7 +21,7 @@ router.use(authenticateJWT)
 router.get('/monthly/:period',
   requirePermission('report:view:global'),
   async (req: AuthRequest, res: Response) => {
-    const tenantId = req.user!.tenant_id
+    const tenantId = req.user!.tenant_id ?? ''
     try {
       const { period } = req.params // Format: YYYY-MM
 
@@ -55,7 +55,7 @@ router.get('/monthly/:period',
 router.get('/payroll-export/:period',
   requirePermission('report:export:global'),
   async (req: AuthRequest, res: Response) => {
-    const tenantId = req.user!.tenant_id
+    const tenantId = req.user!.tenant_id ?? ''
     try {
       const { period } = req.params
 
@@ -89,7 +89,7 @@ router.get('/payroll-export/:period',
 router.get('/payroll-csv/:period',
   requirePermission('report:export:global'),
   async (req: AuthRequest, res: Response) => {
-    const tenantId = req.user!.tenant_id
+    const tenantId = req.user!.tenant_id ?? ''
     try {
       const { period } = req.params
 
@@ -122,7 +122,7 @@ router.get('/payroll-csv/:period',
 router.post('/mark-billed/:period',
  csrfProtection, requirePermission('report:generate:global'),
   async (req: AuthRequest, res: Response) => {
-    const tenantId = req.user!.tenant_id
+    const tenantId = req.user!.tenant_id ?? ''
     try {
       const { period } = req.params
       const { charge_ids } = req.body // Optional: specific charges to mark

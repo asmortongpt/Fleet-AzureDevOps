@@ -10,7 +10,7 @@ import { Router } from 'express'
 import { aiService } from '../../services/api-bus'
 import { logger } from '../../utils/logger'
 import type { AICompletionRequest } from '../../services/api-bus'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT } from '../../middleware/auth'
 
 const router = Router()
 

@@ -45,7 +45,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const {
       status,
       tire_type,
@@ -131,7 +131,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const input: CreateTireInventoryInput = req.body;
 
     const query = `
@@ -189,7 +189,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { id } = req.params;
 
     // Get tire details
@@ -238,7 +238,7 @@ router.put(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { id } = req.params;
     const input: UpdateTireInventoryInput = req.body;
 
@@ -309,7 +309,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
     const input: MountTireInput = req.body;
 
@@ -368,7 +368,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
     const input: UnmountTireInput = req.body;
 
@@ -435,7 +435,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
     const input: RotateTiresInput = req.body;
 
@@ -456,7 +456,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
 
     const query = `
@@ -496,7 +496,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
     const input: CreateTireInspectionInput = req.body;
 
@@ -545,7 +545,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { vehicleId } = req.params;
 
     const schedule = await tireRotationService.getScheduleForVehicle(vehicleId, tenantId);
@@ -573,7 +573,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const input: CreatePressureLogInput = req.body;
 
     // Generate alerts for low/high pressure
@@ -660,13 +660,13 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = req.user?.tenant_id;
+    const tenantId = req.user?.tenant_id ?? '';
     const { alert_level } = req.query;
 
     // Get rotation alerts
     const rotationAlerts = await tireRotationService.getRotationAlerts(
       tenantId,
-      alert_level as string | undefined
+      alert_level as 'info' | 'critical' | 'warning' | undefined
     );
 
     // Get low tread alerts
@@ -734,12 +734,12 @@ router.get(
         critical: [
           ...rotationAlerts.filter((a) => a.alert_level === 'critical'),
           ...treadAlerts.filter((a) => a.severity === 'critical'),
-          ...pressureAlerts.filter((a) => a.severity === 'critical')
+          ...pressureAlerts.filter((a) => (a as Record<string, unknown>).severity === 'critical')
         ].length,
         warning: [
           ...rotationAlerts.filter((a) => a.alert_level === 'warning'),
           ...treadAlerts.filter((a) => a.severity === 'warning'),
-          ...pressureAlerts.filter((a) => a.severity === 'warning')
+          ...pressureAlerts.filter((a) => (a as Record<string, unknown>).severity === 'warning')
         ].length
       }
     });

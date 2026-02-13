@@ -30,7 +30,7 @@ declare global {
       // Authentication - union of all middleware payload shapes
       user?: {
         // Core identity (always present after auth)
-        id: string | number
+        id: string
         email: string
 
         // Display name
@@ -52,11 +52,11 @@ declare global {
         team_vehicle_ids?: string[]
 
         // Session management
-        sessionId?: string | number
+        sessionId?: string
         sessionUuid?: string
 
         // Compatibility aliases (set by auth.ts middleware)
-        userId?: string | number
+        userId?: string
         userUuid?: string
         org_id?: string
 
@@ -130,7 +130,7 @@ declare module 'express-serve-static-core' {
       resetTime: Date
     }
     user?: {
-      id: string | number
+      id: string
       email: string
       name?: string
       username?: string
@@ -142,9 +142,9 @@ declare module 'express-serve-static-core' {
       scope_level?: string
       team_driver_ids?: string[]
       team_vehicle_ids?: string[]
-      sessionId?: string | number
+      sessionId?: string
       sessionUuid?: string
-      userId?: string | number
+      userId?: string
       userUuid?: string
       org_id?: string
       azureAD?: boolean

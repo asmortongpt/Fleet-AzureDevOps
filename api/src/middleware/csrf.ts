@@ -1,5 +1,14 @@
 import { doubleCsrf } from "csrf-csrf";
-import { Request } from "express";
+import { Request, Response, NextFunction } from "express";
+
+// Define the utility interface locally since the csrf-csrf package's
+// type export has compatibility issues with moduleResolution: "node"
+interface CsrfUtilities {
+  invalidCsrfTokenError: Error;
+  generateCsrfToken: (req: Request, res: Response, options?: Record<string, unknown>) => string;
+  validateRequest: (req: Request) => boolean;
+  doubleCsrfProtection: (req: Request, res: Response, next: NextFunction) => void;
+}
 
 const csrfMethods = doubleCsrf({
   getSecret: () => {
@@ -9,21 +18,19 @@ const csrfMethods = doubleCsrf({
     }
     return secret || 'dev-csrf-secret-' + process.pid;
   },
-  cookieName: "x-csrf-token", // The name of the cookie to be used, recommend using x-csrf-token
+  cookieName: "x-csrf-token",
   cookieOptions: {
     sameSite: "strict",
     path: "/",
     secure: process.env.NODE_ENV === "production",
   },
-  size: 64, // The size of the generated tokens in bits
-  ignoredMethods: ["GET", "HEAD", "OPTIONS"], // A list of request methods that will not be checked.
-  // @ts-expect-error - getSessionIdentifier exists at runtime but is missing from DoubleCsrfConfig types
-  getSessionIdentifier: (req: Request) => req.session?.id || "", // Optional: session identifier
-});
+  size: 64,
+  ignoredMethods: ["GET", "HEAD", "OPTIONS"],
+}) as unknown as CsrfUtilities;
 
 // Export individual methods
 export const generateToken = csrfMethods.generateCsrfToken;
-export const validateRequest = csrfMethods.doubleCsrfProtection; // Fixed: validateRequest is actually doubleCsrfProtection middleware
+export const validateRequest = csrfMethods.doubleCsrfProtection;
 export const doubleCsrfProtection = csrfMethods.doubleCsrfProtection;
 
 // Create a custom error for invalid CSRF token
@@ -33,8 +40,7 @@ export const invalidCsrfTokenError = new Error('Invalid CSRF token');
 export const csrfProtection = doubleCsrfProtection;
 
 // CSRF Token endpoint handler
-export const getCsrfToken = (req: Request, res: import('express').Response) => {
-  // Use the correct function name from the package
+export const getCsrfToken = (req: Request, res: Response) => {
   const token = csrfMethods.generateCsrfToken(req, res);
   res.json({ csrfToken: token });
 };

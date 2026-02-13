@@ -102,13 +102,15 @@ async function checkRedis(): Promise<HealthCheck> {
       }
     }
 
-    const redis = new Redis.default(process.env.REDIS_URL || {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: parseInt(process.env.REDIS_PORT || '6379'),
-      password: process.env.REDIS_PASSWORD,
-      maxRetriesPerRequest: 1,
-      connectTimeout: 2000
-    })
+    const redis = process.env.REDIS_URL
+      ? new Redis.default(process.env.REDIS_URL)
+      : new Redis.default({
+          host: process.env.REDIS_HOST || 'localhost',
+          port: parseInt(process.env.REDIS_PORT || '6379'),
+          password: process.env.REDIS_PASSWORD,
+          maxRetriesPerRequest: 1,
+          connectTimeout: 2000
+        })
 
     // Test connection with ping
     await redis.ping()

@@ -70,7 +70,7 @@ router.get(
   validateQuery(facilityQuerySchema),
   asyncHandler(async (req, res) => {
     const { page = 1, limit = 50, type, active } = req.query
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
 
     const offset = (Number(page) - 1) * Number(limit)
 
@@ -80,7 +80,7 @@ router.get(
 
     if (type) {
       whereClause += ` AND f.type = $${paramIndex}`
-      params.push(type)
+      params.push(type as string)
       paramIndex++
     }
 
@@ -135,7 +135,7 @@ router.get(
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
     const { id } = req.params
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
 
     const query = `
       SELECT
@@ -192,7 +192,7 @@ router.post(
   }),
   validateBody(facilityCreateSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
     const data = req.body
 
     const query = `
@@ -245,7 +245,7 @@ router.put(
   validateParams(facilityIdSchema),
   validateBody(facilityUpdateSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
     const { id } = req.params
     const updates = req.body
 
@@ -256,7 +256,7 @@ router.put(
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined) {
         setClauses.push(`${key} = $${paramIndex}`)
-        params.push(key === 'operating_hours' ? JSON.stringify(value) : value)
+        params.push(key === 'operating_hours' ? JSON.stringify(value) : value as string | number | boolean | null)
         paramIndex++
       }
     })
@@ -297,7 +297,7 @@ router.delete(
   }),
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
     const { id } = req.params
 
     const result = await tenantSafeQuery(
@@ -326,7 +326,7 @@ router.get(
   validateParams(facilityIdSchema),
   asyncHandler(async (req, res) => {
     const facilityId = req.params.id
-    const tenantId = req.user?.tenant_id
+    const tenantId = req.user?.tenant_id ?? ''
 
     const result = await tenantSafeQuery(
       `SELECT

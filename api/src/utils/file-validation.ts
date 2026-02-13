@@ -215,8 +215,10 @@ export async function validateFileContent(buffer: Buffer): Promise<{
   let detected: { ext: string; mime: string } | undefined;
   try {
     // `file-type` is ESM-only; use dynamic import so CJS builds still work.
-    const mod = await import('file-type');
-    detected = await mod.fileTypeFromBuffer(buffer) ?? undefined;
+    const mod = await import('file-type') as Record<string, unknown>;
+    const defaultMod = mod.default as Record<string, unknown> | undefined;
+    const fileTypeFromBuffer = (mod.fileTypeFromBuffer || defaultMod?.fileTypeFromBuffer) as ((buf: ArrayBuffer | Uint8Array) => Promise<{ ext: string; mime: string } | undefined>) | undefined;
+    detected = fileTypeFromBuffer ? (await fileTypeFromBuffer(buffer) ?? undefined) : undefined;
   } catch (error: unknown) {
     logger.error('[FILE_VALIDATION] File type detection failed', { error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     return { valid: false, error: 'Unable to validate file type' };
@@ -428,6 +430,8 @@ function heuristicVirusScan(buffer: Buffer, filename: string): {
 export async function secureFileValidation(buffer: Buffer, originalFilename: string): Promise<{
   valid: boolean;
   secureFilename?: string;
+  mimeType?: string;
+  virusScanResult?: { clean: boolean; engine?: string; threat?: string };
   errors: string[];
   warnings: string[];
 }> {
@@ -467,9 +471,21 @@ export async function secureFileValidation(buffer: Buffer, originalFilename: str
       warnings.push('ClamAV unavailable - using heuristic scanning');
     }
 
+    // Detect MIME type from file extension
+    const ext = originalFilename.split('.').pop()?.toLowerCase() || '';
+    const mimeTypes: Record<string, string> = {
+      pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', svg: 'image/svg+xml',
+      csv: 'text/csv', txt: 'text/plain', json: 'application/json', xml: 'application/xml',
+    };
+    const mimeType = mimeTypes[ext] || 'application/octet-stream';
+
     return {
       valid: errors.length === 0,
       secureFilename,
+      mimeType,
+      virusScanResult,
       errors,
       warnings
     };

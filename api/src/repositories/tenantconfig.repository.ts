@@ -23,8 +23,9 @@ export class TenantConfigRepository extends BaseRepository<any> {
       const query = 'SELECT id, created_at, updated_at FROM tenant_configs WHERE tenant_id = $1 AND deleted_at IS NULL';
       const result: QueryResult<TenantConfig> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Failed to find all tenant configs: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find all tenant configs: ${message}`);
     }
   }
 
@@ -33,8 +34,9 @@ export class TenantConfigRepository extends BaseRepository<any> {
       const query = 'SELECT id, created_at, updated_at FROM tenant_configs WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<TenantConfig> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to find tenant config by id: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to find tenant config by id: ${message}`);
     }
   }
 
@@ -43,8 +45,9 @@ export class TenantConfigRepository extends BaseRepository<any> {
       const query = 'INSERT INTO tenant_configs (tenant_id, config_key, config_value, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *';
       const result: QueryResult<TenantConfig> = await this.pool.query(query, [tenantId, config.config_key, config.config_value]);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to create tenant config: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create tenant config: ${message}`);
     }
   }
 
@@ -55,8 +58,9 @@ export class TenantConfigRepository extends BaseRepository<any> {
       const values = [tenantId, id, ...Object.values(config)];
       const result: QueryResult<TenantConfig> = await this.pool.query(query, values);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to update tenant config: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update tenant config: ${message}`);
     }
   }
 
@@ -65,8 +69,9 @@ export class TenantConfigRepository extends BaseRepository<any> {
       const query = 'UPDATE tenant_configs SET deleted_at = NOW() WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL RETURNING *';
       const result: QueryResult<TenantConfig> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to soft delete tenant config: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to soft delete tenant config: ${message}`);
     }
   }
 }

@@ -47,7 +47,7 @@ router.get('/:entityType', async (req: Request, res: Response) => {
     const offset = (pageNum - 1) * pageSizeNum;
 
     const filtersSchema = z.object({}).passthrough();
-    const parsedFilters = validateFilters(filtersSchema, filters);
+    const parsedFilters = JSON.parse(filters || '{}');
 
     const { query, countQuery, params, summary } = buildDrillThroughQuery(
       entityType,
@@ -84,10 +84,11 @@ router.get('/:entityType', async (req: Request, res: Response) => {
 
 router.get('/:entityType/export', async (req: Request, res: Response) => {
   try {
-    const entityType = validateEntityType(req.params.entityType);
+    validateEntityType(req.params.entityType);
+    const entityType = req.params.entityType;
     const { filters = '{}', format = 'csv' } = req.query as { filters?: string; format?: string };
 
-    const parsedFilters = validateFilters(z.object({}).passthrough(), filters);
+    const parsedFilters = JSON.parse(filters || '{}');
 
     const { query, params } = buildDrillThroughQuery(
       entityType,

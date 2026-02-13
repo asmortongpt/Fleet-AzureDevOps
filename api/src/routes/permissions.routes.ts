@@ -49,7 +49,7 @@ router.get('/me/permissions', async (req: Request, res: Response) => {
 
     // Get user's roles from repository (Query #1 eliminated)
     const permissionsRepo = getPermissionsRepository();
-    const roles = await permissionsRepo.getUserRoles(user.tenantId, user.id); // Fixed: tenantId not tenant_id
+    const roles = await permissionsRepo.getUserRoles(user.tenantId ?? '', user.id); // Fixed: tenantId not tenant_id
 
     res.json({
       user_id: user.id,
@@ -244,7 +244,7 @@ router.put('/users/:userId/roles', csrfProtection, requireAdmin, async (req: Req
         await permissionsRepo.assignRole(
           client,
           userId,
-          user.tenantId, // Fixed: tenantId not tenant_id
+          user.tenantId ?? '', // Fixed: tenantId not tenant_id
           roleName,
           user.id,
           org_id

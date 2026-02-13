@@ -1,15 +1,7 @@
-import { Request, Response } from 'express'
+import { Response } from 'express'
 import { initAIPlatform } from "../ai";
 import { chatWithAI } from "../ai/gateway/aiGateway";
-
-interface AuthRequest extends Request {
-  user?: {
-    id?: string
-    orgId?: string
-    roles?: string[]
-    permissions?: string[]
-  }
-}
+import { AuthRequest } from '../middleware/auth';
 
 export async function aiChatRoute(req: AuthRequest, res: Response) {
   if (!req.user?.id) {
@@ -21,8 +13,8 @@ export async function aiChatRoute(req: AuthRequest, res: Response) {
 
   const user = {
     userId: req.user.id,
-    orgId: req.user.orgId ?? req.user.id,
-    roles: req.user.roles ?? [],
+    orgId: req.user.org_id ?? req.user.id,
+    roles: req.user.role ? [req.user.role] : [],
     permissions: req.user.permissions ?? [],
   };
 

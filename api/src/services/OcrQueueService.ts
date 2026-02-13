@@ -330,7 +330,7 @@ export class OcrQueueService {
     for (let i = 0; i < documents.length; i += concurrency) {
       const batch = documents.slice(i, i + concurrency);
       const batchResults = await Promise.allSettled(
-        batch.map(doc =>
+        batch.map((doc: { filePath: string; documentId: string }) =>
           this.ocrService.processDocument(doc.filePath, doc.documentId, options)
         )
       );

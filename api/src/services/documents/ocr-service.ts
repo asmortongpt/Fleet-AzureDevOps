@@ -115,7 +115,7 @@ export class OCRService {
         text: result.data.text,
         confidence: result.data.confidence,
         language: config.language as string,
-        blocks: this.parseBlocks(result.data.blocks),
+        blocks: this.parseBlocks(result.data.blocks ?? []),
         words: this.parseWords(result.data.words),
         processingTime: Date.now() - startTime
       }

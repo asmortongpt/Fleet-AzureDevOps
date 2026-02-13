@@ -82,7 +82,7 @@ export class PermissionEngine implements IPermissionEngine {
     if (actionConfig.conditions && actionConfig.conditions.length > 0) {
       const conditionResults = await this.evaluateConditions(
         actionConfig.conditions,
-        { user, resource, resourceType: context?.resourceType, action }
+        { user, resource, resourceType: context?.resourceType as string | undefined, action }
       );
 
       if (!conditionResults.passed) {
@@ -274,7 +274,7 @@ export class PermissionEngine implements IPermissionEngine {
     };
 
     if (Array.isArray(payload)) {
-      filteredData.push(...payload.map(processItem));
+      (filteredData as Record<string, unknown>[]).push(...payload.map(processItem));
     } else {
       Object.assign(filteredData, processItem(payload));
     }
@@ -396,7 +396,7 @@ export class PermissionEngine implements IPermissionEngine {
     // Handle user properties
     if (cleanPath.startsWith(`user.`)) {
       const prop = cleanPath.substring(5);
-      return (context.user as Record<string, unknown>)[prop];
+      return (context.user as unknown as Record<string, unknown>)[prop];
     }
 
     // Handle resource properties

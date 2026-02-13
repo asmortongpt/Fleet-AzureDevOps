@@ -83,7 +83,7 @@ router.get(
       action_at,
       expires_at,
       created_at FROM cognition_insights WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
       let paramCount = 1
 
       if (severity) {
@@ -135,7 +135,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const insights = await fleetCognitionService.generateFleetInsights(req.user!.tenant_id)
+      const insights = await fleetCognitionService.generateFleetInsights(req.user!.tenant_id ?? '')
 
       res.json({
         insights,
@@ -165,7 +165,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const healthScore = await fleetCognitionService.getFleetHealthScore(req.user!.tenant_id)
+      const healthScore = await fleetCognitionService.getFleetHealthScore(req.user!.tenant_id ?? '')
       res.json(healthScore)
     } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to calculate health score', message: getErrorMessage(error) })
@@ -192,8 +192,8 @@ router.get(
     try {
       const context = (req.query.context as string | undefined) || 'all'
       const recommendations = await fleetCognitionService.getRecommendations(
-        req.user!.tenant_id,
-        context
+        req.user!.tenant_id ?? '',
+        context as 'all' | 'maintenance' | 'safety' | 'cost' | 'efficiency'
       )
 
       res.json({
@@ -229,7 +229,7 @@ router.get(
          WHERE tenant_id = $1 AND is_monitored = true
          ORDER BY occurrence_count DESC, last_detected_at DESC
          LIMIT 50`,
-        [req.user!.tenant_id]
+        [req.user!.tenant_id ?? '']
       )
 
       res.json({
@@ -262,7 +262,7 @@ router.get(
       const { resolved, severity } = req.query
 
       let query = `SELECT id, tenant_id, anomaly_type, entity_type, entity_id, metric_name, expected_value, actual_value, deviation_score, severity, description, detection_method, model_id, root_cause_analysis, recommended_action, is_false_positive, is_resolved, resolved_by, resolved_at, resolution_notes, detected_at, created_at FROM anomalies WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
       let paramCount = 1
 
       if (resolved !== undefined) {
@@ -318,7 +318,7 @@ router.post(
       const { vehicle_id } = MaintenancePredictionSchema.parse(req.body)
 
       const prediction = await mlDecisionEngineService.predictMaintenance(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         vehicle_id
       )
 
@@ -356,7 +356,7 @@ router.post(
       const { driver_id, period } = DriverBehaviorScoreSchema.parse(req.body)
 
       const score = await mlDecisionEngineService.scoreDriverBehavior(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         driver_id,
         period
       )
@@ -395,7 +395,7 @@ router.post(
       const { entity_type, entity_id } = IncidentRiskSchema.parse(req.body)
 
       const prediction = await mlDecisionEngineService.predictIncidentRisk(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         entity_type,
         entity_id
       )
@@ -433,7 +433,7 @@ router.post(
       const { forecast_period } = CostForecastSchema.parse(req.body)
 
       const forecast = await mlDecisionEngineService.forecastCosts(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         forecast_period
       )
 
@@ -467,7 +467,7 @@ router.put(
 
       await mlDecisionEngineService.recordActualOutcome(
         req.params.id,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         actual_outcome,
         req.user!.id
       )
@@ -510,7 +510,7 @@ router.post(
       const queryData = RAGQuerySchema.parse(req.body)
 
       const response = await ragEngineService.query(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         queryData
       )
@@ -552,7 +552,7 @@ router.post(
     try {
       const document = IndexDocumentSchema.parse(req.body)
 
-      const result = await ragEngineService.indexDocument(req.user!.tenant_id, document)
+      const result = await ragEngineService.indexDocument(req.user!.tenant_id ?? '', document)
 
       res.json({
         message: 'Document indexed successfully',
@@ -587,7 +587,7 @@ router.post(
 
       await ragEngineService.provideFeedback(
         query_id,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         was_helpful,
         feedback
       )
@@ -615,7 +615,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'rag_stats' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const stats = await ragEngineService.getStatistics(req.user!.tenant_id)
+      const stats = await ragEngineService.getStatistics(req.user!.tenant_id ?? '')
       res.json(stats)
     } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to retrieve stats', message: getErrorMessage(error) })
@@ -646,7 +646,7 @@ router.get(
       const { model_type, is_active } = req.query
 
       let query = `SELECT id, tenant_id, model_name, model_type, version, algorithm, framework, hyperparameters, feature_importance, training_data_size, training_duration_seconds, model_artifacts_url, model_binary, status, is_active, deployed_at, created_by, created_at, updated_at FROM ml_models WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
       let paramCount = 1
 
       if (model_type) {
@@ -693,7 +693,7 @@ router.get(
     try {
       const performance = await mlTrainingService.getModelPerformanceHistory(
         req.params.id,
-        req.user!.tenant_id
+        req.user!.tenant_id ?? ''
       )
 
       res.json({
@@ -722,7 +722,7 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'ml_model' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      await mlTrainingService.deployModel(req.params.id, req.user!.tenant_id, req.user!.id)
+      await mlTrainingService.deployModel(req.params.id, req.user!.tenant_id ?? '', req.user!.id)
 
       res.json({ message: 'Model deployed successfully' })
     } catch (error: unknown) {
@@ -752,7 +752,7 @@ router.get(
          WHERE tenant_id = $1
          ORDER BY created_at DESC
          LIMIT 50`,
-        [req.user!.tenant_id]
+        [req.user!.tenant_id ?? '']
       )
 
       res.json({

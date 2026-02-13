@@ -114,7 +114,7 @@ export class DocumentSearchService {
         documents: result.rows,
         total,
         query,
-        filters: filters || { tenantId: filters.tenantId },
+        filters: filters || {},
         execution_time_ms: executionTime
       }
     } catch (error) {

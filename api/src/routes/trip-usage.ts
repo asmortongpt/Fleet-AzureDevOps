@@ -77,7 +77,7 @@ router.post(
       // Check if driver belongs to tenant
       const driverCheck = await pool.query(
         `SELECT id FROM users WHERE id = $1 AND tenant_id = $2`,
-        [validated.driver_id, req.user!.tenant_id]
+        [validated.driver_id, req.user!.tenant_id ?? '']
       )
 
       if (driverCheck.rows.length === 0) {
@@ -87,7 +87,7 @@ router.post(
       // Check if vehicle belongs to tenant
       const vehicleCheck = await pool.query(
         `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
-        [validated.vehicle_id, req.user!.tenant_id]
+        [validated.vehicle_id, req.user!.tenant_id ?? '']
       )
 
       if (vehicleCheck.rows.length === 0) {
@@ -108,7 +108,7 @@ router.post(
       is_active,
       created_at,
       updated_at FROM personal_use_policies WHERE tenant_id = $1`,
-        [req.user!.tenant_id]
+        [req.user!.tenant_id ?? '']
       )
 
       let approvalStatus = ApprovalStatus.PENDING
@@ -138,7 +138,7 @@ router.post(
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         RETURNING *`,
         [
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           validated.trip_id || null,
           validated.vehicle_id,
           validated.driver_id,
@@ -182,7 +182,7 @@ router.post(
           `SELECT email FROM users
            WHERE tenant_id = $1 AND role IN ('admin', 'fleet_manager')
            LIMIT 1`,
-          [req.user!.tenant_id]
+          [req.user!.tenant_id ?? '']
         )
 
         if (driverInfo.rows.length > 0 && managerInfo.rows.length > 0) {
@@ -251,7 +251,7 @@ router.get(
 	      LEFT JOIN vehicles v ON t.vehicle_id = v.id
 	      WHERE t.tenant_id = $1
 	    `
-      const params: unknown[] = [req.user!.tenant_id]
+      const params: unknown[] = [req.user!.tenant_id ?? '']
       let paramCount = 1
 
       if (driver_id) {
@@ -323,9 +323,9 @@ router.get(
         data: result.rows,
         pagination: {
           total: parseInt(countResult.rows[0].count),
-          limit: parseInt(limit),
-          offset: parseInt(offset),
-          has_more: parseInt(offset) + result.rows.length < parseInt(countResult.rows[0].count)
+          limit: parseInt(String(limit)),
+          offset: parseInt(String(offset)),
+          has_more: parseInt(String(offset)) + result.rows.length < parseInt(countResult.rows[0].count)
         }
       })
     } catch (error: unknown) {
@@ -360,12 +360,12 @@ router.get(
            AND t.approval_status = $2
          ORDER BY t.trip_date DESC, t.created_at ASC
          LIMIT $3 OFFSET $4`,
-        [req.user!.tenant_id, ApprovalStatus.PENDING, limit, offset]
+        [req.user!.tenant_id ?? '', ApprovalStatus.PENDING, limit, offset]
       )
 
       const countResult = await pool.query(
         `SELECT COUNT(*) FROM trip_usage_classification WHERE tenant_id = $1 AND approval_status = $2`,
-        [req.user!.tenant_id, ApprovalStatus.PENDING]
+        [req.user!.tenant_id ?? '', ApprovalStatus.PENDING]
       )
 
       res.json({
@@ -396,7 +396,7 @@ router.get(
       // Allow viewing if user is the driver or has fleet-wide access
       const result = await pool.query(
         `SELECT driver_id FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
@@ -406,7 +406,7 @@ router.get(
       const driverId = result.rows[0].driver_id
 
       // Allow if user is the driver or has admin/manager role
-      return driverId === req.user!.id || ['admin', 'fleet_manager', 'manager'].includes(req.user!.role)
+      return driverId === req.user!.id || ['admin', 'fleet_manager', 'manager'].includes(req.user!.role ?? '')
     }
   }),
   async (req: AuthRequest, res: Response) => {
@@ -421,7 +421,7 @@ router.get(
 	       LEFT JOIN vehicles v ON t.vehicle_id = v.id
 	       LEFT JOIN users approver ON t.approved_by_user_id = approver.id
 	       WHERE t.id = $1 AND t.tenant_id = $2`,
-	        [req.params.id, req.user!.tenant_id]
+	        [req.params.id, req.user!.tenant_id ?? '']
 	      )
 
       if (result.rows.length === 0) {
@@ -460,7 +460,7 @@ router.patch(
       notes,
       created_at,
       updated_at FROM trip_usage_classification WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (existing.rows.length === 0) {
@@ -471,13 +471,13 @@ router.patch(
 
       // Check permissions - only driver or admin/manager can update
       if (trip.driver_id !== req.user!.id &&
-        !['admin', 'fleet_manager'].includes(req.user!.role)) {
+        !['admin', 'fleet_manager'].includes(req.user!.role ?? '')) {
         return res.status(403).json({ error: 'Insufficient permissions to update this trip' })
       }
 
       // If already approved, require manager approval to change
       if (trip.approval_status === ApprovalStatus.APPROVED &&
-        !['admin', 'fleet_manager'].includes(req.user!.role)) {
+        !['admin', 'fleet_manager'].includes(req.user!.role ?? '')) {
         return res.status(403).json({
           error: `Cannot modify approved trips. Please contact your manager.`
         })
@@ -513,7 +513,7 @@ router.patch(
          SET ${updates.join(`, `)}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
-        [req.params.id, req.user!.tenant_id, ...values]
+        [req.params.id, req.user!.tenant_id ?? '', ...values]
       )
 
       res.json({
@@ -552,7 +552,7 @@ router.post(
              updated_at = NOW()
          WHERE id = $4 AND tenant_id = $5
          RETURNING *`,
-        [ApprovalStatus.APPROVED, req.user!.id, approver_notes || '', req.params.id, req.user!.tenant_id]
+        [ApprovalStatus.APPROVED, req.user!.id, approver_notes || '', req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
@@ -625,7 +625,7 @@ router.post(
              updated_at = NOW()
          WHERE id = $4 AND tenant_id = $5
          RETURNING *`,
-        [ApprovalStatus.REJECTED, req.user!.id, rejection_reason, req.params.id, req.user!.tenant_id]
+        [ApprovalStatus.REJECTED, req.user!.id, rejection_reason, req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
@@ -645,7 +645,7 @@ router.post(
       // Send notification to driver
       const driverInfo = await pool.query(
         `SELECT first_name, last_name, email FROM users WHERE tenant_id = $1 AND id = $2`,
-        [req.user!.tenant_id, trip.driver_id]
+        [req.user!.tenant_id ?? '', trip.driver_id]
       )
 
       if (driverInfo.rows.length > 0) {

@@ -90,7 +90,7 @@ export class EmbeddingService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: import('winston').Logger
   ) {
     // Don't call async initialization in constructor
   }
@@ -610,7 +610,7 @@ return 0
     // Limit cache size
     if (this.cache.size > 1000) {
       const firstKey = this.cache.keys().next().value
-      this.cache.delete(firstKey)
+      if (firstKey !== undefined) this.cache.delete(firstKey)
     }
   }
 

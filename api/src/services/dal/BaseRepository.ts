@@ -1,4 +1,4 @@
-import { Pool, PoolClient, QueryResult } from 'pg'
+import { Pool, PoolClient, QueryResult, QueryResultRow } from 'pg'
 
 import { getTableColumns } from '../../utils/column-resolver'
 
@@ -31,15 +31,15 @@ export abstract class BaseRepository<T = any> {
    */
   protected async query<R = T>(
     text: string,
-    params?: any[],
+    params?: unknown[],
     client?: PoolClient
-  ): Promise<QueryResult<R>> {
+  ): Promise<QueryResult<R & QueryResultRow>> {
     const startTime = Date.now()
     const queryClient = client || this.pool
 
     try {
       this.logger.logQuery(text, params)
-      const result = await queryClient.query<R>(text, params)
+      const result = await queryClient.query<R & QueryResultRow>(text, params as any[])
       this.logger.logSuccess(text, params, Date.now() - startTime, result.rowCount || 0)
       return result
     } catch (error: unknown) {

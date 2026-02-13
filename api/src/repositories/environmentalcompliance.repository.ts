@@ -40,7 +40,7 @@ class EnvironmentalComplianceRepository extends BaseRepository<EnvironmentalComp
       data.notes,
     ];
     const result = await this.query(query, values);
-    return result[0].id;
+    return result[0].id as number;
   }
 
   async getEnvironmentalComplianceById(id: number, tenant_id: string): Promise<any> {

@@ -77,7 +77,7 @@ export interface SyncStateStats {
 
 export class SyncRepository extends BaseRepository<SyncState> {
   constructor() {
-    super('sync_state');
+    super(pool, 'sync_state');
   }
 
   /**

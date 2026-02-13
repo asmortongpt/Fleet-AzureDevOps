@@ -4,19 +4,12 @@
  * Integrates with OpenAI GPT-4 and MCP servers
  */
 
-// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { AIMessage, HumanMessage } from '@langchain/core/messages'
-// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { StringOutputParser } from '@langchain/core/output_parsers'
-// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
-// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { RunnableSequence } from '@langchain/core/runnables'
-// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { DynamicStructuredTool } from '@langchain/core/tools'
-// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { ChatOpenAI } from '@langchain/openai'
-// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { BufferMemory } from 'langchain/memory'
 import { Pool } from 'pg'
 import { z } from 'zod'
@@ -1030,26 +1023,7 @@ Generate prioritized recommendations with:
     return Array.from(this.sessions.keys())
   }
 
-  /**
-   * Chat method for conversational AI
-   */
-  async chat(context: WorkflowContext, message: string): Promise<any> {
-    const memory = this.getOrCreateMemory(context.sessionId)
-
-    // Add user message to memory
-    await memory.chatHistory.addMessage(new HumanMessage(message))
-
-    // Get AI response
-    const response = await this.model.invoke([new HumanMessage(message)])
-
-    // Add AI response to memory
-    await memory.chatHistory.addMessage(new AIMessage(response.content))
-
-    return {
-      response: response.content,
-      sessionId: context.sessionId
-    }
-  }
+  // Duplicate chat method removed - see chat() at line 495
 }
 
 // Export singleton instance

@@ -295,7 +295,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     try {
       // Convert buffer to OpenCV matrix
       const image = await sharp(imageBuffer).raw().toBuffer()
-      const mat = cv.matFromImageData(image)
+      const mat = cv.matFromImageData(image as unknown as ImageData)
 
       // Edge detection for damage boundaries
       const edges = new cv.Mat()
@@ -601,7 +601,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     )
 
     // Normalize to [0, 1]
-    return tensor.div(255.0).expandDims(0)
+    return (tensor as unknown as { div(n: number): { expandDims(n: number): tf.Tensor } }).div(255.0).expandDims(0)
   }
 
   private extractExifData(imageBuffer: Buffer): any {
@@ -756,9 +756,9 @@ export class DamageAssessmentEngine extends EventEmitter {
     const types = detections.map(d => d.type)
     const primary = types[0] || 'unknown'
     const secondary = types.slice(1)
-    const confidence = {}
-    types.forEach(t => {
-      confidence[t] = detections.filter(d => d.type === t).length / detections.length
+    const confidence: Record<string, number> = {}
+    types.forEach((t: string) => {
+      confidence[t] = detections.filter((d: { type: string }) => d.type === t).length / detections.length
     })
     return { primary, secondary, confidence }
   }
@@ -787,7 +787,7 @@ export class DamageAssessmentEngine extends EventEmitter {
   ): any {
     // Statistical cost estimation
     const baseCost = vehicleInfo.currentValue * 0.01
-    const severityMultiplier = { minor: 1, moderate: 3, major: 7, critical: 15 }[severity.class] || 1
+    const severityMultiplier = ({ minor: 1, moderate: 3, major: 7, critical: 15 } as Record<string, number>)[severity.class] || 1
     const predicted = baseCost * severityMultiplier * detections.length
 
     return {
@@ -799,7 +799,7 @@ export class DamageAssessmentEngine extends EventEmitter {
 
   private lookupBasedTimeEstimation(detections: any[], severity: any): any {
     // Lookup-based time estimation
-    const baseHours = { minor: 8, moderate: 24, major: 72, critical: 120 }[severity.class] || 8
+    const baseHours = ({ minor: 8, moderate: 24, major: 72, critical: 120 } as Record<string, number>)[severity.class] || 8
     return {
       hours: baseHours * Math.log(detections.length + 1),
       confidence: 0.5,

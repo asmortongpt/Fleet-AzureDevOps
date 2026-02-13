@@ -97,7 +97,7 @@ export class RedisService {
       try {
         const redisValue = await this.redisClient.get(key);
         if (redisValue) {
-          const parsed = JSON.parse(typeof redisValue === 'string' ? redisValue : redisValue.toString()) as T;
+          const parsed = JSON.parse(String(redisValue)) as T;
           // Populate LRU for next time
           this.lruCache.set(key, parsed);
           return parsed;

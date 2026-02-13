@@ -80,12 +80,22 @@ export class AuthMiddleware {
         return;
       }
 
-      // Attach user info to request
-      req.user = payload;
-      req.session = {
-        id: payload.sessionId,
-        uuid: payload.sessionUuid
+      // Attach user info to request (map TokenPayload to Express user shape)
+      req.user = {
+        id: String(payload.userId),
+        email: payload.email,
+        userId: String(payload.userId),
+        userUuid: payload.userUuid,
+        sessionId: String(payload.sessionId),
+        sessionUuid: payload.sessionUuid,
+        iat: payload.iat,
+        exp: payload.exp,
+        iss: payload.iss,
+        aud: payload.aud,
+        jti: payload.jti
       };
+      (req.session as unknown as Record<string, unknown>).id = String(payload.sessionId);
+      (req.session as unknown as Record<string, unknown>).uuid = payload.sessionUuid;
 
       // Log successful authentication
       await this.auditService.log({
@@ -154,11 +164,21 @@ export class AuthMiddleware {
       const payload = await this.authService.validateAccessToken(token);
 
       if (payload) {
-        req.user = payload;
-        req.session = {
-          id: payload.sessionId,
-          uuid: payload.sessionUuid
+        req.user = {
+          id: String(payload.userId),
+          email: payload.email,
+          userId: String(payload.userId),
+          userUuid: payload.userUuid,
+          sessionId: String(payload.sessionId),
+          sessionUuid: payload.sessionUuid,
+          iat: payload.iat,
+          exp: payload.exp,
+          iss: payload.iss,
+          aud: payload.aud,
+          jti: payload.jti
         };
+        (req.session as unknown as Record<string, unknown>).id = String(payload.sessionId);
+        (req.session as unknown as Record<string, unknown>).uuid = payload.sessionUuid;
       }
 
       next();

@@ -72,7 +72,7 @@ export class VehicleController {
   async getVehicleById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const vehicleId = Number(req.params.id);
+      const vehicleId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -124,7 +124,7 @@ export class VehicleController {
   async updateVehicle(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const vehicleId = Number(req.params.id);
+      const vehicleId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -150,7 +150,7 @@ export class VehicleController {
   async deleteVehicle(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const vehicleId = Number(req.params.id);
+      const vehicleId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');

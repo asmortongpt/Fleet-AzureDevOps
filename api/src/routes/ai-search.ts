@@ -80,7 +80,7 @@ router.post(
 
       // Perform semantic search
       const results = await vectorSearchService.search(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         searchData.query,
         {
           limit: searchData.limit,
@@ -94,7 +94,7 @@ router.post(
 
       // Log search for analytics
       await logSearch(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         searchData.query,
         'semantic',
@@ -155,7 +155,7 @@ router.post(
 
       // Perform hybrid search
       const results = await vectorSearchService.hybridSearch(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         searchData.query,
         {
           limit: searchData.limit,
@@ -169,7 +169,7 @@ router.post(
       const searchTime = Date.now() - startTime
 
       await logSearch(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         searchData.query,
         'hybrid',
@@ -232,7 +232,7 @@ router.post(
 
       // Get answer using DocumentAI service
       const response = await documentAiService.askQuestion(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         qaData.question,
         qaData.documentIds
@@ -298,7 +298,7 @@ router.post(
          GROUP BY query_text
          ORDER BY usage_count DESC, query_text
          LIMIT $4`,
-        [req.user!.tenant_id, `%${query}%`, query, maxSuggestions]
+        [req.user!.tenant_id ?? '', `%${query}%`, query, maxSuggestions]
       )
 
       // Generate AI-powered expansions
@@ -370,7 +370,7 @@ router.post(
       for (const chunk of chunks) {
         const embeddingResult = await embeddingService.generateEmbedding(chunk.text)
 
-        await vectorSearchService.indexDocument(req.user!.tenant_id, {
+        await vectorSearchService.indexDocument(req.user!.tenant_id ?? '', {
           id: `${indexData.documentId}_chunk_${chunk.index}`,
           content: chunk.text,
           embedding: embeddingResult.embedding,
@@ -454,7 +454,7 @@ router.post(
           for (const chunk of chunks) {
             const embeddingResult = await embeddingService.generateEmbedding(chunk.text)
 
-            await vectorSearchService.indexDocument(req.user!.tenant_id, {
+            await vectorSearchService.indexDocument(req.user!.tenant_id ?? '', {
               id: `${doc.documentId}_chunk_${chunk.index}`,
               content: chunk.text,
               embedding: embeddingResult.embedding,
@@ -525,7 +525,7 @@ router.get(
            GROUP BY query_text
            ORDER BY search_count DESC
            LIMIT 10`,
-          [req.user!.tenant_id]
+          [req.user!.tenant_id ?? '']
         ),
 
         // Recent searches
@@ -535,7 +535,7 @@ router.get(
            WHERE tenant_id = $1
            ORDER BY created_at DESC
            LIMIT 20`,
-          [req.user!.tenant_id]
+          [req.user!.tenant_id ?? '']
         ),
 
         // Average metrics
@@ -547,7 +547,7 @@ router.get(
            AVG(feedback_rating) as avg_rating
            FROM rag_queries
            WHERE tenant_id = $1`,
-          [req.user!.tenant_id]
+          [req.user!.tenant_id ?? '']
         ),
       ])
 
@@ -604,7 +604,7 @@ router.post(
           feedback.helpful,
           feedback.comment,
           feedback.queryId,
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
         ]
       )
 

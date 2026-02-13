@@ -201,7 +201,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
 router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const userContext = getUserContext(req);
-    const pendingReservations = await reservationsService.getPendingApprovals(userContext);
+    const pendingReservations = await reservationsService!.getPendingApprovals(userContext);
 
     res.json({
       pending_reservations: pendingReservations,
@@ -235,7 +235,7 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userContext = getUserContext(req);
 
-    const reservation = await reservationsService.getReservationById(id, userContext);
+    const reservation = await reservationsService!.getReservationById(id, userContext);
     res.json(reservation);
   } catch (error: unknown) {
     logger.error('Error fetching reservation:', error);
@@ -269,7 +269,7 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
     try {
       await client.query('BEGIN');
 
-      const result = await reservationsService.createReservation(data, userContext, client);
+      const result = await reservationsService!.createReservation(data, userContext, client);
 
       await client.query('COMMIT');
 
@@ -331,7 +331,7 @@ router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res
     try {
       await client.query('BEGIN');
 
-      const updatedReservation = await reservationsService.updateReservation(
+      const updatedReservation = await reservationsService!.updateReservation(
         id,
         data,
         userContext,
@@ -396,7 +396,7 @@ router.delete('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, 
     try {
       await client.query('BEGIN');
 
-      await reservationsService.cancelReservation(id, userContext, client);
+      await reservationsService!.cancelReservation(id, userContext, client);
 
       await client.query('COMMIT');
 
@@ -441,7 +441,7 @@ router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthReq
     try {
       await client.query('BEGIN');
 
-      const updatedReservation = await reservationsService.approveReservation(
+      const updatedReservation = await reservationsService!.approveReservation(
         id,
         data.action,
         userContext,
@@ -517,7 +517,7 @@ router.get('/vehicles/:vehicleId/availability', authenticateJWT, async (req: Aut
     }
 
     const userContext = getUserContext(req);
-    const availability = await reservationsService.getVehicleAvailability(
+    const availability = await reservationsService!.getVehicleAvailability(
       vehicleId,
       start_date as string,
       end_date as string,
@@ -556,7 +556,7 @@ router.get('/vehicles/:vehicleId/reservations', authenticateJWT, async (req: Aut
       end_date: end_date as string | undefined,
     };
 
-    const reservations = await reservationsService.getVehicleReservations(
+    const reservations = await reservationsService!.getVehicleReservations(
       vehicleId,
       filters,
       userContext

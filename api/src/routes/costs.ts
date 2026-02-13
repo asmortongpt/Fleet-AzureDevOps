@@ -997,23 +997,26 @@ router.post('/', csrfProtection, asyncHandler(async (req, res): Promise<void> =>
 
     // Validate required fields
     if (!category || !amount || !date || !description) {
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Missing required fields: category, amount, date, description'
       })
+      return
     }
 
     // Validate category
     const validCategories = ['fuel', 'maintenance', 'insurance', 'depreciation',
       'labor', 'tolls', 'parking', 'violations', 'parts', 'equipment', 'administrative', 'other']
     if (!validCategories.includes(category)) {
-      return res.status(400).json({
+      res.status(400).json({
         error: `Invalid category. Must be one of: ${validCategories.join(', ')}`
       })
+      return
     }
 
     // Validate amount
     if (typeof amount !== 'number' || amount <= 0) {
-      return res.status(400).json({ error: 'Amount must be a positive number' })
+      res.status(400).json({ error: 'Amount must be a positive number' })
+      return
     }
 
     // Calculate cost per mile if mileage provided
@@ -1063,7 +1066,8 @@ router.post('/bulk-import', csrfProtection, asyncHandler(async (req, res): Promi
     const tenantId = req.tenantId || req.user?.tenantId
 
     if (!Array.isArray(costs) || costs.length === 0) {
-      return res.status(400).json({ error: 'Costs must be a non-empty array' })
+      res.status(400).json({ error: 'Costs must be a non-empty array' })
+      return
     }
 
     const validCategories = ['fuel', 'maintenance', 'insurance', 'depreciation',

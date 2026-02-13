@@ -8,7 +8,7 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { applyFieldMasking } from '../utils/fieldMasking'
-import { buildInsertClause } from '../utils/sql-safety'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 
 const router = express.Router()

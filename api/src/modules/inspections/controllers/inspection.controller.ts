@@ -71,7 +71,7 @@ export class InspectionController {
   async getById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const id = Number(req.params.id);
+      const id = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -117,7 +117,7 @@ export class InspectionController {
   async update(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const id = Number(req.params.id);
+      const id = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -140,7 +140,7 @@ export class InspectionController {
   async delete(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const id = Number(req.params.id);
+      const id = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');

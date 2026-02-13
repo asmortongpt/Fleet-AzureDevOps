@@ -85,7 +85,7 @@ const trackMetrics = (req: Request, res: Response, next: () => void) => {
       }
     }
 
-    return originalEnd.apply(this, args as [unknown?, BufferEncoding?, (() => void)?])
+    return originalEnd.apply(this, args as unknown as [chunk: unknown, encoding: BufferEncoding, cb?: () => void])
   }
 
   next()

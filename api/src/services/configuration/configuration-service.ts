@@ -190,7 +190,7 @@ export class ConfigurationService {
       }
       if (filter.visibleToRole) {
         items = items.filter(item =>
-          !item.visibleToRoles || item.visibleToRoles.includes(filter.visibleToRole)
+          !item.visibleToRoles || item.visibleToRoles.includes(filter.visibleToRole!)
         )
       }
     }

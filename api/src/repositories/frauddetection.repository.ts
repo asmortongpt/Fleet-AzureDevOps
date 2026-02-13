@@ -61,7 +61,7 @@ export class FraudDetectionRepository extends BaseRepository<FraudDetection> {
       if (key === 'reasons' && Array.isArray(val)) {
         val = JSON.stringify(val);
       }
-      values.push(val);
+      values.push(val as number);
     }
 
     const query = `UPDATE fraud_detection SET ${setClause}, updated_at = NOW() WHERE id = $1 AND tenant_id = $2 RETURNING *`;

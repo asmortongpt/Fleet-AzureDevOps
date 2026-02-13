@@ -38,7 +38,7 @@ router.get(
   requirePermission('report:view:global'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const templates = await customReportService.getTemplates(req.user!.tenant_id)
+      const templates = await customReportService.getTemplates(req.user!.tenant_id ?? '')
       res.json(templates)
     } catch (error) {
       logger.error('Get templates error:', error) // Wave 21: Winston logger
@@ -65,7 +65,7 @@ router.post(
 
       const report = await customReportService.createFromTemplate(
         templateId,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         report_name
       )
@@ -85,7 +85,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const reports = await customReportService.listReports(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id
       )
       res.json(reports)
@@ -106,7 +106,7 @@ router.get(
 
       const report = await customReportService.getReportById(
         id,
-        req.user!.tenant_id
+        req.user!.tenant_id ?? ''
       )
 
       if (!report) {
@@ -139,7 +139,7 @@ router.post(
       }
 
       const report = await customReportService.createReport(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         reportData
       )
@@ -166,7 +166,7 @@ router.put(
 
       const report = await customReportService.updateReport(
         id,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         reportData
       )
@@ -191,7 +191,7 @@ router.delete(
       const { id } = req.params
 
       // @ts-expect-error - Build compatibility fix
-      await customReportService.deleteReport(id, req.user!.tenant_id)
+      await customReportService.deleteReport(id, req.user!.tenant_id ?? '')
 
       res.json({ message: 'Report deleted successfully' })
     } catch (error) {
@@ -219,7 +219,7 @@ router.post(
 
       const result = await customReportService.executeReport(
         id,
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id,
         format
       )
@@ -242,7 +242,7 @@ router.get(
 
       const history = await customReportService.getExecutionHistory(
         id,
-        req.user!.tenant_id
+        req.user!.tenant_id ?? ''
       )
 
       res.json(history)
@@ -262,7 +262,7 @@ router.get(
       const { id, executionId } = req.params
 
       // Get execution details
-      const execution = await customReportService.getExecutionHistory(id, req.user!.tenant_id)
+      const execution = await customReportService.getExecutionHistory(id, req.user!.tenant_id ?? '')
       const executionRecord = execution.find(e => e.id === executionId)
 
       if (!executionRecord) {

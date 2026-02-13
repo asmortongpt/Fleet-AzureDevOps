@@ -43,7 +43,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = AIQuerySchema.parse(req.body)
-      const results = await vectorSearchService.search(req.user!.tenant_id, data.query, {
+      const results = await vectorSearchService.search(req.user!.tenant_id ?? '', data.query, {
         limit: data.limit,
         minScore: data.minScore,
         filter: data.filter,

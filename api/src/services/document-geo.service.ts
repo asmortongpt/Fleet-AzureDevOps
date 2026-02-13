@@ -30,7 +30,7 @@ return
     const exifModule = await import('exif-parser')
     ExifParser = exifModule.default
   } catch (err) {
-    this.logger.warn('exif-parser not available - install exif-parser for image location extraction from EXIF data')
+    console.warn('exif-parser not available - install exif-parser for image location extraction from EXIF data')
   }
 }
 

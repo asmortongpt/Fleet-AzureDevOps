@@ -569,7 +569,7 @@ export class DocumentService {
     if (filters.dateRange) {
       const { field, from, to } = filters.dateRange
       results = results.filter(doc => {
-        const docDate = new Date((doc as Record<string, unknown>)[field] as string)
+        const docDate = new Date((doc as unknown as Record<string, unknown>)[field] as string)
         if (from && docDate < new Date(from)) return false
         if (to && docDate > new Date(to)) return false
         return true
@@ -590,8 +590,8 @@ export class DocumentService {
 
   private applySorting(documents: Document[], sort: any): Document[] {
     return documents.sort((a, b) => {
-      const aValue = (a as Record<string, unknown>)[sort.field]
-      const bValue = (b as Record<string, unknown>)[sort.field]
+      const aValue = String((a as unknown as Record<string, unknown>)[sort.field] ?? '')
+      const bValue = String((b as unknown as Record<string, unknown>)[sort.field] ?? '')
 
       if (sort.order === 'asc') {
         return aValue > bValue ? 1 : -1

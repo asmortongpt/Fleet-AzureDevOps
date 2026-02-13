@@ -513,7 +513,7 @@ export class EmulatorOrchestrator extends EventEmitter {
         this.dispatchEmulator.registerVehicle({
           id: vehicle.id,
           unitNumber,
-          driverId: ((vehicle as Record<string, unknown>).driver_id as string | undefined) || ((vehicle as Record<string, unknown>).driverId as string | undefined),
+          driverId: ((vehicle as unknown as Record<string, unknown>).driver_id as string | undefined) || ((vehicle as unknown as Record<string, unknown>).driverId as string | undefined),
           currentLocation: vehicle.startingLocation
         })
       }

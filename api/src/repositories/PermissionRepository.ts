@@ -48,7 +48,7 @@ export interface RoleWithStats extends Role {
 @injectable()
 export class PermissionRepository extends BaseRepository<Role> {
   constructor() {
-    super('roles');
+    super(pool, 'roles');
   }
 
   /**

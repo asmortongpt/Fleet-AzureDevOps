@@ -260,7 +260,7 @@ export async function subscribeToTopic(userId: string, topic: string): Promise<a
     throw new Error('Firebase not initialized')
   }
 
-  const messaging = admin.messaging();
+  const messaging = admin.messaging() as any;
   const response = await messaging.subscribeToTopic(tokens, topic)
 
   logger.info(`Subscribed ${response.successCount} devices to topic ${topic}`, {
@@ -290,7 +290,7 @@ export async function unsubscribeFromTopic(userId: string, topic: string): Promi
     throw new Error('Firebase not initialized')
   }
 
-  const messaging = admin.messaging();
+  const messaging = admin.messaging() as any;
   const response = await messaging.unsubscribeFromTopic(tokens, topic)
 
   logger.info(`Unsubscribed ${response.successCount} devices from topic ${topic}`, {

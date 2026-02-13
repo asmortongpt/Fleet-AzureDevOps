@@ -71,8 +71,8 @@ async function runMaintenanceScheduler(): Promise<void> {
         // Process recurring schedules
         const results = await processRecurringSchedules(tenant.id, DAYS_AHEAD)
 
-        const successful = results.filter((r) => r.success).length
-        const failed = results.filter((r) => !r.success).length
+        const successful = results.filter((r: { success: boolean }) => r.success).length
+        const failed = results.filter((r: { success: boolean }) => !r.success).length
 
         totalWorkOrders += successful
         totalErrors += failed

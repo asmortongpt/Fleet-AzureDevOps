@@ -99,7 +99,7 @@ export class DriverService {
       RETURNING id
     `;
     const result = await this.db.query(query, [id, tenantId]);
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   async getDriverAssignments(driverId: number, tenantId: number) {

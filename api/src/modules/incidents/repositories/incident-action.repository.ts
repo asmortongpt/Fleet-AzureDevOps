@@ -41,7 +41,7 @@ export interface ActionUpdateData {
 @injectable()
 export class IncidentActionRepository extends BaseRepository<any> {
   constructor(pool: Pool) {
-    super('incident_actions');
+    super(pool, 'incident_actions');
   }
 
   /**
@@ -154,7 +154,7 @@ export class IncidentActionRepository extends BaseRepository<any> {
       [id]
     );
 
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   /**

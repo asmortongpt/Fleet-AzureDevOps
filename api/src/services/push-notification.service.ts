@@ -76,7 +76,7 @@ class PushNotificationService {
   private initializeFCM() {
     try {
       // Check if FCM is already initialized
-      if (admin.apps && admin.apps.length > 0) {
+      if ((admin as unknown as { apps?: unknown[] }).apps && (admin as unknown as { apps?: unknown[] }).apps!.length > 0) {
         this.fcmInitialized = true;
         logger.info('FCM already initialized');
         return;

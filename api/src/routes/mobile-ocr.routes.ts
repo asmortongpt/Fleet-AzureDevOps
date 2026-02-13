@@ -103,7 +103,9 @@ router.post(
         return res.status(400).json({ error: `No file uploaded` });
       }
 
-      const { tenantId, userId } = req.user!;
+      const { tenantId: _tenantId, userId: _userId } = req.user!;
+      const tenantId = _tenantId ?? '';
+      const userId = _userId ?? '';
 
       // Parse and validate request body
       const body = {
@@ -240,7 +242,9 @@ router.post(
         return res.status(400).json({ error: `No file uploaded` });
       }
 
-      const { tenantId, userId } = req.user!;
+      const { tenantId: _tenantId, userId: _userId } = req.user!;
+      const tenantId = _tenantId ?? '';
+      const userId = _userId ?? '';
 
       // Parse and validate request body
       const body = {
@@ -418,6 +422,7 @@ router.post(
           FuelReceiptOCRSchema.shape.ocrData.parse(validatedData.data);
           validationResult = {
             valid: true,
+            errors: [],
             data: validatedData.data,
             warnings: [],
           };
@@ -428,7 +433,7 @@ router.post(
               ([field, score]) => {
                 const scoreNum = typeof score === 'number' ? score : 0;
                 if (scoreNum < 0.8) {
-                  validationResult.warnings.push(
+                  validationResult.warnings!.push(
                     `Low confidence (${(scoreNum * 100).toFixed(0)}%) for field: ${field}`
                   );
                 }
@@ -448,13 +453,14 @@ router.post(
           OdometerOCRSchema.shape.ocrData.parse(validatedData.data);
           validationResult = {
             valid: true,
+            errors: [],
             data: validatedData.data,
             warnings: [],
           };
 
           // Add warning for low confidence
           if (validatedData.data.confidence < 0.85) {
-            validationResult.warnings.push(
+            validationResult.warnings!.push(
               `Low confidence (${(validatedData.data.confidence * 100).toFixed(0)}%) for odometer reading`
             );
           }
@@ -498,7 +504,9 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'ocr_history' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { tenantId, userId } = req.user!;
+      const { tenantId: _tenantId, userId: _userId } = req.user!;
+      const tenantId = _tenantId ?? '';
+      const userId = _userId ?? '';
       const { type, limit = 50, offset = 0 } = req.query;
 
       let query = `

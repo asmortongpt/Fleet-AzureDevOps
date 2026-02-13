@@ -417,7 +417,7 @@ export class MicrosoftGraphService {
     let pageCount = 0
 
     while (currentEndpoint && pageCount < maxPages) {
-      const response = await this.makeGraphRequest<GraphPagedResponse<T>>(currentEndpoint)
+      const response: GraphPagedResponse<T> = await this.makeGraphRequest<GraphPagedResponse<T>>(currentEndpoint)
 
       results.push(...response.value)
       currentEndpoint = response['@odata.nextLink'] || null

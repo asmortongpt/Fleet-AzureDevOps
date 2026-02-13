@@ -489,8 +489,8 @@ return true
 /**
  * Create configuration tables if they don't exist
  */
-export async function createConfigTables(): Promise<void> {
-  await this.db.query(`
+export async function createConfigTables(db: import('pg').Pool): Promise<void> {
+  await db.query(`
     CREATE TABLE IF NOT EXISTS workflow_templates (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       tenant_id UUID REFERENCES tenants(id) ON DELETE CASCADE,

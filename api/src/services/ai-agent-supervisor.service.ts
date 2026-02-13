@@ -54,7 +54,7 @@ class AIAgentSupervisorService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: import('winston').Logger
   ) {
     // Initialize supervisor model
     this.supervisorModel = new ChatOpenAI({

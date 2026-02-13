@@ -67,7 +67,7 @@ export class IncidentController {
   async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const id = Number(req.params.id);
+      const id = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -120,7 +120,7 @@ export class IncidentController {
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const id = Number(req.params.id);
+      const id = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -143,7 +143,7 @@ export class IncidentController {
   async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const id = Number(req.params.id);
+      const id = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');

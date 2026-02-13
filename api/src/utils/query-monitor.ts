@@ -235,7 +235,7 @@ export class QueryMonitor {
   /**
    * Monitor a query execution
    */
-  async monitorQuery<T>(
+  async monitorQuery<T extends QueryResultRow = any>(
     pool: Pool | PoolClient,
     query: string,
     params?: any[]
@@ -556,7 +556,7 @@ export const queryMonitor = new QueryMonitor();
  * Monitored query wrapper
  * Use this instead of pool.query() to get automatic monitoring
  */
-export async function monitoredQuery<T extends QueryResultRow = any>(
+export async function monitoredQuery<T extends QueryResultRow = QueryResultRow>(
   pool: Pool | PoolClient,
   query: string,
   params?: any[]

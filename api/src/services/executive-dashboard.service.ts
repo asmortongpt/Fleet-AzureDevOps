@@ -474,7 +474,7 @@ class ExecutiveDashboardService {
       // Use OpenAI for advanced pattern detection if API key is available
       if (process.env.OPENAI_API_KEY && insights.length > 0) {
         try {
-          const aiAnalysis = await openai.chat.completions.create({
+          const aiAnalysis = await openai!.chat.completions.create({
             model: `gpt-4`,
             messages: [{
               role: 'system',

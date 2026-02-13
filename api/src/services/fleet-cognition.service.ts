@@ -42,7 +42,7 @@ class FleetCognitionService {
 
   constructor(
     private db: Pool,
-    private logger: typeof logger
+    private logger: import('winston').Logger
   ) {
     this.startContinuousAnalysis()
   }
@@ -649,10 +649,10 @@ class FleetCognitionService {
   private groupFeedbackByModel(feedbackItems: Record<string, unknown>[]): Map<string, Record<string, unknown>[]> {
     const grouped = new Map<string, Record<string, unknown>[]>()
     for (const item of feedbackItems) {
-      if (!grouped.has(item.model_id)) {
-        grouped.set(item.model_id, [])
+      if (!grouped.has(item.model_id as string)) {
+        grouped.set(item.model_id as string, [])
       }
-      grouped.get(item.model_id)!.push(item)
+      grouped.get(item.model_id as string)!.push(item)
     }
     return grouped
   }

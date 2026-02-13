@@ -56,8 +56,24 @@ export interface EmailAttachment {
 export class AttachmentService {
 
 
-  private blobServiceClient: BlobServiceClient | null = null
-  private graphClient: Client | null = null
+  private _blobServiceClient: BlobServiceClient | null = null
+  private _graphClient: Client | null = null
+
+  /** Access blobServiceClient after initialization (throws if null) */
+  private get blobServiceClient(): BlobServiceClient {
+    if (!this._blobServiceClient) {
+      throw new Error('AttachmentService: blobServiceClient not initialized')
+    }
+    return this._blobServiceClient
+  }
+
+  /** Access graphClient after initialization (throws if null) */
+  private get graphClient(): Client {
+    if (!this._graphClient) {
+      throw new Error('AttachmentService: graphClient not initialized')
+    }
+    return this._graphClient
+  }
   private accountName: string = ''
   private accountKey: string = ''
   private isInitialized: boolean = false
@@ -109,7 +125,7 @@ export class AttachmentService {
     }
 
     try {
-      this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString)
+      this._blobServiceClient = BlobServiceClient.fromConnectionString(connectionString)
 
       // Parse account name and key from connection string
       const accountNameMatch = connectionString.match(/AccountName=([^;]+)/)
@@ -130,7 +146,7 @@ export class AttachmentService {
         process.env.MS_GRAPH_CLIENT_SECRET || ''
       )
 
-      this.graphClient = Client.initWithMiddleware({
+      this._graphClient = Client.initWithMiddleware({
         authProvider: {
           getAccessToken: async () => {
             const token = await credential.getToken('https://graph.microsoft.com/.default')
@@ -156,7 +172,7 @@ export class AttachmentService {
    * Check if service is initialized and throw error if not
    */
   private ensureInitialized(): void {
-    if (!this.isInitialized || !this.blobServiceClient) {
+    if (!this.isInitialized || !this._blobServiceClient) {
       throw new Error(`AttachmentService is not initialized. Azure Storage configuration is missing.`)
     }
   }

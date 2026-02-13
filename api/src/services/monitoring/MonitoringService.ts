@@ -209,7 +209,7 @@ export class MonitoringService {
 
     // Configure Jaeger exporter (if enabled)
     if (process.env.JAEGER_ENDPOINT) {
-      const jaegerExporter = new JaegerExporter({
+      const jaegerExporter: { shutdown(): Promise<void> } = new JaegerExporter({
         endpoint: process.env.JAEGER_ENDPOINT
       })
 

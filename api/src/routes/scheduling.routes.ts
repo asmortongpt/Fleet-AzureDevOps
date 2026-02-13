@@ -30,7 +30,7 @@ router.use(authenticateJWT)
  */
 router.get('/reservations', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { vehicleId, status, startDate, endDate, driverId } = req.query
 
     let query = `
@@ -93,8 +93,8 @@ router.get('/reservations', async (req: Request, res: Response) => {
  */
 router.post('/reservations', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
-    const userId = req.user?.id
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
+    const userId = req.user?.id ?? ''
     const {
       vehicleId,
       driverId,
@@ -154,7 +154,7 @@ router.post('/reservations', csrfProtection, authenticateJWT, async (req: Reques
  */
 router.patch('/reservations/:id', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { id } = req.params
     const updates = req.body
 
@@ -210,7 +210,7 @@ router.patch('/reservations/:id', csrfProtection, authenticateJWT, async (req: R
  */
 router.delete('/reservations/:id', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { id } = req.params
 
     const result = await pool.query(
@@ -241,8 +241,8 @@ router.delete('/reservations/:id', csrfProtection, authenticateJWT, async (req: 
  */
 router.post('/reservations/:id/approve', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
-    const userId = req.user?.id
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
+    const userId = req.user?.id ?? ''
     const { id } = req.params
 
     // Get full reservation details with vehicle and user info
@@ -301,8 +301,8 @@ router.post('/reservations/:id/approve', csrfProtection, authenticateJWT, async 
  */
 router.post('/reservations/:id/reject', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
-    const userId = req.user?.id
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
+    const userId = req.user?.id ?? ''
     const { id } = req.params
     const { reason } = req.body
 
@@ -366,7 +366,7 @@ router.post('/reservations/:id/reject', csrfProtection, authenticateJWT, async (
  */
 router.get('/maintenance', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { vehicleId, technicianId, serviceBayId, status, startDate, endDate } = req.query
 
     let query = `
@@ -437,8 +437,8 @@ router.get('/maintenance', async (req: Request, res: Response) => {
  */
 router.post('/maintenance', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
-    const userId = req.user?.id
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
+    const userId = req.user?.id ?? ''
     const {
       vehicleId,
       appointmentTypeId,
@@ -494,7 +494,7 @@ router.post('/maintenance', csrfProtection, authenticateJWT, async (req: Request
  */
 router.patch('/maintenance/:id', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { id } = req.params
     const updates = req.body
 
@@ -553,7 +553,7 @@ router.patch('/maintenance/:id', csrfProtection, authenticateJWT, async (req: Re
  */
 router.post('/check-conflicts', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { vehicleId, serviceBayId, technicianId, startTime, endTime, excludeId } = req.body
 
     const conflicts: { vehicle: unknown[]; serviceBay: unknown[]; technician: unknown[] } = {
@@ -613,7 +613,7 @@ router.post('/check-conflicts', csrfProtection, authenticateJWT, async (req: Req
  */
 router.get('/available-vehicles', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { startTime, endTime, vehicleType } = req.query
 
     if (!startTime || !endTime) {
@@ -644,7 +644,7 @@ router.get('/available-vehicles', async (req: Request, res: Response) => {
  */
 router.get('/available-service-bays', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { facilityId, startTime, endTime, bayType } = req.query
 
     if (!facilityId || !startTime || !endTime) {
@@ -678,7 +678,7 @@ router.get('/available-service-bays', async (req: Request, res: Response) => {
  */
 router.get('/vehicle/:vehicleId/schedule', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const { vehicleId } = req.params
     const { startDate, endDate } = req.query
 
@@ -712,7 +712,7 @@ router.get('/vehicle/:vehicleId/schedule', async (req: Request, res: Response) =
  */
 router.get('/calendar/integrations', async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id
+    const userId = req.user?.id ?? ''
 
     const result = await pool.query(
       `SELECT id, provider, calendar_id, calendar_name, is_primary, is_enabled,
@@ -740,7 +740,7 @@ router.get('/calendar/integrations', async (req: Request, res: Response) => {
  */
 router.get('/calendar/google/authorize', async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id
+    const userId = req.user?.id ?? ''
 
     const authUrl = googleCalendarService.getAuthorizationUrl(userId)
 
@@ -760,8 +760,8 @@ router.get('/calendar/google/authorize', async (req: Request, res: Response) => 
  */
 router.post('/calendar/google/callback', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
-    const userId = req.user?.id
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
+    const userId = req.user?.id ?? ''
     const { code, isPrimary } = req.body
 
     if (!code) {
@@ -797,7 +797,7 @@ router.post('/calendar/google/callback', csrfProtection, authenticateJWT, async 
  */
 router.delete('/calendar/integrations/:id', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id
+    const userId = req.user?.id ?? ''
     const { id } = req.params
 
     // Get integration to determine provider
@@ -835,7 +835,7 @@ router.delete('/calendar/integrations/:id', csrfProtection, authenticateJWT, asy
  */
 router.post('/calendar/sync', csrfProtection, authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const userId = req.user?.id
+    const userId = req.user?.id ?? ''
     const { integrationId, startDate, endDate } = req.body
 
     // Get integration
@@ -908,7 +908,7 @@ router.post('/calendar/sync', csrfProtection, authenticateJWT, async (req: Reque
  */
 router.get('/appointment-types', async (req: Request, res: Response) => {
   try {
-    const tenantId = req.user?.tenant_id ?? req.user?.tenantId
+    const tenantId = req.user?.tenant_id ?? req.user?.tenantId ?? ''
     const result = await pool.query(
       `SELECT id, tenant_id, name, description, duration_minutes, default_resource_id, created_at, updated_at FROM appointment_types
        WHERE tenant_id = $1 AND is_active = true

@@ -16,10 +16,9 @@ import {
   GetObjectCommand,
   HeadObjectCommand,
   PutObjectCommand,
-  CopyObjectCommand,
-  DeleteObjectsCommand,
-  ListObjectsV2Command
 } from '@aws-sdk/client-s3';
+// @ts-expect-error TS2724 - These commands exist at runtime but TS 5.9 has re-export resolution issues
+import { CopyObjectCommand, DeleteObjectsCommand, ListObjectsV2Command } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import {
@@ -194,7 +193,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
       const response = await this.client.send(command);
 
-      const files: FileInfo[] = (response.Contents || []).map((obj) => ({
+      const files: FileInfo[] = (response.Contents || []).map((obj: { Key?: string; Size?: number; ETag?: string }) => ({
         key: obj.Key || '',
         name: (obj.Key || '').split('/').pop() || '',
         size: obj.Size || 0,
@@ -203,7 +202,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       }));
 
       const directories = (response.CommonPrefixes || [])
-        .map((prefix) => prefix.Prefix)
+        .map((prefix: { Prefix?: string }) => prefix.Prefix)
         .filter(Boolean) as string[];
 
       return {
@@ -312,7 +311,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
   async dispose(): Promise<void> {
     if (this.client) {
-      this.client.destroy();
+      (this.client as S3Client & { destroy?: () => void }).destroy?.();
     }
     await super.dispose();
   }

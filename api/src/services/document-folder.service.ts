@@ -509,7 +509,7 @@ export class DocumentFolderService {
     userId: string
   ): Promise<DocumentFolder> {
     return this.updateFolder(folderId, tenantId, userId, {
-      parent_folder_id: newParentId
+      parent_folder_id: newParentId ?? undefined
     })
   }
 

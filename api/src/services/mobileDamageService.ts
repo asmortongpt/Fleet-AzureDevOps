@@ -193,7 +193,7 @@ export class MobileDamageService {
     });
 
     // Step 1: Extract key frames from video
-    const keyFrames = videoData.keyFrames || (await this.extractKeyFrames(videoData, frameInterval));
+    const keyFrames = videoData.keyFrames || (await this.extractKeyFrames(videoData, frameInterval)) || [];
 
     logger.info(`Extracted ${keyFrames.length} key frames from video`);
 

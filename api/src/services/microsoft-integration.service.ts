@@ -158,7 +158,7 @@ export class MicrosoftIntegrationService {
       // Set expiration time with 5 minute buffer
       this.tokenExpiresAt = new Date(Date.now() + (response.data.expires_in - 300) * 1000);
 
-      return this.accessToken;
+      return this.accessToken!;
     } catch (error: unknown) {
       logger.error('Error getting Microsoft Graph access token', { error: (error as Record<string, unknown>).response ? ((error as Record<string, unknown>).response as Record<string, unknown>)?.data : (error instanceof Error ? error.message : 'An unexpected error occurred') });
       throw new Error('Failed to authenticate with Microsoft Graph');

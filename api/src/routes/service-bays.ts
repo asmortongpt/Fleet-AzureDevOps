@@ -91,7 +91,7 @@ router.get(
       ORDER BY f.name ASC, sb.bay_number ASC
     `
 
-    const result = await tenantSafeQuery(q, params, tenantId)
+    const result = await tenantSafeQuery(q, params as (string | number | boolean | null)[], tenantId ?? '')
 
     interface ServiceBayRow {
       id: string;

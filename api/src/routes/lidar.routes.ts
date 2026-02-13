@@ -102,7 +102,7 @@ router.post(
       const request = schema.parse(req.body) as ProcessLiDARScanRequest;
 
       const result = await lidar3DScanningService.processScan(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         req.user!.id.toString(),
         request
       );
@@ -142,7 +142,7 @@ router.get(
     try {
       const scanId = req.params.scanId;
 
-      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id, scanId);
+      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id ?? '', scanId);
 
       res.json({
         success: true,
@@ -177,7 +177,7 @@ router.get(
       const pageSize = req.query.pageSize ? parseInt(req.query.pageSize as string) : 20;
 
       const result = await lidar3DScanningService.listScans(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         vehicleId,
         page,
         pageSize
@@ -223,7 +223,7 @@ router.post(
 
       const request: CalculateVolumeRequest = schema.parse(req.body);
 
-      const result = await lidar3DScanningService.calculateVolume(req.user!.tenant_id, request);
+      const result = await lidar3DScanningService.calculateVolume(req.user!.tenant_id ?? '', request);
 
       res.json({
         success: true,
@@ -268,7 +268,7 @@ router.post(
 
       const request: CompareScansRequest = schema.parse(req.body);
 
-      const result = await lidar3DScanningService.compareScans(req.user!.tenant_id, request);
+      const result = await lidar3DScanningService.compareScans(req.user!.tenant_id ?? '', request);
 
       res.json({
         success: true,
@@ -312,7 +312,7 @@ router.post(
       });
 
       // Load scan and point cloud
-      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id, scanId);
+      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id ?? '', scanId);
 
       res.json({
         success: true,
@@ -353,7 +353,7 @@ router.get(
     try {
       const scanId = req.params.scanId;
 
-      const arData = await lidar3DScanningService.generateARKitData(req.user!.tenant_id, scanId);
+      const arData = await lidar3DScanningService.generateARKitData(req.user!.tenant_id ?? '', scanId);
 
       res.json({
         success: true,
@@ -423,7 +423,7 @@ router.get(
       const scanId = req.params.scanId;
       const format = req.params.format as string;
 
-      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id, scanId);
+      const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id ?? '', scanId);
       const model = scanData.models.find(m => m.format === format);
 
       if (!model) {
@@ -462,7 +462,7 @@ router.get(
     try {
       const vehicleId = parseInt(req.params.vehicleId);
 
-      const result = await lidar3DScanningService.listScans(req.user!.tenant_id, vehicleId, 1, 1);
+      const result = await lidar3DScanningService.listScans(req.user!.tenant_id ?? '', vehicleId, 1, 1);
 
       if (result.scans.length === 0) {
         throw new NotFoundError('No scans found for this vehicle');
@@ -470,7 +470,7 @@ router.get(
 
       const latestScan = result.scans[0];
       const scanData = await lidar3DScanningService.getScan(
-        req.user!.tenant_id,
+        req.user!.tenant_id ?? '',
         latestScan.scanId
       );
 
@@ -506,7 +506,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'lidar_stats' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const result = await lidar3DScanningService.listScans(req.user!.tenant_id, undefined, 1, 1000);
+      const result = await lidar3DScanningService.listScans(req.user!.tenant_id ?? '', undefined, 1, 1000);
 
       const stats = {
         totalScans: result.total,

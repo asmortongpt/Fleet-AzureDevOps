@@ -96,7 +96,7 @@ router.get(
       updated_at
       FROM damage_reports
       WHERE tenant_id = $1`
-      const params: any[] = [req.user!.tenant_id]
+      const params: any[] = [req.user!.tenant_id ?? '']
 
       if (vehicle_id) {
         query += ` AND vehicle_id = $2`
@@ -106,13 +106,13 @@ router.get(
       query += ' ORDER BY created_at DESC LIMIT $' + (params.length + 1) + ' OFFSET $' + (params.length + 2)
       params.push(limit, offset)
 
-      const result = await tenantSafeQuery(query, params, req.user!.tenant_id)
+      const result = await tenantSafeQuery(query, params, req.user!.tenant_id ?? '')
 
       const countQuery = vehicle_id
         ? `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1 AND vehicle_id = $2`
         : `SELECT COUNT(*) FROM damage_reports WHERE tenant_id = $1`
-      const countParams = vehicle_id ? [req.user!.tenant_id, vehicle_id] : [req.user!.tenant_id]
-      const countResult = await tenantSafeQuery(countQuery, countParams, req.user!.tenant_id)
+      const countParams = vehicle_id ? [req.user!.tenant_id ?? '', vehicle_id] : [req.user!.tenant_id ?? '']
+      const countResult = await tenantSafeQuery(countQuery, countParams, req.user!.tenant_id ?? '')
 
       res.json({
         data: result.rows,
@@ -155,7 +155,7 @@ router.get(
       updated_at
       FROM damage_reports
       WHERE id = $1 AND tenant_id = $2`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
@@ -187,7 +187,7 @@ router.post(
           linked_work_order_id, inspection_id
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING *`,
         [
-          req.user!.tenant_id,
+          req.user!.tenant_id ?? '',
           validatedData.vehicle_id,
           validatedData.reported_by || req.user!.id,
           validatedData.damage_description,
@@ -241,7 +241,7 @@ router.put(
       const result = await pool.query(
         `UPDATE damage_reports SET ${fields.join(`, `)}, updated_at = NOW()
          WHERE id = $1 AND tenant_id = $2 RETURNING *`,
-        [req.params.id, req.user!.tenant_id, ...values]
+        [req.params.id, req.user!.tenant_id ?? '', ...values]
       )
 
       if (result.rows.length === 0) {
@@ -277,7 +277,7 @@ router.patch(
         `UPDATE damage_reports
          SET triposr_status = $1, triposr_model_url = $2, updated_at = NOW()
          WHERE id = $3 AND tenant_id = $4 RETURNING *`,
-        [triposr_status, triposr_model_url || null, req.params.id, req.user!.tenant_id]
+        [triposr_status, triposr_model_url || null, req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
@@ -301,7 +301,7 @@ router.delete(
     try {
       const result = await pool.query(
         `DELETE FROM damage_reports WHERE id = $1 AND tenant_id = $2 RETURNING id`,
-        [req.params.id, req.user!.tenant_id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       if (result.rows.length === 0) {
@@ -339,7 +339,7 @@ router.post(
         })
       }
 
-      const tenantId = req.user!.tenant_id
+      const tenantId = req.user!.tenant_id ?? ''
       const uploadedFiles: {
         url: string
         type: 'photo' | 'video' | 'lidar'

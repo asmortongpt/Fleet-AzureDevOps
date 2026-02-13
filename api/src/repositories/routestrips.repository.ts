@@ -23,8 +23,9 @@ export class RoutesTripsRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM route_trips WHERE tenant_id = $1 AND deleted_at IS NULL ORDER BY id';
       const result: QueryResult<RouteTrip> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Failed to fetch route trips: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to fetch route trips: ${message}`);
     }
   }
 
@@ -33,8 +34,9 @@ export class RoutesTripsRepository extends BaseRepository<any> {
       const query = 'SELECT id, tenant_id, created_at, updated_at FROM route_trips WHERE tenant_id = $1 AND id = $2 AND deleted_at IS NULL';
       const result: QueryResult<RouteTrip> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to fetch route trip by id: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to fetch route trip by id: ${message}`);
     }
   }
 
@@ -43,8 +45,9 @@ export class RoutesTripsRepository extends BaseRepository<any> {
       const query = 'INSERT INTO route_trips (tenant_id, name, description, created_at, updated_at) VALUES ($1, $2, $3, NOW(), NOW()) RETURNING *';
       const result: QueryResult<RouteTrip> = await this.pool.query(query, [tenantId, name, description]);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to create route trip: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create route trip: ${message}`);
     }
   }
 
@@ -56,8 +59,9 @@ export class RoutesTripsRepository extends BaseRepository<any> {
         throw new Error('Route trip not found or already deleted');
       }
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to update route trip: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update route trip: ${message}`);
     }
   }
 
@@ -68,8 +72,9 @@ export class RoutesTripsRepository extends BaseRepository<any> {
       if (result.rowCount === 0) {
         throw new Error('Route trip not found or already deleted');
       }
-    } catch (error) {
-      throw new Error(`Failed to soft delete route trip: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to soft delete route trip: ${message}`);
     }
   }
 }

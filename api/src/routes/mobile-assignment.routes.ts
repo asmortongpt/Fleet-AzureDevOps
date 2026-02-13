@@ -77,7 +77,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const user_id = req.user!.id;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
 
       // Get driver record for this user
       const driverQuery = `
@@ -196,7 +196,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Verify this on-call period belongs to the user
@@ -255,7 +255,7 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = callbackTripSchema.parse(req.body);
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       // Get driver_id for this user
@@ -348,7 +348,7 @@ router.get(
   requirePermission('vehicle_assignment:view:team'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
       const team_driver_ids = req.user!.team_driver_ids || [];
 
@@ -470,7 +470,7 @@ router.post(
     try {
       const { id } = req.params;
       const { action, notes } = req.body;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
       const user_id = req.user!.id;
 
       if (!['approve', 'deny'].includes(action)) {
@@ -547,7 +547,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const user_id = req.user!.id;
-      const tenant_id = req.user!.tenant_id;
+      const tenant_id = req.user!.tenant_id ?? '';
 
       // Get driver_id
       const driverQuery = `SELECT id FROM drivers WHERE user_id = $1 AND tenant_id = $2`;

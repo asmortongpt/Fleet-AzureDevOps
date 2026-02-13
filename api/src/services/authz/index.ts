@@ -31,8 +31,6 @@ export {
   PolicyEvaluationError
 } from './AuthorizationService';
 
-// Example utilities (optional, for reference)
-export * as Examples from './examples';
 
 /**
  * Quick Start:

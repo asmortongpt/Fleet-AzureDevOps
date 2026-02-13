@@ -693,7 +693,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
     const params: (string | Date)[] = [tenantId, start, end]
     let channelFilter = ''
     if (channelId) {
-      params.push(channelId)
+      params.push(channelId as string)
       channelFilter = ` AND t.channel_id = $${params.length}`
     }
 
@@ -764,7 +764,7 @@ router.post('/webrtc/offer', csrfProtection, requirePermission(`route:create:fle
 
     const offer = await webrtcService.createOffer(
       connectionId || `webrtc-${Date.now()}`,
-      userId,
+      Number(userId),
       channelId
     )
 

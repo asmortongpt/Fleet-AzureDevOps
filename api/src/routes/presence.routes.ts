@@ -121,7 +121,7 @@ router.get('/drivers/all', authenticateJWT, async (req: Request, res: Response) 
   try {
     const tenantId = req.user?.tenant_id
 
-    const drivers = await getAllDriversAvailability(tenantId)
+    const drivers = await getAllDriversAvailability(tenantId ? Number(tenantId) : undefined)
 
     res.json({
       success: true,
@@ -142,7 +142,7 @@ router.get('/drivers/available', authenticateJWT, async (req: Request, res: Resp
   try {
     const tenantId = req.user?.tenant_id
 
-    const availableDrivers = await findAvailableDrivers(tenantId)
+    const availableDrivers = await findAvailableDrivers(tenantId ? Number(tenantId) : undefined)
 
     res.json({
       success: true,

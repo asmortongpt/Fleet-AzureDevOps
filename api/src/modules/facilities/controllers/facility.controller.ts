@@ -74,7 +74,7 @@ export class FacilityController {
   async getFacilityById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const facilityId = Number(req.params.id);
+      const facilityId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -126,7 +126,7 @@ export class FacilityController {
   async updateFacility(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const facilityId = Number(req.params.id);
+      const facilityId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -152,7 +152,7 @@ export class FacilityController {
   async deleteFacility(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const tenantId = req.user?.tenant_id;
-      const facilityId = Number(req.params.id);
+      const facilityId = req.params.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');

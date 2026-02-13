@@ -27,8 +27,9 @@ export class MobileTelemetryRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<MobileTelemetry> = await this.pool.query(query, [tenantId]);
       return result.rows;
-    } catch (error) {
-      throw new Error(`Failed to fetch all mobile telemetry records: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to fetch all mobile telemetry records: ${message}`);
     }
   }
 
@@ -37,8 +38,9 @@ export class MobileTelemetryRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<MobileTelemetry> = await this.pool.query(query, [tenantId, id]);
       return result.rows[0] || null;
-    } catch (error) {
-      throw new Error(`Failed to fetch mobile telemetry record by ID: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to fetch mobile telemetry record by ID: ${message}`);
     }
   }
 
@@ -48,8 +50,9 @@ export class MobileTelemetryRepository extends BaseRepository<any> {
     try {
       const result: QueryResult<MobileTelemetry> = await this.pool.query(query, values);
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to create mobile telemetry record: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to create mobile telemetry record: ${message}`);
     }
   }
 
@@ -63,8 +66,9 @@ export class MobileTelemetryRepository extends BaseRepository<any> {
         throw new Error('No records updated');
       }
       return result.rows[0];
-    } catch (error) {
-      throw new Error(`Failed to update mobile telemetry record: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to update mobile telemetry record: ${message}`);
     }
   }
 
@@ -75,8 +79,9 @@ export class MobileTelemetryRepository extends BaseRepository<any> {
       if (result.rowCount === 0) {
         throw new Error('No records deleted');
       }
-    } catch (error) {
-      throw new Error(`Failed to soft delete mobile telemetry record: ${error.message}`);
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to soft delete mobile telemetry record: ${message}`);
     }
   }
 }

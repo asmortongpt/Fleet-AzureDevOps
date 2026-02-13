@@ -21,7 +21,7 @@ import crypto from 'crypto';
 import { Pool, PoolClient } from 'pg';
 
 import logger from '../config/logger';
-import { db } from '../db'
+import { pool as dbPool } from '../db'
 
 import SamsaraService from './samsara.service';
 import SmartcarService from './smartcar.service';
@@ -1123,7 +1123,7 @@ class VehicleHardwareConfigService {
 }
 
 // Export singleton instance
-const vehicleHardwareConfigService = new VehicleHardwareConfigService(db)
+const vehicleHardwareConfigService = new VehicleHardwareConfigService(dbPool)
 
 export { VehicleHardwareConfigService }
 export default vehicleHardwareConfigService
