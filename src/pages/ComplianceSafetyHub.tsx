@@ -40,6 +40,7 @@ import {
 import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
+import { useNavigate } from 'react-router-dom'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from '@/components/ui/badge'
@@ -730,6 +731,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
  * Policies Tab - Policy management and enforcement
  */
 const PoliciesTabContent = memo(function PoliciesTabContent() {
+  const navigate = useNavigate()
   const { data: policies } = useSWR<any[]>(
     '/api/policies?limit=200',
     fetcher,
@@ -775,8 +777,8 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
   // Handler for viewing policy categories
   const handleViewPolicy = (category: string) => {
     toast.success(`Opening policy details for: ${category}`)
-    // TODO: Open policy details modal or navigate to policy page
     logger.info('View policy clicked:', category)
+    navigate(`/compliance/policies/${encodeURIComponent(category)}`)
   }
 
   return (

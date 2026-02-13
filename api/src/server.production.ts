@@ -8,6 +8,7 @@ import cors from 'cors';
 import { eq } from 'drizzle-orm';
 import express, { Express, Request, Response } from 'express';
 import helmet from 'helmet';
+import logger from './config/logger';
 
 import { db, checkDatabaseConnection } from './db/connection';
 
@@ -48,7 +49,7 @@ const app: Express = express();
 const PORT = process.env.PORT || 3000;
 
 if (process.env.NODE_ENV === 'production' && process.env.ENABLE_LEGACY_API !== 'true') {
-  console.error('Legacy server.production entrypoint is disabled in production. Set ENABLE_LEGACY_API=true to override.');
+  logger.error('Legacy server.production entrypoint is disabled in production. Set ENABLE_LEGACY_API=true to override.');
   process.exit(1);
 }
 
@@ -184,7 +185,7 @@ app.get('/api/vehicles', authenticate, authorize('vehicles:read'), async (req, r
       },
     });
   } catch (error) {
-    console.error('Error fetching vehicles:', error);
+    logger.error('Error fetching vehicles', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -200,7 +201,7 @@ app.get('/api/vehicles/:id', authenticate, authorize('vehicles:read'), validateU
 
     res.json(vehicle);
   } catch (error) {
-    console.error('Error fetching vehicle:', error);
+    logger.error('Error fetching vehicle', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -230,7 +231,7 @@ app.get('/api/drivers', authenticate, authorize('drivers:read'), async (req, res
       },
     });
   } catch (error) {
-    console.error('Error fetching drivers:', error);
+    logger.error('Error fetching drivers', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -260,7 +261,7 @@ app.get('/api/work-orders', authenticate, authorize('maintenance:read'), async (
       },
     });
   } catch (error) {
-    console.error('Error fetching work orders:', error);
+    logger.error('Error fetching work orders', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -290,7 +291,7 @@ app.get('/api/fuel-transactions', authenticate, authorize('fuel:read'), async (r
       },
     });
   } catch (error) {
-    console.error('Error fetching fuel transactions:', error);
+    logger.error('Error fetching fuel transactions', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -320,7 +321,7 @@ app.get('/api/maintenance-records', authenticate, authorize('maintenance:read'),
       },
     });
   } catch (error) {
-    console.error('Error fetching maintenance records:', error);
+    logger.error('Error fetching maintenance records', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -350,7 +351,7 @@ app.get('/api/maintenance-schedules', authenticate, authorize('maintenance:read'
       },
     });
   } catch (error) {
-    console.error('Error fetching maintenance schedules:', error);
+    logger.error('Error fetching maintenance schedules', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -375,7 +376,7 @@ app.get('/api/gps-tracks', authenticate, authorize('gps:read'), async (req, res)
       },
     });
   } catch (error) {
-    console.error('Error fetching GPS tracks:', error);
+    logger.error('Error fetching GPS tracks', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -405,7 +406,7 @@ app.get('/api/routes', authenticate, authorize('routes:read'), async (req, res) 
       },
     });
   } catch (error) {
-    console.error('Error fetching routes:', error);
+    logger.error('Error fetching routes', { error });
     res.status(500).json({ error: 'Internal server error' });
   }
 });
@@ -441,88 +442,23 @@ app.use(errorHandler);
 
 async function startServer() {
   try {
-    console.log('');
-    console.log('='.repeat(80));
-    console.log('🚀 FLEET MANAGEMENT API - PRODUCTION MODE');
-    console.log('='.repeat(80));
-    console.log('');
+    logger.info('Fleet Management API starting in production mode');
 
     // Check database connection
     const dbHealthy = await checkDatabaseConnection();
     if (!dbHealthy) {
-      console.error('❌ Database connection failed. Please check your DATABASE_URL');
+      logger.error('Database connection failed. Please check your DATABASE_URL');
       process.exit(1);
     }
-    console.log('✅ Database connection successful');
+    logger.info('Database connection successful');
 
     // Start server
     const server = app.listen(Number(PORT), '0.0.0.0', () => {
-      console.log('');
-      console.log(`📡 Server: http://localhost:${PORT}`);
-      console.log(`🏥 Health: http://localhost:${PORT}/health`);
-      console.log(`🔐 CSRF Token: http://localhost:${PORT}/api/csrf`);
-      console.log('');
-      console.log('🔒 SECURITY FEATURES:');
-      console.log('   ✅ JWT Authentication');
-      console.log('   ✅ RBAC Authorization');
-      console.log('   ✅ CSRF Protection');
-      console.log('   ✅ Rate Limiting');
-      console.log('   ✅ Input Sanitization');
-      console.log('   ✅ XSS Prevention');
-      console.log('   ✅ SQL Injection Protection');
-      console.log('   ✅ Tenant Isolation');
-      console.log('');
-      console.log('📋 API ENDPOINTS (30 Total):');
-      console.log('');
-      console.log('  Authentication:');
-      console.log('   POST   /api/auth/login           - Login');
-      console.log('   POST   /api/auth/register        - Register');
-      console.log('   GET    /api/auth/me              - Get profile');
-      console.log('');
-      console.log('  Vehicles (5 endpoints):');
-      console.log('   GET    /api/vehicles             - List vehicles');
-      console.log('   GET    /api/vehicles/:id         - Get vehicle');
-      console.log('   POST   /api/vehicles             - Create vehicle');
-      console.log('   PUT    /api/vehicles/:id         - Update vehicle');
-      console.log('   DELETE /api/vehicles/:id         - Delete vehicle');
-      console.log('   POST   /api/vehicles/:id/assign-driver - Assign driver');
-      console.log('');
-      console.log('  Drivers (5 endpoints):');
-      console.log('   GET    /api/drivers              - List drivers');
-      console.log('   GET    /api/drivers/:id          - Get driver');
-      console.log('   POST   /api/drivers              - Create driver');
-      console.log('   PUT    /api/drivers/:id          - Update driver');
-      console.log('   DELETE /api/drivers/:id          - Delete driver');
-      console.log('   GET    /api/drivers/:id/history  - Driver history');
-      console.log('');
-      console.log('  Work Orders (4 endpoints):');
-      console.log('   GET    /api/work-orders          - List work orders');
-      console.log('   GET    /api/work-orders/:id      - Get work order');
-      console.log('   POST   /api/work-orders          - Create work order');
-      console.log('   PUT    /api/work-orders/:id      - Update work order');
-      console.log('');
-      console.log('  Maintenance (3 endpoints):');
-      console.log('   GET    /api/maintenance-records  - List records');
-      console.log('   POST   /api/maintenance-records  - Create record');
-      console.log('   GET    /api/maintenance-schedules - List schedules');
-      console.log('');
-      console.log('  Fuel (3 endpoints):');
-      console.log('   GET    /api/fuel-transactions    - List transactions');
-      console.log('   POST   /api/fuel-transactions    - Create transaction');
-      console.log('   GET    /api/fuel-analytics       - Fuel analytics');
-      console.log('');
-      console.log('  GPS & Tracking (3 endpoints):');
-      console.log('   GET    /api/gps-tracks           - Get GPS tracks');
-      console.log('   POST   /api/gps-position         - Submit position');
-      console.log('   GET    /api/routes               - Get routes');
-      console.log('');
-      console.log('  Reports & Analytics (4 endpoints):');
-      console.log('   GET    /api/reports              - List reports');
-      console.log('   GET    /api/analytics            - Dashboard analytics');
-      console.log('   GET    /api/analytics/vehicles   - Vehicle analytics');
-      console.log('   GET    /api/analytics/fuel       - Fuel analytics');
-      console.log('');
-      console.log('='.repeat(80));
+      logger.info(`Server listening on http://localhost:${PORT}`);
+      logger.info(`Health endpoint: http://localhost:${PORT}/health`);
+      logger.info(`CSRF token endpoint: http://localhost:${PORT}/api/csrf`);
+      logger.info('Security features enabled: JWT Authentication, RBAC Authorization, CSRF Protection, Rate Limiting, Input Sanitization, XSS Prevention, SQL Injection Protection, Tenant Isolation');
+      logger.info('API endpoints registered (30 total): auth, vehicles, drivers, work-orders, maintenance, fuel, gps, routes, reports, analytics');
     });
 
     // Initialize WebSocket for OBD2 Emulator
@@ -530,23 +466,23 @@ async function startServer() {
 
     // Graceful shutdown
     process.on('SIGTERM', () => {
-      console.log('SIGTERM received, shutting down gracefully...');
+      logger.info('SIGTERM received, shutting down gracefully');
       server.close(() => {
-        console.log('Server closed');
+        logger.info('Server closed');
         process.exit(0);
       });
     });
 
     process.on('SIGINT', () => {
-      console.log('\nSIGINT received, shutting down gracefully...');
+      logger.info('SIGINT received, shutting down gracefully');
       server.close(() => {
-        console.log('Server closed');
+        logger.info('Server closed');
         process.exit(0);
       });
     });
 
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    logger.error('Failed to start server', { error });
     process.exit(1);
   }
 }
