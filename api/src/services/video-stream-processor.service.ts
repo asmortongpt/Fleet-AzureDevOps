@@ -105,8 +105,8 @@ class VideoStreamProcessorService extends EventEmitter {
 
       logger.info(`Video stream started: ${sessionId}`);
       return sessionId;
-    } catch (error: any) {
-      logger.error(`Failed to start stream for camera ${config.cameraId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to start stream for camera ${config.cameraId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       throw error;
     }
   }
@@ -195,8 +195,8 @@ class VideoStreamProcessorService extends EventEmitter {
         if (frame) {
           await this.analyzeFrame(frame);
         }
-      } catch (error: any) {
-        logger.error(`Frame processing error:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Frame processing error:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       } finally {
         this.isProcessing = false;
       }
@@ -235,8 +235,8 @@ class VideoStreamProcessorService extends EventEmitter {
         behaviors: analysis.detectedBehaviors,
         riskScore: analysis.overallRiskScore
       });
-    } catch (error: any) {
-      logger.error(`Frame analysis failed for ${frame.frameId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Frame analysis failed for ${frame.frameId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -298,8 +298,8 @@ class VideoStreamProcessorService extends EventEmitter {
         severity: primaryBehavior.severity,
         timestamp: frame.timestamp
       });
-    } catch (error: any) {
-      logger.error(`Failed to trigger safety event:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to trigger safety event:`, error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -344,8 +344,8 @@ class VideoStreamProcessorService extends EventEmitter {
           this.finalizeEventClip(eventId, preEventFrames, postEventFrames);
         }
       }, (postBufferSeconds + 5) * 1000);
-    } catch (error: any) {
-      logger.error(`Failed to capture event clip:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to capture event clip:`, error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 
@@ -381,8 +381,8 @@ class VideoStreamProcessorService extends EventEmitter {
       // In production, would upload video to Azure Blob Storage
       // const videoUrl = await this.uploadVideoClip(eventId, allFrames);
       // await this.videoService.downloadAndArchiveVideo(eventId, videoUrl);
-    } catch (error: any) {
-      logger.error(`Failed to finalize event clip:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to finalize event clip:`, error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 

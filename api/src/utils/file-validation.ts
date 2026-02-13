@@ -217,8 +217,8 @@ export async function validateFileContent(buffer: Buffer): Promise<{
     // `file-type` is ESM-only; use dynamic import so CJS builds still work.
     const mod = await import('file-type');
     detected = await mod.fileTypeFromBuffer(buffer) ?? undefined;
-  } catch (error: any) {
-    logger.error('[FILE_VALIDATION] File type detection failed', { error: error?.message });
+  } catch (error: unknown) {
+    logger.error('[FILE_VALIDATION] File type detection failed', { error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     return { valid: false, error: 'Unable to validate file type' };
   }
 
@@ -271,8 +271,8 @@ export async function scanForVirus(buffer: Buffer, filename: string): Promise<{
     }
 
     logger.warn('[VIRUS_SCAN] ClamAV not available, falling back to heuristic scanning', { filename });
-  } catch (error: any) {
-    logger.error('[VIRUS_SCAN] ClamAV error, falling back to heuristics', { error: error.message, filename });
+  } catch (error: unknown) {
+    logger.error('[VIRUS_SCAN] ClamAV error, falling back to heuristics', { error: error instanceof Error ? error.message : 'An unexpected error occurred', filename });
   }
 
   // Fallback to heuristic scanning
@@ -332,22 +332,22 @@ async function scanWithClamAV(buffer: Buffer, filename: string): Promise<{
         available: true,
         clean: true
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Clean up temp file on error
       try {
         await fs.unlink(tempFile);
       } catch {}
 
       // If timeout or scan error, treat as unavailable
-      if (error.code === 'ETIMEDOUT' || error.killed) {
+      if ((error as Record<string, unknown>).code === 'ETIMEDOUT' || (error as Record<string, unknown>).killed) {
         logger.error('[VIRUS_SCAN] ClamAV scan timeout', { filename });
         return { available: false, clean: false };
       }
 
       throw error;
     }
-  } catch (error: any) {
-    logger.error('[VIRUS_SCAN] ClamAV error', { error: error.message });
+  } catch (error: unknown) {
+    logger.error('[VIRUS_SCAN] ClamAV error', { error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     return { available: false, clean: false };
   }
 }
@@ -473,9 +473,10 @@ export async function secureFileValidation(buffer: Buffer, originalFilename: str
       errors,
       warnings
     };
-  } catch (error: any) {
-    logger.error('[FILE_VALIDATION] Validation error', { error: error.message });
-    errors.push(`Validation failed: ${error.message}`);
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('[FILE_VALIDATION] Validation error', { error: errMsg });
+    errors.push(`Validation failed: ${errMsg}`);
     return {
       valid: false,
       errors,

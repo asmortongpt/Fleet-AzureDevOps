@@ -94,7 +94,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
         imageHeight: ocrData.imageHeight || 0
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Ensure worker is terminated on error
     if (worker) {
       try {
@@ -104,10 +104,11 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
       }
     }
 
-    logger.error('[Worker] OCR error', { error: error.message || String(error) });
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('[Worker] OCR error', { error: errMsg });
     return {
       success: false,
-      error: error.message || 'Unknown OCR error'
+      error: errMsg
     };
   }
 }

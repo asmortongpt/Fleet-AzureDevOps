@@ -17,8 +17,8 @@ async function main() {
     await cameraSyncService.syncAll()
     logger.info('Camera sync job completed successfully')
     process.exit(0)
-  } catch (error: any) {
-    logger.error('Camera sync job failed', { error: error.message, stack: error.stack })
+  } catch (error: unknown) {
+    logger.error('Camera sync job failed', { error: error instanceof Error ? error.message : 'An unexpected error occurred', stack: error instanceof Error ? error.stack : undefined })
     process.exit(1)
   }
 }

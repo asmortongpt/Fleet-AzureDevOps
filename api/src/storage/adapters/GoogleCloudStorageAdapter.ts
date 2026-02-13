@@ -254,8 +254,8 @@ throw new Error('Bucket not initialized');
 
     try {
       await file.delete();
-    } catch (error: any) {
-      if (error.code === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === 404) {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;
@@ -364,8 +364,8 @@ throw new Error('Bucket not initialized');
         createdAt: new Date(metadata.timeCreated),
         updatedAt: new Date(metadata.updated)
       };
-    } catch (error: any) {
-      if (error.code === 404) {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === 404) {
         throw new FileNotFoundError(normalizedKey);
       }
       throw error;

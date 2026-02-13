@@ -53,9 +53,9 @@ return true
     samsaraService = new SamsaraService(pool)
     logger.info('✅ Samsara service initialized for sync job')
     return true
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Failed to initialize Samsara service', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
     return false
   }
@@ -91,10 +91,10 @@ async function runTelematicsSync(): Promise<void> {
         vehiclesSynced = await samsaraService.syncVehicles()
         lastVehicleSync = new Date()
         logger.info(`✅ Synced ${vehiclesSynced} vehicles`)
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Error syncing vehicles`, {
-          error: error.message,
-          stack: error.stack
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
         })
         errors++
       }
@@ -106,10 +106,10 @@ async function runTelematicsSync(): Promise<void> {
         logger.info(`Syncing telemetry from Samsara...`)
         telemetrySynced = await samsaraService.syncTelemetry()
         logger.info(`✅ Synced telemetry for ${telemetrySynced} vehicles`)
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Error syncing telemetry`, {
-          error: error.message,
-          stack: error.stack
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
         })
         errors++
       }
@@ -121,10 +121,10 @@ async function runTelematicsSync(): Promise<void> {
         logger.info(`Syncing safety events from Samsara...`)
         eventsSynced = await samsaraService.syncSafetyEvents()
         logger.info(`✅ Synced ${eventsSynced} safety events`)
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Error syncing safety events`, {
-          error: error.message,
-          stack: error.stack
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
         })
         errors++
       }
@@ -153,10 +153,10 @@ async function runTelematicsSync(): Promise<void> {
       await sendErrorNotification(errors)
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Fatal error in telematics sync`, {
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined
     })
   }
 }
@@ -192,9 +192,9 @@ async function sendErrorNotification(errorCount: number): Promise<void> {
     logger.info('Error notifications created', {
       adminsNotified: adminsResult.rows.length
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error sending error notification', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }
@@ -228,9 +228,9 @@ async function logSyncMetrics(metrics: {
         `Synced ${metrics.telemetry_records_synced} telemetry records and ${metrics.events_synced} events`
       ]
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error logging sync metrics`, {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }

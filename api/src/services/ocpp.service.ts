@@ -216,8 +216,8 @@ class OCPPService extends EventEmitter {
       });
 
       return true;
-    } catch (error: any) {
-      logger.error('Error connecting to station', { stationId, error: error.message });
+    } catch (error: unknown) {
+      logger.error('Error connecting to station', { stationId, error: error instanceof Error ? error.message : 'An unexpected error occurred' });
       return false;
     }
   }
@@ -249,8 +249,8 @@ class OCPPService extends EventEmitter {
           this.handleCallError(messageId, actionOrErrorCode as string, payload);
           break;
       }
-    } catch (error: any) {
-      logger.error('Error handling message from station', { stationId, error: error.message });
+    } catch (error: unknown) {
+      logger.error('Error handling message from station', { stationId, error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     }
   }
 
@@ -289,9 +289,9 @@ class OCPPService extends EventEmitter {
 
       // Send CALLRESULT
       this.sendCallResult(stationId, messageId, response);
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Send CALLERROR
-      this.sendCallError(stationId, messageId, `InternalError`, error.message);
+      this.sendCallError(stationId, messageId, `InternalError`, error instanceof Error ? error.message : 'An unexpected error occurred');
     }
   }
 

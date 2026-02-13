@@ -35,8 +35,8 @@ const registerRoute = async (path: string, routerPath: string): Promise<boolean>
     const routerModule = router.default || router;
     app.use(path, routerModule);
     return true;
-  } catch (error: any) {
-    console.log(`⚠ Route ${path} failed to load: ${error.message}`);
+  } catch (error: unknown) {
+    console.log(`⚠ Route ${path} failed to load: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     // Create a fallback route
     app.use(path, (req: Request, res: Response) => {
       res.status(503).json({

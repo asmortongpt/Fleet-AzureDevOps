@@ -375,7 +375,7 @@ export async function sendAdaptiveCard(
 
     logger.info('Adaptive Card sent successfully', { messageId: response.id })
     return response
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error sending Adaptive Card', { error })
     throw error
   }
@@ -414,7 +414,7 @@ export async function updateAdaptiveCard(
 
     logger.info('Adaptive Card updated successfully', { messageId: response.id })
     return response
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating Adaptive Card', { error })
     throw error
   }
@@ -466,7 +466,7 @@ export async function sendAdaptiveCardToUser(
 
     logger.info('Adaptive Card sent to user successfully', { messageId: response.id })
     return response
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error sending Adaptive Card to user', { error })
     throw error
   }

@@ -69,8 +69,8 @@ async function main() {
     console.log('🧹 Clearing existing data...');
     try {
       await client.query('TRUNCATE TABLE audit_logs, tasks, charging_sessions, charging_stations, assets, invoices, purchase_orders, parts_inventory, vendors, notifications, announcements, documents, training_records, certifications, incidents, geofences, telemetry_data, gps_tracks, dispatches, routes, fuel_transactions, inspections, maintenance_schedules, work_orders, facilities, drivers, vehicles, users, tenants RESTART IDENTITY CASCADE');
-    } catch (error: any) {
-      if (error.code === '42P01') {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === '42P01') {
         console.warn('⚠️  Some tables do not exist, skipping truncate. Ensure migrations are applied.');
       } else {
         throw error;

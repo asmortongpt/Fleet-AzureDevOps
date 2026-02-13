@@ -130,17 +130,18 @@ async function runTeamsSync(): Promise<void> {
     })
 
     await logSyncJobMetrics(jobId, `completed`, totalSynced, totalErrors, 0, duration)
-  } catch (error: any) {
+  } catch (error: unknown) {
     const duration = Date.now() - startTime
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
 
     logger.error('Fatal error in Teams sync', {
       jobId,
-      error: error.message,
-      stack: error.stack
+      error: errMsg,
+      stack: error instanceof Error ? error.stack : undefined
     })
 
     await logSyncJobMetrics(jobId, 'failed', 0, 1, 0, duration, {
-      error: error.message
+      error: errMsg
     })
   }
 }
@@ -159,9 +160,9 @@ async function checkActiveUsers(): Promise<boolean> {
 
     const activeUsers = parseInt(result.rows[0].count) || 0
     return activeUsers > 0
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error checking active users', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
     return true // Assume users are active if check fails
   }
@@ -202,9 +203,9 @@ async function logSyncJobMetrics(
         'teams-sync-cron'
       ]
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error logging sync job metrics', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }
@@ -217,9 +218,9 @@ async function syncOnStartup(): Promise<void> {
 
   try {
     await runTeamsSync()
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error during startup sync', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }

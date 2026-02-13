@@ -159,9 +159,10 @@ class LangChainOrchestratorService {
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error('Maintenance planning chain failed', { error: error.message, context })
-      await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Maintenance planning chain failed', { error: errMsg, context })
+      await this.logWorkflowExecution(context, steps, totalTokens, 'error', errMsg)
 
       return {
         success: false,
@@ -169,7 +170,7 @@ class LangChainOrchestratorService {
         finalResult: null,
         totalTokens,
         executionTimeMs: Date.now() - startTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -265,9 +266,10 @@ class LangChainOrchestratorService {
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error('Incident investigation chain failed', { error: error.message, context })
-      await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Incident investigation chain failed', { error: errMsg, context })
+      await this.logWorkflowExecution(context, steps, totalTokens, 'error', errMsg)
 
       return {
         success: false,
@@ -275,7 +277,7 @@ class LangChainOrchestratorService {
         finalResult: null,
         totalTokens,
         executionTimeMs: Date.now() - startTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -381,9 +383,10 @@ class LangChainOrchestratorService {
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error('Route optimization chain failed', { error: error.message, context })
-      await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Route optimization chain failed', { error: errMsg, context })
+      await this.logWorkflowExecution(context, steps, totalTokens, 'error', errMsg)
 
       return {
         success: false,
@@ -391,7 +394,7 @@ class LangChainOrchestratorService {
         finalResult: null,
         totalTokens,
         executionTimeMs: Date.now() - startTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -471,9 +474,10 @@ class LangChainOrchestratorService {
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error('Cost optimization chain failed', { error: error.message, context })
-      await this.logWorkflowExecution(context, steps, totalTokens, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error('Cost optimization chain failed', { error: errMsg, context })
+      await this.logWorkflowExecution(context, steps, totalTokens, 'error', errMsg)
 
       return {
         success: false,
@@ -481,7 +485,7 @@ class LangChainOrchestratorService {
         finalResult: null,
         totalTokens,
         executionTimeMs: Date.now() - startTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -563,8 +567,8 @@ class LangChainOrchestratorService {
         response,
         tokensUsed: this.estimateTokens(message + response)
       }
-    } catch (error: any) {
-      this.logger.error('Chat failed', { error: error.message, sessionId })
+    } catch (error: unknown) {
+      this.logger.error('Chat failed', { error: error instanceof Error ? error.message : 'An unexpected error occurred', sessionId })
       throw error
     }
   }

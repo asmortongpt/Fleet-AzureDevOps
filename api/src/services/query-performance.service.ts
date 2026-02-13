@@ -99,7 +99,7 @@ export class QueryPerformanceService extends EventEmitter {
         }
 
         return result
-      } catch (error: any) {
+      } catch (error: unknown) {
         const duration = Date.now() - startTime
 
         // Record error
@@ -109,7 +109,7 @@ export class QueryPerformanceService extends EventEmitter {
           duration,
           timestamp: new Date(),
           success: false,
-          error: error.message,
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
           poolType
         })
 
@@ -286,10 +286,10 @@ export class QueryPerformanceService extends EventEmitter {
         plan: result.rows[0][`QUERY PLAN`],
         analysis: this.extractPlanInsights(result.rows[0]['QUERY PLAN'])
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         success: false,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       }
     }
   }

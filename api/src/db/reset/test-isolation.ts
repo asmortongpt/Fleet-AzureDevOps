@@ -95,7 +95,7 @@ export class TestIsolationManager {
           parallel: 2,
           clean: false,
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         // If snapshot doesn't exist, create an empty database
         console.warn(`⚠️  Snapshot '${this.options.baseSnapshot}' not found, using empty database`);
       }
@@ -103,8 +103,8 @@ export class TestIsolationManager {
       const testDb = await this.markDatabaseAcquired(dbName, testFile);
       console.log(`✅ Test database ready: ${dbName}`);
       return testDb;
-    } catch (error: any) {
-      console.error(`❌ Failed to create test database: ${error.message}`);
+    } catch (error: unknown) {
+      console.error(`❌ Failed to create test database: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       throw error;
     }
   }
@@ -135,8 +135,8 @@ export class TestIsolationManager {
       this.availableDatabases.push(testDb.name);
 
       console.log(`✅ Test database released: ${testDb.name}`);
-    } catch (error: any) {
-      console.error(`❌ Failed to release database: ${error.message}`);
+    } catch (error: unknown) {
+      console.error(`❌ Failed to release database: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       // Don't reuse this database if reset failed
       this.activeDatabases.delete(id);
     }
@@ -197,8 +197,8 @@ export class TestIsolationManager {
         await this.adminPool.query(`DROP DATABASE IF EXISTS ${dbName}`);
         cleaned++;
         console.log(`  ✅ Dropped: ${dbName}`);
-      } catch (error: any) {
-        console.error(`  ❌ Failed to drop ${dbName}: ${error.message}`);
+      } catch (error: unknown) {
+        console.error(`  ❌ Failed to drop ${dbName}: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       }
     }
 

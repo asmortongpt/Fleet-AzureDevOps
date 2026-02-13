@@ -150,10 +150,10 @@ export class LiDAR3DScanningService {
         damageDetected: damageAnnotations,
         volumeCalculation,
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('LiDAR scan processing failed', { error, scanId });
 
-      await this.updateScanStatus(tenantId, scanId, 'failed', error.message);
+      await this.updateScanStatus(tenantId, scanId, 'failed', error instanceof Error ? error.message : 'An unexpected error occurred');
 
       throw error;
     }
@@ -779,9 +779,9 @@ export class LiDAR3DScanningService {
       await this.storeModelMetadata(tenantId, model);
 
       return model;
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('3D model generation failed', { error, scanId, format });
-      throw new ModelGenerationError(`Failed to generate ${format} model: ${error.message}`);
+      throw new ModelGenerationError(`Failed to generate ${format} model: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
     }
   }
 

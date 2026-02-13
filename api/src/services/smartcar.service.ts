@@ -553,8 +553,9 @@ return
       )
 
       logger.info('Synced Smartcar data for vehicle', { vehicleId })
-    } catch (error: any) {
-      logger.error('Error syncing Smartcar vehicle', { vehicleId, error: error.message })
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      logger.error('Error syncing Smartcar vehicle', { vehicleId, error: errorMessage })
 
       // Update connection status
       await this.db.query(
@@ -562,7 +563,7 @@ return
          SET sync_status = 'error', sync_error = $1
          WHERE vehicle_id = $2
          AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
-        [error.message, vehicleId]
+        [errorMessage, vehicleId]
       )
     }
   }

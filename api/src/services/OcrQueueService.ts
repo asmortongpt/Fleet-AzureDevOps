@@ -290,11 +290,11 @@ export class OcrQueueService {
         documentId,
         result
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`OCR job ${jobId} failed`, { error });
 
       // Update job as failed
-      await this.updateJobStatus(jobId, OcrJobStatus.FAILED, 0, undefined, error.message);
+      await this.updateJobStatus(jobId, OcrJobStatus.FAILED, 0, undefined, error instanceof Error ? error.message : 'An unexpected error occurred');
 
       // Update batch if applicable
       await this.updateBatchProgress(jobId, true);

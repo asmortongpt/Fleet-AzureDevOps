@@ -361,8 +361,8 @@ export function setupQueueRoutes(app: any) {
       const { chatId, message, urgent } = req.body;
       const result = await teamsService.sendMessage(chatId, message, urgent);
       res.json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     }
   });
 
@@ -372,8 +372,8 @@ export function setupQueueRoutes(app: any) {
       const { to, subject, body, priority } = req.body;
       const result = await emailService.sendEmail(to, subject, body, priority);
       res.json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     }
   });
 
@@ -388,8 +388,8 @@ export function setupQueueRoutes(app: any) {
         new Date(sendAt)
       );
       res.json(result);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
+    } catch (error: unknown) {
+      res.status(500).json({ error: error instanceof Error ? error.message : 'An unexpected error occurred' });
     }
   });
 }

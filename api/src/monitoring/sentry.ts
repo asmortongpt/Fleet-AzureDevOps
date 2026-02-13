@@ -88,8 +88,8 @@ class SentryService implements SentryConfig {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
         const profiling = require('@sentry/profiling-node');
         profilingIntegration = profiling?.nodeProfilingIntegration?.();
-      } catch (error: any) {
-        logger.warn('Sentry profiling disabled', { error: error?.message || 'missing native module' });
+      } catch (error: unknown) {
+        logger.warn('Sentry profiling disabled', { error: error instanceof Error ? error.message : 'missing native module' });
       }
 
       Sentry.init({

@@ -62,8 +62,8 @@ export class ServiceBus {
       try {
         await service.initialize()
         logger.info('[Service Bus] Service initialized', { name })
-      } catch (error: any) {
-        logger.error('[Service Bus] Service initialization failed', { name, error: error.message })
+      } catch (error: unknown) {
+        logger.error('[Service Bus] Service initialization failed', { name, error: error instanceof Error ? error.message : 'An unexpected error occurred' })
       }
     })
 
@@ -86,8 +86,8 @@ export class ServiceBus {
       try {
         await service.shutdown()
         logger.info('[Service Bus] Service shut down', { name })
-      } catch (error: any) {
-        logger.error('[Service Bus] Service shutdown failed', { name, error: error.message })
+      } catch (error: unknown) {
+        logger.error('[Service Bus] Service shutdown failed', { name, error: error instanceof Error ? error.message : 'An unexpected error occurred' })
       }
     })
 
@@ -118,13 +118,13 @@ export class ServiceBus {
         const health = await service.healthCheck()
         this.healthStatus.set(name, health)
         return { name, health }
-      } catch (error: any) {
+      } catch (error: unknown) {
         const failedHealth: ServiceHealth = {
           name: service.name,
           type: service.type,
           status: 'unhealthy',
           lastCheck: new Date(),
-          message: `Health check failed: ${error.message}`,
+          message: `Health check failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         }
         this.healthStatus.set(name, failedHealth)
         return { name, health: failedHealth }

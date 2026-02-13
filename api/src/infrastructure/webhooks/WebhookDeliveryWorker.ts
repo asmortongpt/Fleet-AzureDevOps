@@ -48,8 +48,8 @@ export class WebhookDeliveryWorker {
 
       await this.repository.markEventDelivered(event.id, subscription.id);
       this.logger.info(`Webhook delivered: ${event.eventType} to ${subscription.targetUrl}`);
-    } catch (error: any) {
-      this.logger.error(`Webhook delivery failed: ${error.message}`);
+    } catch (error: unknown) {
+      this.logger.error(`Webhook delivery failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`);
       throw error;
     }
   }

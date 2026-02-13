@@ -545,10 +545,10 @@ export class ConnectionManager {
           idleCount: pool.idleCount,
           waitingCount: pool.waitingCount
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         status[poolType] = {
           healthy: false,
-          error: error.message
+          error: error instanceof Error ? error.message : 'An unexpected error occurred'
         }
       }
     }

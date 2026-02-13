@@ -249,9 +249,10 @@ export class DocumentManagementService {
           this.logger.info(`[DocumentManagement] PDF metadata: ${data.numpages} pages, info: ${JSON.stringify(data.info)}`)
 
           return data.text
-        } catch (pdfError: any) {
-          this.logger.error('[DocumentManagement] Error parsing PDF:', pdfError.message)
-          return `[PDF parsing failed: ${pdfError.message}]`
+        } catch (pdfError: unknown) {
+          const pdfErrMsg = pdfError instanceof Error ? pdfError.message : 'An unexpected error occurred'
+          this.logger.error('[DocumentManagement] Error parsing PDF:', pdfErrMsg)
+          return `[PDF parsing failed: ${pdfErrMsg}]`
         }
       }
 
@@ -267,17 +268,18 @@ export class DocumentManagementService {
           this.logger.info(`[DocumentManagement] Extracted ${result.value.length} characters from DOCX: ${filePath}`)
 
           return result.value
-        } catch (docxError: any) {
-          this.logger.error('[DocumentManagement] Error parsing DOCX:', docxError.message)
-          return `[DOCX parsing failed: ${docxError.message}]`
+        } catch (docxError: unknown) {
+          const docxErrMsg = docxError instanceof Error ? docxError.message : 'An unexpected error occurred'
+          this.logger.error('[DocumentManagement] Error parsing DOCX:', docxErrMsg)
+          return `[DOCX parsing failed: ${docxErrMsg}]`
         }
       }
 
       // Unsupported file type
       this.logger.warn(`[DocumentManagement] Unsupported mime type for text extraction: ${mimeType}`)
       return ''
-    } catch (error: any) {
-      this.logger.error('[DocumentManagement] Error extracting text:', error.message)
+    } catch (error: unknown) {
+      this.logger.error('[DocumentManagement] Error extracting text:', error instanceof Error ? error.message : 'An unexpected error occurred')
       return ''
     }
   }

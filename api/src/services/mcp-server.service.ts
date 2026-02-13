@@ -98,9 +98,10 @@ class MCPServerService {
         await this.updateConnectionStatus(serverId, 'error', 'Connection test failed')
         return false
       }
-    } catch (error: any) {
-      logger.error('Error connecting to MCP server', { serverId, error: error.message })
-      await this.updateConnectionStatus(serverId, 'error', error.message)
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      logger.error('Error connecting to MCP server', { serverId, error: errMsg })
+      await this.updateConnectionStatus(serverId, 'error', errMsg)
       return false
     }
   }
@@ -168,13 +169,14 @@ class MCPServerService {
         result: response.data,
         execution_time_ms: executionTime
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       const executionTime = Date.now() - startTime
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
 
       logger.error('MCP tool execution failed', {
         serverId,
         tool: toolRequest.tool_name,
-        error: error.message
+        error: errMsg
       })
 
       // Log failed execution
@@ -187,14 +189,14 @@ class MCPServerService {
         null,
         executionTime,
         'error',
-        error.message
+        errMsg
       )
 
       return {
         success: false,
         result: null,
         execution_time_ms: executionTime,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -215,8 +217,8 @@ class MCPServerService {
 
       const response = await connection.client.get('/tools/list')
       return response.data.tools || []
-    } catch (error: any) {
-      logger.error('Failed to list MCP tools', { serverId, error: error.message })
+    } catch (error: unknown) {
+      logger.error('Failed to list MCP tools', { serverId, error: error instanceof Error ? error.message : 'An unexpected error occurred' })
       return []
     }
   }

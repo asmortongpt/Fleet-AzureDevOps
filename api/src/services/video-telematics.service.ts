@@ -81,8 +81,8 @@ class VideoTelematicsService {
       await this.containerClient.createIfNotExists();
 
       logger.info(`Azure Blob Storage initialized: container=${AZURE_STORAGE_CONTAINER}`);
-    } catch (error: any) {
-      logger.error(`Failed to initialize Azure Storage:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to initialize Azure Storage:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       this.blobService = null;
       this.containerClient = null;
     }
@@ -381,8 +381,8 @@ class VideoTelematicsService {
       logger.info(`Video archived for event ${eventId}: ${storagePath} (${fileSizeMb.toFixed(2)} MB)`);
 
       return storagePath;
-    } catch (error: any) {
-      logger.error(`Failed to download/archive video for event ${eventId}:`, error.message);
+    } catch (error: unknown) {
+      logger.error(`Failed to download/archive video for event ${eventId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
 
       await this.db.query(
         `UPDATE video_safety_events
@@ -429,8 +429,8 @@ class VideoTelematicsService {
         } as any);
 
         return sasUrl;
-      } catch (error: any) {
-        logger.error(`Failed to generate SAS URL for event ${eventId}:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Failed to generate SAS URL for event ${eventId}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
 
@@ -727,8 +727,8 @@ class VideoTelematicsService {
         );
 
         deleted++;
-      } catch (error: any) {
-        logger.error(`Failed to delete video for event ${event.id}:`, error.message);
+      } catch (error: unknown) {
+        logger.error(`Failed to delete video for event ${event.id}:`, error instanceof Error ? error.message : 'An unexpected error occurred');
       }
     }
 

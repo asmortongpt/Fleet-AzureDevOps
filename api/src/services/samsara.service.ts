@@ -101,8 +101,8 @@ class SamsaraService {
       });
       logger.info('Samsara connected', { vehicleCount: response.data.data?.length || 0 });
       return true;
-    } catch (error: any) {
-      logger.error('Samsara connection failed', { error: error.message });
+    } catch (error: unknown) {
+      logger.error('Samsara connection failed', { error: error instanceof Error ? error.message : 'An unexpected error occurred' });
       return false;
     }
   }
@@ -254,8 +254,8 @@ class SamsaraService {
         );
 
         synced++;
-      } catch (error: any) {
-        logger.error('Error syncing vehicle', { vehicleName: vehicle.name, error: error.message });
+      } catch (error: unknown) {
+        logger.error('Error syncing vehicle', { vehicleName: vehicle.name, error: error instanceof Error ? error.message : 'An unexpected error occurred' });
       }
     }
 
@@ -337,13 +337,14 @@ continue;
         );
 
         synced++;
-      } catch (error: any) {
-        logger.error('Error syncing telemetry for vehicle', { vehicleId: conn.vehicle_id, error: error.message });
+      } catch (error: unknown) {
+        const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+        logger.error('Error syncing telemetry for vehicle', { vehicleId: conn.vehicle_id, error: errMsg });
 
         // Mark connection as error
         await this.db.query(
           `UPDATE vehicle_telematics_connections SET sync_status = $1, sync_error = $2 WHERE vehicle_id = $3`,
-          [`error`, error.message, conn.vehicle_id]
+          [`error`, errMsg, conn.vehicle_id]
         );
       }
     }
@@ -408,8 +409,8 @@ continue;
         );
 
         synced++;
-      } catch (error: any) {
-        logger.error('Error syncing safety event', { eventId: event.id, error: error.message });
+      } catch (error: unknown) {
+        logger.error('Error syncing safety event', { eventId: event.id, error: error instanceof Error ? error.message : 'An unexpected error occurred' });
       }
     }
 

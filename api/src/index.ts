@@ -33,10 +33,10 @@ app.get('/api/health', async (req, res) => {
       database: 'connected',
       dbTime: result.rows[0].now
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       status: 'unhealthy',
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });
@@ -49,10 +49,10 @@ app.get('/api/v1/vehicles', async (req, res) => {
       data: result.rows,
       count: result.rowCount
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       error: 'Failed to fetch vehicles',
-      details: error.message
+      details: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });

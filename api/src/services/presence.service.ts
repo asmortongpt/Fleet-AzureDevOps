@@ -66,8 +66,8 @@ export async function getPresence(userId: string): Promise<PresenceInfo> {
       .get()
 
     return presence
-  } catch (error: any) {
-    logger.error('Error getting user presence', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error getting user presence', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
 
     // Return default presence if API call fails
     return {
@@ -117,8 +117,8 @@ export async function setPresence(
     }
 
     logger.info('Presence updated for user', { userId })
-  } catch (error: any) {
-    logger.error('Error setting user presence', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error setting user presence', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -139,8 +139,8 @@ export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[
       .post(requestBody)
 
     return response.value || []
-  } catch (error: any) {
-    logger.error('Error getting batch presence', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error getting batch presence', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
 
     // Return default presence for all users if API call fails
     return userIds.map(id => ({
@@ -196,8 +196,8 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
 
     logger.info('Presence subscription created', { subscriptionId: response.id })
     return response
-  } catch (error: any) {
-    logger.error('Error subscribing to presence', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error subscribing to presence', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -273,8 +273,8 @@ export async function getDriverAvailability(driverId: string): Promise<{
       status,
       presence
     }
-  } catch (error: any) {
-    logger.error('Error getting driver availability', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error getting driver availability', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     return {
       available: false,
       status: 'Error checking availability'
@@ -351,8 +351,8 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
     )
 
     return availability
-  } catch (error: any) {
-    logger.error('Error getting all drivers availability', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error getting all drivers availability', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     throw error
   }
 }
@@ -459,8 +459,8 @@ export async function getIntelligentRoutingSuggestion(
         allCandidates: scoredCandidates
       }
     }
-  } catch (error: any) {
-    logger.error('Error getting intelligent routing suggestion', { error: error.message })
+  } catch (error: unknown) {
+    logger.error('Error getting intelligent routing suggestion', { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     return {
       reason: 'Error determining availability',
       allCandidates: []

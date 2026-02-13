@@ -116,9 +116,9 @@ program
       }
 
       await harness.close();
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Reset failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -162,9 +162,9 @@ program
       }
 
       await harness.close();
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Fast reset failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -201,9 +201,9 @@ program
       console.log(`  Tables: ${metadata.tables}`);
       console.log(`  Hash: ${metadata.hash}`);
       console.log(`  Timestamp: ${new Date(metadata.timestamp).toISOString()}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Snapshot creation failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -237,9 +237,9 @@ program
       });
 
       spinner.succeed(`Snapshot restored: ${name}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Restore failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -276,8 +276,8 @@ program
 
         console.log();
       }
-    } catch (error: any) {
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -297,9 +297,9 @@ program
       await snapshotMgr.deleteSnapshot(name);
 
       spinner.succeed(`Snapshot deleted: ${name}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Delete failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -331,9 +331,9 @@ program
 
       spinner.succeed(`Cleaned up ${cleaned} test database(s)`);
       await manager.close();
-    } catch (error: any) {
+    } catch (error: unknown) {
       spinner.fail(chalk.red('Cleanup failed'));
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -371,8 +371,8 @@ program
       }
 
       await manager.close();
-    } catch (error: any) {
-      console.error(chalk.red(`\n❌ Error: ${error.message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`\n❌ Error: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });
@@ -429,8 +429,8 @@ program
       } else {
         console.log(chalk.yellow(`\n⚠️  Target not met (${avg.toFixed(2)}s > 10s)`));
       }
-    } catch (error: any) {
-      console.error(chalk.red(`\n❌ Benchmark failed: ${error.message}`));
+    } catch (error: unknown) {
+      console.error(chalk.red(`\n❌ Benchmark failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`));
       process.exit(1);
     }
   });

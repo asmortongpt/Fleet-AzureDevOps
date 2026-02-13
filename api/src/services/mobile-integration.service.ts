@@ -146,7 +146,7 @@ class MobileIntegrationService {
           if (conflict) {
 conflicts.push(conflict)
 }
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error('Error syncing inspection', { error: error instanceof Error ? error.message : String(error) })
         }
       }
@@ -160,7 +160,7 @@ conflicts.push(conflict)
           if (conflict) {
 conflicts.push(conflict)
 }
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error('Error syncing report', { error: error instanceof Error ? error.message : String(error) })
         }
       }
@@ -171,7 +171,7 @@ conflicts.push(conflict)
       for (const photo of request.data.photos) {
         try {
           await this.syncPhoto(tenantId, userId, photo)
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error('Error syncing photo', { error: error instanceof Error ? error.message : String(error) })
         }
       }
@@ -182,7 +182,7 @@ conflicts.push(conflict)
       for (const hosLog of request.data.hos_logs) {
         try {
           await this.syncHOSLog(tenantId, userId, hosLog)
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error('Error syncing HOS log', { error: error instanceof Error ? error.message : String(error) })
         }
       }

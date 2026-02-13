@@ -139,11 +139,11 @@ export function traced(name: string) {
           const result = await originalMethod.apply(this, args);
           span.setStatus({ code: SpanStatusCode.OK });
           return result;
-        } catch (error: any) {
-          span.recordException(error);
+        } catch (error: unknown) {
+          span.recordException(error instanceof Error ? error : new Error(String(error)));
           span.setStatus({
             code: SpanStatusCode.ERROR,
-            message: error.message,
+            message: error instanceof Error ? error.message : 'An unexpected error occurred',
           });
           throw error;
         } finally {
@@ -180,11 +180,11 @@ export async function traceAsync<T>(
       const result = await operation();
       span.setStatus({ code: SpanStatusCode.OK });
       return result;
-    } catch (error: any) {
-      span.recordException(error);
+    } catch (error: unknown) {
+      span.recordException(error instanceof Error ? error : new Error(String(error)));
       span.setStatus({
         code: SpanStatusCode.ERROR,
-        message: error.message,
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
       });
       throw error;
     } finally {

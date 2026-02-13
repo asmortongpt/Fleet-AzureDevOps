@@ -290,11 +290,11 @@ export class MonitoringService {
         responseTime,
         metadata: poolStats
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'database',
         status: HealthStatus.UNHEALTHY,
-        message: `Database connection failed: ${error.message}`,
+        message: `Database connection failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         lastChecked: new Date(),
         responseTime: Date.now() - startTime
       }
@@ -320,11 +320,11 @@ export class MonitoringService {
         lastChecked: new Date(),
         responseTime
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'redis',
         status: HealthStatus.UNHEALTHY,
-        message: `Redis connection failed: ${error.message}`,
+        message: `Redis connection failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         lastChecked: new Date(),
         responseTime: Date.now() - startTime
       }
@@ -350,11 +350,11 @@ export class MonitoringService {
         lastChecked: new Date(),
         metadata: { freePercent }
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'disk_space',
         status: HealthStatus.DEGRADED,
-        message: `Could not check disk space: ${error.message}`,
+        message: `Could not check disk space: ${error instanceof Error ? error.message : 'An unexpected error occurred'}`,
         lastChecked: new Date()
       }
     }

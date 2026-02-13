@@ -92,11 +92,11 @@ async function runAlertChecker(): Promise<void> {
           tenantId: tenant.id,
           alertsGenerated
         })
-      } catch (error: any) {
+      } catch (error: unknown) {
         logger.error(`Error processing tenant ${tenant.name}`, {
           tenantId: tenant.id,
-          error: error.message,
-          stack: error.stack
+          error: error instanceof Error ? error.message : 'An unexpected error occurred',
+          stack: error instanceof Error ? error.stack : undefined
         })
         totalErrors++
       }
@@ -117,10 +117,10 @@ async function runAlertChecker(): Promise<void> {
       total_errors: totalErrors,
       duration_ms: duration
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Fatal error in alert checker`, {
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined
     })
   }
 }
@@ -150,9 +150,9 @@ async function logAlertCheckerMetrics(metrics: {
         'alert-checker-cron'
       ]
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error logging alert checker metrics', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }
@@ -194,10 +194,10 @@ async function checkDriverCertificationAlerts(tenantId: string): Promise<void> {
     }
 
     logger.info(`Generated ${result.rows.length} driver certification alerts for tenant ${tenantId}`)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error checking driver certification alerts`, {
       tenantId,
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }

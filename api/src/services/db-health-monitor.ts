@@ -130,10 +130,12 @@ export class DatabaseHealthMonitor {
 
       return result
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+      const errorCode = (error as Record<string, unknown>).code
       const result: HealthCheckResult = {
         healthy: false,
-        message: `Database connection failed: ${error.message}`,
+        message: `Database connection failed: ${errorMessage}`,
         stats: this.getPoolStats(),
         timestamp: new Date()
       }
@@ -141,13 +143,13 @@ export class DatabaseHealthMonitor {
       this.lastCheckResult = result
 
       logger.error('[DB Health Monitor] Health check failed', {
-        error: error.message,
-        code: error.code,
-        stack: error.stack
+        error: errorMessage,
+        code: errorCode,
+        stack: error instanceof Error ? error.stack : undefined
       })
 
       // CRITICAL: This error will cause SSO authentication to fail!
-      if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+      if (errorCode === 'ECONNREFUSED' || errorCode === 'ETIMEDOUT') {
         logger.error('[DB Health Monitor] 🚨 CRITICAL: Database unreachable - SSO authentication will fail!')
       }
 

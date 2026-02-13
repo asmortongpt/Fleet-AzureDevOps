@@ -78,10 +78,10 @@ async function runSchedulingReminders(): Promise<void> {
       maintenance_reminders: maintenanceReminders,
       duration_ms: duration
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Fatal error in scheduling reminders job`, {
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined
     })
   }
 }
@@ -168,10 +168,10 @@ async function processReservationReminders(): Promise<number> {
             userId: reservation.reserved_by,
             hours
           })
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error(`Error sending reservation reminder`, {
             reservationId: reservation.id,
-            error: error.message
+            error: error instanceof Error ? error.message : 'An unexpected error occurred'
           })
         }
       }
@@ -179,10 +179,10 @@ async function processReservationReminders(): Promise<number> {
 
     logger.info(`Reservation reminders completed: ${remindersSent} sent`)
     return remindersSent
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error processing reservation reminders`, {
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined
     })
     return remindersSent
   }
@@ -275,10 +275,10 @@ async function processMaintenanceReminders(): Promise<number> {
             technicianId: appointment.assigned_technician_id,
             hours
           })
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error(`Error sending maintenance reminder`, {
             appointmentId: appointment.id,
-            error: error.message
+            error: error instanceof Error ? error.message : 'An unexpected error occurred'
           })
         }
       }
@@ -286,10 +286,10 @@ async function processMaintenanceReminders(): Promise<number> {
 
     logger.info(`Maintenance reminders completed: ${remindersSent} sent`)
     return remindersSent
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error processing maintenance reminders`, {
-      error: error.message,
-      stack: error.stack
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: error instanceof Error ? error.stack : undefined
     })
     return remindersSent
   }
@@ -320,9 +320,9 @@ async function logReminderMetrics(metrics: {
         'scheduling-reminders-cron'
       ]
     )
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error logging reminder metrics', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }
@@ -371,9 +371,9 @@ async function checkForConflicts(): Promise<void> {
         )
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error checking for conflicts', {
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 }

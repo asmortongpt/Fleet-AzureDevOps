@@ -217,8 +217,8 @@ async function main() {
     console.log('\n✓ Webhook setup complete!');
     console.log('Remember to renew subscriptions before they expire (every 3 days)');
 
-  } catch (error: any) {
-    console.error('✗ Webhook setup failed:', error.message);
+  } catch (error: unknown) {
+    console.error('✗ Webhook setup failed:', error instanceof Error ? error.message : 'An unexpected error occurred');
     process.exit(1);
   }
 }

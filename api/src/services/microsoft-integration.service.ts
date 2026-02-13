@@ -159,8 +159,8 @@ export class MicrosoftIntegrationService {
       this.tokenExpiresAt = new Date(Date.now() + (response.data.expires_in - 300) * 1000);
 
       return this.accessToken;
-    } catch (error: any) {
-      logger.error('Error getting Microsoft Graph access token', { error: error.response?.data || error.message });
+    } catch (error: unknown) {
+      logger.error('Error getting Microsoft Graph access token', { error: (error as Record<string, unknown>).response ? ((error as Record<string, unknown>).response as Record<string, unknown>)?.data : (error instanceof Error ? error.message : 'An unexpected error occurred') });
       throw new Error('Failed to authenticate with Microsoft Graph');
     }
   }
@@ -210,8 +210,8 @@ export class MicrosoftIntegrationService {
 
       logger.info('Calendar event created', { eventId: response.data.id });
       return response.data.id;
-    } catch (error: any) {
-      logger.error('Error creating calendar event', { error: error.response?.data || error.message });
+    } catch (error: unknown) {
+      logger.error('Error creating calendar event', { error: (error as Record<string, unknown>).response ? ((error as Record<string, unknown>).response as Record<string, unknown>)?.data : (error instanceof Error ? error.message : 'An unexpected error occurred') });
       // Don`t throw error - calendar creation is not critical
       return null;
     }
@@ -253,8 +253,8 @@ export class MicrosoftIntegrationService {
       );
 
       logger.info('Calendar event updated', { eventId });
-    } catch (error: any) {
-      logger.error('Error updating calendar event', { error: error.response?.data || error.message });
+    } catch (error: unknown) {
+      logger.error('Error updating calendar event', { error: (error as Record<string, unknown>).response ? ((error as Record<string, unknown>).response as Record<string, unknown>)?.data : (error instanceof Error ? error.message : 'An unexpected error occurred') });
       // Don`t throw error - calendar update is not critical
     }
   }
@@ -271,8 +271,8 @@ export class MicrosoftIntegrationService {
       );
 
       logger.info('Calendar event deleted', { eventId });
-    } catch (error: any) {
-      logger.error('Error deleting calendar event', { error: error.response?.data || error.message });
+    } catch (error: unknown) {
+      logger.error('Error deleting calendar event', { error: (error as Record<string, unknown>).response ? ((error as Record<string, unknown>).response as Record<string, unknown>)?.data : (error instanceof Error ? error.message : 'An unexpected error occurred') });
       // Don't throw error - calendar deletion is not critical
     }
   }
@@ -313,8 +313,8 @@ export class MicrosoftIntegrationService {
          WHERE id = $1`,
         [reservation.id]
       );
-    } catch (error: any) {
-      logger.error('Error sending Teams notification', { error: error.response?.data || error.message });
+    } catch (error: unknown) {
+      logger.error('Error sending Teams notification', { error: (error as Record<string, unknown>).response ? ((error as Record<string, unknown>).response as Record<string, unknown>)?.data : (error instanceof Error ? error.message : 'An unexpected error occurred') });
       // Don't throw error - Teams notification is not critical
     }
   }
@@ -354,8 +354,8 @@ export class MicrosoftIntegrationService {
       await this.graphClient.post(`/me/sendMail`, email);
 
       logger.info('Email confirmation sent', { recipient: recipientEmail || reservation.reserved_by_email });
-    } catch (error: any) {
-      logger.error('Error sending Outlook email', { error: error.response?.data || error.message });
+    } catch (error: unknown) {
+      logger.error('Error sending Outlook email', { error: (error as Record<string, unknown>).response ? ((error as Record<string, unknown>).response as Record<string, unknown>)?.data : (error instanceof Error ? error.message : 'An unexpected error occurred') });
       // Don't throw error - email notification is not critical
     }
   }
@@ -384,7 +384,7 @@ export class MicrosoftIntegrationService {
       await this.sendTeamsNotification(reservation, `created`);
 
       logger.info('Notified fleet managers', { count: result.rows.length });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error notifying fleet managers', { error });
       // Don`t throw error - notifications are not critical
     }
@@ -529,8 +529,8 @@ export class MicrosoftIntegrationService {
       await this.graphClient.get('/me');
       logger.info('Microsoft Graph connection successful');
       return true;
-    } catch (error: any) {
-      logger.error('Microsoft Graph connection failed', { error: error.response?.data || error.message });
+    } catch (error: unknown) {
+      logger.error('Microsoft Graph connection failed', { error: (error as Record<string, unknown>).response ? ((error as Record<string, unknown>).response as Record<string, unknown>)?.data : (error instanceof Error ? error.message : 'An unexpected error occurred') });
       return false;
     }
   }

@@ -571,14 +571,14 @@ export class CustomReportService {
         filePath,
         rowCount: data.length
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Update execution record with error
       await this.db.query(
         `UPDATE report_executions SET
           status = 'failed',
           error_message = $1
         WHERE id = $2`,
-        [error.message, executionId]
+        [error instanceof Error ? error.message : 'An unexpected error occurred', executionId]
       )
 
       throw error

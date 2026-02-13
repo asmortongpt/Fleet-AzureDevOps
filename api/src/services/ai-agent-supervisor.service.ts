@@ -269,8 +269,8 @@ Provide accurate, relevant information with proper citations.`,
         totalTokens,
         executionTimeMs: Date.now() - startTime
       }
-    } catch (error: any) {
-      this.logger.error(`Supervisor processing failed`, { error: error.message, query })
+    } catch (error: unknown) {
+      this.logger.error(`Supervisor processing failed`, { error: error instanceof Error ? error.message : 'An unexpected error occurred', query })
       throw error
     }
   }
@@ -395,8 +395,9 @@ Respond in JSON format:
         executionTimeMs: Date.now() - startTime,
         tokensUsed
       }
-    } catch (error: any) {
-      this.logger.error(`Agent execution failed`, { agentId, error: error.message })
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
+      this.logger.error(`Agent execution failed`, { agentId, error: errMsg })
 
       return {
         agentId,
@@ -406,7 +407,7 @@ Respond in JSON format:
         confidence: 0,
         executionTimeMs: Date.now() - startTime,
         tokensUsed: 0,
-        error: error.message
+        error: errMsg
       }
     }
   }
@@ -547,8 +548,8 @@ Keep the response concise but thorough.`
           totalTokens
         ]
       )
-    } catch (error: any) {
-      this.logger.error(`Failed to log supervisor execution`, { error: error.message })
+    } catch (error: unknown) {
+      this.logger.error(`Failed to log supervisor execution`, { error: error instanceof Error ? error.message : 'An unexpected error occurred' })
     }
   }
 

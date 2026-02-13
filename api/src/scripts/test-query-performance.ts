@@ -296,8 +296,8 @@ async function runQueryTest(pool: Pool, test: QueryTest): Promise<QueryResult> {
       sequentialScans,
       plan
     };
-  } catch (error: any) {
-    console.error(`Error running test "${test.name}":`, error.message);
+  } catch (error: unknown) {
+    console.error(`Error running test "${test.name}":`, error instanceof Error ? error.message : 'An unexpected error occurred');
     throw error;
   }
 }
@@ -359,8 +359,8 @@ async function runAllTests(pool: Pool, outputFile: string): Promise<void> {
       console.log(`   ✓ Indexes used: ${result.usedIndexes.length > 0 ? result.usedIndexes.join(', ') : 'None'}`);
       console.log(`   ✓ Sequential scans: ${result.sequentialScans}`);
       console.log('');
-    } catch (error: any) {
-      console.error(`   ✗ Failed: ${error.message}\n`);
+    } catch (error: unknown) {
+      console.error(`   ✗ Failed: ${error instanceof Error ? error.message : 'An unexpected error occurred'}\n`);
     }
   }
 
