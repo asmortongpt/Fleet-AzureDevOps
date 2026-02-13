@@ -4,13 +4,19 @@
  * Integrates with OpenAI GPT-4 and MCP servers
  */
 
-// @ts-nocheck
+// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { AIMessage, HumanMessage } from '@langchain/core/messages'
+// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { StringOutputParser } from '@langchain/core/output_parsers'
+// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
+// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { RunnableSequence } from '@langchain/core/runnables'
+// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { DynamicStructuredTool } from '@langchain/core/tools'
+// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { ChatOpenAI } from '@langchain/openai'
+// @ts-expect-error - langchain module lacks proper TypeScript type definitions
 import { BufferMemory } from 'langchain/memory'
 import { Pool } from 'pg'
 import { z } from 'zod'

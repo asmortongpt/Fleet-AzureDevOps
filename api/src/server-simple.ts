@@ -447,7 +447,7 @@ app.get('/api/assets', async (req, res) => {
 
     const query = db.select().from(schema.vehicles);
     if (conditions.length > 0) {
-      // @ts-ignore - Drizzle type inference limitation
+      // @ts-expect-error - Drizzle type inference limitation
       query.where(and(...conditions));
     }
 
@@ -552,7 +552,7 @@ app.get('/api/equipment', async (req, res) => {
 
     const query = db.select().from(schema.vehicles);
     if (conditions.length > 0) {
-      // @ts-ignore - Drizzle type inference limitation
+      // @ts-expect-error - Drizzle type inference limitation
       query.where(and(...conditions));
     }
 
@@ -734,7 +734,7 @@ app.get('/api/maintenance-requests', async (req, res) => {
 
     const query = db.select().from(schema.workOrders);
     if (conditions.length > 0) {
-      // @ts-ignore - Drizzle type inference limitation
+      // @ts-expect-error - Drizzle type inference limitation
       query.where(and(...conditions));
     }
 
@@ -841,7 +841,7 @@ app.get('/api/alerts', async (req, res) => {
 
     const query = db.select().from(schema.incidents);
     if (conditions.length > 0) {
-      // @ts-ignore - Drizzle type inference limitation
+      // @ts-expect-error - Drizzle type inference limitation
       query.where(and(...conditions));
     }
 
@@ -1336,7 +1336,7 @@ app.get('/api/gps-tracks', async (req, res) => {
 
     const query = db.select().from(schema.gpsTracks);
     if (conditions.length > 0) {
-      // @ts-ignore - Drizzle type inference limitation
+      // @ts-expect-error - Drizzle type inference limitation
       query.where(and(...conditions));
     }
 
@@ -1366,7 +1366,7 @@ app.get('/api/gps', async (req, res) => {
 
     const query = db.select().from(schema.gpsTracks);
     if (conditions.length > 0) {
-      // @ts-ignore - Drizzle type inference limitation
+      // @ts-expect-error - Drizzle type inference limitation
       query.where(and(...conditions));
     }
 
