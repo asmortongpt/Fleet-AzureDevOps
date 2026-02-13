@@ -152,7 +152,7 @@ router.get(
           has_more: parseInt(offset) + result.rows.length < parseInt(countResult.rows[0].count)
         }
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get personal use charges error:', error);
       res.status(500).json({ error: 'Failed to retrieve personal use charges' });
     }
@@ -183,7 +183,7 @@ router.get(
 	      );
 	
 	      res.json({ success: true, data: result.rows });
-	    } catch (error: any) {
+	    } catch (error: unknown) {
 	      logger.error('Get personal use summary error:', error);
 	      res.status(500).json({ error: 'Failed to retrieve personal use summary' });
 	    }
@@ -219,7 +219,7 @@ router.get(
         success: true,
         data: result.rows[0]
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get personal use charge error:', error);
       res.status(500).json({ error: 'Failed to retrieve personal use charge' });
     }
@@ -286,7 +286,7 @@ router.post(
         data: result.rows[0],
         message: 'Personal use charge created successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create personal use charge error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -401,7 +401,7 @@ router.put(
         data: result.rows[0],
         message: 'Personal use charge updated successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update personal use charge error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -504,7 +504,7 @@ router.post(
         success: true,
         data: response
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Calculate charges error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
@@ -552,7 +552,7 @@ router.post(
         data: result.rows[0],
         message: 'Personal use charge waived successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Waive charge error:', error);
       res.status(500).json({ error: 'Failed to waive charge' });
     }
@@ -585,7 +585,7 @@ router.delete(
         success: true,
         message: 'Personal use charge deleted successfully'
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete charge error:', error);
       res.status(500).json({ error: 'Failed to delete charge' });
     }

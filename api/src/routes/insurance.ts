@@ -139,9 +139,9 @@ router.post(
 
       logger.info(`Insurance policy created: ${result.rows[0].policy_number}`);
       res.status(201).json(result.rows[0]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create insurance policy error:', error);
-      if (error.code === '23505') {
+      if ((error as Record<string, unknown>).code === '23505') {
         return res.status(409).json({ error: 'Policy number already exists' });
       }
       res.status(500).json({ error: 'Internal server error' });
@@ -348,10 +348,10 @@ router.post(
 
       logger.info(`Insurance claim filed: ${claim_number}`);
       res.status(201).json(claimResult.rows[0]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       await client.query('ROLLBACK');
       logger.error('File insurance claim error:', error);
-      if (error.code === '23505') {
+      if ((error as Record<string, unknown>).code === '23505') {
         return res.status(409).json({ error: 'Claim number already exists' });
       }
       res.status(500).json({ error: 'Internal server error' });

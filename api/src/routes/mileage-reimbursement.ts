@@ -97,7 +97,7 @@ router.get('/rates', async (req: Request, res: Response) => {
       note: 'Using IRS standard mileage rate (federal guideline). Configure MILEAGE_API_ENDPOINT for GSA rates or set tenant-specific rates.',
       last_updated: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching mileage rates:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch mileage rates', message: getErrorMessage(error) })
   }
@@ -184,7 +184,7 @@ router.post('/calculate',csrfProtection, async (req: Request, res: Response) => 
     }
 
     res.json(calculations)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error calculating mileage:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to calculate mileage', message: getErrorMessage(error) })
   }
@@ -214,7 +214,7 @@ router.get('/rates/history', async (req: Request, res: Response) => {
       organization: MILEAGE_CONFIG.organizationName,
       note: 'IRS standard mileage rates per federal guidelines. Updated annually.'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching rate history:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to fetch rate history', message: getErrorMessage(error) })
   }
@@ -301,7 +301,7 @@ validationErrors.push('Driver ID is required')
         distance_reasonable: miles <= 500
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error validating trip:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to validate trip', message: getErrorMessage(error) })
   }
@@ -355,7 +355,7 @@ router.put('/rates/tenant/:tenant_id',csrfProtection, async (req: Request, res: 
         irs_standard_rate: MILEAGE_CONFIG.defaultRate
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating tenant rate:', error) // Wave 18: Winston logger
     res.status(500).json({ error: 'Failed to update tenant rate', message: getErrorMessage(error) })
   }

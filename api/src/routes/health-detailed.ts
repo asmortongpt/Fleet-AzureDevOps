@@ -160,12 +160,12 @@ async function checkDatabase(): Promise<ComponentHealth> {
       },
       lastCheck: new Date().toISOString()
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       status: 'critical',
       message: 'Database connection failed',
       details: {
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       },
       latency: Date.now() - startTime,
       lastCheck: new Date().toISOString()
@@ -288,12 +288,12 @@ async function checkCache(): Promise<ComponentHealth> {
         responseTime: `${latency}ms`
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       status: 'critical',
       message: 'Redis connection failed',
       details: {
-        error: error.message,
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
         configured: true
       }
     };
@@ -324,12 +324,12 @@ async function checkDisk(): Promise<ComponentHealth> {
         mountPoint: parts[5]
       }
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     return {
       status: 'degraded',
       message: `Could not check disk space`,
       details: {
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       }
     };
   }
@@ -468,11 +468,11 @@ overallStatus = 'degraded';
 
     res.status(httpStatus).json(response);
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       status: 'critical',
       message: 'Health check failed',
-      error: error.message,
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
       timestamp: new Date().toISOString()
     });
   }
@@ -514,12 +514,12 @@ router.get('/component/:name', requireAdmin, async (req: Request, res: Response)
       ...result,
       timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(500).json({
       component: name,
       status: 'critical',
       message: 'Check failed',
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });

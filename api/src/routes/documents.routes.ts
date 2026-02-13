@@ -120,7 +120,7 @@ router.post('/upload',
         document,
         message: 'Document uploaded successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error uploading document:', error)
       res.status(500).json({
         error: 'Failed to upload document',
@@ -249,7 +249,7 @@ router.put('/:id',
         document,
         message: 'Document updated successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error updating document:', error)
       res.status(500).json({
         error: 'Failed to update document',
@@ -281,7 +281,7 @@ router.delete('/:id',
       await documentManagementService.deleteDocument(id, tenantId, userId)
 
       res.json({ message: 'Document deleted successfully' })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error deleting document:', error)
       res.status(500).json({
         error: 'Failed to delete document',
@@ -379,7 +379,7 @@ router.post('/categories',
         category,
         message: 'Category created successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating category:', error)
       res.status(500).json({
         error: 'Failed to create category',
@@ -431,7 +431,7 @@ router.post('/search',
       })
 
       res.json({ results, total: results.length })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error performing semantic search:', error)
       res.status(500).json({
         error: 'Failed to perform search',
@@ -486,7 +486,7 @@ router.post('/ask',
       })
 
       res.json(result)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error answering question:', error)
       res.status(500).json({
         error: 'Failed to answer question',
@@ -547,7 +547,7 @@ router.post('/queries/:id/feedback',
       await documentRAGService.provideFeedback(id, rating, comment)
 
       res.json({ message: 'Feedback submitted successfully' })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error submitting feedback:', error)
       res.status(500).json({
         error: 'Failed to submit feedback',

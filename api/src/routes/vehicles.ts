@@ -126,9 +126,9 @@ router.get("/:id",
 
       logger.info('Fetched vehicle', { vehicleId, tenantId })
       res.json({ data: vehicle })
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle specific database errors
-      if (error.code === '22P02') {
+      if ((error as Record<string, unknown>).code === '22P02') {
         // PostgreSQL invalid UUID format
         return res.status(400).json({
           error: 'Invalid vehicle ID format',
@@ -315,8 +315,8 @@ router.put("/:id",
 
       logger.info('Vehicle updated', { vehicleId, tenantId })
       res.json({ data: vehicle })
-    } catch (error: any) {
-      if (error.code === '22P02') {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === '22P02') {
         return res.status(400).json({
           error: 'Invalid vehicle ID format',
           message: 'Vehicle ID must be a valid UUID'
@@ -405,8 +405,8 @@ router.delete("/:id",
 
       logger.info('Vehicle deleted', { vehicleId, tenantId })
       res.json({ message: "Vehicle deleted successfully" })
-    } catch (error: any) {
-      if (error.code === '22P02') {
+    } catch (error: unknown) {
+      if ((error as Record<string, unknown>).code === '22P02') {
         return res.status(400).json({
           error: 'Invalid vehicle ID format',
           message: 'Vehicle ID must be a valid UUID'

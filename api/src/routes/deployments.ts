@@ -64,7 +64,7 @@ router.get('/',
         deployments: result.rows,
         total: result.rows.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching deployments:`, error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Failed to fetch deployments', message: getErrorMessage(error) })
     }
@@ -138,7 +138,7 @@ router.post('/',
       }
 
       res.status(201).json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating deployment:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Failed to create deployment', message: getErrorMessage(error) })
     }
@@ -211,7 +211,7 @@ router.patch('/:id',
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error updating deployment:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Failed to update deployment', message: getErrorMessage(error) })
     }
@@ -252,7 +252,7 @@ router.get('/:id',
         ...deploymentResult.rows[0],
         quality_gates: qualityGatesResult.rows
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching deployment:`, error) // Wave 17: Winston logger
       res.status(500).json({ error: `Failed to fetch deployment`, message: getErrorMessage(error) })
     }
@@ -290,7 +290,7 @@ router.get('/stats/summary',
         stats: result.rows,
         period_days: days
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching deployment stats:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Failed to fetch stats', message: getErrorMessage(error) })
     }

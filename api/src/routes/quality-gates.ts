@@ -64,7 +64,7 @@ router.get('/',
         quality_gates: result.rows,
         total: result.rows.length
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching quality gates:', error)
       res.status(500).json({ error: 'Failed to fetch quality gates', message: getErrorMessage(error) })
     }
@@ -157,7 +157,7 @@ router.post('/',
       }
 
       res.status(201).json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating quality gate:', error)
       res.status(500).json({ error: 'Failed to create quality gate', message: getErrorMessage(error) })
     }
@@ -196,7 +196,7 @@ router.get('/summary',
         summary: result.rows,
         period_days: days
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching quality gate summary:', error)
       res.status(500).json({ error: 'Failed to fetch summary', message: getErrorMessage(error) })
     }
@@ -225,7 +225,7 @@ router.get('/latest/:gate_type',
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching latest quality gate:', error)
       res.status(500).json({ error: 'Failed to fetch quality gate', message: getErrorMessage(error) })
     }

@@ -37,7 +37,7 @@ router.get('/monthly/:period',
         success: true,
         report
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to generate monthly billing report', {
         error: getErrorMessage(error),
         tenantId
@@ -71,7 +71,7 @@ router.get('/payroll-export/:period',
         success: true,
         data: payrollExport
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to generate payroll export', {
         error: getErrorMessage(error),
         tenantId
@@ -104,7 +104,7 @@ router.get('/payroll-csv/:period',
       res.setHeader('Content-Type', 'text/csv')
       res.setHeader('Content-Disposition', `attachment; filename="payroll-deductions-${period}.csv"`)
       res.send(csv)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Failed to generate payroll CSV`, {
         error: getErrorMessage(error),
         tenantId
@@ -144,7 +144,7 @@ router.post('/mark-billed/:period',
         message: `Marked ${count} charge(s) as billed`,
         count
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Failed to mark charges as billed`, {
         error: getErrorMessage(error),
         tenantId

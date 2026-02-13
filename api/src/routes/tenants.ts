@@ -48,7 +48,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
         updated_at: row.updated_at
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof NotFoundError) {
       return res.status(404).json({ error: error.message })
     }

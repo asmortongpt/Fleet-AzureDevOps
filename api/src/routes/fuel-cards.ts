@@ -329,11 +329,11 @@ router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Req
       const transaction = await service.createTransaction(transactions[i], tenantId);
       importResult.imported_count++;
       importResult.transaction_ids.push(transaction.id);
-    } catch (error: any) {
+    } catch (error: unknown) {
       importResult.error_count++;
       importResult.errors.push({
         row: i,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'An unexpected error occurred',
         data: transactions[i]
       });
     }
