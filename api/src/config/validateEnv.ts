@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import logger from './logger';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'staging', 'production'], {
@@ -17,9 +18,9 @@ export function validateEnv() {
     return envSchema.parse(process.env);
   } catch (error) {
     if (error instanceof z.ZodError) {
-      console.error('Environment validation failed:');
+      logger.error('Environment validation failed');
       error.issues.forEach((issue, index) => {
-        console.error(`  ${index + 1}. ${issue.path.join('.')}: ${issue.message}`);
+        logger.error('Environment validation issue', { index: index + 1, path: issue.path.join('.'), message: issue.message });
       });
       throw new Error('Invalid environment configuration');
     }

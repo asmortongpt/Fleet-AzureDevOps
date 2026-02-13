@@ -1,4 +1,5 @@
 import Redis from 'ioredis';
+import logger from './logger';
 
 /**
  * Redis Caching Configuration
@@ -16,7 +17,7 @@ const redis = new Redis({
 });
 
 redis.on('error', (err) => {
-  console.error('Redis connection error:', err);
+  logger.error('Redis connection error', { error: err.message });
 });
 
 export class CacheService {

@@ -12,6 +12,8 @@ import { defaultResource, resourceFromAttributes } from '@opentelemetry/resource
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from '@opentelemetry/semantic-conventions';
 
+import logger from './logger';
+
 /**
  * Custom span creation helper
  * Use this to create manual spans for business logic
@@ -42,14 +44,14 @@ if (azureConnectionString) {
     },
   });
 
-  console.log(`OpenTelemetry: Configured for Azure Application Insights`);
+  logger.info('OpenTelemetry: Configured for Azure Application Insights');
 } else {
   // Use generic OTLP endpoint (Jaeger, Tempo, etc.)
   traceExporter = new OTLPTraceExporter({
     url: otlpEndpoint,
   });
 
-  console.log(`OpenTelemetry: Configured for OTLP endpoint: ${otlpEndpoint}`);
+  logger.info('OpenTelemetry: Configured for OTLP endpoint', { otlpEndpoint });
 }
 
 // Create resource with service information
@@ -107,8 +109,8 @@ const sdk = new NodeSDK({
 process.on('SIGTERM', () => {
   sdk
     .shutdown()
-    .then(() => console.log('OpenTelemetry SDK shut down successfully'))
-    .catch((error) => console.error('Error shutting down OpenTelemetry SDK', error))
+    .then(() => logger.info('OpenTelemetry SDK shut down successfully'))
+    .catch((error) => logger.error('Error shutting down OpenTelemetry SDK', { error }))
     .finally(() => process.exit(0));
 });
 

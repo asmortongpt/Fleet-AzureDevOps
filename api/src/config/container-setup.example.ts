@@ -1,4 +1,5 @@
 import { asFunction, asClass, createContainer } from 'awilix';
+import logger from './logger';
 
 import { TelematicsIngestionService } from '../application/telematics/services/TelematicsIngestionService';
 import { SamsaraTelematicsAdapter } from '../infrastructure/telematics/adapters/SamsaraTelematicsAdapter';
@@ -56,6 +57,6 @@ export function startBackgroundJobs(container: any) {
     // const safetyScoreJob = container.resolve('driverSafetyScoreAggregationJob');
     // safetyScoreJob.start();
 
-    console.log('✅ Background jobs started');
+    logger.info('Background jobs started');
   }
 }
