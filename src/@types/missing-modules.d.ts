@@ -10,6 +10,17 @@ declare module 'xlsx' {
   export const utils: any;
 }
 
+// React Spring for Three.js (optional 3D camera animation dependency)
+declare module '@react-spring/three' {
+  import type { ComponentType } from 'react';
+  export function useSpring(config: any): [any, any];
+  export const animated: {
+    group: ComponentType<any>;
+    mesh: ComponentType<any>;
+    [key: string]: ComponentType<any>;
+  };
+}
+
 // React Three Fiber post-processing
 declare module '@react-three/postprocessing' {
   export const EffectComposer: any;

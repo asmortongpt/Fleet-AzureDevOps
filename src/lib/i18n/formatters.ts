@@ -271,7 +271,6 @@ export function useFormatters() {
     type: 'conjunction' | 'disjunction' = 'conjunction'
   ): string => {
     try {
-      // @ts-expect-error Intl.ListFormat is not yet in all TS lib versions
       return new Intl.ListFormat(locale, {
         style: 'long',
         type,

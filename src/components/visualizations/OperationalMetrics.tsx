@@ -22,7 +22,7 @@ interface Metric {
   unit: string;
   trend?: 'up' | 'down' | 'stable';
   trendValue?: number;
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
   color: 'blue' | 'green' | 'amber' | 'purple' | 'red';
 }
 

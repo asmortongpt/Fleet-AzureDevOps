@@ -51,7 +51,7 @@ interface SectionConfig {
   type: EntityType
   key: keyof LinkedEntities
   label: string
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   color: string
   badgeVariant: 'default' | 'secondary' | 'destructive' | 'outline'
 }

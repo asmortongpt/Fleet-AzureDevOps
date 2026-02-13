@@ -65,7 +65,7 @@ void pool.query(`
 }).then(() => {
   logger.info('[JWT_BLACKLIST] revoked_tokens table initialized')
 }).catch((err) => {
-  console.error('[JWT_BLACKLIST] Failed to initialize revoked_tokens table:', err)
+  logger.error('[JWT_BLACKLIST] Failed to initialize revoked_tokens table:', err)
 })
 
 // Helper: hash a token for storage (never store plaintext tokens)
@@ -83,7 +83,7 @@ setInterval(async () => {
       logger.info(`[JWT_BLACKLIST] Cleaned ${result.rowCount} expired tokens from blacklist`)
     }
   } catch (err) {
-    console.error('[JWT_BLACKLIST] Cleanup error:', err)
+    logger.error('[JWT_BLACKLIST] Cleanup error:', err)
   }
 }, 5 * 60 * 1000)
 
@@ -129,7 +129,7 @@ export async function checkRevoked(req: AuthRequest, res: Response, next: NextFu
       })
     }
   } catch (err) {
-    console.error('[JWT_BLACKLIST] Error checking revocation status:', err)
+    logger.error('[JWT_BLACKLIST] Error checking revocation status:', err)
     // Fail open on DB error to avoid locking out all users;
     // the authenticateJWT middleware still validates the JWT signature
   }
@@ -344,7 +344,7 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
     }
 
     // Log unexpected errors
-    console.error('[JWT_BLACKLIST] Revocation error:', error)
+    logger.error('[JWT_BLACKLIST] Revocation error:', error)
     await createAuditLog(
       req.user.tenant_id,
       req.user.id,

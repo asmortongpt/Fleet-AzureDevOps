@@ -43,8 +43,6 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
 }
 
 // Initialize Sentry before all other imports for proper error tracking
-// @ts-expect-error - virtual module provided by vite-plugin-pwa; types require adding
-// `/// <reference types="vite-plugin-pwa/client" />` or referencing client.d.ts in tsconfig
 
 // Azure Key Vault integration is backend-only (Node.js packages cannot run in browser)
 // Frontend validates backend availability via /api/health endpoint instead

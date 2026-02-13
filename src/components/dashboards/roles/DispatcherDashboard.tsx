@@ -22,6 +22,7 @@ import {
 import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -52,6 +53,8 @@ interface ActiveTrip {
 }
 
 export function DispatcherDashboard() {
+  const navigate = useNavigate();
+
   const [operationStats, setOperationStats] = useState<OperationStats>({
     active_trips: 48,
     en_route: 12,
@@ -92,40 +95,52 @@ export function DispatcherDashboard() {
     }
   ]);
 
-  // Quick actions
+  // Quick actions - Navigate to relevant pages
   const handleOpenRadio = () => {
     toast.success('Opening dispatch radio interface...');
-    // TODO: Open radio communication interface
+    navigate('/communication', {
+      state: { view: 'radio' }
+    });
   };
 
   const handleCreateEmergencyAlert = () => {
     toast.success('Opening emergency alert form...');
-    // TODO: Open emergency alert creation
+    navigate('/safety-alerts', {
+      state: { action: 'new' }
+    });
   };
 
   const handleCreateRoute = () => {
     toast.success('Opening route creation wizard...');
-    // TODO: Navigate to route creation
+    navigate('/routes', {
+      state: { action: 'new' }
+    });
   };
 
   const handleJoinChannel = (channelId: string) => {
     toast.success(`Joining ${channelId} channel...`);
-    // TODO: Join dispatch channel
+    navigate('/communication', {
+      state: { channel: channelId }
+    });
   };
 
   const handleContactDriver = (driverName: string) => {
     toast(`Contacting ${driverName}...`);
-    // TODO: Open driver communication
+    navigate('/drivers-hub-consolidated', {
+      state: { action: 'contact', driverName }
+    });
   };
 
   const handleViewOnMap = () => {
     toast('Switching to full-screen map view...');
-    // TODO: Navigate to map view
+    navigate('/live-fleet-dashboard');
   };
 
   const handleFilterTrips = (filter: string) => {
     toast(`Filtering trips by: ${filter}`);
-    // TODO: Apply filter to active trips
+    navigate('/fleet-hub-consolidated', {
+      state: { view: 'trips', filter }
+    });
   };
 
   const getStatusColor = (status: string) => {
