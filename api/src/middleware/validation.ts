@@ -13,10 +13,25 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import { z, ZodSchema, ZodError } from 'zod'
+import { z, ZodSchema, ZodError, ZodObject, type ZodIssue } from 'zod'
 
 import { securityLogger } from '../config/logger'
 import { ValidationError } from '../errors/app-error'
+
+/**
+ * Shape of a Zod invalid_type issue with expected/received fields
+ */
+interface InvalidTypeIssueFields {
+  code: 'invalid_type'
+  expected: string
+  received?: string
+  path: PropertyKey[]
+  message: string
+}
+
+function isInvalidTypeIssue(issue: ZodIssue): issue is ZodIssue & InvalidTypeIssueFields {
+  return issue.code === 'invalid_type'
+}
 
 /**
  * Validation target (where to validate from)
@@ -85,8 +100,8 @@ export function validate(
       let validationSchema = schema
       if (options.partial) {
         // Check if schema is ZodObject which has partial() method
-        if ('partial' in schema && typeof (schema as any).partial === 'function') {
-          validationSchema = (schema as any).partial()
+        if (schema instanceof ZodObject) {
+          validationSchema = schema.partial()
         }
       }
 
@@ -117,12 +132,12 @@ export function validate(
         })
 
         // Format error message
-        const formattedErrors = error.issues.map(err => ({
+        const formattedErrors = error.issues.map((err: ZodIssue) => ({
           field: err.path.join('.'),
           message: options.messages?.[err.path.join('.')] || err.message,
           code: err.code,
-          expected: (err as any).expected,
-          received: (err as any).received
+          expected: isInvalidTypeIssue(err) ? err.expected : undefined,
+          received: isInvalidTypeIssue(err) ? err.received : undefined
         }))
 
         const validationError = new ValidationError(`Validation failed: ${formattedErrors.map(e => e.field).join(', ')}`)
@@ -145,11 +160,11 @@ export function validateAll(schemas: {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       if (schemas.params) {
-        req.params = await schemas.params.parseAsync(req.params) as any
+        req.params = await schemas.params.parseAsync(req.params) as typeof req.params
       }
 
       if (schemas.query) {
-        req.query = await schemas.query.parseAsync(req.query) as any
+        req.query = await schemas.query.parseAsync(req.query) as typeof req.query
       }
 
       if (schemas.body) {
@@ -296,18 +311,18 @@ export const commonSchemas = {
 /**
  * Sanitize input to prevent XSS
  */
-function sanitizeInput(data: any): any {
+function sanitizeInput(data: unknown): unknown {
   if (typeof data === 'string') {
     return sanitizeString(data)
   }
 
   if (Array.isArray(data)) {
-    return data.map(item => sanitizeInput(item))
+    return data.map((item: unknown) => sanitizeInput(item))
   }
 
   if (data && typeof data === 'object') {
-    const sanitized: any = {}
-    for (const [key, value] of Object.entries(data)) {
+    const sanitized: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(data as Record<string, unknown>)) {
       sanitized[key] = sanitizeInput(value)
     }
     return sanitized
@@ -335,13 +350,13 @@ function sanitizeString(str: string): string {
 /**
  * Sanitize data for logging (remove sensitive fields)
  */
-function sanitizeForLogging(data: any): any {
+function sanitizeForLogging(data: unknown): unknown {
   if (!data || typeof data !== 'object') {
     return data
   }
 
   const sensitive = ['password', 'token', 'secret', 'api_key', 'ssn', 'credit_card']
-  const sanitized = { ...data }
+  const sanitized: Record<string, unknown> = { ...(data as Record<string, unknown>) }
 
   for (const field of sensitive) {
     if (sanitized[field]) {

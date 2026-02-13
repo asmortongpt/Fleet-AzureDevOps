@@ -21,15 +21,15 @@ const safeLog = (
   message: string,
   meta: Record<string, unknown>
 ) => {
-  const logger: any = securityLogger as any
+  const logger = securityLogger as Record<string, unknown>
   const logFn =
-    (logger && (logger[level] as any)) ||
-    (logger && (logger.incident as any)) ||
-    (logger && (logger.warn as any)) ||
+    (logger && (logger[level] as unknown)) ||
+    (logger && (logger.incident as unknown)) ||
+    (logger && (logger.warn as unknown)) ||
     null
 
   if (typeof logFn === 'function') {
-    logFn.call(logger, message, meta)
+    (logFn as (message: string, meta: Record<string, unknown>) => void).call(logger, message, meta)
   }
 }
 
@@ -251,7 +251,7 @@ function sanitizeString(value: string, config: SanitizationConfig, fieldName?: s
 /**
  * Sanitize any value recursively
  */
-function sanitizeValue(value: any, config: SanitizationConfig, fieldName?: string): any {
+function sanitizeValue(value: unknown, config: SanitizationConfig, fieldName?: string): unknown {
   if (typeof value === `string`) {
     // Skip if in skip fields
     if (fieldName && config.skipFields?.includes(fieldName)) {
@@ -262,15 +262,15 @@ function sanitizeValue(value: any, config: SanitizationConfig, fieldName?: strin
   }
 
   if (Array.isArray(value)) {
-    return value.map((item, index) =>
+    return value.map((item: unknown, index: number) =>
       sanitizeValue(item, config, `${fieldName}[${index}]`)
     )
   }
 
-  if (value && typeof value === `object` && value.constructor === Object) {
-    const sanitized: any = {}
+  if (value && typeof value === `object` && (value as object).constructor === Object) {
+    const sanitized: Record<string, unknown> = {}
 
-    for (const [key, val] of Object.entries(value)) {
+    for (const [key, val] of Object.entries(value as Record<string, unknown>)) {
       const newFieldName = fieldName ? `${fieldName}.${key}` : key
 
       // Sanitize the key itself
@@ -397,7 +397,7 @@ export const sanitizationUtils = {
   /**
    * Manually sanitize a value
    */
-  sanitize: (value: any, config?: SanitizationConfig) =>
+  sanitize: (value: unknown, config?: SanitizationConfig) =>
     sanitizeValue(value, { ...DEFAULT_CONFIG, ...config }),
 
   /**

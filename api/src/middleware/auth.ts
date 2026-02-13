@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 import { PoolClient } from 'pg'
 
 import pool from '../config/database'
@@ -8,22 +8,32 @@ import jwtConfig from '../config/jwt-config'
 import AzureADTokenValidator from '../services/azure-ad-token-validator'
 import { FIPSJWTService } from '../services/fips-jwt.service'
 
+/** Shape of a decoded (unverified) JWT payload used for token-type detection */
+interface DecodedTokenPayload extends JwtPayload {
+  tid?: string
+  type?: string
+}
+
+export interface AuthUser {
+  id: string
+  email: string
+  role?: string
+  tenant_id?: string
+  scope_level?: string
+  team_driver_ids?: string[]
+  // Session management
+  sessionId?: string
+  // Aliases for compatibility
+  userId?: string
+  tenantId?: string
+  name?: string
+  org_id?: string
+  // Azure AD flag
+  azureAD?: boolean
+}
+
 export interface AuthRequest extends Request {
-  user?: {
-    id: string
-    email: string
-    role?: string
-    tenant_id?: string
-    scope_level?: string
-    team_driver_ids?: string[]
-    // Session management
-    sessionId?: string
-    // Aliases for compatibility
-    userId?: string
-    tenantId?: string
-    name?: string
-    org_id?: string
-  }
+  user?: AuthUser
   dbClient?: PoolClient
 }
 
@@ -70,13 +80,17 @@ export const authenticateJWT = async (
     logger.info('🔑 AUTH MIDDLEWARE - Attempting token validation')
 
     // First, try to decode token to identify its type
-    const decoded = FIPSJWTService.decode(token)
+    const rawDecoded: unknown = FIPSJWTService.decode(token)
+    const decoded: DecodedTokenPayload | null =
+      rawDecoded !== null && typeof rawDecoded === 'object'
+        ? (rawDecoded as DecodedTokenPayload)
+        : null
 
     // Check if token is from Azure AD (has 'tid' claim) or local (has 'type' claim)
     const isAzureADToken = decoded && decoded.tid && !decoded.type
     const isLocalToken = decoded && decoded.type === 'access'
 
-    let validatedUser: any = null
+    let validatedUser: AuthUser | null = null
 
     if (isAzureADToken) {
       // Azure AD token validation
@@ -122,7 +136,7 @@ export const authenticateJWT = async (
     } else if (isLocalToken) {
       // Local Fleet token validation
       logger.info('🟢 AUTH MIDDLEWARE - Detected local Fleet token, validating...')
-      validatedUser = FIPSJWTService.verifyAccessToken(token)
+      validatedUser = FIPSJWTService.verifyAccessToken(token) as AuthUser
       logger.info('✅ AUTH MIDDLEWARE - Local JWT token validated successfully via FIPS Service')
     } else {
       // Unknown token format
@@ -143,35 +157,39 @@ export const authenticateJWT = async (
     // SECURITY FIX: Check if token has been revoked (CVSS 7.2)
     // Call checkRevoked if it has been registered
     if (checkRevokedFn) {
-      return (checkRevokedFn as any)(req, res, next)
+      return checkRevokedFn(req, res, next)
     } else {
       // Fallback if revocation middleware not loaded yet
       logger.warn('⚠️ Session revocation middleware not registered - skipping revocation check')
       return next()
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMessage = error instanceof Error ? error.message : String(error)
+    const errName = error instanceof Error ? error.name : 'UnknownError'
+    const errStack = error instanceof Error ? error.stack : undefined
+
     logger.error('❌ AUTH MIDDLEWARE - Token validation error:', {
-      message: error.message,
-      name: error.name,
-      stack: error.stack
+      message: errMessage,
+      name: errName,
+      stack: errStack
     })
 
     // Map error to specific error codes
     let errorCode = 'VALIDATION_FAILED'
     let statusCode = 403
 
-    if (error.name === 'TokenExpiredError') {
+    if (errName === 'TokenExpiredError') {
       errorCode = 'TOKEN_EXPIRED'
       statusCode = 401
-    } else if (error.name === 'JsonWebTokenError') {
+    } else if (errName === 'JsonWebTokenError') {
       errorCode = 'INVALID_TOKEN'
-    } else if (error.name === 'NotBeforeError') {
+    } else if (errName === 'NotBeforeError') {
       errorCode = 'TOKEN_NOT_ACTIVE'
     }
 
     return res.status(statusCode).json({
       error: 'Invalid or expired token',
-      message: error.message,
+      message: errMessage,
       errorCode
     })
   }
@@ -252,8 +270,10 @@ export const checkAccountLock = async (
     }
 
     return next()
-  } catch (error) {
-    logger.error('Account lock check error:', { error: error })
+  } catch (error: unknown) {
+    logger.error('Account lock check error:', {
+      error: error instanceof Error ? error.message : String(error)
+    })
     return res.status(500).json({ error: 'Internal server error' })
   }
 }

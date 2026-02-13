@@ -437,7 +437,7 @@ export function requireRBAC(config: {
   enforceTenantIsolation?: boolean
   resourceType?: string
 }) {
-  const middlewares: any[] = []
+  const middlewares: Array<(req: AuthRequest, res: Response, next: NextFunction) => Promise<void | Response>> = []
 
   // Add role check if roles specified
   if (config.roles && config.roles.length > 0) {
@@ -461,7 +461,7 @@ export function requireRBAC(config: {
       for (const middleware of middlewares) {
         // Wrap middleware to support async execution
         await new Promise<void>((resolve, reject) => {
-          middleware(req, res, (err: any) => {
+          middleware(req, res, (err?: unknown) => {
             if (err) return reject(err)
             // If response headers are sent, stop execution
             if (res.headersSent) return resolve()
@@ -582,7 +582,7 @@ async function logAuthorizationFailure(details: {
 /**
  * Get schema for a configuration key
  */
-async function getSchema(key: string): Promise<any> {
+async function getSchema(key: string): Promise<Record<string, unknown> | null> {
   try {
     const result = await pool.query(
       `SELECT schema FROM configuration_schemas WHERE key = $1`,

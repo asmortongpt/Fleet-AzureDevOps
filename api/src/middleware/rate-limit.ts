@@ -14,6 +14,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
+import type { Redis as RedisClient } from 'ioredis'
 
 import { securityLogger } from '../config/logger'
 import { RateLimitError } from '../errors/ApplicationError'
@@ -133,7 +134,7 @@ const rateLimitStore = new RateLimitStore()
  * Default key generator (uses IP address)
  */
 function defaultKeyGenerator(req: Request): string {
-  const user = (req as any).user
+  const user = (req as Request & { user?: { id?: string } }).user
   return user ? `user:${user.id}` : `ip:${req.ip}`
 }
 
@@ -189,11 +190,12 @@ export function rateLimit(config: RateLimitConfig) {
         res.setHeader('Retry-After', retryAfter.toString())
 
         // Log rate limit incident
+        const authReq = req as Request & { user?: { id?: string; tenant_id?: string } }
         securityLogger.warn('rate_limit', {
           ip: req.ip,
           userAgent: req.get('user-agent'),
-          userId: (req as any).user?.id,
-          tenantId: (req as any).user?.tenant_id,
+          userId: authReq.user?.id,
+          tenantId: authReq.user?.tenant_id,
           details: {
             endpoint: req.path,
             method: req.method,
@@ -446,7 +448,7 @@ export function checkBruteForce(identifierField: string = 'email') {
  */
 export class RedisRateLimiter {
   constructor(
-    private redisClient: any, // Redis client (ioredis)
+    private redisClient: RedisClient,
     private prefix: string = 'ratelimit'
   ) {
     if (!redisClient) {
@@ -570,7 +572,7 @@ export class RedisRateLimiter {
  * Create a Redis-backed rate limiter
  * Falls back to in-memory if Redis is not available
  */
-export function createRedisRateLimiter(redisClient: any, prefix: string = 'ratelimit'): RedisRateLimiter {
+export function createRedisRateLimiter(redisClient: RedisClient, prefix: string = 'ratelimit'): RedisRateLimiter {
   if (!redisClient) {
     securityLogger.warn('Redis client not provided - rate limiting will use in-memory store')
     throw new Error('Redis client required for distributed rate limiting')
@@ -583,7 +585,7 @@ export function createRedisRateLimiter(redisClient: any, prefix: string = 'ratel
  * Enhanced rate limit middleware factory with Redis support
  */
 export function distributedRateLimit(
-  config: RateLimitConfig & { redisClient?: any }
+  config: RateLimitConfig & { redisClient?: RedisClient }
 ) {
   const {
     windowMs,
@@ -635,11 +637,12 @@ export function distributedRateLimit(
         res.setHeader('Retry-After', retryAfter.toString())
 
         // Log rate limit incident
+        const authReq = req as Request & { user?: { id?: string; tenant_id?: string } }
         securityLogger.warn('rate_limit', {
           ip: req.ip,
           userAgent: req.get('user-agent'),
-          userId: (req as any).user?.id,
-          tenantId: (req as any).user?.tenant_id,
+          userId: authReq.user?.id,
+          tenantId: authReq.user?.tenant_id,
           details: {
             endpoint: req.path,
             method: req.method,
