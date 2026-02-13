@@ -9,6 +9,19 @@ import { sentryService, Sentry } from '../monitoring/sentry';
 import { logger } from '../utils/logger';
 
 /**
+ * Shape of errors flowing through Express error-handling middleware.
+ * Covers AppError, database errors, JWT errors, and validation errors.
+ */
+interface HttpError extends Error {
+  statusCode?: number;
+  status?: number;
+  code?: string | number;
+  isOperational?: boolean;
+  errors?: Array<{ type?: string; param?: string; path?: string; msg: string }>;
+  request?: Record<string, unknown>;
+}
+
+/**
  * Custom error class for operational errors
  */
 export class AppError extends Error {
@@ -27,9 +40,9 @@ export class AppError extends Error {
 /**
  * Determine if an error should be reported to Sentry
  */
-const shouldReportError = (error: any): boolean => {
+const shouldReportError = (error: HttpError): boolean => {
   // Don't report client errors except auth failures
-  if (error.statusCode >= 400 && error.statusCode < 500) {
+  if (error.statusCode && error.statusCode >= 400 && error.statusCode < 500) {
     return error.statusCode === 401 || error.statusCode === 403;
   }
 
@@ -45,7 +58,7 @@ const shouldReportError = (error: any): boolean => {
 /**
  * Extract error details for logging
  */
-const extractErrorDetails = (error: any) => {
+const extractErrorDetails = (error: HttpError) => {
   return {
     name: error.name || 'UnknownError',
     message: error.message || 'An unknown error occurred',
@@ -60,7 +73,8 @@ const extractErrorDetails = (error: any) => {
 /**
  * Format validation errors for better readability
  */
-const formatValidationErrors = (errors: any[]): string => {
+const formatValidationErrors = (errors: HttpError['errors']): string => {
+  if (!errors) return '';
   return errors
     .map(err => `${err.type || err.param} in ${err.path || 'unknown'}: ${err.msg}`)
     .join(', ');
@@ -75,11 +89,11 @@ export const sentryRequestHandler = () => {
   // Return a no-op middleware for compatibility
   return (req: Request, res: Response, next: NextFunction) => {
     // Set user context if available
-    if ((req as any).user) {
+    if (req.user) {
       Sentry.setUser({
-        id: (req as any).user.id,
-        email: (req as any).user.email,
-        username: (req as any).user.username
+        id: String(req.user.id),
+        email: req.user.email,
+        username: req.user.username
       });
     }
     next();
@@ -100,7 +114,7 @@ export const sentryTracingHandler = () => {
  * Main error handler middleware
  */
 export const sentryErrorHandler = () => {
-  return (err: any, req: Request, res: Response, next: NextFunction) => {
+  return (err: HttpError, req: Request, res: Response, _next: NextFunction) => {
     // Extract error details
     const errorDetails = extractErrorDetails(err);
 
@@ -115,7 +129,7 @@ export const sentryErrorHandler = () => {
     // Prepare error context for Sentry
     const errorContext = {
       request: req,
-      user: (req as any).user,
+      user: req.user,
       custom: {
         url: req.originalUrl,
         method: req.method,
@@ -287,7 +301,7 @@ export const notFoundHandler = () => {
  * Unhandled rejection handler
  */
 export const handleUnhandledRejection = () => {
-  process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
+  process.on('unhandledRejection', (reason: unknown, promise: Promise<unknown>) => {
     logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 
     sentryService.captureException(

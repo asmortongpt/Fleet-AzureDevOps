@@ -24,6 +24,7 @@
  */
 
 import { Response, NextFunction } from 'express'
+import { PoolClient } from 'pg'
 
 import pool from '../config/database'
 import logger from '../config/logger'
@@ -104,8 +105,8 @@ export const setTenantContext = async (
     await client.query('SELECT set_config($1, $2, true)', ['app.current_tenant_id', req.user.tenant_id])
 
       // Attach client to request
-      ; (req as any).dbClient = client
-      ; (req as any).tenantId = req.user.tenant_id
+      req.dbClient = client
+      req.tenantId = req.user.tenant_id
 
     // Track if we've already cleaned up
     let cleanedUp = false
@@ -167,7 +168,7 @@ export const getCurrentTenantId = async (
   }
 
   try {
-    const client = (req as any).dbClient || pool
+    const client = req.dbClient || pool
     const result = await client.query(
       "SELECT current_setting('app.current_tenant_id', true) as tenant_id"
     )
@@ -191,7 +192,7 @@ export const debugTenantContext = async (
   res: Response
 ) => {
   try {
-    const client = (req as any).dbClient || pool
+    const client = req.dbClient || pool
 
     // Get current tenant context
     const contextResult = await client.query(
@@ -278,7 +279,7 @@ export const requireTenantContext = async (
   next: NextFunction
 ) => {
   try {
-    const client = (req as any).dbClient || pool
+    const client = req.dbClient || pool
     const result = await client.query(
       "SELECT current_setting('app.current_tenant_id', true) as tenant_id"
     )
@@ -341,7 +342,7 @@ import logger from '../config/logger'
  * ```
  */
 export const setTenantContextDirect = async (
-  client: any,
+  client: PoolClient,
   tenantId: string
 ): Promise<void> => {
   await client.query('SET LOCAL app.current_tenant_id = $1', [tenantId])

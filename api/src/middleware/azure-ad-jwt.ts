@@ -255,9 +255,9 @@ export const checkTokenExpiry = (req: AuthRequest, res: Response, next: NextFunc
   }
 
   const token = authHeader.substring(7)
-  const decoded = jwt.decode(token) as any
+  const decoded = jwt.decode(token) as Record<string, unknown> | null
 
-  if (decoded && decoded.exp) {
+  if (decoded && typeof decoded.exp === 'number') {
     const expiresIn = decoded.exp - Math.floor(Date.now() / 1000)
     if (expiresIn < 300) { // Less than 5 minutes
       logger.warn('Token expiring soon', {

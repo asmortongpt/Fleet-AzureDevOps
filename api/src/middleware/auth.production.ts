@@ -315,7 +315,7 @@ export const enforceTenantIsolation = async (req: Request, res: Response, next: 
 
     // For other roles, add tenant filter to request
     // This will be used by route handlers to filter queries
-    (req as any).tenantId = req.user.tenantId;
+    req.tenantId = req.user.tenantId;
 
     next();
   } catch (error) {

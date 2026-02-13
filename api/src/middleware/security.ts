@@ -67,7 +67,9 @@ export const strictRateLimit = rateLimit({
 
 // Initialize DOMPurify with JSDOM
 const window = new JSDOM('').window;
-const purify = DOMPurify(window as any);
+// JSDOM's window type doesn't perfectly align with DOMPurify's WindowLike type,
+// but it provides all the required DOM interfaces at runtime
+const purify = DOMPurify(window as unknown as Parameters<typeof DOMPurify>[0]);
 
 // Type for values that can be sanitized
 type SanitizableValue = string | number | boolean | null | undefined | SanitizableObject | SanitizableValue[];
@@ -103,8 +105,8 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
   };
 
   if (req.body) req.body = sanitize(req.body);
-  if (req.query) req.query = sanitize(req.query) as any;
-  if (req.params) req.params = sanitize(req.params) as any;
+  if (req.query) req.query = sanitize(req.query) as typeof req.query;
+  if (req.params) req.params = sanitize(req.params) as typeof req.params;
 
   next();
 };

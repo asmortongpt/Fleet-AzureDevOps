@@ -17,8 +17,8 @@ const csrfMethods = doubleCsrf({
   },
   size: 64, // The size of the generated tokens in bits
   ignoredMethods: ["GET", "HEAD", "OPTIONS"], // A list of request methods that will not be checked.
-  // @ts-expect-error - Type mismatch
-  getSessionIdentifier: (req: Request) => (req as any).session?.id || "", // Optional: session identifier
+  // @ts-expect-error - getSessionIdentifier exists at runtime but is missing from DoubleCsrfConfig types
+  getSessionIdentifier: (req: Request) => req.session?.id || "", // Optional: session identifier
 });
 
 // Export individual methods
@@ -33,7 +33,7 @@ export const invalidCsrfTokenError = new Error('Invalid CSRF token');
 export const csrfProtection = doubleCsrfProtection;
 
 // CSRF Token endpoint handler
-export const getCsrfToken = (req: any, res: any) => {
+export const getCsrfToken = (req: Request, res: import('express').Response) => {
   // Use the correct function name from the package
   const token = csrfMethods.generateCsrfToken(req, res);
   res.json({ csrfToken: token });

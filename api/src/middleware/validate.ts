@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodError, ZodSchema, ZodObject } from 'zod';
+import { ZodError, ZodSchema, ZodObject, ZodRawShape } from 'zod';
+import type { ParsedQs } from 'qs';
 
 // Type alias for any Zod object schema
-type AnyZodObject = ZodObject<any>;
+type AnyZodObject = ZodObject<ZodRawShape>;
 
 /**
  * Enhanced validation middleware for CRIT-B-003
@@ -94,7 +95,7 @@ export const validateQuery = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = await schema.parseAsync(req.query);
-      req.query = validated as any;
+      req.query = validated as Record<string, string | string[] | ParsedQs | ParsedQs[] | undefined>;
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -125,7 +126,7 @@ export const validateParams = (schema: ZodSchema) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = await schema.parseAsync(req.params);
-      req.params = validated as any;
+      req.params = validated as Record<string, string>;
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -173,12 +174,12 @@ export const validateAll = (
 
       // Validate params first (URL parameters)
       if (schemas.params) {
-        req.params = await schemas.params.parseAsync(req.params) as any;
+        req.params = await schemas.params.parseAsync(req.params) as Record<string, string>;
       }
 
       // Then query parameters
       if (schemas.query) {
-        req.query = await schemas.query.parseAsync(req.query) as any;
+        req.query = await schemas.query.parseAsync(req.query) as Record<string, string | string[] | ParsedQs | ParsedQs[] | undefined>;
       }
 
       // Finally body
@@ -213,7 +214,7 @@ export const validateAll = (
  * @param data - Data to sanitize
  * @returns Sanitized data
  */
-function sanitizeInput(data: any): any {
+function sanitizeInput(data: unknown): unknown {
   if (typeof data === 'string') {
     return sanitizeString(data);
   }
@@ -223,7 +224,7 @@ function sanitizeInput(data: any): any {
   }
 
   if (data && typeof data === 'object') {
-    const sanitized: any = {};
+    const sanitized: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(data)) {
       sanitized[key] = sanitizeInput(value);
     }
