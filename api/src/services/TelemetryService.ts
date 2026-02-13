@@ -307,7 +307,7 @@ export class TelemetryService extends EventEmitter {
           ORDER BY scheduled_start_time NULLS LAST, created_at DESC, id
           LIMIT 250
         `)
-      } catch (err: any) {
+      } catch (err: unknown) {
         // Fall back to older schema (route_name/total_distance, start/end_location, notes).
         results = await this.db.query(`
           SELECT

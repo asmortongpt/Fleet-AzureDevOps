@@ -54,7 +54,7 @@ export interface HealthCheck {
   message?: string
   lastChecked: Date
   responseTime?: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export interface SystemHealth {
@@ -177,7 +177,7 @@ const eventLoopLag = new Summary({
 export class MonitoringService {
   private pool: Pool
   private redis: Redis
-  private tracerProvider: NodeTracerProvider
+  private tracerProvider!: NodeTracerProvider
   private startTime: number
 
   constructor(pool: Pool, redis: Redis) {
@@ -213,7 +213,7 @@ export class MonitoringService {
         endpoint: process.env.JAEGER_ENDPOINT
       })
 
-      (this.tracerProvider as any).addSpanProcessor(
+      (this.tracerProvider as unknown as { addSpanProcessor(processor: BatchSpanProcessor): void }).addSpanProcessor(
         // @ts-expect-error - Build compatibility fix
         new BatchSpanProcessor(jaegerExporter)
       )
@@ -580,7 +580,7 @@ export class MonitoringService {
   /**
    * Get metrics in JSON format
    */
-  async getMetricsJSON(): Promise<any> {
+  async getMetricsJSON(): Promise<Awaited<ReturnType<typeof prometheusRegister.getMetricsAsJSON>>> {
     const metrics = await prometheusRegister.getMetricsAsJSON()
     return metrics
   }

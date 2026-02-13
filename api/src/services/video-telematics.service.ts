@@ -3,7 +3,7 @@
  * Multi-camera video processing, storage, and evidence management
  */
 
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
+import { BlobServiceClient, BlobSASPermissions, ContainerClient } from '@azure/storage-blob';
 import { Pool } from 'pg';
 
 import logger from '../config/logger';
@@ -215,7 +215,7 @@ class VideoTelematicsService {
     limit?: number;
   }) {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: (string | number | boolean | Date)[] = [];
     let paramIndex = 1;
 
     if (filters.vehicleId) {
@@ -424,9 +424,9 @@ class VideoTelematicsService {
         expiresOn.setHours(expiresOn.getHours() + 1);
 
         const sasUrl = await blockBlobClient.generateSasUrl({
-          permissions: { read: true },
+          permissions: BlobSASPermissions.parse('r'),
           expiresOn
-        } as any);
+        });
 
         return sasUrl;
       } catch (error: unknown) {
@@ -565,7 +565,7 @@ class VideoTelematicsService {
     limit?: number;
   }) {
     const conditions: string[] = [];
-    const params: any[] = [];
+    const params: (string | boolean | number)[] = [];
     let paramIndex = 1;
 
     if (filters.status) {

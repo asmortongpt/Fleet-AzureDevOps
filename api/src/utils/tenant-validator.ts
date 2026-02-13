@@ -129,7 +129,7 @@ export async function validateTenantReference(
 export function validateTenantReferences(configs: TenantValidationConfig[]) {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     // Ensure tenant context is set
-    const client = (req as any).dbClient
+    const client = (req as AuthRequest).dbClient
     if (!client) {
       logger.error('validateTenantReferences called without tenant context')
       res.status(500).json({

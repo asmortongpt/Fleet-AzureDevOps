@@ -1,10 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import { injectable, inject } from 'inversify';
 
 import { cacheService } from '../../../config/cache';
 import logger from '../../../config/logger';
 import { ValidationError, NotFoundError } from '../../../errors/app-error';
+import { AuthRequest } from '../../../middleware/auth';
 import { TYPES } from '../../../types';
+import type { WorkOrder } from '../../../types/work-order';
 import { WorkOrderService } from '../services/work-order.service';
 
 @injectable()
@@ -14,17 +16,17 @@ export class WorkOrderController {
     private workOrderService: WorkOrderService
   ) { }
 
-  async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getAll(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = 1, pageSize = 20, status, priority, facility_id, vehicle_id, technician_id } = req.query;
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
       }
 
       const cacheKey = `work-orders:list:${tenantId}:${page}:${pageSize}:${status || ''}:${priority || ''}:${facility_id || ''}:${vehicle_id || ''}`;
-      const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey);
+      const cached = await cacheService.get<{ data: WorkOrder[], total: number }>(cacheKey);
 
       if (cached) {
         res.json(cached);
@@ -62,9 +64,9 @@ export class WorkOrderController {
     }
   }
 
-  async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getById(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {
@@ -72,7 +74,7 @@ export class WorkOrderController {
       }
 
       const cacheKey = `work-order:${tenantId}:${id}`;
-      const cached = await cacheService.get<any>(cacheKey);
+      const cached = await cacheService.get<WorkOrder>(cacheKey);
 
       if (cached) {
         res.json({ data: cached });
@@ -92,10 +94,10 @@ export class WorkOrderController {
     }
   }
 
-  async create(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async create(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
-      const userId = (req as any).user?.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -115,9 +117,9 @@ export class WorkOrderController {
     }
   }
 
-  async update(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async update(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {
@@ -138,9 +140,9 @@ export class WorkOrderController {
     }
   }
 
-  async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async delete(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {
@@ -161,9 +163,9 @@ export class WorkOrderController {
     }
   }
 
-  async getParts(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getParts(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const workOrderId = req.params.id;
 
       if (!tenantId) {
@@ -177,9 +179,9 @@ export class WorkOrderController {
     }
   }
 
-  async getLabor(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getLabor(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const workOrderId = req.params.id;
 
       if (!tenantId) {

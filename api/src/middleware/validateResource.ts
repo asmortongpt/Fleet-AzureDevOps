@@ -18,7 +18,7 @@ export const validateResource = (schema: AnyZodObject) => (
             params: req.params
         });
         next();
-    } catch (e: any) {
+    } catch (e: unknown) {
         if (e instanceof ZodError) {
             // Format Zod errors into a readable string or object
             const errorMessage = e.issues.map(err => `${err.path.join('.')}: ${err.message}`).join(', ');

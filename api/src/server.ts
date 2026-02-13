@@ -764,8 +764,8 @@ async function listenWithRetry(port: number, maxRetries = 10): Promise<any> {
         srv.on('error', (err: any) => reject(err))
       })
       return s
-    } catch (err: any) {
-      if (err?.code === 'EADDRINUSE' && attempt < maxRetries) {
+    } catch (err: unknown) {
+      if (err instanceof Error && 'code' in err && (err as Record<string, unknown>).code === 'EADDRINUSE' && attempt < maxRetries) {
         const delayMs = 250 + attempt * 250
         logger.warn(`Port ${port} in use; retrying listen in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
         await new Promise((r) => setTimeout(r, delayMs))

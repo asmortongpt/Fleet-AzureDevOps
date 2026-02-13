@@ -212,7 +212,7 @@ values.push(offset)
     client?: PoolClient
   ): Promise<T> {
     const keys = Object.keys(data).filter(key => key !== `id`)
-    const values = keys.map(key => (data as any)[key])
+    const values = keys.map(key => (data as Record<string, unknown>)[key])
 
     if (keys.length === 0) {
       throw new ValidationError(`No data provided for update`)
@@ -309,7 +309,7 @@ values.push(offset)
     let paramCount = 1
 
     records.forEach(record => {
-      const recordValues = keys.map(key => (record as any)[key])
+      const recordValues = keys.map(key => (record as Record<string, unknown>)[key])
       const placeholders = keys.map(() => `$${paramCount++}`).join(`, `)
       valuePlaceholders.push(`(${placeholders})`)
       values.push(...recordValues)

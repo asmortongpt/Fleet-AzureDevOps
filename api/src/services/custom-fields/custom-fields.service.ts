@@ -134,7 +134,7 @@ export class CustomFieldsService {
       if (camelKey in updates) {
         setClauses.push(`${snakeKey} = $${paramCount}`)
 
-        let value = (updates as any)[camelKey]
+        let value = (updates as Record<string, unknown>)[camelKey]
         if (['options', 'validation', 'conditional'].includes(snakeKey)) {
           value = JSON.stringify(value)
         }

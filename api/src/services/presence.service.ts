@@ -91,7 +91,12 @@ export async function setPresence(
   try {
     const client = await getGraphClient()
 
-    const presenceUpdate: any = {
+    const presenceUpdate: {
+      sessionId: string
+      availability: string
+      activity: string
+      expirationDuration: string
+    } = {
       sessionId: `fleet-${Date.now()}`,
       availability,
       activity,
@@ -155,7 +160,7 @@ export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[
  * Subscribe to presence updates for users
  * Note: This requires setting up webhooks/subscriptions
  */
-export async function subscribeToPresence(userIds: string[], webhookUrl: string): Promise<any> {
+export async function subscribeToPresence(userIds: string[], webhookUrl: string): Promise<Record<string, unknown>> {
   try {
     // SSRF Protection: Validate webhook URL
     // Only allow webhooks to our own application domain
@@ -285,7 +290,17 @@ export async function getDriverAvailability(driverId: string): Promise<{
 /**
  * Get availability for all drivers
  */
-export async function getAllDriversAvailability(tenantId?: number): Promise<any[]> {
+interface DriverAvailability {
+  driverId: string
+  name: string
+  email: string
+  available: boolean
+  status: string
+  activity: string
+  statusMessage?: string
+}
+
+export async function getAllDriversAvailability(tenantId?: number): Promise<DriverAvailability[]> {
   try {
     // Get all drivers with Microsoft SSO
     const query = tenantId
@@ -360,7 +375,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
 /**
  * Find available drivers for urgent tasks
  */
-export async function findAvailableDrivers(tenantId?: number): Promise<any[]> {
+export async function findAvailableDrivers(tenantId?: number): Promise<DriverAvailability[]> {
   const allDrivers = await getAllDriversAvailability(tenantId)
   return allDrivers.filter(driver => driver.available)
 }

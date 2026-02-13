@@ -14,7 +14,7 @@ import { WebSocketServer, WebSocket } from 'ws'
 import { telemetryService, TelemetryVehicle } from '../services/TelemetryService'
 
 import { DispatchEmulator } from './DispatchEmulator'
-import { InventoryEmulator } from './InventoryEmulator'
+import { InventoryEmulator, InventoryCategory } from './InventoryEmulator'
 import { generateVehiclesConfig, generateRoutesConfig, EmulatorVehicle, EmulatorRoute, EmulatorGeofence } from './config/generateDynamicConfig'
 import type { CostEmulator } from './cost/CostEmulator'
 import { DriverBehaviorEmulator } from './driver/DriverBehaviorEmulator'
@@ -172,7 +172,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       make: tv.make,
       model: tv.model,
       year: tv.year,
-      type: tv.type as any,
+      type: tv.type as Vehicle['type'],
       vin: tv.vin,
       licensePlate: tv.licensePlate,
       tankSize: tv.tankSize,
@@ -513,7 +513,7 @@ export class EmulatorOrchestrator extends EventEmitter {
         this.dispatchEmulator.registerVehicle({
           id: vehicle.id,
           unitNumber,
-          driverId: (vehicle as any).driver_id || (vehicle as any).driverId,
+          driverId: ((vehicle as Record<string, unknown>).driver_id as string | undefined) || ((vehicle as Record<string, unknown>).driverId as string | undefined),
           currentLocation: vehicle.startingLocation
         })
       }
@@ -1136,7 +1136,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       return []
     }
 
-    return this.inventoryEmulator.getItemsByCategory(category as any)
+    return this.inventoryEmulator.getItemsByCategory(category as InventoryCategory)
   }
 
   /**

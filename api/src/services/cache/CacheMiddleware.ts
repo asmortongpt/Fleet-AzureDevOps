@@ -99,7 +99,7 @@ function generateCacheKey(
         parts.push(req.headers['x-tenant-id'] as string || 'default');
         break;
       case 'userId':
-        parts.push((req as any).user?.id || 'anonymous');
+        parts.push((req as Request & { user?: { id?: string } }).user?.id || 'anonymous');
         break;
       default:
         parts.push(req.headers[field] as string || '');

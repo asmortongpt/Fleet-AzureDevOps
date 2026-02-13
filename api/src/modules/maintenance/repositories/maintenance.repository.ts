@@ -29,7 +29,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
        ORDER BY created_at DESC`,
       [tenantId]
     );
-    return result.rows as any[];
+    return result.rows as MaintenanceRecord[];
   }
 
   async findById(id: string | number, tenantId: string | number): Promise<MaintenanceRecord | null> {
@@ -49,7 +49,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
        WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     );
-    return (result.rows[0] as any) || null;
+    return (result.rows[0] as MaintenanceRecord) || null;
   }
 
   async findByVehicleId(vehicleId: string | number, tenantId: string | number): Promise<MaintenanceRecord[]> {
@@ -70,7 +70,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
        ORDER BY created_at DESC`,
       [vehicleId, tenantId]
     );
-    return result.rows as any[];
+    return result.rows as MaintenanceRecord[];
   }
 
   async findByStatus(status: string, tenantId: string | number): Promise<MaintenanceRecord[]> {
@@ -91,7 +91,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
        ORDER BY created_at DESC`,
       [status, tenantId]
     );
-    return result.rows as any[];
+    return result.rows as MaintenanceRecord[];
   }
 
   async findByServiceType(serviceType: string, tenantId: string | number): Promise<MaintenanceRecord[]> {
@@ -112,7 +112,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
        ORDER BY created_at DESC`,
       [serviceType, tenantId]
     );
-    return result.rows as any[];
+    return result.rows as MaintenanceRecord[];
   }
 
   async create(data: Partial<MaintenanceRecord>, tenantId: string | number): Promise<MaintenanceRecord> {
@@ -142,7 +142,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         data.status || 'pending'
       ]
     );
-    return result.rows[0] as any;
+    return result.rows[0] as MaintenanceRecord;
   }
 
   async update(id: string | number, data: Partial<MaintenanceRecord>, tenantId: string | number): Promise<MaintenanceRecord | null> {
@@ -177,7 +177,7 @@ export class MaintenanceRepository extends BaseRepository<MaintenanceRecord> {
         data.status
       ]
     );
-    return (result.rows[0] as any) || null;
+    return (result.rows[0] as MaintenanceRecord) || null;
   }
 
   async delete(id: string | number, tenantId: string | number): Promise<boolean> {

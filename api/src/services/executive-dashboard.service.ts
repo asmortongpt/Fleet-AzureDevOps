@@ -783,7 +783,7 @@ class ExecutiveDashboardService {
 
 // Export singleton instance
 import { db } from '../db'
-const executiveDashboardService = new ExecutiveDashboardService(db as any)
+const executiveDashboardService = new ExecutiveDashboardService(db as unknown as Pool)
 
 export { ExecutiveDashboardService }
 export default executiveDashboardService

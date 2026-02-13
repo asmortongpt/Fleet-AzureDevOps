@@ -1,6 +1,6 @@
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
-import { createEvent as createICSEvent } from 'ics'
+import { createEvent as createICSEvent, EventAttributes } from 'ics'
 import nodemailer from 'nodemailer'
 import { Pool } from 'pg'
 
@@ -60,7 +60,42 @@ interface CalendarEvent {
   location?: string
   body?: string
   isOnlineMeeting?: boolean
-  recurrence?: any
+  recurrence?: Record<string, unknown>
+}
+
+interface GraphCalendarEvent {
+  id: string
+  subject: string
+  body?: { contentType: string; content: string }
+  start: { dateTime: string; timeZone: string }
+  end: { dateTime: string; timeZone: string }
+  location?: { displayName: string }
+  attendees?: Array<{ emailAddress: { address: string }; type: string }>
+  isOnlineMeeting?: boolean
+  onlineMeetingProvider?: string
+  webLink?: string
+  onlineMeeting?: Record<string, unknown>
+  organizer?: Record<string, unknown>
+}
+
+interface GraphEventPayload {
+  subject: string
+  body?: { contentType: string; content: string }
+  start: { dateTime: string; timeZone: string }
+  end: { dateTime: string; timeZone: string }
+  location?: { displayName: string }
+  attendees: Array<{ emailAddress: { address: string }; type: string }>
+  isOnlineMeeting?: boolean
+  onlineMeetingProvider?: string
+}
+
+interface GraphEventUpdate {
+  subject?: string
+  body?: { contentType: string; content: string }
+  start?: { dateTime: string; timeZone: string }
+  end?: { dateTime: string; timeZone: string }
+  location?: { displayName: string }
+  attendees?: Array<{ emailAddress: { address: string }; type: string }>
 }
 
 export class CalendarService {
@@ -78,11 +113,11 @@ export class CalendarService {
   location?: string,
   body?: string,
   isOnlineMeeting: boolean = false
-): Promise<any> {
+): Promise<GraphCalendarEvent> {
   try {
     const client = await getGraphClient()
 
-    const event: any = {
+    const event: GraphEventPayload = {
       subject,
       body: {
         contentType: 'HTML',
@@ -144,7 +179,7 @@ export class CalendarService {
   userId: string,
   startDate: Date,
   endDate: Date
-): Promise<any[]> {
+): Promise<GraphCalendarEvent[]> {
   try {
     const client = await getGraphClient()
 
@@ -168,7 +203,7 @@ export class CalendarService {
 /**
  * Get a specific event by ID
  */
-  async getEventById(userId: string, eventId: string): Promise<any> {
+  async getEventById(userId: string, eventId: string): Promise<GraphCalendarEvent> {
   try {
     const client = await getGraphClient()
 
@@ -190,11 +225,11 @@ export class CalendarService {
   userId: string,
   eventId: string,
   updates: Partial<CalendarEvent>
-): Promise<any> {
+): Promise<GraphCalendarEvent> {
   try {
     const client = await getGraphClient()
 
-    const eventUpdate: any = {}
+    const eventUpdate: GraphEventUpdate = {}
 
     if (updates.subject) {
 eventUpdate.subject = updates.subject
@@ -352,7 +387,7 @@ eventUpdate.subject = updates.subject
     endTime?: Date
     maxCandidates?: number
   }
-): Promise<any[]> {
+): Promise<Record<string, unknown>[]> {
   try {
     const client = await getGraphClient()
 
@@ -402,7 +437,7 @@ eventUpdate.subject = updates.subject
   startDate: Date,
   endDate: Date,
   availabilityViewInterval: number = 60
-): Promise<any> {
+): Promise<Record<string, unknown>[]> {
   try {
     const client = await getGraphClient()
 
@@ -438,7 +473,7 @@ eventUpdate.subject = updates.subject
   durationMinutes: number,
   preferredDate?: Date,
   assignedMechanicEmail?: string
-): Promise<any> {
+): Promise<GraphCalendarEvent> {
   try {
     // Get vehicle details
     const vehicleResult = await this.db.query(
@@ -526,7 +561,7 @@ eventUpdate.subject = updates.subject
   trainingType?: string,
   preferredDate?: Date,
   trainerEmail?: string
-): Promise<any> {
+): Promise<GraphCalendarEvent> {
   try {
     // Get driver details
     const driverResult = await this.db.query(
@@ -620,7 +655,7 @@ attendees.push(trainerEmail)
       organizer: { name: 'Fleet Management System', email: process.env.SMTP_FROM || 'noreply@fleet.com' }
     }
 
-    createICSEvent(event as any, (error, value) => {
+    createICSEvent(event as EventAttributes, (error, value) => {
       if (error) {
         logger.error('Error creating ICS event', { error })
         return

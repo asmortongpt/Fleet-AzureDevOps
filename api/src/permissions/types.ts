@@ -26,7 +26,7 @@ export interface User {
 
 export interface PermissionContext {
   user: User;
-  resource?: any;
+  resource?: Record<string, unknown>;
   resourceType?: string;
   action?: string;
   org_id?: string;
@@ -90,7 +90,7 @@ export interface AuditLogEntry {
   allowed: boolean;
   reason?: string;
   timestamp: Date;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   ip_address?: string;
   user_agent?: string;
 }
@@ -98,9 +98,9 @@ export interface AuditLogEntry {
 export interface PermissionEvaluationContext {
   user: User;
   action: string;
-  resource?: any;
+  resource?: Record<string, unknown>;
   resourceType?: string;
-  conditions?: Record<string, any>;
+  conditions?: Record<string, unknown>;
 }
 
 export interface VisibleModulesResult {
@@ -109,7 +109,7 @@ export interface VisibleModulesResult {
 }
 
 export interface FieldFilterResult {
-  filteredData: any;
+  filteredData: Record<string, unknown> | Record<string, unknown>[];
   redactedFields: string[];
   anonymizedFields: string[];
 }
@@ -117,7 +117,7 @@ export interface FieldFilterResult {
 export interface RecordFilterOptions {
   user: User;
   resourceType: string;
-  baseConditions?: Record<string, any>;
+  baseConditions?: Record<string, unknown>;
 }
 
 /**
@@ -131,10 +131,10 @@ export interface ConditionEvaluator {
  * Permission engine interface
  */
 export interface IPermissionEngine {
-  can(user: User, action: string, resource?: any, context?: any): Promise<PermissionCheckResult>;
+  can(user: User, action: string, resource?: Record<string, unknown>, context?: Record<string, unknown>): Promise<PermissionCheckResult>;
   visibleModules(user: User): Promise<VisibleModulesResult>;
-  applyRecordFilter(query: any, user: User, resourceType: string): Promise<any>;
-  filterFields(user: User, resourceType: string, payload: any): Promise<FieldFilterResult>;
+  applyRecordFilter(query: Record<string, unknown>, user: User, resourceType: string): Promise<Record<string, unknown>>;
+  filterFields(user: User, resourceType: string, payload: Record<string, unknown> | Record<string, unknown>[]): Promise<FieldFilterResult>;
 }
 
 /**
@@ -175,7 +175,7 @@ export interface PermissionAuditLog {
   allowed: boolean;
   reason?: string;
   timestamp: Date;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   ip_address?: string;
   user_agent?: string;
 }

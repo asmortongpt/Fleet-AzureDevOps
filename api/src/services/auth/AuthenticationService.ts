@@ -603,7 +603,7 @@ export class AuthenticationService {
         algorithms: ['RS256'],
         issuer: this.config.jwtIssuer,
         audience: this.config.jwtAudience,
-      }) as any;
+      }) as jwt.JwtPayload & { userId: number; sessionId: number; sessionUuid: string; tokenFamily: string };
 
       // Get session
       const sessionResult = await this.db.query(

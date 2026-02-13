@@ -43,7 +43,7 @@ export class StorageFactory {
         throw new Error(`GCP Storage not yet implemented`)
 
       default:
-        throw new Error(`Unknown storage type: ${(config as any).type}`)
+        throw new Error(`Unknown storage type: ${(config as StorageConfig).type}`)
     }
   }
 

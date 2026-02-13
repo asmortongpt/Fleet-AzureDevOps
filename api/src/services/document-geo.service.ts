@@ -118,7 +118,7 @@ export class DocumentGeoService {
 
   constructor(private db: Pool, private logger: any) {
     // Default to free Nominatim provider (no API key required)
-    this.geocodingProvider = (process.env.GEOCODING_PROVIDER as any) || 'nominatim'
+    this.geocodingProvider = (process.env.GEOCODING_PROVIDER as 'nominatim' | 'google' | 'mapbox' | 'arcgis' | undefined) || 'nominatim'
     this.geocodingApiKey = process.env.GEOCODING_API_KEY
     this.geocodeCache = new Map()
   }
