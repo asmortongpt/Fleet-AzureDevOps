@@ -29,7 +29,9 @@ import SmartcarService from './smartcar.service';
 
 // Placeholder TeltonikaService class
 class TeltonikaService {
-  constructor(db: Pool) {}
+  constructor(_db: Pool) {}
+  async registerDevice(_vehicleId: number, _imei: string, _deviceModel: string, _serialNumber: string): Promise<void> {}
+  isConfigured(): boolean { return false; }
 }
 
 // ============================================================================
@@ -220,7 +222,7 @@ class VehicleHardwareConfigService {
           metadata.enableStarterDisable = config.enableStarterDisable || false;
 
           // Register Teltonika device
-          await (this as any).teltonikaService.registerDevice(
+          await this.teltonikaService.registerDevice(
             vehicleId,
             config.imei,
             config.deviceModel,
@@ -817,7 +819,7 @@ class VehicleHardwareConfigService {
     connection: any
   ): Promise<ConnectionTestResult> {
     try {
-      if (!(this as any).teltonikaService.isConfigured()) {
+      if (!this.teltonikaService.isConfigured()) {
         return {
           success: false,
           provider: 'teltonika',
@@ -1121,7 +1123,7 @@ class VehicleHardwareConfigService {
 }
 
 // Export singleton instance
-const vehicleHardwareConfigService = new VehicleHardwareConfigService(db as any)
+const vehicleHardwareConfigService = new VehicleHardwareConfigService(db)
 
 export { VehicleHardwareConfigService }
 export default vehicleHardwareConfigService

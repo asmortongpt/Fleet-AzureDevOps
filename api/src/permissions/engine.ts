@@ -390,23 +390,23 @@ export class PermissionEngine implements IPermissionEngine {
   /**
    * Resolve condition value from context
    */
-  private resolveConditionValue(path: string, context: PermissionContext): any {
+  private resolveConditionValue(path: string, context: PermissionContext): unknown {
     const cleanPath = path.trim();
 
     // Handle user properties
     if (cleanPath.startsWith(`user.`)) {
       const prop = cleanPath.substring(5);
-      return (context.user as any)[prop];
+      return (context.user as Record<string, unknown>)[prop];
     }
 
     // Handle resource properties
     if (context.resource && cleanPath.includes('.')) {
       const parts = cleanPath.split('.');
-      let value: any = context.resource;
+      let value: unknown = context.resource;
 
       for (const part of parts) {
         if (value && typeof value === 'object') {
-          value = value[part];
+          value = (value as Record<string, unknown>)[part];
         } else {
           return undefined;
         }

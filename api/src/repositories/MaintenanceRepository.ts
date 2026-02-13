@@ -139,7 +139,7 @@ export class MaintenanceRepository extends BaseRepository<any> {
     const finalKeys = Object.keys(finalData);
     const finalCols = finalKeys.join(', ');
     const finalPlaceholders = finalKeys.map((_, i) => `$${i + 1}`).join(', ');
-    const finalValues = finalKeys.map(k => (finalData as any)[k]);
+    const finalValues = finalKeys.map(k => (finalData as Record<string, unknown>)[k]);
 
     const query = `
       INSERT INTO maintenance_schedules (${finalCols})
@@ -164,7 +164,7 @@ return null;
       WHERE id = $1 AND tenant_id = $2
       RETURNING *
     `;
-    const values = [id, tenantId, ...keys.map(k => (data as any)[k])];
+    const values = [id, tenantId, ...keys.map(k => (data as Record<string, unknown>)[k])];
     const result = await this.pool.query(query, values);
     return result.rows[0] || null;
   }

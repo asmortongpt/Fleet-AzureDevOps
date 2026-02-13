@@ -17,7 +17,7 @@ export class MaintenanceController {
   async getAllMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = 1, pageSize = 20, search, serviceType, status, category, vehicleNumber, startDate, endDate } = req.query;
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -25,7 +25,7 @@ export class MaintenanceController {
 
       // Cache-aside pattern
       const cacheKey = `maintenance:list:${tenantId}:${page}:${pageSize}:${search || ''}:${serviceType || ''}:${status || ''}:${category || ''}:${vehicleNumber || ''}:${startDate || ''}:${endDate || ''}`;
-      const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey);
+      const cached = await cacheService.get<{ data: Record<string, unknown>[], total: number }>(cacheKey);
 
       if (cached) {
         res.json(cached);
@@ -38,34 +38,34 @@ export class MaintenanceController {
       // Apply filters (TODO: move to service layer)
       if (search && typeof search === 'string') {
         const searchLower = search.toLowerCase();
-        records = records.filter((r: any) =>
-          r.description?.toLowerCase().includes(searchLower) ||
-          r.service_type?.toLowerCase().includes(searchLower) ||
-          r.category?.toLowerCase().includes(searchLower)
+        records = records.filter((r: Record<string, unknown>) =>
+          (r.description as string | undefined)?.toLowerCase().includes(searchLower) ||
+          (r.service_type as string | undefined)?.toLowerCase().includes(searchLower) ||
+          (r.category as string | undefined)?.toLowerCase().includes(searchLower)
         );
       }
 
       if (serviceType && typeof serviceType === 'string') {
-        records = records.filter((r: any) => r.service_type === serviceType);
+        records = records.filter((r: Record<string, unknown>) => r.service_type === serviceType);
       }
 
       if (status && typeof status === 'string') {
-        records = records.filter((r: any) => r.status === status);
+        records = records.filter((r: Record<string, unknown>) => r.status === status);
       }
 
       if (category && typeof category === 'string') {
-        records = records.filter((r: any) => r.category === category);
+        records = records.filter((r: Record<string, unknown>) => r.category === category);
       }
 
       if (vehicleNumber && typeof vehicleNumber === 'string') {
-        records = records.filter((r: any) => r.vehicle_number === vehicleNumber);
+        records = records.filter((r: Record<string, unknown>) => r.vehicle_number === vehicleNumber);
       }
 
       if (startDate && endDate && typeof startDate === 'string' && typeof endDate === 'string') {
         const start = new Date(startDate);
         const end = new Date(endDate);
-        records = records.filter((r: any) => {
-          const serviceDate = new Date(r.service_date);
+        records = records.filter((r: Record<string, unknown>) => {
+          const serviceDate = new Date(r.service_date as string);
           return serviceDate >= start && serviceDate <= end;
         });
       }
@@ -89,7 +89,7 @@ export class MaintenanceController {
 
   async getMaintenanceById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const maintenanceId = Number(req.params.id);
 
       if (!tenantId) {
@@ -98,7 +98,7 @@ export class MaintenanceController {
 
       // Cache-aside pattern
       const cacheKey = `maintenance:${tenantId}:${maintenanceId}`;
-      const cached = await cacheService.get<any>(cacheKey);
+      const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
 
       if (cached) {
         logger.debug('Maintenance cache hit', { maintenanceId, tenantId });
@@ -124,7 +124,7 @@ export class MaintenanceController {
 
   async getMaintenanceByVehicleId(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const vehicleId = Number(req.params.vehicleId);
 
       if (!tenantId) {
@@ -133,7 +133,7 @@ export class MaintenanceController {
 
       // Cache-aside pattern
       const cacheKey = `maintenance:vehicle:${tenantId}:${vehicleId}`;
-      const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey);
+      const cached = await cacheService.get<{ data: Record<string, unknown>[], total: number }>(cacheKey);
 
       if (cached) {
         res.json(cached);
@@ -155,7 +155,7 @@ export class MaintenanceController {
 
   async getUpcomingMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const { vehicleId } = req.query;
 
       if (!tenantId) {
@@ -171,7 +171,7 @@ export class MaintenanceController {
 
   async getOverdueMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -186,7 +186,7 @@ export class MaintenanceController {
 
   async getMaintenanceStatistics(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -201,7 +201,7 @@ export class MaintenanceController {
 
   async createMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -218,7 +218,7 @@ export class MaintenanceController {
 
   async updateMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const maintenanceId = Number(req.params.id);
 
       if (!tenantId) {
@@ -244,7 +244,7 @@ export class MaintenanceController {
 
   async deleteMaintenance(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const maintenanceId = Number(req.params.id);
 
       if (!tenantId) {

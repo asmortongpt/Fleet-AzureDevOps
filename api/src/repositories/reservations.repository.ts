@@ -86,7 +86,7 @@ export interface ReservationUpdateData {
   notes?: string;
 }
 
-export class ReservationsRepository extends BaseRepository<any> {
+export class ReservationsRepository extends BaseRepository<VehicleReservation> {
   constructor(pool: Pool) {
     super(pool, 'vehicle_reservations');
   }
@@ -132,7 +132,7 @@ export class ReservationsRepository extends BaseRepository<any> {
     const offset = (page - 1) * limit;
 
     const whereConditions = ['vr.deleted_at IS NULL', 'vr.tenant_id = $1'];
-    const params: any[] = [tenantId];
+    const params: unknown[] = [tenantId];
     let paramIndex = 2;
 
     if (!canViewAll && currentUserId) {
@@ -194,7 +194,7 @@ export class ReservationsRepository extends BaseRepository<any> {
     currentUserId?: string
   ): Promise<ReservationWithDetails | null> {
     let whereClause = 'vr.id = $1 AND vr.tenant_id = $2 AND vr.deleted_at IS NULL';
-    const params: any[] = [id, tenantId];
+    const params: unknown[] = [id, tenantId];
 
     if (!canViewAll && currentUserId) {
       whereClause += ' AND vr.user_id = $3';
@@ -210,7 +210,7 @@ export class ReservationsRepository extends BaseRepository<any> {
   /**
    * Check if vehicle exists
    */
-  async getVehicle(vehicleId: string, tenantId: number): Promise<any | null> {
+  async getVehicle(vehicleId: string, tenantId: number): Promise<{ id: string; unit_number: string; make: string; model: string; year: number } | null> {
     const result = await this.pool.query(
       'SELECT id, unit_number, make, model, year FROM vehicles WHERE id = $1 AND tenant_id = $2 AND deleted_at IS NULL',
       [vehicleId, tenantId]
@@ -319,7 +319,7 @@ export class ReservationsRepository extends BaseRepository<any> {
     const db = client || this.pool;
 
     const updates: string[] = [];
-    const params: any[] = [];
+    const params: unknown[] = [];
     let paramIndex = 1;
 
     if (data.start_datetime !== undefined) {
@@ -390,7 +390,7 @@ export class ReservationsRepository extends BaseRepository<any> {
     startDate: string,
     endDate: string,
     tenantId: number
-  ): Promise<any[]> {
+  ): Promise<Record<string, unknown>[]> {
     const query = 'SELECT id, created_at, updated_at FROM get_vehicle_availability($1, $2::DATE, $3::DATE) WHERE tenant_id = $4';
 
     const result = await this.pool.query(query, [vehicleId, startDate, endDate, tenantId]);
@@ -408,7 +408,7 @@ export class ReservationsRepository extends BaseRepository<any> {
       start_date?: string;
       end_date?: string;
     }
-  ): Promise<any[]> {
+  ): Promise<ReservationWithDetails[]> {
     const { status, start_date, end_date } = filters;
 
     const whereConditions = [
@@ -416,7 +416,7 @@ export class ReservationsRepository extends BaseRepository<any> {
       'tenant_id = $2',
       'deleted_at IS NULL',
     ];
-    const params: any[] = [vehicleId, tenantId];
+    const params: unknown[] = [vehicleId, tenantId];
     let paramIndex = 3;
 
     if (status) {
@@ -441,7 +441,7 @@ export class ReservationsRepository extends BaseRepository<any> {
   /**
    * Get pending approval reservations
    */
-  async getPendingApprovals(tenantId: number): Promise<any[]> {
+  async getPendingApprovals(tenantId: number): Promise<Record<string, unknown>[]> {
     const query = 'SELECT id, created_at, updated_at FROM pending_approval_reservations WHERE tenant_id = $1 ORDER BY created_at ASC';
 
     const result = await this.pool.query(query, [tenantId]);

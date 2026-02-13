@@ -112,7 +112,7 @@ export function requirePermissionWithContext(
       }
 
       // Attach decision to request for audit logging
-      (req as any).authzDecision = decision;
+      (req as Request & { authzDecision?: typeof decision }).authzDecision = decision;
       next();
     } catch (error) {
       console.error('Authorization check failed:', error);
@@ -164,8 +164,9 @@ export function requireResourcePermission(
       }
 
       // Attach resource to request
-      (req as any).resource = resource;
-      (req as any).authzDecision = decision;
+      const extReq = req as Request & { resource?: unknown; authzDecision?: typeof decision };
+      extReq.resource = resource;
+      extReq.authzDecision = decision;
       next();
     } catch (error) {
       console.error('Authorization check failed:', error);

@@ -14,7 +14,7 @@ export interface FraudDetection {
   updated_at: Date;
 }
 
-export class FraudDetectionRepository extends BaseRepository<any> {
+export class FraudDetectionRepository extends BaseRepository<FraudDetection> {
 
 
   constructor(pool: Pool) {
@@ -57,7 +57,7 @@ export class FraudDetectionRepository extends BaseRepository<any> {
     // Handle array serialization if reasons is updated
     const values = [id, tenantId];
     for (const key of Object.keys(data)) {
-      let val = (data as any)[key];
+      let val = (data as Record<string, unknown>)[key];
       if (key === 'reasons' && Array.isArray(val)) {
         val = JSON.stringify(val);
       }

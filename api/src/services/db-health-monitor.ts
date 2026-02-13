@@ -91,7 +91,7 @@ export class DatabaseHealthMonitor {
       const duration = Date.now() - startTime
 
       // Check for warning conditions
-      const maxConnections = (this.pool as any).options?.max || 20
+      const maxConnections = (this.pool as unknown as { options?: { max?: number } }).options?.max || 20
       const utilizationPercent = stats.total / maxConnections
 
       let healthy = true
@@ -161,12 +161,12 @@ export class DatabaseHealthMonitor {
    * Get current pool statistics
    */
   private getPoolStats(): PoolStats {
-    const pool = this.pool as any
+    const poolStats = this.pool as unknown as { totalCount?: number; idleCount?: number; waitingCount?: number }
     return {
-      total: pool.totalCount || 0,
-      idle: pool.idleCount || 0,
-      waiting: pool.waitingCount || 0,
-      active: (pool.totalCount || 0) - (pool.idleCount || 0)
+      total: poolStats.totalCount || 0,
+      idle: poolStats.idleCount || 0,
+      waiting: poolStats.waitingCount || 0,
+      active: (poolStats.totalCount || 0) - (poolStats.idleCount || 0)
     }
   }
 

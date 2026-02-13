@@ -353,7 +353,7 @@ export class CostAnalysisService {
        AND transaction_date >= (CURRENT_DATE - (($${monthParamIndex}::int) || ' months')::interval)
        GROUP BY DATE_TRUNC('month', transaction_date)
        ORDER BY DATE_TRUNC('month', transaction_date) ASC`,
-      params as any
+      params as (string | number | Date)[]
     )
 
     return result.rows.map((r) => ({
@@ -377,9 +377,9 @@ export class CostAnalysisService {
     const rows = result.rows.map((r) => ({
       id: r.source_id,
       category: r.cost_category,
-      amount: toNumber((r as any).amount, 0),
-      description: (r as any).description as string | null,
-      date: (r as any).transaction_date as Date,
+      amount: toNumber(r.amount, 0),
+      description: r.description as string | null,
+      date: r.transaction_date as Date,
     }))
 
     // Per-category mean/stddev and flag z-score outliers.
@@ -619,5 +619,5 @@ export class CostAnalysisService {
 
 // Export singleton instance
 import { pool } from '../db'
-const costAnalysisService = new CostAnalysisService(pool as any)
+const costAnalysisService = new CostAnalysisService(pool)
 export default costAnalysisService

@@ -82,10 +82,10 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       const command = new PutObjectCommand({
         Bucket: this.bucket,
         Key: normalizedKey,
-        Body: data as any,
+        Body: data instanceof Buffer ? data : data as unknown as ReadableStream,
         ContentType: options?.contentType,
         Metadata: options?.metadata?.customMetadata || {},
-        ACL: options?.acl as any,
+        ACL: options?.acl as string | undefined,
         CacheControl: options?.cacheControl
       });
 
@@ -194,7 +194,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
       const response = await this.client.send(command);
 
-      const files: FileInfo[] = (response.Contents || []).map((obj: any) => ({
+      const files: FileInfo[] = (response.Contents || []).map((obj) => ({
         key: obj.Key || '',
         name: (obj.Key || '').split('/').pop() || '',
         size: obj.Size || 0,
@@ -203,7 +203,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
       }));
 
       const directories = (response.CommonPrefixes || [])
-        .map((prefix: any) => prefix.Prefix)
+        .map((prefix) => prefix.Prefix)
         .filter(Boolean) as string[];
 
       return {
@@ -312,9 +312,7 @@ export class S3StorageAdapter extends BaseStorageAdapter {
 
   async dispose(): Promise<void> {
     if (this.client) {
-      if (typeof (this.client as any).destroy === 'function') {
-        (this.client as any).destroy();
-      }
+      this.client.destroy();
     }
     await super.dispose();
   }

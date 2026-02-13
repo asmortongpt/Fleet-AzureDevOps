@@ -325,7 +325,7 @@ export class AuthService {
 
   public verifyRefreshToken(token: string): { userId: string; sessionId: string } | null {
     try {
-      const payload = jwt.verify(token, JWT_REFRESH_SECRET!) as any
+      const payload = jwt.verify(token, JWT_REFRESH_SECRET!) as { userId: string; sessionId: string; type: string }
       return {
         userId: payload.userId,
         sessionId: payload.sessionId

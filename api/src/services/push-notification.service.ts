@@ -76,7 +76,7 @@ class PushNotificationService {
   private initializeFCM() {
     try {
       // Check if FCM is already initialized
-      if ((admin as any).apps.length > 0) {
+      if (admin.apps && admin.apps.length > 0) {
         this.fcmInitialized = true;
         logger.info('FCM already initialized');
         return;
@@ -490,7 +490,7 @@ class PushNotificationService {
           data: notification.data_payload || {},
         };
 
-        await (admin as any).messaging().send(message);
+        await admin.messaging().send(message);
         await this.updateRecipientStatus(notificationId, device.id, 'delivered');
       } catch (error: unknown) {
         logger.error('Error sending to Android device', { error });

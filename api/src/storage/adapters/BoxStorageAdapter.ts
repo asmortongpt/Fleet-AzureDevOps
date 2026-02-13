@@ -281,7 +281,7 @@ export class BoxStorageAdapter extends BaseStorageAdapter {
   private async getFileIdByName(filename: string): Promise<string | null> {
     const result = await this.list();
     const file = result.files.find(f => f.name === filename);
-    return file ? (file as any).id : null;
+    return file ? (file as FileInfo & { id?: string }).id ?? null : null;
   }
 
   private async streamToBuffer(stream: Readable): Promise<Buffer> {

@@ -77,7 +77,7 @@ async function runReportScheduler(): Promise<void> {
         const { executionId, filePath, rowCount } = await customReportService.executeReport(
           schedule.report_id,
           schedule.tenant_id,
-          null as any, // System execution
+          null as unknown as string, // System execution - no user context
           schedule.format
         )
 

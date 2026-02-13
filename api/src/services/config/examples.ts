@@ -66,7 +66,7 @@ export function createConfigRouter(configService: ConfigurationManagementService
     try {
       const { key } = req.params;
       const { value, scope, scopeId, comment } = req.body;
-      const userId = (req as any).user?.id; // From auth middleware
+      const userId = req.user?.id; // From auth middleware
 
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -142,7 +142,7 @@ export function createConfigRouter(configService: ConfigurationManagementService
     try {
       const { key } = req.params;
       const { toVersion, reason } = req.body;
-      const userId = (req as any).user?.id;
+      const userId = req.user?.id;
 
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -206,7 +206,7 @@ export function createConfigRouter(configService: ConfigurationManagementService
    */
   router.get('/changes/pending', async (req: Request, res: Response) => {
     try {
-      const userId = (req as any).user?.id;
+      const userId = req.user?.id;
       const pending = await configService.getPendingChanges(userId);
 
       res.json({
@@ -230,7 +230,7 @@ export function createConfigRouter(configService: ConfigurationManagementService
     try {
       const { requestId } = req.params;
       const { comment } = req.body;
-      const userId = (req as any).user?.id;
+      const userId = req.user?.id;
 
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -259,7 +259,7 @@ export function createConfigRouter(configService: ConfigurationManagementService
     try {
       const { requestId } = req.params;
       const { reason } = req.body;
-      const userId = (req as any).user?.id;
+      const userId = req.user?.id;
 
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -314,8 +314,8 @@ export function createConfigRouter(configService: ConfigurationManagementService
   router.post('/flags/:flagName/evaluate', async (req: Request, res: Response) => {
     try {
       const { flagName } = req.params;
-      const userId = (req as any).user?.id;
-      const organizationId = (req as any).user?.organizationId;
+      const userId = req.user?.id;
+      const organizationId = req.user?.organizationId;
       const { attributes } = req.body;
 
       const enabled = await configService.evaluateFlag(flagName, {
@@ -345,7 +345,7 @@ export function createConfigRouter(configService: ConfigurationManagementService
     try {
       const { flagName } = req.params;
       const { percentage } = req.body;
-      const userId = (req as any).user?.id;
+      const userId = req.user?.id;
 
       if (!userId) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -783,15 +783,15 @@ startServer().catch(console.error);
 export function createFeatureFlagMiddleware(configService: ConfigurationManagementService) {
   return (flagName: string) => {
     return async (req: Request, res: Response, next: Function) => {
-      const userId = (req as any).user?.id;
-      const organizationId = (req as any).user?.organizationId;
+      const userId = req.user?.id;
+      const organizationId = req.user?.organizationId;
 
       const enabled = await configService.evaluateFlag(flagName, {
         userId,
         organizationId,
         attributes: {
-          role: (req as any).user?.role,
-          tier: (req as any).user?.tier
+          role: req.user?.role,
+          tier: req.user?.tier
         }
       });
 

@@ -113,6 +113,7 @@ export class RedisCacheManager extends EventEmitter {
   private config: CacheConfig
   private compressionThreshold: number = 1024 // bytes
   private concurrencyLimit: ReturnType<typeof pLimit>
+  private scriptSHAs: Map<string, string> = new Map()
 
   constructor(config: CacheConfig) {
     super()
@@ -233,7 +234,7 @@ export class RedisCacheManager extends EventEmitter {
 
       // Decompress if needed
       if (entry.metadata.compressed && entry.data) {
-        entry.data = await this.decompress(entry.data as any)
+        entry.data = await this.decompress(entry.data as unknown as Buffer)
       }
 
       return entry.data
@@ -588,7 +589,7 @@ export class RedisCacheManager extends EventEmitter {
     return Buffer.from(JSON.stringify(data))
   }
 
-  private async decompress(data: Buffer): Promise<any> {
+  private async decompress(data: Buffer): Promise<unknown> {
     // Implementation would use zlib or similar
     // Placeholder for actual decompression
     return JSON.parse(data.toString())
@@ -670,7 +671,7 @@ export class RedisCacheManager extends EventEmitter {
     // Store script SHA hashes for later use
     Object.entries(scripts).forEach(([name, script]) => {
       this.client.script('LOAD', script).then(sha => {
-        (this as any)[`${name}SHA`] = sha
+        this.scriptSHAs.set(name, sha as string)
       })
     })
   }
