@@ -13,7 +13,7 @@
 import { Pool } from 'pg';
 
 import logger from '../config/logger';
-import { JobPriority } from '../types/queue.types';
+import { JobPriority, QueueName } from '../types/queue.types';
 
 import { OcrService, OcrOptions, OcrResult } from './OcrService';
 import { queueService } from './queue.service';
@@ -156,7 +156,7 @@ export class OcrQueueService {
 
       // Enqueue to processing queue
       const queueJobId = await queueService.enqueueJob(
-        'ocr-processing' as any,
+        'ocr-processing' as unknown as QueueName,
         {
           type: 'ocr-processing',
           payload: { ...jobData, jobId },
@@ -168,7 +168,7 @@ export class OcrQueueService {
             timestamp: new Date(),
             ...jobData.metadata
           }
-        } as any,
+        },
         {
           priority: jobData.priority || JobPriority.NORMAL,
           retryLimit: 3,
@@ -322,7 +322,7 @@ export class OcrQueueService {
       totalDocuments: documents.length,
       completed: 0,
       failed: 0,
-      results: [] as any[]
+      results: [] as Array<{ documentId: string; success: boolean; result?: OcrResult; error?: string }>
     };
 
     // Process documents in parallel (with concurrency limit)

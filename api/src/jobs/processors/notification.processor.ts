@@ -166,7 +166,7 @@ export async function processNotificationJob(job: Job): Promise<any> {
     // Handle failed tokens (e.g., remove invalid tokens)
     if (response.failureCount > 0) {
       const failedTokens: string[] = []
-      response.responses.forEach((resp: any, idx: number) => {
+      response.responses.forEach((resp: { success: boolean; error?: { message?: string; code?: string } }, idx: number) => {
         if (!resp.success) {
           failedTokens.push(tokens[idx])
           logger.warn(`Failed to send to token ${tokens[idx]}:`, resp.error?.message)
@@ -260,7 +260,7 @@ export async function subscribeToTopic(userId: string, topic: string): Promise<a
     throw new Error('Firebase not initialized')
   }
 
-  const messaging = admin.messaging() as any;
+  const messaging = admin.messaging();
   const response = await messaging.subscribeToTopic(tokens, topic)
 
   logger.info(`Subscribed ${response.successCount} devices to topic ${topic}`, {
@@ -290,7 +290,7 @@ export async function unsubscribeFromTopic(userId: string, topic: string): Promi
     throw new Error('Firebase not initialized')
   }
 
-  const messaging = admin.messaging() as any;
+  const messaging = admin.messaging();
   const response = await messaging.unsubscribeFromTopic(tokens, topic)
 
   logger.info(`Unsubscribed ${response.successCount} devices from topic ${topic}`, {

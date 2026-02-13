@@ -125,9 +125,9 @@ export class MaintenanceService {
 
     // Throw validation error if any errors found
     if (errors.length > 0) {
-      const error = new Error(`Validation failed: ${errors.join('; ')}`);
-      (error as any).statusCode = 400;
-      (error as any).validationErrors = errors;
+      const error: Error & { statusCode?: number; validationErrors?: string[] } = new Error(`Validation failed: ${errors.join('; ')}`);
+      error.statusCode = 400;
+      error.validationErrors = errors;
       throw error;
     }
   }
@@ -171,10 +171,10 @@ export class MaintenanceService {
 
     const forbiddenStatuses = invalidTransitions[currentStatus] || [];
     if (forbiddenStatuses.includes(newStatus)) {
-      const error = new Error(
+      const error: Error & { statusCode?: number } = new Error(
         `Invalid status transition: Cannot change from '${currentStatus}' to '${newStatus}'`
       );
-      (error as any).statusCode = 400;
+      error.statusCode = 400;
       throw error;
     }
   }

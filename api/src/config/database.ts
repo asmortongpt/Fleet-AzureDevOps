@@ -91,7 +91,7 @@ export const getPoolStats = () => connectionManager.getAllPoolStats()
 const poolProxy = new Proxy({} as Pool, {
   get(_target, prop) {
     const pool = connectionManager.getWritePool()
-    const value = (pool as any)[prop]
+    const value = (pool as Record<string | symbol, unknown>)[prop]
     return typeof value === 'function' ? value.bind(pool) : value
   },
 })

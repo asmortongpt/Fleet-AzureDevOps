@@ -17,14 +17,14 @@ export class IncidentController {
   async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { page = 1, pageSize = 20, incident_type, severity, status, vehicle_id, driver_id, start_date, end_date } = req.query;
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
       }
 
       const cacheKey = `incidents:list:${tenantId}:${page}:${pageSize}:${incident_type || ''}:${severity || ''}:${status || ''}`;
-      const cached = await cacheService.get<{ data: any[], total: number }>(cacheKey);
+      const cached = await cacheService.get<{ data: Record<string, unknown>[], total: number }>(cacheKey);
 
       if (cached) {
         res.json(cached);
@@ -66,7 +66,7 @@ export class IncidentController {
 
   async getById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {
@@ -74,7 +74,7 @@ export class IncidentController {
       }
 
       const cacheKey = `incident:${tenantId}:${id}`;
-      const cached = await cacheService.get<any>(cacheKey);
+      const cached = await cacheService.get<Record<string, unknown>>(cacheKey);
 
       if (cached) {
         res.json({ data: cached });
@@ -96,8 +96,8 @@ export class IncidentController {
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
-      const userId = (req as any).user?.id;
+      const tenantId = req.user?.tenant_id;
+      const userId = req.user?.id;
 
       if (!tenantId) {
         throw new ValidationError('Tenant ID is required');
@@ -119,7 +119,7 @@ export class IncidentController {
 
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {
@@ -142,7 +142,7 @@ export class IncidentController {
 
   async delete(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const tenantId = (req as any).user?.tenant_id;
+      const tenantId = req.user?.tenant_id;
       const id = Number(req.params.id);
 
       if (!tenantId) {

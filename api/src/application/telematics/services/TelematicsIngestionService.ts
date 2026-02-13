@@ -43,9 +43,9 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
         this.logger.info(`Ingesting positions for ${devices.length} devices from ${provider.name}`);
 
         try {
-          const positions = await adapter.getLatestPositions(devices as any);
+          const positions = await adapter.getLatestPositions(devices as unknown as Parameters<typeof adapter.getLatestPositions>[0]);
 
-          await this.repository.insertPositionEvents(positions as any, this.tenantId);
+          await this.repository.insertPositionEvents(positions as unknown as Parameters<typeof this.repository.insertPositionEvents>[0], this.tenantId);
 
           const locationUpdates = positions.map(pos => 
             AssetLocation.fromPositionData(
@@ -63,8 +63,8 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
             )
           );
 
-          await this.repository.upsertAssetLocations(devices.map((d: any) => d.vehicle_id), this.tenantId);
-          await this.repository.updateDevicesSyncTime(devices.map((d: any) => d.id), this.tenantId);
+          await this.repository.upsertAssetLocations(devices.map((d: Record<string, unknown>) => d.vehicle_id as string), this.tenantId);
+          await this.repository.updateDevicesSyncTime(devices.map((d: Record<string, unknown>) => d.id as string), this.tenantId);
 
           this.logger.info(`Successfully ingested ${positions.length} positions from ${provider.name}`);
         } catch (error) {
@@ -88,8 +88,8 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
     if (!adapter) throw new Error(`No adapter for provider type: ${provider.providerType}`);
 
     this.logger.info(`Fetching history for device ${deviceId} from ${startDate} to ${endDate}`);
-    const positions = await adapter.getPositionHistory((device as any).externalDeviceId, startDate, endDate);
-    await this.repository.insertPositionEvents(positions as any, this.tenantId);
+    const positions = await adapter.getPositionHistory((device as Record<string, unknown>).externalDeviceId as string, startDate, endDate);
+    await this.repository.insertPositionEvents(positions as unknown as Parameters<typeof this.repository.insertPositionEvents>[0], this.tenantId);
     this.logger.info(`Ingested ${positions.length} historical positions for device ${deviceId}`);
   }
 }

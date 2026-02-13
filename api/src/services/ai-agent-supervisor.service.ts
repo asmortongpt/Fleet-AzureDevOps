@@ -54,7 +54,7 @@ class AIAgentSupervisorService {
 
   constructor(
     private db: Pool,
-    private logger: any
+    private logger: typeof logger
   ) {
     // Initialize supervisor model
     this.supervisorModel = new ChatOpenAI({
@@ -465,7 +465,7 @@ Keep the response concise but thorough.`
   getAvailableAgents(): AgentDefinition[] {
     return Array.from(this.agents.values()).map(agent => ({
       ...agent,
-      model: undefined as any // Don't expose model instance
+      model: undefined as unknown as ChatOpenAI // Don't expose model instance
     }))
   }
 
@@ -477,7 +477,7 @@ Keep the response concise but thorough.`
     if (agent) {
       return {
         ...agent,
-        model: undefined as any
+        model: undefined as unknown as ChatOpenAI
       }
     }
     return undefined
@@ -598,12 +598,12 @@ Keep the response concise but thorough.`
 
     // Execute primary agent
     const results: AgentResult[] = []
-    const primaryResult = await this.executeAgent(decision.primaryAgent, query, { tenantId, userId } as any, 'primary')
+    const primaryResult = await this.executeAgent(decision.primaryAgent, query, { tenantId, userId }, 'primary')
     results.push(primaryResult)
 
     // Execute supporting agents if any
     for (const agentId of decision.supportingAgents) {
-      const result = await this.executeAgent(agentId, query, { tenantId, userId } as any, 'supporting')
+      const result = await this.executeAgent(agentId, query, { tenantId, userId }, 'supporting')
       results.push(result)
     }
 

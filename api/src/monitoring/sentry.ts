@@ -142,7 +142,7 @@ class SentryService implements SentryConfig {
 
           if (error && typeof error === 'object' && 'statusCode' in error) {
             // Don't report 4xx client errors (except 401 and 403 for security monitoring)
-            const statusCode = (error as any).statusCode;
+            const statusCode = (error as Record<string, unknown>).statusCode as number;
             if (statusCode >= 400 && statusCode < 500 && statusCode !== 401 && statusCode !== 403) {
               return null;
             }
@@ -303,7 +303,7 @@ return;
 return null;
 }
 
-    return (Sentry as any).startTransaction({
+    return (Sentry as unknown as { startTransaction: (opts: Record<string, unknown>) => unknown }).startTransaction({
       op,
       name,
       trimEnd: true

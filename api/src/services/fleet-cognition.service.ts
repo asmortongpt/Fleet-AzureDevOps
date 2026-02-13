@@ -42,7 +42,7 @@ class FleetCognitionService {
 
   constructor(
     private db: Pool,
-    private logger: any
+    private logger: typeof logger
   ) {
     this.startContinuousAnalysis()
   }
@@ -245,11 +245,12 @@ class FleetCognitionService {
 
       // For each model type, assess if retraining is needed
       for (const [modelId, feedbacks] of Object.entries(feedbackByModel)) {
-        const shouldRetrain = await this.assessRetrainingNeed(modelId, feedbacks as any[])
+        const feedbackList = feedbacks as Record<string, unknown>[]
+        const shouldRetrain = await this.assessRetrainingNeed(modelId, feedbackList)
 
         if (shouldRetrain) {
-          this.logger.info('Scheduling model retraining', { modelId, feedbackCount: (feedbacks as any[]).length })
-          await this.scheduleModelRetraining(tenantId, modelId, feedbacks as any[])
+          this.logger.info('Scheduling model retraining', { modelId, feedbackCount: feedbackList.length })
+          await this.scheduleModelRetraining(tenantId, modelId, feedbackList)
         }
       }
 
@@ -645,8 +646,8 @@ class FleetCognitionService {
     ]
   }
 
-  private groupFeedbackByModel(feedbackItems: any[]): Map<string, any[]> {
-    const grouped = new Map<string, any[]>()
+  private groupFeedbackByModel(feedbackItems: Record<string, unknown>[]): Map<string, Record<string, unknown>[]> {
+    const grouped = new Map<string, Record<string, unknown>[]>()
     for (const item of feedbackItems) {
       if (!grouped.has(item.model_id)) {
         grouped.set(item.model_id, [])
@@ -656,12 +657,12 @@ class FleetCognitionService {
     return grouped
   }
 
-  private async assessRetrainingNeed(modelId: string, feedbacks: any[]): Promise<boolean> {
+  private async assessRetrainingNeed(modelId: string, feedbacks: Record<string, unknown>[]): Promise<boolean> {
     // Retrain if we have 50+ feedback items or accuracy drops below threshold
     return feedbacks.length >= 50
   }
 
-  private async scheduleModelRetraining(tenantId: string, modelId: string, feedbacks: any[]): Promise<void> {
+  private async scheduleModelRetraining(tenantId: string, modelId: string, feedbacks: Record<string, unknown>[]): Promise<void> {
     // This would integrate with the ML training service
     this.logger.info('Model retraining scheduled', { modelId, feedbackCount: feedbacks.length })
   }

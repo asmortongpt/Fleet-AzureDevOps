@@ -28,7 +28,7 @@ class ConflictResolutionService {
       return versionVectorSchema.parse(data);
     } catch (error) {
       if (error instanceof ZodError) {
-        logger.error('Validation error in version vector', { errors: (error as any).errors });
+        logger.error('Validation error in version vector', { errors: error.errors });
         throw new Error('Invalid version vector data.');
       }
       throw error;
