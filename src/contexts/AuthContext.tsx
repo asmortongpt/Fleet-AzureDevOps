@@ -97,6 +97,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => window.removeEventListener('fleet-auth-refresh', handler);
   }, []);
 
+  // Allow external triggers (e.g., SSO callback) to force a session refresh
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handler = () => setAuthRefreshNonce((prev) => prev + 1);
+    window.addEventListener('fleet-auth-refresh', handler);
+    return () => window.removeEventListener('fleet-auth-refresh', handler);
+  }, []);
+
   // SECURITY (CRIT-F-001): Initialize auth state from MSAL or httpOnly cookies
   useEffect(() => {
     let cancelled = false;

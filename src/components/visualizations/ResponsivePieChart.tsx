@@ -10,6 +10,11 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip , Sector } fr
 import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
+import { useThemeContext } from '@/components/providers/ThemeProvider'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+import { useState } from 'react';
+import { Sector } from 'recharts';
 interface DataPoint {
   name: string
   value: number

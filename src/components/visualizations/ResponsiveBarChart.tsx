@@ -9,6 +9,10 @@ import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContai
 import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
+import { useThemeContext } from '@/components/providers/ThemeProvider'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+
+import { Cell, LabelList } from 'recharts';
 interface DataPoint {
   name: string
   value?: number

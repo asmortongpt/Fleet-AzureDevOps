@@ -88,6 +88,9 @@ export const getPoolStats = () => connectionManager.getAllPoolStats()
  *
  * DEPRECATED: Use getWritePool() for new code
  */
+let isInitializing = false
+let initializationPromise: Promise<void> | null = null
+
 const poolProxy = new Proxy({} as Pool, {
   get(_target, prop) {
     const pool = connectionManager.getWritePool()

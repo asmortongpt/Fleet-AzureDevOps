@@ -171,6 +171,16 @@ validateStartupConfiguration().then(async () => {
     console.error('[Fleet] MSAL initialization failed:', error);
   }
 
+  // Initialize MSAL before rendering - required for MSAL v2+
+  try {
+    await msalInstance.initialize();
+    // Handle any redirect promise from SSO callback
+    await msalInstance.handleRedirectPromise();
+    console.log('[Fleet] MSAL initialized successfully');
+  } catch (error) {
+    console.error('[Fleet] MSAL initialization failed:', error);
+  }
+
   ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>

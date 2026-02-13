@@ -231,6 +231,8 @@ function App() {
     }
 
     switch (activeModule) {
+      case "e2e-test":
+        return <E2ETestPage />
       case "live-fleet-dashboard":
         return <LiveFleetDashboard />
       case "dashboard":

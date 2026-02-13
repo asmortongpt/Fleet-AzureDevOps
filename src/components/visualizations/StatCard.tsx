@@ -7,6 +7,7 @@ import { LucideIcon, Minus, TrendingDown, TrendingUp } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
 import { cn } from '@/lib/utils'
+import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
 interface StatCardProps {
   title: string

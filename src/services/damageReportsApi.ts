@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios'
+import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

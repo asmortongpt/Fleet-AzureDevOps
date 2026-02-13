@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useVehicles } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
 
+import { AlertTriangle, Zap } from 'lucide-react';
 interface MaintenanceRisk {
     vehicleId: string
     vehicleName: string

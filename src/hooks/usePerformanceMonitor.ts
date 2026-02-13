@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 
 import logger from '@/utils/logger';
 import { MemoryLeakDetector } from '@/utils/performance';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // Types & Interfaces

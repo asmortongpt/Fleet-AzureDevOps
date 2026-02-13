@@ -55,6 +55,7 @@ import Grid from '@mui/material/GridLegacy';
 import { format, parseISO, differenceInDays } from 'date-fns';
 import React, { useState, useEffect } from 'react';
 
+import logger from '@/utils/logger';
 import WarrantyRecallService, {
   WarrantyInfo,
   RecallInfo,

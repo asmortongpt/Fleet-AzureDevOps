@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
+import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
 interface OperationStats {
   active_trips: number;
   en_route: number;

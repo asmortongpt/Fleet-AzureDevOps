@@ -47,6 +47,12 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts"
 import { CommunicationLog as CommunicationLogType } from "@/lib/types"
+import { useAuth } from "@/contexts"
+
+const fetcher = (url: string) =>
+  fetch(url)
+    .then((r) => r.json())
+    .then((data) => data?.data ?? data)
 
 const fetcher = (url: string) =>
   fetch(url)

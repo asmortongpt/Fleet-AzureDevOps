@@ -6,6 +6,7 @@
  */
 
 import { runAccessibilityAudit, generateAccessibilityReport, logAccessibilityViolations } from '../lib/accessibility/axe-init';
+import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

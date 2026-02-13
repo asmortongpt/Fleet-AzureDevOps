@@ -10,6 +10,7 @@ import {
   DollarSign
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import useSWR from "swr"
 import { toast } from "sonner"
 import useSWR from "swr"
 

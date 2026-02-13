@@ -10,6 +10,7 @@ import {
   Grid
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import useSWR from "swr"
 import { toast, ToastOptions } from "react-hot-toast"
 import useSWR from "swr"
 
@@ -25,6 +26,7 @@ import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } fr
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { swrFetcher } from "@/lib/fetcher"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
+import { swrFetcher } from "@/lib/fetcher"
 import { cn } from "@/lib/utils"
 
 /** Safely extract an array from an API response that may be nested as { data: [...] } or { data: { data: [...] } } */
@@ -485,6 +487,55 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   const technicians: Technician[] = useMemo(() => {
     const users = safeArray<any>(usersResponse)
+    return users
+      .filter((user: any) => user.role === 'Mechanic')
+      .map((user: any) => {
+        const assigned = workOrderList.find((order: any) =>
+          order.assigned_to_id === user.id && order.status !== 'completed'
+        )
+        const completedToday = workOrderList.filter((order: any) => {
+          if (order.assigned_to_id !== user.id || !order.actual_end_date) return false
+          const endDate = new Date(order.actual_end_date)
+          const today = new Date()
+          return endDate.toDateString() === today.toDateString()
+        }).length
+
+        return {
+          id: user.id,
+          name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email,
+          status: assigned ? 'busy' : 'available',
+          currentTask: assigned?.title,
+          completedToday
+        }
+      })
+  }, [usersResponse, workOrderList])
+
+  const workOrderList = Array.isArray(workOrders) ? workOrders : ((workOrders as any)?.data || [])
+
+  const parts: Part[] = useMemo(() => {
+    return (partsResponse?.data || []).map((part: any) => {
+      const quantity = Number(part.quantity_on_hand ?? part.quantity ?? 0)
+      const reorderPoint = Number(part.reorder_point ?? part.reorderPoint ?? 0)
+      let status: Part['status'] = 'in_stock'
+      if (part.metadata?.on_order) status = 'on_order'
+      if (quantity <= 0) status = 'out_of_stock'
+      else if (quantity <= reorderPoint) status = 'low_stock'
+
+      return {
+        id: part.id,
+        name: part.name,
+        partNumber: part.part_number || part.partNumber || '',
+        quantity,
+        reorderPoint,
+        status,
+        location: part.location_in_warehouse || part.location || 'Warehouse',
+        lastUsed: part.updated_at || part.created_at
+      }
+    })
+  }, [partsResponse])
+
+  const technicians: Technician[] = useMemo(() => {
+    const users = usersResponse?.data || []
     return users
       .filter((user: any) => user.role === 'Mechanic')
       .map((user: any) => {

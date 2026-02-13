@@ -101,6 +101,10 @@ export function HubPage({
             <header
                 className="flex items-center justify-between px-5 py-3 border-b border-border/50 bg-card/50"
                 data-testid="hub-header"
+                style={{
+                    borderBottom: '1px solid rgba(0, 212, 255, 0.3)',
+                    boxShadow: '0 4px 20px rgba(0, 212, 255, 0.15), 0 1px 3px rgba(43, 58, 103, 0.2)'
+                }}
             >
                 <div className="flex items-center gap-3 min-w-0">
                     {icon && (

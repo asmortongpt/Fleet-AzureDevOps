@@ -97,6 +97,7 @@ export function ProtectedRoute({
 
   // Show loading state while auth is initializing
   if (isLoading) {
+    logger.debug('[ProtectedRoute] Showing loading state');
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
@@ -138,6 +139,10 @@ export function ProtectedRoute({
   }
 
   // All checks passed, render the protected content
+  logger.debug('[ProtectedRoute] All checks passed, rendering protected content', {
+    userId: user?.id,
+    role: user?.role
+  });
   return <>{children}</>;
 }
 

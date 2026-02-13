@@ -39,6 +39,5 @@ declare module 'react' {
 
   // Add utility type for portal target
   type PortalTarget = Element | DocumentFragment | null;
-}
 
 export {};

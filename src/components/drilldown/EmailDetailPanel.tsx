@@ -23,6 +23,7 @@ import {
   ExternalLink,
   Eye,
 } from 'lucide-react'
+import DOMPurify from 'dompurify'
 import React from 'react'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'

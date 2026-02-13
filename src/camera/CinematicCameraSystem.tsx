@@ -323,6 +323,7 @@ export function CinematicCameraSystem({
 
   return (
     <>
+      {/* @ts-expect-error - animated.group type instantiation depth limitation */}
       <animated.group
         position={position as any}
         ref={cameraGroupRef}

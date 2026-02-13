@@ -5,6 +5,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

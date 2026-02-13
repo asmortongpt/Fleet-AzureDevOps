@@ -120,6 +120,8 @@ import driversRouter from './routes/drivers'
 import evManagementRouter from './routes/ev-management.routes'
 import executiveDashboardRouter from './routes/executive-dashboard.routes'
 import dashboardRouter from './routes/dashboard.routes'
+import demoRouter from './routes/demo.routes'
+import emulatorRouter from './routes/emulator.routes'
 import facilitiesRouter from './routes/facilities'
 import serviceBaysRouter from './routes/service-bays'
 import fleetDocumentsRouter from './routes/fleet-documents.routes'
@@ -587,6 +589,7 @@ app.use('/api/monitoring', monitoringRouter)
 app.use('/api/monitoring/query-performance', queryPerformanceRouter)
 app.use('/api/health', healthSystemRouter) // Comprehensive system health (BACKEND-12)
 app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
+// TEMP DISABLED: app.use('/api/health', healthStartupRouter) // TODO: Import healthStartupRouter from './routes/health-startup.routes'
 app.use('/api/health-detailed', healthDetailedRouter)
 app.use('/api/telemetry', telemetryRouter)
 app.use('/api/security', securityEventsRouter)

@@ -34,6 +34,7 @@ import {
   analyzeVehicleModel,
   type VehicleModelMetadata,
 } from '@/lib/3d/model-loader';
+import logger from '@/utils/logger';
 import {
   applyVehicleMaterials,
   type MaterialQuality,
