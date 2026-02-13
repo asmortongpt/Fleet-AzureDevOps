@@ -107,7 +107,7 @@ return
       this.openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY,
       })
-      console.log('✓ OpenAI embedding provider initialized')
+      logger.info('OpenAI embedding provider initialized')
     }
 
     // Cohere initialization
@@ -118,15 +118,15 @@ return
         this.cohere = new CohereClient({
           apiKey: process.env.COHERE_API_KEY,
         }) as any
-        console.log('✓ Cohere embedding provider initialized')
+        logger.info('Cohere embedding provider initialized')
       } catch (error) {
-        console.warn('Cohere SDK not available, skipping initialization')
+        logger.warn('Cohere SDK not available, skipping initialization')
       }
     }
 
     // Local model initialization
     if (process.env.ENABLE_LOCAL_EMBEDDINGS === 'true') {
-      console.log('ℹ Local embeddings enabled (requires transformers.js)')
+      logger.info('Local embeddings enabled (requires transformers.js)')
       // Note: Actual initialization would require transformers.js
       // For now, we'll use a fallback implementation
     }
@@ -250,7 +250,7 @@ return
         tokens: response.usage.total_tokens,
       }
     } catch (error: any) {
-      console.error(`OpenAI embedding error:`, error)
+      logger.error('OpenAI embedding error', { error })
       throw new Error(`OpenAI embedding failed: ${error.message}`)
     }
   }
@@ -278,7 +278,7 @@ return
         tokens: this.estimateTokenCount(text),
       }
     } catch (error: any) {
-      console.error(`Cohere embedding error:`, error)
+      logger.error('Cohere embedding error', { error })
       throw new Error(`Cohere embedding failed: ${error.message}`)
     }
   }
@@ -290,7 +290,7 @@ return
     text: string,
     model: string
   ): Promise<{ embedding: number[]; tokens: number }> {
-    console.warn(`Using mock local embeddings - configure transformers.js for production`)
+    logger.warn('Using mock local embeddings - configure transformers.js for production')
 
     // Mock embedding for development
     const dimensions = 384 // all-MiniLM-L6-v2 dimension

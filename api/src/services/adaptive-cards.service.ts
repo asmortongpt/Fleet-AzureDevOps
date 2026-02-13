@@ -4,6 +4,8 @@ import path from 'path'
 import { Client } from '@microsoft/microsoft-graph-client'
 import axios from 'axios'
 
+import logger from '../config/logger'
+
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
   clientId: process.env.AZURE_AD_CLIENT_ID || process.env.MICROSOFT_CLIENT_ID || '',
@@ -371,10 +373,10 @@ export async function sendAdaptiveCard(
       .api(`/teams/${teamId}/channels/${channelId}/messages`)
       .post(chatMessage)
 
-    console.log(`Adaptive Card sent successfully:`, response.id)
+    logger.info('Adaptive Card sent successfully', { messageId: response.id })
     return response
   } catch (error: any) {
-    console.error('Error sending Adaptive Card:', error.message)
+    logger.error('Error sending Adaptive Card', { error })
     throw error
   }
 }
@@ -410,10 +412,10 @@ export async function updateAdaptiveCard(
       .api(`/teams/${teamId}/channels/${channelId}/messages/${messageId}`)
       .patch(chatMessage)
 
-    console.log(`Adaptive Card updated successfully:`, response.id)
+    logger.info('Adaptive Card updated successfully', { messageId: response.id })
     return response
   } catch (error: any) {
-    console.error('Error updating Adaptive Card:', error.message)
+    logger.error('Error updating Adaptive Card', { error })
     throw error
   }
 }
@@ -462,10 +464,10 @@ export async function sendAdaptiveCardToUser(
       .api(`/chats/${chat.id}/messages`)
       .post(chatMessage)
 
-    console.log(`Adaptive Card sent to user successfully:`, response.id)
+    logger.info('Adaptive Card sent to user successfully', { messageId: response.id })
     return response
   } catch (error: any) {
-    console.error('Error sending Adaptive Card to user:', error.message)
+    logger.error('Error sending Adaptive Card to user', { error })
     throw error
   }
 }

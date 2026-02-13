@@ -22,6 +22,7 @@ import path from 'path';
 
 import { Pool } from 'pg';
 import { PSM } from 'tesseract.js';
+import logger from '../config/logger';
 
 // Optional cloud OCR provider imports - only load if packages are installed
 let vision: any = null;
@@ -43,7 +44,7 @@ async function loadOptionalProviders() {
     const visionModule = await import('@google-cloud/vision');
     vision = visionModule.default;
   } catch (err) {
-    console.warn('Google Cloud Vision not available - install @google-cloud/vision for premium OCR');
+    logger.warn('Google Cloud Vision not available - install @google-cloud/vision for premium OCR');
   }
 
   try {
@@ -52,7 +53,7 @@ async function loadOptionalProviders() {
     AnalyzeDocumentCommand = textractModule.AnalyzeDocumentCommand;
     DetectDocumentTextCommand = textractModule.DetectDocumentTextCommand;
   } catch (err) {
-    console.warn('AWS Textract not available - install @aws-sdk/client-textract for premium OCR');
+    logger.warn('AWS Textract not available - install @aws-sdk/client-textract for premium OCR');
   }
 
   try {
@@ -61,7 +62,7 @@ async function loadOptionalProviders() {
     ComputerVisionClient = azureModule.ComputerVisionClient;
     ApiKeyCredentials = msRestModule.ApiKeyCredentials;
   } catch (err) {
-    console.warn('Azure Computer Vision not available - install @azure/cognitiveservices-computervision for premium OCR');
+    logger.warn('Azure Computer Vision not available - install @azure/cognitiveservices-computervision for premium OCR');
   }
 
   // Document parsing libraries
@@ -69,21 +70,21 @@ async function loadOptionalProviders() {
     const pdfParseModule = await import('pdf-parse');
     pdfParse = pdfParseModule.default;
   } catch (err) {
-    console.warn('pdf-parse not available - install pdf-parse for PDF document OCR');
+    logger.warn('pdf-parse not available - install pdf-parse for PDF document OCR');
   }
 
   try {
     const mammothModule = await import('mammoth');
     mammoth = mammothModule.default;
   } catch (err) {
-    console.warn('mammoth not available - install mammoth for DOCX document OCR');
+    logger.warn('mammoth not available - install mammoth for DOCX document OCR');
   }
 
   try {
     const excelModule = await import('exceljs');
     ExcelJS = excelModule;
   } catch (err) {
-    console.warn('exceljs not available - install exceljs for Excel spreadsheet OCR');
+    logger.warn('exceljs not available - install exceljs for Excel spreadsheet OCR');
   }
 
 
@@ -237,7 +238,7 @@ class OcrService {
         this.googleVisionClient = new vision.ImageAnnotatorClient({
           keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS
         });
-        console.log('✅ Google Cloud Vision initialized');
+        logger.info('Google Cloud Vision initialized');
       }
 
       // Initialize AWS Textract
@@ -249,7 +250,7 @@ class OcrService {
             secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
           }
         });
-        console.log('✅ AWS Textract initialized');
+        logger.info('AWS Textract initialized');
       }
 
       // Initialize Azure Computer Vision
@@ -260,13 +261,13 @@ class OcrService {
           }),
           process.env.AZURE_VISION_ENDPOINT
         );
-        console.log('✅ Azure Computer Vision initialized');
+        logger.info('Azure Computer Vision initialized');
       }
 
       // Tesseract is always available (no initialization needed)
-      console.log('✅ Tesseract.js available');
+      logger.info('Tesseract.js available');
     } catch (error) {
-      console.error('Error initializing OCR providers:', error);
+      logger.error('Error initializing OCR providers', { error });
     }
 
     this.initialized = true;
@@ -327,7 +328,7 @@ class OcrService {
 
       return result;
     } catch (error) {
-      console.error('OCR processing error:', error);
+      logger.error('OCR processing error', { error });
       throw error;
     }
   }
@@ -349,7 +350,7 @@ class OcrService {
     try {
       pdfData = await pdfParse(fileBuffer);
     } catch (error) {
-      console.error('PDF parse error:', error);
+      logger.error('PDF parse error', { error });
     }
 
     // If PDF has text, use it; otherwise OCR is needed
@@ -1075,7 +1076,7 @@ class OcrService {
         ]
       );
     } catch (error) {
-      console.error('Error saving OCR result:', error);
+      logger.error('Error saving OCR result', { error });
       throw error;
     }
   }
@@ -1113,7 +1114,7 @@ class OcrService {
         metadata: JSON.parse(row.metadata)
       };
     } catch (error) {
-      console.error('Error getting OCR result:', error);
+      logger.error('Error getting OCR result', { error });
       throw error;
     }
   }
@@ -1144,7 +1145,7 @@ class OcrService {
 
       return result.rows;
     } catch (error) {
-      console.error('Error searching OCR results:', error);
+      logger.error('Error searching OCR results', { error });
       throw error;
     }
   }

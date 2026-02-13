@@ -16,6 +16,7 @@
 
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
 import { pool } from '../db/connection'
 import { cache } from '../utils/cache'
 
@@ -174,7 +175,7 @@ class SearchIndexService {
 
       return response
     } catch (error) {
-      console.error('Search error:', error)
+      logger.error('Search error', { error })
       throw new Error('Search failed')
     }
   }
@@ -629,7 +630,7 @@ return b.score - a.score
         })
         .slice(0, limit)
     } catch (error) {
-      console.error('Autocomplete error:', error)
+      logger.error('Autocomplete error', { error })
       return []
     }
   }
@@ -672,7 +673,7 @@ return b.score - a.score
 
       return suggestions
     } catch (error) {
-      console.error(`Spelling suggestion error:`, error)
+      logger.error('Spelling suggestion error', { error })
       return []
     }
   }
@@ -710,8 +711,8 @@ return b.score - a.score
         ]
       )
     } catch (error) {
-      // Don`t fail search if logging fails
-      console.error(`Search logging error: `, error)
+      // Don't fail search if logging fails
+      logger.error('Search logging error', { error })
     }
   }
 
@@ -772,7 +773,7 @@ return b.score - a.score
         total_searches: parseInt(totalSearches.rows[0].total) || 0
       }
     } catch (error) {
-      console.error('Search analytics error:', error)
+      logger.error('Search analytics error', { error })
       throw error
     }
   }
@@ -809,13 +810,13 @@ return b.score - a.score
             filters: { tenantId, ...filters }
           })
         } catch (error) {
-          console.error(`Cache warming error for query:`, row.query_text, error)
+          logger.error('Cache warming error for query', { query: row.query_text, error })
         }
       }
 
-      console.log(`Cache warmed with ${result.rows.length} queries`)
+      logger.info(`Cache warmed with ${result.rows.length} queries`)
     } catch (error) {
-      console.error(`Cache warming error:`, error)
+      logger.error('Cache warming error', { error })
     }
   }
 }

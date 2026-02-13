@@ -13,6 +13,7 @@ import QRCode from 'qrcode'
 import { v4 as uuidv4 } from 'uuid'
 
 import { connectionManager } from '../config/connection-manager'
+import logger from '../config/logger'
 
 export interface VehicleIdentification {
   vehicleId: string
@@ -80,7 +81,7 @@ class VehicleIdentificationService {
 
       return qrCodeDataUrl
     } catch (error) {
-      console.error('Error generating vehicle QR code:', error)
+      logger.error('Error generating vehicle QR code', { error })
       throw new Error('Failed to generate vehicle QR code')
     }
   }
@@ -121,7 +122,7 @@ class VehicleIdentificationService {
         qrCode: vehicle.qr_code
       }
     } catch (error) {
-      console.error('Error identifying vehicle by QR code:', error)
+      logger.error('Error identifying vehicle by QR code', { error })
       return null
     }
   }
@@ -154,7 +155,7 @@ class VehicleIdentificationService {
         qrCode: vehicle.qr_code
       }
     } catch (error) {
-      console.error('Error identifying vehicle by VIN:', error)
+      logger.error('Error identifying vehicle by VIN', { error })
       return null
     }
   }
@@ -194,7 +195,7 @@ class VehicleIdentificationService {
         qrCode: vehicle.qr_code
       }
     } catch (error) {
-      console.error('Error identifying vehicle by license plate:', error)
+      logger.error('Error identifying vehicle by license plate', { error })
       return null
     }
   }
@@ -246,7 +247,7 @@ class VehicleIdentificationService {
       return await this.identifyByLicensePlate(licensePlate, tenantId)
       */
     } catch (error) {
-      console.error(`Error processing license plate image:`, error)
+      logger.error('Error processing license plate image', { error })
       throw error
     }
   }
@@ -286,7 +287,7 @@ class VehicleIdentificationService {
         qrCode: vehicle.qr_code
       }))
     } catch (error) {
-      console.error(`Error searching vehicles:`, error)
+      logger.error('Error searching vehicles', { error })
       return []
     }
   }
@@ -368,7 +369,7 @@ class VehicleIdentificationService {
         }
       }
     } catch (error) {
-      console.error('Error generating printable label:', error)
+      logger.error('Error generating printable label', { error })
       throw new Error('Failed to generate printable label')
     }
   }

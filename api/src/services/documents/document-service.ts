@@ -5,6 +5,7 @@ import * as crypto from 'crypto'
 import * as fs from 'fs'
 import * as path from 'path'
 
+import logger from '../../config/logger'
 import { getIndexingService } from './indexing-service'
 import { getOCRService } from './ocr-service'
 import {
@@ -73,7 +74,7 @@ export class DocumentService {
    */
   private loadDocuments(): void {
     // TODO: Load from PostgreSQL database
-    console.log('[DocumentService] Initialized (in-memory mode)')
+    logger.info('DocumentService initialized (in-memory mode)')
   }
 
   /**
@@ -184,12 +185,12 @@ export class DocumentService {
       // Store document
       this.documents.set(documentId, document)
 
-      console.log(`[DocumentService] Document uploaded: ${documentId}`)
+      logger.info(`Document uploaded: ${documentId}`)
 
       return document
 
     } catch (error) {
-      console.error('[DocumentService] Upload failed:', error)
+      logger.error('Document upload failed', { error })
       throw new Error(`Document upload failed: ${error}`)
     }
   }
@@ -305,11 +306,11 @@ export class DocumentService {
       // Remove from map
       this.documents.delete(documentId)
 
-      console.log(`[DocumentService] Document deleted: ${documentId}`)
+      logger.info(`Document deleted: ${documentId}`)
       return true
 
     } catch (error) {
-      console.error('[DocumentService] Delete failed:', error)
+      logger.error('Document delete failed', { error })
       return false
     }
   }
@@ -359,7 +360,7 @@ export class DocumentService {
       return buffer
 
     } catch (error) {
-      console.error('[DocumentService] Download failed:', error)
+      logger.error('Document download failed', { error })
       return null
     }
   }

@@ -3,6 +3,7 @@
 
 import { getAIService } from '../api-bus/ai-service'
 
+import logger from '../../config/logger'
 import { Document, DocumentApproval } from './types'
 
 export interface WorkflowDefinition {
@@ -608,7 +609,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
     document.approvals.push(approval)
 
     // In production, this would send notifications to approvers
-    console.log(`[Workflow] Approval request created for ${step.config.title}`)
+    logger.info(`Approval request created for ${step.config.title}`)
   }
 
   /**
@@ -620,7 +621,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
     for (const rule of rules) {
       if (this.evaluateCondition(rule.condition, document)) {
         // Route to specified destination
-        console.log(`[Workflow] Routing document to: ${rule.route}`)
+        logger.info(`Routing document to: ${rule.route}`)
         document.metadata = {
           ...document.metadata,
           routedTo: rule.route
@@ -635,8 +636,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
    */
   private async executeNotification(step: WorkflowStep, document: Document): Promise<void> {
     // In production, send actual notifications (email, SMS, push)
-    console.log(`[Workflow] Sending notification: ${step.config.subject}`)
-    console.log(`[Workflow] Recipients: ${step.config.recipients.join(', ')}`)
+    logger.info(`Sending notification: ${step.config.subject}`, { recipients: step.config.recipients })
   }
 
   /**
@@ -644,7 +644,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
    */
   private async executeIntegration(step: WorkflowStep, document: Document): Promise<void> {
     // In production, integrate with external systems
-    console.log(`[Workflow] Integration with ${step.config.system}: ${step.config.action}`)
+    logger.info(`Integration with ${step.config.system}: ${step.config.action}`)
   }
 
   /**
@@ -652,7 +652,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
    */
   private async executeTransformation(step: WorkflowStep, document: Document): Promise<void> {
     // Transform document (convert format, merge, split, etc.)
-    console.log(`[Workflow] Transforming document: ${step.config.transformation}`)
+    logger.info(`Transforming document: ${step.config.transformation}`)
   }
 
   /**
@@ -686,7 +686,7 @@ ${document.extractedText?.substring(0, 6000) || ''}`
       const expr = parser.parse(condition)
       return expr.evaluate(context)
     } catch (error) {
-      console.warn(`Failed to evaluate condition: ${condition}`, error)
+      logger.warn(`Failed to evaluate condition: ${condition}`, { error })
       return false
     }
   }

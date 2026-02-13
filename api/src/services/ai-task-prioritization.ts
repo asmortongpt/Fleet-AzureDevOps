@@ -23,6 +23,8 @@ import { OpenAIClient, AzureKeyCredential } from '@azure/openai'
 import { Pool } from 'pg'
 import { z } from 'zod'
 
+import logger from '../config/logger'
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -223,7 +225,7 @@ Return ONLY valid JSON:
         confidence: aiResult.confidence
       }
     } catch (error) {
-      console.error('Error calculating priority score:', error)
+      logger.error('Error calculating priority score', { error })
       // Fallback to basic scoring
       return this.calculateBasicPriorityScore(taskData)
     }
@@ -276,7 +278,7 @@ Return ONLY valid JSON:
         availableDriversCount: queries[3].status === 'fulfilled' ? queries[3].value.rows[0]?.count || 0 : 0
       }
     } catch (error) {
-      console.error('Error gathering task context:', error)
+      logger.error('Error gathering task context', { error })
       return {
         vehicleInfo: null,
         dependentTasksCount: 0,
@@ -488,7 +490,7 @@ Return ONLY valid JSON array:
 
       return assignments.slice(0, 3)
     } catch (error) {
-      console.error('Error recommending task assignment:', error)
+      logger.error('Error recommending task assignment', { error })
       return []
     }
   }
@@ -548,7 +550,7 @@ Return ONLY valid JSON array:
         blockedBy
       }
     } catch (error) {
-      console.error('Error analyzing dependencies:', error)
+      logger.error('Error analyzing dependencies', { error })
       return {
         taskId,
         dependencies: [],
@@ -623,7 +625,7 @@ queue.push(taskId)
 
       return result
     } catch (error) {
-      console.error('Error calculating execution order:', error)
+      logger.error('Error calculating execution order', { error })
       // Return original order as fallback
       return [taskIds]
     }
@@ -684,7 +686,7 @@ queue.push(taskId)
 
       return optimizations
     } catch (error) {
-      console.error('Error optimizing resource allocation:', error)
+      logger.error('Error optimizing resource allocation', { error })
       return []
     }
   }

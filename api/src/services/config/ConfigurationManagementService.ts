@@ -26,6 +26,8 @@ import Redis from 'ioredis';
 import { Pool } from 'pg';
 import { z } from 'zod';
 
+import logger from '../../config/logger';
+
 // ============================================================================
 // Types and Enums
 // ============================================================================
@@ -239,8 +241,8 @@ export class ConfigurationManagementService {
     } else {
       // Generate a random key (should be persisted in production)
       this.encryptionKey = crypto.randomBytes(32);
-      console.warn(
-        '[ConfigService] No encryption key provided, generated random key. ' +
+      logger.warn(
+        'No encryption key provided, generated random key. ' +
         'Set CONFIG_ENCRYPTION_KEY env var in production!'
       );
     }
@@ -544,7 +546,7 @@ export class ConfigurationManagementService {
 
       return result.rows;
     } catch (error) {
-      console.error('[ConfigService] getHistory error:', error);
+      logger.error('ConfigService getHistory error', { error });
       throw error;
     }
   }
@@ -642,7 +644,7 @@ export class ConfigurationManagementService {
    */
   async approveChange(requestId: string, userId: string, comment?: string): Promise<void> {
     // Placeholder implementation
-    console.log(`[ConfigService] Change request ${requestId} approved by ${userId}`);
+    logger.info(`Change request ${requestId} approved by ${userId}`);
   }
 
   /**
@@ -650,7 +652,7 @@ export class ConfigurationManagementService {
    */
   async rejectChange(requestId: string, userId: string, reason: string): Promise<void> {
     // Placeholder implementation
-    console.log(`[ConfigService] Change request ${requestId} rejected by ${userId}: ${reason}`);
+    logger.info(`Change request ${requestId} rejected by ${userId}: ${reason}`);
   }
 
   /**
@@ -769,7 +771,7 @@ export class ConfigurationManagementService {
       try {
         await this.getConfig(key);
       } catch (error) {
-        console.error(`[ConfigService] Failed to preload ${key}:`, error);
+        logger.error(`Failed to preload config key ${key}`, { error });
       }
     }
   }
@@ -923,7 +925,7 @@ export class ConfigurationManagementService {
     metadata?: Record<string, any>
   ): Promise<void> {
     // Audit logging implementation
-    console.log(`[ConfigService] ${operation} ${key}`, { userId, success, metadata });
+    logger.info(`ConfigService ${operation} ${key}`, { userId, success, metadata });
   }
 
   private async requestChange(request: Partial<ChangeRequest>): Promise<string> {

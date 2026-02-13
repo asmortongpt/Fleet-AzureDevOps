@@ -3,47 +3,48 @@
  */
 
 import { Pool } from 'pg';
+import logger from '../config/logger';
 
 class WebhookService {
   constructor(private db: Pool) { }
 
   async cleanupExpiredSubscriptions(): Promise<void> {
-    console.log('Stub: cleanupExpiredSubscriptions');
+    logger.info('Stub: cleanupExpiredSubscriptions');
   }
 
   async categorizeMessage(message: any): Promise<void> {
-    console.log('Stub: categorizeMessage');
+    logger.info('Stub: categorizeMessage');
   }
 
   async processTeamsAttachments(message: any): Promise<void> {
-    console.log('Stub: processTeamsAttachments');
+    logger.info('Stub: processTeamsAttachments');
   }
 
   async processImageAttachment(message: any): Promise<void> {
-    console.log('Stub: processImageAttachment');
+    logger.info('Stub: processImageAttachment');
   }
 
   async categorizeEmail(email: any): Promise<void> {
-    console.log('Stub: categorizeEmail');
+    logger.info('Stub: categorizeEmail');
   }
 
   async triggerRealtimeUpdate(data: any): Promise<void> {
-    console.log('Stub: triggerRealtimeUpdate');
+    logger.info('Stub: triggerRealtimeUpdate');
   }
 
   async renewSubscription(subscription: any): Promise<void> {
-    console.log('Stub: renewSubscription');
+    logger.info('Stub: renewSubscription');
   }
 
   async handleWebhookNotification(notification: any): Promise<void> {
-    console.log('Stub: handleWebhookNotification');
+    logger.info('Stub: handleWebhookNotification');
   }
 
   async subscribeToTeamsMessages(params: any): Promise<any> {
     // Support both object and string parameter formats
     const teamId = typeof params === 'string' ? params : params.teamId;
     const channelId = typeof params === 'string' ? arguments[1] : params.channelId;
-    console.log('Stub: subscribeToTeamsMessages', teamId, channelId);
+    logger.info('Stub: subscribeToTeamsMessages', { teamId, channelId });
     return { subscriptionId: 'stub-teams-subscription' };
   }
 
@@ -51,24 +52,24 @@ class WebhookService {
     // Support both object and string parameter formats
     const userId = typeof params === 'string' ? params : params.userEmail;
     const folderIds = typeof params === 'string' ? arguments[1] : params.folderId ? [params.folderId] : undefined;
-    console.log('Stub: subscribeToOutlookEmails', userId, folderIds);
+    logger.info('Stub: subscribeToOutlookEmails', { userId, folderIds });
     return { subscriptionId: 'stub-outlook-subscription' };
   }
 
   async processTeamsNotification(notification: any): Promise<void> {
-    console.log('Stub: processTeamsNotification', notification);
+    logger.info('Stub: processTeamsNotification', { notification });
   }
 
   async processOutlookNotification(notification: any): Promise<void> {
-    console.log('Stub: processOutlookNotification', notification);
+    logger.info('Stub: processOutlookNotification', { notification });
   }
 
   async deleteSubscription(subscriptionId: string): Promise<void> {
-    console.log('Stub: deleteSubscription', subscriptionId);
+    logger.info('Stub: deleteSubscription', { subscriptionId });
   }
 
   async listSubscriptions(filters?: any): Promise<any[]> {
-    console.log('Stub: listSubscriptions', filters);
+    logger.info('Stub: listSubscriptions', { filters });
     return [];
   }
 }

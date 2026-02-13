@@ -5,6 +5,8 @@ import * as fs from 'fs'
 
 import { createWorker, Worker, RecognizeResult } from 'tesseract.js'
 
+import logger from '../../config/logger'
+
 import {
   OCRConfig,
   OCRResult,
@@ -30,7 +32,7 @@ export class OCRService {
    * Initialize OCR workers for parallel processing
    */
   private async initializeWorkers(): Promise<void> {
-    console.log('[OCR] Initializing Tesseract workers...')
+    logger.info('Initializing Tesseract workers')
 
     for (let i = 0; i < this.maxWorkers; i++) {
       try {
@@ -40,13 +42,13 @@ export class OCRService {
         this.workers.set(workerId, worker)
         this.workerQueue.push(workerId)
 
-        console.log(`[OCR] Worker ${workerId} initialized`)
+        logger.info(`Worker ${workerId} initialized`)
       } catch (error) {
-        console.error(`[OCR] Failed to initialize worker ${i}:`, error)
+        logger.error(`Failed to initialize worker ${i}`, { error })
       }
     }
 
-    console.log(`[OCR] ${this.workers.size} workers ready`)
+    logger.info(`${this.workers.size} OCR workers ready`)
   }
 
   /**
@@ -121,7 +123,7 @@ export class OCRService {
       return ocrResult
 
     } catch (error) {
-      console.error('[OCR] Error extracting text:', error)
+      logger.error('Error extracting text from image', { error })
       throw new Error(`OCR extraction failed: ${error}`)
     } finally {
       if (workerId) {
@@ -167,7 +169,7 @@ export class OCRService {
       return results
 
     } catch (error) {
-      console.error('[OCR] Error extracting text from PDF:', error)
+      logger.error('Error extracting text from PDF', { error })
       throw new Error(`PDF OCR extraction failed: ${error}`)
     }
   }
@@ -272,7 +274,7 @@ export class OCRService {
           fs.unlinkSync(filePath)
         }
       } catch (error) {
-        console.error(`[OCR] Failed to delete temp file ${filePath}:`, error)
+        logger.error(`Failed to delete temp file ${filePath}`, { error })
       }
     })
   }
@@ -281,7 +283,7 @@ export class OCRService {
    * Terminate all OCR workers
    */
   async terminate(): Promise<void> {
-    console.log('[OCR] Terminating workers...')
+    logger.info('Terminating OCR workers')
 
     const terminatePromises = Array.from(this.workers.values()).map(worker =>
       worker.terminate()
@@ -291,7 +293,7 @@ export class OCRService {
     this.workers.clear()
     this.workerQueue = []
 
-    console.log('[OCR] All workers terminated')
+    logger.info('All OCR workers terminated')
   }
 }
 

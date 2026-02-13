@@ -3,6 +3,7 @@ import axios from 'axios'
 
 import { pool } from '../db'
 import { validateURL, SSRFError } from '../utils/safe-http-request'
+import logger from '../config/logger'
 
 // Azure AD Configuration
 const AZURE_AD_CONFIG = {
@@ -66,7 +67,7 @@ export async function getPresence(userId: string): Promise<PresenceInfo> {
 
     return presence
   } catch (error: any) {
-    console.error(`Error getting user presence:`, error.message)
+    logger.error('Error getting user presence', { error: error.message })
 
     // Return default presence if API call fails
     return {
@@ -115,9 +116,9 @@ export async function setPresence(
         })
     }
 
-    console.log('Presence updated for user:', userId)
+    logger.info('Presence updated for user', { userId })
   } catch (error: any) {
-    console.error('Error setting user presence:', error.message)
+    logger.error('Error setting user presence', { error: error.message })
     throw error
   }
 }
@@ -139,7 +140,7 @@ export async function getBatchPresence(userIds: string[]): Promise<PresenceInfo[
 
     return response.value || []
   } catch (error: any) {
-    console.error('Error getting batch presence:', error.message)
+    logger.error('Error getting batch presence', { error: error.message })
 
     // Return default presence for all users if API call fails
     return userIds.map(id => ({
@@ -170,7 +171,8 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
       })
     } catch (error) {
       if (error instanceof SSRFError) {
-        console.error(`SSRF Protection blocked webhook URL: ${webhookUrl}`, {
+        logger.error('SSRF Protection blocked webhook URL', {
+          webhookUrl,
           reason: error.reason
         })
         throw new Error(`Invalid webhook URL: ${error.reason}. Only application webhook endpoints are allowed.`)
@@ -192,10 +194,10 @@ export async function subscribeToPresence(userIds: string[], webhookUrl: string)
       .api('/subscriptions')
       .post(subscription)
 
-    console.log('Presence subscription created:', response.id)
+    logger.info('Presence subscription created', { subscriptionId: response.id })
     return response
   } catch (error: any) {
-    console.error('Error subscribing to presence:', error.message)
+    logger.error('Error subscribing to presence', { error: error.message })
     throw error
   }
 }
@@ -272,7 +274,7 @@ export async function getDriverAvailability(driverId: string): Promise<{
       presence
     }
   } catch (error: any) {
-    console.error('Error getting driver availability:', error.message)
+    logger.error('Error getting driver availability', { error: error.message })
     return {
       available: false,
       status: 'Error checking availability'
@@ -350,7 +352,7 @@ export async function getAllDriversAvailability(tenantId?: number): Promise<any[
 
     return availability
   } catch (error: any) {
-    console.error('Error getting all drivers availability:', error.message)
+    logger.error('Error getting all drivers availability', { error: error.message })
     throw error
   }
 }
@@ -458,7 +460,7 @@ export async function getIntelligentRoutingSuggestion(
       }
     }
   } catch (error: any) {
-    console.error('Error getting intelligent routing suggestion:', error.message)
+    logger.error('Error getting intelligent routing suggestion', { error: error.message })
     return {
       reason: 'Error determining availability',
       allCandidates: []
