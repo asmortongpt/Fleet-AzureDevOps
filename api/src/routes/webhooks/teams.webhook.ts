@@ -18,6 +18,7 @@
 import express, { Request, Response } from 'express'
 
 import pool from '../../config/database'
+import { logger } from '../../utils/logger'
 import { AuthRequest, authenticateJWT } from '../../middleware/auth'
 import { csrfProtection } from '../../middleware/csrf'
 import { requirePermission } from '../../middleware/permissions'
@@ -49,11 +50,11 @@ router.post(
       const notifications = req.body?.value
 
       if (!notifications || !Array.isArray(notifications)) {
-        console.error('❌ Invalid webhook payload structure')
+        logger.error('❌ Invalid webhook payload structure')
         return res.status(400).json({ error: 'Invalid payload structure' })
       }
 
-      console.log(`📨 Received ${notifications.length} Teams notification(s)`)
+      logger.info(`📨 Received ${notifications.length} Teams notification(s)`)
 
       // Process notifications asynchronously
       // Return 202 Accepted immediately to avoid timeout
@@ -65,12 +66,12 @@ router.post(
       // Process each notification in the background
       for (const notification of notifications) {
         processNotificationAsync(notification).catch(error => {
-          console.error('Failed to process notification:', error)
+          logger.error('Failed to process notification:', error)
         })
       }
 
     } catch (error: any) {
-      console.error('Teams webhook error:', error)
+      logger.error('Teams webhook error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -83,7 +84,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
   try {
     const { changeType, resource, resourceData, subscriptionId, clientState } = notification
 
-    console.log('🔄 Processing Teams notification:', {
+    logger.info('🔄 Processing Teams notification:', {
       changeType,
       resource,
       subscriptionId: subscriptionId?.substring(0, 10) + '...'
@@ -104,11 +105,11 @@ async function processNotificationAsync(notification: any): Promise<void> {
         break
 
       default:
-        console.warn('⚠️  Unknown change type:', changeType)
+        logger.warn('⚠️  Unknown change type:', changeType)
     }
 
   } catch (error: any) {
-    console.error('Error processing Teams notification:', error.message)
+    logger.error('Error processing Teams notification:', error.message)
 
     // Log error to database for retry
     try {
@@ -127,7 +128,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
         [error.message, notification.subscriptionId, notification.resource]
       )
     } catch (dbError) {
-      console.error('Failed to log error to database:', dbError)
+      logger.error('Failed to log error to database:', dbError)
     }
 
     throw error
@@ -207,10 +208,10 @@ async function handleMessageUpdate(notification: any): Promise<void> {
       [message.body.content, JSON.stringify(message.lastModifiedDateTime), communicationId]
     )
 
-    console.log('✅ Teams message updated:', messageId)
+    logger.info('✅ Teams message updated:', messageId)
 
   } catch (error: any) {
-    console.error('Failed to handle message update:', error.message)
+    logger.error('Failed to handle message update:', error.message)
     throw error
   }
 }
@@ -247,13 +248,13 @@ async function handleMessageDelete(notification: any): Promise<void> {
     )
 
     if (result.rows.length > 0) {
-      console.log('✅ Teams message marked as deleted:', messageId)
+      logger.info('✅ Teams message marked as deleted:', messageId)
     } else {
-      console.warn('⚠️  Message not found for deletion:', messageId)
+      logger.warn('⚠️  Message not found for deletion:', messageId)
     }
 
   } catch (error: any) {
-    console.error('Failed to handle message delete:', error.message)
+    logger.error('Failed to handle message delete:', error.message)
     throw error
   }
 }
@@ -286,7 +287,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error('Failed to list Teams subscriptions:', error)
+      logger.error('Failed to list Teams subscriptions:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -313,7 +314,7 @@ router.post(
 
       // Validate user can only create subscriptions for their own tenant
       if (tenantId !== req.user!.tenant_id) {
-        console.warn('Unauthorized tenant access attempt', {
+        logger.warn('Unauthorized tenant access attempt', {
           requestedTenant: tenantId,
           userTenant: req.user!.tenant_id,
           userId: req.user!.id
@@ -341,7 +342,7 @@ router.post(
       })
 
     } catch (error: any) {
-      console.error('Failed to create Teams subscription:', error)
+      logger.error('Failed to create Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to create subscription',
         details: error.message
@@ -374,7 +375,7 @@ router.delete(
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
-        console.warn('Unauthorized subscription deletion attempt', {
+        logger.warn('Unauthorized subscription deletion attempt', {
           subscriptionId,
           userId: req.user!.id,
           userTenant: req.user!.tenant_id
@@ -392,7 +393,7 @@ router.delete(
       })
 
     } catch (error: any) {
-      console.error('Failed to delete Teams subscription:', error)
+      logger.error('Failed to delete Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to delete subscription',
         details: error.message
@@ -425,7 +426,7 @@ router.post(
       }
 
       if (checkResult.rows[0].tenant_id !== req.user!.tenant_id) {
-        console.warn('Unauthorized subscription renewal attempt', {
+        logger.warn('Unauthorized subscription renewal attempt', {
           subscriptionId,
           userId: req.user!.id,
           userTenant: req.user!.tenant_id
@@ -443,7 +444,7 @@ router.post(
       })
 
     } catch (error: any) {
-      console.error('Failed to renew Teams subscription:', error)
+      logger.error('Failed to renew Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to renew subscription',
         details: error.message
@@ -491,7 +492,7 @@ router.get(
       })
 
     } catch (error: any) {
-      console.error('Failed to fetch webhook events:', error)
+      logger.error('Failed to fetch webhook events:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

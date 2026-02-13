@@ -3,6 +3,7 @@ import crypto from 'crypto'
 import { Request, Response, NextFunction } from 'express'
 
 import telemetryService from '../monitoring/applicationInsights'
+import { logger } from '../utils/logger'
 import { sanitizeForLog } from '../utils/logSanitizer'
 
 /**
@@ -67,7 +68,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
   // SECURITY FIX (P0): Sanitize request details to prevent log injection (CWE-117)
   // Fingerprint: d8e4f2a7c9b3d6e8
   if (process.env.NODE_ENV === 'development') {
-    console.log('📊 Request started', {
+    logger.info('📊 Request started', {
       correlationId: req.telemetry.correlationId,
       method: req.method,
       path: sanitizeForLog(req.path, 100)
@@ -134,7 +135,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
                          res.statusCode >= 400 ? '⚠️' :
                          res.statusCode >= 300 ? '↪️' :
                          '✅'
-      console.log(`${statusEmoji} [${req.telemetry!.correlationId}] ${res.statusCode} in ${duration}ms`)
+      logger.info(`${statusEmoji} [${req.telemetry!.correlationId}] ${res.statusCode} in ${duration}ms`)
     }
 
     // Call original end

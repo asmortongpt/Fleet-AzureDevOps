@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { AppError } from '../errors/AppError';
+import { logger } from '../utils/logger';
 
 export function standardizeErrors(err: Error, req: Request, res: Response, next: NextFunction) {
   const timestamp = new Date().toISOString();
@@ -19,7 +20,7 @@ export function standardizeErrors(err: Error, req: Request, res: Response, next:
     });
   }
 
-  console.error('Unexpected error:', err);
+  logger.error('Unexpected error:', err);
   res.status(500).json({
     success: false,
     error: {

@@ -6,6 +6,7 @@
 import { Request, Response, NextFunction } from 'express';
 
 import { sentryService, Sentry } from '../monitoring/sentry';
+import { logger } from '../utils/logger';
 
 /**
  * Custom error class for operational errors
@@ -104,7 +105,7 @@ export const sentryErrorHandler = () => {
     const errorDetails = extractErrorDetails(err);
 
     // Log error for debugging
-    console.error('Error occurred:', {
+    logger.error('Error occurred:', {
       ...errorDetails,
       url: req.originalUrl,
       method: req.method,
@@ -287,7 +288,7 @@ export const notFoundHandler = () => {
  */
 export const handleUnhandledRejection = () => {
   process.on('unhandledRejection', (reason: any, promise: Promise<any>) => {
-    console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
 
     sentryService.captureException(
       reason instanceof Error ? reason : new Error(String(reason)),
@@ -317,7 +318,7 @@ export const handleUnhandledRejection = () => {
  */
 export const handleUncaughtException = () => {
   process.on('uncaughtException', (error: Error) => {
-    console.error('Uncaught Exception:', error);
+    logger.error('Uncaught Exception:', error);
 
     sentryService.captureException(error, {
       tags: {
@@ -337,7 +338,7 @@ export const handleUncaughtException = () => {
  */
 export const handleGracefulShutdown = () => {
   const shutdown = async (signal: string) => {
-    console.log(`Received ${signal}, shutting down gracefully...`);
+    logger.info(`Received ${signal}, shutting down gracefully...`);
 
     // Flush any remaining Sentry events
     await sentryService.flush(5000);

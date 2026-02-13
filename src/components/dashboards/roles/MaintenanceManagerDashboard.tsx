@@ -21,6 +21,7 @@ import {
 import { AlertTriangle, Car } from 'lucide-react';
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -101,44 +102,47 @@ export function MaintenanceManagerDashboard() {
     in_stock: 45
   });
 
+  const navigate = useNavigate();
+
   // Quick actions
   const handleCreateWorkOrder = (vehicleId?: number) => {
     if (vehicleId) {
       toast.success(`Creating work order for Vehicle #${vehicleId}...`);
+      navigate(`/maintenance?action=new-work-order&vehicleId=${vehicleId}`);
     } else {
       toast.success('Opening work order creation form...');
+      navigate('/maintenance?action=new-work-order');
     }
-    // TODO: Open work order creation dialog
   };
 
   const handleSchedulePM = () => {
     toast.success('Opening preventive maintenance scheduler...');
-    // TODO: Navigate to PM scheduler
+    navigate('/maintenance?tab=scheduling');
   };
 
   const handleSearchParts = () => {
     toast.success('Opening parts search interface...');
-    // TODO: Navigate to parts inventory
+    navigate('/maintenance?tab=parts');
   };
 
   const handleAssignMechanic = () => {
     toast('Opening mechanic assignment dialog...');
-    // TODO: Open mechanic assignment
+    navigate('/maintenance?tab=queue&action=assign');
   };
 
   const handleViewQueue = () => {
     toast('Navigating to work order queue...');
-    // TODO: Navigate to work order page
+    navigate('/maintenance?tab=queue');
   };
 
   const handleViewCalendar = () => {
     toast('Opening maintenance calendar...');
-    // TODO: Navigate to calendar view
+    navigate('/maintenance?tab=calendar');
   };
 
   const handleReorderParts = () => {
     toast.success('Opening parts reorder form...');
-    // TODO: Navigate to parts reorder
+    navigate('/maintenance?tab=parts&action=reorder');
   };
 
   return (

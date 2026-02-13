@@ -13,6 +13,7 @@ import {
   getTelemetryQuerySchema
 } from '../schemas/telemetry.schema'
 import { getTableColumns } from '../utils/column-resolver'
+import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 const router = express.Router()
@@ -50,7 +51,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get telemetry error:`, error)
+      logger.error(`Get telemetry error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -75,7 +76,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get telemetry error:', error)
+      logger.error('Get telemetry error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -105,7 +106,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create telemetry error:`, error)
+      logger.error(`Create telemetry error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -134,7 +135,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update telemetry error:`, error)
+      logger.error(`Update telemetry error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -159,7 +160,7 @@ router.delete(
 
       res.json({ message: 'Telemetry deleted successfully' })
     } catch (error) {
-      console.error('Delete telemetry error:', error)
+      logger.error('Delete telemetry error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

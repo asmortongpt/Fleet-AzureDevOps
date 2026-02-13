@@ -163,7 +163,7 @@ export function Login() {
                   >
                     {emailLoginMutation.isPending ? (
                       <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                         Signing in...
                       </div>
                     ) : (

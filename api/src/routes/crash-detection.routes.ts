@@ -124,7 +124,7 @@ router.post('/crash',
       }
 
       // Log the incident
-      console.log(`[CrashDetection] Crash incident reported by user ${userId}`, {
+      logger.info(`[CrashDetection] Crash incident reported by user ${userId}`, {
         incidentId: incident.id,
         acceleration: validated.maxAcceleration,
         userCanceled: validated.userCanceled,
@@ -350,7 +350,7 @@ async function triggerEmergencyResponse(incident: any, client: any) {
     )
 
     // 3. Log emergency response
-    console.log(`[CrashDetection] 🚨 EMERGENCY RESPONSE TRIGGERED for incident ${incident.id}`)
+    logger.info(`[CrashDetection] 🚨 EMERGENCY RESPONSE TRIGGERED for incident ${incident.id}`)
 
     // 4. In production, integrate with:
     // - Emergency dispatch system

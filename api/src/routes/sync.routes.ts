@@ -65,7 +65,7 @@ router.post(`/teams/:teamId/channels/:channelId`, csrfProtection, async (req: Re
     const { teamId, channelId } = req.params
     const userId = (req as any).user?.id
 
-    console.log(`Manual Teams sync requested: ${teamId}/${channelId} by user ${userId}`)
+    logger.info(`Manual Teams sync requested: ${teamId}/${channelId} by user ${userId}`)
 
     const result = await syncService.syncTeamsMessages(teamId, channelId)
 
@@ -113,7 +113,7 @@ router.post(`/outlook/folders/:folderId`, csrfProtection, async (req: Request, r
     const { folderId } = req.params
     const userId = (req as any).user?.id
 
-    console.log(`Manual Outlook sync requested: ${folderId} by user ${userId}`)
+    logger.info(`Manual Outlook sync requested: ${folderId} by user ${userId}`)
 
     const result = await syncService.syncOutlookEmails(folderId)
 
@@ -194,7 +194,7 @@ router.post('/full',csrfProtection, async (req: Request, res: Response) => {
       })
     }
 
-    console.log(`Full re-sync requested by ${(req as any).user?.email}`)
+    logger.info(`Full re-sync requested by ${(req as any).user?.email}`)
 
     // Clear all delta tokens
     await pool.query(`UPDATE sync_state SET delta_token = NULL`)
@@ -334,7 +334,7 @@ router.post(`/teams/all`, csrfProtection, async (req: Request, res: Response) =>
   try {
     const userId = (req as any).user?.id
 
-    console.log(`Manual sync all Teams channels requested by user ${userId}`)
+    logger.info(`Manual sync all Teams channels requested by user ${userId}`)
 
     const result = await syncService.syncAllTeamsChannels()
 
@@ -372,7 +372,7 @@ router.post(`/outlook/all`, csrfProtection, async (req: Request, res: Response) 
   try {
     const userId = (req as any).user?.id
 
-    console.log(`Manual sync all Outlook folders requested by user ${userId}`)
+    logger.info(`Manual sync all Outlook folders requested by user ${userId}`)
 
     const result = await syncService.syncAllOutlookFolders()
 

@@ -547,6 +547,9 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const [isAdding, setIsAdding] = useState(false)
   const [testingConnectionId, setTestingConnectionId] = useState<string | null>(null)
   const [providerToRemove, setProviderToRemove] = useState<string | null>(null)
+  const [configuringProvider, setConfiguringProvider] = useState<HardwareProvider | null>(null)
+  const [configFormData, setConfigFormData] = useState<Record<string, any>>({})
+  const [isSavingConfig, setIsSavingConfig] = useState(false)
 
   // Fetch providers on mount
   useEffect(() => {
@@ -647,6 +650,43 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     }
   }
 
+  const openConfigureDialog = (provider: HardwareProvider) => {
+    setConfiguringProvider(provider)
+    setConfigFormData({ ...provider.configuration })
+  }
+
+  const handleSaveConfiguration = async () => {
+    if (!configuringProvider) return
+    setIsSavingConfig(true)
+    try {
+      const response = await fetch(
+        `/api/vehicles/${vehicleId}/hardware-config/providers/${configuringProvider.id}`,
+        {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ configuration: configFormData })
+        }
+      )
+
+      if (!response.ok) {
+        throw new Error(`Failed to update configuration: ${response.statusText}`)
+      }
+
+      const data = await response.json()
+      setProviders(providers.map(p =>
+        p.id === configuringProvider.id
+          ? { ...p, configuration: data.provider?.configuration ?? configFormData }
+          : p
+      ))
+      setConfiguringProvider(null)
+      setConfigFormData({})
+    } catch (err) {
+      logger.error('Error saving configuration:', err)
+    } finally {
+      setIsSavingConfig(false)
+    }
+  }
+
   // Loading state
   if (isLoading) {
     return (
@@ -715,10 +755,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
               provider={provider}
               onTest={() => handleTestConnection(provider.id)}
               onRemove={() => setProviderToRemove(provider.id)}
-              onConfigure={() => {
-                // TODO: Implement configuration dialog
-                alert('Configuration dialog coming soon!')
-              }}
+              onConfigure={() => openConfigureDialog(provider)}
               isTestingConnection={testingConnectionId === provider.id}
             />
           ))}
@@ -758,6 +795,124 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Provider Configuration Dialog */}
+      <Dialog
+        open={!!configuringProvider}
+        onOpenChange={(open) => {
+          if (!open) {
+            setConfiguringProvider(null)
+            setConfigFormData({})
+          }
+        }}
+      >
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Configure {configuringProvider ? PROVIDER_INFO[configuringProvider.type].name : ''} Provider
+            </DialogTitle>
+            <DialogDescription>
+              Update the configuration settings for this hardware provider
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            {configuringProvider && (
+              <>
+                {/* Provider Status Info */}
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+                  {(() => {
+                    const info = PROVIDER_INFO[configuringProvider.type]
+                    const Icon = info.icon
+                    return (
+                      <>
+                        <div className={cn('p-2 rounded-md', info.bgColor)}>
+                          <Icon className={cn('w-4 h-4', info.color)} />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{info.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Status: {configuringProvider.status} | ID: {configuringProvider.id}
+                          </p>
+                        </div>
+                        <StatusBadge status={configuringProvider.status === 'error' ? 'offline' : configuringProvider.status === 'connected' ? 'online' : configuringProvider.status} />
+                      </>
+                    )
+                  })()}
+                </div>
+
+                {/* Configuration Fields */}
+                {Object.entries(configFormData).map(([key, value]) => (
+                  <div key={key}>
+                    <Label htmlFor={`config-${key}`} className="text-sm capitalize">
+                      {key.replace(/([A-Z])/g, ' $1').replace(/_/g, ' ').trim()}
+                    </Label>
+                    {typeof value === 'boolean' ? (
+                      <div className="flex items-center gap-3 mt-2">
+                        <Checkbox
+                          id={`config-${key}`}
+                          checked={value}
+                          onCheckedChange={(checked) =>
+                            setConfigFormData({ ...configFormData, [key]: checked })
+                          }
+                        />
+                        <Label htmlFor={`config-${key}`} className="cursor-pointer text-sm">
+                          {value ? 'Enabled' : 'Disabled'}
+                        </Label>
+                      </div>
+                    ) : (
+                      <Input
+                        id={`config-${key}`}
+                        value={typeof value === 'string' ? value : JSON.stringify(value)}
+                        onChange={(e) =>
+                          setConfigFormData({ ...configFormData, [key]: e.target.value })
+                        }
+                        className="mt-2"
+                        type={key.toLowerCase().includes('token') || key.toLowerCase().includes('secret') ? 'password' : 'text'}
+                      />
+                    )}
+                  </div>
+                ))}
+
+                {Object.keys(configFormData).length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    No configurable settings for this provider. Configuration is managed automatically.
+                  </p>
+                )}
+              </>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setConfiguringProvider(null)
+                setConfigFormData({})
+              }}
+              disabled={isSavingConfig}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveConfiguration}
+              disabled={isSavingConfig || Object.keys(configFormData).length === 0}
+            >
+              {isSavingConfig ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Settings className="w-4 h-4" />
+                  Save Configuration
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

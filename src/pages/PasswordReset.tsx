@@ -236,7 +236,7 @@ export function PasswordReset() {
                     <span className="relative flex items-center justify-center gap-2.5">
                       {isLoading ? (
                         <>
-                          <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                           Sending...
                         </>
                       ) : (
@@ -304,10 +304,10 @@ export function PasswordReset() {
 
         {/* Premium Footer */}
         <div className="mt-4 space-y-1 text-center">
-          <p className="text-[10px] font-semibold text-white/70">
+          <p className="text-[10px] font-semibold text-muted-foreground">
             Fleet Management System v2.0
           </p>
-          <p className="text-[10px] text-white/50">
+          <p className="text-[10px] text-muted-foreground">
             © {new Date().getFullYear()} Capital Tech Alliance. All rights reserved.
           </p>
         </div>

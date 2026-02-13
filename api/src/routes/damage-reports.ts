@@ -11,6 +11,7 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { tenantSafeQuery } from '../utils/dbHelpers'
+import { logger } from '../utils/logger'
 
 
 const router = express.Router()
@@ -123,7 +124,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get damage reports error:`, error)
+      logger.error(`Get damage reports error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -163,7 +164,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get damage report error:', error)
+      logger.error('Get damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -208,7 +209,7 @@ router.post(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
-      console.error('Create damage report error:', error)
+      logger.error('Create damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -252,7 +253,7 @@ router.put(
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
-      console.error('Update damage report error:', error)
+      logger.error('Update damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -285,7 +286,7 @@ router.patch(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update TripoSR status error:`, error)
+      logger.error(`Update TripoSR status error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -309,7 +310,7 @@ router.delete(
 
       res.json({ message: 'Damage report deleted successfully' })
     } catch (error) {
-      console.error('Delete damage report error:', error)
+      logger.error('Delete damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -399,7 +400,7 @@ router.post(
             size: file.size,
           })
         } catch (error: any) {
-          console.error(`Failed to upload file ${file.originalname}:`, error)
+          logger.error(`Failed to upload file ${file.originalname}:`, error)
           // Continue with other files even if one fails
         }
       }
@@ -418,7 +419,7 @@ router.post(
         successfulUploads: uploadedFiles.length,
       })
     } catch (error: any) {
-      console.error('Upload media error:', error)
+      logger.error('Upload media error:', error)
       res.status(500).json({
         error: 'Failed to upload media',
         details: error.message,

@@ -68,7 +68,13 @@ export const createRateLimiter = rateLimit({
 // CSRF PROTECTION
 // ============================================================================
 
-const CSRF_SECRET = process.env.CSRF_SECRET || 'your-csrf-secret-change-in-production';
+const CSRF_SECRET = (() => {
+  const secret = process.env.CSRF_SECRET;
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('CSRF_SECRET environment variable must be set in production');
+  }
+  return secret || 'dev-csrf-secret-' + process.pid;
+})();
 
 const {
   generateToken: generateCsrfToken,
@@ -309,7 +315,7 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
   // Log response
   res.on('finish', () => {
     const duration = Date.now() - startTime;
-    console.log(JSON.stringify({
+    logger.info(JSON.stringify({
       ...logData,
       statusCode: res.statusCode,
       duration,
@@ -317,7 +323,7 @@ export const securityLogger = (req: Request, res: Response, next: NextFunction):
 
     // Log security events
     if (res.statusCode === 401 || res.statusCode === 403) {
-      console.warn('SECURITY EVENT:', JSON.stringify({
+      logger.warn('SECURITY EVENT:', JSON.stringify({
         ...logData,
         statusCode: res.statusCode,
         event: res.statusCode === 401 ? 'UNAUTHORIZED_ACCESS' : 'FORBIDDEN_ACCESS',
@@ -384,7 +390,7 @@ export const filterSensitiveData = (data: any): any => {
  * Hides internal error details in production
  */
 export const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
-  console.error('Error:', err);
+  logger.error('Error:', err);
 
   const isDevelopment = process.env.NODE_ENV === 'development';
 

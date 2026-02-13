@@ -22,6 +22,8 @@ import { promisify } from 'util';
 import express, { Request, Response } from 'express';
 import { Pool } from 'pg';
 
+import { logger } from '../utils/logger';
+
 
 
 
@@ -87,7 +89,7 @@ const requireAdmin = (req: Request, res: Response, next: express.NextFunction) =
   }
 
   // Development mode allows through (with warning)
-  console.warn('⚠️  Admin endpoint accessed without authentication in development mode');
+  logger.warn('⚠️  Admin endpoint accessed without authentication in development mode');
   next();
 };
 

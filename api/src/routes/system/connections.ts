@@ -8,7 +8,8 @@
 import { Router } from 'express'
 import { Pool } from 'pg'
 import { createClient } from 'redis'
-import { authenticateJWT } from '../middleware/auth'
+import { authenticateJWT } from '../../middleware/auth'
+import { logger } from '../../utils/logger'
 
 const router = Router()
 
@@ -149,7 +150,7 @@ router.get('/connections', async (req, res) => {
       }
     })
   } catch (error: any) {
-    console.error('[System Connections] Error:', error)
+    logger.error('[System Connections] Error:', error)
     return res.status(500).json({
       error: 'Failed to fetch connections',
       message: error.message

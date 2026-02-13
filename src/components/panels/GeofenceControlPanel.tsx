@@ -323,13 +323,13 @@ export function GeofenceControlPanel({
 
     return (
         <>
-            <Card className="fixed top-24 right-6 w-96 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5 flex flex-col max-h-[calc(100vh-120px)]">
-                <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
-                <CardHeader className="pb-2 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40 shrink-0">
+            <Card className="fixed top-24 right-6 w-96 shadow-lg z-40 border border-border/50 bg-card/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-white/5 flex flex-col max-h-[calc(100vh-120px)]">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
+                <CardHeader className="pb-2 border-b border-border/50 flex flex-row items-center justify-between space-y-0 relative z-10 bg-card/60 shrink-0">
                     <div>
-                        <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800">
-                            <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/20">
-                                <MapPin className="text-blue-800 w-4 h-4" />
+                        <CardTitle className="text-base font-bold flex items-center gap-2 text-foreground">
+                            <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/30">
+                                <MapPin className="text-blue-200 w-4 h-4" />
                             </div>
                             Geofences
                         </CardTitle>
@@ -338,14 +338,14 @@ export function GeofenceControlPanel({
                         </p>
                     </div>
                     <div className="flex items-center gap-1">
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={() => {
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10 rounded-full" onClick={() => {
                             resetForm();
                             setIsAddDialogOpen(true);
                         }} aria-label="Add new geofence">
-                            <Plus className="w-4 h-4 text-slate-700" />
+                            <Plus className="w-4 h-4 text-muted-foreground" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-black/5 rounded-full" onClick={onClose} aria-label="Close geofence panel">
-                            <X className="w-4 h-4 text-slate-500" />
+                        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10 rounded-full" onClick={onClose} aria-label="Close geofence panel">
+                            <X className="w-4 h-4 text-muted-foreground" />
                         </Button>
                     </div>
                 </CardHeader>
@@ -389,7 +389,7 @@ export function GeofenceControlPanel({
                             filteredGeofences.map(geofence => (
                                 <div
                                     key={geofence.id}
-                                    className="p-3 rounded-lg border border-slate-200 bg-white/50 hover:bg-white hover:border-slate-300 transition-all group"
+                                    className="p-3 rounded-lg border border-border/50 bg-card/70 hover:bg-card/90 hover:border-border/70 transition-all group"
                                 >
                                     <div className="flex items-start justify-between">
                                         <div className="flex items-center gap-2">
@@ -489,7 +489,7 @@ export function GeofenceControlPanel({
                         </div>
 
                         {newGeofence.type === "circle" && (
-                            <div className="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-md border">
+                        <div className="grid grid-cols-3 gap-2 bg-muted/30 p-3 rounded-md border border-border/50">
                                 <div className="space-y-2">
                                     <Label htmlFor="center-lat" className="text-xs">Latitude</Label>
                                     <Input

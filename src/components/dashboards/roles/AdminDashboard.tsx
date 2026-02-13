@@ -13,6 +13,7 @@ import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, D
 import React, { useState } from 'react';
 // motion removed - React 19 incompatible
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -105,40 +106,42 @@ export function AdminDashboard() {
     }
   ]);
 
+  const navigate = useNavigate();
+
   // Quick actions
   const handleAddUser = () => {
     toast.success('Opening new user creation form...');
-    // TODO: Open user creation dialog
+    navigate('/admin?tab=users');
   };
 
   const handleViewAuditLogs = () => {
     toast('Loading audit logs...');
-    // TODO: Navigate to audit logs page
+    navigate('/admin?tab=audit');
   };
 
   const handleGenerateReport = () => {
     toast.success('Generating executive report...');
-    // TODO: Generate and download report
+    navigate('/reports');
   };
 
   const handleConfigureSettings = () => {
     toast('Opening system configuration...');
-    // TODO: Navigate to settings page
+    navigate('/settings');
   };
 
   const handleExportData = () => {
     toast.success('Preparing data export...');
-    // TODO: Export all system data
+    navigate('/admin?tab=data');
   };
 
   const handleViewUsers = () => {
     toast('Loading user management interface...');
-    // TODO: Navigate to user management
+    navigate('/admin?tab=users');
   };
 
   const handleViewSecurityAlerts = () => {
     toast('Loading security alerts...');
-    // TODO: Navigate to security dashboard
+    navigate('/admin?tab=security');
   };
 
   const getHealthStatusColor = (status: string) => {

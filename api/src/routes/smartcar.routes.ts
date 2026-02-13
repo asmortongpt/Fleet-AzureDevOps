@@ -25,12 +25,12 @@ try {
       process.env.SMARTCAR_CLIENT_SECRET &&
       process.env.SMARTCAR_REDIRECT_URI) {
     smartcarService = new SmartcarService(pool)
-    console.log('✅ Smartcar service initialized')
+    logger.info('✅ Smartcar service initialized')
   } else if (process.env.SMARTCAR_CLIENT_ID) {
-    console.warn('⚠️  Smartcar partially configured - missing SMARTCAR_REDIRECT_URI or SMARTCAR_CLIENT_SECRET')
+    logger.warn('⚠️  Smartcar partially configured - missing SMARTCAR_REDIRECT_URI or SMARTCAR_CLIENT_SECRET')
   }
 } catch (error: any) {
-  console.warn('⚠️  Smartcar service not initialized:', error.message)
+  logger.warn('⚠️  Smartcar service not initialized:', error.message)
 }
 
 /**
@@ -117,7 +117,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     // SECURITY: Validate vehicle_id is a valid integer to prevent path traversal
     const parsedVehicleId = parseInt(vehicle_id, 10)
     if (isNaN(parsedVehicleId) || parsedVehicleId <= 0) {
-      console.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
+      logger.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
       const safeErrorUrl = buildSafeRedirectUrl(`/vehicles`, {
         error: 'invalid_state',
         message: 'Invalid vehicle identifier'

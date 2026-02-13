@@ -27,10 +27,10 @@ let samsaraService: SamsaraService | null = null
 try {
   if (process.env.SAMSARA_API_TOKEN) {
     samsaraService = new SamsaraService(pool)
-    console.log('✅ Samsara service initialized')
+    logger.info('✅ Samsara service initialized')
   }
 } catch (error: any) {
-  console.warn('⚠️  Samsara service not initialized:', getErrorMessage(error))
+  logger.warn('⚠️  Samsara service not initialized:', getErrorMessage(error))
 }
 
 /**

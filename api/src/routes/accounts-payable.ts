@@ -15,6 +15,7 @@ import {
   APQueryOptions,
   CreateDepreciationInput
 } from '../types/accounts-payable';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -54,7 +55,7 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
     const result = await apAgingService.listAP(options);
     res.json(result);
   } catch (error) {
-    console.error('Error listing AP records:', error);
+    logger.error('Error listing AP records:', error);
     res.status(500).json({ error: 'Failed to list AP records', details: String(error) });
   }
 });
@@ -84,7 +85,7 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
     const ap = await apAgingService.createAP(input);
     res.status(201).json(ap);
   } catch (error) {
-    console.error('Error creating AP record:', error);
+    logger.error('Error creating AP record:', error);
     res.status(500).json({ error: 'Failed to create AP record', details: String(error) });
   }
 });
@@ -104,7 +105,7 @@ router.post('/:id/pay', authenticateJWT, async (req: Request, res: Response) => 
     const updatedAP = await apAgingService.recordPayment(id, payment);
     res.json(updatedAP);
   } catch (error) {
-    console.error('Error recording payment:', error);
+    logger.error('Error recording payment:', error);
     res.status(500).json({ error: 'Failed to record payment', details: String(error) });
   }
 });
@@ -124,7 +125,7 @@ router.get('/aging-report', authenticateJWT, async (req: Request, res: Response)
     const report = await apAgingService.generateAgingReport(tenantId);
     res.json(report);
   } catch (error) {
-    console.error('Error generating aging report:', error);
+    logger.error('Error generating aging report:', error);
     res.status(500).json({ error: 'Failed to generate aging report', details: String(error) });
   }
 });
@@ -145,7 +146,7 @@ router.get('/cash-flow-forecast', authenticateJWT, async (req: Request, res: Res
     const forecast = await apAgingService.generateCashFlowForecast(tenantId, daysAhead);
     res.json(forecast);
   } catch (error) {
-    console.error('Error generating cash flow forecast:', error);
+    logger.error('Error generating cash flow forecast:', error);
     res.status(500).json({ error: 'Failed to generate forecast', details: String(error) });
   }
 });
@@ -165,7 +166,7 @@ router.get('/overdue', authenticateJWT, async (req: Request, res: Response) => {
     const overdueInvoices = await apAgingService.getOverdueInvoices(tenantId);
     res.json(overdueInvoices);
   } catch (error) {
-    console.error('Error fetching overdue invoices:', error);
+    logger.error('Error fetching overdue invoices:', error);
     res.status(500).json({ error: 'Failed to fetch overdue invoices', details: String(error) });
   }
 });
@@ -190,7 +191,7 @@ router.get('/metrics', authenticateJWT, async (req: Request, res: Response) => {
       days_payable_outstanding: dpo
     });
   } catch (error) {
-    console.error('Error fetching AP metrics:', error);
+    logger.error('Error fetching AP metrics:', error);
     res.status(500).json({ error: 'Failed to fetch metrics', details: String(error) });
   }
 });
@@ -210,7 +211,7 @@ router.get('/discount-opportunities', authenticateJWT, async (req: Request, res:
     const opportunities = await apAgingService.getDiscountOpportunities(tenantId);
     res.json(opportunities);
   } catch (error) {
-    console.error('Error fetching discount opportunities:', error);
+    logger.error('Error fetching discount opportunities:', error);
     res.status(500).json({ error: 'Failed to fetch opportunities', details: String(error) });
   }
 });
@@ -232,7 +233,7 @@ router.get('/vendor/:vendorId/history', authenticateJWT, async (req: Request, re
       average_days_to_pay: avgDaysToPay
     });
   } catch (error) {
-    console.error('Error fetching vendor payment history:', error);
+    logger.error('Error fetching vendor payment history:', error);
     res.status(500).json({ error: 'Failed to fetch payment history', details: String(error) });
   }
 });
@@ -260,7 +261,7 @@ router.post('/depreciation', authenticateJWT, async (req: Request, res: Response
     const depreciation = await depreciationService.createDepreciation(input);
     res.status(201).json(depreciation);
   } catch (error) {
-    console.error('Error creating depreciation record:', error);
+    logger.error('Error creating depreciation record:', error);
     res.status(500).json({ error: 'Failed to create depreciation record', details: String(error) });
   }
 });
@@ -287,7 +288,7 @@ router.post('/depreciation/:id/calculate', authenticateJWT, async (req: Request,
 
     res.json(result);
   } catch (error) {
-    console.error('Error calculating depreciation:', error);
+    logger.error('Error calculating depreciation:', error);
     res.status(500).json({ error: 'Failed to calculate depreciation', details: String(error) });
   }
 });
@@ -302,7 +303,7 @@ router.get('/depreciation/:id/schedule', authenticateJWT, async (req: Request, r
     const schedule = await depreciationService.getDepreciationSchedule(id);
     res.json(schedule);
   } catch (error) {
-    console.error('Error fetching depreciation schedule:', error);
+    logger.error('Error fetching depreciation schedule:', error);
     res.status(500).json({ error: 'Failed to fetch schedule', details: String(error) });
   }
 });
@@ -319,7 +320,7 @@ router.get('/depreciation/:id/project', authenticateJWT, async (req: Request, re
     const projection = await depreciationService.projectDepreciationSchedule(id, periods);
     res.json(projection);
   } catch (error) {
-    console.error('Error projecting depreciation:', error);
+    logger.error('Error projecting depreciation:', error);
     res.status(500).json({ error: 'Failed to project depreciation', details: String(error) });
   }
 });
@@ -341,7 +342,7 @@ router.get('/depreciation/monthly-journal', authenticateJWT, async (req: Request
     const journal = await depreciationService.generateMonthlyJournal(tenantId, year, month);
     res.json(journal);
   } catch (error) {
-    console.error('Error generating monthly journal:', error);
+    logger.error('Error generating monthly journal:', error);
     res.status(500).json({ error: 'Failed to generate journal', details: String(error) });
   }
 });
@@ -361,7 +362,7 @@ router.get('/depreciation/summary', authenticateJWT, async (req: Request, res: R
     const summary = await depreciationService.getDepreciationSummary(tenantId);
     res.json(summary);
   } catch (error) {
-    console.error('Error fetching depreciation summary:', error);
+    logger.error('Error fetching depreciation summary:', error);
     res.status(500).json({ error: 'Failed to fetch summary', details: String(error) });
   }
 });

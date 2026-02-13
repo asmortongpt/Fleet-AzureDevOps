@@ -6,6 +6,7 @@ import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
+import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 
@@ -72,7 +73,7 @@ router.get(
         }
       })
     } catch (error) {
-      console.error(`Get charging-sessions error:`, error)
+      logger.error(`Get charging-sessions error:`, error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -123,7 +124,7 @@ router.get(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error('Get charging-sessions error:', error)
+      logger.error('Get charging-sessions error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -151,7 +152,7 @@ router.post(
 
       res.status(201).json(result.rows[0])
     } catch (error) {
-      console.error(`Create charging-sessions error:`, error)
+      logger.error(`Create charging-sessions error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -178,7 +179,7 @@ router.put(
 
       res.json(result.rows[0])
     } catch (error) {
-      console.error(`Update charging-sessions error:`, error)
+      logger.error(`Update charging-sessions error:`, error)
       res.status(500).json({ error: `Internal server error` })
     }
   }
@@ -202,7 +203,7 @@ router.delete(
 
       res.json({ message: 'ChargingSessions deleted successfully' })
     } catch (error) {
-      console.error('Delete charging-sessions error:', error)
+      logger.error('Delete charging-sessions error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

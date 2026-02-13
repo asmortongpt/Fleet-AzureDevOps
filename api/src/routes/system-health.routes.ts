@@ -6,6 +6,7 @@
 import { Router } from 'express';
 
 import { connectionHealthService } from '../services/ConnectionHealthService';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.get('/', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting health:', error);
+    logger.error('[SystemHealth] Error getting health:', error);
     res.status(503).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -57,7 +58,7 @@ router.get('/connections', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting connections:', error);
+    logger.error('[SystemHealth] Error getting connections:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -85,7 +86,7 @@ router.get('/memory', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting memory:', error);
+    logger.error('[SystemHealth] Error getting memory:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -110,7 +111,7 @@ router.get('/uptime', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting uptime:', error);
+    logger.error('[SystemHealth] Error getting uptime:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -148,7 +149,7 @@ router.get('/metrics', async (req, res) => {
       timestamp: new Date(),
     });
   } catch (error) {
-    console.error('[SystemHealth] Error getting metrics:', error);
+    logger.error('[SystemHealth] Error getting metrics:', error);
     res.status(500).json({
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',

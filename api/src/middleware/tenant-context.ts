@@ -59,7 +59,7 @@ export const setTenantContext = async (
 
   // Validate tenant_id exists in JWT token
   if (!req.user.tenant_id) {
-    console.error('❌ TENANT CONTEXT - No tenant_id in JWT token', {
+    logger.error('❌ TENANT CONTEXT - No tenant_id in JWT token', {
       userId: req.user.id,
       email: req.user.email,
       role: req.user.role
@@ -75,7 +75,7 @@ export const setTenantContext = async (
   // Validate tenant_id is a valid UUID format
   const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
   if (!uuidRegex.test(req.user.tenant_id)) {
-    console.error('❌ TENANT CONTEXT - Invalid tenant_id format', {
+    logger.error('❌ TENANT CONTEXT - Invalid tenant_id format', {
       tenantId: req.user.tenant_id,
       userId: req.user.id
     })
@@ -132,14 +132,14 @@ export const setTenantContext = async (
     // Also handle premature close
     res.on('close', cleanup)
 
-    console.log('✅ TENANT CONTEXT - Database client initialized with transaction', {
+    logger.info('✅ TENANT CONTEXT - Database client initialized with transaction', {
       tenantId: req.user.tenant_id,
       userId: req.user.id
     })
 
     next()
   } catch (error) {
-    console.error('❌ TENANT CONTEXT - Failed to initialize database client', {
+    logger.error('❌ TENANT CONTEXT - Failed to initialize database client', {
       error: error instanceof Error ? error.message : 'Unknown error',
       tenantId: req.user.tenant_id,
       userId: req.user.id
@@ -286,7 +286,7 @@ export const requireTenantContext = async (
     const sessionTenantId = result.rows[0]?.tenant_id
 
     if (!sessionTenantId) {
-      console.error('❌ TENANT CONTEXT - Session variable not set', {
+      logger.error('❌ TENANT CONTEXT - Session variable not set', {
         userId: req.user?.id,
         jwtTenantId: req.user?.tenant_id,
         path: req.path
@@ -301,7 +301,7 @@ export const requireTenantContext = async (
 
     // Verify JWT tenant matches session tenant (defense in depth)
     if (req.user?.tenant_id !== sessionTenantId) {
-      console.error('❌ TENANT CONTEXT - Mismatch detected', {
+      logger.error('❌ TENANT CONTEXT - Mismatch detected', {
         jwtTenantId: req.user?.tenant_id,
         sessionTenantId,
         userId: req.user?.id

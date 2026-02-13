@@ -11,6 +11,7 @@ import { QueryContext } from '../repositories/BaseRepository';
 import { PersonalUsePoliciesRepository } from '../repositories/PersonalUsePoliciesRepository';
 import { TYPES } from '../types';
 import { ApprovalWorkflow, DriverUsageLimits } from '../types/trip-usage';
+import { logger } from '../utils/logger';
 
 const router = express.Router();
 router.use(authenticateJWT);
@@ -115,7 +116,7 @@ router.get(
 	        data: policy
 	      });
 	    } catch (error: any) {
-	      console.error('Get policy error:', error);
+	      logger.error('Get policy error:', error);
 	      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
 	    }
 	  }
@@ -184,7 +185,7 @@ router.put(
           : 'Personal use policy created successfully'
       });
     } catch (error: any) {
-      console.error('Update policy error:', error);
+      logger.error('Update policy error:', error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid request data', details: error.issues });
       }
@@ -297,7 +298,7 @@ router.get(
         data: response
       });
     } catch (error: any) {
-      console.error('Get usage limits error:', error);
+      logger.error('Get usage limits error:', error);
       res.status(500).json({ error: 'Failed to calculate usage limits' });
     }
   }
@@ -351,7 +352,7 @@ router.get(
         }
       });
     } catch (error: any) {
-      console.error('Get drivers at limit error:', error);
+      logger.error('Get drivers at limit error:', error);
       res.status(500).json({ error: 'Failed to retrieve drivers at limit' });
     }
   }

@@ -9,6 +9,7 @@ import { createClient } from 'redis'
 import { db } from '../db'
 import { authenticateJWT } from '../middleware/auth'
 import { tenantSafeQuery } from '../utils/dbHelpers'
+import { logger } from '../utils/logger'
 
 const router = Router()
 
@@ -76,7 +77,7 @@ router.get('/fleet-summary', async (req: Request, res: Response) => {
             model: 'gpt-4' // Placeholder for future AI integration
         })
     } catch (error) {
-        console.error('Error generating fleet summary:', error)
+        logger.error('Error generating fleet summary:', error)
         res.status(500).json({ error: 'Internal server error', details: String(error) })
     }
 })
@@ -89,7 +90,7 @@ const redisClient = createClient({
     url: process.env.REDIS_URL || 'redis://localhost:6379',
 })
 
-redisClient.on('error', (err) => console.error('Redis Client Error', err))
+redisClient.on('error', (err) => logger.error('Redis Client Error', err))
 
 // Initialize Redis connection
 const initRedis = async () => {
@@ -125,14 +126,14 @@ const cacheMiddleware = (keyPrefix: string) => {
             // Override json function to cache response
             res.json = function (body: any) {
                 if (res.statusCode === 200) {
-                    redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(body)).catch(console.error)
+                    redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(body)).catch(logger.error)
                 }
                 return originalJson(body)
             } as any
 
             next()
         } catch (error) {
-            console.error('Cache middleware error:', error)
+            logger.error('Cache middleware error:', error)
             next()
         }
     }
@@ -295,7 +296,7 @@ router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Req
             generatedAt: new Date().toISOString(),
         })
     } catch (error) {
-        console.error('Error generating analytics dashboard:', error)
+        logger.error('Error generating analytics dashboard:', error)
         res.status(500).json({ error: 'Internal server error', details: String(error) })
     }
 })
@@ -372,7 +373,7 @@ router.get('/cost', cacheMiddleware('analytics:cost'), async (req: Request, res:
             },
         })
     } catch (error) {
-        console.error('Error fetching cost analytics:', error)
+        logger.error('Error fetching cost analytics:', error)
         res.status(500).json({ error: 'Failed to fetch cost analytics' })
     }
 })
@@ -477,7 +478,7 @@ router.get('/efficiency', cacheMiddleware('analytics:efficiency'), async (req: R
             },
         })
     } catch (error) {
-        console.error('Error fetching efficiency analytics:', error)
+        logger.error('Error fetching efficiency analytics:', error)
         res.status(500).json({ error: 'Failed to fetch efficiency analytics' })
     }
 })
@@ -610,7 +611,7 @@ router.get('/kpis', cacheMiddleware('analytics:kpis'), async (req: Request, res:
             },
         })
     } catch (error) {
-        console.error('Error fetching fleet KPIs:', error)
+        logger.error('Error fetching fleet KPIs:', error)
         res.status(500).json({ error: 'Failed to fetch fleet KPIs' })
     }
 })
@@ -762,7 +763,7 @@ router.get('/overview', cacheMiddleware('analytics:overview'), async (req: Reque
             },
         })
     } catch (error) {
-        console.error('Error fetching analytics overview:', error)
+        logger.error('Error fetching analytics overview:', error)
         res.status(500).json({ error: 'Failed to fetch analytics overview' })
     }
 })
@@ -889,7 +890,7 @@ router.get('/performance', cacheMiddleware('analytics:performance'), async (req:
             },
         })
     } catch (error) {
-        console.error('Error fetching performance analytics:', error)
+        logger.error('Error fetching performance analytics:', error)
         res.status(500).json({ error: 'Failed to fetch performance analytics' })
     }
 })
@@ -983,7 +984,7 @@ router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (re
             },
         })
     } catch (error) {
-        console.error('Error fetching cost trends:', error)
+        logger.error('Error fetching cost trends:', error)
         res.status(500).json({ error: 'Failed to fetch cost trends' })
     }
 })
@@ -1006,7 +1007,7 @@ router.delete('/cache', async (req: Request, res: Response) => {
             message: `Cleared ${keys.length} cache entries`,
         })
     } catch (error) {
-        console.error('Error clearing cache:', error)
+        logger.error('Error clearing cache:', error)
         res.status(500).json({ error: 'Failed to clear cache' })
     }
 })
