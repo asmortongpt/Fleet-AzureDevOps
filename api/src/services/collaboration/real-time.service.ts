@@ -17,6 +17,7 @@ import jwt from 'jsonwebtoken'
 import { Pool } from 'pg'
 import { Server as SocketIOServer } from 'socket.io'
 
+import logger from '../../config/logger'
 import { pool } from '../../db/connection';
 
 // Allowlist of valid comment tables
@@ -107,7 +108,7 @@ export class CollaborationService {
 
     this.io.on(`connection`, (socket) => {
       const user = socket.data.user
-      console.log(`User connected: ${user.email} (${socket.id})`)
+      logger.info('User connected', { email: user.email, socketId: socket.id })
 
       // Register user
       this.activeUsers.set(socket.id, {
@@ -154,7 +155,7 @@ export class CollaborationService {
       })
     })
 
-    console.log('✨ Real-time collaboration service initialized')
+    logger.info('Real-time collaboration service initialized')
   }
 
   /**
@@ -360,7 +361,7 @@ return
     // Remove from active users
     this.activeUsers.delete(socket.id)
 
-    console.log(`User disconnected: ${user.userName}`)
+    logger.info('User disconnected', { userName: user.userName })
   }
 
   /**
@@ -498,7 +499,7 @@ return
         ]
       )
     } catch (error) {
-      console.error(`Failed to track activity:`, error)
+      logger.error('Failed to track activity', { error: error instanceof Error ? error.message : String(error) })
     }
   }
 }

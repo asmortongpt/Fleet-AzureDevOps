@@ -9,6 +9,8 @@ import { EventEmitter } from 'events'
 
 import { Pool, QueryResult } from 'pg'
 
+import logger from '../config/logger'
+
 interface QueryMetrics {
   query: string
   params?: any[]
@@ -47,7 +49,7 @@ export class QueryPerformanceService extends EventEmitter {
       this.maxMetricsHistory = options.maxMetricsHistory
     }
 
-    console.log(`✅ Query Performance Monitoring initialized (slow query threshold: ${this.slowQueryThreshold}ms)`)
+    logger.info('Query Performance Monitoring initialized', { slowQueryThreshold: this.slowQueryThreshold })
   }
 
   /**
@@ -93,7 +95,7 @@ export class QueryPerformanceService extends EventEmitter {
             poolType
           })
 
-          console.warn(`🐌 Slow query detected (${duration}ms, ${poolType}):`, this.sanitizeQuery(query).substring(0, 100))
+          logger.warn('Slow query detected', { duration, poolType, query: this.sanitizeQuery(query).substring(0, 100) })
         }
 
         return result
@@ -344,7 +346,7 @@ export class QueryPerformanceService extends EventEmitter {
    */
   clearMetrics(): void {
     this.queryMetrics = []
-    console.log(`Query metrics cleared`)
+    logger.info('Query metrics cleared')
   }
 
   /**
@@ -352,7 +354,7 @@ export class QueryPerformanceService extends EventEmitter {
    */
   setEnabled(enabled: boolean): void {
     this.enabled = enabled
-    console.log(`Query performance monitoring ${enabled ? 'enabled' : 'disabled'}`)
+    logger.info('Query performance monitoring status changed', { enabled })
   }
 
   /**

@@ -13,6 +13,7 @@
 
 import { Pool } from 'pg'
 
+import logger from '../../config/logger'
 import { buildUpdateClause } from '../../utils/sql-safety'
 
 // Allowlist of valid entity tables
@@ -346,7 +347,7 @@ return true
       try {
         await this.executeAction(action, context)
       } catch (error) {
-        console.error('Error executing rule action:', error)
+        logger.error('Error executing rule action', { error: error instanceof Error ? error.message : String(error) })
       }
     }
   }
@@ -408,7 +409,7 @@ return true
     context: any
   ): Promise<void> {
     // Implementation for sending notifications
-    console.log(`Sending notification:`, parameters)
+    logger.info('Sending notification', { parameters })
   }
 
   private async createTaskAction(
@@ -436,7 +437,7 @@ return true
     parameters: Record<string, any>
   ): Promise<void> {
     // Implementation for escalation logic
-    console.log('Escalating:', entityType, entityId, parameters)
+    logger.info('Escalating', { entityType, entityId, parameters })
   }
 
   private async webhookAction(
@@ -444,7 +445,7 @@ return true
     context: any
   ): Promise<void> {
     // Implementation for webhook calls
-    console.log('Calling webhook:', parameters.url)
+    logger.info('Calling webhook', { url: parameters.url })
   }
 
   private async aiAction(
@@ -452,7 +453,7 @@ return true
     context: any
   ): Promise<void> {
     // Implementation for AI-powered actions
-    console.log('Executing AI action:', parameters)
+    logger.info('Executing AI action', { parameters })
   }
 
   /**

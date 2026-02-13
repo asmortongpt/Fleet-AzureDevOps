@@ -17,6 +17,8 @@ import crypto, { createCipheriv, createDecipheriv, CipherGCM, DecipherGCM } from
 import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
 
+import logger from '../../config/logger'
+
 /**
  * Audit event severity levels
  */
@@ -203,7 +205,7 @@ export class AuditLogger {
 
       return result.rows[0].id
     } catch (error) {
-      console.error('Failed to log audit event:', error)
+      logger.error('Failed to log audit event', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Audit logging failed')
     }
   }
@@ -295,7 +297,7 @@ export class AuditLogger {
 
       return result.rows.map(row => this.decryptLogEntry(row))
     } catch (error) {
-      console.error('Failed to retrieve audit logs:', error)
+      logger.error('Failed to retrieve audit logs', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Audit log retrieval failed')
     }
   }
@@ -347,7 +349,7 @@ export class AuditLogger {
 
       return calculatedChecksum === checksum
     } catch (error) {
-      console.error('Failed to verify log integrity:', error)
+      logger.error('Failed to verify log integrity', { error: error instanceof Error ? error.message : String(error) })
       return false
     }
   }
@@ -414,7 +416,7 @@ export class AuditLogger {
         }))
       }
     } catch (error) {
-      console.error('Failed to get audit statistics:', error)
+      logger.error('Failed to get audit statistics', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Audit statistics retrieval failed')
     }
   }
@@ -582,7 +584,7 @@ export class AuditLogger {
         checksum: row.checksum
       }
     } catch (error) {
-      console.error('Failed to decrypt audit log:', error)
+      logger.error('Failed to decrypt audit log', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Log decryption failed')
     }
   }

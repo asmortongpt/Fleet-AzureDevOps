@@ -3,13 +3,15 @@
  * Auto-generated stub - implement methods
  */
 
+import logger from '../config/logger';
+
 export class MLDecisionEngineService {
 
   /**
    * Predict maintenance needs
    */
   static async predictMaintenance(vehicleId: string): Promise<any> {
-    console.log('MLDecisionEngineService.predictMaintenance stub', vehicleId);
+    logger.info('MLDecisionEngineService.predictMaintenance stub', { vehicleId });
     return {
       vehicleId,
       predictions: [
@@ -27,7 +29,7 @@ export class MLDecisionEngineService {
    * Score driver behavior
    */
   static async scoreDriverBehavior(driverId: string): Promise<number> {
-    console.log('MLDecisionEngineService.scoreDriverBehavior stub', driverId);
+    logger.info('MLDecisionEngineService.scoreDriverBehavior stub', { driverId });
     return 78; // Mock driver score
   }
 
@@ -35,7 +37,7 @@ export class MLDecisionEngineService {
    * Predict incident risk
    */
   static async predictIncidentRisk(vehicleId: string): Promise<any> {
-    console.log('MLDecisionEngineService.predictIncidentRisk stub', vehicleId);
+    logger.info('MLDecisionEngineService.predictIncidentRisk stub', { vehicleId });
     return {
       vehicleId,
       riskScore: 0.35,
@@ -48,7 +50,7 @@ export class MLDecisionEngineService {
    * Forecast costs
    */
   static async forecastCosts(tenantId: string, months: number): Promise<any> {
-    console.log('MLDecisionEngineService.forecastCosts stub', tenantId, months);
+    logger.info('MLDecisionEngineService.forecastCosts stub', { tenantId, months });
     return {
       tenantId,
       months,
@@ -64,7 +66,7 @@ export class MLDecisionEngineService {
    * Record actual outcome for ML training
    */
   static async recordActualOutcome(predictionId: string, outcome: any): Promise<void> {
-    console.log('MLDecisionEngineService.recordActualOutcome stub', predictionId, outcome);
+    logger.info('MLDecisionEngineService.recordActualOutcome stub', { predictionId, outcome });
     // Implementation needed - would store outcome for model training
   }
 

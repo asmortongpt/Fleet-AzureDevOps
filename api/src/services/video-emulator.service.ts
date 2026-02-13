@@ -13,6 +13,7 @@ import { EventEmitter } from 'events';
 
 import { DashCamEmulator, DashCamConfig, VideoFile, EventTrigger } from '../emulators/video/DashCamEmulator';
 import { VideoTelematicsEmulator, VideoEvent } from '../emulators/video/VideoTelematicsEmulator';
+import logger from '../config/logger';
 
 export interface VideoEmulatorServiceConfig {
   defaultDashCamConfig: Partial<DashCamConfig>;
@@ -79,11 +80,11 @@ export class VideoEmulatorService extends EventEmitter {
    */
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.log('[VideoEmulatorService] Already initialized');
+      logger.info('[VideoEmulatorService] Already initialized');
       return;
     }
 
-    console.log('[VideoEmulatorService] Initializing...');
+    logger.info('[VideoEmulatorService] Initializing...');
 
     // Initialize video telematics emulator
     this.telematicsEmulator = new VideoTelematicsEmulator({
@@ -105,7 +106,7 @@ export class VideoEmulatorService extends EventEmitter {
     this.isInitialized = true;
     this.serviceStartTime = new Date();
 
-    console.log('[VideoEmulatorService] Initialized successfully');
+    logger.info('[VideoEmulatorService] Initialized successfully');
 
     this.emit('service-initialized', {
       timestamp: new Date()
@@ -157,7 +158,7 @@ export class VideoEmulatorService extends EventEmitter {
     // Store the emulator
     this.dashCamEmulators.set(vehicleId, emulator);
 
-    console.log(`[VideoEmulatorService] Started DashCam for vehicle ${vehicleId}`);
+    logger.info('[VideoEmulatorService] Started DashCam for vehicle', { vehicleId });
 
     // Register vehicle with telematics
     if (this.telematicsEmulator) {
@@ -189,7 +190,7 @@ export class VideoEmulatorService extends EventEmitter {
     await emulator.stop();
     this.dashCamEmulators.delete(vehicleId);
 
-    console.log(`[VideoEmulatorService] Stopped DashCam for vehicle ${vehicleId}`);
+    logger.info('[VideoEmulatorService] Stopped DashCam for vehicle', { vehicleId });
 
     this.emit('dashcam-stopped', {
       vehicleId,
@@ -212,7 +213,7 @@ export class VideoEmulatorService extends EventEmitter {
 
     const videos = emulator.triggerEvent(eventType, eventId);
 
-    console.log(`[VideoEmulatorService] Triggered ${eventType} event on vehicle ${vehicleId}`);
+    logger.info('[VideoEmulatorService] Triggered event on vehicle', { eventType, vehicleId });
 
     this.emit('dashcam-event-triggered', {
       vehicleId,
@@ -235,7 +236,7 @@ export class VideoEmulatorService extends EventEmitter {
 
     this.telematicsEmulator.start();
 
-    console.log('[VideoEmulatorService] Started Video Telematics emulator');
+    logger.info('[VideoEmulatorService] Started Video Telematics emulator');
 
     this.emit('telematics-started', {
       timestamp: new Date()
@@ -252,7 +253,7 @@ export class VideoEmulatorService extends EventEmitter {
 
     this.telematicsEmulator.stop();
 
-    console.log('[VideoEmulatorService] Stopped Video Telematics emulator');
+    logger.info('[VideoEmulatorService] Stopped Video Telematics emulator');
 
     this.emit('telematics-stopped', {
       timestamp: new Date()
@@ -274,7 +275,7 @@ export class VideoEmulatorService extends EventEmitter {
 
     this.mobileUploads.push(mobileUpload);
 
-    console.log(`[VideoEmulatorService] Simulating mobile upload: ${mobileUpload.id}`);
+    logger.info('[VideoEmulatorService] Simulating mobile upload', { uploadId: mobileUpload.id });
 
     this.emit('mobile-upload-started', {
       upload: mobileUpload,
@@ -439,7 +440,7 @@ export class VideoEmulatorService extends EventEmitter {
    * Stop all emulators
    */
   async stopAll(): Promise<void> {
-    console.log('[VideoEmulatorService] Stopping all emulators...');
+    logger.info('[VideoEmulatorService] Stopping all emulators...');
 
     // Stop all dashcams
     const stopPromises: Promise<void>[] = [];
@@ -454,7 +455,7 @@ export class VideoEmulatorService extends EventEmitter {
 
     await Promise.all(stopPromises);
 
-    console.log('[VideoEmulatorService] All emulators stopped');
+    logger.info('[VideoEmulatorService] All emulators stopped');
 
     this.emit('all-stopped', {
       timestamp: new Date()
@@ -518,7 +519,7 @@ export class VideoEmulatorService extends EventEmitter {
         const trigger = triggerMap[event.eventType];
         if (trigger) {
           this.triggerDashCamEvent(event.vehicleId, trigger, event.id).catch(err => {
-            console.error(`Failed to trigger dashcam event:`, err);
+            logger.error('Failed to trigger dashcam event', { error: err instanceof Error ? err.message : String(err) });
           });
         }
       }
@@ -545,7 +546,7 @@ export function getVideoEmulatorService(config?: VideoEmulatorServiceConfig): Vi
 
 export function resetVideoEmulatorService(): void {
   if (videoEmulatorServiceInstance) {
-    videoEmulatorServiceInstance.stopAll().catch(console.error);
+    videoEmulatorServiceInstance.stopAll().catch((err) => logger.error('Failed to stop video emulator service', { error: err instanceof Error ? err.message : String(err) }));
     videoEmulatorServiceInstance = null;
   }
 }

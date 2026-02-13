@@ -7,6 +7,7 @@ import { EventEmitter } from 'events';
 
 import Redis from 'ioredis';
 
+import logger from '../config/logger';
 import { checkDatabaseConnection } from '../db/connection';
 
 export interface ConnectionStatus {
@@ -58,7 +59,7 @@ export class ConnectionHealthService extends EventEmitter {
    * Initialize connection health monitoring
    */
   public async initialize(): Promise<void> {
-    console.log('[ConnectionHealthService] Initializing...');
+    logger.info('[ConnectionHealthService] Initializing...');
 
     // Initialize Redis connection if configured
     const redisUrl = process.env.REDIS_URL;
@@ -71,22 +72,22 @@ export class ConnectionHealthService extends EventEmitter {
         });
 
         await this.redis.connect();
-        console.log('[ConnectionHealthService] Redis connected');
+        logger.info('[ConnectionHealthService] Redis connected');
       } catch (error) {
-        console.warn('[ConnectionHealthService] Redis connection failed:', error);
+        logger.warn('[ConnectionHealthService] Redis connection failed', { error: error instanceof Error ? error.message : String(error) });
         this.redis = null;
       }
     }
 
     // Start periodic health checks (every 30 seconds)
     this.checkInterval = setInterval(() => {
-      this.performHealthCheck().catch(console.error);
+      this.performHealthCheck().catch((err) => logger.error('[ConnectionHealthService] Health check failed', { error: err instanceof Error ? err.message : String(err) }));
     }, 30000);
 
     // Perform initial health check
     await this.performHealthCheck();
 
-    console.log('[ConnectionHealthService] Initialized');
+    logger.info('[ConnectionHealthService] Initialized');
   }
 
   /**
@@ -386,7 +387,7 @@ export class ConnectionHealthService extends EventEmitter {
    * Shutdown the service
    */
   public async shutdown(): Promise<void> {
-    console.log('[ConnectionHealthService] Shutting down...');
+    logger.info('[ConnectionHealthService] Shutting down...');
 
     if (this.checkInterval) {
       clearInterval(this.checkInterval);
@@ -399,7 +400,7 @@ export class ConnectionHealthService extends EventEmitter {
     }
 
     this.removeAllListeners();
-    console.log('[ConnectionHealthService] Shutdown complete');
+    logger.info('[ConnectionHealthService] Shutdown complete');
   }
 }
 

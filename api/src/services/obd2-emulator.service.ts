@@ -14,6 +14,8 @@
 
 import { EventEmitter } from 'events'
 
+import logger from '../config/logger'
+
 // Vehicle profile types
 export type VehicleProfile = 'sedan' | 'truck' | 'electric' | 'diesel' | 'sports'
 
@@ -242,7 +244,7 @@ export class OBD2EmulatorService extends EventEmitter {
     this.sessions.set(config.sessionId, session)
     session.start()
 
-    console.log(`[OBD2 Emulator] Started session ${config.sessionId} with profile ${config.profile}`)
+    logger.info('[OBD2 Emulator] Started session', { sessionId: config.sessionId, profile: config.profile })
 
     return session
   }
@@ -255,7 +257,7 @@ export class OBD2EmulatorService extends EventEmitter {
     if (session) {
       session.stop()
       this.sessions.delete(sessionId)
-      console.log(`[OBD2 Emulator] Stopped session ${sessionId}`)
+      logger.info('[OBD2 Emulator] Stopped session', { sessionId })
     }
   }
 
@@ -279,7 +281,7 @@ export class OBD2EmulatorService extends EventEmitter {
    */
   registerWSClient(clientId: string, ws: any): void {
     this.wsClients.set(clientId, ws)
-    console.log(`[OBD2 Emulator] WebSocket client registered: ${clientId}`)
+    logger.info('[OBD2 Emulator] WebSocket client registered', { clientId })
   }
 
   /**
@@ -287,7 +289,7 @@ export class OBD2EmulatorService extends EventEmitter {
    */
   unregisterWSClient(clientId: string): void {
     this.wsClients.delete(clientId)
-    console.log(`[OBD2 Emulator] WebSocket client unregistered: ${clientId}`)
+    logger.info('[OBD2 Emulator] WebSocket client unregistered', { clientId })
   }
 
   /**

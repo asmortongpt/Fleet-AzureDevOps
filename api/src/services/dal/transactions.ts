@@ -1,5 +1,6 @@
 import { Pool, PoolClient } from 'pg'
 
+import logger from '../../config/logger'
 import { TransactionError } from './errors'
 
 // Allowlist of valid PostgreSQL isolation levels
@@ -67,7 +68,7 @@ export async function withTransaction<T>(
     return result
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Transaction rolled back:', error)
+    logger.error('Transaction rolled back', { error: error instanceof Error ? error.message : String(error) })
     throw new TransactionError(
       error instanceof Error ? error.message : 'Transaction failed'
     )
@@ -113,7 +114,7 @@ export async function withTransactionIsolation<T>(
     return result
   } catch (error) {
     await client.query('ROLLBACK')
-    console.error('Transaction rolled back:', error)
+    logger.error('Transaction rolled back', { error: error instanceof Error ? error.message : String(error) })
     throw new TransactionError(
       error instanceof Error ? error.message : 'Transaction failed'
     )
@@ -161,7 +162,7 @@ export async function withNestedTransaction<T>(
     return result
   } catch (error) {
     await client.query(`ROLLBACK TO SAVEPOINT ${savepointName}`)
-    console.error(`Nested transaction rolled back:`, error)
+    logger.error('Nested transaction rolled back', { error: error instanceof Error ? error.message : String(error) })
     throw new TransactionError(
       error instanceof Error ? error.message : 'Nested transaction failed'
     )
@@ -209,7 +210,7 @@ export async function withTransactionRetry<T>(
       const delay = retryDelay * Math.pow(2, attempt)
       await new Promise(resolve => setTimeout(resolve, delay))
 
-      console.warn(`Transaction retry attempt ${attempt + 1}/${maxRetries}`)
+      logger.warn('Transaction retry attempt', { attempt: attempt + 1, maxRetries })
     }
   }
 

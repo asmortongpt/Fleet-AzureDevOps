@@ -28,6 +28,8 @@ import { BlobServiceClient } from '@azure/storage-blob';
 import { Pool } from 'pg';
 import { v4 as uuidv4 } from 'uuid';
 
+import logger from '../../config/logger';
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -397,7 +399,7 @@ export class AuditService {
         client.release();
       }
     } catch (error) {
-      console.error('Failed to log audit event:', error);
+      logger.error('Failed to log audit event', { error: error instanceof Error ? error.message : String(error) });
       throw new Error(`Audit logging failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
@@ -555,7 +557,7 @@ export class AuditService {
 
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Failed to get audit log:', error);
+      logger.error('Failed to get audit log', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -787,7 +789,7 @@ export class AuditService {
           : undefined
       };
     } catch (error) {
-      console.error('Chain verification failed:', error);
+      logger.error('Chain verification failed', { error: error instanceof Error ? error.message : String(error) });
       throw error;
     }
   }
@@ -1566,7 +1568,7 @@ export class AuditService {
       this.privateKey = privateKeySecret.value;
       this.publicKey = publicKeySecret.value;
     } catch (error) {
-      console.warn('Failed to load crypto keys from Key Vault:', error);
+      logger.warn('Failed to load crypto keys from Key Vault', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 

@@ -13,6 +13,7 @@
 
 import { Pool } from 'pg'
 
+import logger from '../../config/logger'
 import { AuditLogger, AuditAction, AuditSeverity } from './audit-logger'
 
 export enum ReportType {
@@ -143,7 +144,7 @@ export class AuditReports {
       await this.saveReport(report)
       return report
     } catch (error) {
-      console.error('Failed to generate executive summary:', error)
+      logger.error('Failed to generate executive summary', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Report generation failed')
     }
   }
@@ -217,7 +218,7 @@ export class AuditReports {
       await this.saveReport(report)
       return report
     } catch (error) {
-      console.error('Failed to generate user activity report:', error)
+      logger.error('Failed to generate user activity report', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('User activity report generation failed')
     }
   }
@@ -290,7 +291,7 @@ export class AuditReports {
       await this.saveReport(report)
       return report
     } catch (error) {
-      console.error('Failed to generate resource access report:', error)
+      logger.error('Failed to generate resource access report', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Resource access report generation failed')
     }
   }
@@ -348,7 +349,7 @@ export class AuditReports {
         summary
       }
     } catch (error) {
-      console.error('Failed to detect anomalies:', error)
+      logger.error('Failed to detect anomalies', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Anomaly detection failed')
     }
   }
@@ -382,7 +383,7 @@ export class AuditReports {
 
       return alerts.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
     } catch (error) {
-      console.error('Failed to generate security alerts:', error)
+      logger.error('Failed to generate security alerts', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Security alert generation failed')
     }
   }
@@ -548,7 +549,7 @@ export class AuditReports {
         ]
       )
     } catch (error) {
-      console.error('Failed to save report:', error)
+      logger.error('Failed to save report', { error: error instanceof Error ? error.message : String(error) })
     }
   }
 }

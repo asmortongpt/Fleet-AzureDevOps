@@ -7,6 +7,7 @@
 
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
 import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
 
 import fuelPurchasingService from './fuel-purchasing.service'
@@ -122,7 +123,7 @@ continue
 
       return recommendations
     } catch (error) {
-      console.error('Error calculating optimal refueling locations:', error)
+      logger.error('Error calculating optimal refueling locations', { error: error instanceof Error ? error.message : String(error) })
       return []
     }
   }
@@ -189,7 +190,7 @@ continue
         recommendation: breakEvenMonths <= 24 ? 'bulk' : 'retail'
       }
     } catch (error) {
-      console.error('Error analyzing bulk vs retail:', error)
+      logger.error('Error analyzing bulk vs retail', { error: error instanceof Error ? error.message : String(error) })
       throw error
     }
   }
@@ -264,7 +265,7 @@ continue
 
       return optimizations.sort((a, b) => b.estimatedSavings - a.estimatedSavings)
     } catch (error) {
-      console.error(`Error optimizing fleet card usage:`, error)
+      logger.error('Error optimizing fleet card usage', { error: error instanceof Error ? error.message : String(error) })
       return []
     }
   }
@@ -331,7 +332,7 @@ continue
         recommendation
       }
     } catch (error) {
-      console.error('Error analyzing cross-border arbitrage:', error)
+      logger.error('Error analyzing cross-border arbitrage', { error: error instanceof Error ? error.message : String(error) })
       return {
         nearbyStates: [],
         recommendation: 'Unable to analyze cross-border opportunities'
@@ -437,7 +438,7 @@ continue
 
       return recommendations.sort((a, b) => b.potentialSavings - a.potentialSavings)
     } catch (error) {
-      console.error('Error generating hedging recommendations:', error)
+      logger.error('Error generating hedging recommendations', { error: error instanceof Error ? error.message : String(error) })
       return []
     }
   }
@@ -515,7 +516,7 @@ return 0
         totalPotentialSavings
       }
     } catch (error) {
-      console.error('Error generating optimization report:', error)
+      logger.error('Error generating optimization report', { error: error instanceof Error ? error.message : String(error) })
       throw error
     }
   }

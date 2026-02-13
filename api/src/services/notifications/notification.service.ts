@@ -2,6 +2,8 @@
  * Notification Service Stub
  */
 
+import logger from '../../config/logger';
+
 export interface Notification {
   id?: string;
   tenantId: string;
@@ -34,11 +36,11 @@ export class NotificationService {
   constructor() { }
 
   async send(notification: Notification): Promise<void> {
-    console.log('Stubbed NotificationService.send', notification.title);
+    logger.info('Stubbed NotificationService.send', { title: notification.title });
   }
 
   async sendBulk(notifications: Notification[]): Promise<void> {
-    console.log('Stubbed NotificationService.sendBulk', notifications.length);
+    logger.info('Stubbed NotificationService.sendBulk', { count: notifications.length });
   }
 
   async sendFromTemplate(
@@ -47,7 +49,7 @@ export class NotificationService {
     variables: Record<string, string>,
     channels: string[]
   ): Promise<void> {
-    console.log('Stubbed NotificationService.sendFromTemplate', templateId);
+    logger.info('Stubbed NotificationService.sendFromTemplate', { templateId });
   }
 
   async getUserPreferences(userId: string): Promise<NotificationPreferences> {

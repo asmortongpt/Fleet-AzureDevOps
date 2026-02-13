@@ -1,6 +1,7 @@
 import { Pool } from 'pg';
 import { z } from 'zod';
 
+import logger from '../config/logger';
 import { AssetUtilizationInput, AssetUtilizationResult, HeatmapData, IdleAlert } from '../interfaces/utilization.interface';
 import { cache } from '../utils/cache';
 
@@ -50,7 +51,7 @@ export class UtilizationCalcService {
       await cache.set(cacheKey, utilizationResult, 300); // Cache for 5 minutes
       return utilizationResult;
     } catch (error) {
-      console.error('Error calculating daily utilization:', error);
+      logger.error('Error calculating daily utilization', { error: error instanceof Error ? error.message : String(error) });
       throw new Error('Failed to calculate daily utilization.');
     }
   }
@@ -76,7 +77,7 @@ export class UtilizationCalcService {
         lastActiveDate: row.last_active_date,
       }));
     } catch (error) {
-      console.error('Error generating idle alerts:', error);
+      logger.error('Error generating idle alerts', { error: error instanceof Error ? error.message : String(error) });
       throw new Error('Failed to generate idle alerts.');
     }
   }
@@ -105,7 +106,7 @@ export class UtilizationCalcService {
         usageCount: row.usage_count,
       }));
     } catch (error) {
-      console.error('Error calculating heatmap data:', error);
+      logger.error('Error calculating heatmap data', { error: error instanceof Error ? error.message : String(error) });
       throw new Error('Failed to calculate heatmap data.');
     }
   }
@@ -143,7 +144,7 @@ export class UtilizationCalcService {
 
       return result.rows;
     } catch (error) {
-      console.error('Error getting idle assets:', error);
+      logger.error('Error getting idle assets', { error: error instanceof Error ? error.message : String(error) });
       throw new Error('Failed to get idle assets.');
     }
   }
