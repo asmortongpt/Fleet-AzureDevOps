@@ -5,6 +5,7 @@
 
 import cron, { ScheduledTask } from 'node-cron';
 
+import logger from '../config/logger';
 import { pushNotificationService } from '../services/push-notification.service';
 
 class PushNotificationScheduler {
@@ -16,7 +17,7 @@ class PushNotificationScheduler {
    */
   start() {
     if (this.cronJob) {
-      console.log('Push notification scheduler is already running');
+      logger.info('Push notification scheduler is already running');
       return;
     }
 
@@ -25,11 +26,11 @@ class PushNotificationScheduler {
       try {
         await this.processScheduledNotifications();
       } catch (error) {
-        console.error('Error in push notification scheduler:', error);
+        logger.error('Error in push notification scheduler', { error: error instanceof Error ? error.message : String(error) });
       }
     });
 
-    console.log('Push notification scheduler started');
+    logger.info('Push notification scheduler started');
   }
 
   /**
@@ -39,7 +40,7 @@ class PushNotificationScheduler {
     if (this.cronJob) {
       this.cronJob.stop();
       this.cronJob = null;
-      console.log('Push notification scheduler stopped');
+      logger.info('Push notification scheduler stopped');
     }
   }
 
@@ -50,7 +51,7 @@ class PushNotificationScheduler {
     try {
       await pushNotificationService.processScheduledNotifications();
     } catch (error) {
-      console.error('Error processing scheduled notifications:', error);
+      logger.error('Error processing scheduled notifications', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 

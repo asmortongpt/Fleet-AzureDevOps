@@ -54,6 +54,8 @@
  * ```
  */
 
+import logger from '../../config/logger'
+
 // Core exports
 export { aiService } from './ai-service'
 export { serviceBus } from './service-bus'
@@ -77,5 +79,5 @@ export { OpenAIAdapter } from './providers/openai-adapter'
 export async function initializeAPIBus(): Promise<void> {
   const { aiService } = await import('./ai-service')
   await aiService.initialize()
-  console.log('[API Bus] Initialized successfully')
+  logger.info('[API Bus] Initialized successfully')
 }

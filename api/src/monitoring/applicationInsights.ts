@@ -1,4 +1,5 @@
 import * as appInsights from 'applicationinsights'
+import logger from '../config/logger'
 
 /**
  * Custom metrics interface for Application Insights
@@ -25,8 +26,8 @@ class ApplicationInsightsService implements CustomMetrics {
                              process.env.APPLICATIONINSIGHTS_CONNECTION_STRING
 
     if (!connectionString) {
-      console.warn('⚠️ Application Insights connection string not found. Telemetry will be disabled.')
-      console.warn('To enable telemetry, set APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
+      logger.warn('Application Insights connection string not found. Telemetry will be disabled.')
+      logger.warn('To enable telemetry, set APPLICATION_INSIGHTS_CONNECTION_STRING in your .env file')
       return
     }
 
@@ -54,7 +55,7 @@ class ApplicationInsightsService implements CustomMetrics {
       this.client = appInsights
       this.isInitialized = true
 
-      console.log('✅ Application Insights initialized successfully')
+      logger.info('Application Insights initialized successfully')
 
       // Track startup event
       this.trackEvent('ServerStarted', {
@@ -63,7 +64,7 @@ class ApplicationInsightsService implements CustomMetrics {
         port: process.env.PORT || 3001
       })
     } catch (error) {
-      console.error('❌ Failed to initialize Application Insights:', error)
+      logger.error('Failed to initialize Application Insights', { error: error instanceof Error ? error.message : String(error) })
     }
   }
 

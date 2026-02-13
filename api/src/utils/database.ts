@@ -4,6 +4,7 @@
 import { Pool, PoolClient } from 'pg';
 
 import pool from '../config/database';
+import logger from '../config/logger';
 import { QueryResult, SqlValue, SqlParams } from '../types/database';
 
 import { monitoredQuery } from './query-monitor';
@@ -23,7 +24,7 @@ export async function query<T = unknown>(
     const result = await monitoredQuery<T>(pool, text, params);
     return result as QueryResult<T>;
   } catch (error) {
-    console.error('Database query error:', {
+    logger.error('Database query error', {
       query: text,
       params,
       error: error instanceof Error ? error.message : error
@@ -109,7 +110,7 @@ export async function transaction<T>(
     return result;
   } catch (error) {
     await monitoredQuery(client, 'ROLLBACK', []);
-    console.error('Transaction error:', error);
+    logger.error('Transaction error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   } finally {
     client.release();
@@ -133,7 +134,7 @@ export async function clientQuery<T = unknown>(
     const result = await monitoredQuery<T>(client, text, params);
     return result as QueryResult<T>;
   } catch (error) {
-    console.error(`Client query error:`, {
+    logger.error('Client query error', {
       query: text,
       params,
       error: error instanceof Error ? error.message : error
@@ -297,7 +298,7 @@ export async function testConnection(): Promise<boolean> {
     await query(`SELECT 1`);
     return true;
   } catch (error) {
-    console.error('Database connection test failed:', error);
+    logger.error('Database connection test failed', { error: error instanceof Error ? error.message : String(error) });
     return false;
   }
 }

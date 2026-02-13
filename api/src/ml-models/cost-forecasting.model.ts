@@ -6,6 +6,7 @@
  */
 
 import pool from '../config/database'
+import logger from '../config/logger'
 
 export interface CostData {
   date: Date
@@ -119,7 +120,7 @@ export class CostForecastingModel {
 
       return forecasts
     } catch (error) {
-      console.error('Error forecasting costs:', error)
+      logger.error('Error forecasting costs', { error: error instanceof Error ? error.message : String(error) })
       return []
     }
   }
@@ -198,7 +199,7 @@ export class CostForecastingModel {
         }
       }
     } catch (error) {
-      console.error('Error detecting anomaly:', error)
+      logger.error('Error detecting anomaly', { error: error instanceof Error ? error.message : String(error) })
       return {
         isAnomaly: false,
         score: 0,
@@ -299,7 +300,7 @@ trend = 'decreasing'
 
       return breakdown
     } catch (error) {
-      console.error('Error analyzing cost breakdown:', error)
+      logger.error('Error analyzing cost breakdown', { error: error instanceof Error ? error.message : String(error) })
       return []
     }
   }
@@ -344,7 +345,7 @@ return 0
 
       return Math.round((totalCost / totalMiles) * 100) / 100
     } catch (error) {
-      console.error('Error calculating cost per mile:', error)
+      logger.error('Error calculating cost per mile', { error: error instanceof Error ? error.message : String(error) })
       return 0
     }
   }
@@ -441,7 +442,7 @@ return 0
         isOverBudget
       }
     } catch (error) {
-      console.error('Error calculating budget variance:', error)
+      logger.error('Error calculating budget variance', { error: error instanceof Error ? error.message : String(error) })
       return {
         allocated: 0,
         spent: 0,

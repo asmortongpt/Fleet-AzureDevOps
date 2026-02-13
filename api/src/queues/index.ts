@@ -1,4 +1,5 @@
 import Bull from 'bull';
+import logger from '../config/logger';
 
 const redisConfig = {
   host: process.env.REDIS_HOST || 'localhost',
@@ -14,25 +15,25 @@ export const notificationQueue = new Bull('notifications', { redis: redisConfig 
 
 // Job processors
 emailQueue.process(async (job) => {
-  console.log('Processing email job:', job.id);
+  logger.info('Processing email job', { data: { jobId: job.id } });
   // TODO: Implement email sending logic
   return { success: true };
 });
 
 reportQueue.process(async (job) => {
-  console.log('Processing report job:', job.id);
+  logger.info('Processing report job', { data: { jobId: job.id } });
   // TODO: Implement report generation logic
   return { success: true };
 });
 
 syncQueue.process(async (job) => {
-  console.log('Processing sync job:', job.id);
+  logger.info('Processing sync job', { data: { jobId: job.id } });
   // TODO: Implement external API sync logic
   return { success: true };
 });
 
 notificationQueue.process(async (job) => {
-  console.log('Processing notification job:', job.id);
+  logger.info('Processing notification job', { data: { jobId: job.id } });
   // TODO: Implement notification sending logic
   return { success: true };
 });

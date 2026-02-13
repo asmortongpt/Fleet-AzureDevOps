@@ -5,6 +5,7 @@
 
 import { readFileSync } from 'fs';
 import { join } from 'path';
+import logger from '../config/logger';
 
 import {
   User,
@@ -354,7 +355,7 @@ export class PermissionEngine implements IPermissionEngine {
     const parts = condition.split(/\s+(==|!=|IN)\s+/);
 
     if (parts.length !== 3) {
-      console.warn(`Invalid condition format: ${condition}`);
+      logger.warn(`Invalid condition format: ${condition}`);
       return true; // Fail open for malformed conditions (or change to false for security)
     }
 
@@ -377,11 +378,11 @@ export class PermissionEngine implements IPermissionEngine {
             return values.includes(String(leftValue));
           }
         } catch (e) {
-          console.error(`Error evaluating IN condition:`, e);
+          logger.error('Error evaluating IN condition', { error: e instanceof Error ? e.message : String(e) });
         }
         return false;
       default:
-        console.warn(`Unknown operator: ${operator}`);
+        logger.warn(`Unknown operator: ${operator}`);
         return false;
     }
   }

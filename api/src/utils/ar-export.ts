@@ -13,6 +13,8 @@ import { execFileSync } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 
+import logger from '../config/logger';
+
 export interface ModelConversionOptions {
   inputPath: string;
   outputPath: string;
@@ -83,7 +85,7 @@ export async function convertToUSDZ(
           return outputPath;
         }
       } catch (error) {
-        console.warn('usdz_converter not available:', error);
+        logger.warn('usdz_converter not available', { error: error instanceof Error ? error.message : String(error) });
       }
     }
 
@@ -92,15 +94,13 @@ export async function convertToUSDZ(
 
     // Option 3: Cloud conversion service (recommended for production)
     // Example: AWS, Azure, or dedicated 3D conversion services
-    console.warn(
-      'USDZ conversion not available. Please use Reality Converter or a cloud service.'
-    );
+    logger.warn('USDZ conversion not available. Please use Reality Converter or a cloud service.');
 
     // For development, return a placeholder or the GLB path
     // In production, implement actual conversion
     return glbPath;
   } catch (error) {
-    console.error(`USDZ conversion error:`, error);
+    logger.error('USDZ conversion error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }
@@ -143,9 +143,9 @@ export async function optimizeGLB(
     // For now, copy the file
     fs.copyFileSync(inputPath, outputPath);
 
-    console.log('Model optimization completed (placeholder)');
+    logger.info('Model optimization completed (placeholder)');
   } catch (error) {
-    console.error('GLB optimization error:', error);
+    logger.error('GLB optimization error', { error: error instanceof Error ? error.message : String(error) });
     throw error;
   }
 }
@@ -190,7 +190,7 @@ export async function generateARMarker(
   //   errorCorrectionLevel: 'H'
   // });
 
-  console.log(`AR marker generation (${type}) - placeholder`);
+  logger.info(`AR marker generation (${type}) - placeholder`);
   return outputPath;
 }
 
@@ -308,7 +308,7 @@ export async function applyTexture(
   // This would modify the GLB to use the new texture
   // Requires GLTF manipulation library
 
-  console.log('Texture application - placeholder');
+  logger.info('Texture application - placeholder');
   fs.copyFileSync(modelPath, outputPath);
 }
 
@@ -323,7 +323,7 @@ export async function mergeDamageOverlay(
   // This would blend the damage texture onto the model
   // Could use texture blending or geometry deformation
 
-  console.log('Damage overlay merge - placeholder');
+  logger.info('Damage overlay merge - placeholder');
   fs.copyFileSync(modelPath, outputPath);
 }
 
@@ -344,7 +344,7 @@ export async function generateThumbnail(
   // This would render the model to an image
   // Could use headless Three.js rendering or a render service
 
-  console.log('Thumbnail generation - placeholder');
+  logger.info('Thumbnail generation - placeholder');
   return outputPath;
 }
 
@@ -390,7 +390,7 @@ export async function uploadToAzure(
   // await blockBlobClient.uploadFile(filePath);
   // return blockBlobClient.url;
 
-  console.log('Azure upload - placeholder');
+  logger.info('Azure upload - placeholder');
   return `https://storage.azure.com/${containerName}/${blobName}`;
 }
 
@@ -413,7 +413,7 @@ export async function batchProcessModels(
       await optimizeGLB(modelPath, outputPath, options);
       success.push(modelPath);
     } catch (error) {
-      console.error(`Failed to process ${modelPath}:`, error);
+      logger.error(`Failed to process ${modelPath}`, { error: error instanceof Error ? error.message : String(error) });
       failed.push(modelPath);
     }
   }

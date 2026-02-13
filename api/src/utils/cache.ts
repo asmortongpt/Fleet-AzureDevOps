@@ -1,3 +1,5 @@
+import logger from '../config/logger';
+
 // Optional Redis client for caching
 let createClient: any = null
 
@@ -11,7 +13,7 @@ return
     const redisModule = await import('redis')
     createClient = redisModule.createClient
   } catch (err) {
-    console.warn('redis not available - caching will be disabled. Install redis package for caching support.')
+    logger.warn('redis not available - caching will be disabled. Install redis package for caching support.')
   }
 }
 
@@ -28,7 +30,7 @@ return;
     await loadRedisClient()
 
     if (!createClient) {
-      console.log('⚠️  Redis not available - caching disabled')
+      logger.info('Redis not available - caching disabled')
       this.connected = false
       return
     }
@@ -39,7 +41,7 @@ return;
         socket: {
           reconnectStrategy: (retries: number) => {
             if (retries > 10) {
-              console.error('Redis connection failed after 10 retries');
+              logger.error('Redis connection failed after 10 retries');
               return new Error('Redis connection failed');
             }
             return retries * 100;
@@ -47,13 +49,13 @@ return;
         }
       });
 
-      this.client.on('error', (err: any) => console.error('Redis Client Error', err));
-      this.client.on('connect', () => console.log('✅ Redis connected'));
+      this.client.on('error', (err: any) => logger.error('Redis Client Error', { error: err instanceof Error ? err.message : String(err) }));
+      this.client.on('connect', () => logger.info('Redis connected'));
 
       await this.client.connect();
       this.connected = true;
     } catch (error) {
-      console.error(`Failed to connect to Redis:`, error);
+      logger.error('Failed to connect to Redis', { error: error instanceof Error ? error.message : String(error) });
       // Gracefully degrade - cache will be disabled
       this.connected = false;
     }
@@ -68,7 +70,7 @@ return null;
       const value = await this.client.get(key);
       return value ? JSON.parse(value) : null;
     } catch (error) {
-      console.error(`Cache get error for key ${key}:`, error);
+      logger.error(`Cache get error for key ${key}`, { error: error instanceof Error ? error.message : String(error) });
       return null;
     }
   }
@@ -81,7 +83,7 @@ return;
     try {
       await this.client.setEx(key, ttlSeconds, JSON.stringify(value));
     } catch (error) {
-      console.error(`Cache set error for key ${key}:`, error);
+      logger.error(`Cache set error for key ${key}`, { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -93,7 +95,7 @@ return;
     try {
       await this.client.del(key);
     } catch (error) {
-      console.error(`Cache delete error for key ${key}:`, error);
+      logger.error(`Cache delete error for key ${key}`, { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -108,7 +110,7 @@ return;
         await this.client.del(keys);
       }
     } catch (error) {
-      console.error(`Cache delete pattern error for ${pattern}:`, error);
+      logger.error(`Cache delete pattern error for ${pattern}`, { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -139,7 +141,7 @@ return;
       const dbSize = await this.client.dbSize();
       return { connected: true, dbSize };
     } catch (error) {
-      console.error(`Failed to get cache stats:`, error);
+      logger.error('Failed to get cache stats', { error: error instanceof Error ? error.message : String(error) });
       return { connected: this.connected };
     }
   }
@@ -162,11 +164,11 @@ export const cacheMiddleware = (ttl: number = 300) => {
     const cached = await cache.get(cacheKey);
 
     if (cached) {
-      console.log(`✅ Cache HIT: ${cacheKey}`);
+      logger.info(`Cache HIT: ${cacheKey}`);
       return res.json(cached);
     }
 
-    console.log(`❌ Cache MISS: ${cacheKey}`);
+    logger.info(`Cache MISS: ${cacheKey}`);
 
     // Store original res.json
     const originalJson = res.json.bind(res);

@@ -21,6 +21,7 @@
  * @module MonitoringService
  */
 
+import logger from '../../config/logger'
 // @ts-expect-error - Build compatibility fix
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger'
 import { Resource } from '@opentelemetry/resources'
@@ -497,7 +498,7 @@ export class MonitoringService {
       try {
         await this.updateBusinessMetrics()
       } catch (error) {
-        console.error('Failed to update business metrics:', error)
+        logger.error('Failed to update business metrics:', { error: error instanceof Error ? error.message : String(error) })
       }
     }, 60000)
   }

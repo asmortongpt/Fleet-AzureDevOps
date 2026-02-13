@@ -5,6 +5,8 @@
  */
 
 import { Pool } from 'pg';
+
+import logger from '../config/logger';
 import {
   VendorPerformance,
   VendorRanking,
@@ -483,7 +485,7 @@ export class VendorScoringService {
         );
         results.push(performance);
       } catch (error) {
-        console.error(`Error calculating score for vendor ${vendor.id}:`, error);
+        logger.error(`Error calculating score for vendor ${vendor.id}:`, { error: error instanceof Error ? error.message : String(error) });
       }
     }
 

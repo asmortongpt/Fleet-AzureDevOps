@@ -14,6 +14,7 @@
 
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
 
 export interface OfflineData {
   id: string
@@ -291,7 +292,7 @@ export class OfflineStorageService {
        RETURNING id`
     )
 
-    console.log(`[OfflineStorage] Cleared ${result.rowCount} old synced records`)
+    logger.info(`[OfflineStorage] Cleared ${result.rowCount} old synced records`)
     return result.rowCount || 0
   }
 

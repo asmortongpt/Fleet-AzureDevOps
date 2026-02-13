@@ -1,5 +1,7 @@
 import { ZodError, z } from 'zod';
 
+import logger from '../config/logger';
+
 interface VersionVector {
   taskId: string;
   userId: string;
@@ -26,7 +28,7 @@ class ConflictResolutionService {
       return versionVectorSchema.parse(data);
     } catch (error) {
       if (error instanceof ZodError) {
-        console.error('Validation error in version vector:', (error as any).errors);
+        logger.error('Validation error in version vector', { errors: (error as any).errors });
         throw new Error('Invalid version vector data.');
       }
       throw error;
@@ -51,7 +53,7 @@ class ConflictResolutionService {
 
       return false;
     } catch (error) {
-      console.error('Error in canApplyEvent:', error);
+      logger.error('Error in canApplyEvent', { error: error instanceof Error ? error.message : String(error) });
       return false;
     }
   }
@@ -67,7 +69,7 @@ class ConflictResolutionService {
       const key = `${taskId}-${userId}`;
       this.versionVectors.delete(key);
     } catch (error) {
-      console.error('Error in resetVersionVector:', error);
+      logger.error('Error in resetVersionVector', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 }

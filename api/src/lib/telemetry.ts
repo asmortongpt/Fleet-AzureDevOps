@@ -11,6 +11,7 @@
  */
 
 import * as appInsights from 'applicationinsights'
+import logger from '../config/logger'
 
 // Track if telemetry is initialized
 let isInitialized = false
@@ -23,9 +24,9 @@ export function initializeTelemetry(): void {
                            process.env.APPLICATION_INSIGHTS_CONNECTION_STRING
 
   if (!connectionString) {
-    console.warn('⚠️  Application Insights connection string not found')
-    console.warn('   Set APPLICATIONINSIGHTS_CONNECTION_STRING to enable telemetry')
-    console.warn('   Monitoring features will be disabled')
+    logger.warn('Application Insights connection string not found')
+    logger.warn('Set APPLICATIONINSIGHTS_CONNECTION_STRING to enable telemetry')
+    logger.warn('Monitoring features will be disabled')
     return
   }
 
@@ -65,14 +66,15 @@ export function initializeTelemetry(): void {
 
     isInitialized = true
 
-    console.log('✅ Application Insights telemetry initialized')
-    console.log(`   Connection String: ${connectionString.substring(0, 50)}...`)
-    console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`)
-    console.log(`   Live Metrics: enabled`)
-    console.log(`   Sampling: ${process.env.NODE_ENV === 'production' ? '50%' : '100%'}`)
+    logger.info('Application Insights telemetry initialized', {
+      connectionString: `${connectionString.substring(0, 50)}...`,
+      environment: process.env.NODE_ENV || 'development',
+      liveMetrics: 'enabled',
+      sampling: process.env.NODE_ENV === 'production' ? '50%' : '100%'
+    })
 
   } catch (error) {
-    console.error('❌ Failed to initialize Application Insights:', error)
+    logger.error('Failed to initialize Application Insights', { error: error instanceof Error ? error.message : String(error) })
   }
 }
 
@@ -217,7 +219,7 @@ return
 
   return new Promise((resolve) => {
     appInsights.defaultClient.flush()
-    console.log('📊 Telemetry data flushed')
+    logger.info('Telemetry data flushed')
     // Small delay to allow flush to complete
     setTimeout(resolve, 100)
   })
@@ -260,7 +262,7 @@ return
  */
 export function trackException(error: Error, properties?: Record<string, any>): void {
   if (!isInitialized) {
-    console.error('Exception (telemetry disabled):', error)
+    logger.error('Exception (telemetry disabled)', { error: error instanceof Error ? error.message : String(error) })
     return
   }
 

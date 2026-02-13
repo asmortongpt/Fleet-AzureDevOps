@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { Client } from 'pg';
 import WebSocket from 'ws';
 
+import logger from '../../config/logger';
 import { VehicleMessage, AlertMessage, PingPongMessage } from './messageTypes';
 
 dotenv.config();
@@ -52,7 +53,7 @@ wss.on('connection', (ws) => {
           throw new Error('Invalid message type');
       }
     } catch (error) {
-      console.error(`Error handling message: ${error}`);
+      logger.error(`Error handling message: ${error instanceof Error ? error.message : String(error)}`);
     }
   });
 });

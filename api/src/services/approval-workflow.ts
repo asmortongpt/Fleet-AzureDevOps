@@ -7,6 +7,8 @@
  */
 
 import { Pool, PoolClient } from 'pg';
+
+import logger from '../config/logger';
 import {
   PurchaseRequisition,
   ApprovalWorkflowStep,
@@ -304,7 +306,7 @@ export class ApprovalWorkflowService {
       ]
     );
 
-    console.log(
+    logger.info(
       `Approval notification sent to ${approverInfo.email} for requisition ${requisition.requisition_number}`
     );
   }
@@ -346,7 +348,7 @@ export class ApprovalWorkflowService {
       ]
     );
 
-    console.log(
+    logger.info(
       `Approval complete notification sent to ${requisition.requester_email} for requisition ${requisition.requisition_number}`
     );
   }
