@@ -26,7 +26,7 @@ import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration
 interface ResourceGaugeProps {
   title: string
   value: number
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   iconColor: string
   warningThreshold: number
   criticalThreshold: number

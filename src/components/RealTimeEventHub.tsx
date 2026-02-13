@@ -76,7 +76,7 @@ interface EventHubProps {
 // ============================================================================
 
 const CATEGORY_CONFIG: Record<EventCategory, {
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   label: string
   color: string
 }> = {

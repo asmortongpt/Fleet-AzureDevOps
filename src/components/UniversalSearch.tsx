@@ -58,7 +58,7 @@ interface SearchMatch {
 interface SearchCategory {
   type: EntityType
   label: string
-  icon: React.ElementType
+  icon: React.ComponentType<{ className?: string }>
   color: string
 }
 

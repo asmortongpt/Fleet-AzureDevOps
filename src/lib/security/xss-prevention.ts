@@ -13,14 +13,14 @@
  * OWASP: A03:2021 – Injection
  */
 
-import DOMPurify from 'dompurify';
+import DOMPurify, { type Config } from 'dompurify';
 
 /**
  * DOMPurify Configuration
  *
  * Strict sanitization to prevent XSS while preserving safe formatting
  */
-const DOM_PURIFY_CONFIG: DOMPurify.Config = {
+const DOM_PURIFY_CONFIG: Config = {
   // Allowed tags (whitelist approach)
   ALLOWED_TAGS: [
     'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -69,7 +69,7 @@ const DOM_PURIFY_CONFIG: DOMPurify.Config = {
  */
 export function sanitizeHTML(
   dirty: string,
-  config?: Partial<DOMPurify.Config>
+  config?: Partial<Config>
 ): string {
   const cleanConfig = { ...DOM_PURIFY_CONFIG, ...config };
    

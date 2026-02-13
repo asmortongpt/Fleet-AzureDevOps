@@ -47,6 +47,7 @@ import { useState, memo, useMemo } from 'react'
 
 // motion removed - React 19 incompatible
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
@@ -79,6 +80,7 @@ const rawFetcher = (url: string) =>
  * Admin Tab - System administration and user management
  */
 const AdminTabContent = memo(function AdminTabContent() {
+  const navigate = useNavigate()
   const { data: users } = useSWR<any[]>(
     '/api/users?limit=200',
     fetcher,
@@ -148,11 +150,13 @@ const AdminTabContent = memo(function AdminTabContent() {
 
   const auditRows = Array.isArray(auditLogs) ? auditLogs : []
 
-  // Handler for managing user groups
+  // Handler for managing user groups - navigate to admin users page filtered by role
   const handleManageUsers = (role: string) => {
-    toast.success(`Managing users: ${role}`)
+    toast.success(`Opening user management for role: ${role}`)
     logger.info('Manage users clicked:', role)
-    // TODO: Navigate to user management page or open modal
+    navigate('/admin', {
+      state: { tab: 'users', roleFilter: role }
+    })
   }
 
   return (
@@ -277,6 +281,7 @@ const AdminTabContent = memo(function AdminTabContent() {
  * Configuration Tab - Application settings and preferences
  */
 const ConfigurationTabContent = memo(function ConfigurationTabContent() {
+  const navigate = useNavigate()
   const { tenantName, settings } = useTenant()
 
   const featureFlags = useMemo(() => {
@@ -297,18 +302,22 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
     ]
   }, [featureFlags.length, settings, tenantName])
 
-  // Handler for configuring settings
+  // Handler for configuring settings - navigate to settings page with category context
   const handleConfigureSettings = (category: string) => {
-    toast.success(`Configuring settings: ${category}`)
+    toast.success(`Opening settings for: ${category}`)
     logger.info('Configure settings clicked:', category)
-    // TODO: Navigate to settings page or open configuration modal
+    navigate('/settings', {
+      state: { category }
+    })
   }
 
-  // Handler for toggling feature flags
+  // Handler for toggling feature flags - requires backend API
   const handleToggleFeature = (feature: string) => {
-    toast.success(`Toggling feature: ${feature}`)
-    logger.info('Toggle feature clicked:', feature)
-    // TODO: Add real API call to toggle feature flag
+    toast('Feature flag toggling requires backend configuration. Contact your administrator to update feature flags via the API.', {
+      duration: 5000,
+      icon: '\u2139\uFE0F',
+    })
+    logger.info('Toggle feature clicked (backend required):', feature)
   }
 
   return (
@@ -419,11 +428,13 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   const databaseStats = databaseHealth?.database?.statistics || {}
   const auditRows = Array.isArray(auditLogs) ? auditLogs : []
 
-  // Handler for running backups
+  // Handler for running backups - requires backend API trigger
   const handleRunBackup = (backupType: string) => {
-    toast.success(`Running backup: ${backupType}`)
-    logger.info('Run backup clicked:', backupType)
-    // TODO: Add real API call to trigger backup
+    toast('Backup operations require server-side execution. Contact your system administrator to trigger a manual backup via the API.', {
+      duration: 5000,
+      icon: '\u2139\uFE0F',
+    })
+    logger.info('Run backup clicked (backend required):', backupType)
   }
 
   return (
@@ -526,6 +537,7 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
  * Integrations Tab - Third-party integrations and APIs
  */
 const IntegrationsTabContent = memo(function IntegrationsTabContent() {
+  const navigate = useNavigate()
   const { data: integrationsHealth } = useSWR<any>(
     '/api/integrations/health',
     rawFetcher,
@@ -561,11 +573,13 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
     return total > 0 ? Math.round(total) : 0
   }, [metricsHistory])
 
-  // Handler for configuring integrations
+  // Handler for configuring integrations - navigate to integrations settings
   const handleConfigureIntegration = (integrationName: string) => {
-    toast.success(`Configuring integration: ${integrationName}`)
+    toast.success(`Opening configuration for: ${integrationName}`)
     logger.info('Configure integration clicked:', integrationName)
-    // TODO: Navigate to integration configuration page or open modal
+    navigate('/settings', {
+      state: { category: 'integrations', integration: integrationName }
+    })
   }
 
   return (
@@ -659,6 +673,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
  * Documents Tab - Document management and templates
  */
 const DocumentsTabContent = memo(function DocumentsTabContent() {
+  const navigate = useNavigate()
   const { data: documents } = useSWR<any[]>(
     '/api/documents?limit=100',
     fetcher,
@@ -691,11 +706,13 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
       .slice(0, 5)
   }, [documentRows])
 
-  // Handler for browsing document categories
+  // Handler for browsing document categories - navigate to documents page with category filter
   const handleBrowseDocuments = (category: string) => {
-    toast.success(`Browsing documents: ${category}`)
+    toast.success(`Opening document library: ${category}`)
     logger.info('Browse documents clicked:', category)
-    // TODO: Navigate to document browser or open file explorer
+    navigate('/documents', {
+      state: { category }
+    })
   }
 
   // Handler for downloading documents

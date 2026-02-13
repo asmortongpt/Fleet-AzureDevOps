@@ -5,6 +5,7 @@ import { Pool } from 'pg';
 import { z } from 'zod';
 
 import { doubleCsrfProtection } from '../../middleware/csrf';
+import { logger } from '../../utils/logger';
 
 import { generateExcel } from './utils/generateExcel';
 import { generatePDF } from './utils/generatePDF';
@@ -76,7 +77,7 @@ router.get('/:entityType', async (req: Request, res: Response) => {
       summary: summaryData,
     });
   } catch (error) {
-    console.error('Drill-through error:', error);
+    logger.error('Drill-through error:', error);
     res.status(500).json({ error: 'Failed to fetch drill-through data' });
   }
 });
@@ -121,7 +122,7 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
         res.status(400).json({ error: 'Unsupported export format' });
     }
   } catch (error) {
-    console.error('Export error:', error);
+    logger.error('Export error:', error);
     res.status(500).json({ error: 'Failed to export data' });
   }
 });
