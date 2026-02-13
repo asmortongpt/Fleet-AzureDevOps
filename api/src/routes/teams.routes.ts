@@ -40,7 +40,7 @@ function resolveTeamsSource(req: AuthRequest): 'local' | 'graph' {
 }
 
 function getTenantId(req: AuthRequest): string | null {
-  const raw = (req.user as any)?.tenant_id || (req.user as any)?.tenantId
+  const raw = req.user?.tenant_id || req.user?.tenantId
   if (!raw) return null
   const s = String(raw).trim()
   if (!s) return null
@@ -94,7 +94,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
     if (useLocal) {
       const tenantId = getTenantId(req)
       if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
-      const client = (req as any).dbClient || pool
+      const client = req.dbClient || pool
       const result = await client.query(
         `SELECT id, name AS "displayName", description
          FROM teams
@@ -204,7 +204,7 @@ router.get('/files', async (req: AuthRequest, res: Response) => {
     if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
 
     // Best-effort: surface recent documents for the tenant. This is DB-backed and avoids 5xx in demo mode.
-    const client = (req as any).dbClient || pool
+    const client = req.dbClient || pool
     const result = await client.query(
       `SELECT
          id,
@@ -262,7 +262,7 @@ router.get('/:teamId', async (req: AuthRequest, res: Response) => {
     if (useLocal) {
       const tenantId = getTenantId(req)
       if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' })
-      const client = (req as any).dbClient || pool
+      const client = req.dbClient || pool
       const result = await client.query(
         `SELECT id, name AS "displayName", description
          FROM teams

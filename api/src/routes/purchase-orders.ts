@@ -15,7 +15,7 @@ router.use(setTenantContext)
 
 router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -25,7 +25,7 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
   const offset = (Number(page) - 1) * Number(limit)
 
   let whereClause = 'WHERE po.tenant_id = $1'
-  const params: any[] = [tenantId]
+  const params: (string | number | boolean | null | undefined)[] = [tenantId]
 
   if (status && typeof status === 'string') {
     params.push(status)
@@ -69,7 +69,7 @@ router.get("/", asyncHandler(async (req: AuthRequest, res: Response) => {
 
 router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -102,7 +102,7 @@ router.get("/:id", asyncHandler(async (req: AuthRequest, res: Response) => {
 router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
   const userId = req.user?.id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -133,7 +133,7 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
 router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
   const userId = req.user?.id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
@@ -174,7 +174,7 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
 
 router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
-  const client = (req as any).dbClient
+  const client = req.dbClient
 
   if (!client) {
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })

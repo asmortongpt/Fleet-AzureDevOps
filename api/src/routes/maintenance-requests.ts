@@ -36,14 +36,14 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
       const isDevelopment = process.env.NODE_ENV === 'development'
 
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('maintenance-requests: dbClient not available')
         return res.status(500).json({ error: 'Internal server error' })
       }
 
       let whereClause = ''
-      const params: any[] = []
+      const params: unknown[] = []
 
       if (isDevelopment && req.user?.tenant_id) {
         whereClause = 'WHERE tenant_id = $1'

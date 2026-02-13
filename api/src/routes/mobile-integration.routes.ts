@@ -42,10 +42,10 @@ const MobileSyncSchema = z.object({
   device_id: z.string().min(1),
   last_sync_at: z.string().datetime().optional(),
   data: z.object({
-    inspections: z.array(z.any().optional()),
-    reports: z.array(z.any().optional()),
-    photos: z.array(z.any().optional()),
-    hos_logs: z.array(z.any().optional())
+    inspections: z.array(z.unknown()),
+    reports: z.array(z.unknown()),
+    photos: z.array(z.unknown()),
+    hos_logs: z.array(z.unknown())
   })
 })
 
@@ -83,7 +83,7 @@ const ARNavigationSchema = z.object({
 const DamageDetectionSchema = z.object({
   vehicle_id: z.number().int().positive(),
   photo_url: z.string().url(),
-  ai_detections: z.array(z.any()),
+  ai_detections: z.array(z.unknown()),
   severity: z.enum(['minor', 'moderate', 'major', 'severe']),
   estimated_cost: z.number().optional()
 })
@@ -123,7 +123,7 @@ const DamageDetectionSchema = z.object({
 router.post('/register',csrfProtection, requirePermission('driver:create:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = DeviceRegistrationSchema.parse(req.body)
-    const userId = (req as any).user.id
+    const userId = req.user.id
 
     const device = await mobileIntegrationService.registerDevice(
       userId,
@@ -183,8 +183,8 @@ router.post('/register',csrfProtection, requirePermission('driver:create:global'
 router.post('/sync',csrfProtection, requirePermission('driver:update:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = MobileSyncSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user.tenant_id
+    const userId = req.user.id
 
     const syncRequest = {
       device_id: validated.device_id,
@@ -226,8 +226,8 @@ router.post('/sync',csrfProtection, requirePermission('driver:update:global'), a
 router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
     const vehicleId = parseInt(req.params.vehicleId)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user.tenant_id
+    const userId = req.user.id
 
     const route = await mobileIntegrationService.getMobileRoute(
       tenantId,
@@ -286,7 +286,7 @@ router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (re
 router.post('/ar-navigation',csrfProtection, requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
     const validated = ARNavigationSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user.tenant_id
 
     const data = await mobileIntegrationService.getARNavigationData(tenantId, validated)
 
@@ -334,8 +334,8 @@ router.post('/ar-navigation',csrfProtection, requirePermission('route:view:fleet
 router.post('/keyless-entry',csrfProtection, requirePermission('vehicle:update:fleet'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = KeylessEntrySchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user.tenant_id
+    const userId = req.user.id
 
     const result = await mobileIntegrationService.executeKeylessEntry(
       tenantId,
@@ -383,8 +383,8 @@ router.post('/keyless-entry',csrfProtection, requirePermission('vehicle:update:f
 router.post('/damage-detection',csrfProtection, requirePermission('safety_incident:create:global'), auditLog, async (req: Request, res: Response) => {
   try {
     const validated = DamageDetectionSchema.parse(req.body)
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user.tenant_id
+    const userId = req.user.id
 
     const result = await mobileIntegrationService.submitDamageDetection(
       tenantId,
@@ -423,8 +423,8 @@ router.post('/damage-detection',csrfProtection, requirePermission('safety_incide
  */
 router.get('/dispatch/messages', requirePermission('communication:view:global'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
-    const userId = (req as any).user.id
+    const tenantId = req.user.tenant_id
+    const userId = req.user.id
     const channelId = req.query.channel_id ? parseInt(req.query.channel_id as string) : undefined
     const since = req.query.since ? new Date(req.query.since as string) : undefined
 
@@ -472,7 +472,7 @@ router.get('/dispatch/messages', requirePermission('communication:view:global'),
  */
 router.get('/charging-stations/nearby', requirePermission('charging_station:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user.tenant_id
+    const tenantId = req.user.tenant_id
     const latitude = parseFloat(req.query.latitude as string)
     const longitude = parseFloat(req.query.longitude as string)
     const radius = req.query.radius ? parseFloat(req.query.radius as string) : 10
@@ -528,7 +528,7 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
 router.post('/push-notification',csrfProtection, requirePermission('communication:send:global'), auditLog, async (req: Request, res: Response) => {
   try {
     // Check if user is admin
-    const userRole = (req as any).user.role
+    const userRole = req.user.role
     if (userRole !== 'admin' && userRole !== 'fleet_manager') {
       return res.status(403).json({ error: 'Unauthorized' })
     }

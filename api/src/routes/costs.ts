@@ -36,11 +36,11 @@ router.get('/', asyncHandler(async (req, res) => {
       sortOrder = 'desc'
     } = req.query
 
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     // Build parameterized query against unified_costs view
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
     let paramIndex = 1
 
     if (tenantId) {
@@ -168,10 +168,10 @@ router.get('/vehicle/:vehicleId', asyncHandler(async (req, res) => {
       endDate
     } = req.query
 
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const conditions: string[] = ['vehicle_id = $1']
-    const params: any[] = [vehicleId]
+    const params: unknown[] = [vehicleId]
     let paramIndex = 2
 
     if (tenantId) {
@@ -269,10 +269,10 @@ router.get('/vehicle/:vehicleId', asyncHandler(async (req, res) => {
 router.get('/analytics', asyncHandler(async (req, res) => {
   try {
     const { startDate, endDate } = req.query
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
     let paramIndex = 1
 
     if (tenantId) {
@@ -401,7 +401,7 @@ router.get('/analytics', asyncHandler(async (req, res) => {
 router.get('/analysis', asyncHandler(async (req, res) => {
   try {
     const { startDate, endDate, vehicleId, category, groupBy = 'category' } = req.query
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     // Default date range: last 90 days
     const start = startDate && typeof startDate === 'string'
@@ -415,7 +415,7 @@ router.get('/analysis', asyncHandler(async (req, res) => {
       'transaction_date >= $1',
       'transaction_date <= $2'
     ]
-    const params: any[] = [start, end]
+    const params: unknown[] = [start, end]
     let paramIndex = 3
 
     if (tenantId) {
@@ -447,7 +447,7 @@ router.get('/analysis', asyncHandler(async (req, res) => {
     const totalCosts = parseFloat(summary.total_costs)
 
     // Group by specified dimension
-    let groupedData: any[] = []
+    let groupedData: { group: string; total_cost: number; transaction_count: number; avg_cost: number; percent_of_total: number }[] = []
     const groupColumnMap: Record<string, string> = {
       category: 'cost_category',
       vehicle: 'vehicle_id',
@@ -557,10 +557,10 @@ router.get('/analysis', asyncHandler(async (req, res) => {
 router.get('/budget', asyncHandler(async (req, res) => {
   try {
     const { month } = req.query
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
     let paramIndex = 1
 
     if (tenantId) {
@@ -602,7 +602,28 @@ router.get('/budget', asyncHandler(async (req, res) => {
     )
 
     // Group by month for visualization
-    const byMonth: Record<string, any> = {}
+    interface BudgetCategory {
+      id: string
+      category: string
+      budgeted: number
+      actual: number
+      variance: number
+      variancePercent: number
+      status: string
+      projectedMonthEnd: number | null
+    }
+
+    interface BudgetMonthData {
+      month: string
+      categories: BudgetCategory[]
+      totalBudgeted: number
+      totalActual: number
+      totalVariance: number
+      overallStatus: string
+      overallVariancePercent?: number
+    }
+
+    const byMonth: Record<string, BudgetMonthData> = {}
 
     for (const budget of budgetResult.rows) {
       const monthKey = new Date(budget.period_start).toISOString().substring(0, 7)
@@ -641,7 +662,7 @@ router.get('/budget', asyncHandler(async (req, res) => {
     }
 
     // Calculate overall status for each month
-    Object.values(byMonth).forEach((monthData: any) => {
+    Object.values(byMonth).forEach((monthData: BudgetMonthData) => {
       const variancePercent = monthData.totalBudgeted > 0
         ? ((monthData.totalVariance / monthData.totalBudgeted) * 100)
         : 0
@@ -649,13 +670,13 @@ router.get('/budget', asyncHandler(async (req, res) => {
       monthData.overallStatus =
         variancePercent < -5 ? 'over' :
         variancePercent > 10 ? 'under' : 'on-track'
-      monthData.categories.sort((a: any, b: any) =>
+      monthData.categories.sort((a: BudgetCategory, b: BudgetCategory) =>
         b.variancePercent - a.variancePercent
       )
     })
 
     const result = Object.values(byMonth)
-      .sort((a: any, b: any) => b.month.localeCompare(a.month))
+      .sort((a: BudgetMonthData, b: BudgetMonthData) => b.month.localeCompare(a.month))
 
     res.json({
       data: result,
@@ -674,10 +695,10 @@ router.get('/budget', asyncHandler(async (req, res) => {
 // GET budget alerts and warnings
 router.get('/budget/alerts', asyncHandler(async (_req, res) => {
   try {
-    const tenantId = (_req as any).tenantId || (_req as any).user?.tenantId
+    const tenantId = _req.tenantId || _req.user?.tenantId
 
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
     let paramIndex = 1
 
     if (tenantId) {
@@ -754,7 +775,7 @@ router.get('/budget/alerts', asyncHandler(async (_req, res) => {
 router.get('/department-analysis', asyncHandler(async (req, res) => {
   try {
     const { startDate, endDate } = req.query
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const start = startDate && typeof startDate === 'string'
       ? new Date(startDate)
@@ -767,7 +788,7 @@ router.get('/department-analysis', asyncHandler(async (req, res) => {
       'transaction_date >= $1',
       'transaction_date <= $2'
     ]
-    const params: any[] = [start, end]
+    const params: unknown[] = [start, end]
     let paramIndex = 3
 
     if (tenantId) {
@@ -818,7 +839,7 @@ router.get('/department-analysis', asyncHandler(async (req, res) => {
 router.get('/vendor-analysis', asyncHandler(async (req, res) => {
   try {
     const { startDate, endDate, limit = 20 } = req.query
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const start = startDate && typeof startDate === 'string'
       ? new Date(startDate)
@@ -832,7 +853,7 @@ router.get('/vendor-analysis', asyncHandler(async (req, res) => {
       'uc.transaction_date <= $2',
       'uc.vendor_id IS NOT NULL'
     ]
-    const params: any[] = [start, end]
+    const params: unknown[] = [start, end]
     let paramIndex = 3
 
     if (tenantId) {
@@ -893,10 +914,10 @@ router.get('/vendor-analysis', asyncHandler(async (req, res) => {
 // GET export costs to CSV
 router.get('/export', asyncHandler(async (req, res) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
     let paramIndex = 1
 
     if (tenantId) {
@@ -954,7 +975,7 @@ router.get('/export', asyncHandler(async (req, res) => {
 }))
 
 // POST create new cost entry
-router.post('/', csrfProtection, asyncHandler(async (req, res): Promise<any> => {
+router.post('/', csrfProtection, asyncHandler(async (req, res): Promise<void> => {
   try {
     const {
       vehicleId,
@@ -972,7 +993,7 @@ router.post('/', csrfProtection, asyncHandler(async (req, res): Promise<any> => 
       mileageAtTime
     } = req.body
 
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     // Validate required fields
     if (!category || !amount || !date || !description) {
@@ -1036,10 +1057,10 @@ router.post('/', csrfProtection, asyncHandler(async (req, res): Promise<any> => 
 }))
 
 // POST bulk import costs
-router.post('/bulk-import', csrfProtection, asyncHandler(async (req, res): Promise<any> => {
+router.post('/bulk-import', csrfProtection, asyncHandler(async (req, res): Promise<void> => {
   try {
     const { costs } = req.body
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     if (!Array.isArray(costs) || costs.length === 0) {
       return res.status(400).json({ error: 'Costs must be a non-empty array' })
@@ -1122,10 +1143,10 @@ router.post('/bulk-import', csrfProtection, asyncHandler(async (req, res): Promi
 // GET cost forecast
 router.get('/forecast', asyncHandler(async (req, res) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
     let paramIndex = 1
 
     if (tenantId) {
@@ -1209,10 +1230,10 @@ router.get('/forecast', asyncHandler(async (req, res) => {
 // GET cost summary dashboard data
 router.get('/dashboard', asyncHandler(async (req, res) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId
+    const tenantId = req.tenantId || req.user?.tenantId
 
     const conditions: string[] = []
-    const params: any[] = []
+    const params: unknown[] = []
     let paramIndex = 1
 
     if (tenantId) {

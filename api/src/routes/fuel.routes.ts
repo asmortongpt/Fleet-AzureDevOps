@@ -62,7 +62,7 @@ router.get('/',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId || 1;
+    const tenantId = req.user?.tenantId || 1;
 
     // Validate query params
     const validation = fuelQuerySchema.safeParse(req.query);
@@ -79,7 +79,7 @@ router.get('/',
 
     // Build WHERE clause conditions
     const conditions: string[] = ['ft.tenant_id = $1'];
-    const params: any[] = [tenantId];
+    const params: unknown[] = [tenantId];
     let paramIndex = 2;
 
     if (vehicleId) {
@@ -223,7 +223,7 @@ router.get('/statistics',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenantId || 1;
+    const tenantId = req.user?.tenantId || 1;
 
     // Validate query params
     const validation = statisticsQuerySchema.safeParse(req.query);
@@ -240,7 +240,7 @@ router.get('/statistics',
 
     // Build WHERE clause
     const conditions: string[] = ['ft.tenant_id = $1'];
-    const params: any[] = [tenantId];
+    const params: unknown[] = [tenantId];
     let paramIndex = 2;
 
     if (vehicleId) {

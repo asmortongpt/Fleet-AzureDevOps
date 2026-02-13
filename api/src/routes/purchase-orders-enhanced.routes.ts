@@ -794,7 +794,24 @@ router.post('/auto-create-from-alerts', [
     const createdPOs = [];
 
     // Create a PO for each supplier
-    for (const group of Object.values(supplierGroups) as any[]) {
+    interface AlertItem {
+      id: string;
+      inventory_item_id: string;
+      part_number: string;
+      name: string;
+      reorder_quantity: number;
+      unit_cost: number;
+      primary_supplier_id: string;
+      primary_supplier_name: string;
+    }
+
+    interface SupplierGroup {
+      supplier_id: string;
+      supplier_name: string;
+      items: AlertItem[];
+    }
+
+    for (const group of Object.values(supplierGroups) as SupplierGroup[]) {
       // Generate PO number
       const poNumberResult = await client.query(`
         SELECT COALESCE(MAX(CAST(SUBSTRING(number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_number

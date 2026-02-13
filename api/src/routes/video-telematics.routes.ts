@@ -260,7 +260,7 @@ router.post(
       });
 
       const data = schema.parse(req.body);
-      const eventId = await videoService.createVideoEvent(data as any);
+      const eventId = await videoService.createVideoEvent(data);
 
       res.status(201).json({
         message: 'Video event created successfully',

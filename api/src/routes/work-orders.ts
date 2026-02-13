@@ -77,7 +77,7 @@ router.get(
       const isDevelopment = process.env.NODE_ENV === 'development'
 
       // Use req.dbClient which has tenant context set
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -89,7 +89,7 @@ router.get(
       // Build dynamic query
       // NOTE: In development mode, we need to filter by tenant_id since RLS is not active
       let whereClause = ''
-      const queryParams: any[] = []
+      const queryParams: unknown[] = []
 
       if (isDevelopment && req.user?.tenant_id) {
         whereClause = 'WHERE tenant_id = $1'
@@ -164,7 +164,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -232,7 +232,7 @@ router.post(
       // Validate request body
       const validated = createWorkOrderSchema.parse(req.body)
 
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -302,7 +302,7 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -368,7 +368,7 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -414,7 +414,7 @@ router.get(
       const workOrderId = req.params.id
       const tenantId = req.user?.tenant_id
 
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
@@ -455,7 +455,7 @@ router.get(
       const workOrderId = req.params.id
       const tenantId = req.user?.tenant_id
 
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }

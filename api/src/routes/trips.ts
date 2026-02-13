@@ -304,7 +304,7 @@ router.get(
       const limit = Math.min(Math.max(Number(req.query.limit || 10), 1), 100)
       const tenantId = req.user!.tenant_id
       const userId = req.user!.id
-      const client = (req as any).dbClient
+      const client = req.dbClient
 
       if (!client) {
         return res.status(500).json({ error: 'Tenant context not initialized' })

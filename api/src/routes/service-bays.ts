@@ -35,11 +35,11 @@ router.get(
   }),
   validateQuery(querySchema),
   asyncHandler(async (req, res) => {
-    const tenantId = (req as any).user?.tenant_id
-    const { facility_id, active } = req.query as any
+    const tenantId = req.user?.tenant_id
+    const { facility_id, active } = req.query as { facility_id?: string; active?: string }
 
     let where = 'WHERE sb.tenant_id = $1'
-    const params: any[] = [tenantId]
+    const params: unknown[] = [tenantId]
     let idx = 2
 
     if (facility_id) {
@@ -93,7 +93,26 @@ router.get(
 
     const result = await tenantSafeQuery(q, params, tenantId)
 
-    const bays = result.rows.map((r: any) => {
+    interface ServiceBayRow {
+      id: string;
+      facility_id: string;
+      facility_name: string;
+      facility_code: string;
+      bay_name: string;
+      bay_number: number;
+      bay_type: string;
+      is_active: boolean;
+      metadata: { status?: string } | null;
+      occupancy_status: string | null;
+      occupancy_start: string | null;
+      occupancy_end: string | null;
+      occupancy_vehicle_id: string | null;
+      occupancy_vehicle_number: string | null;
+      occupancy_technician_name: string | null;
+      occupancy_service_type: string | null;
+    }
+
+    const bays = result.rows.map((r: ServiceBayRow) => {
       const metaStatus = (r.metadata && typeof r.metadata === 'object') ? r.metadata.status : undefined
       const occupied = Boolean(r.occupancy_status)
 

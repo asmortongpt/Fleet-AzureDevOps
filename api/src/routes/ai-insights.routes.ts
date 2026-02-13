@@ -190,7 +190,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'ai_insights' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const context = (req.query.context as any) || 'all'
+      const context = (req.query.context as string | undefined) || 'all'
       const recommendations = await fleetCognitionService.getRecommendations(
         req.user!.tenant_id,
         context

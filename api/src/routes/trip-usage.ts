@@ -240,7 +240,7 @@ router.get(
         year,
         limit = 50,
         offset = 0
-      } = req.query as any
+      } = req.query as Record<string, string | undefined>
 
 	      let query = `
 	      SELECT t.*,
@@ -251,7 +251,7 @@ router.get(
 	      LEFT JOIN vehicles v ON t.vehicle_id = v.id
 	      WHERE t.tenant_id = $1
 	    `
-      const params: any[] = [req.user!.tenant_id]
+      const params: unknown[] = [req.user!.tenant_id]
       let paramCount = 1
 
       if (driver_id) {
@@ -485,7 +485,7 @@ router.patch(
 
       // Build update query
       const updates: string[] = []
-      const values: any[] = []
+      const values: unknown[] = []
       let paramCount = 2 // Starting from $3 (id is $1, tenant_id is $2)
 
       Object.entries(validated).forEach(([key, value]) => {

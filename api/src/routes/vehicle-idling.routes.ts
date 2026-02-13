@@ -548,7 +548,7 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const { alertId } = req.params
-      const userId = (req as any).user?.id // From auth middleware
+      const userId = req.user?.id // From auth middleware
 
       await idlingService.acknowledgeAlert(parseInt(alertId), userId)
 

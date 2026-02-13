@@ -150,8 +150,8 @@ const PartScanSchema = z.object({
 router.post('/parts/scan', requirePermission('inventory:view:global'), async (req: Request, res: Response) => {
   try {
     const validated = PartScanSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -232,8 +232,8 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
       throw new ValidationError("Search query required")
     }
 
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -259,17 +259,17 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
       [tenantId, q]
     )
 
-    const parts = result.rows.map((row: any) => ({
+    const parts = result.rows.map((row: Record<string, unknown>) => ({
       id: row.id,
       partNumber: row.part_number,
       name: row.name,
       description: row.description,
       manufacturer: row.manufacturer,
       price: row.unit_cost ? Number(row.unit_cost) : null,
-      inStock: Number(row.quantity_on_hand ?? 0) > 0,
-      quantity: Number(row.quantity_on_hand ?? 0),
+      inStock: Number((row.quantity_on_hand as number | null) ?? 0) > 0,
+      quantity: Number((row.quantity_on_hand as number | null) ?? 0),
       location: row.location_in_warehouse,
-      imageUrl: row.metadata?.image_url ?? null,
+      imageUrl: (row.metadata as Record<string, unknown> | null)?.image_url ?? null,
     }))
 
     res.json({ parts, total: parts.length })
@@ -328,9 +328,9 @@ router.post(
   async (req: Request, res: Response) => {
   try {
     const validated = PartOrderSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const userId = (req as any).user?.id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
     if (!tenantId || !userId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -448,9 +448,9 @@ const VehicleCheckInSchema = z.object({
 router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog({ action: 'CREATE', resourceType: 'vehicle_checkins' }), async (req: Request, res: Response) => {
   try {
     const validated = VehicleCheckInSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const userId = (req as any).user?.id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
     if (!tenantId || !userId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -534,8 +534,8 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
   try {
     const vehicleId = req.query.vehicleId as string
     const vin = req.query.vin as string
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -662,9 +662,9 @@ const BeaconRegistrationSchema = z.object({
 router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), auditLog({ action: 'CREATE', resourceType: 'beacons' }), async (req: Request, res: Response) => {
   try {
     const validated = BeaconRegistrationSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const userId = (req as any).user?.id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
     if (!tenantId || !userId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -734,8 +734,8 @@ router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), audi
  */
 router.get('/beacons/nearby', requirePermission('vehicle:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -762,7 +762,7 @@ router.get('/beacons/nearby', requirePermission('vehicle:view:fleet'), async (re
       [tenantId]
     )
 
-    const beacons = result.rows.map((row: any) => ({
+    const beacons = result.rows.map((row: Record<string, unknown>) => ({
       beaconId: String(row.beacon_id),
       vehicleId: String(row.vehicle_id),
       uuid: row.uuid,
@@ -850,9 +850,9 @@ const DashcamEventSchema = z.object({
 router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`), auditLog({ action: 'CREATE', resourceType: 'dashcam_events' }), async (req: Request, res: Response) => {
   try {
     const validated = DashcamEventSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const userId = (req as any).user?.id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
     if (!tenantId || !userId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -948,8 +948,8 @@ router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`)
  */
 router.get('/dashcam/events', requirePermission('safety_incident:view:global'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -981,7 +981,7 @@ router.get('/dashcam/events', requirePermission('safety_incident:view:global'), 
       FROM dashcam_events de
       WHERE de.tenant_id = $1
     `
-    const params: any[] = [tenantId]
+    const params: (string | undefined)[] = [tenantId]
     let paramIndex = 2
 
     if (vehicleId) {
@@ -1012,7 +1012,7 @@ router.get('/dashcam/events', requirePermission('safety_incident:view:global'), 
 
     const result = await client.query(queryText, params)
 
-    const events = result.rows.map((row: any) => ({
+    const events = result.rows.map((row: Record<string, unknown>) => ({
       eventId: String(row.event_id),
       timestamp: row.timestamp,
       type: row.type,
@@ -1062,8 +1062,8 @@ router.get('/dashcam/events', requirePermission('safety_incident:view:global'), 
 router.get('/work-orders/:workOrderId/parts', requirePermission('work_order:view:global'), async (req: Request, res: Response) => {
   try {
     const workOrderId = req.params.workOrderId
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -1096,7 +1096,7 @@ router.get('/work-orders/:workOrderId/parts', requirePermission('work_order:view
       [workOrderId, tenantId]
     )
 
-    const parts = result.rows.map((row: any) => ({
+    const parts = result.rows.map((row: Record<string, unknown>) => ({
       id: String(row.id),
       partNumber: row.part_number,
       description: row.description,
@@ -1160,9 +1160,9 @@ router.post('/work-orders/:workOrderId/parts', requirePermission(`work_order:upd
   try {
     const workOrderId = req.params.workOrderId
     const validated = AddPartToWorkOrderSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const userId = (req as any).user?.id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
     if (!tenantId || !userId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -1258,9 +1258,9 @@ router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_ord
   try {
     const workOrderId = req.params.workOrderId
     const validated = BatchAddPartsSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const userId = (req as any).user?.id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const userId = req.user?.id
+    const client = req.dbClient
 
     if (!tenantId || !userId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })
@@ -1370,8 +1370,8 @@ const AssetScanSchema = z.object({
 router.post('/assets/scan', requirePermission(`asset:view:global`), async (req: Request, res: Response) => {
   try {
     const validated = AssetScanSchema.parse(req.body)
-    const tenantId = (req as any).user?.tenant_id
-    const client = (req as any).dbClient
+    const tenantId = req.user?.tenant_id
+    const client = req.dbClient
 
     if (!tenantId || !client) {
       return res.status(500).json({ error: 'Internal server error', code: 'MISSING_TENANT_CONTEXT' })

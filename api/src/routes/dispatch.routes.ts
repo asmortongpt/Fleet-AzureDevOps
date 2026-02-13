@@ -69,7 +69,7 @@ router.use(authenticateJWT)
  */
 router.get('/channels', requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
     }
@@ -142,7 +142,7 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
       created_at,
       updated_at,
       created_by FROM dispatch_channels WHERE tenant_id = $1 AND id = $2 AND is_active = true`,
-      [(req as any).user!.tenant_id, id]
+      [req.user?.tenant_id, id]
     )
 
     if (result.rows.length === 0) {
@@ -204,8 +204,8 @@ router.get('/channels/:id', requirePermission('route:view:fleet'), async (req: R
 router.post('/channels', csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
     const { name, description, channelType, priorityLevel, colorCode } = req.body
-    const userId = (req as any).user?.id
-    const tenantId = (req as any).user?.tenant_id
+    const userId = req.user?.id
+    const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
@@ -268,7 +268,7 @@ router.get('/channels/:id/history', requirePermission('route:view:fleet'), async
     const { id } = req.params
     const limit = parseInt(req.query.limit as string) || 50
 
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
     }
@@ -336,7 +336,7 @@ router.get('/channels/:id/listeners', requirePermission('route:view:fleet'), asy
   try {
     const { id } = req.params
 
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
     }
@@ -416,9 +416,9 @@ router.get('/channels/:id/listeners', requirePermission('route:view:fleet'), asy
  */
 router.post('/emergency', csrfProtection, requirePermission('route:create:fleet'), async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
     const { vehicleId, alertType, location, description } = req.body
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
@@ -480,7 +480,7 @@ router.post('/emergency', csrfProtection, requirePermission('route:create:fleet'
  */
 router.get('/emergency', requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
     }
@@ -505,7 +505,7 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
       resolved_at,
       created_at,
       updated_at FROM dispatch_emergency_alerts`
-    const params: any[] = [tenantId]
+    const params: (string | number)[] = [tenantId]
 
     if (status) {
       params.push(status)
@@ -554,8 +554,8 @@ router.get('/emergency', requirePermission('route:view:fleet'), async (req: Requ
 router.put('/emergency/:id/acknowledge', csrfProtection, requirePermission('route:update:fleet'), async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params
-    const userId = (req as any).user?.id
-    const tenantId = (req as any).user?.tenant_id
+    const userId = req.user?.id
+    const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
@@ -613,8 +613,8 @@ router.put('/emergency/:id/acknowledge', csrfProtection, requirePermission('rout
 router.put('/emergency/:id/resolve', csrfProtection, requirePermission('route:update:fleet'), async (req: Request, res: Response) => {
   try {
     const { id } = req.params
-    const userId = (req as any).user?.id
-    const tenantId = (req as any).user?.tenant_id
+    const userId = req.user?.id
+    const tenantId = req.user?.tenant_id
 
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
@@ -680,7 +680,7 @@ router.put('/emergency/:id/resolve', csrfProtection, requirePermission('route:up
  */
 router.get('/metrics', requirePermission('route:view:fleet'), async (req: Request, res: Response) => {
   try {
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     if (!tenantId) {
       return res.status(400).json({ success: false, error: 'Tenant ID required' })
     }
@@ -690,7 +690,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
     const start = startDate ? new Date(startDate as string) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
     const end = endDate ? new Date(endDate as string) : new Date()
 
-    const params: any[] = [tenantId, start, end]
+    const params: (string | Date)[] = [tenantId, start, end]
     let channelFilter = ''
     if (channelId) {
       params.push(channelId)
@@ -759,7 +759,7 @@ router.get('/metrics', requirePermission('route:view:fleet'), async (req: Reques
  */
 router.post('/webrtc/offer', csrfProtection, requirePermission(`route:create:fleet`), async (req: Request, res: Response) => {
   try {
-    const userId = (req as any).user?.id
+    const userId = req.user?.id
     const { channelId, connectionId } = req.body
 
     const offer = await webrtcService.createOffer(

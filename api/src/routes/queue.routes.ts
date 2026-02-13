@@ -31,7 +31,7 @@ const requireAdmin = (req: Request, res: Response, next: any) => {
   }
 
   // Check for JWT with admin role
-  const user = (req as any).user;
+  const user = req.user;
   if (user && (user.role === 'admin' || user.role === 'system_admin')) {
     return next();
   }

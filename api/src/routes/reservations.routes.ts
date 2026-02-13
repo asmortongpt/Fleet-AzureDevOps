@@ -114,7 +114,7 @@ function getUserContext(req: AuthRequest): UserContext {
  */
 router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
-    const tenantId = (req.user as any)?.tenant_id || (req.user as any)?.tenantId;
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
     if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' });
 
     const {
@@ -129,7 +129,7 @@ router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
     const lim = Math.min(Math.max(parseInt(limit as string, 10) || 50, 1), 500);
 
     const where: string[] = ['r.tenant_id = $1'];
-    const params: any[] = [tenantId];
+    const params: unknown[] = [tenantId];
     let p = 1;
 
     if (status) {

@@ -33,7 +33,7 @@ router.get("/", validate(getFuelTransactionsQuerySchema, 'query'), asyncHandler(
     endDate
   } = req.query
 
-  const tenantId = (req as any).user?.tenant_id
+  const tenantId = req.user?.tenant_id
   if (!tenantId) {
 throw new Error('Tenant ID is required')
 }
@@ -55,7 +55,7 @@ throw new Error('Tenant ID is required')
 // GET fuel transaction by ID
 router.get("/:id", asyncHandler(async (req: Request, res: Response) => {
   const service = container.get<FueltransactionService>(TYPES.FuelTransactionService)
-  const tenantId = (req as any).user?.tenant_id
+  const tenantId = req.user?.tenant_id
   const transaction = await service.getById(Number(req.params.id), tenantId)
 
   if (!transaction) {
@@ -71,7 +71,7 @@ router.post("/",
   validate(createFuelTransactionSchema, 'body'),
   asyncHandler(async (req: Request, res: Response) => {
     const service = container.get<FueltransactionService>(TYPES.FuelTransactionService)
-    const tenantId = (req as any).user?.tenant_id
+    const tenantId = req.user?.tenant_id
     const transaction = await service.create(req.body, tenantId)
     res.status(201).json({ data: transaction })
   })
@@ -81,7 +81,7 @@ router.post("/",
 // Note: Verification of vehicle/driver ownership should ideally be in Service or Middleware
 router.put("/:id", csrfProtection, validate(updateFuelTransactionSchema, 'body'), asyncHandler(async (req: Request, res: Response) => {
   const service = container.get<FueltransactionService>(TYPES.FuelTransactionService)
-  const tenantId = (req as any).user?.tenant_id
+  const tenantId = req.user?.tenant_id
 
   const transaction = await service.update(Number(req.params.id), req.body, tenantId)
   if (!transaction) {
@@ -93,7 +93,7 @@ throw new NotFoundError("Fuel transaction not found")
 // DELETE fuel transaction
 router.delete("/:id", csrfProtection, asyncHandler(async (req: Request, res: Response) => {
   const service = container.get<FueltransactionService>(TYPES.FuelTransactionService)
-  const tenantId = (req as any).user?.tenant_id
+  const tenantId = req.user?.tenant_id
   const deleted = await service.delete(Number(req.params.id), tenantId)
 
   if (!deleted) {

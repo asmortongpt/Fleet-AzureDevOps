@@ -129,7 +129,7 @@ router.get('/microsoft',
   try {
     const webhookService = await import('../services/webhook.service');
     const subscriptions = await webhookService.webhookService.listSubscriptions();
-    const activeSubscriptions = subscriptions.filter((sub: any) => sub.status === 'active');
+    const activeSubscriptions = subscriptions.filter((sub: Record<string, unknown>) => sub.status === 'active');
 
     results.services.webhooks = {
       status: activeSubscriptions.length > 0 ? 'up' : 'degraded',
@@ -137,7 +137,7 @@ router.get('/microsoft',
       details: {
         total: subscriptions.length,
         active: activeSubscriptions.length,
-        subscriptions: subscriptions.map((sub: any) => ({
+        subscriptions: subscriptions.map((sub: Record<string, unknown>) => ({
           id: sub.subscription_id,
           resource: sub.resource,
           status: sub.status,
@@ -193,7 +193,7 @@ router.get('/microsoft',
     results.services.sync = {
       status: 'up',
       message: 'Sync service is operational',
-      details: syncState.rows as any
+      details: syncState.rows as Record<string, unknown>[]
     };
   } catch (error: unknown) {
     results.services.sync = {
@@ -296,7 +296,7 @@ router.get('/microsoft/metrics', async (req: Request, res: Response) => {
     // Webhook subscriptions
     const webhookService = await import(`../services/webhook.service`);
     const subscriptions = await webhookService.webhookService.listSubscriptions();
-    const activeCount = subscriptions.filter((s: any) => s.status === `active`).length;
+    const activeCount = subscriptions.filter((s: Record<string, unknown>) => s.status === `active`).length;
 
     metrics.push(`# HELP webhook_subscriptions_active Number of active webhook subscriptions`);
     metrics.push(`# TYPE webhook_subscriptions_active gauge`);

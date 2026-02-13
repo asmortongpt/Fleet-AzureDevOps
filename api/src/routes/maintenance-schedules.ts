@@ -1,4 +1,5 @@
-import express, { Response } from 'express'
+import express, { Request, Response } from 'express'
+import { PoolClient } from 'pg'
 
 import pool from '../config/database'
 import logger from '../config/logger'
@@ -20,15 +21,47 @@ const router = express.Router()
 router.use(authenticateJWT)          // 1. Authenticate user
 router.use(setTenantContext)         // 2. Set PostgreSQL tenant context
 
+/** Shape of pagination query params after parsing */
+interface PaginationParams {
+  page: number
+  limit: number
+  offset: number
+}
+
+/** Row shape returned by the multi-metric maintenance view */
+interface MultiMetricScheduleRow {
+  vehicle_id: string | number
+  vehicle_name: string
+  last_service_date: string
+  days_since_service: number
+  miles_since_service: number
+  next_due_date: string
+  trigger_metric?: string
+  is_overdue?: boolean
+  units_until_due?: number
+  estimated_cost?: number
+  type?: string
+  metadata?: Record<string, unknown>
+  [key: string]: unknown
+}
+
+/** Shape returned by checkDueSchedules */
+interface DueScheduleEntry {
+  schedule: Record<string, unknown>
+  vehicle: { id: string | number }
+  is_overdue: boolean
+  days_until_due: number
+}
+
 // Simple pagination helper
-const getPaginationParams = (req: any) => {
+const getPaginationParams = (req: Request): PaginationParams => {
   const page = parseInt(req.query.page as string) || 1
   const limit = parseInt(req.query.limit as string) || 20
   const offset = (page - 1) * limit
   return { page, limit, offset }
 }
 
-const createPaginatedResponse = (data: any[], total: number, params: any) => {
+const createPaginatedResponse = (data: Record<string, unknown>[], total: number, params: PaginationParams) => {
   return {
     data,
     pagination: {
@@ -41,30 +74,30 @@ const createPaginatedResponse = (data: any[], total: number, params: any) => {
 }
 
 // Simple validation helpers
-const validateRecurrencePattern = (pattern: any) => {
+const validateRecurrencePattern = (pattern: Record<string, unknown> | undefined) => {
   if (!pattern || !pattern.frequency) {
     return { valid: false, errors: ['Recurrence pattern must have a frequency'] }
   }
-  return { valid: true, errors: [] }
+  return { valid: true, errors: [] as string[] }
 }
 
-const calculateNextDueDate = async (schedule: any, fromDate: Date) => {
+const calculateNextDueDate = async (schedule: { recurrence_pattern: Record<string, unknown> }, fromDate: Date) => {
   // Simple calculation - add interval to current date
   const pattern = schedule.recurrence_pattern
   const date = new Date(fromDate)
 
   if (pattern.frequency === 'daily') {
-    date.setDate(date.getDate() + (pattern.interval || 1))
+    date.setDate(date.getDate() + ((pattern.interval as number) || 1))
   } else if (pattern.frequency === 'weekly') {
-    date.setDate(date.getDate() + (pattern.interval || 1) * 7)
+    date.setDate(date.getDate() + ((pattern.interval as number) || 1) * 7)
   } else if (pattern.frequency === 'monthly') {
-    date.setMonth(date.getMonth() + (pattern.interval || 1))
+    date.setMonth(date.getMonth() + ((pattern.interval as number) || 1))
   }
 
   return date
 }
 
-const checkDueSchedules = async (client: any, daysAhead: number, includeOverdue: boolean) => {
+const checkDueSchedules = async (client: PoolClient, daysAhead: number, includeOverdue: boolean): Promise<DueScheduleEntry[]> => {
   const futureDate = new Date()
   futureDate.setDate(futureDate.getDate() + daysAhead)
 
@@ -75,15 +108,15 @@ const checkDueSchedules = async (client: any, daysAhead: number, includeOverdue:
 
   const result = await client.query(query, [futureDate])
 
-  return result.rows.map((schedule: any) => ({
+  return result.rows.map((schedule: Record<string, unknown>) => ({
     schedule,
-    vehicle: { id: schedule.vehicle_id },
-    is_overdue: new Date(schedule.next_service_date) < new Date(),
-    days_until_due: Math.floor((new Date(schedule.next_service_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    vehicle: { id: schedule.vehicle_id as string | number },
+    is_overdue: new Date(schedule.next_service_date as string) < new Date(),
+    days_until_due: Math.floor((new Date(schedule.next_service_date as string).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
   }))
 }
 
-const generateWorkOrder = async (client: any, schedule: any, telemetry: any, overrideTemplate: any) => {
+const generateWorkOrder = async (client: PoolClient, schedule: Record<string, unknown>, _telemetry: Record<string, unknown> | undefined, overrideTemplate: Record<string, unknown> | undefined) => {
   const workOrder = {
     tenant_id: schedule.tenant_id,
     vehicle_id: schedule.vehicle_id,
@@ -108,7 +141,7 @@ const generateWorkOrder = async (client: any, schedule: any, telemetry: any, ove
   return result.rows[0].id
 }
 
-const getRecurringScheduleStats = async (client: any) => {
+const getRecurringScheduleStats = async (client: PoolClient) => {
   // RLS handles tenant filtering
   const result = await client.query(
     `SELECT COUNT(*) as total,
@@ -127,7 +160,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -150,7 +183,7 @@ router.get(
       // NOTE: RLS is not enabled on all tables in local/demo environments.
       // Always enforce tenant isolation in the query itself.
       let filters = 'WHERE tenant_id = $1'
-      const params: any[] = [tenantId]
+      const params: (string | number)[] = [tenantId]
       let paramIndex = 2
 
       if (vehicle_id) {
@@ -198,7 +231,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -241,7 +274,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'maintenance_schedules' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -279,7 +312,7 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -317,7 +350,7 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'maintenance_schedules' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -356,7 +389,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'maintenance_schedules_recurring' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -380,10 +413,8 @@ router.post(
       const now = new Date()
       const nextDue = await calculateNextDueDate(
         {
-          recurrence_pattern: data.recurrence_pattern,
-          vehicle_id: data.vehicle_id,
-          tenant_id: req.user!.tenant_id
-        } as any,
+          recurrence_pattern: data.recurrence_pattern as Record<string, unknown>
+        },
         now
       )
 
@@ -430,7 +461,7 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_recurrence' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -467,7 +498,7 @@ router.put(
       }
 
       const updateFields: string[] = [`metadata = $3`]
-      const updateValues: any[] = [JSON.stringify(updatedMetadata)]
+      const updateValues: (string | boolean)[] = [JSON.stringify(updatedMetadata)]
       let paramIndex = 4
 
       if (data.auto_create_work_order !== undefined) {
@@ -509,7 +540,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules_due' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -519,16 +550,16 @@ router.get(
       }
 
       const {
-        days_ahead = 7,
+        days_ahead = '7',
         include_overdue = 'true',
         vehicle_id,
         service_type,
         priority
-      } = req.query as any
+      } = req.query as Record<string, string | undefined>
 
       let dueSchedules = await checkDueSchedules(
-        client,
-        parseInt(days_ahead),
+        client!,
+        parseInt(days_ahead || '7'),
         include_overdue === 'true'
       )
 
@@ -573,7 +604,7 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'work_orders_from_schedule' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -650,7 +681,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedule_history' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -715,7 +746,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules_stats' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -741,7 +772,7 @@ router.patch(
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_pause' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -782,7 +813,7 @@ router.patch(
   auditLog({ action: 'UPDATE', resourceType: 'maintenance_schedules_resume' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -850,7 +881,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules_multi_metric' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -867,7 +898,7 @@ router.get(
 
       // RLS handles tenant filtering on the view
       let filters = ''
-      const params: any[] = []
+      const params: (string | boolean)[] = []
       let paramIndex = 1
 
       if (trigger_metric) {
@@ -893,25 +924,25 @@ router.get(
       )
 
       // Calculate summary statistics
-      const schedules = result.rows
+      const schedules = result.rows as MultiMetricScheduleRow[]
       const summary = {
         total: schedules.length,
-        overdue: schedules.filter((s: any) => s.is_overdue).length,
+        overdue: schedules.filter((s) => s.is_overdue).length,
         by_metric: {
-          ODOMETER: schedules.filter((s: any) => s.trigger_metric === `ODOMETER`).length,
-          ENGINE_HOURS: schedules.filter((s: any) => s.trigger_metric === `ENGINE_HOURS`).length,
-          PTO_HOURS: schedules.filter((s: any) => s.trigger_metric === `PTO_HOURS`).length,
-          AUX_HOURS: schedules.filter((s: any) => s.trigger_metric === 'AUX_HOURS').length,
-          CYCLES: schedules.filter((s: any) => s.trigger_metric === 'CYCLES').length,
-          CALENDAR: schedules.filter((s: any) => s.trigger_metric === 'CALENDAR').length
+          ODOMETER: schedules.filter((s) => s.trigger_metric === `ODOMETER`).length,
+          ENGINE_HOURS: schedules.filter((s) => s.trigger_metric === `ENGINE_HOURS`).length,
+          PTO_HOURS: schedules.filter((s) => s.trigger_metric === `PTO_HOURS`).length,
+          AUX_HOURS: schedules.filter((s) => s.trigger_metric === 'AUX_HOURS').length,
+          CYCLES: schedules.filter((s) => s.trigger_metric === 'CYCLES').length,
+          CALENDAR: schedules.filter((s) => s.trigger_metric === 'CALENDAR').length
         },
         overdue_by_metric: {
-          ODOMETER: schedules.filter((s: any) => s.trigger_metric === 'ODOMETER' && s.is_overdue).length,
-          ENGINE_HOURS: schedules.filter((s: any) => s.trigger_metric === 'ENGINE_HOURS' && s.is_overdue).length,
-          PTO_HOURS: schedules.filter((s: any) => s.trigger_metric === 'PTO_HOURS' && s.is_overdue).length,
-          AUX_HOURS: schedules.filter((s: any) => s.trigger_metric === 'AUX_HOURS' && s.is_overdue).length,
-          CYCLES: schedules.filter((s: any) => s.trigger_metric === 'CYCLES' && s.is_overdue).length,
-          CALENDAR: schedules.filter((s: any) => s.trigger_metric === 'CALENDAR' && s.is_overdue).length
+          ODOMETER: schedules.filter((s) => s.trigger_metric === 'ODOMETER' && s.is_overdue).length,
+          ENGINE_HOURS: schedules.filter((s) => s.trigger_metric === 'ENGINE_HOURS' && s.is_overdue).length,
+          PTO_HOURS: schedules.filter((s) => s.trigger_metric === 'PTO_HOURS' && s.is_overdue).length,
+          AUX_HOURS: schedules.filter((s) => s.trigger_metric === 'AUX_HOURS' && s.is_overdue).length,
+          CYCLES: schedules.filter((s) => s.trigger_metric === 'CYCLES' && s.is_overdue).length,
+          CALENDAR: schedules.filter((s) => s.trigger_metric === 'CALENDAR' && s.is_overdue).length
         }
       }
 
@@ -948,7 +979,7 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'maintenance_schedules_by_vehicle' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const client = (req as any).dbClient
+      const client = req.dbClient
       if (!client) {
         logger.error('dbClient not available - tenant context middleware not run')
         return res.status(500).json({
@@ -969,7 +1000,8 @@ router.get(
       )
 
       // Group by trigger metric
-      const byMetric = result.rows.reduce((acc: any, schedule: any) => {
+      const rows = result.rows as MultiMetricScheduleRow[]
+      const byMetric = rows.reduce((acc: Record<string, MultiMetricScheduleRow[]>, schedule) => {
         const metric = schedule.trigger_metric || `CALENDAR`
         if (!acc[metric]) {
           acc[metric] = []
@@ -980,11 +1012,11 @@ router.get(
 
       res.json({
         vehicle_id: req.params.vehicleId,
-        schedules: result.rows,
+        schedules: rows,
         by_metric: byMetric,
         summary: {
-          total: result.rows.length,
-          overdue: result.rows.filter((s: any) => s.is_overdue).length,
+          total: rows.length,
+          overdue: rows.filter((s) => s.is_overdue).length,
           metrics_tracked: Object.keys(byMetric)
         }
       })

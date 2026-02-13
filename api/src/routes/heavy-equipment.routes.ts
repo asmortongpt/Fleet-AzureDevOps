@@ -22,7 +22,7 @@ import { getErrorMessage } from '../utils/error-handler'
 import { HeavyEquipmentService } from '../services/heavy-equipment.service'
 
 const router = Router()
-const service = new HeavyEquipmentService(pool as any)
+const service = new HeavyEquipmentService(pool)
 
 router.use(authenticateJWT)
 

@@ -10,6 +10,7 @@
  */
 
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../config/database';
 import { auditLog } from '../middleware/audit'
@@ -52,7 +53,7 @@ router.get(
   applyFieldMasking('vehicle'),
   cacheMiddleware(600), // ADD THIS LINE - Cache individual vehicle for 10 minutes
   auditLog({ action: 'READ', resourceType: 'vehicles' }),
-  validate([{ field: 'id', required: true, type: 'uuid' }] as any, 'params'),
+  validate(z.object({ id: z.string().uuid() }), 'params'),
   async (req: AuthRequest, res: Response) => {
     // Existing route handler code stays the same
   }

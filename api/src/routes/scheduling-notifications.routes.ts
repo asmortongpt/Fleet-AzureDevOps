@@ -22,7 +22,7 @@ router.use(authenticateJWT)
  */
 router.get('/preferences', async (req: Request, res: Response) => {
   try {
-    const { userId } = req.user as any
+    const { userId } = req.user!
 
     const result = await pool.query(
       `SELECT 
@@ -86,7 +86,7 @@ router.get('/preferences', async (req: Request, res: Response) => {
  */
 router.put('/preferences', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { userId } = req.user as any
+    const { userId } = req.user!
     const {
       emailEnabled,
       smsEnabled,
@@ -189,7 +189,7 @@ router.put('/preferences', csrfProtection, async (req: Request, res: Response) =
  */
 router.post('/test', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { userId } = req.user as any
+    const { userId } = req.user!
     const { channels } = req.body
 
     if (!channels || !Array.isArray(channels)) {
@@ -233,7 +233,7 @@ router.post('/test', csrfProtection, async (req: Request, res: Response) => {
  */
 router.get('/history', async (req: Request, res: Response) => {
   try {
-    const { userId } = req.user as any
+    const { userId } = req.user!
     const { limit = 50, offset = 0 } = req.query
 
     // Get user email for filtering communications
@@ -283,7 +283,7 @@ router.get('/history', async (req: Request, res: Response) => {
  */
 router.get('/stats', async (req: Request, res: Response) => {
   try {
-    const { userId } = req.user as any
+    const { userId } = req.user!
 
     const result = await pool.query(
       `SELECT
@@ -335,7 +335,7 @@ router.get('/stats', async (req: Request, res: Response) => {
  */
 router.post('/resend/:id', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { userId, role } = req.user as any
+    const { userId, role } = req.user!
     const { id } = req.params
     const { type } = req.body // 'reservation' or 'maintenance'
 

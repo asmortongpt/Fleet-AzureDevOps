@@ -45,7 +45,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const {
       status,
       tire_type,
@@ -56,7 +56,7 @@ router.get(
       search,
       page = 1,
       pageSize = 50
-    }: TireInventoryQuery = req.query as any;
+    } = req.query as unknown as TireInventoryQuery;
 
     let query = `
       SELECT ti.*, f.name as facility_name, v.name as vendor_name
@@ -65,7 +65,7 @@ router.get(
       LEFT JOIN vendors v ON v.id = ti.vendor_id
       WHERE ti.tenant_id = $1
     `;
-    const params: any[] = [tenantId];
+    const params: unknown[] = [tenantId];
     let paramIndex = 2;
 
     if (status) {
@@ -131,7 +131,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const input: CreateTireInventoryInput = req.body;
 
     const query = `
@@ -189,7 +189,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { id } = req.params;
 
     // Get tire details
@@ -238,12 +238,12 @@ router.put(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { id } = req.params;
     const input: UpdateTireInventoryInput = req.body;
 
     const updates: string[] = [];
-    const values: any[] = [id, tenantId];
+    const values: unknown[] = [id, tenantId];
     let paramIndex = 3;
 
     if (input.tread_depth_32nds !== undefined) {
@@ -309,7 +309,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { vehicleId } = req.params;
     const input: MountTireInput = req.body;
 
@@ -341,7 +341,7 @@ router.post(
       input.position,
       input.mounted_date || new Date(),
       input.mounted_odometer,
-      input.mounted_by || (req as any).user?.id,
+      input.mounted_by || req.user?.id,
       input.metadata || {}
     ]);
 
@@ -368,7 +368,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { vehicleId } = req.params;
     const input: UnmountTireInput = req.body;
 
@@ -389,7 +389,7 @@ router.post(
     const result = await db.query(query, [
       input.removed_date || new Date(),
       input.removed_odometer,
-      input.removed_by || (req as any).user?.id,
+      input.removed_by || req.user?.id,
       input.removal_reason,
       vehicleId,
       input.position,
@@ -435,7 +435,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { vehicleId } = req.params;
     const input: RotateTiresInput = req.body;
 
@@ -456,7 +456,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { vehicleId } = req.params;
 
     const query = `
@@ -496,7 +496,7 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { vehicleId } = req.params;
     const input: CreateTireInspectionInput = req.body;
 
@@ -514,7 +514,7 @@ router.post(
       tenantId,
       vehicleId,
       input.inspection_date || new Date(),
-      input.inspector_id || (req as any).user?.id,
+      input.inspector_id || req.user?.id,
       input.odometer_reading,
       JSON.stringify(input.tire_positions),
       input.defects && input.defects.length > 0,
@@ -545,7 +545,7 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { vehicleId } = req.params;
 
     const schedule = await tireRotationService.getScheduleForVehicle(vehicleId, tenantId);
@@ -573,11 +573,18 @@ router.post(
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const input: CreatePressureLogInput = req.body;
 
     // Generate alerts for low/high pressure
-    const alerts: any[] = [];
+    interface PressureAlert {
+      position: string;
+      alert_type: 'low_pressure' | 'high_pressure' | 'high_temperature';
+      threshold: number;
+      actual: number;
+      severity: 'warning' | 'critical';
+    }
+    const alerts: PressureAlert[] = [];
     for (const position of input.tire_positions) {
       if (position.psi < 95) {
         alerts.push({
@@ -622,7 +629,7 @@ router.post(
       input.vehicle_id,
       input.log_date || new Date(),
       JSON.stringify(input.tire_positions),
-      input.checked_by || (req as any).user?.id,
+      input.checked_by || req.user?.id,
       input.source || PressureLogSource.MANUAL,
       alerts.length > 0 ? JSON.stringify(alerts) : null,
       input.metadata || {}
@@ -653,13 +660,13 @@ router.get(
     permissions: [PERMISSIONS.VEHICLE_READ]
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     const { alert_level } = req.query;
 
     // Get rotation alerts
     const rotationAlerts = await tireRotationService.getRotationAlerts(
       tenantId,
-      alert_level as any
+      alert_level as string | undefined
     );
 
     // Get low tread alerts
@@ -709,7 +716,7 @@ router.get(
     const pressureResult = await db.query(pressureQuery, [tenantId]);
 
     const pressureAlerts = pressureResult.rows.flatMap((row) => {
-      const alerts = row.alerts_triggered as any[];
+      const alerts = row.alerts_triggered as Record<string, unknown>[];
       return alerts.map((alert) => ({
         ...alert,
         vehicle_id: row.vehicle_id,

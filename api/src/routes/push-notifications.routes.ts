@@ -3,7 +3,7 @@
  * API endpoints for mobile push notification management
  */
 
-import express from 'express';
+import express, { Request } from 'express';
 
 import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
@@ -13,8 +13,8 @@ import { pushNotificationService } from '../services/push-notification.service';
 
 const router = express.Router();
 
-function getTenantId(req: any): string | undefined {
-  return req?.user?.tenant_id || req?.user?.tenantId;
+function getTenantId(req: Request): string | undefined {
+  return req.user?.tenant_id || req.user?.tenantId;
 }
 
 /**
@@ -44,7 +44,7 @@ router.post(
       }
 
 	      const device = await pushNotificationService.registerDevice({
-	        userId: (req as any).user.id,
+	        userId: req.user?.id,
 	        tenantId: getTenantId(req),
 	        deviceToken,
 	        platform,
@@ -146,7 +146,7 @@ router.post(
 	        imageUrl,
 	        sound,
 	        badgeCount,
-	        createdBy: (req as any).user.id,
+	        createdBy: req.user?.id,
 	      };
 
       const notificationId = await pushNotificationService.sendNotification(
@@ -221,7 +221,7 @@ router.post(
 	        imageUrl,
 	        sound,
 	        badgeCount,
-	        createdBy: (req as any).user.id,
+	        createdBy: req.user?.id,
 	      };
 
       const notificationId = await pushNotificationService.sendBulkNotification(
@@ -304,7 +304,7 @@ router.post(
 	        imageUrl,
 	        sound,
 	        badgeCount,
-	        createdBy: (req as any).user.id,
+	        createdBy: req.user?.id,
 	      };
 
       const notificationId = await pushNotificationService.scheduleNotification(
@@ -364,7 +364,7 @@ router.post(
 	        variables || {}
 	      );
 
-      notification.createdBy = (req as any).user.id;
+      notification.createdBy = req.user?.id;
 
       // Send notification
       const notificationId = await pushNotificationService.sendNotification(
@@ -401,7 +401,7 @@ router.get(
     try {
       const { category, status, startDate, endDate, limit = 50, offset = 0 } = req.query;
 
-      const filters: any = {
+      const filters: Record<string, unknown> = {
         limit: parseInt(limit as string),
         offset: parseInt(offset as string),
       };
@@ -580,11 +580,11 @@ router.post('/test', csrfProtection, authenticateJWT, async (req, res) => {
         { id: 'acknowledge', title: 'Got It' },
         { id: 'dismiss', title: 'Dismiss' },
       ],
-      createdBy: (req as any).user.id,
+      createdBy: req.user?.id,
     };
 
     const notificationId = await pushNotificationService.sendNotification(notification, [
-      { userId: (req as any).user.id },
+      { userId: req.user?.id },
     ]);
 
     res.json({

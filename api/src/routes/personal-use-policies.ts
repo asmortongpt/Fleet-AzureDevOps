@@ -21,13 +21,13 @@ router.use(setTenantContext);
 const repository = container.get<PersonalUsePoliciesRepository>(TYPES.PersonalUsePoliciesRepository);
 
 function getTenantId(req: AuthRequest): string {
-  const tenantId = (req.user as any)?.tenant_id || (req.user as any)?.tenantId || (req as any)?.tenantId;
+  const tenantId = req.user?.tenant_id || req.user?.tenantId || req.tenantId;
   if (!tenantId || typeof tenantId !== 'string') return '';
   return tenantId;
 }
 
 function requireTenantDbClient(req: AuthRequest) {
-  const client = (req as any).dbClient;
+  const client = req.dbClient;
   if (!client) {
     // setTenantContext should always attach a tenant-scoped transaction client.
     // If it's missing, we must fail closed to avoid RLS casting errors on pooled connections.
@@ -264,7 +264,7 @@ router.get(
           allow_personal_use: policy?.allow_personal_use ?? false,
           require_approval: policy?.require_approval ?? true,
           charge_personal_use: policy?.charge_personal_use ?? false,
-          payment_method: (policy?.payment_method as any) || 'payroll_deduction'
+          payment_method: (policy?.payment_method as string) || 'payroll_deduction'
         }
       };
 

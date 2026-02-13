@@ -200,7 +200,7 @@ router.get('/stats',
   }),
   asyncHandler(async (req: Request, res: Response) => {
     // FIX: tenant_id is UUID, not integer - use proper fallback
-    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId || '00000000-0000-0000-0000-000000000001';
+    const tenantId = req.user?.tenant_id || req.user?.tenantId || '00000000-0000-0000-0000-000000000001';
     const cacheKey = `dashboard:stats:tenant:${tenantId}`;
 
     logger.info(`Fetching dashboard stats for tenant ${tenantId}`);
@@ -336,8 +336,8 @@ router.get('/maintenance/alerts',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user?.id;
-    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
+    const userId = req.user?.id;
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
 
     logger.info(`Fetching maintenance alerts for user ${userId}, tenant ${tenantId}`);
     if (!tenantId) {
@@ -426,7 +426,7 @@ router.get('/fleet/stats',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
     if (!tenantId) {
       return res.status(400).json({ error: 'Tenant ID is required' });
     }
@@ -500,7 +500,7 @@ router.get('/costs/summary',
   // Note: Query validation is handled inline with Zod schema
   asyncHandler(async (req: Request, res: Response) => {
     const { period } = req.query as z.infer<typeof costsSummaryQuerySchema>;
-    const tenantId = (req as any).user?.tenant_id || (req as any).user?.tenantId;
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
     if (!tenantId) {
       return res.status(400).json({ error: 'Tenant ID is required' });
     }
@@ -663,8 +663,8 @@ router.get('/drivers/me/vehicle',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user?.id;
-    const email = (req as any).user?.email;
+    const userId = req.user?.id;
+    const email = req.user?.email;
 
     logger.info(`Fetching assigned vehicle for driver ${userId}`);
 
@@ -728,8 +728,8 @@ router.get('/drivers/me/trips/today',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user?.id;
-    const email = (req as any).user?.email;
+    const userId = req.user?.id;
+    const email = req.user?.email;
 
     logger.info(`Fetching today's trips for driver ${userId}`);
 
@@ -799,8 +799,8 @@ router.post('/inspections',
     enforceTenantIsolation: true
   }),
   asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req as any).user?.id;
-    const email = (req as any).user?.email;
+    const userId = req.user?.id;
+    const email = req.user?.email;
     const { vehicle_id, inspection_items, timestamp } = req.body;
 
     // Validate request body
@@ -826,7 +826,7 @@ router.post('/inspections',
 
     const driverId = driverResult.rows[0].id;
 
-    const failedCount = inspection_items.filter((item: any) => item.status === 'fail').length;
+    const failedCount = inspection_items.filter((item: { item: string; status: string }) => item.status === 'fail').length;
     const passedInspection = failedCount === 0;
 
     const insertResult = await pool.query(
@@ -846,7 +846,7 @@ router.post('/inspections',
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
       ) RETURNING id`,
       [
-        (req as any).user?.tenant_id,
+        req.user?.tenant_id,
         vehicle_id,
         driverId,
         'safety',
@@ -894,7 +894,8 @@ router.post('/reports/daily',
   }),
   asyncHandler(async (req: Request, res: Response) => {
     const { date } = req.body;
-    const userId = (req as any).user?.id;
+    const userId = req.user?.id;
+    const userTenantId = req.user?.tenant_id;
 
     // Validate request body
     const validation = dailyReportSchema.safeParse(req.body);
@@ -912,9 +913,9 @@ router.post('/reports/daily',
     const doc = new PDFDocument({ margin: 50 });
 
     const [vehicleResult, driverResult, workOrderResult] = await Promise.all([
-      pool.query('SELECT COUNT(*)::integer as count FROM vehicles WHERE tenant_id = $1', [(req as any).user?.tenant_id]),
-      pool.query('SELECT COUNT(*)::integer as count FROM drivers WHERE tenant_id = $1', [(req as any).user?.tenant_id]),
-      pool.query('SELECT COUNT(*)::integer as count FROM work_orders WHERE tenant_id = $1', [(req as any).user?.tenant_id]),
+      pool.query('SELECT COUNT(*)::integer as count FROM vehicles WHERE tenant_id = $1', [userTenantId]),
+      pool.query('SELECT COUNT(*)::integer as count FROM drivers WHERE tenant_id = $1', [userTenantId]),
+      pool.query('SELECT COUNT(*)::integer as count FROM work_orders WHERE tenant_id = $1', [userTenantId]),
     ]);
 
     res.setHeader('Content-Type', 'application/pdf');

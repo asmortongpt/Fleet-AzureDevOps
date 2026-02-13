@@ -100,8 +100,8 @@ router.post('/upload', csrfProtection, upload.single('file'), async (req: Reques
         filename: req.file.originalname,
         mimeType: req.file.mimetype,
         size: req.file.size,
-        uploadedBy: (req as any).user?.id || 'anonymous'
-      } as any,
+        createdBy: req.user?.id ? String(req.user.id) : 'anonymous'
+      },
       contentType: req.file.mimetype,
       overwrite: req.body.overwrite === 'true'
     });
@@ -198,7 +198,7 @@ router.get('/url/:key(*)', async (req: Request, res: Response) => {
 
     const url = await manager.getUrl(key, {
       expiresIn,
-      contentDisposition: req.query.disposition as any
+      contentDisposition: req.query.disposition as 'inline' | 'attachment' | undefined
     });
 
     res.json({
@@ -557,8 +557,8 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
             filename: file.originalname,
             mimeType: file.mimetype,
             size: file.size,
-            uploadedBy: (req as any).user?.id || 'anonymous'
-          } as any,
+            createdBy: req.user?.id ? String(req.user.id) : 'anonymous'
+          },
           contentType: file.mimetype
         });
         results.push(result);

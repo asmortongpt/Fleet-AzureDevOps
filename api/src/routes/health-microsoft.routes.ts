@@ -10,7 +10,7 @@ import { getErrorMessage } from '../utils/error-handler';
  * by executing a lightweight SELECT 1 query and measuring latency.
  */
 class MicrosoftHealthRepository {
-  async checkDatabaseConnection(): Promise<{ healthy: boolean; latencyMs?: number; details?: any }> {
+  async checkDatabaseConnection(): Promise<{ healthy: boolean; latencyMs?: number; details?: Record<string, unknown> }> {
     const start = Date.now();
     try {
       const result = await pool.query('SELECT 1 AS health_check, NOW() AS server_time');
@@ -20,9 +20,9 @@ class MicrosoftHealthRepository {
         latencyMs,
         details: {
           serverTime: result.rows[0]?.server_time,
-          poolTotalCount: (pool as any).totalCount,
-          poolIdleCount: (pool as any).idleCount,
-          poolWaitingCount: (pool as any).waitingCount,
+          poolTotalCount: (pool as unknown as Record<string, number>).totalCount,
+          poolIdleCount: (pool as unknown as Record<string, number>).idleCount,
+          poolWaitingCount: (pool as unknown as Record<string, number>).waitingCount,
         }
       };
     } catch (error: unknown) {
@@ -143,7 +143,7 @@ router.get('/microsoft', async (req: Request, res: Response) => {
   try {
     const webhookService = await import('../services/webhook.service');
     const subscriptions = await webhookService.webhookService.listSubscriptions();
-    const activeSubscriptions = subscriptions.filter((sub: any) => sub.status === 'active');
+    const activeSubscriptions = subscriptions.filter((sub: { status: string }) => sub.status === 'active');
 
     results.services.webhooks = {
       status: activeSubscriptions.length > 0 ? 'up' : 'degraded',
@@ -162,7 +162,8 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 6. Check Queue System
   try {
-    const queueStatus: any = await (queueService as any).checkHealth?.();
+    const checkHealth = (queueService as unknown as Record<string, (() => Promise<{ healthy: boolean; details?: Record<string, unknown> }>) | undefined>).checkHealth;
+    const queueStatus = checkHealth ? await checkHealth() : null;
     results.services.queue = {
       status: queueStatus?.healthy ? 'up' : 'down',
       message: queueStatus?.healthy ? 'Queue system is operational' : 'Queue system is not responding',
@@ -177,12 +178,13 @@ router.get('/microsoft', async (req: Request, res: Response) => {
 
   // 7. Check Sync Service
   try {
-    const syncService: any = await import('../services/sync.service');
-    const syncStatus = await syncService.syncService?.checkHealth?.();
+    const syncModule = await import('../services/sync.service') as Record<string, unknown>;
+    const syncSvc = syncModule.syncService as { checkHealth?: () => Promise<{ healthy: boolean; details?: Record<string, unknown> }> } | undefined;
+    const syncStatus = await syncSvc?.checkHealth?.();
     results.services.sync = {
-      status: syncStatus.healthy ? 'up' : 'down',
-      message: syncStatus.healthy ? 'Sync service is operational' : 'Sync service is not responding',
-      details: syncStatus.details
+      status: syncStatus?.healthy ? 'up' : 'down',
+      message: syncStatus?.healthy ? 'Sync service is operational' : 'Sync service is not responding',
+      details: syncStatus?.details
     };
   } catch (error: unknown) {
     results.services.sync = {

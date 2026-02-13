@@ -62,7 +62,7 @@ router.post('/process', csrfProtection, csrfProtection, upload.single('file'), a
       return res.status(400).json({ error: `No file uploaded` })
     }
 
-    const { tenantId, userId } = (req as any).user
+    const { tenantId, userId } = req.user!
     const documentId =
       req.body.documentId || `doc-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 
@@ -134,7 +134,7 @@ router.post('/batch', csrfProtection, csrfProtection, upload.array('files', 100)
       throw new ValidationError("No files uploaded")
     }
 
-    const { tenantId, userId } = (req as any).user
+    const { tenantId, userId } = req.user!
 
     // Parse options
     const options: OcrOptions = {
@@ -252,7 +252,7 @@ router.get('/result/:documentId', async (req: Request, res: Response) => {
  */
 router.post('/search', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { tenantId } = (req as any).user
+    const { tenantId } = req.user!
     const { query, limit } = req.body
 
     if (!query) {
@@ -331,7 +331,7 @@ router.post('/job/:jobId/retry', csrfProtection, csrfProtection, async (req: Req
  */
 router.get('/statistics', async (req: Request, res: Response) => {
   try {
-    const { tenantId } = (req as any).user
+    const { tenantId } = req.user!
 
     const stats = await ocrQueueService.getStatistics(tenantId)
 
@@ -441,7 +441,7 @@ router.get('/languages', async (req: Request, res: Response) => {
 /**
  * Middleware to check admin authentication
  */
-const requireAdmin = (req: Request, res: Response, next: any) => {
+const requireAdmin = (req: Request, res: Response, next: () => void) => {
   const isAdmin = req.headers['x-admin-key'] === process.env.ADMIN_KEY ||
     req.headers.authorization?.includes('admin');
 

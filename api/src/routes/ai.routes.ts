@@ -19,7 +19,7 @@ import logger from '../config/logger'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT, authorize } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
-import ocrService from '../services/OcrService'
+import ocrService, { OcrProvider } from '../services/OcrService'
 import vectorSearchService from '../services/VectorSearchService'
 import { getErrorMessage } from '../utils/error-handler'
 
@@ -137,7 +137,7 @@ async function handleReceiptExtract(req: AuthRequest, res: Response) {
 
     const documentId = `receipt-${Date.now()}-${Math.random().toString(36).slice(2)}`
     const result = await ocrService.processDocument(req.file.path, documentId, {
-      provider: 'auto' as any,
+      provider: OcrProvider.AUTO,
       detectTables: false,
       detectForms: true,
       preprocessImage: true

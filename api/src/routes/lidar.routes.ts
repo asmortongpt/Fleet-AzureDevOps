@@ -421,7 +421,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const scanId = req.params.scanId;
-      const format = req.params.format as any;
+      const format = req.params.format as string;
 
       const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id, scanId);
       const model = scanData.models.find(m => m.format === format);
@@ -512,7 +512,7 @@ router.get(
         totalScans: result.total,
         totalModels: result.scans.reduce((sum, scan) => sum + scan.modelCount, 0),
         totalDamageAnnotations: result.scans.reduce((sum, scan) => sum + scan.damageCount, 0),
-        scansByScanner: result.scans.reduce((acc: any, scan: any) => {
+        scansByScanner: result.scans.reduce((acc: Record<string, number>, scan: { scannerType: string }) => {
           acc[scan.scannerType] = (acc[scan.scannerType] || 0) + 1;
           return acc;
         }, {}),

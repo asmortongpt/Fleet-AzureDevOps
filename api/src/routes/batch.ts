@@ -59,7 +59,7 @@ async function executeInternalRequest(
     const { container } = require('../container');
 
     // Get tenant ID from authenticated user
-    const tenantId = (req as any).user?.tenant_id;
+    const tenantId = req.user?.tenant_id;
     if (!tenantId) {
       return {
         success: false,
@@ -227,8 +227,8 @@ router.post(
   validateBody(batchRequestSchema),
   asyncHandler(async (req: Request, res: Response) => {
     const { requests } = req.body;
-    const tenantId = (req as any).user?.tenant_id;
-    const userId = (req as any).user?.id;
+    const tenantId = req.user?.tenant_id;
+    const userId = req.user?.id;
 
     logger.info('[Batch] Processing batch request', {
       tenantId,
@@ -240,7 +240,7 @@ router.post(
 
     // Execute all requests in parallel
     const results = await Promise.all(
-      requests.map((batchReq: any) => executeInternalRequest(req, batchReq))
+      requests.map((batchReq: { method: string; url: string; body?: unknown; headers?: Record<string, string> }) => executeInternalRequest(req, batchReq))
     );
 
     const duration = Date.now() - startTime;

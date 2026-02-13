@@ -11,19 +11,45 @@ const router = Router()
 const serverStartTime = Date.now()
 
 // In-memory storage for metrics
+interface RequestMetric {
+  timestamp: number
+  responseTime: number
+  statusCode: number
+  method: string
+  path: string
+}
+
+interface ErrorMetric {
+  id: string
+  endpoint: string
+  type: string
+  message: string
+  timestamp: number
+  statusCode: number
+  userId?: string | number
+}
+
+interface AlertMetric {
+  id: string
+  type: string
+  message: string
+  timestamp: number
+  severity: string
+}
+
 const metricsStore = {
-  requests: new Map<string, any[]>(),
-  errors: [] as any[],
-  alerts: [] as any[],
+  requests: new Map<string, RequestMetric[]>(),
+  errors: [] as ErrorMetric[],
+  alerts: [] as AlertMetric[],
 }
 
 // Middleware to track request metrics
-const trackMetrics = (req: Request, res: Response, next: Function) => {
+const trackMetrics = (req: Request, res: Response, next: () => void) => {
   const startTime = performance.now()
   const endpoint = `${req.method} ${req.path}`
   const originalEnd = res.end
 
-  res.end = function (...args: any[]) {
+  res.end = function (...args: unknown[]) {
     const responseTime = performance.now() - startTime
 
     if (!metricsStore.requests.has(endpoint)) {
@@ -51,7 +77,7 @@ const trackMetrics = (req: Request, res: Response, next: Function) => {
         message: `HTTP ${res.statusCode} on ${endpoint}`,
         timestamp: Date.now(),
         statusCode: res.statusCode,
-        userId: (req as any).user?.id,
+        userId: req.user?.id,
       })
 
       if (metricsStore.errors.length > 1000) {
@@ -59,7 +85,7 @@ const trackMetrics = (req: Request, res: Response, next: Function) => {
       }
     }
 
-    return originalEnd.apply(this, args as any)
+    return originalEnd.apply(this, args as [unknown?, BufferEncoding?, (() => void)?])
   }
 
   next()
