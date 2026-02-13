@@ -216,7 +216,7 @@ router.post(
           uploadedAt: photo.created_at,
         },
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Photo upload error:', error);
       res.status(500).json({
         error: 'Failed to upload photo',
@@ -359,7 +359,7 @@ router.post(
               fileName: photo.file_name,
             },
           });
-        } catch (error: any) {
+        } catch (error: unknown) {
           logger.error(`Failed to upload photo ${i}:`, error);
           errors.push({
             index: i,
@@ -377,7 +377,7 @@ router.post(
         results,
         errors,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Batch upload error:`, error);
       res.status(500).json({
         error: `Failed to upload photos`,
@@ -448,7 +448,7 @@ router.get(
         photos: result.rows,
         count: result.rows.length,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Sync queue error:`, error);
       res.status(500).json({
         error: 'Failed to get sync queue',
@@ -513,7 +513,7 @@ router.post(
         syncedCount: result.rowCount,
         syncedIds: result.rows.map(r => r.id),
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Sync complete error:`, error);
       res.status(400).json({
         error: 'Failed to mark photos as synced',
@@ -574,7 +574,7 @@ router.get(
         success: true,
         photo: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get status error:', error);
       res.status(500).json({
         error: 'Failed to get photo status',
@@ -633,7 +633,7 @@ router.get(
         success: true,
         photo: result.rows[0],
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get photo error:', error);
       res.status(500).json({
         error: 'Failed to get photo',
@@ -714,7 +714,7 @@ router.delete(
         success: true,
         message: 'Photo deleted successfully',
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Delete photo error:', error);
       res.status(500).json({
         error: 'Failed to delete photo',
@@ -755,7 +755,7 @@ router.get(
         success: true,
         stats,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get stats error:', error);
       res.status(500).json({
         error: 'Failed to get processing stats',

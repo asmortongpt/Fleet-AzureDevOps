@@ -38,12 +38,13 @@ router.get('/stats', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error fetching query performance stats:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch query performance statistics',
-      message: error.message
+      message: errMsg
     });
   }
 });
@@ -65,12 +66,13 @@ router.get('/slow-queries', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error fetching slow queries:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch slow queries',
-      message: error.message
+      message: errMsg
     });
   }
 });
@@ -92,12 +94,13 @@ router.get('/top-slow', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error fetching top slow queries:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch top slow queries',
-      message: error.message
+      message: errMsg
     });
   }
 });
@@ -119,12 +122,13 @@ router.get('/frequency', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error fetching query frequency:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch query frequency',
-      message: error.message
+      message: errMsg
     });
   }
 });
@@ -145,12 +149,13 @@ router.get('/errors', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error fetching query errors:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch query errors',
-      message: error.message
+      message: errMsg
     });
   }
 });
@@ -170,12 +175,13 @@ router.get('/health', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error fetching database health:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch database health',
-      message: error.message
+      message: errMsg
     });
   }
 });
@@ -203,12 +209,13 @@ router.get('/detailed-stats', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error fetching detailed stats:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch detailed statistics',
-      message: error.message
+      message: errMsg
     });
   }
 });
@@ -226,12 +233,13 @@ router.post('/reset',csrfProtection, async (req: Request, res: Response) => {
       message: 'Query performance statistics reset successfully',
       timestamp: new Date().toISOString()
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error resetting query stats:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to reset query statistics',
-      message: error.message
+      message: errMsg
     });
   }
 });
@@ -261,12 +269,13 @@ router.get('/summary', async (req: Request, res: Response) => {
         timestamp: new Date().toISOString()
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error fetching performance summary:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch performance summary',
-      message: error.message
+      message: errMsg
     });
   }
 });

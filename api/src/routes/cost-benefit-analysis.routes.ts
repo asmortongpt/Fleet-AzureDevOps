@@ -145,7 +145,7 @@ router.get(
           pages: Math.ceil(total / parseInt(limit as string)),
         },
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching cost/benefit analyses:`, error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analyses',
@@ -200,7 +200,7 @@ router.get(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching cost/benefit analysis:', error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch cost/benefit analysis',
@@ -287,7 +287,7 @@ router.post(
         message: `Cost/benefit analysis created successfully`,
         analysis: result.rows[0],
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating cost/benefit analysis:', error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -353,7 +353,7 @@ router.put(
         message: 'Cost/benefit analysis updated successfully',
         analysis: result.rows[0],
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error updating cost/benefit analysis:', error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -406,7 +406,7 @@ router.post(
         message: `Cost/benefit analysis ${data.approval_status}`,
         analysis: result.rows[0],
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error reviewing cost/benefit analysis:`, error) // Wave 32: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -451,7 +451,7 @@ router.delete(
       res.json({
         message: 'Cost/benefit analysis deleted successfully',
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error deleting cost/benefit analysis:', error) // Wave 32: Winston logger;
       res.status(500).json({
         error: 'Failed to delete cost/benefit analysis',

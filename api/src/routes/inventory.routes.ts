@@ -627,7 +627,7 @@ router.post('/transactions', [
       message: 'Transaction created successfully',
       data: transactionResult.rows[0],
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     await client.query('ROLLBACK');
     throw error;
   } finally {

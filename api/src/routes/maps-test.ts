@@ -41,11 +41,11 @@ router.get('/test', async (req: Request, res: Response) => {
         results: response.data.results?.length || 0,
         location: response.data.results?.[0]?.geometry?.location
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       geocodeResult = {
         status: 'ERROR',
         success: false,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       };
     }
 
@@ -60,11 +60,11 @@ router.get('/test', async (req: Request, res: Response) => {
         success: response.data.status === 'OK' || response.data.status === 'ZERO_RESULTS',
         results: response.data.results?.length || 0
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       placesResult = {
         status: 'ERROR',
         success: false,
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       };
     }
 
@@ -110,12 +110,12 @@ router.get('/test', async (req: Request, res: Response) => {
         }
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     return res.status(500).json({
       success: false,
       error: 'Internal server error',
-      message: error.message,
-      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
     });
   }
 });

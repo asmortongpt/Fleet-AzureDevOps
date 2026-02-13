@@ -109,7 +109,7 @@ router.get(
           }))
         }
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get hardware config error:', { error, vehicleId: req.params.id });
 
       if (error instanceof NotFoundError) {
@@ -122,7 +122,7 @@ router.get(
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve hardware configuration',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'An unexpected error occurred') : undefined
       });
     }
   }
@@ -183,7 +183,7 @@ router.post(
           message: `Provider '${provider}' added successfully`
         }
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Add provider error:', {
         error,
         vehicleId: req.params.id,
@@ -200,7 +200,7 @@ router.post(
       res.status(500).json({
         success: false,
         error: 'Failed to add provider',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'An unexpected error occurred') : undefined
       });
     }
   }
@@ -247,7 +247,7 @@ router.delete(
         success: true,
         message: `Provider '${provider}' removed successfully`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Remove provider error:', {
         error,
         vehicleId: req.params.id,
@@ -264,7 +264,7 @@ router.delete(
       res.status(500).json({
         success: false,
         error: 'Failed to remove provider',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'An unexpected error occurred') : undefined
       });
     }
   }
@@ -318,7 +318,7 @@ router.post(
           ? `Provider '${provider}' connection successful`
           : `Provider '${provider}' connection failed`)
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Test provider error:', {
         error,
         vehicleId: req.params.id,
@@ -335,7 +335,7 @@ router.post(
       res.status(500).json({
         success: false,
         error: 'Failed to test provider connection',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'An unexpected error occurred') : undefined
       });
     }
   }
@@ -386,7 +386,7 @@ router.patch(
         success: true,
         message: `Provider '${provider}' configuration updated successfully`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update provider config error:', {
         error,
         vehicleId: req.params.id,
@@ -403,7 +403,7 @@ router.patch(
       res.status(500).json({
         success: false,
         error: 'Failed to update provider configuration',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'An unexpected error occurred') : undefined
       });
     }
   }
@@ -445,7 +445,7 @@ router.get(
           providers: telemetry.providers
         }
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get unified telemetry error:', {
         error,
         vehicleId: req.params.id
@@ -461,7 +461,7 @@ router.get(
       res.status(500).json({
         success: false,
         error: 'Failed to retrieve unified telemetry',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'An unexpected error occurred') : undefined
       });
     }
   }

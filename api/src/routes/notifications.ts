@@ -87,7 +87,7 @@ router.patch(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundError) {
         return res.status(404).json({ error: error.message })
       }
@@ -134,7 +134,7 @@ router.delete(
       }
 
       res.json({ message: 'Notification deleted successfully' })
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof NotFoundError) {
         return res.status(404).json({ error: error.message })
       }

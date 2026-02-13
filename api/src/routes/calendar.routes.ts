@@ -63,7 +63,7 @@ router.post('/events',csrfProtection, authenticateJWT, async (req: Request, res:
       message: 'Calendar event created',
       event
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error creating calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -130,7 +130,7 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
       count: events.length,
       events
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error instanceof ValidationError) {
       return res.status(400).json({ error: error.message })
     }
@@ -164,7 +164,7 @@ router.get('/events/:eventId', authenticateJWT, async (req: Request, res: Respon
       success: true,
       event
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -210,7 +210,7 @@ updates.body = body
       message: 'Calendar event updated',
       event
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error updating calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -235,7 +235,7 @@ router.delete('/events/:eventId',csrfProtection, authenticateJWT, async (req: Re
       success: true,
       message: 'Calendar event deleted'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error deleting calendar event:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -260,7 +260,7 @@ router.post('/events/:eventId/accept',csrfProtection, authenticateJWT, async (re
       success: true,
       message: 'Meeting accepted'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error accepting meeting:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -285,7 +285,7 @@ router.post('/events/:eventId/decline',csrfProtection, authenticateJWT, async (r
       success: true,
       message: 'Meeting declined'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error declining meeting:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -310,7 +310,7 @@ router.post('/events/:eventId/tentative',csrfProtection, authenticateJWT, async 
       success: true,
       message: 'Meeting tentatively accepted'
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error tentatively accepting meeting:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -356,7 +356,7 @@ async function handleFindTimes(req: Request, res: Response) {
       count: suggestions.length,
       suggestions
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error finding meeting times:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -400,7 +400,7 @@ router.get('/availability', authenticateJWT, async (req: Request, res: Response)
       success: true,
       availability
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting availability:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -434,7 +434,7 @@ router.post('/schedule-maintenance',csrfProtection, authenticateJWT, async (req:
       message: 'Maintenance scheduled',
       event
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error scheduling maintenance:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }
@@ -469,7 +469,7 @@ router.post('/schedule-training',csrfProtection, authenticateJWT, async (req: Re
       message: 'Training scheduled',
       event
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error scheduling training:', getErrorMessage(error)) // Wave 25: Winston logger
     res.status(500).json({ error: getErrorMessage(error) })
   }

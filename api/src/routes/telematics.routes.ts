@@ -29,7 +29,7 @@ try {
     samsaraService = new SamsaraService(pool)
     logger.info('✅ Samsara service initialized')
   }
-} catch (error: any) {
+} catch (error: unknown) {
   logger.warn('⚠️  Samsara service not initialized:', getErrorMessage(error))
 }
 
@@ -131,7 +131,7 @@ router.post(
         message: 'Vehicle connected successfully',
         connection: result.rows[0]
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Connect vehicle error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -443,7 +443,7 @@ router.post(
         status: videoRequest.status,
         expires_at: videoRequest.expiresAt
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Request video error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -468,7 +468,7 @@ router.get(
       const status = await samsaraService.getVideoStatus(req.params.requestId)
 
       res.json(status)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Get video status error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }
@@ -561,7 +561,7 @@ router.post(
         sync_type,
         result
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Sync error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: getErrorMessage(error) || 'Internal server error' })
     }

@@ -310,11 +310,11 @@ router.post(
         relationship: result.rows[0],
         message: 'Asset relationship created successfully'
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       await client.query('ROLLBACK')
       logger.error('Error creating asset relationship:', error)
 
-      if (error.constraint === 'asset_relationships_different_assets') {
+      if ((error as Record<string, unknown>).constraint === 'asset_relationships_different_assets') {
         throw new ValidationError("Parent and child assets must be different")
       }
 

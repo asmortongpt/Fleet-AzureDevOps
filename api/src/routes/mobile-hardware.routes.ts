@@ -193,7 +193,7 @@ router.post('/parts/scan', requirePermission('inventory:view:global'), async (re
         imageUrl: row.metadata?.image_url ?? null,
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error scanning part:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -273,7 +273,7 @@ router.get('/parts/search', requirePermission('inventory:view:global'), async (r
     }))
 
     res.json({ parts, total: parts.length })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error searching parts:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -393,7 +393,7 @@ router.post(
     )
 
     res.status(201).json({ data: poResult.rows[0] })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error ordering part:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -503,7 +503,7 @@ router.post('/checkin/nfc', requirePermission('vehicle:update:fleet'), auditLog(
       method: checkin.check_in_method,
       requiresInspection: checkin.requires_inspection
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error during vehicle check-in:`, error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -605,7 +605,7 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
       location: row.location,
       imageUrl: row.metadata?.image_url ?? null
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting vehicle details:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -700,7 +700,7 @@ router.post('/beacons/register', requirePermission(`vehicle:update:fleet`), audi
       registeredAt: row.registered_at,
       active: row.is_active
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Error registering beacon:`, error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -776,7 +776,7 @@ router.get('/beacons/nearby', requirePermission('vehicle:view:fleet'), async (re
     }))
 
     res.json({ beacons })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting nearby beacons:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -909,7 +909,7 @@ router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`)
       status: row.status,
       videoUrl: row.video_url
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error tagging dashcam event:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -1029,7 +1029,7 @@ router.get('/dashcam/events', requirePermission('safety_incident:view:global'), 
     }))
 
     res.json({ events })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting dashcam events:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -1107,7 +1107,7 @@ router.get('/work-orders/:workOrderId/parts', requirePermission('work_order:view
     }))
 
     res.json({ parts })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting work order parts:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -1208,7 +1208,7 @@ router.post('/work-orders/:workOrderId/parts', requirePermission(`work_order:upd
       addedBy: userId,
       addedAt: row.created_at
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error adding part to work order:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -1324,7 +1324,7 @@ router.post('/work-orders/:workOrderId/parts/batch', requirePermission(`work_ord
       await client.query('ROLLBACK')
       throw txError
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error adding parts batch to work order:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -1420,7 +1420,7 @@ router.post('/assets/scan', requirePermission(`asset:view:global`), async (req: 
         status: row.status
       }
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error scanning asset:', error) // Wave 24: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }

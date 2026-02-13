@@ -109,8 +109,8 @@ router.post(
         searchTimeMs: searchTime,
         strategy: 'semantic',
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('Semantic search error:', error)
@@ -188,8 +188,8 @@ router.post(
           vector: searchData.vectorWeight,
         },
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('Hybrid search error:', error)
@@ -250,8 +250,8 @@ router.post(
         modelUsed: response.modelUsed,
         responseTimeMs: responseTime,
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('Document Q&A error:', error)
@@ -312,8 +312,8 @@ router.post(
         expandedQueries: expansions.slice(0, maxSuggestions),
         suggestions: expansions.length,
       })
-    } catch (error: any) {
-      if (error.name === `ZodError`) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: `Validation error`, details: error.issues })
       }
       logger.error(`Query expansion error:`, error)
@@ -396,8 +396,8 @@ router.post(
         processingTimeMs: processingTime,
         estimatedCost: totalCost.toFixed(4),
       })
-    } catch (error: any) {
-      if (error.name === `ZodError`) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('Document indexing error:', error)
@@ -484,8 +484,8 @@ router.post(
         processingTimeMs: processingTime,
         estimatedCost: totalCost.toFixed(4),
       })
-    } catch (error: any) {
-      if (error.name === `ZodError`) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('Batch indexing error:', error)
@@ -556,7 +556,7 @@ router.get(
         recentSearches: recentSearches.rows,
         metrics: avgMetrics.rows[0],
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Analytics error:`, error)
       res.status(500).json({ error: 'Failed to get analytics', message: getErrorMessage(error) })
     }
@@ -609,8 +609,8 @@ router.post(
       )
 
       res.json({ success: true, message: `Feedback recorded` })
-    } catch (error: any) {
-      if (error.name === `ZodError`) {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('Feedback error:', error)

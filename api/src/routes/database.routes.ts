@@ -92,7 +92,7 @@ router.get('/health',
       const statusCode = status === 'healthy' ? 200 : status === 'degraded' ? 200 : 503;
       return res.status(statusCode).json(response);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Database health check failed:', error);
 
       return res.status(503).json({
@@ -100,7 +100,7 @@ router.get('/health',
         timestamp: new Date().toISOString(),
         database: {
           connected: false,
-          error: error.message || 'Database connection failed'
+          error: error instanceof Error ? error.message : 'Database connection failed'
         }
       });
     }
@@ -131,13 +131,13 @@ router.get('/ping',
         timestamp: new Date().toISOString(),
         latency: `${latency}ms`
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Database ping failed:', error);
 
       return res.status(503).json({
         status: 'error',
         timestamp: new Date().toISOString(),
-        error: error.message
+        error: error instanceof Error ? error.message : 'An unexpected error occurred'
       });
     }
   })

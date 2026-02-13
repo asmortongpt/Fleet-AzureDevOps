@@ -110,7 +110,7 @@ router.post('/upload', csrfProtection, upload.single('file'), async (req: Reques
       success: true,
       data: result
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Upload error:', error);
     res.status(500).json({
       error: 'Upload failed',
@@ -158,9 +158,9 @@ router.get('/download/:key(*)', async (req: Request, res: Response) => {
 
     // Pipe stream to response
     result.stream.pipe(res);
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Download error:`, error);
-    res.status(error.statusCode || 500).json({
+    res.status((error as Record<string, unknown>).statusCode as number || 500).json({
       error: 'Download failed',
       message: getErrorMessage(error)
     });
@@ -205,9 +205,9 @@ router.get('/url/:key(*)', async (req: Request, res: Response) => {
       success: true,
       data: { url, expiresIn }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Get URL error:', error);
-    res.status(error.statusCode || 500).json({
+    res.status((error as Record<string, unknown>).statusCode as number || 500).json({
       error: 'Failed to generate URL',
       message: getErrorMessage(error)
     });
@@ -243,9 +243,9 @@ router.delete('/delete/:key(*)', csrfProtection, csrfProtection, async (req: Req
       success: true,
       message: 'File deleted successfully'
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Delete error:', error);
-    res.status(error.statusCode || 500).json({
+    res.status((error as Record<string, unknown>).statusCode as number || 500).json({
       error: 'Delete failed',
       message: getErrorMessage(error)
     });
@@ -299,7 +299,7 @@ router.get('/list', async (req: Request, res: Response) => {
       success: true,
       data: result
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('List error:', error);
     res.status(500).json({
       error: 'List failed',
@@ -329,7 +329,7 @@ router.get('/stats', async (req: Request, res: Response) => {
       success: true,
       data: stats
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Stats error:', error);
     res.status(500).json({
       error: 'Failed to get stats',
@@ -386,7 +386,7 @@ router.post('/migrate', csrfProtection, async (req: Request, res: Response) => {
       success: true,
       data: job
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error(`Migration error:`, error);
     res.status(500).json({
       error: 'Migration failed',
@@ -423,7 +423,7 @@ router.post('/tier/auto', csrfProtection, async (req: Request, res: Response) =>
       success: true,
       data: result
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Auto-tiering error:', error);
     res.status(500).json({
       error: 'Auto-tiering failed',
@@ -461,7 +461,7 @@ router.get('/config', async (req: Request, res: Response) => {
         allowedMimeTypes: config.allowedMimeTypes
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Config error:', error);
     res.status(500).json({
       error: 'Failed to get config',
@@ -503,7 +503,7 @@ router.get('/health', async (req: Request, res: Response) => {
       success: true,
       data: health
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Health check error:', error);
     res.status(500).json({
       success: false,
@@ -562,7 +562,7 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
           contentType: file.mimetype
         });
         results.push(result);
-      } catch (error: any) {
+      } catch (error: unknown) {
         errors.push({
           filename: file.originalname,
           error: getErrorMessage(error)
@@ -579,7 +579,7 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
         errors
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Batch upload error:', error);
     res.status(500).json({
       error: 'Batch upload failed',
@@ -626,7 +626,7 @@ router.post('/batch/delete', csrfProtection, async (req: Request, res: Response)
       try {
         await manager.delete(key);
         results.push(key);
-      } catch (error: any) {
+      } catch (error: unknown) {
         errors.push({
           key,
           error: getErrorMessage(error)
@@ -643,7 +643,7 @@ router.post('/batch/delete', csrfProtection, async (req: Request, res: Response)
         errors
       }
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Batch delete error:', error);
     res.status(500).json({
       error: 'Batch delete failed',

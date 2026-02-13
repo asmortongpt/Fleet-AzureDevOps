@@ -70,7 +70,7 @@ router.post(
         })
       }
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Outlook webhook error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -108,8 +108,9 @@ async function processNotificationAsync(notification: any): Promise<void> {
         logger.warn('⚠️  Unknown change type:', changeType)
     }
 
-  } catch (error: any) {
-    logger.error('Error processing Outlook notification:', error.message)
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    logger.error('Error processing Outlook notification:', errMsg)
 
     // Log error to database for retry
     try {
@@ -125,7 +126,7 @@ async function processNotificationAsync(notification: any): Promise<void> {
            ORDER BY received_at DESC
            LIMIT 1
          )`,
-        [error.message, notification.subscriptionId, notification.resource]
+        [errMsg, notification.subscriptionId, notification.resource]
       )
     } catch (dbError) {
       logger.error('Failed to log error to database:', dbError)
@@ -217,8 +218,8 @@ async function handleEmailUpdate(notification: any): Promise<void> {
 
     logger.info('✅ Outlook email updated:', messageId)
 
-  } catch (error: any) {
-    logger.error('Failed to handle email update:', error.message)
+  } catch (error: unknown) {
+    logger.error('Failed to handle email update:', error instanceof Error ? error.message : 'An unexpected error occurred')
     throw error
   }
 }
@@ -260,8 +261,8 @@ async function handleEmailDelete(notification: any): Promise<void> {
       logger.warn('⚠️  Email not found for deletion:', messageId)
     }
 
-  } catch (error: any) {
-    logger.error('Failed to handle email delete:', error.message)
+  } catch (error: unknown) {
+    logger.error('Failed to handle email delete:', error instanceof Error ? error.message : 'An unexpected error occurred')
     throw error
   }
 }
@@ -293,7 +294,7 @@ router.get(
         count: result.rows.length
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to list Outlook subscriptions:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -348,11 +349,11 @@ router.post(
         }
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to create Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to create subscription',
-        details: error.message
+        details: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
     }
   }
@@ -399,11 +400,11 @@ router.delete(
         subscriptionId
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to delete Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to delete subscription',
-        details: error.message
+        details: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
     }
   }
@@ -450,11 +451,11 @@ router.post(
         subscriptionId
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to renew Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to renew subscription',
-        details: error.message
+        details: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
     }
   }
@@ -498,7 +499,7 @@ router.get(
         count: result.rows.length
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to fetch webhook events:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
@@ -607,11 +608,11 @@ router.post(
         category
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to categorize email:', error)
       res.status(500).json({
         error: 'Failed to categorize',
-        details: error.message
+        details: error instanceof Error ? error.message : 'An unexpected error occurred'
       })
     }
   }
@@ -706,7 +707,7 @@ router.get(
         processing_queue: queueResult.rows
       })
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Failed to fetch stats:', error)
       res.status(500).json({ error: 'Internal server error' })
     }

@@ -333,13 +333,15 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
       expires_at: expiryDate.toISOString()
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Invalid or expired token
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+    const errName = error instanceof Error ? error.name : 'Error';
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    if (errName === 'JsonWebTokenError' || errName === 'TokenExpiredError') {
       return res.status(400).json({
         error: 'Invalid token',
         message: 'The provided token is invalid or expired',
-        details: error.message
+        details: errMsg
       })
     }
 
@@ -351,11 +353,11 @@ router.post('/revoke', csrfProtection, csrfProtection, authenticateJWT, asyncHan
       'LOGOUT',
       'auth',
       targetUserId,
-      { error: error.message },
+      { error: errMsg },
       req.ip || null,
       req.get('User-Agent') || null,
       'failure',
-      error.message
+      errMsg
     )
 
     return res.status(500).json({

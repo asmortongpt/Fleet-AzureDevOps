@@ -244,9 +244,9 @@ router.post(
       }
 
       res.status(201).json(result.rows[0]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create vehicle contract error:', error);
-      if (error.code === '23505') { // Unique violation
+      if ((error as Record<string, unknown>).code === '23505') { // Unique violation
         return res.status(409).json({ error: 'Contract number already exists' });
       }
       res.status(500).json({ error: 'Internal server error' });
@@ -390,9 +390,9 @@ router.put(
       }
 
       res.json(result.rows[0]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update vehicle contract error:', error);
-      if (error.code === '23505') {
+      if ((error as Record<string, unknown>).code === '23505') {
         return res.status(409).json({ error: 'Contract number already exists' });
       }
       res.status(500).json({ error: 'Internal server error' });
@@ -616,7 +616,7 @@ router.post(
       const result = await tenantSafeQuery(query, values, req.user!.tenant_id!);
 
       res.status(201).json(result.rows[0]);
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Create lease-end inspection error:', error);
       res.status(500).json({ error: 'Internal server error' });
     }

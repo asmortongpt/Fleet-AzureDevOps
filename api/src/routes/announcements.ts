@@ -114,7 +114,7 @@ router.post(
       )
 
       res.status(201).json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Invalid announcement data', details: error.issues })
       }
@@ -151,7 +151,7 @@ router.patch(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Update announcement error:', error)
       if (error instanceof NotFoundError) {
         return res.status(404).json({ error: error.message })

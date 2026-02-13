@@ -137,7 +137,7 @@ router.post('/crash',
         incidentId: incident.id,
         emergencyResponseTriggered: isEmergency
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error saving crash report:', error)
       res.status(400).json({ error: getErrorMessage(error) })
     } finally {
@@ -194,7 +194,7 @@ router.get('/crash/history', async (req: Request, res: Response) => {
     )
 
     res.json({ incidents: result.rows })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching crash history:', error)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {
@@ -267,7 +267,7 @@ router.get('/crash/fleet', async (req: Request, res: Response) => {
     }))
 
     res.json({ incidents })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error fetching fleet crash incidents:', error)
     res.status(500).json({ error: getErrorMessage(error) })
   } finally {

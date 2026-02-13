@@ -138,7 +138,7 @@ router.post('/register',csrfProtection, requirePermission('driver:create:global'
     )
 
     res.json(device)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error registering device:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -199,7 +199,7 @@ router.post('/sync',csrfProtection, requirePermission('driver:update:global'), a
     )
 
     res.json(result)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error syncing mobile data:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -240,7 +240,7 @@ router.get('/route/:vehicleId', requirePermission('route:view:fleet'), async (re
     }
 
     res.json(route)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting mobile route:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -291,7 +291,7 @@ router.post('/ar-navigation',csrfProtection, requirePermission('route:view:fleet
     const data = await mobileIntegrationService.getARNavigationData(tenantId, validated)
 
     res.json(data)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting AR navigation data:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -344,7 +344,7 @@ router.post('/keyless-entry',csrfProtection, requirePermission('vehicle:update:f
     )
 
     res.json(result)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error executing keyless entry:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -393,7 +393,7 @@ router.post('/damage-detection',csrfProtection, requirePermission('safety_incide
     )
 
     res.status(201).json(result)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error submitting damage detection:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -436,7 +436,7 @@ router.get('/dispatch/messages', requirePermission('communication:view:global'),
     )
 
     res.json(messages)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting dispatch messages:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -489,7 +489,7 @@ router.get('/charging-stations/nearby', requirePermission('charging_station:view
     )
 
     res.json(stations)
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error getting nearby charging stations:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }
@@ -547,7 +547,7 @@ router.post('/push-notification',csrfProtection, requirePermission('communicatio
     })
 
     res.json({ success })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('Error sending push notification:', error) // Wave 28: Winston logger
     res.status(400).json({ error: getErrorMessage(error) })
   }

@@ -60,11 +60,11 @@ router.post('/chat', async (req, res) => {
         finishReason: response.finishReason,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[AI Chat] Error:', error)
     return res.status(500).json({
       error: 'AI completion failed',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
     })
   }
 })
@@ -102,12 +102,12 @@ router.post('/chat/stream', async (req, res) => {
 
     res.write('data: [DONE]\n\n')
     res.end()
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[AI Chat Stream] Error:', error)
     if (!res.headersSent) {
       return res.status(500).json({
         error: 'AI streaming failed',
-        message: error.message,
+        message: error instanceof Error ? error.message : 'An unexpected error occurred',
       })
     }
   }
@@ -129,11 +129,11 @@ router.get('/providers', async (req, res) => {
         defaultProvider: 'openai', // From config
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[AI Providers] Error:', error)
     return res.status(500).json({
       error: 'Failed to get provider info',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
     })
   }
 })
@@ -164,11 +164,11 @@ router.post('/switch-provider', async (req, res) => {
       message: `Switched to ${provider}`,
       provider,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('[AI Switch Provider] Error:', error)
     return res.status(500).json({
       error: 'Failed to switch provider',
-      message: error.message,
+      message: error instanceof Error ? error.message : 'An unexpected error occurred',
     })
   }
 })

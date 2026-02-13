@@ -65,11 +65,13 @@ async function checkDatabase(): Promise<HealthCheck> {
       poolStats,
       threshold: '100ms'
     }
-  } catch (error: any) {
-    telemetryService.trackError(error, { context: 'database-health-check' })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      telemetryService.trackError(error, { context: 'database-health-check' })
+    }
     return {
       status: 'unhealthy',
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     }
   }
 }
@@ -122,11 +124,13 @@ async function checkRedis(): Promise<HealthCheck> {
       version: info.match(/redis_version:([^\r\n]+)/)?.[1] || 'unknown',
       threshold: '50ms'
     }
-  } catch (error: any) {
-    telemetryService.trackError(error, { context: 'redis-health-check' })
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      telemetryService.trackError(error, { context: 'redis-health-check' })
+    }
     return {
       status: 'unhealthy',
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     }
   }
 }
@@ -224,12 +228,12 @@ function checkDisk(): HealthCheck {
         critical: '1GB remaining'
       }
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // If statfs fails, provide basic info
     return {
       status: 'warning',
       message: 'Disk check not available on this platform',
-      error: error.message
+      error: error instanceof Error ? error.message : 'An unexpected error occurred'
     }
   }
 }
@@ -321,11 +325,11 @@ router.get('/simple', async (req: Request, res: Response) => {
       status: 'ok',
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(503).json({
       status: 'error',
       timestamp: new Date().toISOString(),
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -343,11 +347,11 @@ router.get('/ready', async (req: Request, res: Response) => {
       status: 'ready',
       timestamp: new Date().toISOString()
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     res.status(503).json({
       status: 'not_ready',
       timestamp: new Date().toISOString(),
-      reason: error.message
+      reason: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })

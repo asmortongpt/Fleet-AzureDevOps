@@ -56,8 +56,8 @@ router.post(
         count: results.length,
         strategy: 'semantic'
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('AI query error:', error)
@@ -101,8 +101,8 @@ router.post(
         response,
         usage: completion.usage
       })
-    } catch (error: any) {
-      if (error.name === 'ZodError') {
+    } catch (error: unknown) {
+      if (error instanceof z.ZodError) {
         return res.status(400).json({ error: 'Validation error', details: error.issues })
       }
       logger.error('AI assistant error:', error)
@@ -151,7 +151,7 @@ async function handleReceiptExtract(req: AuthRequest, res: Response) {
       ocrData,
       rawText: result.fullText || ''
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     logger.error('AI receipt extract error:', error)
     res.status(500).json({ error: 'Receipt extraction failed', message: getErrorMessage(error) })
   }

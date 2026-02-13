@@ -174,7 +174,7 @@ router.get(
           pages: Math.ceil(total / parseInt(limit as string)),
         },
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching on-call periods:`, error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch on-call periods',
@@ -223,7 +223,7 @@ router.get(
       }
 
       res.json(result.rows[0])
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching on-call period:', error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch on-call period',
@@ -292,7 +292,7 @@ router.post(
         message: 'On-call period created successfully',
         period: result.rows[0],
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating on-call period:', error) // Wave 27: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -358,7 +358,7 @@ router.put(
         message: 'On-call period updated successfully',
         period: result.rows[0],
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error updating on-call period:', error) // Wave 27: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -411,7 +411,7 @@ router.post(
           : 'On-call acknowledgement removed',
         period: result.rows[0],
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error acknowledging on-call period:', error) // Wave 27: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -482,7 +482,7 @@ router.get(
       const result = await pool.query(query, params)
 
       res.json(result.rows)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error(`Error fetching current on-call periods:`, error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch current on-call periods',
@@ -519,7 +519,7 @@ router.get(
       const result = await pool.query(query, [id, tenant_id])
 
       res.json(result.rows)
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error fetching callback trips:', error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to fetch callback trips',
@@ -586,7 +586,7 @@ router.post(
         message: `Callback trip logged successfully`,
         trip: result.rows[0],
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error creating callback trip:', error) // Wave 27: Winston logger;
       if (error instanceof z.ZodError) {
         return res.status(400).json({
@@ -629,7 +629,7 @@ router.delete(
       res.json({
         message: 'On-call period deleted successfully',
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       logger.error('Error deleting on-call period:', error) // Wave 27: Winston logger;
       res.status(500).json({
         error: 'Failed to delete on-call period',

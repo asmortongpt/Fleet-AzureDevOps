@@ -228,10 +228,10 @@ async function checkGoogleMaps(): Promise<IntegrationHealth> {
       health.errorMessage = `API returned status: ${response.data.status}`;
       health.technicalDetails = response.data.error_message;
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     health.status = 'down';
     health.errorMessage = 'Unable to connect to Google Maps API';
-    health.technicalDetails = error.message;
+    health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
   }
 
   return health;
@@ -279,22 +279,24 @@ async function checkOpenAI(): Promise<IntegrationHealth> {
       health.status = 'degraded';
       health.errorMessage = `Unexpected status code: ${response.status}`;
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     health.status = 'down';
+    const errResponse = (error as Record<string, any>).response;
+    const errCode = (error as Record<string, unknown>).code;
 
-    if (error.response?.status === 401) {
+    if (errResponse?.status === 401) {
       health.errorMessage = 'API key invalid or expired';
       health.technicalDetails = 'Authentication failed - check API key';
-    } else if (error.response?.status === 429) {
+    } else if (errResponse?.status === 429) {
       health.status = 'degraded';
       health.errorMessage = 'Rate limit exceeded';
       health.technicalDetails = 'Too many requests - consider implementing rate limiting';
-    } else if (error.code === 'ECONNREFUSED' || error.code === 'ETIMEDOUT') {
+    } else if (errCode === 'ECONNREFUSED' || errCode === 'ETIMEDOUT') {
       health.errorMessage = 'Unable to connect to OpenAI API';
       health.technicalDetails = 'Network connectivity issue or API endpoint unavailable';
     } else {
       health.errorMessage = 'OpenAI API check failed';
-      health.technicalDetails = error.message;
+      health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
     }
   }
 
@@ -342,15 +344,16 @@ async function checkAzureAD(): Promise<IntegrationHealth> {
       health.status = 'degraded';
       health.errorMessage = 'OpenID configuration incomplete';
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     health.status = 'down';
+    const errResponse = (error as Record<string, any>).response;
 
-    if (error.response?.status === 400) {
+    if (errResponse?.status === 400) {
       health.errorMessage = 'Invalid tenant ID';
       health.technicalDetails = 'The configured tenant ID does not exist';
     } else {
       health.errorMessage = 'Unable to connect to Azure AD';
-      health.technicalDetails = error.message;
+      health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
     }
   }
 
@@ -404,12 +407,14 @@ async function checkSmartCar(): Promise<IntegrationHealth> {
       health.status = 'degraded';
       health.errorMessage = `Unexpected response: ${response.status}`;
     }
-  } catch (error: any) {
-    if (error.response?.status === 401) {
+  } catch (error: unknown) {
+    const errResponse = (error as Record<string, any>).response;
+
+    if (errResponse?.status === 401) {
       health.status = 'down';
       health.errorMessage = 'Invalid SmartCar credentials';
       health.technicalDetails = 'Authentication failed - check client ID and secret';
-    } else if (error.response?.status === 404) {
+    } else if (errResponse?.status === 404) {
       // This might be expected if endpoint structure changed
       health.status = 'degraded';
       health.errorMessage = 'API endpoint structure may have changed';
@@ -417,7 +422,7 @@ async function checkSmartCar(): Promise<IntegrationHealth> {
     } else {
       health.status = 'down';
       health.errorMessage = 'Unable to connect to SmartCar API';
-      health.technicalDetails = error.message;
+      health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
     }
   }
 
@@ -451,10 +456,10 @@ async function checkRedis(): Promise<IntegrationHealth> {
     health.responseTime = Date.now() - startTime;
     health.status = 'healthy';
     health.lastSuccess = new Date().toISOString();
-  } catch (error: any) {
+  } catch (error: unknown) {
     health.status = 'down';
     health.errorMessage = 'Redis connection failed';
-    health.technicalDetails = error.message;
+    health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
   }
 
   return health;
@@ -481,10 +486,10 @@ async function checkDatabase(): Promise<IntegrationHealth> {
     health.responseTime = Date.now() - startTime;
     health.status = 'healthy';
     health.lastSuccess = new Date().toISOString();
-  } catch (error: any) {
+  } catch (error: unknown) {
     health.status = 'down';
     health.errorMessage = 'Database connection failed';
-    health.technicalDetails = error.message;
+    health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
   }
 
   return health;

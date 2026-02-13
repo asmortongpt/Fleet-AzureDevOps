@@ -170,8 +170,9 @@ router.post('/roles', csrfProtection, requireAdmin, async (req: Request, res: Re
     res.status(201).json({
       role
     });
-  } catch (error: any) {
-    if (error.message && error.message.includes('already exists')) {
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
+    if (errMsg.includes('already exists')) {
       return res.status(409).json({
         error: 'Conflict',
         message: 'Role with this name already exists'
