@@ -460,7 +460,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
         const normalized = rows.map((row: any) => {
           const amount = Number(row.gallons ?? row.amount ?? row.quantity ?? 0)
           const pricePerUnit = Number(row.cost_per_gallon ?? row.price_per_gallon ?? row.pricePerUnit ?? row.price_per_unit ?? 0)
-          const cost = Number(row.total_cost ?? row.cost ?? (amount * pricePerUnit) ?? 0)
+          const cost = Number(row.total_cost ?? row.cost ?? (amount * pricePerUnit))
           const createdAt = row.transaction_date ?? row.createdAt ?? row.created_at ?? new Date().toISOString()
           return {
             id: String(row.id),

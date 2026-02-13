@@ -132,7 +132,7 @@ export class PushNotificationService {
         applicationServerKey: this.urlBase64ToUint8Array(this.VAPID_PUBLIC_KEY),
       };
 
-      this.subscription = await this.registration.pushManager.subscribe(subscribeOptions);
+      this.subscription = await this.registration.pushManager.subscribe(subscribeOptions as PushSubscriptionOptionsInit);
 
       // Send subscription to server
       await this.sendSubscriptionToServer(this.subscription);

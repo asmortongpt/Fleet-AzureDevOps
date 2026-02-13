@@ -244,7 +244,7 @@ export class KeylessEntryService {
       }
 
       const command = this.buildCommand('UNLOCK', authToken);
-      await unlockChar.writeValue(command);
+      await unlockChar.writeValue(command as unknown as BufferSource);
 
       // Log access
       await this.logAccess({
@@ -295,7 +295,7 @@ export class KeylessEntryService {
       }
 
       const command = this.buildCommand('LOCK', authToken);
-      await lockChar.writeValue(command);
+      await lockChar.writeValue(command as unknown as BufferSource);
 
       // Log access
       await this.logAccess({
