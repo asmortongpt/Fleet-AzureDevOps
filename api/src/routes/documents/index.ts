@@ -1,7 +1,7 @@
 // Document Management REST API
 // Complete API for document upload, search, management, and analytics
 
-import { Router } from 'express'
+import { Router, Request } from 'express'
 import multer from 'multer'
 
 import { getDocumentService } from '../../services/documents/document-service'
@@ -54,8 +54,8 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       })
     }
 
-    const userId = (req as any).user?.id || req.headers['x-user-id'] as string || 'anonymous'
-    const userName = (req as any).user?.name || req.headers['x-user-name'] as string || 'Anonymous User'
+    const userId = (req as Request & { user?: { id?: string } }).user?.id ?? 'anonymous'
+    const userName = (req as Request & { user?: { name?: string } }).user?.name ?? 'Anonymous User'
 
     const document = await documentService.uploadDocument(
       {
@@ -130,7 +130,7 @@ router.put('/:id', async (req, res) => {
     const { id } = req.params
     const updates = req.body
 
-    const userId = (req as any).user?.id || req.headers['x-user-id'] as string || 'anonymous'
+    const userId = (req as Request & { user?: { id?: string } }).user?.id ?? 'anonymous'
 
     const document = await documentService.updateDocument(id, updates, userId)
 

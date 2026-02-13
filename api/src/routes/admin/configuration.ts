@@ -58,11 +58,11 @@ router.get('/config', requireCTAOwner, async (req, res) => {
         categories: [...new Set(configs.map(c => c.category))]
       }
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error fetching configs:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error fetching configs:', { error })
     return res.status(500).json({
       error: 'Failed to fetch configurations',
-      message: error.message
+      message: error instanceof Error ? error.message : 'Internal server error'
     })
   }
 })
@@ -87,11 +87,11 @@ router.get('/config/:key', requireCTAOwner, async (req, res) => {
       success: true,
       data: config
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error fetching config:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error fetching config:', { error })
     return res.status(500).json({
       error: 'Failed to fetch configuration',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -104,7 +104,8 @@ router.put('/config/:key', requireCTAOwner, async (req, res) => {
   try {
     const { key } = req.params
     const { value, reason } = req.body
-    const changedBy = req.user?.id || req.headers['x-user-id'] as string || 'UNKNOWN'
+    const authReq = req as Request & { user?: { id?: string } }
+    const changedBy = authReq.user?.id ?? 'UNKNOWN'
 
     const change = await configurationService.updateConfig(
       key,
@@ -122,11 +123,11 @@ router.put('/config/:key', requireCTAOwner, async (req, res) => {
       },
       message: `Configuration "${key}" updated successfully`
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error updating config:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error updating config:', { error })
     return res.status(400).json({
       error: 'Failed to update configuration',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -138,7 +139,8 @@ router.put('/config/:key', requireCTAOwner, async (req, res) => {
 router.post('/config/:changeId/rollback', requireCTAOwner, async (req, res) => {
   try {
     const { changeId } = req.params
-    const rolledBackBy = req.user?.id || req.headers['x-user-id'] as string || 'UNKNOWN'
+    const authReq = req as Request & { user?: { id?: string } }
+    const rolledBackBy = authReq.user?.id ?? 'UNKNOWN'
 
     await configurationService.rollbackConfig(changeId, rolledBackBy)
 
@@ -146,11 +148,11 @@ router.post('/config/:changeId/rollback', requireCTAOwner, async (req, res) => {
       success: true,
       message: 'Configuration rolled back successfully'
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error rolling back config:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error rolling back config:', { error })
     return res.status(400).json({
       error: 'Failed to rollback configuration',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -166,7 +168,8 @@ router.post('/config/:changeId/rollback', requireCTAOwner, async (req, res) => {
 router.post('/config/profiles', requireCTAOwner, async (req, res) => {
   try {
     const { name, description, settings } = req.body
-    const createdBy = req.user?.id || req.headers['x-user-id'] as string || 'UNKNOWN'
+    const authReq = req as Request & { user?: { id?: string } }
+    const createdBy = authReq.user?.id ?? 'UNKNOWN'
 
     const profile = await configurationService.createProfile(
       name,
@@ -180,11 +183,11 @@ router.post('/config/profiles', requireCTAOwner, async (req, res) => {
       data: profile,
       message: 'Configuration profile created successfully'
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error creating profile:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error creating profile:', { error })
     return res.status(400).json({
       error: 'Failed to create profile',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -196,7 +199,8 @@ router.post('/config/profiles', requireCTAOwner, async (req, res) => {
 router.post('/config/profiles/:profileId/apply', requireCTAOwner, async (req, res) => {
   try {
     const { profileId } = req.params
-    const appliedBy = req.user?.id || req.headers['x-user-id'] as string || 'UNKNOWN'
+    const authReq = req as Request & { user?: { id?: string } }
+    const appliedBy = authReq.user?.id ?? 'UNKNOWN'
 
     await configurationService.applyProfile(profileId, appliedBy)
 
@@ -204,11 +208,11 @@ router.post('/config/profiles/:profileId/apply', requireCTAOwner, async (req, re
       success: true,
       message: 'Configuration profile applied successfully'
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error applying profile:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error applying profile:', { error })
     return res.status(400).json({
       error: 'Failed to apply profile',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -239,11 +243,11 @@ router.post('/config/setup/start', requireCTAOwner, async (req, res) => {
       data: setup,
       message: 'Initial setup wizard started'
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error starting setup:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error starting setup:', { error })
     return res.status(400).json({
       error: 'Failed to start setup',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -263,11 +267,11 @@ router.post('/config/setup/steps/:stepId/complete', requireCTAOwner, async (req,
       success: true,
       message: 'Setup step completed successfully'
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error completing setup step:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error completing setup step:', { error })
     return res.status(400).json({
       error: 'Failed to complete setup step',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -298,11 +302,11 @@ router.post('/config/apply-policy', requireCTAOwner, async (req, res) => {
       success: true,
       message: `Policy rule "${policyRule.name}" applied successfully`
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error applying policy:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error applying policy:', { error })
     return res.status(400).json({
       error: 'Failed to apply policy rule',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -322,7 +326,7 @@ router.get('/config/history', requireCTAOwner, async (req, res) => {
     const changes = configurationService.getChangeHistory({
       configKey: configKey as string,
       changedBy: changedBy as string,
-      source: source as any,
+      source: source as string,
       limit: limit ? parseInt(limit as string) : undefined
     })
 
@@ -333,11 +337,11 @@ router.get('/config/history', requireCTAOwner, async (req, res) => {
         total: changes.length
       }
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error fetching history:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error fetching history:', { error })
     return res.status(500).json({
       error: 'Failed to fetch change history',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -359,11 +363,11 @@ router.get('/config/export', requireCTAOwner, async (req, res) => {
       data: configuration,
       exportedAt: new Date().toISOString()
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error exporting config:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error exporting config:', { error })
     return res.status(500).json({
       error: 'Failed to export configuration',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
@@ -399,11 +403,11 @@ router.get('/config/stats', requireCTAOwner, async (req, res) => {
       success: true,
       data: stats
     })
-  } catch (error: any) {
-    logger.error('[Configuration API] Error fetching stats:', error)
+  } catch (error: unknown) {
+    logger.error('[Configuration API] Error fetching stats:', { error })
     return res.status(500).json({
       error: 'Failed to fetch statistics',
-      message: error.message
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     })
   }
 })
