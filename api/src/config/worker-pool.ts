@@ -18,6 +18,8 @@ import * as os from 'os'
 import * as path from 'path'
 import { Worker } from 'worker_threads'
 
+import logger from './logger'
+
 interface WorkerTask {
   id: string
   taskType: string
@@ -81,7 +83,7 @@ export class WorkerPool extends EventEmitter {
   private initializeWorkers(): void {
     // Temporarily disabled due to Worker thread TypeScript loader issues
     // Workers will be re-enabled once TypeScript compilation is properly configured
-    console.log(`⚠️  Worker pool disabled (TypeScript loader incompatibility with Worker threads)`)
+    logger.warn('Worker pool disabled (TypeScript loader incompatibility with Worker threads)')
   }
 
   /**
@@ -99,7 +101,7 @@ export class WorkerPool extends EventEmitter {
       ]
     };
 
-    console.log(`[WorkerPool] Creating worker ${workerId} from ${scriptPath}`);
+    logger.info('Creating worker', { workerId, scriptPath });
     const worker = new Worker(scriptPath, workerOptions)
 
 
@@ -144,14 +146,14 @@ export class WorkerPool extends EventEmitter {
       workerInfo.currentTask = null
 
       // Log error
-      console.error(`[Worker ${workerId}] Error:`, error)
+      logger.error('Worker error', { workerId, error: error.message })
 
       // Process next task
       this.processNextTask()
     })
 
     worker.on(`exit`, (code) => {
-      console.log(`[Worker ${workerId}] Exited with code ${code}`)
+      logger.info('Worker exited', { workerId, exitCode: code })
       this.workers.delete(workerId)
 
       // If we`re below minimum workers, create a new one
@@ -314,7 +316,7 @@ export class WorkerPool extends EventEmitter {
    * Shutdown the worker pool
    */
   async shutdown(): Promise<void> {
-    console.log('Shutting down worker pool...')
+    logger.info('Shutting down worker pool')
 
     // Reject all queued tasks
     for (const task of this.taskQueue) {
@@ -332,7 +334,7 @@ export class WorkerPool extends EventEmitter {
     await Promise.all(terminatePromises)
     this.workers.clear()
 
-    console.log('✅ Worker pool shutdown complete')
+    logger.info('Worker pool shutdown complete')
   }
 }
 

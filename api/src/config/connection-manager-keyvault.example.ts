@@ -14,6 +14,7 @@
 
 import { ConnectionError } from '../services/dal/errors'
 
+import logger from './logger'
 import { getSecret } from './secrets'
 
 
@@ -51,7 +52,7 @@ export async function getDatabaseConfigFromKeyVault() {
       ssl: getDatabaseSSLConfig()
     }
   } catch (error) {
-    console.error('Failed to retrieve database config from Key Vault:', error)
+    logger.error('Failed to retrieve database config from Key Vault', { error })
     throw new ConnectionError('Database configuration unavailable')
   }
 }
@@ -127,7 +128,7 @@ export async function exampleStartup() {
   await initializeConnectionManager()
 
   // Step 3: Start your application
-  console.log('Application ready with Key Vault integration')
+  logger.info('Application ready with Key Vault integration')
 }
 
 /**
@@ -155,11 +156,11 @@ export async function preloadSecretsToEnv() {
       const value = await getSecret(keyVaultName)
       process.env[envVarName] = value
     } catch (error) {
-      console.warn(`Failed to load ${keyVaultName} from Key Vault:`, error)
+      logger.warn('Failed to load secret from Key Vault', { keyVaultName, error })
     }
   }
 
-  console.log(`✅ Secrets preloaded from Key Vault to environment`)
+  logger.info('Secrets preloaded from Key Vault to environment')
 }
 
 /**

@@ -1,5 +1,6 @@
 import { injectable } from 'inversify';
 
+import logger from '../../../config/logger';
 import { BaseService } from '../../../services/base.service';
 import type { Incident } from '../../../types/incident';
 
@@ -87,7 +88,7 @@ export class ContainmentService extends BaseService {
 
       return plan;
     } catch (error) {
-      console.error('Containment execution failed:', error);
+      logger.error('Containment execution failed', { error });
       plan.contained = false;
       plan.containmentPercentage = plan.actions.filter(a => a.status === 'executed').length / plan.actions.length * 100;
       return plan;
@@ -301,7 +302,7 @@ export class ContainmentService extends BaseService {
           throw new Error(`Unknown containment action type: ${action.type}`);
       }
     } catch (error) {
-      console.error(`Containment action ${action.id} failed:`, error);
+      logger.error('Containment action failed', { actionId: action.id, error });
       executedAction.status = 'failed';
     }
 
@@ -320,7 +321,7 @@ export class ContainmentService extends BaseService {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`Vehicle ${vehicleId} isolated: ${JSON.stringify(metadata)}`);
+        logger.info('Vehicle isolated', { vehicleId, metadata });
         resolve();
       }, 100);
     });
@@ -339,7 +340,7 @@ export class ContainmentService extends BaseService {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`Access revoked for ${vehicleId}: ${JSON.stringify(metadata)}`);
+        logger.info('Access revoked', { vehicleId, metadata });
         resolve();
       }, 100);
     });
@@ -358,7 +359,7 @@ export class ContainmentService extends BaseService {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`Systems disabled for ${vehicleId}: ${JSON.stringify(metadata)}`);
+        logger.info('Systems disabled', { vehicleId, metadata });
         resolve();
       }, 100);
     });
@@ -377,7 +378,7 @@ export class ContainmentService extends BaseService {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`Data quarantined for ${vehicleId} (incident ${incidentId}): ${JSON.stringify(metadata)}`);
+        logger.info('Data quarantined', { vehicleId, incidentId, metadata });
         resolve();
       }, 100);
     });
@@ -396,7 +397,7 @@ export class ContainmentService extends BaseService {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`Location restricted for ${vehicleId}: ${JSON.stringify(metadata)}`);
+        logger.info('Location restricted', { vehicleId, metadata });
         resolve();
       }, 100);
     });
@@ -415,7 +416,7 @@ export class ContainmentService extends BaseService {
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        console.log(`Assets frozen for ${targetId}: ${JSON.stringify(metadata)}`);
+        logger.info('Assets frozen', { targetId, metadata });
         resolve();
       }, 100);
     });
@@ -434,7 +435,7 @@ export class ContainmentService extends BaseService {
     reversedAction.metadata.reversal_reason = reason;
     reversedAction.metadata.reversed_at = new Date();
 
-    console.log(`Reversed action ${action.id}: ${action.reverseAction}`);
+    logger.info('Reversed containment action', { actionId: action.id, reverseAction: action.reverseAction });
 
     return reversedAction;
   }

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import logger from './logger';
 
 export const envSchema = z.object({
   PORT: z.string().default('3000').transform(Number),
@@ -16,9 +17,9 @@ try {
   envSchema.parse(process.env);
 } catch (error) {
   if (error instanceof z.ZodError) {
-    console.error('❌ Environment validation failed:');
+    logger.error('Environment validation failed');
     error.issues.forEach((e) => {
-      console.error(`  - ${e.path.join('.')}: ${e.message}`);
+      logger.error('Environment validation issue', { path: e.path.join('.'), message: e.message });
     });
     process.exit(1);
   }

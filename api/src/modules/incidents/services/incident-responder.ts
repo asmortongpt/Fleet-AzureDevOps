@@ -1,5 +1,6 @@
 import { injectable, inject } from 'inversify';
 
+import logger from '../../../config/logger';
 import { BaseService } from '../../../services/base.service';
 import { TYPES } from '../../../types';
 import type { Incident } from '../../../types/incident';
@@ -225,7 +226,7 @@ export class IncidentResponderService extends BaseService {
       response.endTime = new Date();
       response.summary = this.generateSummary(response);
     } catch (error) {
-      console.error('Incident response failed:', error);
+      logger.error('Incident response failed', { error });
       const currentStep = response.timeline[response.timeline.length - 1];
       if (currentStep) {
         currentStep.status = 'failed';
@@ -281,7 +282,7 @@ export class IncidentResponderService extends BaseService {
       throw new Error(`Incident ${incidentId} not found`);
     }
 
-    console.log(`Escalating incident ${incidentId} to ${newPriority}: ${reason}`);
+    logger.info('Escalating incident', { incidentId, newPriority, reason });
 
     // Re-execute response with new priority
     const response = await this.respondToIncident(incidentId, tenantId);
@@ -309,7 +310,7 @@ export class IncidentResponderService extends BaseService {
       throw new Error(`Incident ${incidentId} not found`);
     }
 
-    console.log(`Deescalating incident ${incidentId} to ${newPriority}: ${reason}`);
+    logger.info('Deescalating incident', { incidentId, newPriority, reason });
 
     const response = await this.respondToIncident(incidentId, tenantId);
     response.priority = newPriority;

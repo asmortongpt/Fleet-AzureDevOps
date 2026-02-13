@@ -1,5 +1,5 @@
 import { Pool, PoolConfig } from 'pg';
-import { logger } from '../utils/logger';
+import logger from './logger';
 
 const poolConfig: PoolConfig = {
   max: 20,
@@ -35,16 +35,16 @@ export const pool = databaseUrl
     });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
+  logger.error('Unexpected error on idle client', { error: err.message });
   process.exit(-1);
 });
 
 pool.on('connect', () => {
-  console.log('New database connection established');
+  logger.info('New database connection established');
 });
 
 pool.on('remove', () => {
-  console.log('Database connection removed from pool');
+  logger.info('Database connection removed from pool');
 });
 
 export async function testConnection(): Promise<boolean> {
@@ -52,7 +52,7 @@ export async function testConnection(): Promise<boolean> {
     await pool.query('SELECT NOW()');
     return true;
   } catch (err) {
-    console.error('Database connection test failed:', err);
+    logger.error('Database connection test failed', { error: err });
     return false;
   }
 }

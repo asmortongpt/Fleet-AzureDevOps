@@ -4,6 +4,7 @@
  */
 
 import dotenv from 'dotenv'
+import logger from './logger'
 
 dotenv.config()
 
@@ -233,9 +234,8 @@ export const documentSystemConfig = loadDocumentSystemConfig()
 // Validate on load and log warnings
 const configErrors = validateDocumentSystemConfig(documentSystemConfig)
 if (configErrors.length > 0) {
-  console.warn(`⚠️  Document System Configuration Warnings:`)
-  configErrors.forEach(error => console.warn(`   - ${error}`))
-  console.warn(`   Some features may be disabled until configuration is complete.`)
+  logger.warn('Document System Configuration Warnings', { warnings: configErrors })
+  logger.warn('Some features may be disabled until configuration is complete')
 }
 
-console.log(getConfigSummary(documentSystemConfig))
+logger.info(getConfigSummary(documentSystemConfig))
