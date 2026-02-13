@@ -12,6 +12,8 @@
 
 import crypto, { createCipheriv, createDecipheriv, CipherGCM, DecipherGCM } from 'crypto'
 
+import logger from '../../config/logger'
+
 export interface EncryptedLog {
   encrypted: string
   iv: string
@@ -138,7 +140,7 @@ export class LogEncryption {
 
       return decrypted
     } catch (error) {
-      console.error('Decryption failed:', error)
+      logger.error('Decryption failed:', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Failed to decrypt log entry')
     }
   }
@@ -151,7 +153,7 @@ export class LogEncryption {
     try {
       return JSON.parse(decrypted) as T
     } catch (error) {
-      console.error('JSON parsing failed after decryption:', error)
+      logger.error('JSON parsing failed after decryption:', { error: error instanceof Error ? error.message : String(error) })
       throw new Error('Failed to parse decrypted log as JSON')
     }
   }

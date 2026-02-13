@@ -3,6 +3,8 @@
  * Provides standardized error handling across the data access layer
  */
 
+import logger from '../../config/logger'
+
 export class DatabaseError extends Error {
   public readonly code?: string
   public readonly statusCode: number = 500
@@ -73,7 +75,7 @@ export function handleDatabaseError(error: unknown): { statusCode: number; error
   }
 
   // Unknown errors
-  console.error('Unhandled database error:', error)
+  logger.error('Unhandled database error:', { error: error instanceof Error ? (error as Error).message : String(error) })
   return {
     statusCode: 500,
     error: 'Internal server error'

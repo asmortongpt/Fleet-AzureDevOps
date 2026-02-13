@@ -5,6 +5,7 @@
 
 import OpenAI from 'openai'
 
+import logger from '../../../config/logger'
 import type { AIProviderAdapter, AICompletionRequest, AICompletionResponse } from '../types'
 
 export class OpenAIAdapter implements AIProviderAdapter {
@@ -38,7 +39,7 @@ export class OpenAIAdapter implements AIProviderAdapter {
       await this.client!.models.list()
       return true
     } catch (error) {
-      console.error('[OpenAI] Availability check failed:', error)
+      logger.error('[OpenAI] Availability check failed:', { error: error instanceof Error ? error.message : String(error) })
       return false
     }
   }

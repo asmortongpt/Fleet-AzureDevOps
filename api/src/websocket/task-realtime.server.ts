@@ -32,7 +32,7 @@ interface DecodedToken {
  * @param httpServer - The HTTP server instance to attach to
  */
 export function initializeWebSocketServer(httpServer: HttpServer): void {
-  console.log('🔌 Initializing Task Real-Time WebSocket Server...');
+  logger.info('Initializing Task Real-Time WebSocket Server...');
 
   // Socket.IO CORS (credentials require an explicit allowlist; do not allow `*`).
   const corsOriginsRaw = (process.env.CORS_ORIGIN || '')
@@ -164,7 +164,7 @@ export function initializeWebSocketServer(httpServer: HttpServer): void {
   });
 
   io.on('connection', (socket: Socket) => {
-    console.log(`✅ Task WebSocket: User ${socket.data.userId} connected`);
+    logger.info(`Task WebSocket: User ${socket.data.userId} connected`);
 
     // Join tenant-specific room for multi-tenant isolation
     socket.join(`tenant:${socket.data.tenantId}`);
@@ -181,19 +181,19 @@ export function initializeWebSocketServer(httpServer: HttpServer): void {
         // Broadcast to all users in the same tenant
         io?.to(`tenant:${socket.data.tenantId}`).emit(eventName, payload);
 
-        console.log(`📡 Task event: ${eventName} from user ${socket.data.userId}`);
+        logger.info(`Task event: ${eventName} from user ${socket.data.userId}`);
       } catch (error) {
-        console.error('Error handling task event:', error);
+        logger.error('Error handling task event', { error: error instanceof Error ? error.message : String(error) });
         socket.emit('error', 'Event processing error');
       }
     });
 
     socket.on('disconnect', () => {
-      console.log(`❌ Task WebSocket: User ${socket.data.userId} disconnected`);
+      logger.info(`Task WebSocket: User ${socket.data.userId} disconnected`);
     });
   });
 
-  console.log('✅ Task Real-Time WebSocket Server initialized');
+  logger.info('Task Real-Time WebSocket Server initialized');
 }
 
 /**
@@ -208,7 +208,7 @@ export function getSocketServer(): Server | null {
  */
 export function emitTaskEvent(tenantId: string, eventName: string, payload: any): void {
   if (!io) {
-    console.warn('WebSocket server not initialized');
+    logger.warn('WebSocket server not initialized');
     return;
   }
 

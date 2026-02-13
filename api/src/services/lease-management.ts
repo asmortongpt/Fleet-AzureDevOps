@@ -8,6 +8,7 @@
  * @since 2026-02-02
  */
 
+import logger from '../config/logger';
 import { tenantSafeQuery } from '../utils/dbHelpers';
 import {
   MileageOverageCalculation,
@@ -168,7 +169,7 @@ export class LeaseManagementService {
         const alerts = await this.generateMileageAlerts(tenantId, vehicle.id);
         allAlerts.push(...alerts);
       } catch (error) {
-        console.error(`Error generating alerts for vehicle ${vehicle.id}:`, error);
+        logger.error(`Error generating alerts for vehicle ${vehicle.id}:`, { error: error instanceof Error ? error.message : String(error) });
         // Continue with other vehicles
       }
     }
@@ -317,7 +318,7 @@ export class LeaseManagementService {
     // TODO: Integrate with notification service
     // For now, just log the alerts
     for (const alert of alerts) {
-      console.log(`[LEASE ALERT] ${alert.severity.toUpperCase()}: ${alert.alert_message}`);
+      logger.info(`[LEASE ALERT] ${alert.severity.toUpperCase()}: ${alert.alert_message}`);
 
       // In production, this would:
       // 1. Insert into notifications table

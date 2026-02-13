@@ -5,6 +5,7 @@
 
 import * as Sentry from '@sentry/node';
 import { Request } from 'express';
+import logger from '../config/logger';
 
 
 export interface SentryConfig {
@@ -69,14 +70,14 @@ class SentryService implements SentryConfig {
    */
   init(): void {
     if (this.initialized) {
-      console.log('Sentry already initialized');
+      logger.info('Sentry already initialized');
       return;
     }
 
     const dsn = process.env.SENTRY_DSN;
 
     if (!dsn) {
-      console.log('⚠️ Sentry DSN not configured - error tracking disabled');
+      logger.info('Sentry DSN not configured - error tracking disabled');
       return;
     }
 
@@ -88,7 +89,7 @@ class SentryService implements SentryConfig {
         const profiling = require('@sentry/profiling-node');
         profilingIntegration = profiling?.nodeProfilingIntegration?.();
       } catch (error: any) {
-        console.warn('Sentry profiling disabled:', error?.message || 'missing native module');
+        logger.warn('Sentry profiling disabled', { error: error?.message || 'missing native module' });
       }
 
       Sentry.init({
@@ -182,7 +183,7 @@ class SentryService implements SentryConfig {
       });
 
       this.initialized = true;
-      console.log('✅ Sentry initialized successfully');
+      logger.info('Sentry initialized successfully');
 
       // Set initial context
       Sentry.setContext('runtime', {
@@ -193,7 +194,7 @@ class SentryService implements SentryConfig {
       });
 
     } catch (error) {
-      console.error('Failed to initialize Sentry:', error);
+      logger.error('Failed to initialize Sentry', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 
@@ -202,7 +203,7 @@ class SentryService implements SentryConfig {
    */
   captureException(error: Error, context?: any): string {
     if (!this.initialized) {
-      console.error('Sentry not initialized. Error:', error);
+      logger.error('Sentry not initialized. Error:', { error: error instanceof Error ? error.message : String(error) });
       return '';
     }
 
@@ -242,7 +243,7 @@ class SentryService implements SentryConfig {
     }
 
     const eventId = Sentry.captureException(error);
-    console.error(`Error captured with ID: ${eventId}`, error.message);
+    logger.error(`Error captured with ID: ${eventId}`, { error: error.message });
 
     return eventId;
   }
@@ -252,7 +253,7 @@ class SentryService implements SentryConfig {
    */
   captureMessage(message: string, level: 'info' | 'warning' | 'error'): void {
     if (!this.initialized) {
-      console.log(`[${level.toUpperCase()}] ${message}`);
+      logger.info(`[${level.toUpperCase()}] ${message}`);
       return;
     }
 
@@ -343,7 +344,7 @@ return true;
     try {
       return await Sentry.flush(timeout);
     } catch (error) {
-      console.error('Failed to flush Sentry events:', error);
+      logger.error('Failed to flush Sentry events', { error: error instanceof Error ? error.message : String(error) });
       return false;
     }
   }
@@ -359,7 +360,7 @@ return true;
     try {
       return await Sentry.close(timeout);
     } catch (error) {
-      console.error('Failed to close Sentry:', error);
+      logger.error('Failed to close Sentry', { error: error instanceof Error ? error.message : String(error) });
       return false;
     }
   }

@@ -1,6 +1,7 @@
 // Cache Invalidation Strategies
 // Implements various caching patterns for different data types
 
+import logger from '../../config/logger';
 import { cacheService } from './RedisService';
 
 export class CacheStrategies {
@@ -98,7 +99,7 @@ export class CacheStrategies {
       const data = await fetcher();
       await cacheService.set(key, { data, expiry: Date.now() / 1000 + ttl }, ttl);
     } catch (error) {
-      console.error('Background refresh failed:', error);
+      logger.error('Background refresh failed:', { error: error instanceof Error ? error.message : String(error) });
     }
   }
 

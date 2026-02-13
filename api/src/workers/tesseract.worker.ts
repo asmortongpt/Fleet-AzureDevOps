@@ -14,6 +14,8 @@ import { parentPort, workerData } from 'worker_threads';
 
 import { createWorker, PSM, OEM } from 'tesseract.js';
 
+import logger from '../config/logger';
+
 interface TesseractWorkerData {
   imageBuffer: Buffer;
   languages: string[];
@@ -52,7 +54,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
       logger: (m) => {
         // Minimal logging in worker
         if (m.status === `recognizing text`) {
-          console.log(`[Worker] OCR Progress: ${Math.round(m.progress * 100)}%`);
+          logger.info(`[Worker] OCR Progress: ${Math.round(m.progress * 100)}%`);
         }
       }
     });
@@ -70,7 +72,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
     await worker.terminate();
 
     const processingTime = Date.now() - startTime;
-    console.log(`[Worker] OCR completed in ${processingTime}ms`);
+    logger.info(`[Worker] OCR completed in ${processingTime}ms`);
 
     return {
       success: true,
@@ -102,7 +104,7 @@ async function processOCR(data: TesseractWorkerData): Promise<TesseractWorkerRes
       }
     }
 
-    console.error(`[Worker] OCR error:`, error);
+    logger.error('[Worker] OCR error', { error: error.message || String(error) });
     return {
       success: false,
       error: error.message || 'Unknown OCR error'

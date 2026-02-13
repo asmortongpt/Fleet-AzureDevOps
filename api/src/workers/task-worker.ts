@@ -9,6 +9,8 @@ import { parentPort } from 'worker_threads'
 
 import sharp from 'sharp'
 import { createWorker } from 'tesseract.js'
+
+import logger from '../config/logger'
 // Import other heavy processing libraries as needed
 
 interface TaskMessage {
@@ -78,7 +80,7 @@ const taskHandlers = {
         try {
           await worker.terminate()
         } catch (terminateError) {
-          console.error('Error terminating Tesseract worker:', terminateError)
+          logger.error('Error terminating Tesseract worker', { error: terminateError instanceof Error ? terminateError.message : String(terminateError) })
         }
       }
     }

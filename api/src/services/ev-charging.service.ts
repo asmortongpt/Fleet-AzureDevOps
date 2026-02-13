@@ -12,6 +12,7 @@
 
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
 import OCPPService from './ocpp.service';
 
 interface SmartChargingParams {
@@ -208,7 +209,7 @@ class EVChargingService {
             [reservation.id, reservation.id]
           );
         } catch (error) {
-          console.error('Failed to create OCPP reservation:', error);
+          logger.error('Failed to create OCPP reservation:', { error: error instanceof Error ? error.message : String(error) });
           // Continue with local reservation even if OCPP fails
         }
       }
@@ -261,7 +262,7 @@ class EVChargingService {
             res.ocpp_reservation_id
           );
         } catch (error) {
-          console.error('Failed to cancel OCPP reservation:', error);
+          logger.error('Failed to cancel OCPP reservation:', { error: error instanceof Error ? error.message : String(error) });
         }
       }
     }

@@ -5,6 +5,7 @@
 
 import { OpenAI } from 'openai';
 import { AI_CONFIG } from '../config';
+import logger from '../../config/logger';
 
 // Initialize OpenAI client based on provider
 const getOpenAIClient = () => {
@@ -72,7 +73,7 @@ export async function callLLM({
 
     return content;
   } catch (error) {
-    console.error('[callLLM] Error:', error);
+    logger.error('[callLLM] Error', { error: error instanceof Error ? error.message : String(error) });
     throw new Error(`LLM call failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -97,7 +98,7 @@ export async function callEmbeddings({ model, input }: EmbeddingCall): Promise<n
 
     return embedding;
   } catch (error) {
-    console.error('[callEmbeddings] Error:', error);
+    logger.error('[callEmbeddings] Error', { error: error instanceof Error ? error.message : String(error) });
     throw new Error(`Embeddings call failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }

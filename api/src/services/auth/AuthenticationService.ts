@@ -22,6 +22,7 @@
 import { createHash, randomBytes } from 'crypto';
 
 import { hash, verify } from 'argon2';
+import logger from '../../config/logger';
 import type { Redis } from 'ioredis';
 import * as jwt from 'jsonwebtoken';
 import type { Pool } from 'pg';
@@ -510,7 +511,7 @@ export class AuthenticationService {
           const decoded = Buffer.from(token, 'base64').toString('utf-8');
           // Simple heuristic: starts with { and contains "payload"
           if (decoded.trim().startsWith('{') && decoded.includes('"payload"')) {
-            console.log('[AuthService] Mock token detected, bypassing JWT verification');
+            logger.info('[AuthService] Mock token detected, bypassing JWT verification');
             const obj = JSON.parse(decoded);
             if (obj.payload && obj.payload.email) {
               return {

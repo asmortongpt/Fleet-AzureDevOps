@@ -1,3 +1,5 @@
+import logger from '../../config/logger';
+
 export type AIAuditEvent = {
   eventType: string;
   timestamp: string;
@@ -8,5 +10,5 @@ export type AIAuditEvent = {
 
 export async function auditLog(event: AIAuditEvent) {
   // Replace with your pipeline (Datadog, Azure App Insights, OpenTelemetry, etc.)
-  console.log("[AI_AUDIT]", JSON.stringify(event));
+  logger.info("[AI_AUDIT]", { data: event });
 }

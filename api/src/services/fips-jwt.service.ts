@@ -17,6 +17,8 @@ import path from 'path'
 
 import jwt from 'jsonwebtoken'
 
+import logger from '../config/logger'
+
 export class FIPSJWTService {
   private static privateKey: string | null = null
   private static publicKey: string | null = null
@@ -48,9 +50,9 @@ export class FIPSJWTService {
           }
         }
 
-        console.log('✅ FIPS JWT Service: RSA keys loaded successfully')
+        logger.info('FIPS JWT Service: RSA keys loaded successfully')
       } catch (error) {
-        console.error('❌ Failed to load RSA keys:', error)
+        logger.error('Failed to load RSA keys:', { error: error instanceof Error ? error.message : String(error) })
         throw error
       }
     }

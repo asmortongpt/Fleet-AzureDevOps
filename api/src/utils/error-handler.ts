@@ -1,11 +1,13 @@
 
+import logger from '../config/logger';
+
 /**
  * Logs an error with structured logging.
  * @param error - The error object to log.
  * @param metadata - Additional metadata for logging.
  */
 export function logError(error: Error, metadata: Record<string, any>): void {
-  console.error('Error:', { error, metadata });
+  logger.error('Error', { error: error.message, metadata });
 }
 
 /**

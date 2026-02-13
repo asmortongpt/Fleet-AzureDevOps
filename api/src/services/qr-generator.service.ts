@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import QRCode from 'qrcode';
 import { z } from 'zod';
 
+import logger from '../config/logger';
+
 /**
  * QRGeneratorService handles the generation of QR codes for assets,
  * embedding both asset ID and tenant ID for secure and efficient identification.
@@ -48,7 +50,7 @@ export class QRGeneratorService {
       res.setHeader('Content-Type', 'image/svg+xml');
       res.send(qrCodeSVG);
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      logger.error('Error generating QR code:', { error: error instanceof Error ? error.message : String(error) });
       res.status(500).json({ error: 'Internal server error while generating QR code.' });
     }
   }

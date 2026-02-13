@@ -9,6 +9,7 @@ import { SpanStatusCode, Span } from '@opentelemetry/api';
 import * as appInsights from 'applicationinsights';
 import { Pool, QueryResult, PoolClient, QueryResultRow } from 'pg';
 
+import logger from '../config/logger';
 import { tracer } from '../config/telemetry';
 
 // Configuration
@@ -146,7 +147,7 @@ export class QueryMonitor {
       stackTrace: ctx.stackTrace
     };
 
-    console.warn('🐌 SLOW QUERY DETECTED:', logData);
+    logger.warn('SLOW QUERY DETECTED', logData);
 
     // Send to Application Insights
     if (appInsights.defaultClient) {
@@ -184,7 +185,7 @@ export class QueryMonitor {
    * Log N+1 query warning
    */
   private logNPlusOne(ctx: QueryContext): void {
-    console.warn('⚠️  POTENTIAL N+1 QUERY:', {
+    logger.warn('POTENTIAL N+1 QUERY', {
       query: ctx.query,
       duration: ctx.duration,
       stackTrace: ctx.stackTrace
@@ -290,7 +291,7 @@ export class QueryMonitor {
 
         // Log all queries if configured
         if (LOG_ALL_QUERIES) {
-          console.log('📊 Query executed:', {
+          logger.info('Query executed', {
             query: queryKey,
             duration: ctx.duration,
             rows: ctx.rowCount
@@ -345,7 +346,7 @@ export class QueryMonitor {
         span.setAttribute('db.error', true);
 
         // Log error
-        console.error('❌ Query error:', {
+        logger.error('Query error', {
           query: ctx.query,
           duration: ctx.duration,
           error: error.message,

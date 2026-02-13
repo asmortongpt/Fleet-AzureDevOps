@@ -6,6 +6,7 @@
  */
 
 import pool from '../config/database'
+import logger from '../config/logger'
 
 export interface VehicleUtilizationData {
   vehicleId: string
@@ -215,7 +216,7 @@ export class FleetOptimizationModel {
         potentialSavings
       }
     } catch (error) {
-      console.error('Error calculating optimal fleet size:', error)
+      logger.error('Error calculating optimal fleet size', { error: error instanceof Error ? error.message : String(error) })
       return {
         optimalSize: currentFleetSize,
         recommendation: 'Unable to calculate optimal fleet size',
@@ -391,7 +392,7 @@ export class FleetOptimizationModel {
 
       return predictions
     } catch (error) {
-      console.error('Error predicting utilization:', error)
+      logger.error('Error predicting utilization', { error: error instanceof Error ? error.message : String(error) })
       return []
     }
   }

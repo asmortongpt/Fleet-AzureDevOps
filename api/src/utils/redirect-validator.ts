@@ -12,6 +12,8 @@
  * - Validates internal paths must start with / but not //
  */
 
+import logger from '../config/logger';
+
 export interface RedirectValidatorConfig {
   allowedDomains: string[]
   allowHttp?: boolean // Only for development
@@ -51,25 +53,25 @@ export function validateRedirectUrl(
     // Block dangerous schemes
     const dangerousSchemes = ['javascript:', 'data:', 'file:', 'vbscript:', `about:`]
     if (dangerousSchemes.includes(target.protocol)) {
-      console.warn(`Blocked redirect to dangerous scheme: ${target.protocol}`)
+      logger.warn(`Blocked redirect to dangerous scheme: ${target.protocol}`)
       return false
     }
 
     // In production, only allow HTTPS
     if (config.requireHttps && target.protocol !== `https:`) {
-      console.warn(`Blocked non-HTTPS redirect in production: ${target.protocol}`)
+      logger.warn(`Blocked non-HTTPS redirect in production: ${target.protocol}`)
       return false
     }
 
     // Allow HTTP only in development
     if (target.protocol === `http:` && !config.allowHttp) {
-      console.warn(`Blocked HTTP redirect when HTTP not allowed`)
+      logger.warn('Blocked HTTP redirect when HTTP not allowed')
       return false
     }
 
     // Only allow http: and https: protocols
     if (target.protocol !== `http:` && target.protocol !== `https:`) {
-      console.warn(`Blocked redirect to non-HTTP(S) protocol: ${target.protocol}`)
+      logger.warn(`Blocked redirect to non-HTTP(S) protocol: ${target.protocol}`)
       return false
     }
 
@@ -82,14 +84,14 @@ export function validateRedirectUrl(
     })
 
     if (!isWhitelisted) {
-      console.warn(`Blocked redirect to non-whitelisted domain: ${hostname}`)
+      logger.warn(`Blocked redirect to non-whitelisted domain: ${hostname}`)
       return false
     }
 
     return true
   } catch (error) {
     // Invalid URL format
-    console.warn(`Invalid redirect URL format: ${url}`)
+    logger.warn(`Invalid redirect URL format: ${url}`)
     return false
   }
 }
@@ -103,12 +105,12 @@ export function validateRedirectUrl(
 export function validateInternalPath(path: string): boolean {
   // Must start with / but not // (protocol-relative URL)
   if (!path.startsWith(`/`)) {
-    console.warn(`Internal path must start with /: ${path}`)
+    logger.warn(`Internal path must start with /: ${path}`)
     return false
   }
 
   if (path.startsWith(`//`)) {
-    console.warn(`Blocked protocol-relative URL: ${path}`)
+    logger.warn(`Blocked protocol-relative URL: ${path}`)
     return false
   }
 
@@ -123,7 +125,7 @@ export function validateInternalPath(path: string): boolean {
 
   for (const pattern of dangerousPatterns) {
     if (pattern.test(path)) {
-      console.warn(`Blocked path with dangerous pattern: ${path}`)
+      logger.warn(`Blocked path with dangerous pattern: ${path}`)
       return false
     }
   }

@@ -6,6 +6,7 @@
  */
 
 import pool from '../config/database'
+import logger from '../config/logger'
 
 export interface FuelPriceData {
   date: Date
@@ -70,7 +71,7 @@ export class FuelPriceForecastingModel {
       const historicalData = await this.getHistoricalPrices(tenantId, fuelType, region, 90)
 
       if (historicalData.length < 7) {
-        console.warn('Insufficient historical data for forecasting')
+        logger.warn('Insufficient historical data for forecasting')
         return []
       }
 
@@ -119,7 +120,7 @@ export class FuelPriceForecastingModel {
 
       return forecasts
     } catch (error) {
-      console.error('Error forecasting fuel prices:', error)
+      logger.error('Error forecasting fuel prices', { error: error instanceof Error ? error.message : String(error) })
       return []
     }
   }
@@ -185,7 +186,7 @@ export class FuelPriceForecastingModel {
         forecastedPrice: lowestForecast.predictedPrice
       }
     } catch (error) {
-      console.error('Error generating purchase recommendation:', error)
+      logger.error('Error generating purchase recommendation', { error: error instanceof Error ? error.message : String(error) })
       return {
         recommendation: 'monitor',
         confidence: 50,
@@ -279,7 +280,7 @@ trend = 'high'
         }
       })
     } catch (error) {
-      console.error(`Error analyzing regional variations:`, error)
+      logger.error('Error analyzing regional variations', { error: error instanceof Error ? error.message : String(error) })
       return []
     }
   }
@@ -322,7 +323,7 @@ trend = 'high'
       // Generate mock historical data if no real data exists
       return this.generateMockHistoricalData(days, fuelType, region)
     } catch (error) {
-      console.error(`Error fetching historical prices:`, error)
+      logger.error('Error fetching historical prices', { error: error instanceof Error ? error.message : String(error) })
       return this.generateMockHistoricalData(days, fuelType, region)
     }
   }
@@ -433,7 +434,7 @@ return 0.05
         client.release()
       }
     } catch (error) {
-      console.error('Error saving forecasts to database:', error)
+      logger.error('Error saving forecasts to database', { error: error instanceof Error ? error.message : String(error) })
     }
   }
 

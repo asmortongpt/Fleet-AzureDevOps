@@ -11,6 +11,7 @@
  * @since 2026-02-02
  */
 
+import logger from '../config/logger';
 import { tenantSafeQuery } from '../utils/dbHelpers';
 import {
   LeaseEndInspection,
@@ -598,7 +599,7 @@ export class LeaseEndInspectionService {
     notificationType: 'scheduled' | 'completed' | 'payment_due'
   ): Promise<void> {
     // TODO: Integrate with notification service
-    console.log(`[LEASE INSPECTION] ${notificationType.toUpperCase()} notification for inspection ${inspectionId}`);
+    logger.info(`[LEASE INSPECTION] ${notificationType.toUpperCase()} notification for inspection ${inspectionId}`);
 
     // In production, this would:
     // 1. Get relevant stakeholders (fleet manager, vehicle coordinator, driver)

@@ -15,6 +15,8 @@
 
 import crypto from 'crypto'
 
+import logger from '../config/logger'
+
 /**
  * FIPS 140-2 Password Hashing Service
  * Uses PBKDF2 (Password-Based Key Derivation Function 2)
@@ -111,7 +113,7 @@ resolve(key)
       return crypto.timingSafeEqual(storedHashBuffer, derivedKey)
     } catch (error) {
       // Log error for debugging but don't expose details to caller
-      console.error('Password verification error:', error)
+      logger.error('Password verification error:', { error: error instanceof Error ? error.message : String(error) })
       return false
     }
   }

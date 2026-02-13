@@ -8,6 +8,8 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
+
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null
@@ -498,7 +500,7 @@ class ExecutiveDashboardService {
             })
           }
         } catch (aiError) {
-          console.error('OpenAI insight generation failed:', aiError)
+          logger.error('OpenAI insight generation failed:', { error: aiError instanceof Error ? aiError.message : String(aiError) })
         }
       }
 
@@ -513,7 +515,7 @@ class ExecutiveDashboardService {
       })
 
     } catch (error) {
-      console.error('Error generating AI insights:', error)
+      logger.error('Error generating AI insights:', { error: error instanceof Error ? error.message : String(error) })
       return insights
     }
   }

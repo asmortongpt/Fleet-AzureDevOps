@@ -6,6 +6,7 @@
  */
 
 import pool from '../config/database'
+import logger from '../config/logger'
 
 export interface DriverMetrics {
   driverId: string
@@ -172,7 +173,7 @@ return 'declining'
 }
       return 'stable'
     } catch (error) {
-      console.error('Error calculating trend:', error)
+      logger.error('Error calculating trend', { error: error instanceof Error ? error.message : String(error) })
       return 'stable'
     }
   }
@@ -284,7 +285,7 @@ return 50
       const percentile = (parseFloat(drivers_below) / parseFloat(total_drivers)) * 100
       return Math.round(percentile * 100) / 100
     } catch (error) {
-      console.error('Error calculating percentile:', error)
+      logger.error('Error calculating percentile', { error: error instanceof Error ? error.message : String(error) })
       return 50
     }
   }
