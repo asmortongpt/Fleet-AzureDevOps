@@ -8,6 +8,8 @@ import { EventEmitter } from 'events';
 
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
+
 interface IdlingEvent {
   id?: number;
   vehicle_id: number;
@@ -71,10 +73,10 @@ export class VehicleIdlingService extends EventEmitter {
       return; // Already monitoring
     }
 
-    console.log('[IdlingService] Starting idling detection monitoring');
+    logger.info('[IdlingService] Starting idling detection monitoring');
     this.monitoringInterval = setInterval(() => {
       this.checkActiveIdlingEvents().catch(err => {
-        console.error('[IdlingService] Error checking active idling events:', err);
+        logger.error('[IdlingService] Error checking active idling events', { error: err });
       });
     }, intervalMs);
   }
@@ -86,7 +88,7 @@ export class VehicleIdlingService extends EventEmitter {
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
       this.monitoringInterval = null;
-      console.log('[IdlingService] Stopped idling detection monitoring');
+      logger.info('[IdlingService] Stopped idling detection monitoring');
     }
   }
 
@@ -169,7 +171,7 @@ export class VehicleIdlingService extends EventEmitter {
       const eventId = result.rows[0].id;
       this.activeIdlingEvents.set(state.vehicle_id, eventId);
 
-      console.log(`[IdlingService] Started idling event ${eventId} for vehicle ${state.vehicle_id}`);
+      logger.info('[IdlingService] Started idling event', { eventId, vehicleId: state.vehicle_id });
 
       // Emit event for real-time updates
       this.emit('idling:started', {
@@ -182,7 +184,7 @@ export class VehicleIdlingService extends EventEmitter {
       // Reverse geocode location if coordinates provided
       if (state.latitude && state.longitude) {
         this.reverseGeocodeLocation(eventId, state.latitude, state.longitude).catch(err => {
-          console.error(`[IdlingService] Error reverse geocoding:`, err);
+          logger.error('[IdlingService] Error reverse geocoding', { error: err });
         });
       }
 
@@ -216,7 +218,7 @@ export class VehicleIdlingService extends EventEmitter {
         const event = result.rows[0];
         this.activeIdlingEvents.delete(vehicleId);
 
-        console.log(`[IdlingService] Ended idling event ${eventId} for vehicle ${vehicleId}. Duration: ${event.duration_seconds}s`);
+        logger.info('[IdlingService] Ended idling event', { eventId, vehicleId, durationSeconds: event.duration_seconds });
 
         // Emit event for real-time updates
         this.emit('idling:ended', {
@@ -356,7 +358,7 @@ export class VehicleIdlingService extends EventEmitter {
         [eventId]
       );
 
-      console.log(`[IdlingService] ${severity.toUpperCase()} alert triggered for event ${eventId}`);
+      logger.info('[IdlingService] Alert triggered', { severity, eventId });
 
       // Emit for real-time notifications
       this.emit('idling:alert', {
@@ -430,7 +432,7 @@ export class VehicleIdlingService extends EventEmitter {
       const azureMapsApiKey = process.env.AZURE_MAPS_API_KEY || process.env.GOOGLE_MAPS_API_KEY;
 
       if (!azureMapsApiKey) {
-        console.warn('[IdlingService] No Azure Maps API key configured, using coordinates only');
+        logger.warn('[IdlingService] No Azure Maps API key configured, using coordinates only');
       } else {
         // Call Azure Maps Search API for reverse geocoding
         const response = await fetch(
@@ -472,11 +474,11 @@ export class VehicleIdlingService extends EventEmitter {
               : address.freeformAddress || locationName;
           }
         } else {
-          console.warn(`[IdlingService] Azure Maps API returned ${response.status}: ${response.statusText}`);
+          logger.warn('[IdlingService] Azure Maps API returned error', { status: response.status, statusText: response.statusText });
         }
       }
     } catch (error: any) {
-      console.error('[IdlingService] Error reverse geocoding location:', error.message);
+      logger.error('[IdlingService] Error reverse geocoding location', { error: error.message });
       // Fall back to coordinates if geocoding fails
     }
 
@@ -626,7 +628,7 @@ export class VehicleIdlingService extends EventEmitter {
       );
 
       const eventId = result.rows[0].id;
-      console.log(`[IdlingService] Manual idling event ${eventId} reported`);
+      logger.info('[IdlingService] Manual idling event reported', { eventId });
 
       return eventId;
     } finally {
@@ -815,7 +817,7 @@ export class VehicleIdlingService extends EventEmitter {
         values
       );
 
-      console.log(`[IdlingService] Updated thresholds for vehicle ${vehicleId}`);
+      logger.info('[IdlingService] Updated thresholds for vehicle', { vehicleId });
     } finally {
       if (client) client.release();
     }
@@ -855,7 +857,7 @@ export class VehicleIdlingService extends EventEmitter {
         [userId, alertId]
       );
 
-      console.log(`[IdlingService] Alert ${alertId} acknowledged by user ${userId}`);
+      logger.info('[IdlingService] Alert acknowledged', { alertId, userId });
     } finally {
       if (client) client.release();
     }

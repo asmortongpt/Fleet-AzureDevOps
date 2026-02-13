@@ -16,6 +16,8 @@ import { ComputerVisionClient } from '@azure/cognitiveservices-computervision'
 import { ApiKeyCredentials } from '@azure/ms-rest-js'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
+
 // Azure Computer Vision configuration
 const AZURE_CV_ENDPOINT = process.env.AZURE_COMPUTER_VISION_ENDPOINT
 const AZURE_CV_KEY = process.env.AZURE_COMPUTER_VISION_KEY
@@ -57,7 +59,7 @@ let cvClient: ComputerVisionClient | null = null
  */
 function getComputerVisionClient(): ComputerVisionClient | null {
   if (!AZURE_CV_ENDPOINT || !AZURE_CV_KEY) {
-    console.warn('⚠️  Azure Computer Vision not configured. OCR service will return empty results.')
+    logger.warn('Azure Computer Vision not configured. OCR service will return empty results.')
     return null
   }
 
@@ -97,7 +99,7 @@ export class OcrService {
 
     // Graceful degradation: return empty result if not configured
     if (!client) {
-      console.warn(`OCR skipped for ${blobUrl} - Azure Computer Vision not configured`)
+      logger.warn('OCR skipped - Azure Computer Vision not configured', { blobUrl })
       return {
         text: ``,
         confidence: 0,
@@ -108,7 +110,7 @@ export class OcrService {
 
     // Validate MIME type
     if (!SUPPORTED_MIME_TYPES.includes(mimeType.toLowerCase())) {
-      console.warn(`Unsupported MIME type for OCR: ${mimeType}`)
+      logger.warn('Unsupported MIME type for OCR', { mimeType })
       return {
         text: ``,
         confidence: 0,
@@ -119,7 +121,7 @@ export class OcrService {
 
     try {
       // Step 1: Submit the document to Read API using URL
-      console.log(`📄 Submitting document for OCR: ${blobUrl}`)
+      logger.info('Submitting document for OCR', { blobUrl })
       const readOperation = await client.read(blobUrl)
 
       // Get operation location from headers
@@ -131,7 +133,7 @@ export class OcrService {
       }
 
       // Step 2: Poll for completion
-      console.log(`⏳ Polling for OCR completion (operation: ${operationId})`)
+      logger.info('Polling for OCR completion', { operationId })
       let result = await client.getReadResult(operationId)
       let attempts = 0
 
@@ -180,7 +182,7 @@ export class OcrService {
 
       const averageConfidence = lineCount > 0 ? totalConfidence / lineCount : 0
 
-      console.log(`✅ OCR complete: ${lineCount} lines extracted, avg confidence: ${(averageConfidence * 100).toFixed(1)}%`)
+      logger.info('OCR complete', { lineCount, avgConfidence: (averageConfidence * 100).toFixed(1) })
 
       return {
         text: fullText.trim(),
@@ -189,7 +191,7 @@ export class OcrService {
         lines
       }
     } catch (error) {
-      console.error(`❌ OCR extraction error:`, error)
+      logger.error('OCR extraction error', { error })
 
       // Graceful degradation: log error but don`t crash
       return {
@@ -221,7 +223,7 @@ export class OcrService {
       }
 
       const doc = result.rows[0]
-      console.log(`🔍 Processing document: ${doc.file_name} (${doc.mime_type})`)
+      logger.info('Processing document', { fileName: doc.file_name, mimeType: doc.mime_type })
 
       // Extract text
       const ocrResult = await this.extractText(doc.blob_url, doc.mime_type)
@@ -237,9 +239,9 @@ export class OcrService {
         [ocrResult.text, ocrResult.confidence, documentId]
       )
 
-      console.log(`✅ Document ${documentId} processed successfully`)
+      logger.info('Document processed successfully', { documentId })
     } catch (error) {
-      console.error(`❌ Failed to process document ${documentId}:`, error)
+      logger.error('Failed to process document', { documentId, error })
 
       // Update document with error status
       await this.db.query(
@@ -270,7 +272,7 @@ export class OcrService {
       totalProcessed: 0
     }
 
-    console.log(`📦 Starting batch OCR processing for ${documentIds.length} documents`)
+    logger.info('Starting batch OCR processing', { documentCount: documentIds.length })
 
     // Process documents sequentially to avoid rate limits
     for (const documentId of documentIds) {
@@ -286,9 +288,7 @@ export class OcrService {
       results.totalProcessed++
     }
 
-    console.log(
-      `✅ Batch processing complete: ${results.successful.length} successful, ${results.failed.length} failed`
-    )
+    logger.info('Batch processing complete', { successful: results.successful.length, failed: results.failed.length })
 
     return results
   }

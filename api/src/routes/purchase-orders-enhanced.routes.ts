@@ -264,9 +264,7 @@ router.post('/', [
     tax_rate = 0,
   } = req.body;
 
-  // @ts-ignore
   const userId = req.user?.id;
-  // @ts-ignore
   const tenantId = req.user?.tenant_id;
 
   const client = await pool.connect();
@@ -368,7 +366,6 @@ router.post('/:id/submit-for-approval', [
   param('id').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const client = await pool.connect();
@@ -463,7 +460,6 @@ router.post('/:id/approve', [
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { action, comments } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const client = await pool.connect();
@@ -543,7 +539,6 @@ router.post('/:id/send-to-vendor', [
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { confirmation_number, vendor_po_number } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const query = `
@@ -588,9 +583,7 @@ router.post('/:id/receive', [
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { received_items, packing_slip_number, notes } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
-  // @ts-ignore
   const userName = req.user?.name || req.user?.email;
 
   const client = await pool.connect();
@@ -716,7 +709,6 @@ router.post('/:id/cancel', [
 ], asyncHandler(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { reason } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
 
   const query = `
@@ -757,9 +749,7 @@ router.post('/auto-create-from-alerts', [
   body('alert_ids.*').isUUID(),
 ], asyncHandler(async (req: Request, res: Response) => {
   const { alert_ids } = req.body;
-  // @ts-ignore
   const userId = req.user?.id;
-  // @ts-ignore
   const tenantId = req.user?.tenant_id;
 
   const client = await pool.connect();

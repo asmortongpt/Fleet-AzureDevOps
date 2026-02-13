@@ -14,16 +14,5 @@
 // Re-export server for type checking
 export { };
 
-// Minimal type declarations for TypeScript compliance
-declare global {
-  namespace Express {
-    interface Request {
-      // @ts-expect-error - Build compatibility fix
-      user?: any;
-      tenantId?: string;
-    }
-  }
-}
-
 console.log('[MAIN] Fleet API entry point loaded');
 console.log('[MAIN] For full server, run: npm run dev or npm start');

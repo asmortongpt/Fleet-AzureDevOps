@@ -87,7 +87,6 @@ router.use(authenticateJWT);
 router.get('/fleet-metrics',
   authenticateJWT,
   asyncHandler(async (req: Request, res: Response) => {
-    // @ts-ignore
     const tenantId = req.user?.tenant_id;
 
     // Default metrics structure

@@ -12,6 +12,7 @@
 import { injectable, inject } from 'inversify';
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
 import { TYPES } from '../types';
 
 interface NotificationRecipient {
@@ -63,7 +64,7 @@ export class AssignmentNotificationService {
 
       await this.sendToRecipients(recipients, notification, tenantId);
     } catch (error) {
-      console.error('Error sending assignment created notification:', error);
+      logger.error('Error sending assignment created notification', { error });
     }
   }
 
@@ -102,7 +103,7 @@ export class AssignmentNotificationService {
       // Log notification in approval_tracking
       await this.logNotificationSent(assignmentId, tenantId, 'recommended', recipients.length);
     } catch (error) {
-      console.error('Error sending assignment recommended notification:', error);
+      logger.error('Error sending assignment recommended notification', { error });
     }
   }
 
@@ -145,7 +146,7 @@ export class AssignmentNotificationService {
 
       await this.logNotificationSent(assignmentId, tenantId, 'approved', recipients.length);
     } catch (error) {
-      console.error('Error sending assignment approved notification:', error);
+      logger.error('Error sending assignment approved notification', { error });
     }
   }
 
@@ -187,7 +188,7 @@ export class AssignmentNotificationService {
 
       await this.logNotificationSent(assignmentId, tenantId, 'denied', recipients.length);
     } catch (error) {
-      console.error('Error sending assignment denied notification:', error);
+      logger.error('Error sending assignment denied notification', { error });
     }
   }
 
@@ -227,7 +228,7 @@ export class AssignmentNotificationService {
 
       await this.logNotificationSent(assignmentId, tenantId, 'activated', recipients.length);
     } catch (error) {
-      console.error('Error sending assignment activated notification:', error);
+      logger.error('Error sending assignment activated notification', { error });
     }
   }
 
@@ -269,7 +270,7 @@ export class AssignmentNotificationService {
 
       await this.logNotificationSent(assignmentId, tenantId, 'terminated', recipients.length);
     } catch (error) {
-      console.error('Error sending assignment terminated notification:', error);
+      logger.error('Error sending assignment terminated notification', { error });
     }
   }
 
@@ -305,7 +306,7 @@ export class AssignmentNotificationService {
         includeInApp: true,
       });
     } catch (error) {
-      console.error('Error sending on-call starting notification:', error);
+      logger.error('Error sending on-call starting notification', { error });
     }
   }
 
@@ -338,7 +339,7 @@ export class AssignmentNotificationService {
         includeInApp: true,
       });
     } catch (error) {
-      console.error('Error sending reauthorization cycle notification:', error);
+      logger.error('Error sending reauthorization cycle notification', { error });
     }
   }
 
@@ -525,21 +526,21 @@ export class AssignmentNotificationService {
         if (includeEmail && recipient.email) {
           // This would integrate with the existing NotificationService
           // For now, we`ll just log it
-          console.log(`Email notification queued for ${recipient.email}`);
+          logger.info('Email notification queued', { email: recipient.email });
         }
 
         // Queue push notification (integrate with existing push service)
         if (includePush) {
           // This would integrate with the existing PushNotificationService
-          console.log(`Push notification queued for user ${recipient.user_id}`);
+          logger.info('Push notification queued', { userId: recipient.user_id });
         }
 
         // Queue SMS (if phone number available)
         if (includeSMS && recipient.phone) {
-          console.log(`SMS notification queued for ${recipient.phone}`);
+          logger.info('SMS notification queued', { phone: recipient.phone });
         }
       } catch (error) {
-        console.error(`Error sending notification to ${recipient.user_id}:`, error);
+        logger.error('Error sending notification to user', { userId: recipient.user_id, error });
       }
     }
   }
@@ -561,7 +562,7 @@ export class AssignmentNotificationService {
         [assignmentId, tenantId, action]
       );
     } catch (error) {
-      console.error('Error logging notification:', error);
+      logger.error('Error logging notification', { error });
     }
   }
 }

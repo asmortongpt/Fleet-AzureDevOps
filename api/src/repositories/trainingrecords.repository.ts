@@ -1,5 +1,6 @@
 import { Pool } from 'pg';
 
+import logger from '../config/logger';
 import { BaseRepository } from './base/BaseRepository';
 
 
@@ -34,7 +35,7 @@ export class TrainingRecordsRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [tenantId]);
       return result.rows;
     } catch (error) {
-      console.error('Error in findAll:', error);
+      logger.error('TrainingRecordsRepository.findAll failed', { error });
       throw new Error('Failed to fetch records');
     }
   }
@@ -54,7 +55,7 @@ export class TrainingRecordsRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [id, tenantId]);
       return result.rows[0] || null;
     } catch (error) {
-      console.error('Error in findById:', error);
+      logger.error('TrainingRecordsRepository.findById failed', { error });
       throw new Error('Failed to fetch record');
     }
   }
@@ -75,7 +76,7 @@ export class TrainingRecordsRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [tenantId, data.name]);
       return result.rows[0];
     } catch (error) {
-      console.error('Error in create:', error);
+      logger.error('TrainingRecordsRepository.create failed', { error });
       throw new Error('Failed to create record');
     }
   }
@@ -98,7 +99,7 @@ export class TrainingRecordsRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [data.name, id, tenantId]);
       return result.rows[0];
     } catch (error) {
-      console.error('Error in update:', error);
+      logger.error('TrainingRecordsRepository.update failed', { error });
       throw new Error('Failed to update record');
     }
   }
@@ -119,7 +120,7 @@ export class TrainingRecordsRepository extends BaseRepository<any> {
       const result = await this.pool.query(query, [id, tenantId]);
       return (result.rowCount ?? 0) > 0;
     } catch (error) {
-      console.error('Error in softDelete:', error);
+      logger.error('TrainingRecordsRepository.softDelete failed', { error });
       throw new Error('Failed to delete record');
     }
   }

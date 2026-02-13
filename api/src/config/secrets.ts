@@ -38,6 +38,8 @@ import { DefaultAzureCredential, ClientSecretCredential } from '@azure/identity'
 import { SecretClient } from '@azure/keyvault-secrets'
 import dotenv from 'dotenv'
 
+import logger from './logger'
+
 dotenv.config()
 
 // ============================================================================
@@ -85,18 +87,19 @@ const secretAccessLog = new Map<string, number>() // Track access count for moni
  */
 export async function initializeSecrets(): Promise<void> {
   if (isInitialized) {
-    console.log('⚠️  Secret client already initialized')
+    logger.info('Secret client already initialized')
     return 
 }
 
-  console.log(`🔐 Initializing Azure Key Vault secret management...`)
-  console.log(`   Vault URI: ${VAULT_URI}`)
-  console.log(`   Environment: ${process.env.NODE_ENV}`)
-  console.log(`   Local secrets mode: ${USE_LOCAL_SECRETS}`)
+  logger.info('Initializing Azure Key Vault secret management', {
+    vaultUri: VAULT_URI,
+    environment: process.env.NODE_ENV,
+    localSecretsMode: USE_LOCAL_SECRETS
+  })
 
   try {
     if (USE_LOCAL_SECRETS) {
-      console.log(`⚠️  Using local .env secrets (development mode)`)
+      logger.info('Using local .env secrets (development mode)')
       isInitialized = true
       return
     }
@@ -111,16 +114,16 @@ export async function initializeSecrets(): Promise<void> {
     const secretsIterator = secretClient.listPropertiesOfSecrets()
     await secretsIterator.next() // Just get first secret to verify access
 
-    console.log(`✅ Connected to Azure Key Vault`)
+    logger.info('Connected to Azure Key Vault')
 
     // Pre-load critical secrets
-    console.log(`🔄 Pre-loading critical secrets...`)
+    logger.info('Pre-loading critical secrets')
     const loadPromises = CRITICAL_SECRETS.map(async (secretName) => {
       try {
         await getSecret(secretName)
-        console.log(`   ✓ Loaded: ${secretName}`)
+        logger.info('Loaded critical secret', { secretName })
       } catch (error) {
-        console.error(`   ✗ Failed to load: ${secretName}`, error)
+        logger.error('Failed to load critical secret', { secretName, error })
         throw new Error(`Critical secret ${secretName} not available`)
       }
     })
@@ -128,16 +131,16 @@ export async function initializeSecrets(): Promise<void> {
     await Promise.all(loadPromises)
 
     isInitialized = true
-    console.log(`✅ Secret initialization complete`)
+    logger.info('Secret initialization complete')
 
   } catch (error) {
     initializationError = error as Error
-    console.error('❌ Secret initialization failed:', error)
+    logger.error('Secret initialization failed', { error })
 
     if (process.env.NODE_ENV === `production`) {
       throw new Error(`Failed to initialize secrets in production: ${initializationError.message}`)
     } else {
-      console.warn(`⚠️  Falling back to local secrets due to initialization failure`)
+      logger.warn('Falling back to local secrets due to initialization failure')
       isInitialized = true // Allow startup with local secrets
     }
   }
@@ -149,7 +152,7 @@ export async function initializeSecrets(): Promise<void> {
 function createCredential() {
   // For local development with service principal
   if (process.env.AZURE_TENANT_ID && process.env.AZURE_CLIENT_ID && process.env.AZURE_CLIENT_SECRET) {
-    console.log('🔑 Using ClientSecretCredential (Service Principal)')
+    logger.info('Using ClientSecretCredential (Service Principal)')
     return new ClientSecretCredential(
       process.env.AZURE_TENANT_ID,
       process.env.AZURE_CLIENT_ID,
@@ -158,7 +161,7 @@ function createCredential() {
   }
 
   // For Azure-hosted environments (App Service, AKS with Managed Identity)
-  console.log('🔑 Using DefaultAzureCredential (Managed Identity)')
+  logger.info('Using DefaultAzureCredential (Managed Identity)')
   return new DefaultAzureCredential()
 }
 
@@ -223,13 +226,13 @@ export async function getSecret(
     return secret.value
 
   } catch (error) {
-    console.error(`Failed to retrieve secret ${secretName} from Key Vault:`, error)
+    logger.error('Failed to retrieve secret from Key Vault', { secretName, error })
 
     // Try fallback to environment variable
     if (fallbackEnvVar) {
       const envValue = process.env[fallbackEnvVar]
       if (envValue) {
-        console.warn(`⚠️  Using fallback environment variable: ${fallbackEnvVar}`)
+        logger.warn('Using fallback environment variable', { fallbackEnvVar })
         return envValue
       }
     }
@@ -287,7 +290,7 @@ export async function getSecrets(secretNames: string[]): Promise<Map<string, str
       const value = await getSecret(name)
       results.set(name, value)
     } catch (error) {
-      console.error(`Failed to retrieve secret ${name}:`, error)
+      logger.error('Failed to retrieve secret', { secretName: name, error })
       throw error
     }
   })
@@ -308,10 +311,10 @@ export async function getSecrets(secretNames: string[]): Promise<Map<string, str
 export function clearSecretCache(secretName?: string): void {
   if (secretName) {
     secretCache.delete(secretName)
-    console.log(`🔄 Cleared cache for secret: ${secretName}`)
+    logger.info('Cleared cache for secret', { secretName })
   } else {
     secretCache.clear()
-    console.log(`🔄 Cleared all secret cache`)
+    logger.info('Cleared all secret cache')
   }
 }
 
@@ -415,12 +418,12 @@ return false
  * Cleanup on application shutdown
  */
 export function shutdownSecretManagement(): void {
-  console.log('🔐 Shutting down secret management...')
+  logger.info('Shutting down secret management')
   secretCache.clear()
   secretAccessLog.clear()
   isInitialized = false
   secretClient = null
-  console.log('✅ Secret management shutdown complete')
+  logger.info('Secret management shutdown complete')
 }
 
 // ============================================================================
