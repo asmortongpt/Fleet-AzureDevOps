@@ -24,20 +24,6 @@ import logger from '../config/logger'
 import { sanitizeForLog } from '../utils/logSanitizer'
 
 /**
- * Extend Express Request type to include rate limit information
- */
-declare module 'express' {
-  interface Request {
-    rateLimit?: {
-      limit: number
-      current: number
-      remaining: number
-      resetTime: Date
-    }
-  }
-}
-
-/**
  * Rate limit configuration interface
  */
 interface RateLimitConfig {
@@ -57,9 +43,8 @@ interface RateLimitConfig {
  * Default key generator - uses IP address or authenticated user ID
  */
 function defaultKeyGenerator(req: Request): string {
-  const user = (req as any).user
-  if (user && user.id) {
-    return `user:${user.id}`
+  if (req.user && req.user.id) {
+    return `user:${req.user.id}`
   }
   return `ip:${req.ip || req.socket.remoteAddress || 'unknown'}`
 }
@@ -211,8 +196,7 @@ export const adminLimiter = createRateLimiter({
   max: 50,
   message: 'Too many administrative requests. Please slow down.',
   keyGenerator: (req) => {
-    const user = (req as any).user
-    return user ? `admin:${user.id}` : `admin:${req.ip}`
+    return req.user ? `admin:${req.user.id}` : `admin:${req.ip}`
   }
 })
 

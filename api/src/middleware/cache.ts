@@ -88,13 +88,13 @@ function generateCacheKey(req: Request, config: CacheConfig = {}): string {
   }
 
   // Include user ID
-  if (config.varyByUser && (req as any).user?.id) {
-    parts.push(`user:${(req as any).user.id}`)
+  if (config.varyByUser && req.user?.id) {
+    parts.push(`user:${req.user.id}`)
   }
 
   // Include tenant ID
-  if (config.varyByTenant && (req as any).user?.tenant_id) {
-    parts.push(`tenant:${(req as any).user.tenant_id}`)
+  if (config.varyByTenant && req.user?.tenant_id) {
+    parts.push(`tenant:${req.user.tenant_id}`)
   }
 
   // Use custom key generator if provided

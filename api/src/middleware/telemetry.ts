@@ -48,7 +48,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
   req.telemetry = {
     startTime: Date.now(),
     correlationId: crypto.randomUUID(),
-    userId: (req as any).user?.id
+    userId: req.user?.id ? String(req.user.id) : undefined
   }
 
   // Track request start
@@ -242,7 +242,7 @@ export function errorTelemetryMiddleware(err: Error, req: Request, res: Response
     method: req.method,
     path: req.path,
     statusCode: res.statusCode || 500,
-    userId: (req as any).user?.id,
+    userId: req.user?.id ? String(req.user.id) : undefined,
     correlationId: (req as TelemetryRequest).telemetry?.correlationId
   })
 

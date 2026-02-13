@@ -25,6 +25,21 @@ export interface RequestWithCorrelation extends Request {
 }
 
 /**
+ * Extended Response type for tracking response body
+ */
+interface ResponseWithBody extends Response {
+  responseBody?: unknown;
+}
+
+/**
+ * Error shape used by Express error-handling middleware
+ */
+interface MiddlewareError extends Error {
+  code?: string;
+  statusCode?: number;
+}
+
+/**
  * Request logger middleware
  * Adds correlation ID, logs requests, tracks timing
  */
@@ -47,15 +62,15 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
     query: req.query,
     ip: req.ip || req.socket.remoteAddress,
     userAgent: req.headers['user-agent'],
-    tenantId: (req as any).user?.tenant_id,
-    userId: (req as any).user?.id,
+    tenantId: req.user?.tenant_id,
+    userId: req.user?.id,
     timestamp: new Date().toISOString(),
   });
 
   // Capture response
   const originalJson = res.json;
-  res.json = function(body: any) {
-    (res as any).responseBody = body;
+  res.json = function(body: unknown) {
+    (res as ResponseWithBody).responseBody = body;
     return originalJson.call(this, body);
   };
 
@@ -79,8 +94,8 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
       statusCode,
       duration,
       slow: duration > 1000,
-      userId: (req as any).user?.id,
-      tenantId: (req as any).user?.tenant_id,
+      userId: req.user?.id,
+      tenantId: req.user?.tenant_id,
       timestamp: new Date().toISOString(),
     });
 
@@ -90,8 +105,8 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
       path: req.path,
       statusCode,
       duration,
-      userId: (req as any).user?.id,
-      tenantId: (req as any).user?.tenant_id,
+      userId: req.user?.id,
+      tenantId: req.user?.tenant_id,
       correlationId,
     });
   });
@@ -106,7 +121,7 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
  * Error logging middleware
  * Should be placed after all routes
  */
-export function errorLogger(err: any, req: Request, res: Response, next: NextFunction): void {
+export function errorLogger(err: MiddlewareError, req: Request, res: Response, next: NextFunction): void {
   const correlationId = (req as RequestWithCorrelation).correlationId;
 
   logger.error('Unhandled error', {
@@ -121,8 +136,8 @@ export function errorLogger(err: any, req: Request, res: Response, next: NextFun
     path: req.path,
     query: req.query,
     body: req.body,
-    userId: (req as any).user?.id,
-    tenantId: (req as any).user?.tenant_id,
+    userId: req.user?.id,
+    tenantId: req.user?.tenant_id,
     ip: req.ip || req.socket.remoteAddress,
     userAgent: req.headers['user-agent'],
     timestamp: new Date().toISOString(),

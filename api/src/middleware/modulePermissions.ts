@@ -12,6 +12,17 @@ import { auditService } from '../services/auditService';
 import { logger } from '../utils/logger';
 
 /**
+ * Extended request with permissions and filtered query data
+ */
+interface PermissionRequest extends Request {
+  permissions?: {
+    modules: string[];
+    roles: string[];
+  };
+  filteredQuery?: Record<string, unknown>;
+}
+
+/**
  * Require user to have access to a specific module
  */
 export function requireModule(moduleName: string) {
@@ -196,7 +207,7 @@ export async function attachPermissions(req: Request, res: Response, next: NextF
     const { modules } = await permissionEngine.visibleModules(user);
 
     // Attach to request
-    (req as any).permissions = {
+    (req as PermissionRequest).permissions = {
       modules,
       roles: user.roles
     };
@@ -273,7 +284,7 @@ export async function applyRecordFilters(
     const resourceType = req.params.resourceType || req.baseUrl.split('/').pop() || 'unknown';
 
     // Get existing query from request
-    const baseQuery = (req as any).query || {};
+    const baseQuery = req.query || {};
 
     // Apply filters
     const filteredQuery = await permissionEngine.applyRecordFilter(
@@ -283,7 +294,7 @@ export async function applyRecordFilters(
     );
 
     // Store filtered query
-    (req as any).filteredQuery = filteredQuery;
+    (req as PermissionRequest).filteredQuery = filteredQuery as Record<string, unknown>;
 
     next();
   } catch (error) {
