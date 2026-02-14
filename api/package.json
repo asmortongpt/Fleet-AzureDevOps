@@ -173,6 +173,7 @@
     "ws": "^8.16.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.58.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
@@ -203,14 +204,16 @@
     "@vitest/ui": "^4.0.15",
     "dotenv-cli": "^11.0.0",
     "esbuild": "^0.27.2",
-    "eslint": "^8.56.0",
+    "eslint": "^9.39.2",
     "eslint-import-resolver-typescript": "^4.4.4",
     "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-n": "^17.23.2",
     "eslint-plugin-no-secrets": "^2.2.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^7.2.1",
     "eslint-plugin-security": "^3.0.1",
     "eslint-plugin-unused-imports": "^4.3.0",
+    "globals": "^17.3.0",
     "graphql": "^16.12.0",
     "graphql-redis-subscriptions": "^2.7.0",
     "graphql-scalars": "^1.25.0",
@@ -225,6 +228,7 @@
     "ts-morph": "^27.0.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.55.0",
     "vitest": "^4.0.18",
     "zod": "^4.1.13"
   }
