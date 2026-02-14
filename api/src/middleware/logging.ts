@@ -68,10 +68,10 @@ export function requestLogger(req: Request, res: Response, next: NextFunction): 
   });
 
   // Capture response
-  const originalJson = res.json;
+  const originalJson = res.json.bind(res);
   res.json = function(body: unknown) {
     (res as ResponseWithBody).responseBody = body;
-    return originalJson.call(this, body);
+    return originalJson(body);
   };
 
   // Log response on finish

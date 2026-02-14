@@ -13,7 +13,6 @@
  */
 
 import type { Policy } from '../policy-engine/types'
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 
@@ -183,8 +182,8 @@ export const CONFIGURATION_SCHEMA: ConfigurationSchema = {
               label: 'Primary Color',
               description: 'Main brand color for UI elements',
               type: 'color',
-              value: '#3b82f6',
-              defaultValue: '#3b82f6',
+              value: 'hsl(var(--primary))',
+              defaultValue: 'hsl(var(--primary))',
               impact: 'low',
               preview: true
             },
@@ -194,8 +193,8 @@ export const CONFIGURATION_SCHEMA: ConfigurationSchema = {
               label: 'Secondary Color',
               description: 'Accent color for highlights and CTAs',
               type: 'color',
-              value: '#8b5cf6',
-              defaultValue: '#8b5cf6',
+              value: 'hsl(var(--accent))',
+              defaultValue: 'hsl(var(--accent))',
               impact: 'low',
               preview: true
             },

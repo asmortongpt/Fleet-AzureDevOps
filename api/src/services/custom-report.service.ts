@@ -714,18 +714,20 @@ export class CustomReportService {
         params.push(filter.value, filter.value2)
         paramCount = 2
         break
-      case 'in':
+      case 'in': {
         const inPlaceholders = filter.value.map((_: any, i: number) => `$${paramIndex + i}`).join(`, `)
         sql = `${filter.field} IN (${inPlaceholders})`
         params.push(...filter.value)
         paramCount = filter.value.length
         break
-      case 'not_in':
+      }
+      case 'not_in': {
         const notInPlaceholders = filter.value.map((_: any, i: number) => `$${paramIndex + i}`).join(`, `)
         sql = `${filter.field} NOT IN (${notInPlaceholders})`
         params.push(...filter.value)
         paramCount = filter.value.length
         break
+      }
       case 'is_null':
         sql = `${filter.field} IS NULL`
         paramCount = 0

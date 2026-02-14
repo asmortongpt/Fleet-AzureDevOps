@@ -24,17 +24,21 @@ export function sanitizeError(message: string): string {
  * @param fn - The async function to wrap.
  * @returns A function that handles errors.
  */
-export function asyncHandler(fn: Function) {
+export function asyncHandler(fn: (...args: unknown[]) => unknown) {
   return function (req: any, res: any, next: any) {
-    Promise.resolve(fn(req, res, next)).catch(next);
+    void Promise.resolve(fn(req, res, next)).catch(next);
   };
 }
 /**
  * Extract error message from unknown error
  */
 export function getErrorMessage(error: unknown): string {
-  if (error instanceof Error) return error.message;
-  if (typeof error === 'string') return error;
+  if (error instanceof Error) {
+return error.message;
+}
+  if (typeof error === 'string') {
+return error;
+}
   if (error && typeof error === 'object' && 'message' in error) {
     return String((error as { message: unknown }).message);
   }

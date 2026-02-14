@@ -38,7 +38,6 @@ import {
   Alert,
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 
@@ -568,7 +567,7 @@ export default function ReportingDashboard() {
               <Typography variant="h6" gutterBottom>
                 Summary
               </Typography>
-              <pre style={{ background: '#f5f5f5', padding: '10px', borderRadius: '4px' }}>
+              <pre style={{ background: 'hsl(var(--muted))', padding: '10px', borderRadius: '4px' }}>
                 {JSON.stringify(previewData.summary, null, 2)}
               </pre>
             </Box>

@@ -45,16 +45,16 @@ interface VehicleInventoryProps {
 // StatusChip Component - Inline implementation
 const StatusChip: React.FC<{status: 'good'|'warn'|'bad'|'info'; label?: string}> = ({status, label}) => {
   const colorMap = {
-    good: '#10b981',
-    warn: '#f59e0b',
-    bad: '#ef4444',
-    info: '#60a5fa'
+    good: 'hsl(var(--success))',
+    warn: 'hsl(var(--warning))',
+    bad: 'hsl(var(--destructive))',
+    info: 'hsl(var(--primary))'
   }
   return (
     <span style={{
       display:'inline-flex', alignItems:'center', gap:8,
       padding:'6px 10px', borderRadius:999,
-      border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.03)',
+      border:'1px solid hsl(var(--border) / 0.2)', background:'hsl(var(--muted) / 0.2)',
       color: colorMap[status], fontSize:12
     }}>
       ● {label ?? status.toUpperCase()}
@@ -214,7 +214,7 @@ export function VehicleInventory({
   if (permissionsLoading) {
     return (
       <div style={{display:'flex', alignItems:'center', justifyContent:'center', height:400}}>
-        <ArrowsClockwise style={{width:32, height:32, animation:'spin 1s linear infinite', color:'var(--muted, #94a3b8)'}} />
+        <ArrowsClockwise style={{width:32, height:32, animation:'spin 1s linear infinite', color:'var(--muted, hsl(var(--muted-foreground)))'}} />
       </div>
     )
   }
@@ -223,11 +223,11 @@ export function VehicleInventory({
     return (
       <div style={{
         padding:24, borderRadius:16,
-        border:'1px solid rgba(255,255,255,0.08)',
-        background:'rgba(255,255,255,0.03)'
+        border:'1px solid hsl(var(--border) / 0.2)',
+        background:'hsl(var(--muted) / 0.2)'
       }}>
-        <h3 style={{fontSize:20, fontWeight:700, color:'var(--text, #f1f5f9)', marginBottom:8}}>Access Denied</h3>
-        <p style={{fontSize:14, color:'var(--muted, #94a3b8)'}}>
+        <h3 style={{fontSize:20, fontWeight:700, color:'var(--text, hsl(var(--foreground)))', marginBottom:8}}>Access Denied</h3>
+        <p style={{fontSize:14, color:'var(--muted, hsl(var(--muted-foreground)))'}}>
           You do not have permission to view vehicle inventory
         </p>
       </div>
@@ -241,12 +241,12 @@ export function VehicleInventory({
         <h2 style={{
           fontSize: 28,
           fontWeight: 700,
-          color: 'var(--text, #f1f5f9)',
+          color: 'var(--text, hsl(var(--foreground)))',
           marginBottom: 8
         }}>Vehicle Inventory - {vehicleNumber}</h2>
         <p style={{
           fontSize: 14,
-          color: 'var(--muted, #94a3b8)'
+          color: 'var(--muted, hsl(var(--muted-foreground)))'
         }}>{vehicleMake} {vehicleModel} - Professional parts and supplies tracking</p>
       </div>
 
@@ -261,12 +261,12 @@ export function VehicleInventory({
         <div style={{
           padding: 20,
           borderRadius: 16,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: 'linear-gradient(135deg, rgba(96,165,250,0.15), rgba(255,255,255,0.03))'
+          border: '1px solid hsl(var(--border) / 0.2)',
+          background: 'linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--muted) / 0.2))'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Assigned Parts</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{metrics.totalPartsAssigned}</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#60a5fa', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, hsl(var(--muted-foreground)))', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Assigned Parts</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>{metrics.totalPartsAssigned}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'hsl(var(--primary))', marginTop:8 }}>
             <Package style={{width:14, height:14}} />
             Active
           </div>
@@ -276,12 +276,12 @@ export function VehicleInventory({
         <div style={{
           padding: 20,
           borderRadius: 16,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(255,255,255,0.03))'
+          border: '1px solid hsl(var(--border) / 0.2)',
+          background: 'linear-gradient(135deg, hsl(var(--success) / 0.15), hsl(var(--muted) / 0.2))'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Parts Value</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>${(metrics.totalValue/1000).toFixed(1)}k</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#10b981', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, hsl(var(--muted-foreground)))', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Parts Value</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>${(metrics.totalValue/1000).toFixed(1)}k</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'hsl(var(--success))', marginTop:8 }}>
             <CurrencyDollar style={{width:14, height:14}} />
             Total
           </div>
@@ -291,12 +291,12 @@ export function VehicleInventory({
         <div style={{
           padding: 20,
           borderRadius: 16,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: 'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(255,255,255,0.03))'
+          border: '1px solid hsl(var(--border) / 0.2)',
+          background: 'linear-gradient(135deg, hsl(var(--warning) / 0.15), hsl(var(--muted) / 0.2))'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Low Stock</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: '#f59e0b' }}>{metrics.lowStockParts}</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#f59e0b', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, hsl(var(--muted-foreground)))', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Low Stock</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'hsl(var(--warning))' }}>{metrics.lowStockParts}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'hsl(var(--warning))', marginTop:8 }}>
             <Warning style={{width:14, height:14}} />
             Need attention
           </div>
@@ -306,12 +306,12 @@ export function VehicleInventory({
         <div style={{
           padding: 20,
           borderRadius: 16,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: 'rgba(255,255,255,0.03)'
+          border: '1px solid hsl(var(--border) / 0.2)',
+          background: 'hsl(var(--muted) / 0.2)'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Parts Used (30d)</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{metrics.partsUsedLast30Days}</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, #94a3b8)', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, hsl(var(--muted-foreground)))', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Parts Used (30d)</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>{metrics.partsUsedLast30Days}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', marginTop:8 }}>
             <TrendUp style={{width:14, height:14}} />
             Units
           </div>
@@ -321,12 +321,12 @@ export function VehicleInventory({
         <div style={{
           padding: 20,
           borderRadius: 16,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: 'rgba(255,255,255,0.03)'
+          border: '1px solid hsl(var(--border) / 0.2)',
+          background: 'hsl(var(--muted) / 0.2)'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Cost (30d)</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>${(metrics.costLast30Days/1000).toFixed(1)}k</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, #94a3b8)', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, hsl(var(--muted-foreground)))', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Cost (30d)</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>${(metrics.costLast30Days/1000).toFixed(1)}k</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', marginTop:8 }}>
             <CurrencyDollar style={{width:14, height:14}} />
             Parts cost
           </div>
@@ -336,12 +336,12 @@ export function VehicleInventory({
         <div style={{
           padding: 20,
           borderRadius: 16,
-          border: '1px solid rgba(255,255,255,0.08)',
-          background: 'rgba(255,255,255,0.03)'
+          border: '1px solid hsl(var(--border) / 0.2)',
+          background: 'hsl(var(--muted) / 0.2)'
         }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #94a3b8)', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Maintenance</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, #f1f5f9)' }}>{metrics.maintenanceEvents}</div>
-          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, #94a3b8)', marginTop:8 }}>
+          <div style={{ fontSize: 12, color: 'var(--muted, hsl(var(--muted-foreground)))', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Maintenance</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>{metrics.maintenanceEvents}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', marginTop:8 }}>
             <Wrench style={{width:14, height:14}} />
             Events
           </div>
@@ -351,7 +351,7 @@ export function VehicleInventory({
       {/* View Tabs */}
       <div style={{
         display:'flex', gap:8, marginBottom:24,
-        borderBottom:'1px solid rgba(255,255,255,0.08)',
+        borderBottom:'1px solid hsl(var(--border) / 0.2)',
         paddingBottom:2
       }}>
         {(['assigned','compatible','usage','maintenance'] as const).map(view => (
@@ -360,10 +360,10 @@ export function VehicleInventory({
             onClick={() => setActiveView(view)}
             style={{
               padding:'10px 18px', fontSize:14, fontWeight:600,
-              color: activeView === view ? 'var(--text, #f1f5f9)' : 'var(--muted, #94a3b8)',
-              background: activeView === view ? 'rgba(96,165,250,0.15)' : 'transparent',
+              color: activeView === view ? 'var(--text, hsl(var(--foreground)))' : 'var(--muted, hsl(var(--muted-foreground)))',
+              background: activeView === view ? 'hsl(var(--primary) / 0.15)' : 'transparent',
               border: 'none', borderRadius:'12px 12px 0 0',
-              borderBottom: activeView === view ? '2px solid #60a5fa' : '2px solid transparent',
+              borderBottom: activeView === view ? '2px solid hsl(var(--primary))' : '2px solid transparent',
               cursor:'pointer', textTransform:'capitalize'
             }}
           >
@@ -375,15 +375,15 @@ export function VehicleInventory({
       {/* Search and Actions */}
       <div style={{display:'flex', gap:16, marginBottom:24}}>
         <div style={{position:'relative', flex:1}}>
-          <MagnifyingGlass style={{position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'var(--muted, #94a3b8)'}} />
+          <MagnifyingGlass style={{position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'var(--muted, hsl(var(--muted-foreground)))'}} />
           <input
             placeholder={`Search ${activeView} parts...`}
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             style={{
               width:'100%', padding:'12px 12px 12px 40px', fontSize:14,
-              background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)',
-              borderRadius:12, color:'var(--text, #f1f5f9)'
+              background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)',
+              borderRadius:12, color:'var(--text, hsl(var(--foreground)))'
             }}
           />
         </div>
@@ -392,8 +392,8 @@ export function VehicleInventory({
             onClick={() => setIsAssignPanelOpen(true)}
             style={{
               padding:'12px 20px', fontSize:14, fontWeight:600,
-              background:'linear-gradient(135deg, #60a5fa, #3b82f6)',
-              border:'none', borderRadius:12, color:'#fff', cursor:'pointer',
+              background:'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)))',
+              border:'none', borderRadius:12, color:'hsl(var(--foreground))', cursor:'pointer',
               display:'flex', alignItems:'center', gap:8
             }}
           >
@@ -406,32 +406,32 @@ export function VehicleInventory({
       {/* ASSIGNED PARTS TABLE */}
       {activeView === 'assigned' && (
         <div style={{
-          borderRadius:16, border:'1px solid rgba(255,255,255,0.08)',
-          background:'rgba(255,255,255,0.03)', overflow:'hidden'
+          borderRadius:16, border:'1px solid hsl(var(--border) / 0.2)',
+          background:'hsl(var(--muted) / 0.2)', overflow:'hidden'
         }}>
           {isLoading ? (
             <div style={{display:'flex', alignItems:'center', justifyContent:'center', padding:80}}>
-              <ArrowsClockwise style={{width:32, height:32, animation:'spin 1s linear infinite', color:'var(--muted, #94a3b8)'}} />
+              <ArrowsClockwise style={{width:32, height:32, animation:'spin 1s linear infinite', color:'var(--muted, hsl(var(--muted-foreground)))'}} />
             </div>
           ) : (
             <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
               <thead>
-                <tr style={{background:'rgba(255,255,255,0.02)'}}>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em', width:40}}></th>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Part Number</th>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Name</th>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Category</th>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Stock Level</th>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Quantity</th>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Unit Cost</th>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
-                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Actions</th>
+                <tr style={{background:'hsl(var(--muted) / 0.1)'}}>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em', width:40}}></th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Part Number</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Name</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Category</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Stock Level</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Quantity</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Unit Cost</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredAssignedParts.length === 0 ? (
                   <tr>
-                    <td colSpan={9} style={{padding:60, textAlign:'center', color:'var(--muted, #94a3b8)', fontSize:14}}>
+                    <td colSpan={9} style={{padding:60, textAlign:'center', color:'var(--muted, hsl(var(--muted-foreground)))', fontSize:14}}>
                       No parts assigned to this vehicle.
                     </td>
                   </tr>
@@ -447,50 +447,50 @@ export function VehicleInventory({
                           onClick={() => toggleRowExpand(part.id)}
                           style={{
                             cursor:'pointer',
-                            borderBottom:'1px solid rgba(255,255,255,0.06)',
+                            borderBottom:'1px solid hsl(var(--border) / 0.15)',
                             transition:'background 0.15s'
                           }}
                         >
                           <td style={{padding:16}}>
                             <div style={{
                               width:6, height:6, borderRadius:'50%',
-                              background: isExpanded ? '#60a5fa' : 'rgba(255,255,255,0.3)'
+                              background: isExpanded ? 'hsl(var(--primary))' : 'hsl(var(--muted) / 0.3)'
                             }} />
                           </td>
-                          <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, #f1f5f9)'}}>
+                          <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, hsl(var(--foreground)))'}}>
                             {part.partNumber}
                           </td>
                           <td style={{padding:16}}>
-                            <div style={{fontWeight:600, fontSize:14, color:'var(--text, #f1f5f9)', marginBottom:2}}>
+                            <div style={{fontWeight:600, fontSize:14, color:'var(--text, hsl(var(--foreground)))', marginBottom:2}}>
                               {part.name}
                             </div>
-                            <div style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>
+                            <div style={{fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))'}}>
                               {part.manufacturer}
                             </div>
                           </td>
-                          <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)', textTransform:'capitalize'}}>
+                          <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))', textTransform:'capitalize'}}>
                             {part.category}
                           </td>
                           <td style={{padding:16}}>
                             <div style={{width:100}}>
                               <div style={{
-                                height:6, borderRadius:999, background:'rgba(255,255,255,0.1)',
+                                height:6, borderRadius:999, background:'hsl(var(--muted) / 0.2)',
                                 overflow:'hidden', marginBottom:4
                               }}>
                                 <div style={{
                                   width:`${stockLevel}%`, height:'100%',
-                                  background: stockStatus === 'good' ? '#10b981' : stockStatus === 'warn' ? '#f59e0b' : '#ef4444'
+                                  background: stockStatus === 'good' ? 'hsl(var(--success))' : stockStatus === 'warn' ? 'hsl(var(--warning))' : 'hsl(var(--destructive))'
                                 }} />
                               </div>
-                              <div style={{fontSize:11, color:'var(--muted, #94a3b8)'}}>
+                              <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))'}}>
                                 {part.quantityOnHand} / {part.maxStockLevel}
                               </div>
                             </div>
                           </td>
-                          <td style={{padding:16, fontSize:16, fontWeight:700, color:'var(--text, #f1f5f9)'}}>
+                          <td style={{padding:16, fontSize:16, fontWeight:700, color:'var(--text, hsl(var(--foreground)))'}}>
                             {part.quantityOnHand}
                           </td>
-                          <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>
+                          <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>
                             ${part.unitCost.toFixed(2)}
                           </td>
                           <td style={{padding:16}}>
@@ -509,8 +509,8 @@ export function VehicleInventory({
                                 }}
                                 style={{
                                   padding:'8px 12px', fontSize:12, fontWeight:600,
-                                  background:'rgba(96,165,250,0.15)', border:'1px solid rgba(96,165,250,0.3)',
-                                  borderRadius:10, color:'#60a5fa', cursor:'pointer',
+                                  background:'hsl(var(--primary) / 0.15)', border:'1px solid hsl(var(--primary) / 0.3)',
+                                  borderRadius:10, color:'hsl(var(--primary))', cursor:'pointer',
                                   display:'flex', alignItems:'center', gap:6
                                 }}
                               >
@@ -524,8 +524,8 @@ export function VehicleInventory({
                                 }}
                                 style={{
                                   padding:'8px 12px', fontSize:12, fontWeight:600,
-                                  background:'transparent', border:'1px solid rgba(255,255,255,0.08)',
-                                  borderRadius:10, color:'var(--muted, #94a3b8)', cursor:'pointer'
+                                  background:'transparent', border:'1px solid hsl(var(--border) / 0.2)',
+                                  borderRadius:10, color:'var(--muted, hsl(var(--muted-foreground)))', cursor:'pointer'
                                 }}
                               >
                                 Remove
@@ -537,30 +537,30 @@ export function VehicleInventory({
                         {/* Expanded Row Panel */}
                         {isExpanded && (
                           <tr>
-                            <td colSpan={9} style={{padding:0, borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                            <td colSpan={9} style={{padding:0, borderBottom:'1px solid hsl(var(--border) / 0.15)'}}>
                               <div style={{
-                                padding:20, background:'rgba(0,0,0,0.18)',
+                                padding:20, background:'hsl(var(--foreground) / 0.18)',
                                 display:'grid', gridTemplateColumns:'repeat(3, 1fr)', gap:16
                               }}>
                                 {/* Part Details */}
                                 <div style={{
                                   padding:16, borderRadius:14,
-                                  border:'1px solid rgba(255,255,255,0.08)',
-                                  background:'rgba(255,255,255,0.03)'
+                                  border:'1px solid hsl(var(--border) / 0.2)',
+                                  background:'hsl(var(--muted) / 0.2)'
                                 }}>
-                                  <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Part Details</div>
+                                  <div style={{fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Part Details</div>
                                   <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                     <div>
-                                      <div style={{fontSize:11, color:'var(--muted, #94a3b8)', marginBottom:2}}>Manufacturer</div>
-                                      <div style={{fontSize:14, color:'var(--text, #f1f5f9)', fontWeight:600}}>{part.manufacturer}</div>
+                                      <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>Manufacturer</div>
+                                      <div style={{fontSize:14, color:'var(--text, hsl(var(--foreground)))', fontWeight:600}}>{part.manufacturer}</div>
                                     </div>
                                     <div>
-                                      <div style={{fontSize:11, color:'var(--muted, #94a3b8)', marginBottom:2}}>Category</div>
-                                      <div style={{fontSize:14, color:'var(--text, #f1f5f9)', fontWeight:600, textTransform:'capitalize'}}>{part.category}</div>
+                                      <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>Category</div>
+                                      <div style={{fontSize:14, color:'var(--text, hsl(var(--foreground)))', fontWeight:600, textTransform:'capitalize'}}>{part.category}</div>
                                     </div>
                                     <div>
-                                      <div style={{fontSize:11, color:'var(--muted, #94a3b8)', marginBottom:2}}>Reorder Point</div>
-                                      <div style={{fontSize:14, color:'var(--text, #f1f5f9)', fontWeight:600}}>{part.reorderPoint} units</div>
+                                      <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>Reorder Point</div>
+                                      <div style={{fontSize:14, color:'var(--text, hsl(var(--foreground)))', fontWeight:600}}>{part.reorderPoint} units</div>
                                     </div>
                                   </div>
                                 </div>
@@ -568,22 +568,22 @@ export function VehicleInventory({
                                 {/* Stock Information */}
                                 <div style={{
                                   padding:16, borderRadius:14,
-                                  border:'1px solid rgba(255,255,255,0.08)',
-                                  background:'rgba(255,255,255,0.03)'
+                                  border:'1px solid hsl(var(--border) / 0.2)',
+                                  background:'hsl(var(--muted) / 0.2)'
                                 }}>
-                                  <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Stock Information</div>
+                                  <div style={{fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Stock Information</div>
                                   <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                     <div>
-                                      <div style={{fontSize:11, color:'var(--muted, #94a3b8)', marginBottom:2}}>On Hand</div>
-                                      <div style={{fontSize:20, color:'var(--text, #f1f5f9)', fontWeight:700}}>{part.quantityOnHand} units</div>
+                                      <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>On Hand</div>
+                                      <div style={{fontSize:20, color:'var(--text, hsl(var(--foreground)))', fontWeight:700}}>{part.quantityOnHand} units</div>
                                     </div>
                                     <div>
-                                      <div style={{fontSize:11, color:'var(--muted, #94a3b8)', marginBottom:2}}>Max Stock</div>
-                                      <div style={{fontSize:14, color:'var(--text, #f1f5f9)', fontWeight:600}}>{part.maxStockLevel} units</div>
+                                      <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>Max Stock</div>
+                                      <div style={{fontSize:14, color:'var(--text, hsl(var(--foreground)))', fontWeight:600}}>{part.maxStockLevel} units</div>
                                     </div>
                                     <div>
-                                      <div style={{fontSize:11, color:'var(--muted, #94a3b8)', marginBottom:2}}>Total Value</div>
-                                      <div style={{fontSize:14, color:'#10b981', fontWeight:700}}>${(part.quantityOnHand * part.unitCost).toFixed(2)}</div>
+                                      <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>Total Value</div>
+                                      <div style={{fontSize:14, color:'hsl(var(--success))', fontWeight:700}}>${(part.quantityOnHand * part.unitCost).toFixed(2)}</div>
                                     </div>
                                   </div>
                                 </div>
@@ -591,10 +591,10 @@ export function VehicleInventory({
                                 {/* Quick Actions */}
                                 <div style={{
                                   padding:16, borderRadius:14,
-                                  border:'1px solid rgba(255,255,255,0.08)',
-                                  background:'rgba(255,255,255,0.03)'
+                                  border:'1px solid hsl(var(--border) / 0.2)',
+                                  background:'hsl(var(--muted) / 0.2)'
                                 }}>
-                                  <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Quick Actions</div>
+                                  <div style={{fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:12}}>Quick Actions</div>
                                   <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                     <button
                                       onClick={() => {
@@ -603,8 +603,8 @@ export function VehicleInventory({
                                       }}
                                       style={{
                                         padding:'12px 16px', fontSize:14, fontWeight:600,
-                                        background:'linear-gradient(135deg, #60a5fa, #3b82f6)',
-                                        border:'none', borderRadius:10, color:'#fff', cursor:'pointer',
+                                        background:'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)))',
+                                        border:'none', borderRadius:10, color:'hsl(var(--foreground))', cursor:'pointer',
                                         display:'flex', alignItems:'center', gap:8
                                       }}
                                     >
@@ -615,13 +615,13 @@ export function VehicleInventory({
                                       onClick={() => handleRemovePart(part.id)}
                                       style={{
                                         padding:'12px 16px', fontSize:14, fontWeight:600,
-                                        background:'rgba(239,68,68,0.15)', border:'1px solid rgba(239,68,68,0.3)',
-                                        borderRadius:10, color:'#ef4444', cursor:'pointer'
+                                        background:'hsl(var(--destructive) / 0.15)', border:'1px solid hsl(var(--destructive) / 0.3)',
+                                        borderRadius:10, color:'hsl(var(--destructive))', cursor:'pointer'
                                       }}
                                     >
                                       Remove from Vehicle
                                     </button>
-                                    <div style={{fontSize:12, color:'var(--muted, #94a3b8)', marginTop:8}}>
+                                    <div style={{fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', marginTop:8}}>
                                       Click to expand/collapse row details
                                     </div>
                                   </div>
@@ -643,25 +643,25 @@ export function VehicleInventory({
       {/* COMPATIBLE PARTS TABLE */}
       {activeView === 'compatible' && (
         <div style={{
-          borderRadius:16, border:'1px solid rgba(255,255,255,0.08)',
-          background:'rgba(255,255,255,0.03)', overflow:'hidden'
+          borderRadius:16, border:'1px solid hsl(var(--border) / 0.2)',
+          background:'hsl(var(--muted) / 0.2)', overflow:'hidden'
         }}>
           <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
             <thead>
-              <tr style={{background:'rgba(255,255,255,0.02)'}}>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Part Number</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Name</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Category</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Available</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Unit Cost</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Actions</th>
+              <tr style={{background:'hsl(var(--muted) / 0.1)'}}>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Part Number</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Name</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Category</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Available</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Unit Cost</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredCompatibleParts.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{padding:60, textAlign:'center', color:'var(--muted, #94a3b8)', fontSize:14}}>
+                  <td colSpan={7} style={{padding:60, textAlign:'center', color:'var(--muted, hsl(var(--muted-foreground)))', fontSize:14}}>
                     No compatible parts found.
                   </td>
                 </tr>
@@ -669,15 +669,15 @@ export function VehicleInventory({
                 filteredCompatibleParts.map(part => {
                   const stockStatus = getStockStatus(part)
                   return (
-                    <tr key={part.id} style={{borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-                      <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, #f1f5f9)'}}>{part.partNumber}</td>
+                    <tr key={part.id} style={{borderBottom:'1px solid hsl(var(--border) / 0.15)'}}>
+                      <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, hsl(var(--foreground)))'}}>{part.partNumber}</td>
                       <td style={{padding:16}}>
-                        <div style={{fontWeight:600, fontSize:14, color:'var(--text, #f1f5f9)', marginBottom:2}}>{part.name}</div>
-                        <div style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>{part.manufacturer}</div>
+                        <div style={{fontWeight:600, fontSize:14, color:'var(--text, hsl(var(--foreground)))', marginBottom:2}}>{part.name}</div>
+                        <div style={{fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))'}}>{part.manufacturer}</div>
                       </td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)', textTransform:'capitalize'}}>{part.category}</td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>{part.quantityOnHand} units</td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>${part.unitCost.toFixed(2)}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))', textTransform:'capitalize'}}>{part.category}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>{part.quantityOnHand} units</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>${part.unitCost.toFixed(2)}</td>
                       <td style={{padding:16}}>
                         <StatusChip
                           status={stockStatus}
@@ -690,10 +690,10 @@ export function VehicleInventory({
                           disabled={part.quantityOnHand === 0}
                           style={{
                             padding:'8px 14px', fontSize:12, fontWeight:600,
-                            background: part.quantityOnHand === 0 ? 'rgba(255,255,255,0.05)' : 'rgba(96,165,250,0.15)',
-                            border: part.quantityOnHand === 0 ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(96,165,250,0.3)',
+                            background: part.quantityOnHand === 0 ? 'hsl(var(--muted) / 0.2)' : 'hsl(var(--primary) / 0.15)',
+                            border: part.quantityOnHand === 0 ? '1px solid hsl(var(--border) / 0.2)' : '1px solid hsl(var(--primary) / 0.3)',
                             borderRadius:10,
-                            color: part.quantityOnHand === 0 ? 'var(--muted, #94a3b8)' : '#60a5fa',
+                            color: part.quantityOnHand === 0 ? 'var(--muted, hsl(var(--muted-foreground)))' : 'hsl(var(--primary))',
                             cursor: part.quantityOnHand === 0 ? 'not-allowed' : 'pointer',
                             display:'flex', alignItems:'center', gap:6
                           }}
@@ -714,49 +714,49 @@ export function VehicleInventory({
       {/* USAGE HISTORY TABLE */}
       {activeView === 'usage' && (
         <div style={{
-          borderRadius:16, border:'1px solid rgba(255,255,255,0.08)',
-          background:'rgba(255,255,255,0.03)', overflow:'hidden'
+          borderRadius:16, border:'1px solid hsl(var(--border) / 0.2)',
+          background:'hsl(var(--muted) / 0.2)', overflow:'hidden'
         }}>
-          <div style={{padding:20, borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-            <h3 style={{fontSize:18, fontWeight:700, color:'var(--text, #f1f5f9)', marginBottom:4}}>Usage History</h3>
-            <p style={{fontSize:13, color:'var(--muted, #94a3b8)'}}>Parts usage and consumption records</p>
+          <div style={{padding:20, borderBottom:'1px solid hsl(var(--border) / 0.2)'}}>
+            <h3 style={{fontSize:18, fontWeight:700, color:'var(--text, hsl(var(--foreground)))', marginBottom:4}}>Usage History</h3>
+            <p style={{fontSize:13, color:'var(--muted, hsl(var(--muted-foreground)))'}}>Parts usage and consumption records</p>
           </div>
           <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
             <thead>
-              <tr style={{background:'rgba(255,255,255,0.02)'}}>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Date</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Part</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Quantity</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Work Order</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Cost</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Notes</th>
+              <tr style={{background:'hsl(var(--muted) / 0.1)'}}>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Date</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Part</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Quantity</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Work Order</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Cost</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Notes</th>
               </tr>
             </thead>
             <tbody>
               {(usageHistory || []).length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{padding:60, textAlign:'center', color:'var(--muted, #94a3b8)', fontSize:14}}>
+                  <td colSpan={6} style={{padding:60, textAlign:'center', color:'var(--muted, hsl(var(--muted-foreground)))', fontSize:14}}>
                     No usage history available.
                   </td>
                 </tr>
               ) : (
                 (usageHistory || []).map(record => (
-                  <tr key={record.id} style={{borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                  <tr key={record.id} style={{borderBottom:'1px solid hsl(var(--border) / 0.15)'}}>
                     <td style={{padding:16}}>
-                      <div style={{display:'flex', alignItems:'center', gap:8, fontSize:14, color:'var(--text, #f1f5f9)'}}>
-                        <CalendarBlank style={{width:16, height:16, color:'var(--muted, #94a3b8)'}} />
+                      <div style={{display:'flex', alignItems:'center', gap:8, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>
+                        <CalendarBlank style={{width:16, height:16, color:'var(--muted, hsl(var(--muted-foreground)))'}} />
                         {new Date(record.date).toLocaleDateString()}
                       </div>
                     </td>
-                    <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, #f1f5f9)', fontWeight:600}}>
+                    <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, hsl(var(--foreground)))', fontWeight:600}}>
                       {record.partNumber}
                     </td>
-                    <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>{Math.abs(record.quantity)} units</td>
-                    <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, #f1f5f9)'}}>
+                    <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>{Math.abs(record.quantity)} units</td>
+                    <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, hsl(var(--foreground)))'}}>
                       {record.workOrderId || '-'}
                     </td>
-                    <td style={{padding:16, fontSize:14, color:'#10b981', fontWeight:600}}>${(record.cost || 0).toFixed(2)}</td>
-                    <td style={{padding:16, fontSize:13, color:'var(--muted, #94a3b8)'}}>
+                    <td style={{padding:16, fontSize:14, color:'hsl(var(--success))', fontWeight:600}}>${(record.cost || 0).toFixed(2)}</td>
+                    <td style={{padding:16, fontSize:13, color:'var(--muted, hsl(var(--muted-foreground)))'}}>
                       {record.notes || '-'}
                     </td>
                   </tr>
@@ -770,46 +770,46 @@ export function VehicleInventory({
       {/* MAINTENANCE HISTORY TABLE */}
       {activeView === 'maintenance' && (
         <div style={{
-          borderRadius:16, border:'1px solid rgba(255,255,255,0.08)',
-          background:'rgba(255,255,255,0.03)', overflow:'hidden'
+          borderRadius:16, border:'1px solid hsl(var(--border) / 0.2)',
+          background:'hsl(var(--muted) / 0.2)', overflow:'hidden'
         }}>
-          <div style={{padding:20, borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
-            <h3 style={{fontSize:18, fontWeight:700, color:'var(--text, #f1f5f9)', marginBottom:4}}>Maintenance History</h3>
-            <p style={{fontSize:13, color:'var(--muted, #94a3b8)'}}>Service events and parts replacements</p>
+          <div style={{padding:20, borderBottom:'1px solid hsl(var(--border) / 0.2)'}}>
+            <h3 style={{fontSize:18, fontWeight:700, color:'var(--text, hsl(var(--foreground)))', marginBottom:4}}>Maintenance History</h3>
+            <p style={{fontSize:13, color:'var(--muted, hsl(var(--muted-foreground)))'}}>Service events and parts replacements</p>
           </div>
           <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
             <thead>
-              <tr style={{background:'rgba(255,255,255,0.02)'}}>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Date</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Service Type</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Priority</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Cost</th>
-                <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Technician</th>
+              <tr style={{background:'hsl(var(--muted) / 0.1)'}}>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Date</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Service Type</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Priority</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Cost</th>
+                <th style={{padding:16, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Technician</th>
               </tr>
             </thead>
             <tbody>
               {(maintenanceHistory || []).length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{padding:60, textAlign:'center', color:'var(--muted, #94a3b8)', fontSize:14}}>
+                  <td colSpan={6} style={{padding:60, textAlign:'center', color:'var(--muted, hsl(var(--muted-foreground)))', fontSize:14}}>
                     No maintenance history available.
                   </td>
                 </tr>
               ) : (
                 (maintenanceHistory || []).map(event => (
-                  <tr key={event.id} style={{borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
-                    <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>
+                  <tr key={event.id} style={{borderBottom:'1px solid hsl(var(--border) / 0.15)'}}>
+                    <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>
                       {new Date(event.createdDate).toLocaleDateString()}
                     </td>
-                    <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)', fontWeight:600}}>{event.serviceType}</td>
+                    <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))', fontWeight:600}}>{event.serviceType}</td>
                     <td style={{padding:16}}>
                       <StatusChip status="info" label={event.priority} />
                     </td>
                     <td style={{padding:16}}>
                       <StatusChip status="good" label={event.status} />
                     </td>
-                    <td style={{padding:16, fontSize:14, color:'#10b981', fontWeight:600}}>${(event.cost || 0).toFixed(2)}</td>
-                    <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>{event.assignedTo || '-'}</td>
+                    <td style={{padding:16, fontSize:14, color:'hsl(var(--success))', fontWeight:600}}>${(event.cost || 0).toFixed(2)}</td>
+                    <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>{event.assignedTo || '-'}</td>
                   </tr>
                 ))
               )}
@@ -824,7 +824,7 @@ export function VehicleInventory({
           onClick={() => setIsAssignPanelOpen(false)}
           style={{
             position:'fixed', top:0, left:0, right:0, bottom:0,
-            background:'rgba(0,0,0,0.85)', zIndex:9999,
+            background:'hsl(var(--foreground) / 0.85)', zIndex:9999,
             display:'flex', alignItems:'center', justifyContent:'center', padding:24
           }}
         >
@@ -832,52 +832,52 @@ export function VehicleInventory({
             onClick={(e) => e.stopPropagation()}
             style={{
               width:'100%', maxWidth:1000, maxHeight:'90vh',
-              background:'var(--bg, #0f172a)', borderRadius:16, overflow:'hidden',
-              border:'1px solid rgba(255,255,255,0.08)'
+              background:'var(--bg, hsl(var(--background)))', borderRadius:16, overflow:'hidden',
+              border:'1px solid hsl(var(--border) / 0.2)'
             }}
           >
-            <div style={{padding:24, borderBottom:'1px solid rgba(255,255,255,0.08)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+            <div style={{padding:24, borderBottom:'1px solid hsl(var(--border) / 0.2)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
               <div>
-                <h3 style={{fontSize:20, fontWeight:700, color:'var(--text, #f1f5f9)', marginBottom:4}}>Assign Parts to Vehicle</h3>
-                <p style={{fontSize:14, color:'var(--muted, #94a3b8)'}}>Select compatible parts to assign to {vehicleNumber}</p>
+                <h3 style={{fontSize:20, fontWeight:700, color:'var(--text, hsl(var(--foreground)))', marginBottom:4}}>Assign Parts to Vehicle</h3>
+                <p style={{fontSize:14, color:'var(--muted, hsl(var(--muted-foreground)))'}}>Select compatible parts to assign to {vehicleNumber}</p>
               </div>
-              <button onClick={() => setIsAssignPanelOpen(false)} style={{padding:8, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:10, color:'var(--text, #f1f5f9)', cursor:'pointer'}}>
+              <button onClick={() => setIsAssignPanelOpen(false)} style={{padding:8, background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)', borderRadius:10, color:'var(--text, hsl(var(--foreground)))', cursor:'pointer'}}>
                 <X style={{width:20, height:20}} />
               </button>
             </div>
             <div style={{padding:24, maxHeight:'calc(90vh - 100px)', overflowY:'auto'}}>
               <div style={{position:'relative', marginBottom:20}}>
-                <MagnifyingGlass style={{position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'var(--muted, #94a3b8)'}} />
+                <MagnifyingGlass style={{position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', width:16, height:16, color:'var(--muted, hsl(var(--muted-foreground)))'}} />
                 <input
                   placeholder="Search parts..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
                   style={{
                     width:'100%', padding:'12px 12px 12px 40px', fontSize:14,
-                    background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)',
-                    borderRadius:12, color:'var(--text, #f1f5f9)'
+                    background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)',
+                    borderRadius:12, color:'var(--text, hsl(var(--foreground)))'
                   }}
                 />
               </div>
               <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
                 <thead>
-                  <tr style={{background:'rgba(255,255,255,0.02)'}}>
-                    <th style={{padding:12, fontSize:11, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Part</th>
-                    <th style={{padding:12, fontSize:11, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Category</th>
-                    <th style={{padding:12, fontSize:11, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Available</th>
-                    <th style={{padding:12, fontSize:11, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
-                    <th style={{padding:12, fontSize:11, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Action</th>
+                  <tr style={{background:'hsl(var(--muted) / 0.1)'}}>
+                    <th style={{padding:12, fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Part</th>
+                    <th style={{padding:12, fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Category</th>
+                    <th style={{padding:12, fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Available</th>
+                    <th style={{padding:12, fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
+                    <th style={{padding:12, fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredCompatibleParts.map(part => (
-                    <tr key={part.id} style={{borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
+                    <tr key={part.id} style={{borderBottom:'1px solid hsl(var(--border) / 0.15)'}}>
                       <td style={{padding:12}}>
-                        <div style={{fontWeight:600, fontSize:13, color:'var(--text, #f1f5f9)', marginBottom:2}}>{part.name}</div>
-                        <div style={{fontSize:11, color:'var(--muted, #94a3b8)', fontFamily:'monospace'}}>{part.partNumber}</div>
+                        <div style={{fontWeight:600, fontSize:13, color:'var(--text, hsl(var(--foreground)))', marginBottom:2}}>{part.name}</div>
+                        <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', fontFamily:'monospace'}}>{part.partNumber}</div>
                       </td>
-                      <td style={{padding:12, fontSize:13, color:'var(--text, #f1f5f9)', textTransform:'capitalize'}}>{part.category}</td>
-                      <td style={{padding:12, fontSize:13, color:'var(--text, #f1f5f9)'}}>{part.quantityOnHand} units</td>
+                      <td style={{padding:12, fontSize:13, color:'var(--text, hsl(var(--foreground)))', textTransform:'capitalize'}}>{part.category}</td>
+                      <td style={{padding:12, fontSize:13, color:'var(--text, hsl(var(--foreground)))'}}>{part.quantityOnHand} units</td>
                       <td style={{padding:12}}>
                         <StatusChip
                           status={getStockStatus(part)}
@@ -890,9 +890,9 @@ export function VehicleInventory({
                           disabled={part.quantityOnHand === 0}
                           style={{
                             padding:'8px 14px', fontSize:12, fontWeight:600,
-                            background: part.quantityOnHand === 0 ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, #60a5fa, #3b82f6)',
+                            background: part.quantityOnHand === 0 ? 'hsl(var(--muted) / 0.2)' : 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)))',
                             border:'none', borderRadius:10,
-                            color: part.quantityOnHand === 0 ? 'var(--muted, #94a3b8)' : '#fff',
+                            color: part.quantityOnHand === 0 ? 'var(--muted, hsl(var(--muted-foreground)))' : 'hsl(var(--foreground))',
                             cursor: part.quantityOnHand === 0 ? 'not-allowed' : 'pointer'
                           }}
                         >
@@ -914,7 +914,7 @@ export function VehicleInventory({
           onClick={() => setIsUsagePanelOpen(false)}
           style={{
             position:'fixed', top:0, left:0, right:0, bottom:0,
-            background:'rgba(0,0,0,0.85)', zIndex:9999,
+            background:'hsl(var(--foreground) / 0.85)', zIndex:9999,
             display:'flex', alignItems:'center', justifyContent:'center', padding:24
           }}
         >
@@ -922,22 +922,22 @@ export function VehicleInventory({
             onClick={(e) => e.stopPropagation()}
             style={{
               width:'100%', maxWidth:500,
-              background:'var(--bg, #0f172a)', borderRadius:16, overflow:'hidden',
-              border:'1px solid rgba(255,255,255,0.08)'
+              background:'var(--bg, hsl(var(--background)))', borderRadius:16, overflow:'hidden',
+              border:'1px solid hsl(var(--border) / 0.2)'
             }}
           >
-            <div style={{padding:24, borderBottom:'1px solid rgba(255,255,255,0.08)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+            <div style={{padding:24, borderBottom:'1px solid hsl(var(--border) / 0.2)', display:'flex', justifyContent:'space-between', alignItems:'center'}}>
               <div>
-                <h3 style={{fontSize:20, fontWeight:700, color:'var(--text, #f1f5f9)', marginBottom:4}}>Record Parts Usage</h3>
-                <p style={{fontSize:14, color:'var(--muted, #94a3b8)'}}>Record usage of {selectedPart.name} for {vehicleNumber}</p>
+                <h3 style={{fontSize:20, fontWeight:700, color:'var(--text, hsl(var(--foreground)))', marginBottom:4}}>Record Parts Usage</h3>
+                <p style={{fontSize:14, color:'var(--muted, hsl(var(--muted-foreground)))'}}>Record usage of {selectedPart.name} for {vehicleNumber}</p>
               </div>
-              <button onClick={() => setIsUsagePanelOpen(false)} style={{padding:8, background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:10, color:'var(--text, #f1f5f9)', cursor:'pointer'}}>
+              <button onClick={() => setIsUsagePanelOpen(false)} style={{padding:8, background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)', borderRadius:10, color:'var(--text, hsl(var(--foreground)))', cursor:'pointer'}}>
                 <X style={{width:20, height:20}} />
               </button>
             </div>
             <div style={{padding:24}}>
               <div style={{marginBottom:20}}>
-                <label style={{display:'block', fontSize:13, fontWeight:600, color:'var(--text, #f1f5f9)', marginBottom:8}}>Quantity Used</label>
+                <label style={{display:'block', fontSize:13, fontWeight:600, color:'var(--text, hsl(var(--foreground)))', marginBottom:8}}>Quantity Used</label>
                 <input
                   type="number"
                   min="1"
@@ -947,59 +947,59 @@ export function VehicleInventory({
                   placeholder="Enter quantity..."
                   style={{
                     width:'100%', padding:12, fontSize:14,
-                    background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)',
-                    borderRadius:12, color:'var(--text, #f1f5f9)'
+                    background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)',
+                    borderRadius:12, color:'var(--text, hsl(var(--foreground)))'
                   }}
                 />
-                <p style={{fontSize:12, color:'var(--muted, #94a3b8)', marginTop:6}}>
+                <p style={{fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', marginTop:6}}>
                   Available: {selectedPart.quantityOnHand} units
                 </p>
               </div>
 
               <div style={{marginBottom:20}}>
-                <label style={{display:'block', fontSize:13, fontWeight:600, color:'var(--text, #f1f5f9)', marginBottom:8}}>Work Order # (Optional)</label>
+                <label style={{display:'block', fontSize:13, fontWeight:600, color:'var(--text, hsl(var(--foreground)))', marginBottom:8}}>Work Order # (Optional)</label>
                 <input
                   value={usageData.workOrderId}
                   onChange={e => setUsageData({ ...usageData, workOrderId: e.target.value })}
                   placeholder="WO-12345"
                   style={{
                     width:'100%', padding:12, fontSize:14,
-                    background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)',
-                    borderRadius:12, color:'var(--text, #f1f5f9)'
+                    background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)',
+                    borderRadius:12, color:'var(--text, hsl(var(--foreground)))'
                   }}
                 />
               </div>
 
               <div style={{marginBottom:20}}>
-                <label style={{display:'block', fontSize:13, fontWeight:600, color:'var(--text, #f1f5f9)', marginBottom:8}}>Notes (Optional)</label>
+                <label style={{display:'block', fontSize:13, fontWeight:600, color:'var(--text, hsl(var(--foreground)))', marginBottom:8}}>Notes (Optional)</label>
                 <input
                   value={usageData.notes}
                   onChange={e => setUsageData({ ...usageData, notes: e.target.value })}
                   placeholder="Additional notes..."
                   style={{
                     width:'100%', padding:12, fontSize:14,
-                    background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)',
-                    borderRadius:12, color:'var(--text, #f1f5f9)'
+                    background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)',
+                    borderRadius:12, color:'var(--text, hsl(var(--foreground)))'
                   }}
                 />
               </div>
 
               <div style={{
                 padding:16, borderRadius:12,
-                background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.08)',
+                background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)',
                 marginBottom:20
               }}>
                 <div style={{display:'flex', justifyContent:'space-between', marginBottom:8}}>
-                  <span style={{fontSize:13, color:'var(--muted, #94a3b8)'}}>Unit Cost:</span>
-                  <span style={{fontSize:14, fontWeight:600, color:'var(--text, #f1f5f9)'}}>${selectedPart.unitCost.toFixed(2)}</span>
+                  <span style={{fontSize:13, color:'var(--muted, hsl(var(--muted-foreground)))'}}>Unit Cost:</span>
+                  <span style={{fontSize:14, fontWeight:600, color:'var(--text, hsl(var(--foreground)))'}}>${selectedPart.unitCost.toFixed(2)}</span>
                 </div>
                 <div style={{display:'flex', justifyContent:'space-between', marginBottom:8}}>
-                  <span style={{fontSize:13, color:'var(--muted, #94a3b8)'}}>Quantity:</span>
-                  <span style={{fontSize:14, fontWeight:600, color:'var(--text, #f1f5f9)'}}>{usageData.quantity} units</span>
+                  <span style={{fontSize:13, color:'var(--muted, hsl(var(--muted-foreground)))'}}>Quantity:</span>
+                  <span style={{fontSize:14, fontWeight:600, color:'var(--text, hsl(var(--foreground)))'}}>{usageData.quantity} units</span>
                 </div>
-                <div style={{display:'flex', justifyContent:'space-between', paddingTop:8, borderTop:'1px solid rgba(255,255,255,0.08)'}}>
-                  <span style={{fontSize:14, fontWeight:700, color:'var(--text, #f1f5f9)'}}>Total Cost:</span>
-                  <span style={{fontSize:16, fontWeight:700, color:'#10b981'}}>
+                <div style={{display:'flex', justifyContent:'space-between', paddingTop:8, borderTop:'1px solid hsl(var(--border) / 0.2)'}}>
+                  <span style={{fontSize:14, fontWeight:700, color:'var(--text, hsl(var(--foreground)))'}}>Total Cost:</span>
+                  <span style={{fontSize:16, fontWeight:700, color:'hsl(var(--success))'}}>
                     ${(selectedPart.unitCost * usageData.quantity).toFixed(2)}
                   </span>
                 </div>
@@ -1010,8 +1010,8 @@ export function VehicleInventory({
                   onClick={() => setIsUsagePanelOpen(false)}
                   style={{
                     flex:1, padding:'12px 20px', fontSize:14, fontWeight:600,
-                    background:'rgba(255,255,255,0.05)', border:'1px solid rgba(255,255,255,0.08)',
-                    borderRadius:12, color:'var(--text, #f1f5f9)', cursor:'pointer'
+                    background:'hsl(var(--muted) / 0.2)', border:'1px solid hsl(var(--border) / 0.2)',
+                    borderRadius:12, color:'var(--text, hsl(var(--foreground)))', cursor:'pointer'
                   }}
                 >
                   Cancel
@@ -1020,8 +1020,8 @@ export function VehicleInventory({
                   onClick={handleRecordUsage}
                   style={{
                     flex:1, padding:'12px 20px', fontSize:14, fontWeight:600,
-                    background:'linear-gradient(135deg, #60a5fa, #3b82f6)',
-                    border:'none', borderRadius:12, color:'#fff', cursor:'pointer'
+                    background:'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary)))',
+                    border:'none', borderRadius:12, color:'hsl(var(--foreground))', cursor:'pointer'
                   }}
                 >
                   Record Usage

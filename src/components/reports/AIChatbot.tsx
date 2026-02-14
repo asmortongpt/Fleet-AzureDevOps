@@ -147,7 +147,7 @@ export function AIChatbot() {
         } flex flex-col shadow-sm z-50 transition-all duration-200`}
     >
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#1D4ED8] via-[#2563EB] to-[#1E40AF] text-white px-2 py-3 rounded-t-lg flex items-center justify-between">
+      <div className="bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--primary))] to-[hsl(var(--primary))] text-white px-2 py-3 rounded-t-lg flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="h-5 w-5" />
           <span className="font-semibold">Fleet AI Assistant</span>

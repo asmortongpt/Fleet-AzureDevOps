@@ -95,11 +95,11 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
   if (!isOpen) return null;
 
   const eventTypes = [
-    { value: 'maintenance', label: 'Maintenance', color: '#f59e0b' },
-    { value: 'reservation', label: 'Vehicle Reservation', color: '#3b82f6' },
-    { value: 'inspection', label: 'Inspection', color: '#10b981' },
-    { value: 'meeting', label: 'Meeting', color: '#8b5cf6' },
-    { value: 'other', label: 'Other', color: '#6b7280' }
+    { value: 'maintenance', label: 'Maintenance', color: 'hsl(var(--chart-3))' },
+    { value: 'reservation', label: 'Vehicle Reservation', color: 'hsl(var(--chart-1))' },
+    { value: 'inspection', label: 'Inspection', color: 'hsl(var(--chart-2))' },
+    { value: 'meeting', label: 'Meeting', color: 'hsl(var(--chart-4))' },
+    { value: 'other', label: 'Other', color: 'hsl(var(--muted-foreground))' }
   ];
 
   const priorities = [
@@ -110,17 +110,17 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
   ];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-sm w-full max-w-md p-3 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-foreground/50 flex items-center justify-center z-50">
+      <div className="bg-card rounded-lg shadow-sm w-full max-w-md p-3 max-h-[90vh] overflow-y-auto border border-border/50">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-base font-semibold text-gray-800 flex items-center gap-2">
-            <CalendarIcon className="w-4 h-4 text-blue-800" />
+          <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <CalendarIcon className="w-4 h-4 text-primary" />
             Create Fleet Event
           </h3>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-muted rounded-lg transition-colors"
           >
             <X className="w-3 h-3" />
           </button>
@@ -130,20 +130,20 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
         <div className="space-y-2">
           {/* Event Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Event Title *
             </label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => handleInputChange('title', e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                errors.title ? 'border-red-500' : 'border-gray-300'
+              className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                errors.title ? 'border-destructive' : 'border-border'
               }`}
               placeholder="Enter event title"
             />
             {errors.title && (
-              <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+              <p className="text-destructive text-xs mt-1 flex items-center gap-1">
                 <AlertCircle className="w-3 h-3" />
                 {errors.title}
               </p>
@@ -151,13 +151,13 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
           </div>
           {/* Event Type */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Event Type
             </label>
             <select
               value={formData.type}
               onChange={(e) => handleInputChange('type', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {eventTypes.map((type) => (
                 <option key={type.value} value={type.value}>
@@ -169,30 +169,30 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
           {/* Date/Time Selection */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Start Date & Time
               </label>
               <input
                 type="datetime-local"
                 value={formData.start.toISOString().slice(0, 16)}
                 onChange={(e) => handleInputChange('start', new Date(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 End Date & Time
               </label>
               <input
                 type="datetime-local"
                 value={formData.end.toISOString().slice(0, 16)}
                 onChange={(e) => handleInputChange('end', new Date(e.target.value))}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.end ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.end ? 'border-destructive' : 'border-border'
                 }`}
               />
               {errors.end && (
-                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <p className="text-destructive text-xs mt-1 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
                   {errors.end}
                 </p>
@@ -202,20 +202,20 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
           {/* Vehicle ID (conditional) */}
           {(formData.type === 'maintenance' || formData.type === 'reservation') && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Vehicle ID *
               </label>
               <input
                 type="text"
                 value={formData.vehicleId}
                 onChange={(e) => handleInputChange('vehicleId', e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.vehicleId ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary ${
+                  errors.vehicleId ? 'border-destructive' : 'border-border'
                 }`}
                 placeholder="e.g., FL-001, FL-045"
               />
               {errors.vehicleId && (
-                <p className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                <p className="text-destructive text-xs mt-1 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
                   {errors.vehicleId}
                 </p>
@@ -226,14 +226,14 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
           {/* Driver ID (for reservations) */}
           {formData.type === 'reservation' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Driver ID
               </label>
               <input
                 type="text"
                 value={formData.driverId}
                 onChange={(e) => handleInputChange('driverId', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder="e.g., D-12345"
               />
             </div>
@@ -241,7 +241,7 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
 
           {/* Location */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+            <label className="block text-sm font-medium text-foreground mb-1 flex items-center gap-1">
               <MapPin className="w-4 h-4" />
               Location
             </label>
@@ -249,20 +249,20 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
               type="text"
               value={formData.location}
               onChange={(e) => handleInputChange('location', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="Enter location"
             />
           </div>
 
           {/* Priority */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Priority
             </label>
             <select
               value={formData.priority}
               onChange={(e) => handleInputChange('priority', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {priorities.map((priority) => (
                 <option key={priority.value} value={priority.value}>
@@ -274,14 +274,14 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Description
             </label>
             <textarea
               value={formData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
               placeholder="Additional details about this event."
             />
           </div>
@@ -290,13 +290,13 @@ const EventCreateModal: React.FC<EventCreateModalProps> = ({ isOpen, onClose,
         <div className="flex justify-end space-x-3 mt-3 pt-2 border-t">
           <button
             onClick={onClose}
-            className="px-2 py-2 text-slate-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            className="px-2 py-2 text-foreground bg-muted rounded-lg hover:bg-muted/80 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="flex items-center gap-2 px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-2 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Save className="w-4 h-4" />
             Create Event

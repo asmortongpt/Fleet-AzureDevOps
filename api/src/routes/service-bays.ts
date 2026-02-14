@@ -47,8 +47,12 @@ router.get(
       params.push(facility_id)
     }
 
-    if (active === 'true') where += ` AND sb.is_active = true`
-    if (active === 'false') where += ` AND sb.is_active = false`
+    if (active === 'true') {
+where += ` AND sb.is_active = true`
+}
+    if (active === 'false') {
+where += ` AND sb.is_active = false`
+}
 
     const q = `
       SELECT

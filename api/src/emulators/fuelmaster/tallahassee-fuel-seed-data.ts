@@ -337,7 +337,9 @@ export function generateSampleTransactions(count: number = 500): FuelTransaction
 
     // Generate transactions for this day
     TALLAHASSEE_FLEET_VEHICLES.forEach(vehicle => {
-      if (vehicle.fuelmaster_vehicle_id === 'FM-99999') return // Skip unmapped
+      if (vehicle.fuelmaster_vehicle_id === 'FM-99999') {
+return
+} // Skip unmapped
 
       // Determine vehicle type and pattern
       let pattern = vehiclePatterns.admin

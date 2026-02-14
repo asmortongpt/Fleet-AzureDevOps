@@ -320,7 +320,7 @@ export class FuelCardService {
     const pageSize = pagination?.pageSize || 20;
     const offset = (page - 1) * pageSize;
 
-    let whereConditions = ['tenant_id = $1'];
+    const whereConditions = ['tenant_id = $1'];
     const params: any[] = [tenantId];
     let paramCounter = 2;
 

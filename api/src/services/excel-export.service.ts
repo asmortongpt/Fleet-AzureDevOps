@@ -42,7 +42,7 @@ export class ExcelExportService {
 
   constructor() {
     // Ensure output directory exists
-    this.ensureOutputDir()
+    void this.ensureOutputDir()
   }
 
   /**

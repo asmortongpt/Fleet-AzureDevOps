@@ -112,6 +112,7 @@ export class EmulatorOrchestrator extends EventEmitter {
       this.loadScenarios() // Scenarios can stay as config for now
 
       console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles from database`)
+      return undefined
     }).catch((err) => {
       console.warn('TelemetryService initialization failed, falling back to JSON files:', err)
       // Fallback to JSON files
@@ -141,7 +142,9 @@ export class EmulatorOrchestrator extends EventEmitter {
    * Initialize the TelemetryService for database integration
    */
   private async initializeTelemetryService(): Promise<void> {
-    if (this.telemetryServiceInitialized) return
+    if (this.telemetryServiceInitialized) {
+return
+}
 
     await telemetryService.initialize()
     this.telemetryServiceInitialized = true
@@ -420,7 +423,7 @@ export class EmulatorOrchestrator extends EventEmitter {
 
     // Persist to database if enabled
     if (this.config.persistence?.enabled) {
-      this.persistEvent(event).catch(console.error)
+      this.persistEvent(event).catch((err) => console.error(err))
     }
   }
 

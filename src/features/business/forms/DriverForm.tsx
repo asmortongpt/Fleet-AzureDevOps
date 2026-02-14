@@ -7,7 +7,6 @@
 import React, { useState } from 'react';
 
 import { DriverAPI } from '../../services/api/RealDatabaseAPI';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

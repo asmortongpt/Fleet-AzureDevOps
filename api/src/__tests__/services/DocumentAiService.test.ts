@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { DocumentAiService } from '../services/DocumentAiService';
+import { DocumentAiService } from '../../services/DocumentAiService';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 /**

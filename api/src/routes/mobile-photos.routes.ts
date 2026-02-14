@@ -348,7 +348,7 @@ router.post(
             Number(userId),
             Number(photo.id),
             blobUrl,
-            (((metadata as Record<string, unknown>).priority as string) || 'normal') as 'high' | 'normal' | 'low'
+            (((metadata).priority as string) || 'normal') as 'high' | 'normal' | 'low'
           );
 
           results.push({

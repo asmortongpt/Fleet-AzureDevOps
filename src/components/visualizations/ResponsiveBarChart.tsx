@@ -6,13 +6,9 @@
 // motion removed - React 19 incompatible
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { Cell, LabelList } from 'recharts';
 interface DataPoint {
   name: string
   value?: number
@@ -37,12 +33,12 @@ export interface ResponsiveBarChartProps {
 }
 
 const GRADIENT_COLORS = [
-  { id: 'bar-gradient-1', start: '#3b82f6', end: '#1d4ed8' },
-  { id: 'bar-gradient-2', start: '#10b981', end: '#059669' },
-  { id: 'bar-gradient-3', start: '#f59e0b', end: '#d97706' },
-  { id: 'bar-gradient-4', start: '#ef4444', end: '#dc2626' },
-  { id: 'bar-gradient-5', start: '#8b5cf6', end: '#6d28d9' },
-  { id: 'bar-gradient-6', start: '#06b6d4', end: '#0891b2' },
+  { id: 'bar-gradient-1', start: 'hsl(var(--chart-1))', end: 'hsl(var(--chart-1))' },
+  { id: 'bar-gradient-2', start: 'hsl(var(--chart-2))', end: 'hsl(var(--chart-2))' },
+  { id: 'bar-gradient-3', start: 'hsl(var(--chart-3))', end: 'hsl(var(--chart-3))' },
+  { id: 'bar-gradient-4', start: 'hsl(var(--chart-6))', end: 'hsl(var(--chart-6))' },
+  { id: 'bar-gradient-5', start: 'hsl(var(--chart-4))', end: 'hsl(var(--chart-4))' },
+  { id: 'bar-gradient-6', start: 'hsl(var(--chart-5))', end: 'hsl(var(--chart-5))' },
 ]
 
 export function ResponsiveBarChart({
@@ -59,16 +55,13 @@ export function ResponsiveBarChart({
   stacked = false,
   horizontal = false,
 }: ResponsiveBarChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'hsl(var(--foreground))',
+    grid: 'hsl(var(--border))',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'hsl(var(--card))',
+      border: 'hsl(var(--border))',
+      text: 'hsl(var(--foreground))',
     },
   }
 
@@ -174,7 +167,7 @@ export function ResponsiveBarChart({
                     <YAxis stroke={chartColors.text} tick={{ fill: chartColors.text }} />
                   </>
                 )}
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)' }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--foreground) / 0.05)' }} />
                 <Legend
                   wrapperStyle={{ color: chartColors.text }}
                   iconType="square"

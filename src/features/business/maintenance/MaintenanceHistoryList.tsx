@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import { maintenanceService, MaintenanceRecord } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 
@@ -173,11 +172,11 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
         border: `1px solid ${currentTheme.border}`
       }}>
         <div style={{
-          backgroundColor: '#fee',
-          border: '1px solid #fcc',
+          backgroundColor: 'hsl(var(--destructive) / 0.12)',
+          border: '1px solid hsl(var(--destructive) / 0.3)',
           borderRadius: '6px',
           padding: '12px',
-          color: '#c00'
+          color: 'hsl(var(--destructive))'
         }}>
           {error}
         </div>

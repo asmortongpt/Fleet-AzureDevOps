@@ -333,7 +333,7 @@ export function DataTooltip({
   label,
   value,
   change,
-  color = "#3b82f6",
+  color = "hsl(var(--chart-1))",
   unit,
   children,
 }: DataTooltipProps) {
@@ -346,9 +346,9 @@ export function DataTooltip({
         {isOpen && (
           <TooltipContent className="p-0 border-0 bg-transparent shadow-none">
             <div
-              className="bg-white border border-gray-200 rounded-lg shadow-sm px-3 py-2 min-w-[120px]"
+              className="bg-card border border-border rounded-lg shadow-sm px-3 py-2 min-w-[120px]"
             >
-              <div className="text-xs text-slate-700 mb-1">{label}</div>
+              <div className="text-xs text-muted-foreground mb-1">{label}</div>
               <div className="flex items-baseline gap-1">
                 <div
                   className="text-sm font-bold"
@@ -356,7 +356,7 @@ export function DataTooltip({
                 >
                   {value}
                 </div>
-                {unit && <span className="text-xs text-gray-700">{unit}</span>}
+                {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
               </div>
               {change !== undefined && (
                 <div className={cn(

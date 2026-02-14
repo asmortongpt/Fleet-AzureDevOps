@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { MobileDamageService } from '../services/mobileDamageService';
+import { MobileDamageService } from '../../services/mobileDamageService';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

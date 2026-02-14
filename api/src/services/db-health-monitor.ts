@@ -51,11 +51,11 @@ export class DatabaseHealthMonitor {
     logger.info('[DB Health Monitor] Starting database health monitoring')
 
     // Perform initial check
-    this.performHealthCheck()
+    void this.performHealthCheck()
 
     // Schedule periodic checks
     this.checkInterval = setInterval(() => {
-      this.performHealthCheck()
+      void this.performHealthCheck()
     }, this.INTERVAL_MS)
   }
 

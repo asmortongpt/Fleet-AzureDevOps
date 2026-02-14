@@ -48,7 +48,7 @@ class AISafetyDetectionService {
 
   constructor(db: Pool) {
     this.db = db;
-    this.initializeModels();
+    void this.initializeModels();
   }
 
   /**

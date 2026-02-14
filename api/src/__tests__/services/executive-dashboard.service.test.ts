@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { ExecutiveDashboardService } from '../services/executive-dashboard.service';
+import { ExecutiveDashboardService } from '../../services/executive-dashboard.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

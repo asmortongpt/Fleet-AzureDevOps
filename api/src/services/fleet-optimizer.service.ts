@@ -7,6 +7,9 @@
 import { pool } from '../config/database'
 import logger from '../config/logger'
 import fleetOptimizationModel, { VehicleUtilizationData } from '../ml-models/fleet-optimization.model'
+
+// Export singleton instance
+import { db } from '../db'
 // ... exports ...
 
 export interface UtilizationMetric {
@@ -464,9 +467,6 @@ class FleetOptimizerService {
     }
   }
 }
-
-// Export singleton instance
-import { db } from '../db'
 // @ts-expect-error - Build compatibility fix
 const fleetOptimizerService = new FleetOptimizerService(db)
 

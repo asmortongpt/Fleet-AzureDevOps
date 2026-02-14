@@ -47,6 +47,7 @@ const AnalyticsDashboard = lazy(() => import("@/components/analytics/AnalyticsDa
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
 const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/PushNotificationAdmin"))
+const E2ETestPage = lazy(() => import("@/pages/E2ETestPage"))
 
 // MAINTENANCE MODULES
 const GarageService = lazy(() => import("@/components/modules/maintenance/GarageService").then(m => ({ default: m.GarageService })))
@@ -571,7 +572,7 @@ function App() {
             },
             error: {
               iconTheme: {
-                primary: '#ef4444',
+                primary: 'hsl(var(--destructive))',
                 secondary: 'white',
               },
             },

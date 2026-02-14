@@ -43,7 +43,7 @@ class MCPServerRegistryService {
   private requestCounts: Map<string, number> = new Map()
 
   constructor(private db: Pool) {
-    this.initializeServerPools()
+    void this.initializeServerPools()
     this.startHealthMonitoring()
   }
 

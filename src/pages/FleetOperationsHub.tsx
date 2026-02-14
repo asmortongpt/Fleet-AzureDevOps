@@ -61,8 +61,8 @@ import { useState, Suspense, lazy, memo, useMemo } from 'react'
 
 // framer-motion removed - React 19 incompatible animation system caused invisible content
 import toast from 'react-hot-toast'
-import useSWR from 'swr'
 import { useNavigate } from 'react-router-dom'
+import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -240,19 +240,19 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   }))
   const woTypeChartData = Object.entries(woTypeDistribution).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1), value: value as number,
-    fill: name === 'preventive' ? '#10b981' : name === 'corrective' ? '#3b82f6' : name === 'emergency' ? '#ef4444' : name === 'inspection' ? '#f59e0b' : '#8b5cf6',
+    fill: name === 'preventive' ? 'hsl(var(--success))' : name === 'corrective' ? 'hsl(var(--primary))' : name === 'emergency' ? 'hsl(var(--destructive))' : name === 'inspection' ? 'hsl(var(--warning))' : 'hsl(var(--accent))',
   }))
   const healthDistributionData = [
-    { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: '#10b981' },
-    { name: 'Good (70-89)', value: fleetHealth.good, fill: '#3b82f6' },
-    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: '#f59e0b' },
-    { name: 'Poor (<50)', value: fleetHealth.poor, fill: '#ef4444' },
+    { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: 'hsl(var(--success))' },
+    { name: 'Good (70-89)', value: fleetHealth.good, fill: 'hsl(var(--primary))' },
+    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: 'hsl(var(--warning))' },
+    { name: 'Poor (<50)', value: fleetHealth.poor, fill: 'hsl(var(--destructive))' },
   ].filter(d => d.value > 0)
   const hosChartData = [
-    { name: 'Driving', value: hosCompliance.statuses.driving, fill: '#10b981' },
-    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: '#3b82f6' },
-    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: '#94a3b8' },
-    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: '#8b5cf6' },
+    { name: 'Driving', value: hosCompliance.statuses.driving, fill: 'hsl(var(--success))' },
+    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: 'hsl(var(--primary))' },
+    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: 'hsl(var(--muted-foreground))' },
+    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: 'hsl(var(--accent))' },
   ].filter(d => d.value > 0)
 
   return (
@@ -777,7 +777,7 @@ const DriversTabContent = memo(function DriversTabContent() {
                 performance_rating: point.avgScore
               }))}
               dataKeys={['safety_score', 'performance_rating']}
-              colors={['#10b981', '#3b82f6']}
+              colors={['hsl(var(--success))', 'hsl(var(--primary))']}
               height={300}
             />
           ) : (
@@ -1404,10 +1404,10 @@ const AssetsTabContent = memo(function AssetsTabContent() {
     `$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`
 
   const utilizationData = [
-    { name: 'In Use', value: statusDistribution.active || 0, fill: '#10b981' },
-    { name: 'Available', value: statusDistribution.available || 0, fill: '#3b82f6' },
-    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: '#f59e0b' },
-    { name: 'Retired', value: statusDistribution.retired || 0, fill: '#94a3b8' },
+    { name: 'In Use', value: statusDistribution.active || 0, fill: 'hsl(var(--success))' },
+    { name: 'Available', value: statusDistribution.available || 0, fill: 'hsl(var(--primary))' },
+    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: 'hsl(var(--warning))' },
+    { name: 'Retired', value: statusDistribution.retired || 0, fill: 'hsl(var(--muted-foreground))' },
   ].filter((entry) => entry.value > 0)
 
   if (isLoading) {

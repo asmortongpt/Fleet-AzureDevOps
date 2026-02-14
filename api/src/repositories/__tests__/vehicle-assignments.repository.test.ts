@@ -10,14 +10,14 @@ import { Pool } from 'pg';
 import { VehicleAssignmentsRepository, CreateAssignmentData, UpdateAssignmentData } from '../vehicle-assignments.repository';
 
 describe('VehicleAssignmentsRepository', () => {
-  let mockPool: jest.Mocked<Pool>;
+  let mockPool: import('vitest').Mocked<Pool>;
   let repository: VehicleAssignmentsRepository;
   const tenantId = '550e8400-e29b-41d4-a716-446655440000';
   const userId = '550e8400-e29b-41d4-a716-446655440001';
 
   beforeEach(() => {
     mockPool = {
-      query: jest.fn(),
+      query: vi.fn(),
     } as any;
 
     // Create repository instance with mocked pool
@@ -25,7 +25,7 @@ describe('VehicleAssignmentsRepository', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('findAll', () => {

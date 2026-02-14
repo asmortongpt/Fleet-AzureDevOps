@@ -57,9 +57,15 @@ export function initializeWebSocketServer(httpServer: HttpServer): void {
     cors: {
       origin: (origin, callback) => {
         // Allow same-origin / non-browser clients with no Origin header.
-        if (!origin) return callback(null, true);
-        if (corsAllowlist.length === 0 && isDevelopment) return callback(null, true);
-        if (corsAllowlist.includes(origin)) return callback(null, true);
+        if (!origin) {
+return callback(null, true);
+}
+        if (corsAllowlist.length === 0 && isDevelopment) {
+return callback(null, true);
+}
+        if (corsAllowlist.includes(origin)) {
+return callback(null, true);
+}
         return callback(new Error(`CORS: Origin ${origin} not allowed`), false);
       },
       credentials: true,
@@ -167,7 +173,7 @@ export function initializeWebSocketServer(httpServer: HttpServer): void {
     logger.info(`Task WebSocket: User ${socket.data.userId} connected`);
 
     // Join tenant-specific room for multi-tenant isolation
-    socket.join(`tenant:${socket.data.tenantId}`);
+    void socket.join(`tenant:${socket.data.tenantId}`);
 
     // Handle task events
     socket.onAny(async (eventName, ...args) => {

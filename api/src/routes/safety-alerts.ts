@@ -94,26 +94,46 @@ const safetyTypeMap: Record<string, string> = {
 };
 
 const normalizeSeverity = (severity?: string) => {
-  if (!severity) return 'medium';
+  if (!severity) {
+return 'medium';
+}
   const lower = severity.toLowerCase();
-  if (['critical', 'high', 'medium', 'low'].includes(lower)) return lower;
-  if (lower === 'emergency') return 'critical';
-  if (lower === 'warning') return 'high';
-  if (lower === 'info') return 'low';
+  if (['critical', 'high', 'medium', 'low'].includes(lower)) {
+return lower;
+}
+  if (lower === 'emergency') {
+return 'critical';
+}
+  if (lower === 'warning') {
+return 'high';
+}
+  if (lower === 'info') {
+return 'low';
+}
   return 'medium';
 };
 
 const normalizeStatus = (status?: string) => {
-  if (!status) return 'active';
+  if (!status) {
+return 'active';
+}
   const lower = status.toLowerCase();
-  if (['active', 'acknowledged', 'investigating', 'resolved', 'closed'].includes(lower)) return lower;
-  if (['pending', 'sent'].includes(lower)) return 'active';
+  if (['active', 'acknowledged', 'investigating', 'resolved', 'closed'].includes(lower)) {
+return lower;
+}
+  if (['pending', 'sent'].includes(lower)) {
+return 'active';
+}
   return 'active';
 };
 
 const parseMetadata = (value: any): Record<string, any> => {
-  if (!value) return {};
-  if (typeof value === 'object') return value;
+  if (!value) {
+return {};
+}
+  if (typeof value === 'object') {
+return value;
+}
   try {
     return JSON.parse(value);
   } catch {
@@ -122,9 +142,15 @@ const parseMetadata = (value: any): Record<string, any> => {
 };
 
 const ensureArray = (value: any): string[] => {
-  if (!value) return [];
-  if (Array.isArray(value)) return value.map(String);
-  if (typeof value === 'string') return [value];
+  if (!value) {
+return [];
+}
+  if (Array.isArray(value)) {
+return value.map(String);
+}
+  if (typeof value === 'string') {
+return [value];
+}
   return [];
 };
 
@@ -480,21 +506,51 @@ router.put(
       paramIndex++;
     }
 
-    if (updates.reportedBy !== undefined) metadataPatch.reportedBy = updates.reportedBy;
-    if (updates.reportedAt !== undefined) metadataPatch.reportedAt = updates.reportedAt;
-    if (updates.location !== undefined) metadataPatch.location = updates.location;
-    if (updates.oshaRecordable !== undefined) metadataPatch.oshaRecordable = updates.oshaRecordable;
-    if (updates.oshaFormRequired !== undefined) metadataPatch.oshaFormRequired = updates.oshaFormRequired;
-    if (updates.daysAwayFromWork !== undefined) metadataPatch.daysAwayFromWork = updates.daysAwayFromWork;
-    if (updates.daysRestricted !== undefined) metadataPatch.daysRestricted = updates.daysRestricted;
-    if (updates.estimatedResolutionTime !== undefined) metadataPatch.estimatedResolutionTime = updates.estimatedResolutionTime;
-    if (updates.actualResolutionTime !== undefined) metadataPatch.actualResolutionTime = updates.actualResolutionTime;
-    if (updates.assignedTo !== undefined) metadataPatch.assignedTo = updates.assignedTo;
-    if (updates.witnesses !== undefined) metadataPatch.witnesses = updates.witnesses;
-    if (updates.photos !== undefined) metadataPatch.photos = updates.photos;
-    if (updates.rootCause !== undefined) metadataPatch.rootCause = updates.rootCause;
-    if (updates.correctiveActions !== undefined) metadataPatch.correctiveActions = updates.correctiveActions;
-    if (updates.preventiveMeasures !== undefined) metadataPatch.preventiveMeasures = updates.preventiveMeasures;
+    if (updates.reportedBy !== undefined) {
+metadataPatch.reportedBy = updates.reportedBy;
+}
+    if (updates.reportedAt !== undefined) {
+metadataPatch.reportedAt = updates.reportedAt;
+}
+    if (updates.location !== undefined) {
+metadataPatch.location = updates.location;
+}
+    if (updates.oshaRecordable !== undefined) {
+metadataPatch.oshaRecordable = updates.oshaRecordable;
+}
+    if (updates.oshaFormRequired !== undefined) {
+metadataPatch.oshaFormRequired = updates.oshaFormRequired;
+}
+    if (updates.daysAwayFromWork !== undefined) {
+metadataPatch.daysAwayFromWork = updates.daysAwayFromWork;
+}
+    if (updates.daysRestricted !== undefined) {
+metadataPatch.daysRestricted = updates.daysRestricted;
+}
+    if (updates.estimatedResolutionTime !== undefined) {
+metadataPatch.estimatedResolutionTime = updates.estimatedResolutionTime;
+}
+    if (updates.actualResolutionTime !== undefined) {
+metadataPatch.actualResolutionTime = updates.actualResolutionTime;
+}
+    if (updates.assignedTo !== undefined) {
+metadataPatch.assignedTo = updates.assignedTo;
+}
+    if (updates.witnesses !== undefined) {
+metadataPatch.witnesses = updates.witnesses;
+}
+    if (updates.photos !== undefined) {
+metadataPatch.photos = updates.photos;
+}
+    if (updates.rootCause !== undefined) {
+metadataPatch.rootCause = updates.rootCause;
+}
+    if (updates.correctiveActions !== undefined) {
+metadataPatch.correctiveActions = updates.correctiveActions;
+}
+    if (updates.preventiveMeasures !== undefined) {
+metadataPatch.preventiveMeasures = updates.preventiveMeasures;
+}
 
     if (Object.keys(metadataPatch).length > 0) {
       setClauses.push(`metadata = COALESCE(metadata, '{}'::jsonb) || $${paramIndex}::jsonb`);

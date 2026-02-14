@@ -204,7 +204,7 @@ function calculateNextRun(
       nextRun.setHours(scheduleConfig.hour || 9, scheduleConfig.minute || 0, 0, 0)
       break
 
-    case 'quarterly':
+    case 'quarterly': {
       // Run on first day of next quarter
       const currentMonth = nextRun.getMonth()
       const nextQuarterMonth = Math.ceil((currentMonth + 1) / 3) * 3
@@ -212,6 +212,7 @@ function calculateNextRun(
       nextRun.setDate(1)
       nextRun.setHours(scheduleConfig.hour || 9, scheduleConfig.minute || 0, 0, 0)
       break
+    }
 
     case 'custom':
       // Use cron expression (simplified - just add 1 day for now)
@@ -395,7 +396,7 @@ export function startReportScheduler(): void {
     }
   )
 
-  task.start()
+  void task.start()
 
   logger.info('Report scheduler started successfully', {
     schedule: CRON_SCHEDULE
@@ -404,12 +405,12 @@ export function startReportScheduler(): void {
   // Graceful shutdown
   process.on('SIGTERM', () => {
     logger.info('SIGTERM received, stopping report scheduler')
-    task.stop()
+    void task.stop()
   })
 
   process.on('SIGINT', () => {
     logger.info('SIGINT received, stopping report scheduler')
-    task.stop()
+    void task.stop()
   })
 }
 

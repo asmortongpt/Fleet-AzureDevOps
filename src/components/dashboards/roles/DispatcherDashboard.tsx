@@ -20,15 +20,16 @@ import {
 } from '@phosphor-icons/react';
 // motion removed - React 19 incompatible
 import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useFleetData } from '@/hooks/use-fleet-data';
+import { useRoutes } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
 
-import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
 interface OperationStats {
   active_trips: number;
   en_route: number;
@@ -55,46 +56,89 @@ interface ActiveTrip {
 
 export function DispatcherDashboard() {
   const navigate = useNavigate();
+  const fleetData = useFleetData();
+  const vehicles = fleetData.vehicles || [];
+  const drivers = fleetData.drivers || [];
+  const { data: routesData } = useRoutes();
 
-  const [operationStats, setOperationStats] = useState<OperationStats>({
-    active_trips: 48,
-    en_route: 12,
-    delayed: 3,
-    completed_today: 67
-  });
+  const [dispatchChannels, setDispatchChannels] = useState<DispatchChannel[]>([]);
 
-  const [dispatchChannels, setDispatchChannels] = useState<DispatchChannel[]>([
-    { id: 'general', name: 'General', listeners: 12, status: 'active', priority: 'medium' },
-    { id: 'emergency', name: 'Emergency', listeners: 2, status: 'active', priority: 'high' },
-    { id: 'maintenance', name: 'Maintenance', listeners: 0, status: 'inactive', priority: 'low' }
-  ]);
+  useEffect(() => {
+    let cancelled = false;
+    const fetchChannels = async () => {
+      try {
+        const res = await fetch('/api/dispatch/channels', { credentials: 'include' });
+        if (!res.ok) return;
+        const json = await res.json();
+        const data = json.data ?? json;
+        if (!Array.isArray(data) || cancelled) return;
+        setDispatchChannels(
+          data.map((channel: any) => ({
+            id: String(channel.id ?? channel.channel_id ?? channel.name ?? 'channel'),
+            name: channel.name ?? channel.displayName ?? 'Channel',
+            listeners: Number(channel.listeners ?? channel.listenerCount ?? 0),
+            status: channel.status === 'inactive' ? 'inactive' : 'active',
+            priority: channel.priority ?? 'medium',
+          }))
+        );
+      } catch {
+        // keep empty on error
+      }
+    };
+    fetchChannels();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  const [activeTrips, setActiveTrips] = useState<ActiveTrip[]>([
-    {
-      id: 4523,
-      vehicle_name: 'Vehicle #1042',
-      driver_name: 'John Smith',
-      route: 'Downtown Delivery',
-      status: 'en_route',
-      eta: '10:45 AM'
-    },
-    {
-      id: 4524,
-      vehicle_name: 'Vehicle #1089',
-      driver_name: 'Sarah Johnson',
-      route: 'Supply Run',
-      status: 'delayed',
-      eta: '02:30 PM'
-    },
-    {
-      id: 4525,
-      vehicle_name: 'Vehicle #1103',
-      driver_name: 'Mike Davis',
-      route: 'North Route',
-      status: 'active',
-      eta: '11:15 AM'
-    }
-  ]);
+  const routes = useMemo(() => {
+    return Array.isArray(routesData)
+      ? routesData
+      : Array.isArray((routesData as any)?.data)
+        ? (routesData as any).data
+        : [];
+  }, [routesData]);
+
+  const operationStats = useMemo<OperationStats>(() => {
+    const activeStatuses = new Set(['active', 'in_progress', 'en_route', 'delayed']);
+    const activeRoutes = routes.filter((route: any) => activeStatuses.has(String(route.status || '').toLowerCase()));
+    const enRoute = activeRoutes.filter((route: any) => String(route.status || '').toLowerCase() === 'en_route').length;
+    const delayed = activeRoutes.filter((route: any) => String(route.status || '').toLowerCase() === 'delayed').length;
+    const completedToday = routes.filter((route: any) => {
+      const completedAt = new Date(route.completed_at || route.completedAt || route.updated_at || route.updatedAt || 0);
+      if (Number.isNaN(completedAt.getTime())) return false;
+      const today = new Date();
+      return completedAt.toDateString() === today.toDateString() && String(route.status || '').toLowerCase() === 'completed';
+    }).length;
+
+    return {
+      active_trips: activeRoutes.length,
+      en_route: enRoute,
+      delayed,
+      completed_today: completedToday
+    };
+  }, [routes]);
+
+  const activeTrips = useMemo<ActiveTrip[]>(() => {
+    const driverById = new Map<string, any>(drivers.map((d: any) => [String(d.id ?? d.driver_id), d]));
+    const vehicleById = new Map<string, any>(vehicles.map((v: any) => [String(v.id ?? v.vehicle_id), v]));
+    return routes
+      .filter((route: any) => ['active', 'in_progress', 'en_route', 'delayed'].includes(String(route.status || '').toLowerCase()))
+      .slice(0, 6)
+      .map((route: any) => {
+        const vehicle = vehicleById.get(String(route.vehicleId ?? route.vehicle_id ?? route.assigned_vehicle_id));
+        const driver = driverById.get(String(route.driverId ?? route.driver_id ?? route.assigned_driver_id));
+        const eta = route.eta || route.estimatedArrival || route.estimated_arrival;
+        return {
+          id: Number(route.id ?? route.route_id ?? 0),
+          vehicle_name: vehicle?.name || vehicle?.displayName || vehicle?.vehicleNumber || 'Vehicle',
+          driver_name: driver?.name || driver?.fullName || 'Driver',
+          route: route.name || route.routeName || route.route_name || 'Route',
+          status: (String(route.status || 'active').toLowerCase() as ActiveTrip['status']) || 'active',
+          eta: eta ? new Date(eta).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'
+        };
+      });
+  }, [routes, vehicles, drivers]);
 
   // Quick actions - Navigate to relevant pages
   const handleOpenRadio = () => {

@@ -96,7 +96,7 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
       const sanitized: SanitizableObject = {};
       Object.keys(obj).forEach(key => {
         if (key.length <= 50) { // Limit key length
-          sanitized[key] = sanitize((obj as SanitizableObject)[key]);
+          sanitized[key] = sanitize((obj)[key]);
         }
       });
       return sanitized;
@@ -104,9 +104,15 @@ export const sanitizeInput = (req: Request, res: Response, next: NextFunction) =
     return obj;
   };
 
-  if (req.body) req.body = sanitize(req.body);
-  if (req.query) req.query = sanitize(req.query) as typeof req.query;
-  if (req.params) req.params = sanitize(req.params) as typeof req.params;
+  if (req.body) {
+req.body = sanitize(req.body);
+}
+  if (req.query) {
+req.query = sanitize(req.query) as typeof req.query;
+}
+  if (req.params) {
+req.params = sanitize(req.params) as typeof req.params;
+}
 
   next();
 };
@@ -122,7 +128,9 @@ export const corsConfig = {
     ];
 
     // Allow requests with no origin (mobile apps, etc.)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+return callback(null, true);
+}
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -141,7 +149,7 @@ export const requestLogger = (req: AuthenticatedRequest, res: Response, next: Ne
 
   req.requestId = requestId;
 
-  const originalSend = res.send;
+  const originalSend = res.send.bind(res);
   res.send = function(body) {
     const duration = Date.now() - start;
     logger.info({
@@ -154,7 +162,7 @@ export const requestLogger = (req: AuthenticatedRequest, res: Response, next: Ne
       statusCode: res.statusCode,
       timestamp: new Date().toISOString(),
     });
-    return originalSend.call(this, body);
+    return originalSend(body);
   };
 
   next();

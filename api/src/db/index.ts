@@ -9,7 +9,9 @@ import { Pool } from 'pg'
 import * as schema from './schema'
 
 // Create PostgreSQL connection pool
-const connectionString = process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/fleet_local' : (() => { throw new Error('DATABASE_URL must be set in production'); })());
+const connectionString = process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/fleet_local' : (() => {
+ throw new Error('DATABASE_URL must be set in production'); 
+})());
 const pool = new Pool({
   connectionString,
   max: 20, // Maximum number of clients in the pool

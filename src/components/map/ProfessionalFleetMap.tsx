@@ -108,8 +108,8 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
         className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(71, 85, 105, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(71, 85, 105, 0.1) 1px, transparent 1px)
+            linear-gradient(hsl(var(--border) / 0.1) 1px, transparent 1px),
+            linear-gradient(90deg, hsl(var(--border) / 0.1) 1px, transparent 1px)
           `,
           backgroundSize: `${zoom * 4}px ${zoom * 4}px`
         }}
@@ -119,7 +119,7 @@ export function ProfessionalFleetMap({ onVehicleSelect, children }: Professional
           <svg className="w-full h-full">
             <defs>
               <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
-                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(148, 163, 184, 0.3)" strokeWidth="0.5" />
+                <path d="M 100 0 L 0 0 0 100" fill="none" stroke="hsl(var(--border) / 0.3)" strokeWidth="0.5" />
               </pattern>
             </defs>
             <rect width="100%" height="100%" fill="url(#grid)" />

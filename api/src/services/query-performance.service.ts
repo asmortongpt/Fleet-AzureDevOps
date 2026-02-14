@@ -67,7 +67,7 @@ export class QueryPerformanceService extends EventEmitter {
       if (typeof args[0] === 'string') {
         query = args[0]
         params = Array.isArray(args[1]) ? args[1] : undefined
-      } else if (args[0] != null && typeof args[0] === 'object') {
+      } else if (args[0] !== null && args[0] !== undefined && typeof args[0] === 'object') {
         const queryConfig = args[0] as Record<string, unknown>
         query = (queryConfig.text as string) || ''
         params = Array.isArray(queryConfig.values) ? queryConfig.values : undefined

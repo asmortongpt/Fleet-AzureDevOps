@@ -299,7 +299,7 @@ router.post(
       // Create inspection
       const inspection = await inspectionRepo.createInspection(
         Number(req.user!.tenant_id),
-        validatedData as z.infer<typeof inspectionCreateSchema>
+        validatedData
       )
 
       res.status(201).json(inspection)

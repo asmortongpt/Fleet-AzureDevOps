@@ -496,7 +496,13 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
   };
 
   const metrics = calculateMetrics();
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+  const COLORS = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-5))',
+    'hsl(var(--chart-4))'
+  ];
   const scanAccuracy = recentScans.length > 0
     ? Math.round((recentScans.filter(s => Boolean(s.itemId)).length / recentScans.length) * 100)
     : 0;
@@ -593,7 +599,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                         style={{
                           width: '100%',
                           height: 'auto',
-                          border: '2px solid #1976d2',
+                          border: '2px solid hsl(var(--chart-1))',
                           borderRadius: 8
                         }}
                       />
@@ -1000,7 +1006,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                       labelLine={false}
                       label={(entry) => entry.name}
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="hsl(var(--chart-4))"
                       dataKey="value"
                     >
                       {getLocationDistribution().map((entry, index) => (
@@ -1030,7 +1036,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                     <YAxis />
                     <ChartTooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="scans" stroke="#8884d8" name="Daily Scans" />
+                    <Line type="monotone" dataKey="scans" stroke="hsl(var(--chart-4))" name="Daily Scans" />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>

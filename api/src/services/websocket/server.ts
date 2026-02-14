@@ -1,5 +1,3 @@
-import url from 'url';
-
 import { config } from 'dotenv';
 import jwt from 'jsonwebtoken';
 import { Pool, PoolClient } from 'pg';
@@ -27,8 +25,8 @@ const pool = new Pool({
 const wss = new WebSocket.Server({ port: 3001 });
 
 wss.on('connection', (ws: ExtendedWebSocket, req) => {
-  const parameters = url.parse(req.url!, true).query;
-  const token: string = parameters.token as string;
+  const parsedUrl = new URL(req.url!, `http://${req.headers.host || 'localhost'}`);
+  const token: string = parsedUrl.searchParams.get('token') as string;
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);

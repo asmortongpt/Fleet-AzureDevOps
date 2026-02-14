@@ -972,7 +972,9 @@ router.get('/export', asyncHandler(async (req: Request, res: Response) => {
     ...result.rows.map(row =>
       headers.map(header => {
         const value = row[header];
-        if (value === null || value === undefined) return '';
+        if (value === null || value === undefined) {
+return '';
+}
         if (typeof value === 'string' && value.includes(',')) {
           return `"${value.replace(/"/g, '""')}"`;
         }

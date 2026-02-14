@@ -501,7 +501,9 @@ export class DamageDetectionModel {
    * Calculate overall severity from all damages
    */
   private calculateOverallSeverity(damages: DetectedDamage[]): DamageSeverity {
-    if (damages.length === 0) return 'minor';
+    if (damages.length === 0) {
+return 'minor';
+}
 
     const severityScores: Record<DamageSeverity, number> = {
       minor: 1,
@@ -512,9 +514,15 @@ export class DamageDetectionModel {
 
     const maxScore = Math.max(...damages.map(d => severityScores[d.severity]));
 
-    if (maxScore >= 4) return 'critical';
-    if (maxScore >= 3) return 'severe';
-    if (maxScore >= 2) return 'moderate';
+    if (maxScore >= 4) {
+return 'critical';
+}
+    if (maxScore >= 3) {
+return 'severe';
+}
+    if (maxScore >= 2) {
+return 'moderate';
+}
     return 'minor';
   }
 

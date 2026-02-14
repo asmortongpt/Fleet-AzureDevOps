@@ -111,7 +111,7 @@ export class DriversRepository extends BaseRepository<any> {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/
     if (!emailRegex.test(data.email)) {
       throw new ValidationError('Invalid email format')
     }
@@ -163,7 +163,7 @@ export class DriversRepository extends BaseRepository<any> {
 
     // Validate email format if provided
     if (data.email) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/
       if (!emailRegex.test(data.email)) {
         throw new ValidationError('Invalid email format')
       }

@@ -12,6 +12,10 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
+// Create and export singleton instance
+import { pool } from '../config/database'
+import logger from '../config/logger'
+
 
 export interface DocumentChunk {
   id: string
@@ -461,10 +465,6 @@ break
     }
   }
 }
-
-// Create and export singleton instance
-import { pool } from '../config/database'
-import logger from '../config/logger'
 
 const documentRAGService = new DocumentRAGService(pool, logger)
 export default documentRAGService

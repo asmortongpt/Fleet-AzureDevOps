@@ -354,7 +354,9 @@ class DriverSafetyAIService {
       // Check if hands are in typical steering wheel position
       const wheelArea = { x: 400, y: 400, width: 400, height: 300 }; // Typical steering wheel area
       const handsOnWheel = handObjects.some((obj: any) => {
-        if (!obj.rectangle) return false;
+        if (!obj.rectangle) {
+return false;
+}
         const rect = obj.rectangle;
         return rect.x >= wheelArea.x && rect.x <= wheelArea.x + wheelArea.width &&
                rect.y >= wheelArea.y && rect.y <= wheelArea.y + wheelArea.height;

@@ -59,8 +59,8 @@ router.get('/',
     const status = req.query.status as string;
     const search = req.query.search as string;
 
-    let whereConditions: string[] = [];
-    let queryParams: any[] = [];
+    const whereConditions: string[] = [];
+    const queryParams: any[] = [];
     let paramCount = 1;
 
     // Build WHERE clause
@@ -245,7 +245,7 @@ router.post('/',
     }
 
     // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
@@ -366,7 +366,7 @@ router.put('/:id',
 
     if (email !== undefined) {
       // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/;
       if (!emailRegex.test(email)) {
         return res.status(400).json({
           success: false,

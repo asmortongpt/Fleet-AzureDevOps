@@ -24,6 +24,9 @@ import { Pool } from 'pg';
 import { PSM } from 'tesseract.js';
 import logger from '../config/logger';
 
+// Export singleton instance
+import { pool } from '../db'
+
 // Optional cloud OCR provider imports - only load if packages are installed
 let vision: any = null;
 let TextractClient: any = null;
@@ -540,7 +543,7 @@ class OcrService {
         return this.processWithAzureVision(imageBuffer, documentId, options, fileSize);
 
       default:
-        throw new Error('Unsupported OCR provider: ' + provider);
+        throw new Error(`Unsupported OCR provider: ${String(provider)}`);
     }
   }
 
@@ -582,7 +585,7 @@ class OcrService {
 
       // Timeout after 2 minutes
       const timeout = setTimeout(() => {
-        worker.terminate();
+        void worker.terminate();
         reject(new Error('OCR processing timeout (2 minutes)'));
       }, 120000);
 
@@ -623,7 +626,7 @@ class OcrService {
       worker.on('exit', (code) => {
         clearTimeout(timeout);
         if (code !== 0) {
-          reject(new Error('Worker stopped with exit code ' + code));
+          reject(new Error(`Worker stopped with exit code ${String(code)}`));
         }
       });
     });
@@ -1160,9 +1163,6 @@ class OcrService {
 
 
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const ocrService = new OcrService(pool)
 
 export { OcrService }

@@ -106,24 +106,24 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
             data={data}
             margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
         >
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.3} />
-            <XAxis dataKey="date" stroke="#94a3b8" fontSize={12} />
-            <YAxis yAxisId="left" stroke="#94a3b8" fontSize={12} />
-            <YAxis yAxisId="right" orientation="right" stroke="#94a3b8" fontSize={12} />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+            <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+            <YAxis yAxisId="left" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+            <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--muted-foreground))" fontSize={12} />
             <Tooltip content={<CustomTooltip />} />
             <Legend wrapperStyle={{ fontSize: '12px' }} />
 
             <Bar
                 yAxisId="left"
                 dataKey="utilization"
-                fill="#3b82f6"
+                fill="hsl(var(--chart-1))"
                 fillOpacity={0.6}
                 name="Utilization %"
             />
             <Bar
                 yAxisId="left"
                 dataKey="idleTime"
-                fill="#ef4444"
+                fill="hsl(var(--chart-6))"
                 fillOpacity={0.6}
                 name="Idle Time (hrs)"
             />
@@ -131,7 +131,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                 yAxisId="right"
                 type="monotone"
                 dataKey="mpg"
-                stroke="#10b981"
+                stroke="hsl(var(--chart-2))"
                 strokeWidth={3}
                 dot={{ r: 4 }}
                 activeDot={{ r: 6 }}
@@ -141,7 +141,7 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
                 yAxisId="left"
                 type="monotone"
                 dataKey="efficiencyScore"
-                stroke="#f59e0b"
+                stroke="hsl(var(--chart-3))"
                 strokeWidth={3}
                 dot={{ r: 4 }}
                 name="Efficiency Score"
@@ -160,14 +160,14 @@ export const EfficiencyMetricsChart = memo<EfficiencyMetricsChartProps>(({
 
         return (
             <RadarChart data={radarData} margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
-                <PolarGrid stroke="#334155" />
-                <PolarAngleAxis dataKey="category" stroke="#94a3b8" fontSize={12} />
-                <PolarRadiusAxis stroke="#94a3b8" fontSize={12} />
+                <PolarGrid stroke="hsl(var(--border))" />
+                <PolarAngleAxis dataKey="category" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <PolarRadiusAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
                 <Radar
                     name="Efficiency Metrics"
                     dataKey="value"
-                    stroke="#3b82f6"
-                    fill="#3b82f6"
+                    stroke="hsl(var(--chart-1))"
+                    fill="hsl(var(--chart-1))"
                     fillOpacity={0.6}
                 />
                 <Tooltip content={<CustomTooltip />} />

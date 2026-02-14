@@ -40,9 +40,9 @@ export interface TenantBranding {
 export const DEFAULT_BRANDING: TenantBranding = {
   tenantId: 'default',
   tenantName: 'Fleet Management System',
-  primaryColor: '#005EA2',       // USWDS Blue-60
-  primaryDark: '#1C3F94',        // USWDS Blue-80
-  primaryLight: '#2378C3',       // USWDS Blue-50
+  primaryColor: 'hsl(var(--primary))',
+  primaryDark: 'hsl(var(--primary))',
+  primaryLight: 'hsl(var(--primary))',
 };
 
 // Example tenant configurations
@@ -51,29 +51,29 @@ export const TENANT_PRESETS: Record<string, TenantBranding> = {
     tenantId: 'cta',
     tenantName: 'Capital Transit Alliance',
     logoUrl: '/branding/cta-logo.svg',
-    primaryColor: '#005EA2',
-    primaryDark: '#1C3F94',
-    primaryLight: '#2378C3',
-    accentColor: '#60a5fa',
+    primaryColor: 'hsl(var(--primary))',
+    primaryDark: 'hsl(var(--primary))',
+    primaryLight: 'hsl(var(--primary))',
+    accentColor: 'hsl(var(--accent))',
   },
   'government': {
     tenantId: 'government',
     tenantName: 'Federal Fleet Management',
     logoUrl: '/branding/gov-seal.svg',
-    primaryColor: '#112e51',       // Government blue
-    primaryDark: '#0d2136',
-    primaryLight: '#205493',
-    statusGood: '#4aa564',         // Government green
-    statusWarn: '#fdb81e',         // Government yellow
-    statusBad: '#d54309',          // Government red
+    primaryColor: 'hsl(var(--primary))',
+    primaryDark: 'hsl(var(--primary))',
+    primaryLight: 'hsl(var(--primary))',
+    statusGood: 'hsl(var(--chart-2))',
+    statusWarn: 'hsl(var(--chart-3))',
+    statusBad: 'hsl(var(--chart-6))',
   },
   'enterprise': {
     tenantId: 'enterprise',
     tenantName: 'Enterprise Fleet Services',
     logoUrl: '/branding/enterprise-logo.svg',
-    primaryColor: '#2563eb',       // Modern blue
-    primaryDark: '#1e40af',
-    primaryLight: '#3b82f6',
-    accentColor: '#06b6d4',        // Cyan accent
+    primaryColor: 'hsl(var(--primary))',
+    primaryDark: 'hsl(var(--primary))',
+    primaryLight: 'hsl(var(--primary))',
+    accentColor: 'hsl(var(--accent))',
   },
 };

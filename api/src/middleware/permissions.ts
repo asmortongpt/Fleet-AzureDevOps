@@ -218,7 +218,9 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
       `, [userId])
 
       for (const row of result.rows) {
-        if (row?.name) permissions.add(row.name)
+        if (row?.name) {
+permissions.add(row.name)
+}
       }
     } catch (error) {
       // Still continue with role defaults below.
@@ -230,7 +232,9 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
     // doesn't accidentally remove baseline access.
     const roleDefaults = userRole ? (defaultRolePermissions[userRole] || []) : []
     if (roleDefaults.length > 0) {
-      for (const p of roleDefaults) permissions.add(p)
+      for (const p of roleDefaults) {
+permissions.add(p)
+}
     }
 
     // Cache the permissions
@@ -360,7 +364,7 @@ export function requirePermission(
 
       next()
     } catch (error) {
-      logger.error('Permission check failed', { error, permission, userId: req.user?.id as string }) // Wave 14: Winston logger
+      logger.error('Permission check failed', { error, permission, userId: req.user?.id }) // Wave 14: Winston logger
       return res.status(500).json({ error: 'Internal server error' })
     }
   }
@@ -412,7 +416,7 @@ export async function validateResourceScope(
         }
         break
 
-      case 'work_order':
+      case 'work_order': {
         const woResult = await pool.query(
           'SELECT facility_id, assigned_technician_id FROM work_orders WHERE id = $1',
           [resourceId]
@@ -431,8 +435,9 @@ export async function validateResourceScope(
           }
         }
         break
+      }
 
-      case 'route':
+      case 'route': {
         const routeResult = await pool.query(
           'SELECT driver_id FROM routes WHERE id = $1',
           [resourceId]
@@ -451,8 +456,9 @@ export async function validateResourceScope(
           }
         }
         break
+      }
 
-      case 'document':
+      case 'document': {
         const docResult = await pool.query(
           'SELECT uploaded_by FROM documents WHERE id = $1',
           [resourceId]
@@ -471,8 +477,9 @@ export async function validateResourceScope(
           }
         }
         break
+      }
 
-      case 'fuel_transaction':
+      case 'fuel_transaction': {
         const fuelResult = await pool.query(
           'SELECT driver_id FROM fuel_transactions WHERE id = $1',
           [resourceId]
@@ -491,6 +498,7 @@ export async function validateResourceScope(
           }
         }
         break
+      }
     }
 
     return false

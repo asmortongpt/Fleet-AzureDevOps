@@ -132,30 +132,26 @@ export class FleetOptimizationModel {
       type = 'retire'
       potentialSavings = data.monthlyOperatingCost * 12
       confidenceScore = 85
-    }
-    // High cost per mile
-    else if (costPerMile > this.HIGH_COST_PER_MILE_THRESHOLD) {
+    } else if (costPerMile > this.HIGH_COST_PER_MILE_THRESHOLD) {
+      // High cost per mile
       recommendation = `Vehicle ${data.vehicleNumber} has high operating costs ($${costPerMile.toFixed(2)}/mile). Consider replacing with a more efficient vehicle.`
       type = 'optimize'
       potentialSavings = (costPerMile - 1.5) * data.totalMiles * 12
       confidenceScore = 80
-    }
-    // Low utilization
-    else if (utilizationRate < this.OPTIMAL_UTILIZATION_MIN) {
+    } else if (utilizationRate < this.OPTIMAL_UTILIZATION_MIN) {
+      // Low utilization
       recommendation = `Vehicle ${data.vehicleNumber} is underutilized at ${utilizationRate.toFixed(1)}%. Consider reassigning to higher-demand routes or sharing with other departments.`
       type = 'reassign'
       potentialSavings = data.monthlyOperatingCost * 0.3 * 12
       confidenceScore = 70
-    }
-    // High utilization - potential expansion opportunity
-    else if (utilizationRate > this.HIGH_UTILIZATION_THRESHOLD) {
+    } else if (utilizationRate > this.HIGH_UTILIZATION_THRESHOLD) {
+      // High utilization - potential expansion opportunity
       recommendation = `Vehicle ${data.vehicleNumber} is highly utilized (${utilizationRate.toFixed(1)}%). Consider adding similar vehicles to prevent overuse and reduce maintenance costs.`
       type = 'expand'
       potentialSavings = 0
       confidenceScore = 65
-    }
-    // Optimal utilization
-    else {
+    } else {
+      // Optimal utilization
       recommendation = `Vehicle ${data.vehicleNumber} is performing within optimal parameters (${utilizationRate.toFixed(1)}% utilization, $${costPerMile.toFixed(2)}/mile). Continue current operations.`
       type = `maintain`
       potentialSavings = 0

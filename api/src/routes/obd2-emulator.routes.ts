@@ -343,7 +343,7 @@ export function setupOBD2WebSocket(server: any): void {
         const data = JSON.parse(message.toString())
 
         switch (data.type) {
-          case 'subscribe':
+          case 'subscribe': {
             const subscribed = obd2Emulator.subscribeToSession(clientId, data.sessionId)
             ws.send(JSON.stringify({
               type: subscribed ? 'subscribed' : 'error',
@@ -351,12 +351,13 @@ export function setupOBD2WebSocket(server: any): void {
               message: subscribed ? 'Subscribed to session' : 'Session not found'
             }))
             break
+          }
 
           case 'ping':
             ws.send(JSON.stringify({ type: 'pong', timestamp: Date.now() }))
             break
 
-          case 'get_data':
+          case 'get_data': {
             const sessionData = obd2Emulator.getSessionData(data.sessionId)
             ws.send(JSON.stringify({
               type: 'obd2_data',
@@ -364,6 +365,7 @@ export function setupOBD2WebSocket(server: any): void {
               data: sessionData
             }))
             break
+          }
 
           default:
             ws.send(JSON.stringify({ type: 'error', message: 'Unknown message type' }))

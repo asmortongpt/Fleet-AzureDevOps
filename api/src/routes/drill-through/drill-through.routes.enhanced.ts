@@ -105,20 +105,22 @@ router.get('/:entityType/export', async (req: Request, res: Response) => {
     validateFormat(format);
 
     switch (format) {
-      case 'xlsx':
+      case 'xlsx': {
         const workbook = await generateExcel(result.rows);
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', `attachment; filename=${filename}.xlsx`);
         await workbook.xlsx.write(res);
         res.end();
         break;
-      case 'pdf':
+      }
+      case 'pdf': {
         const pdfDoc = await generatePDF(result.rows);
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', `attachment; filename=${filename}.pdf`);
         const pdfBytes = await pdfDoc.save();
         res.send(pdfBytes);
         break;
+      }
       default:
         res.status(400).json({ error: 'Unsupported export format' });
     }

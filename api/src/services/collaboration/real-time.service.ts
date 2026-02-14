@@ -80,9 +80,15 @@ export class CollaborationService {
     this.io = new SocketIOServer(httpServer, {
       cors: {
         origin: (origin, callback) => {
-          if (!origin) return callback(null, true)
-          if (corsAllowlist.length === 0 && isDevelopment) return callback(null, true)
-          if (corsAllowlist.includes(origin)) return callback(null, true)
+          if (!origin) {
+return callback(null, true)
+}
+          if (corsAllowlist.length === 0 && isDevelopment) {
+return callback(null, true)
+}
+          if (corsAllowlist.includes(origin)) {
+return callback(null, true)
+}
           return callback(new Error(`CORS: Origin ${origin} not allowed`), false)
         },
         credentials: true
@@ -118,7 +124,7 @@ export class CollaborationService {
       })
 
       // Join tenant room
-      socket.join(`tenant:${user.tenant_id}`)
+      void socket.join(`tenant:${user.tenant_id}`)
 
       // Handle viewing entity
       socket.on(`view:entity`, (data: { type: 'task' | 'asset', id: string }) => {
@@ -306,7 +312,7 @@ return
       })
 
       // Track activity
-      this.trackActivity({
+      void this.trackActivity({
         type: 'comment_added',
         entityType: data.entityType,
         entityId: data.entityId,
@@ -382,7 +388,7 @@ return
       timestamp: new Date()
     })
 
-    this.trackActivity({
+    void this.trackActivity({
       type: entityType === 'task' ? 'task_updated' : 'asset_updated',
       entityType,
       entityId,
@@ -411,7 +417,7 @@ return
       timestamp: new Date()
     })
 
-    this.trackActivity({
+    void this.trackActivity({
       type: 'status_changed',
       entityType,
       entityId,
@@ -441,7 +447,7 @@ return
       timestamp: new Date()
     })
 
-    this.trackActivity({
+    void this.trackActivity({
       type: 'assignment_changed',
       entityType,
       entityId,

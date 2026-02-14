@@ -64,7 +64,7 @@ router.get('/vehicle-count', authenticateJWT, async (req: Request, res: Response
 
     // Resolve the service from the container
     // This gives us a fresh instance for this request (SCOPED lifetime)
-    const exampleService = reqWithContainer.container.get('exampleDIService') as unknown as ExampleDIService
+    const exampleService: ExampleDIService = reqWithContainer.container.get('exampleDIService')
 
     // Use the service
     const count = await exampleService.getVehicleCount()
@@ -120,7 +120,7 @@ router.post('/vehicle-action/:vehicleId', csrfProtection, authenticateJWT, async
     }
 
     // Resolve service from container
-    const exampleService = reqWithContainer.container.get('exampleDIService') as unknown as ExampleDIService
+    const exampleService: ExampleDIService = reqWithContainer.container.get('exampleDIService')
 
     // Perform action
     const result = await exampleService.performAction(vehicleId)
@@ -214,8 +214,8 @@ router.post('/complex-operation/:vehicleId', csrfProtection, authenticateJWT, as
     const vehicleId = parseInt(req.params.vehicleId, 10)
 
     // Resolve multiple services
-    const exampleService = reqWithContainer.container.get('exampleDIService') as unknown as ExampleDIService
-    const documentService = reqWithContainer.container.get('documentService') as unknown as Record<string, unknown>
+    const exampleService: ExampleDIService = reqWithContainer.container.get('exampleDIService')
+    const documentService: { getDocuments(vehicleId: number): Promise<unknown[]> } = reqWithContainer.container.get('documentService')
     // logger is imported independently, but could also be resolved if bound to container
     // const logger = reqWithContainer.container.get('logger') 
 

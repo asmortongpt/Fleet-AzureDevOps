@@ -75,7 +75,7 @@ export function handleDatabaseError(error: unknown): { statusCode: number; error
   }
 
   // Unknown errors
-  logger.error('Unhandled database error:', { error: error instanceof Error ? (error as Error).message : String(error) })
+  logger.error('Unhandled database error:', { error: error instanceof Error ? (error).message : String(error) })
   return {
     statusCode: 500,
     error: 'Internal server error'

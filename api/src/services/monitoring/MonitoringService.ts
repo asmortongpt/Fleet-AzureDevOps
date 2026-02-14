@@ -213,7 +213,7 @@ export class MonitoringService {
         endpoint: process.env.JAEGER_ENDPOINT
       })
 
-      (this.tracerProvider as unknown as { addSpanProcessor(processor: BatchSpanProcessor): void }).addSpanProcessor(
+      ;(this.tracerProvider as unknown as { addSpanProcessor(processor: BatchSpanProcessor): void }).addSpanProcessor(
         // @ts-expect-error - Build compatibility fix
         new BatchSpanProcessor(jaegerExporter)
       )

@@ -20,9 +20,15 @@ export function enforceAIPolicy(
 
   const allowedTools =
     request.toolsRequested?.filter((tool) => {
-      if (tool.startsWith("docs.")) return true;
-      if (tool.startsWith("policy.")) return true;
-      if (tool.startsWith("fleet.")) return isOps || isAdmin;
+      if (tool.startsWith("docs.")) {
+return true;
+}
+      if (tool.startsWith("policy.")) {
+return true;
+}
+      if (tool.startsWith("fleet.")) {
+return isOps || isAdmin;
+}
       return isAdmin;
     }) ?? [];
 

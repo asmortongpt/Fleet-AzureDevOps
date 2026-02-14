@@ -39,7 +39,7 @@ export function TrendChart({
   // Group data by color field if provided
   const series = useMemo(() => {
     if (!colorField) {
-      return [{ name: yField, data, color: '#6366f1' }];
+      return [{ name: yField, data, color: 'hsl(var(--primary))' }];
     }
 
     const grouped: Record<string, TrendDataPoint[]> = {};
@@ -52,14 +52,14 @@ export function TrendChart({
     });
 
     const colors = [
-      '#6366f1', // indigo
-      '#8b5cf6', // purple
-      '#ec4899', // pink
-      '#f59e0b', // amber
-      '#10b981', // emerald
-      '#3b82f6', // blue
-      '#ef4444', // red
-      '#14b8a6', // teal
+      'hsl(var(--primary))', // indigo
+      'hsl(var(--accent))', // purple
+      'hsl(var(--accent))', // pink
+      'hsl(var(--warning))', // amber
+      'hsl(var(--success))', // emerald
+      'hsl(var(--primary))', // blue
+      'hsl(var(--destructive))', // red
+      'hsl(var(--success))', // teal
     ];
 
     return Object.entries(grouped).map(([name, seriesData], index) => ({
@@ -114,15 +114,15 @@ export function TrendChart({
           onClick={handleClick}
           margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
           <XAxis
             dataKey={xField}
-            stroke="#6b7280"
+            stroke="hsl(var(--muted-foreground))"
             fontSize={12}
             tickLine={false}
           />
           <YAxis
-            stroke="#6b7280"
+            stroke="hsl(var(--muted-foreground))"
             fontSize={12}
             tickLine={false}
             tickFormatter={(value) =>
@@ -132,7 +132,7 @@ export function TrendChart({
               }).format(value)
             }
           />
-          <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#e5e7eb' }} />
+          <Tooltip content={<CustomTooltip />} cursor={{ stroke: 'hsl(var(--border))' }} />
           <Legend
             wrapperStyle={{ fontSize: '12px' }}
             iconType="line"

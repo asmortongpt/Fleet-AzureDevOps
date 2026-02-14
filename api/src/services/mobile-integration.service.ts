@@ -22,6 +22,9 @@ import { Pool } from 'pg'
 import logger from '../config/logger'
 import OfflineStorageService from './offline-storage.service'
 
+// Export singleton instance
+import { db } from '../db'
+
 export interface MobileDevice {
   id: number
   user_id: number
@@ -835,9 +838,6 @@ conflicts.push(conflict)
     return []
   }
 }
-
-// Export singleton instance
-import { db } from '../db'
 const mobileIntegrationService = new MobileIntegrationService(db as unknown as Pool)
 
 export { MobileIntegrationService }

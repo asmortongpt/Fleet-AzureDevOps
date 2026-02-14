@@ -168,7 +168,9 @@ export class PeopleSoftEmulator {
 
     // Load all valid City of Tallahassee chartfield combinations
     TALLAHASSEE_CHARTFIELDS.forEach((tallyChartfield: any) => {
-      if (!tallyChartfield.is_active) return
+      if (!tallyChartfield.is_active) {
+return
+}
 
       const chartfield: Chartfield = {
         business_unit: tallyChartfield.business_unit,
@@ -393,7 +395,9 @@ export class PeopleSoftEmulator {
 
   private completeAsyncJournal(journal_id: string, request: JournalPostRequest): void {
     const journal = this.journals.get(journal_id)
-    if (!journal) return
+    if (!journal) {
+return
+}
 
     journal.status = 'POSTED'
     journal.posted_timestamp = new Date().toISOString()

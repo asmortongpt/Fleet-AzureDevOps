@@ -23,7 +23,7 @@ const passwordSchema = z.string()
   .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character');
 
 // Phone number validation (flexible international format)
-const phoneRegex = /^[\d\s\-\+\(\)]{10,20}$/;
+const phoneRegex = /^[\d\s+()-]{10,20}$/;
 
 /**
  * Login schema

@@ -57,20 +57,20 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
 
   // If no vehicles data, use provided counts
   const defaultStatusData = [
-    { status: 'Active', count: activeVehicles, color: '#4caf50' },
-    { status: 'In Maintenance', count: inMaintenance, color: '#ff9800' },
-    { status: 'Out of Service', count: statusCounts['Out of Service'] || 0, color: '#f44336' },
-    { status: 'Reserved', count: statusCounts['Reserved'] || 0, color: '#2196f3' }
+    { status: 'Active', count: activeVehicles, color: 'hsl(var(--chart-2))' },
+    { status: 'In Maintenance', count: inMaintenance, color: 'hsl(var(--chart-3))' },
+    { status: 'Out of Service', count: statusCounts['Out of Service'] || 0, color: 'hsl(var(--chart-6))' },
+    { status: 'Reserved', count: statusCounts['Reserved'] || 0, color: 'hsl(var(--chart-1))' }
   ];
 
   const statusData = Object.keys(statusCounts).length > 0
     ? Object.entries(statusCounts).map(([status, count]) => ({
         status,
         count,
-        color: status === 'Active' ? '#4caf50' :
-               status === 'In Maintenance' ? '#ff9800' :
-               status === 'Out of Service' ? '#f44336' :
-               status === 'Reserved' ? '#2196f3' : '#9e9e9e'
+        color: status === 'Active' ? 'hsl(var(--chart-2))' :
+               status === 'In Maintenance' ? 'hsl(var(--chart-3))' :
+               status === 'Out of Service' ? 'hsl(var(--chart-6))' :
+               status === 'Reserved' ? 'hsl(var(--chart-1))' : 'hsl(var(--muted-foreground))'
       }))
     : defaultStatusData;
 
@@ -87,7 +87,16 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
     .slice(0, 8); // Top 8 departments
 
   // Pie chart colors
-  const COLORS = ['#4caf50', '#ff9800', '#f44336', '#2196f3', '#9c27b0', '#00bcd4', '#ff5722', '#795548'];
+  const COLORS = [
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-6))',
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-4))',
+    'hsl(var(--chart-5))',
+    'hsl(var(--chart-7))',
+    'hsl(var(--chart-8))'
+  ];
 
   // Custom tooltip
   const CustomTooltip = ({ active, payload }: any) => {
@@ -137,7 +146,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                     labelLine={false}
                     label={({ status, count }: any) => `${status}: ${count}`}
                     outerRadius={90}
-                    fill="#8884d8"
+                    fill="hsl(var(--chart-4))"
                     dataKey="count"
                   >
                     {statusData.map((entry, index) => (
@@ -173,7 +182,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                         sx={{
                           height: 6,
                           borderRadius: 3,
-                          bgcolor: 'grey.200',
+                          bgcolor: 'hsl(var(--muted))',
                           '& .MuiLinearProgress-bar': {
                             bgcolor: item.color
                           }
@@ -210,8 +219,8 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                     justifyContent: 'center',
                     margin: '0 auto',
                     background: `conic-gradient(
-                      #4caf50 0% ${utilizationRate}%,
-                      #e0e0e0 ${utilizationRate}% 100%
+                      hsl(var(--chart-2)) 0% ${utilizationRate}%,
+                      hsl(var(--muted)) ${utilizationRate}% 100%
                     )`,
                     position: 'relative'
                   }}
@@ -242,17 +251,17 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
               <Box>
                 <Grid container spacing={2}>
                   <Grid size={{ xs: 6 }}>
-                    <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'success.light', borderRadius: 2 }}>
-                      <Typography variant="h4" fontWeight={600} color="success.dark">
+                    <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'hsl(var(--chart-2) / 0.12)', borderRadius: 2 }}>
+                      <Typography variant="h4" fontWeight={600} color="hsl(var(--chart-2))">
                         {activeVehicles}
                       </Typography>
-                      <Typography variant="body2" color="success.dark">
+                      <Typography variant="body2" color="hsl(var(--chart-2))">
                         Active Vehicles
                       </Typography>
                     </Box>
                   </Grid>
                   <Grid size={{ xs: 6 }}>
-                    <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'grey.200', borderRadius: 2 }}>
+                    <Box sx={{ textAlign: 'center', p: 2, bgcolor: 'hsl(var(--muted))', borderRadius: 2 }}>
                       <Typography variant="h4" fontWeight={600}>
                         {totalVehicles - activeVehicles}
                       </Typography>
@@ -307,7 +316,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                     />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="count" fill="#2196f3" radius={[8, 8, 0, 0]} />
+                    <Bar dataKey="count" fill="hsl(var(--chart-1))" radius={[8, 8, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
 
@@ -321,7 +330,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                   <Grid container spacing={1}>
                     {departmentData.slice(0, 4).map((dept, index) => (
                       <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
-                        <Box sx={{ p: 1.5, bgcolor: 'grey.100', borderRadius: 1 }}>
+                        <Box sx={{ p: 1.5, bgcolor: 'hsl(var(--muted))', borderRadius: 1 }}>
                           <Typography variant="caption" color="text.secondary" noWrap>
                             {dept.department}
                           </Typography>

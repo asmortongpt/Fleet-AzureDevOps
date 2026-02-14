@@ -80,4 +80,4 @@ async function fixAuditSchema() {
     }
 }
 
-fixAuditSchema();
+void fixAuditSchema();

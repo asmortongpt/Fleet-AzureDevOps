@@ -146,7 +146,7 @@ router.post(
 
       const now = new Date();
       const normalized = String(schedule).toLowerCase();
-      let nextRun = new Date(now);
+      const nextRun = new Date(now);
 
       if (normalized.includes('daily')) {
         nextRun.setDate(nextRun.getDate() + 1);

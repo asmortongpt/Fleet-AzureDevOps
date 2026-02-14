@@ -7,7 +7,7 @@ describe('Authentication Middleware', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    jest.resetModules();
+    vi.resetModules();
     process.env = { ...originalEnv };
     process.env.JWT_SECRET = 'test-secret';
     process.env.USE_MOCK_DATA = 'false';

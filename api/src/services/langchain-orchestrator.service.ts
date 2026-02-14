@@ -16,6 +16,9 @@ import { z } from 'zod'
 
 import logger from '../config/logger'
 
+// Export singleton instance
+import { pool } from '../db'
+
 
 export interface WorkflowContext {
   tenantId: string
@@ -702,7 +705,7 @@ Provide a brief analysis of the vehicle condition and any immediate concerns.`
     return {
       vehicle,
       aiAnalysis: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -740,7 +743,7 @@ Generate a structured maintenance plan with:
 
     return {
       plan: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -812,7 +815,7 @@ Provide:
 
     return {
       analysis: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -835,7 +838,7 @@ Generate:
 
     return {
       recommendations: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -899,7 +902,7 @@ Provide optimized routes with:
 
     return {
       optimizedRoutes: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -937,7 +940,7 @@ Identify:
 
     return {
       savings: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -961,7 +964,7 @@ Generate prioritized recommendations with:
 
     return {
       recommendations: response.content,
-      tokensUsed: this.estimateTokens(prompt + response.content)
+      tokensUsed: this.estimateTokens(prompt + String(response.content))
     }
   }
 
@@ -1025,9 +1028,6 @@ Generate prioritized recommendations with:
 
   // Duplicate chat method removed - see chat() at line 495
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const langChainOrchestratorService = new LangChainOrchestratorService(pool)
 
 export default langChainOrchestratorService

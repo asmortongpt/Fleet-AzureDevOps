@@ -12,7 +12,6 @@
 
 import { ReactNode, useEffect, useState } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
-import { InteractionStatus } from '@azure/msal-browser'
 
 import { useMsalAuth } from '@/hooks/use-msal-auth'
 import { useAuth } from '@/hooks/useAuth'

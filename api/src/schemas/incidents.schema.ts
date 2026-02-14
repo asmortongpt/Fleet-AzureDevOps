@@ -98,7 +98,7 @@ export const incidentCreateSchema = z.object({
   // Incident identification (OPTIONAL - auto-generated)
   incident_number: z.string()
     .max(50, 'Incident number must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Incident number can only contain letters, numbers, and hyphens')
+    .regex(/^[A-Z0-9-]+$/i, 'Incident number can only contain letters, numbers, and hyphens')
     .optional(),
 
   // Basic information (REQUIRED)

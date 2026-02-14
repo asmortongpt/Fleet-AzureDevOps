@@ -79,13 +79,19 @@ export class TelematicsIngestionService implements ITelematicsIngestionService {
 
   async ingestDeviceHistory(deviceId: string, startDate: Date, endDate: Date): Promise<void> {
     const device = await this.repository.getDeviceById(Number(deviceId), this.tenantId);
-    if (!device) throw new Error(`Device not found: ${deviceId}`);
+    if (!device) {
+throw new Error(`Device not found: ${deviceId}`);
+}
 
     const provider = await this.repository.getProviderById(device.provider_id);
-    if (!provider) throw new Error(`Provider not found for device: ${deviceId}`);
+    if (!provider) {
+throw new Error(`Provider not found for device: ${deviceId}`);
+}
 
     const adapter = this.adapters.get(provider.providerType ?? '');
-    if (!adapter) throw new Error(`No adapter for provider type: ${provider.providerType ?? ''}`);
+    if (!adapter) {
+throw new Error(`No adapter for provider type: ${provider.providerType ?? ''}`);
+}
 
     this.logger.info(`Fetching history for device ${deviceId} from ${startDate} to ${endDate}`);
     const positions = await adapter.getPositionHistory((device as unknown as Record<string, unknown>).externalDeviceId as string, startDate, endDate);

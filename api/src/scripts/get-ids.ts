@@ -20,4 +20,4 @@ async function getIds() {
     }
 }
 
-getIds();
+void getIds();

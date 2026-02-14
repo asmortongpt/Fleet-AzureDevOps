@@ -152,7 +152,7 @@ export class ApprovalWorkflowService {
       const requisition = reqResult.rows[0];
 
       // Verify user is authorized approver
-      const workflow = requisition.approval_workflow as ApprovalWorkflowStep[];
+      const workflow = requisition.approval_workflow;
       const approverStep = workflow.find(
         (step) =>
           step.approver_id === decision.approver_id && step.status === 'pending'
@@ -273,7 +273,9 @@ export class ApprovalWorkflowService {
       [requisitionId]
     );
 
-    if (reqResult.rows.length === 0) return;
+    if (reqResult.rows.length === 0) {
+return;
+}
 
     const requisition = reqResult.rows[0];
 
@@ -283,7 +285,9 @@ export class ApprovalWorkflowService {
       [approver.approver_id]
     );
 
-    if (approverResult.rows.length === 0) return;
+    if (approverResult.rows.length === 0) {
+return;
+}
 
     const approverInfo = approverResult.rows[0];
 
@@ -326,7 +330,9 @@ export class ApprovalWorkflowService {
       [requisitionId]
     );
 
-    if (reqResult.rows.length === 0) return;
+    if (reqResult.rows.length === 0) {
+return;
+}
 
     const requisition = reqResult.rows[0];
 
@@ -390,7 +396,7 @@ export class ApprovalWorkflowService {
       throw new Error(`Requisition ${requisitionId} not found`);
     }
 
-    return (result.rows[0].approval_workflow as ApprovalWorkflowStep[]) || [];
+    return (result.rows[0].approval_workflow) || [];
   }
 
   /**

@@ -27,7 +27,7 @@ const licenseClassEnum = z.enum([
 ]);
 
 // Phone number validation (flexible international format)
-const phoneRegex = /^[\d\s\-\+\(\)]{10,20}$/;
+const phoneRegex = /^[\d\s+()-]{10,20}$/;
 
 // Email validation
 const emailSchema = z.string()
@@ -42,7 +42,7 @@ export const driverCreateSchema = z.object({
   employeeId: z.string()
     .min(1, 'Employee ID is required')
     .max(50, 'Employee ID must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Employee ID can only contain letters, numbers, and hyphens')
+    .regex(/^[A-Z0-9-]+$/i, 'Employee ID can only contain letters, numbers, and hyphens')
     .optional(),
 
   name: z.string()
@@ -59,7 +59,7 @@ export const driverCreateSchema = z.object({
   licenseNumber: z.string()
     .min(1, 'License number is required')
     .max(50, 'License number must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'License number can only contain letters, numbers, and hyphens'),
+    .regex(/^[A-Z0-9-]+$/i, 'License number can only contain letters, numbers, and hyphens'),
 
   licenseExpiry: z.coerce.date()
     .refine(date => date > new Date(), {
@@ -130,7 +130,7 @@ export const driverUpdateSchema = z.object({
   employeeId: z.string()
     .min(1, 'Employee ID cannot be empty')
     .max(50, 'Employee ID must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Employee ID can only contain letters, numbers, and hyphens')
+    .regex(/^[A-Z0-9-]+$/i, 'Employee ID can only contain letters, numbers, and hyphens')
     .optional(),
 
   name: z.string()
@@ -149,7 +149,7 @@ export const driverUpdateSchema = z.object({
   licenseNumber: z.string()
     .min(1, 'License number cannot be empty')
     .max(50, 'License number must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'License number can only contain letters, numbers, and hyphens')
+    .regex(/^[A-Z0-9-]+$/i, 'License number can only contain letters, numbers, and hyphens')
     .optional(),
 
   licenseExpiry: z.coerce.date()

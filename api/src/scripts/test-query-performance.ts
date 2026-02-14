@@ -532,7 +532,7 @@ async function main() {
         await runAllTests(pool, path.join(resultsDir, 'performance-after.json'));
         break;
 
-      case '--compare':
+      case '--compare': {
         const beforeFile = path.join(resultsDir, 'performance-before.json');
         const afterFile = path.join(resultsDir, 'performance-after.json');
 
@@ -543,6 +543,7 @@ async function main() {
 
         compareResults(beforeFile, afterFile);
         break;
+      }
 
       default:
         console.log('Usage:');
@@ -562,7 +563,7 @@ async function main() {
 
 // Run if called directly
 if (require.main === module) {
-  main();
+  void main();
 }
 
 export { runQueryTest, runAllTests, compareResults, TEST_QUERIES };

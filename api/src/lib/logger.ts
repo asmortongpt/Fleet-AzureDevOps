@@ -91,7 +91,8 @@ const redactString = (str: string): string => {
   result = result.replace(/\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/g, (email) => maskEmail(email));
 
   // Phone pattern (various formats)
-  result = result.replace(/(\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g, (phone) => maskPhone(phone));
+  // eslint-disable-next-line security/detect-unsafe-regex -- bounded phone pattern, no catastrophic backtracking
+  result = result.replace(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g, (phone) => maskPhone(phone));
 
   // SSN pattern
   result = result.replace(/\b\d{3}-\d{2}-\d{4}\b/g, (ssn) => maskSSN(ssn));

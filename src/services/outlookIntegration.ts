@@ -3,7 +3,6 @@
 
 import { Client } from '@microsoft/microsoft-graph-client';
 import { Pool } from 'pg';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

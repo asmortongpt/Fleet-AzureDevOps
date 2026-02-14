@@ -358,7 +358,9 @@ constructor(pool: Pool) {
    * Update devices sync time
    */
   async updateDevicesSyncTime(deviceIds: number[], tenantId: number): Promise<void> {
-    if (deviceIds.length === 0) return
+    if (deviceIds.length === 0) {
+return
+}
 
     await this.pool.query(
       `UPDATE vehicle_telematics_connections
@@ -420,7 +422,9 @@ constructor(pool: Pool) {
    * Insert position events (bulk insert telemetry data)
    */
   async insertPositionEvents(events: Partial<VehicleTelemetry>[], tenantId: number): Promise<void> {
-    if (events.length === 0) return
+    if (events.length === 0) {
+return
+}
 
     const values = events.map((e, idx) => {
       const baseIdx = idx * 15
@@ -459,7 +463,9 @@ constructor(pool: Pool) {
    * Upsert asset locations (update vehicle locations from telemetry)
    */
   async upsertAssetLocations(vehicleIds: number[], tenantId: number): Promise<void> {
-    if (vehicleIds.length === 0) return
+    if (vehicleIds.length === 0) {
+return
+}
 
     await this.pool.query(
       `UPDATE vehicles v

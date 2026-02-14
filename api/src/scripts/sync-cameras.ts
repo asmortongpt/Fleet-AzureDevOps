@@ -34,4 +34,4 @@ process.on('uncaughtException', (error) => {
   process.exit(1)
 })
 
-main()
+void main()

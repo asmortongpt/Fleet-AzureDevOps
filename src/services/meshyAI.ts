@@ -14,7 +14,6 @@
  */
 
 import { openDB, IDBPDatabase } from 'idb'
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

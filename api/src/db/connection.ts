@@ -9,7 +9,9 @@ import { Pool } from 'pg';
 import * as schema from '../schemas/production.schema';
 import { logger } from '../utils/logger';
 
-const DATABASE_URL = process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/fleet_dev' : (() => { throw new Error('DATABASE_URL must be set in production'); })());
+const DATABASE_URL = process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/fleet_dev' : (() => {
+ throw new Error('DATABASE_URL must be set in production'); 
+})());
 
 // Create PostgreSQL connection pool
 export const pool = new Pool({

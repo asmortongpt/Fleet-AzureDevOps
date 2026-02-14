@@ -370,7 +370,9 @@ export class SemanticSearchService {
    * Extract relevant snippet from document
    */
   private extractSnippet(content: string, query: string, maxLength: number = 200): string {
-    if (!content) return '';
+    if (!content) {
+return '';
+}
 
     const queryTerms = query.toLowerCase().split(/\s+/);
     const sentences = content.split(/[.!?]+/);

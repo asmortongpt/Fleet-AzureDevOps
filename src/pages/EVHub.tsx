@@ -168,7 +168,7 @@ const EVHub = () => {
               icon={<Battery className="w-4 h-4" />}
               contentClassName="space-y-2"
             >
-              <div className="text-3xl font-bold text-[#41B2E3]" aria-label={`Average state of charge ${avgSOC.toFixed(0)} percent`}>
+              <div className="text-3xl font-bold text-primary" aria-label={`Average state of charge ${avgSOC.toFixed(0)} percent`}>
                 {avgSOC.toFixed(0)}%
               </div>
               <Progress value={avgSOC} className="h-2" aria-label="Average battery level progress" />
@@ -182,10 +182,10 @@ const EVHub = () => {
             >
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Zap className="w-3 h-3 text-[#41B2E3]" />
+                    <Zap className="w-3 h-3 text-primary" />
                     Charging Now
                   </span>
-                  <span className="text-lg font-bold text-[#41B2E3]">{chargingCount}</span>
+                  <span className="text-lg font-bold text-primary">{chargingCount}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -210,7 +210,7 @@ const EVHub = () => {
               title="Energy Efficiency"
               icon={<BarChart3 className="w-4 h-4" />}
             >
-              <div className="text-2xl font-bold text-[#41B2E3]" aria-label={`${sustainabilityMetrics.avgEfficiency.toFixed(2)} miles per kilowatt hour`}>
+              <div className="text-2xl font-bold text-primary" aria-label={`${sustainabilityMetrics.avgEfficiency.toFixed(2)} miles per kilowatt hour`}>
                 {sustainabilityMetrics.avgEfficiency.toFixed(2)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">mi/kWh fleet average</p>
@@ -274,7 +274,7 @@ const EVHub = () => {
                             }
                             className={
                               vehicle.charging_status === 'charging'
-                                ? 'bg-[#41B2E3] animate-pulse'
+                                ? 'bg-primary animate-pulse'
                                 : vehicle.charging_status === 'full'
                                 ? 'bg-green-600 text-white'
                                 : ''
@@ -324,7 +324,7 @@ const EVHub = () => {
 
             {/* Gasoline Saved */}
             <Section title="Gasoline Saved">
-              <div className="text-2xl font-bold text-[#DD3903]" aria-label={`${sustainabilityMetrics.gasolineSaved.toFixed(1)} gallons gasoline saved`}>
+              <div className="text-2xl font-bold text-destructive" aria-label={`${sustainabilityMetrics.gasolineSaved.toFixed(1)} gallons gasoline saved`}>
                 {sustainabilityMetrics.gasolineSaved.toFixed(1)} gal
               </div>
               <p className="text-xs text-muted-foreground mt-1">Compared to gas fleet</p>
@@ -397,7 +397,7 @@ const EVHub = () => {
             >
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Vehicles Charging</span>
-                  <span className="text-sm font-bold text-[#41B2E3]">{chargingCount}</span>
+                  <span className="text-sm font-bold text-primary">{chargingCount}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-muted-foreground">Ready to Charge</span>
@@ -432,10 +432,10 @@ const EVHub = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2 pt-2 border-t border-border/50">
-                  <Zap className="w-4 h-4 text-[#41B2E3]" />
+                  <Zap className="w-4 h-4 text-primary" />
                   <div className="flex-1">
                     <p className="text-xs text-muted-foreground">Clean Energy Impact</p>
-                    <p className="text-sm font-semibold text-[#41B2E3]">
+                    <p className="text-sm font-semibold text-primary">
                       {sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kWh total
                     </p>
                   </div>

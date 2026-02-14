@@ -13,6 +13,8 @@ export function listAllTools(): string[] {
 export async function callTool(fullToolName: string, args: any, userCtx: any): Promise<MCPToolResult> {
   const [namespace, toolName] = fullToolName.split(".");
   const server = servers.find((s) => s.namespace === namespace);
-  if (!server) return { ok: false, error: `Unknown tool namespace: ${namespace}` };
+  if (!server) {
+return { ok: false, error: `Unknown tool namespace: ${namespace}` };
+}
   return server.call(toolName, args, userCtx);
 }

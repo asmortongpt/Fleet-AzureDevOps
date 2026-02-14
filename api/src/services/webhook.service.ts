@@ -5,6 +5,9 @@
 import { Pool } from 'pg';
 import logger from '../config/logger';
 
+// Import pool for singleton instance
+import pool from '../config/database'
+
 class WebhookService {
   constructor(private db: Pool) { }
 
@@ -40,18 +43,18 @@ class WebhookService {
     logger.info('Stub: handleWebhookNotification');
   }
 
-  async subscribeToTeamsMessages(params: any): Promise<any> {
+  async subscribeToTeamsMessages(params: any, ...rest: any[]): Promise<any> {
     // Support both object and string parameter formats
     const teamId = typeof params === 'string' ? params : params.teamId;
-    const channelId = typeof params === 'string' ? arguments[1] : params.channelId;
+    const channelId = typeof params === 'string' ? rest[0] : params.channelId;
     logger.info('Stub: subscribeToTeamsMessages', { teamId, channelId });
     return { subscriptionId: 'stub-teams-subscription' };
   }
 
-  async subscribeToOutlookEmails(params: any): Promise<any> {
+  async subscribeToOutlookEmails(params: any, ...rest: any[]): Promise<any> {
     // Support both object and string parameter formats
     const userId = typeof params === 'string' ? params : params.userEmail;
-    const folderIds = typeof params === 'string' ? arguments[1] : params.folderId ? [params.folderId] : undefined;
+    const folderIds = typeof params === 'string' ? rest[0] : params.folderId ? [params.folderId] : undefined;
     logger.info('Stub: subscribeToOutlookEmails', { userId, folderIds });
     return { subscriptionId: 'stub-outlook-subscription' };
   }
@@ -73,9 +76,6 @@ class WebhookService {
     return [];
   }
 }
-
-// Import pool for singleton instance
-import pool from '../config/database'
 
 // Export singleton instance
 export const webhookService = new WebhookService(pool)

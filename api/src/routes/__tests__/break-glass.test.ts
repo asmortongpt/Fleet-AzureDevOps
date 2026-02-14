@@ -18,13 +18,13 @@ import { TYPES } from '../../types';
 import breakGlassRouter from '../break-glass';
 
 // Mock the container
-jest.mock('../../container', () => {
+vi.mock('../../container', () => {
   const mockContainer = new Container();
   return { container: mockContainer };
 });
 
 // Mock middleware
-jest.mock('../../middleware/auth', () => ({
+vi.mock('../../middleware/auth', () => ({
   authenticateJWT: (req: any, res: any, next: any) => {
     req.user = {
       id: 'test-user-id',
@@ -33,43 +33,43 @@ jest.mock('../../middleware/auth', () => ({
     };
     next();
   },
-  AuthRequest: jest.fn()
+  AuthRequest: vi.fn()
 }));
 
-jest.mock('../../middleware/permissions', () => ({
+vi.mock('../../middleware/permissions', () => ({
   requirePermission: () => (req: any, res: any, next: any) => next()
 }));
 
-jest.mock('../../middleware/audit', () => ({
+vi.mock('../../middleware/audit', () => ({
   auditLog: () => (req: any, res: any, next: any) => next()
 }));
 
-jest.mock('../../middleware/csrf', () => ({
+vi.mock('../../middleware/csrf', () => ({
   csrfProtection: (req: any, res: any, next: any) => next()
 }));
 
 describe('Break-Glass Routes', () => {
   let app: Express;
-  let mockBreakGlassRepo: jest.Mocked<BreakGlassRepository>;
+  let mockBreakGlassRepo: import('vitest').Mocked<BreakGlassRepository>;
 
   beforeEach(() => {
     // Create mock repository
     mockBreakGlassRepo = {
-      findRoleById: jest.fn(),
-      findActiveOrPendingSession: jest.fn(),
-      createSession: jest.fn(),
-      findRequestsWithDetails: jest.fn(),
-      findSessionByIdWithTenant: jest.fn(),
-      approveSession: jest.fn(),
-      denySession: jest.fn(),
-      createTemporaryUserRole: jest.fn(),
-      createNotification: jest.fn(),
-      revokeSession: jest.fn(),
-      deactivateTemporaryUserRole: jest.fn(),
-      findActiveElevations: jest.fn(),
-      findFleetAdminUsers: jest.fn(),
-      expireActiveSessions: jest.fn(),
-      deactivateExpiredUserRoles: jest.fn()
+      findRoleById: vi.fn(),
+      findActiveOrPendingSession: vi.fn(),
+      createSession: vi.fn(),
+      findRequestsWithDetails: vi.fn(),
+      findSessionByIdWithTenant: vi.fn(),
+      approveSession: vi.fn(),
+      denySession: vi.fn(),
+      createTemporaryUserRole: vi.fn(),
+      createNotification: vi.fn(),
+      revokeSession: vi.fn(),
+      deactivateTemporaryUserRole: vi.fn(),
+      findActiveElevations: vi.fn(),
+      findFleetAdminUsers: vi.fn(),
+      expireActiveSessions: vi.fn(),
+      deactivateExpiredUserRoles: vi.fn()
     } as any;
 
     // Setup app
@@ -86,7 +86,7 @@ describe('Break-Glass Routes', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('POST /api/break-glass/request', () => {

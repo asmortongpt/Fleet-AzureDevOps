@@ -198,7 +198,9 @@ export class FuelMasterEmulator {
     odometer?: number
   ): void {
     const product = this.products.get(productId)
-    if (!product) return
+    if (!product) {
+return
+}
 
     const txId = `TX-${String(this.transactionCounter++).padStart(6, '0')}`
 
@@ -461,7 +463,7 @@ export function createFuelMasterRouter(): Router {
   const emulator = new FuelMasterEmulator()
 
   // Middleware for API key authentication
-  const apiKeyAuth = (req: Request, res: Response, next: Function) => {
+  const apiKeyAuth = (req: Request, res: Response, next: () => void) => {
     const apiKey = req.headers['x-api-key']
 
     if (!apiKey) {

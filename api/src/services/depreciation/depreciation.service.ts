@@ -20,7 +20,7 @@ export async function calculateAssetDepreciation(params: {
   asOfDate: string;
 }) {
   const conventionPolicy = await PoliciesRepository.getPolicy<{type:Convention}>("depreciation_convention");
-  const convention: Convention = (conventionPolicy?.type ?? "FULL_MONTH") as Convention;
+  const convention: Convention = (conventionPolicy?.type ?? "FULL_MONTH");
 
   const asOf = new Date(params.asOfDate);
 

@@ -190,7 +190,9 @@ export class VehicleIdlingService extends EventEmitter {
 
       return eventId;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -233,7 +235,9 @@ export class VehicleIdlingService extends EventEmitter {
         await this.updateDailySummary(event.vehicle_id, event.driver_id, endTime);
       }
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -253,7 +257,9 @@ export class VehicleIdlingService extends EventEmitter {
         [state.engine_rpm, state.speed_mph, state.latitude, state.longitude, eventId]
       );
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -311,7 +317,9 @@ export class VehicleIdlingService extends EventEmitter {
         }
       }
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -370,7 +378,9 @@ export class VehicleIdlingService extends EventEmitter {
         message
       });
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -412,7 +422,9 @@ export class VehicleIdlingService extends EventEmitter {
         [vehicleId, driverId, date]
       );
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -491,7 +503,9 @@ export class VehicleIdlingService extends EventEmitter {
         [locationName, eventId]
       );
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -504,7 +518,9 @@ export class VehicleIdlingService extends EventEmitter {
       const result = await client.query(`SELECT * FROM active_idling_events`);
       return result.rows;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -534,7 +550,9 @@ export class VehicleIdlingService extends EventEmitter {
       );
       return result.rows[0] || null;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -562,7 +580,9 @@ export class VehicleIdlingService extends EventEmitter {
       );
       return result.rows[0] || null;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -578,7 +598,9 @@ export class VehicleIdlingService extends EventEmitter {
       );
       return result.rows;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -594,7 +616,9 @@ export class VehicleIdlingService extends EventEmitter {
       );
       return result.rows;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -632,7 +656,9 @@ export class VehicleIdlingService extends EventEmitter {
 
       return eventId;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -648,7 +674,9 @@ export class VehicleIdlingService extends EventEmitter {
       );
       return result.rows[0] || null;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -673,7 +701,9 @@ export class VehicleIdlingService extends EventEmitter {
       );
       return result.rows;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -698,7 +728,9 @@ export class VehicleIdlingService extends EventEmitter {
       );
       return result.rows;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -761,7 +793,9 @@ export class VehicleIdlingService extends EventEmitter {
         send_manager_alert: true
       };
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -819,7 +853,9 @@ export class VehicleIdlingService extends EventEmitter {
 
       logger.info('[IdlingService] Updated thresholds for vehicle', { vehicleId });
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -838,7 +874,9 @@ export class VehicleIdlingService extends EventEmitter {
       const result = await client.query(query, [limit]);
       return result.rows;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -859,7 +897,9 @@ export class VehicleIdlingService extends EventEmitter {
 
       logger.info('[IdlingService] Alert acknowledged', { alertId, userId });
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 
@@ -877,7 +917,9 @@ export class VehicleIdlingService extends EventEmitter {
       );
       return result.rows;
     } finally {
-      if (client) client.release();
+      if (client) {
+client.release();
+}
     }
   }
 }

@@ -7,7 +7,6 @@ import { useMutation } from '@tanstack/react-query'
 import { AlertCircle, Lock, Mail, ArrowRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AlertCircle, Lock, Mail, ArrowRight } from 'lucide-react'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -54,7 +53,7 @@ export function Login() {
       <div className="relative w-full max-w-md">
         {/* Logo and Branding */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-[#F0A000] to-[#DD3903] shadow-lg">
+          <div className="inline-flex items-center justify-center w-16 h-16 mb-6 rounded-2xl bg-gradient-to-br from-[hsl(var(--warning))] to-[hsl(var(--destructive))] shadow-lg">
             <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
@@ -86,13 +85,13 @@ export function Login() {
                 <Button
                   onClick={() => loginWithMicrosoft()}
                   size="lg"
-                  className="w-full h-14 bg-[#0078D4] hover:bg-[#106EBE] text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="w-full h-14 bg-[hsl(var(--primary))] hover:bg-[hsl(var(--primary))] text-white font-semibold text-base shadow-lg hover:shadow-xl transition-all duration-200"
                 >
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 23 23">
-                    <path fill="#ffffff" d="M1 1h10v10H1z" opacity="0.9" />
-                    <path fill="#ffffff" d="M12 1h10v10H12z" opacity="0.7" />
-                    <path fill="#ffffff" d="M1 12h10v10H1z" opacity="0.7" />
-                    <path fill="#ffffff" d="M12 12h10v10H12z" opacity="0.5" />
+                    <path fill="hsl(var(--primary-foreground))" d="M1 1h10v10H1z" opacity="0.9" />
+                    <path fill="hsl(var(--primary-foreground))" d="M12 1h10v10H12z" opacity="0.7" />
+                    <path fill="hsl(var(--primary-foreground))" d="M1 12h10v10H1z" opacity="0.7" />
+                    <path fill="hsl(var(--primary-foreground))" d="M12 12h10v10H12z" opacity="0.5" />
                   </svg>
                   Sign in with Microsoft
                 </Button>

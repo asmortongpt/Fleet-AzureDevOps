@@ -4,7 +4,6 @@
 
 import { Mail, MessageSquare, Calendar, Send } from 'lucide-react';
 import React, { useState } from 'react';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

@@ -7,14 +7,9 @@
 import { useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip , Sector } from 'recharts'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useState } from 'react';
-import { Sector } from 'recharts';
 interface DataPoint {
   name: string
   value: number
@@ -45,14 +40,14 @@ const DEFAULT_COLORS = [
 ]
 
 const GRADIENT_DEFINITIONS = [
-  { id: 'gradient-primary', start: '#3b82f6', end: '#1d4ed8' },
-  { id: 'gradient-secondary', start: '#8b5cf6', end: '#6d28d9' },
-  { id: 'gradient-success', start: '#10b981', end: '#059669' },
-  { id: 'gradient-warning', start: '#f59e0b', end: '#d97706' },
-  { id: 'gradient-danger', start: '#ef4444', end: '#dc2626' },
-  { id: 'gradient-info', start: '#06b6d4', end: '#0891b2' },
-  { id: 'gradient-purple', start: '#a855f7', end: '#7c3aed' },
-  { id: 'gradient-pink', start: '#ec4899', end: '#db2777' },
+  { id: 'gradient-primary', start: 'hsl(var(--chart-1))', end: 'hsl(var(--chart-1))' },
+  { id: 'gradient-secondary', start: 'hsl(var(--chart-4))', end: 'hsl(var(--chart-4))' },
+  { id: 'gradient-success', start: 'hsl(var(--chart-2))', end: 'hsl(var(--chart-2))' },
+  { id: 'gradient-warning', start: 'hsl(var(--chart-3))', end: 'hsl(var(--chart-3))' },
+  { id: 'gradient-danger', start: 'hsl(var(--chart-6))', end: 'hsl(var(--chart-6))' },
+  { id: 'gradient-info', start: 'hsl(var(--chart-5))', end: 'hsl(var(--chart-5))' },
+  { id: 'gradient-purple', start: 'hsl(var(--chart-8))', end: 'hsl(var(--chart-8))' },
+  { id: 'gradient-pink', start: 'hsl(var(--chart-7))', end: 'hsl(var(--chart-7))' },
 ]
 
 // Active shape renderer for hover effect
@@ -127,16 +122,14 @@ export function ResponsivePieChart({
   showPercentages = true,
   enableHover = true,
 }: ResponsivePieChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
+    text: 'hsl(var(--foreground))',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'hsl(var(--card))',
+      border: 'hsl(var(--border))',
+      text: 'hsl(var(--foreground))',
     },
   }
 
@@ -216,7 +209,7 @@ export function ResponsivePieChart({
                       <text
                         x={x}
                         y={y}
-                        fill="white"
+                        fill="hsl(var(--background))"
                         textAnchor={x > cx ? 'start' : 'end'}
                         dominantBaseline="central"
                         className="text-xs font-bold drop-shadow-md"
@@ -227,7 +220,7 @@ export function ResponsivePieChart({
                   } : undefined}
                   outerRadius={innerRadius ? 100 : 110}
                   innerRadius={innerRadius}
-                  fill="#8884d8"
+                  fill="hsl(var(--chart-4))"
                   dataKey="value"
                   animationDuration={1200}
                   animationBegin={0}
@@ -242,7 +235,7 @@ export function ResponsivePieChart({
                     <Cell
                       key={`cell-${index}`}
                       fill={entry.fill || colors[index % colors.length]}
-                      stroke={isDark ? '#1f2937' : '#ffffff'}
+                      stroke="hsl(var(--background))"
                       strokeWidth={2}
                       className="transition-all duration-300 hover:opacity-90"
                     />

@@ -78,7 +78,7 @@ export class CacheStrategies {
       const refreshProbability = delta / timeRemaining;
       if (Math.random() < refreshProbability) {
         // Refresh in background
-        this.refreshInBackground(key, fetcher, ttl);
+        void this.refreshInBackground(key, fetcher, ttl);
       }
 
       return cached.data;

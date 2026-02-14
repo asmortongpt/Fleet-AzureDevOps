@@ -351,7 +351,7 @@ continue;
     throw e;
   } finally {
     client.release();
-    pool.end();
+    void pool.end();
   }
 }
 

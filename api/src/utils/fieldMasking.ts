@@ -380,7 +380,7 @@ export function applyFieldMasking(resourceType: string) {
       }
 
       // Execute masking asynchronously
-      mask()
+      void mask()
 
       return res
     }

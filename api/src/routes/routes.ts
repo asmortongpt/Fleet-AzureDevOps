@@ -33,7 +33,9 @@ const transformRouteResponse = (dbRow: any) => ({
 
 // Parse waypoints JSON to stops array
 const parseStops = (waypoints: any): any[] => {
-  if (!waypoints) return []
+  if (!waypoints) {
+return []
+}
 
   try {
     const parsed = typeof waypoints === 'string' ? JSON.parse(waypoints) : waypoints

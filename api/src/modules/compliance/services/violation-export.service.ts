@@ -319,8 +319,12 @@ export class ViolationExportService {
 
           doc.fontSize(9).font('Helvetica');
           doc.text(`   ${v.severity} | ${v.status} | ${new Date(v.occurred_at).toLocaleDateString()}`, { indent: 20 });
-          if (v.vehicle_number) doc.text(`   Vehicle: ${v.vehicle_number}`, { indent: 20 });
-          if (v.driver_name) doc.text(`   Driver: ${v.driver_name}`, { indent: 20 });
+          if (v.vehicle_number) {
+doc.text(`   Vehicle: ${v.vehicle_number}`, { indent: 20 });
+}
+          if (v.driver_name) {
+doc.text(`   Driver: ${v.driver_name}`, { indent: 20 });
+}
 
           doc.moveDown(0.3);
         });

@@ -19,6 +19,12 @@ import mammoth from 'mammoth'
 import pdfParse from 'pdf-parse'
 import { Pool } from 'pg'
 
+// Create and export singleton instance
+import { pool } from '../config/database'
+import logger from '../config/logger'
+
+import { DocumentRAGService } from './document-rag.service'
+
 
 
 export interface Document {
@@ -652,12 +658,6 @@ export class DocumentManagementService {
     }
   }
 }
-
-// Create and export singleton instance
-import { pool } from '../config/database'
-import logger from '../config/logger'
-
-import { DocumentRAGService } from './document-rag.service'
 
 const documentManagementService = new DocumentManagementService(pool, logger)
 export default documentManagementService

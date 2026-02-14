@@ -6,7 +6,6 @@
  */
 
 import { telemetry , metrics } from './telemetry';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

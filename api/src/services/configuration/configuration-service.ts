@@ -369,7 +369,9 @@ export class ConfigurationService {
     conditions: PolicyCondition[],
     logic: 'AND' | 'OR' = 'AND'
   ): boolean {
-    if (conditions.length === 0) return true
+    if (conditions.length === 0) {
+return true
+}
 
     const results = conditions.map(condition => {
       // Get current value for the field
@@ -437,7 +439,9 @@ export class ConfigurationService {
    */
   private validateConfigValue(item: ConfigItem, value: any): void {
     const validation = item.validation
-    if (!validation) return
+    if (!validation) {
+return
+}
 
     // Required check
     if (validation.required && (value === null || value === undefined || value === '')) {
@@ -485,20 +489,22 @@ export class ConfigurationService {
         }
         break
 
-      case 'email':
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      case 'email': {
+        const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/
         if (!emailRegex.test(value)) {
           throw new Error(`Configuration "${item.label}" must be a valid email`)
         }
         break
+      }
 
-      case 'url':
+      case 'url': {
         try {
           new URL(value)
         } catch {
           throw new Error(`Configuration "${item.label}" must be a valid URL`)
         }
         break
+      }
     }
 
     // Custom validator

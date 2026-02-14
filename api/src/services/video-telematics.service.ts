@@ -61,7 +61,7 @@ class VideoTelematicsService {
 
   constructor(db: Pool) {
     this.db = db;
-    this.initializeAzureStorage();
+    void this.initializeAzureStorage();
   }
 
   /**

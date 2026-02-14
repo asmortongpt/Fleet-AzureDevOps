@@ -220,10 +220,15 @@ export class ConstraintMonitoringService {
     }
 
     let violationType: 'check' | 'foreign_key' | 'unique' | 'not_null' = 'check';
-    if (sqlState === '23502') violationType = 'not_null';
-    else if (sqlState === '23503') violationType = 'foreign_key';
-    else if (sqlState === '23505') violationType = 'unique';
-    else if (sqlState === '23514') violationType = 'check';
+    if (sqlState === '23502') {
+violationType = 'not_null';
+} else if (sqlState === '23503') {
+violationType = 'foreign_key';
+} else if (sqlState === '23505') {
+violationType = 'unique';
+} else if (sqlState === '23514') {
+violationType = 'check';
+}
 
     // Parse table and constraint name from error message
     const message = error.message || '';

@@ -76,7 +76,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
   }
 
   // Override res.end to capture response metrics
-  const originalEnd = res.end
+  const originalEnd = res.end.bind(res)
   res.end = function(...args: any[]): Response {
     // Calculate request duration
     const duration = Date.now() - req.telemetry!.startTime
@@ -139,7 +139,7 @@ export function telemetryMiddleware(req: TelemetryRequest, res: Response, next: 
     }
 
     // Call original end
-    return originalEnd.apply(res, args as unknown as [chunk: unknown, encoding: BufferEncoding, cb?: () => void])
+    return originalEnd(...args as unknown as [chunk: unknown, encoding: BufferEncoding, cb?: () => void])
   }
 
   next()

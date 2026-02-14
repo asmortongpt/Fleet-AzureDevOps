@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { ROICalculatorService } from '../services/roi-calculator.service';
+import { ROICalculatorService } from '../../services/roi-calculator.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

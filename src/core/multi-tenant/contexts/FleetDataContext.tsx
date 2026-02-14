@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

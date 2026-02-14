@@ -782,7 +782,7 @@ startServer().catch(console.error);
 
 export function createFeatureFlagMiddleware(configService: ConfigurationManagementService) {
   return (flagName: string) => {
-    return async (req: Request, res: Response, next: Function) => {
+    return async (req: Request, res: Response, next: () => void) => {
       const userId = req.user?.id;
       const organizationId = req.user?.organizationId;
 

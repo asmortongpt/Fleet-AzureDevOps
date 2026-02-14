@@ -63,8 +63,8 @@ export const AuthStatus: React.FC = () => {
         background: 'white',
         padding: '12px',
         borderRadius: '8px',
-        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        border: '1px solid #e5e7eb',
+        boxShadow: '0 2px 4px hsl(var(--foreground) / 0.1)',
+        border: '1px solid hsl(var(--border))',
         zIndex: 1000,
         maxWidth: '300px',
         fontSize: '12px'
@@ -82,9 +82,9 @@ export const AuthStatus: React.FC = () => {
           style={{
             padding: '4px 8px',
             fontSize: '11px',
-            border: '1px solid #dc2626',
+            border: '1px solid hsl(var(--destructive))',
             borderRadius: '4px',
-            background: '#dc2626',
+            background: 'hsl(var(--destructive))',
             color: 'white',
             cursor: 'pointer'
           }}

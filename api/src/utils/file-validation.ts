@@ -116,9 +116,13 @@ export function validateFileSize(size: number, mimeType?: string): {
   let limit = SIZE_LIMITS.default;
 
   if (mimeType) {
-    if (mimeType.startsWith('image/')) limit = SIZE_LIMITS.image;
-    else if (mimeType.startsWith('video/')) limit = SIZE_LIMITS.video;
-    else if (mimeType.includes('pdf') || mimeType.includes('document')) limit = SIZE_LIMITS.document;
+    if (mimeType.startsWith('image/')) {
+limit = SIZE_LIMITS.image;
+} else if (mimeType.startsWith('video/')) {
+limit = SIZE_LIMITS.video;
+} else if (mimeType.includes('pdf') || mimeType.includes('document')) {
+limit = SIZE_LIMITS.document;
+}
   }
 
   if (size > limit) {
@@ -338,7 +342,9 @@ async function scanWithClamAV(buffer: Buffer, filename: string): Promise<{
       // Clean up temp file on error
       try {
         await fs.unlink(tempFile);
-      } catch {}
+      } catch {
+        // Temp file cleanup failure is non-critical; ignore
+      }
 
       // If timeout or scan error, treat as unavailable
       if ((error as Record<string, unknown>).code === 'ETIMEDOUT' || (error as Record<string, unknown>).killed) {

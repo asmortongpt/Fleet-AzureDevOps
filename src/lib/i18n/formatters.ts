@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

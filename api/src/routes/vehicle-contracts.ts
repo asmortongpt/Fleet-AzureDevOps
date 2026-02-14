@@ -218,7 +218,7 @@ router.post(
         contractData.renewal_notice_days || 60,
         contractData.notes || null,
         JSON.stringify(contractData.metadata || {}),
-        req.user!.id!,
+        req.user!.id,
       ];
 
       const result = await tenantSafeQuery(query, values, req.user!.tenant_id!);
@@ -371,7 +371,7 @@ router.put(
 
       updateFields.push(`updated_at = NOW()`);
       updateFields.push(`updated_by = $${paramIndex}`);
-      queryParams.push(req.user!.id!);
+      queryParams.push(req.user!.id);
       paramIndex++;
 
       queryParams.push(contractId, req.user!.tenant_id!);
@@ -610,7 +610,7 @@ router.post(
         inspectionData.final_invoice_url || null,
         inspectionData.notes || null,
         JSON.stringify(inspectionData.metadata || {}),
-        req.user!.id!,
+        req.user!.id,
       ];
 
       const result = await tenantSafeQuery(query, values, req.user!.tenant_id!);

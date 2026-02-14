@@ -18,7 +18,6 @@ import React, { useState, useEffect } from 'react';
 
 import { offlineSyncService } from '../../services/offline-sync.service';
 import { pushNotificationService } from '../../services/push-notifications.service';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

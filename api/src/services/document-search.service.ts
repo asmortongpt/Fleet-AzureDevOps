@@ -14,6 +14,10 @@
 
 import { Pool  } from 'pg'
 
+// Create and export singleton instance
+import { pool } from '../config/database'
+import logger from '../config/logger'
+
 
 export interface SearchFilters {
   vehicleId?: string
@@ -459,10 +463,6 @@ export class DocumentSearchService {
     }
   }
 }
-
-// Create and export singleton instance
-import { pool } from '../config/database'
-import logger from '../config/logger'
 
 const documentSearchService = new DocumentSearchService(pool, logger)
 export default documentSearchService

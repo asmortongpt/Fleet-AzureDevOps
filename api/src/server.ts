@@ -680,7 +680,9 @@ const initializeEmulatorTracking = async () => {
   // Start the DB-backed fleet emulator stream (WebSocket :3004/emulator/stream) for demos.
   // This powers the UI "Endpoint Monitor" connectivity and provides realistic live telemetry.
   const enableEmulatorStream = enableEmulators && process.env.ENABLE_EMULATOR_STREAM !== 'false'
-  if (!enableEmulatorStream) return
+  if (!enableEmulatorStream) {
+return
+}
 
   try {
     const [{ EmulatorOrchestrator }, { telemetryService: fleetTelemetryService }, path] = await Promise.all([
@@ -715,8 +717,10 @@ const initializeEmulatorTracking = async () => {
     const startedAt = Date.now()
     while (Date.now() - startedAt < 5_000) {
       const total = orchestrator.getStatus()?.vehicles?.total ?? 0
-      if (total > 0) break
-      await new Promise((r) => setTimeout(r, 100))
+      if (total > 0) {
+break
+}
+      await new Promise((resolve) => setTimeout(resolve, 100))
     }
 
     await orchestrator.start(vehicleIds)
@@ -733,17 +737,17 @@ const initializeJobProcessors = () => {
   logger.info('Initializing Bull job processors...')
 
   // Email queue processor
-  emailQueue.process(async (job) => {
+  void emailQueue.process(async (job) => {
     return processEmailJob(job)
   })
 
   // Notification queue processor
-  notificationQueue.process(async (job) => {
+  void notificationQueue.process(async (job) => {
     return processNotificationJob(job)
   })
 
   // Report queue processor
-  reportQueue.process(async (job) => {
+  void reportQueue.process(async (job) => {
     return processReportJob(job)
   })
 
@@ -753,7 +757,7 @@ const initializeJobProcessors = () => {
   logger.info('  - Report queue: ready')
 }
 
-logger.info('--- READY TO LISTEN ON PORT ' + PORT + ' ---');
+logger.info(`--- READY TO LISTEN ON PORT ${String(PORT)} ---`);
 
 let server: any;
 
@@ -769,7 +773,7 @@ async function listenWithRetry(port: number, maxRetries = 10): Promise<any> {
       if (err instanceof Error && 'code' in err && (err as Record<string, unknown>).code === 'EADDRINUSE' && attempt < maxRetries) {
         const delayMs = 250 + attempt * 250
         logger.warn(`Port ${port} in use; retrying listen in ${delayMs}ms (attempt ${attempt + 1}/${maxRetries})`)
-        await new Promise((r) => setTimeout(r, delayMs))
+        await new Promise((resolve) => setTimeout(resolve, delayMs))
         continue
       }
       throw err
@@ -835,7 +839,7 @@ const startServer = async () => {
     })
 
     // Initialize emulator tracking
-    initializeEmulatorTracking()
+    void initializeEmulatorTracking()
 
     // Initialize Real-Time Collaboration Service
     try {
@@ -851,7 +855,7 @@ const startServer = async () => {
   }
 };
 
-startServer();
+void startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', async () => {

@@ -34,7 +34,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
   throw new Error('JWT_SECRET environment variable must be set in production');
 }
-const JWT_SECRET_RESOLVED = JWT_SECRET || 'dev-jwt-secret-' + process.pid;
+const JWT_SECRET_RESOLVED = JWT_SECRET || `dev-jwt-secret-${String(process.pid)}`;
 const BCRYPT_ROUNDS = 12; // Cost factor for bcrypt (FedRAMP compliant)
 
 // ============================================================================

@@ -410,7 +410,7 @@ export function startSchedulingReminders(): void {
     }
   )
 
-  task.start()
+  void task.start()
 
   logger.info('Scheduling reminders job started successfully', {
     schedule: CRON_SCHEDULE
@@ -419,12 +419,12 @@ export function startSchedulingReminders(): void {
   // Graceful shutdown
   process.on('SIGTERM', () => {
     logger.info('SIGTERM received, stopping scheduling reminders job')
-    task.stop()
+    void task.stop()
   })
 
   process.on('SIGINT', () => {
     logger.info('SIGINT received, stopping scheduling reminders job')
-    task.stop()
+    void task.stop()
   })
 }
 

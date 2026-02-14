@@ -6,7 +6,6 @@
 // motion removed - React 19 incompatible
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -34,20 +33,17 @@ export function WaterfallChart({
   data,
   height = 400,
   loading = false,
-  positiveColor = 'hsl(142, 76%, 36%)',
-  negativeColor = 'hsl(0, 84%, 60%)',
+  positiveColor = 'hsl(var(--chart-2))',
+  negativeColor = 'hsl(var(--chart-6))',
   totalColor = 'hsl(var(--primary))',
 }: WaterfallChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'hsl(var(--foreground))',
+    grid: 'hsl(var(--border))',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'hsl(var(--card))',
+      border: 'hsl(var(--border))',
+      text: 'hsl(var(--foreground))',
     },
   }
 
@@ -127,7 +123,7 @@ export function WaterfallChart({
                 tick={{ fill: chartColors.text, fontSize: 12 }}
                 tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--foreground) / 0.05)' }} />
               <ReferenceLine y={0} stroke={chartColors.text} strokeDasharray="3 3" />
 
               {/* Invisible bar for positioning */}

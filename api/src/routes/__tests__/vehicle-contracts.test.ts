@@ -14,8 +14,8 @@ import vehicleContractsRouter from '../vehicle-contracts';
 import { tenantSafeQuery } from '../../utils/dbHelpers';
 
 // Mock dependencies
-jest.mock('../../utils/dbHelpers');
-jest.mock('../../middleware/auth', () => ({
+vi.mock('../../utils/dbHelpers');
+vi.mock('../../middleware/auth', () => ({
   authenticateJWT: (req: any, res: any, next: any) => {
     req.user = {
       id: 'test-user-id',
@@ -26,22 +26,22 @@ jest.mock('../../middleware/auth', () => ({
   },
   AuthRequest: {} as any,
 }));
-jest.mock('../../middleware/permissions', () => ({
+vi.mock('../../middleware/permissions', () => ({
   requirePermission: () => (req: any, res: any, next: any) => next(),
 }));
-jest.mock('../../middleware/audit', () => ({
+vi.mock('../../middleware/audit', () => ({
   auditLog: () => (req: any, res: any, next: any) => next(),
 }));
 // Mock CSRF middleware - must match named export
-jest.mock('../../middleware/csrf', () => {
-  const middleware = jest.fn((req: any, res: any, next: any) => next());
+vi.mock('../../middleware/csrf', () => {
+  const middleware = vi.fn((req: any, res: any, next: any) => next());
   return {
     doubleCsrfProtection: middleware,
     validateRequest: middleware,
     csrfProtection: middleware,
   };
 });
-jest.mock('../../utils/fieldMasking', () => ({
+vi.mock('../../utils/fieldMasking', () => ({
   applyFieldMasking: () => (req: any, res: any, next: any) => next(),
 }));
 
@@ -49,11 +49,11 @@ const app = express();
 app.use(express.json());
 app.use('/api/vehicle-contracts', vehicleContractsRouter);
 
-const mockedTenantSafeQuery = tenantSafeQuery as jest.MockedFunction<typeof tenantSafeQuery>;
+const mockedTenantSafeQuery = tenantSafeQuery as import('vitest').MockedFunction<typeof tenantSafeQuery>;
 
 describe('Vehicle Contracts API', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   describe('GET /api/vehicle-contracts', () => {

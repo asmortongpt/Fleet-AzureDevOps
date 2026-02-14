@@ -269,12 +269,14 @@ export class DataGovernanceService {
     const piiDetections = new Map<string, PIIType[]>()
 
     for (const [field, value] of Object.entries(data)) {
-      if (!value || typeof value !== 'string') continue
+      if (!value || typeof value !== 'string') {
+continue
+}
 
       const detected: PIIType[] = []
 
       // Email detection
-      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+      if (/^[^\s@]{1,64}@[^\s@]{1,253}\.[^\s@]{1,63}$/.test(value)) {
         detected.push(PIIType.EMAIL)
       }
 
@@ -294,6 +296,7 @@ export class DataGovernanceService {
       }
 
       // IP address detection
+      // eslint-disable-next-line security/detect-unsafe-regex -- bounded IP address pattern with fixed {3} repetition, safe
       if (/^(\d{1,3}\.){3}\d{1,3}$/.test(value)) {
         detected.push(PIIType.IP_ADDRESS)
       }
@@ -739,7 +742,9 @@ export class DataGovernanceService {
       for (const [key, value] of Object.entries(data)) {
         if (!merged[key] || row.confidence > (merged._confidence?.[key] || 0)) {
           merged[key] = value
-          if (!merged._confidence) merged._confidence = {}
+          if (!merged._confidence) {
+merged._confidence = {}
+}
           merged._confidence[key] = row.confidence
         }
       }

@@ -433,7 +433,9 @@ Be concise, accurate, and helpful. Use bullet points for clarity.`;
    */
   private getFromCache(key: string): string | null {
     const cached = this.cache.get(key);
-    if (!cached) return null;
+    if (!cached) {
+return null;
+}
 
     const age = Date.now() - cached.timestamp;
     if (age > this.CACHE_TTL) {

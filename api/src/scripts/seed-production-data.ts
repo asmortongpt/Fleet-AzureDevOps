@@ -10,10 +10,10 @@ import * as dotenv from 'dotenv';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Client } from 'pg';
 
+import * as schema from '../schemas/production.schema';
+
 // Load environment variables
 dotenv.config();
-
-import * as schema from '../schemas/production.schema';
 
 
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost:5432/fleet_dev';

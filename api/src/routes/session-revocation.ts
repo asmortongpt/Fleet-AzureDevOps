@@ -64,6 +64,7 @@ void pool.query(`
   `)
 }).then(() => {
   logger.info('[JWT_BLACKLIST] revoked_tokens table initialized')
+  return undefined
 }).catch((err) => {
   logger.error('[JWT_BLACKLIST] Failed to initialize revoked_tokens table:', err)
 })

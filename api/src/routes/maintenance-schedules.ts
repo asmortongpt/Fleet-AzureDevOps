@@ -558,7 +558,7 @@ router.get(
       } = req.query as Record<string, string | undefined>
 
       let dueSchedules = await checkDueSchedules(
-        client!,
+        client,
         parseInt(days_ahead || '7'),
         include_overdue === 'true'
       )
@@ -573,7 +573,7 @@ router.get(
       }
 
       if (priority) {
-        const priorityFilter = priority as string
+        const priorityFilter = priority
         dueSchedules = dueSchedules.filter((s) => {
           const metadata = (s.schedule.metadata || {}) as Record<string, unknown>
           return metadata.priority === priorityFilter

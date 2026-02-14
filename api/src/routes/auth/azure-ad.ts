@@ -6,6 +6,9 @@ import passport from 'passport';
 import { Strategy as AzureStrategy } from 'passport-azure-ad-oauth2';
 import { Pool } from 'pg';
 
+// Define next for the logout error handler since it wasn't in scope
+import { logger } from '../../utils/logger';
+
 
 type User = {
   id: string;
@@ -97,9 +100,6 @@ app.get('/api/auth/me', function (req: Request, res: Response) {
   }
   res.send(req.user);
 });
-
-// Define next for the logout error handler since it wasn't in scope
-import { logger } from '../../utils/logger';
 const next = (err: any) => logger.error('Logout error', { error: err });
 
 export default app;

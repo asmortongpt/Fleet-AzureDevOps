@@ -41,6 +41,7 @@ export function handleUnhandledRejection(): void {
       // Flush telemetry before exit
       telemetryService.flush().then(() => {
         process.exit(1);
+        return undefined;
       }).catch(() => {
         process.exit(1);
       });
@@ -73,6 +74,7 @@ export function handleUncaughtException(): void {
     // Flush telemetry before exit
     telemetryService.flush().then(() => {
       process.exit(1);
+      return undefined;
     }).catch(() => {
       process.exit(1);
     });

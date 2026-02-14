@@ -64,10 +64,10 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
 
   // Colors for charts
   const COLORS = {
-    fuel: '#2196f3',
-    maintenance: '#f44336',
-    fuelLight: '#64b5f6',
-    maintenanceLight: '#e57373'
+    fuel: 'hsl(var(--primary))',
+    maintenance: 'hsl(var(--destructive))',
+    fuelLight: 'hsl(var(--primary) / 0.6)',
+    maintenanceLight: 'hsl(var(--destructive) / 0.6)'
   }
 
   const PIE_COLORS = [COLORS.fuel, COLORS.maintenance];
@@ -182,7 +182,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
                     labelLine={false}
                     label={renderCustomLabel}
                     outerRadius={100}
-                    fill="#8884d8"
+                    fill="hsl(var(--accent))"
                     dataKey="value"
                   >
                     {pieData.map((entry, index) => (

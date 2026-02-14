@@ -2,7 +2,7 @@
  * Tests for export-helpers utilities
  */
 
-import { describe, it, expect, beforeEach, jest } from '@jest/globals';
+import { type Mock } from 'vitest';
 import { Response } from 'express';
 
 import {
@@ -18,8 +18,8 @@ describe('export-helpers', () => {
 
   beforeEach(() => {
     mockResponse = {
-      setHeader: jest.fn(),
-      send: jest.fn(),
+      setHeader: vi.fn(),
+      send: vi.fn(),
     };
   });
 
@@ -80,7 +80,7 @@ describe('export-helpers', () => {
         includeHeaders: false,
       });
 
-      const csvContent = (mockResponse.send as jest.Mock).mock.calls[0][0];
+      const csvContent = (mockResponse.send as Mock).mock.calls[0][0];
       expect(csvContent).toContain('"Value, with, commas"');
     });
 
@@ -92,7 +92,7 @@ describe('export-helpers', () => {
         includeHeaders: false,
       });
 
-      const csvContent = (mockResponse.send as jest.Mock).mock.calls[0][0];
+      const csvContent = (mockResponse.send as Mock).mock.calls[0][0];
       expect(csvContent).toContain('""'); // Escaped quotes
     });
 
@@ -115,7 +115,7 @@ describe('export-helpers', () => {
         ],
       });
 
-      const csvContent = (mockResponse.send as jest.Mock).mock.calls[0][0];
+      const csvContent = (mockResponse.send as Mock).mock.calls[0][0];
       expect(csvContent).toContain('Created');
       expect(csvContent).toContain('Amount');
     });

@@ -57,7 +57,7 @@ export const vehicleCreateSchema = z.object({
   vehicleNumber: z.string()
     .min(1, 'Vehicle number is required')
     .max(50, 'Vehicle number must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Vehicle number can only contain letters, numbers, and hyphens'),
+    .regex(/^[A-Z0-9-]+$/i, 'Vehicle number can only contain letters, numbers, and hyphens'),
 
   make: z.string()
     .min(1, 'Make is required')
@@ -82,7 +82,7 @@ export const vehicleCreateSchema = z.object({
   licensePlate: z.string()
     .min(2, 'License plate must be at least 2 characters')
     .max(20, 'License plate must be 20 characters or less')
-    .regex(/^[A-Z0-9\s\-]+$/i, 'Invalid license plate format')
+    .regex(/^[A-Z0-9\s-]+$/i, 'Invalid license plate format')
     .transform(val => val.toUpperCase()),
 
   status: vehicleStatusEnum.default('active'),
@@ -181,7 +181,7 @@ export const vehicleUpdateSchema = z.object({
   vehicleNumber: z.string()
     .min(1, 'Vehicle number cannot be empty')
     .max(50, 'Vehicle number must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Vehicle number can only contain letters, numbers, and hyphens')
+    .regex(/^[A-Z0-9-]+$/i, 'Vehicle number can only contain letters, numbers, and hyphens')
     .optional(),
 
   make: z.string()
@@ -205,7 +205,7 @@ export const vehicleUpdateSchema = z.object({
   licensePlate: z.string()
     .min(2, 'License plate must be at least 2 characters')
     .max(20, 'License plate must be 20 characters or less')
-    .regex(/^[A-Z0-9\s\-]+$/i, 'Invalid license plate format')
+    .regex(/^[A-Z0-9\s-]+$/i, 'Invalid license plate format')
     .transform(val => val.toUpperCase())
     .optional(),
 

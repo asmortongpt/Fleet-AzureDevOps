@@ -252,10 +252,15 @@ export class RealisticOBD2Emulator extends EventEmitter {
     // Randomize ambient temperature based on time of day (Florida weather)
     const hour = new Date().getHours()
     let ambientTemp = 25 // Base temperature
-    if (hour >= 6 && hour < 10) ambientTemp = 22 + Math.random() * 5
-    else if (hour >= 10 && hour < 16) ambientTemp = 28 + Math.random() * 8
-    else if (hour >= 16 && hour < 20) ambientTemp = 25 + Math.random() * 5
-    else ambientTemp = 20 + Math.random() * 5
+    if (hour >= 6 && hour < 10) {
+ambientTemp = 22 + Math.random() * 5
+} else if (hour >= 10 && hour < 16) {
+ambientTemp = 28 + Math.random() * 8
+} else if (hour >= 16 && hour < 20) {
+ambientTemp = 25 + Math.random() * 5
+} else {
+ambientTemp = 20 + Math.random() * 5
+}
 
     return {
       rpm: 0,
@@ -303,7 +308,9 @@ export class RealisticOBD2Emulator extends EventEmitter {
    * Start OBD-II emulation
    */
   public async start(): Promise<void> {
-    if (this.isRunning) return
+    if (this.isRunning) {
+return
+}
 
     this.isRunning = true
     this.isPaused = false
@@ -325,7 +332,9 @@ export class RealisticOBD2Emulator extends EventEmitter {
    * Stop OBD-II emulation
    */
   public async stop(): Promise<void> {
-    if (!this.isRunning) return
+    if (!this.isRunning) {
+return
+}
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval)
@@ -486,7 +495,9 @@ export class RealisticOBD2Emulator extends EventEmitter {
    * Calculate RPM for a given gear
    */
   private calculateRpmForGear(speedMph: number, gear: number, gearRatios: number[]): number {
-    if (gear < 1 || gear > gearRatios.length) return this.engineProfile.idleRpm
+    if (gear < 1 || gear > gearRatios.length) {
+return this.engineProfile.idleRpm
+}
 
     const speedMs = speedMph * 0.44704 // mph to m/s
     const wheelRpm = (speedMs * 60) / TIRE_CIRCUMFERENCE
@@ -790,7 +801,9 @@ export class RealisticOBD2Emulator extends EventEmitter {
    * Get engine run time in seconds
    */
   private getRunTime(): number {
-    if (!this.state.engineStartTime) return 0
+    if (!this.state.engineStartTime) {
+return 0
+}
     return (Date.now() - this.state.engineStartTime.getTime()) / 1000
   }
 

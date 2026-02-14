@@ -38,7 +38,9 @@ const createDriverSchema = z.object({
 const updateDriverSchema = createDriverSchema.partial()
 
 const splitDriverName = (name?: string) => {
-  if (!name) return { firstName: '', lastName: '' }
+  if (!name) {
+return { firstName: '', lastName: '' }
+}
   const parts = name.trim().split(/\s+/)
   const firstName = parts.shift() || ''
   const lastName = parts.join(' ')
@@ -235,7 +237,7 @@ router.get(
           active_drivers: parseInt(stats.active_drivers) || 0,
           inactive_drivers: parseInt(stats.inactive_drivers) || 0,
           suspended_drivers: parseInt(stats.suspended_drivers) || 0,
-          avg_performance_score: stats.avg_performance_score != null ? parseFloat(stats.avg_performance_score) : 0,
+          avg_performance_score: stats.avg_performance_score !== null && stats.avg_performance_score !== undefined ? parseFloat(stats.avg_performance_score) : 0,
           drivers_with_trips_last_30_days: 0,
           total_trips_last_30_days: 0,
           total_miles_last_30_days: 0,

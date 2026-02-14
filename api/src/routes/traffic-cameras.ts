@@ -200,13 +200,13 @@ router.get('/nearby', authenticateJWT, async (req: Request, res: Response, next:
     const lngRaw = req.query.lng;
     const radiusRaw = req.query.radius;
 
-    if (latRaw == null || lngRaw == null) {
+    if (latRaw === null || latRaw === undefined || lngRaw === null || lngRaw === undefined) {
       return res.status(400).json({ error: 'lat and lng are required' });
     }
 
     const lat = Number(latRaw);
     const lng = Number(lngRaw);
-    const radiusMeters = radiusRaw == null ? 5000 : Number(radiusRaw);
+    const radiusMeters = radiusRaw === null || radiusRaw === undefined ? 5000 : Number(radiusRaw);
 
     if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(radiusMeters) || radiusMeters <= 0) {
       return res.status(400).json({ error: 'lat, lng, and radius must be valid numbers' });

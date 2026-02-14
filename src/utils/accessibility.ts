@@ -660,8 +660,8 @@ function getRelativeLuminance(r: number, g: number, b: number): number {
  *
  * @example
  * ```ts
- * const ratio = getContrastRatio('#000000', '#FFFFFF') // 21
- * const ratio = getContrastRatio('#767676', '#FFFFFF') // 4.54
+ * const ratio = getContrastRatio('000000', 'FFFFFF') // 21
+ * const ratio = getContrastRatio('767676', 'FFFFFF') // 4.54
  * ```
  */
 export function getContrastRatio(foreground: string, background: string): number | null {
@@ -689,7 +689,7 @@ export function getContrastRatio(foreground: string, background: string): number
  *
  * @example
  * ```ts
- * const result = checkContrast('#000000', '#FFFFFF')
+ * const result = checkContrast('000000', 'FFFFFF')
  * logger.debug('Log', { data: result.passesAA }) // true
  * logger.debug('Log', { data: result.ratio }) // 21
  * ```

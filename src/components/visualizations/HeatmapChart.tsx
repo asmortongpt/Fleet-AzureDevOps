@@ -42,8 +42,8 @@ export function HeatmapChart({
   const isDark = theme === 'dark'
 
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    border: isDark ? '#374151' : '#e5e7eb',
+    text: 'hsl(var(--foreground))',
+    border: 'hsl(var(--border))',
   }
 
   // Get unique x and y values
@@ -185,7 +185,7 @@ export function HeatmapChart({
                               <span
                                 className="text-xs font-semibold"
                                 style={{
-                                  color: value > (minValue + maxValue) / 2 ? '#ffffff' : chartColors.text,
+                                  color: value > (minValue + maxValue) / 2 ? 'hsl(var(--background))' : chartColors.text,
                                 }}
                               >
                                 {value.toFixed(1)}

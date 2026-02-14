@@ -6,8 +6,8 @@
  * Philosophy: "Simplicity rather than symbols, allowing meaning, performance, and presence to do the work"
  *
  * Color Palette:
- * - Primary: MIDNIGHT (#1A0B2E) - Deep, confident base
- * - Accent: Gradient bar (GOLDEN HOUR #F0A000 → NOON #FF8A00 → #DD3903)
+ * - Primary: MIDNIGHT (theme background)
+ * - Accent: Gradient bar (Golden Hour → Noon)
  */
 
 interface ArchonYLogoProps {
@@ -61,16 +61,19 @@ export function ArchonYLogo({
             {/* Gradient definition for the swoosh */}
             <defs>
               <linearGradient id="archony-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#F0A000" />
-                <stop offset="50%" stopColor="#FF8A00" />
-                <stop offset="100%" stopColor="#DD3903" />
+                <stop offset="0%" stopColor="hsl(var(--chart-3))" />
+                <stop offset="50%" stopColor="hsl(var(--chart-5))" />
+                <stop offset="100%" stopColor="hsl(var(--chart-6))" />
               </linearGradient>
             </defs>
           </svg>
         </div>
 
         {/* Gradient accent bar below logo */}
-        <div className="h-[3px] w-full rounded-full bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903] mt-1" />
+        <div
+          className="h-[3px] w-full rounded-full mt-1"
+          style={{ background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-5)) 50%, hsl(var(--chart-6)) 100%)' }}
+        />
 
         {/* Optional tagline */}
         {showTagline && (
@@ -89,7 +92,10 @@ export function ArchonYLogo({
         <div className="text-lg font-bold tracking-tight text-white">
           ArchonY
         </div>
-        <div className="w-full h-[2px] rounded-full bg-gradient-to-r from-[#F0A000] to-[#DD3903] mt-0.5" />
+        <div
+          className="w-full h-[2px] rounded-full mt-0.5"
+          style={{ background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)' }}
+        />
       </div>
     )
   }
@@ -101,7 +107,10 @@ export function ArchonYLogo({
         <div className="text-xs font-extrabold tracking-wide text-white">
           AY
         </div>
-        <div className="w-5 h-[2px] rounded-full bg-gradient-to-r from-[#F0A000] to-[#DD3903] mt-0.5" />
+        <div
+          className="w-5 h-[2px] rounded-full mt-0.5"
+          style={{ background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)' }}
+        />
       </div>
     )
   }

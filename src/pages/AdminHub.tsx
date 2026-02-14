@@ -145,8 +145,8 @@ export default function AdminHub() {
         header: 'Username',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#2F3359] flex items-center justify-center">
-              <User className="h-4 w-4 text-[#41B2E3]" />
+            <div className="w-8 h-8 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center">
+              <User className="h-4 w-4 text-[hsl(var(--primary))]" />
             </div>
             <span className="font-semibold text-white">{row.getValue('username')}</span>
           </div>
@@ -157,7 +157,7 @@ export default function AdminHub() {
         header: 'Email',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-[#41B2E3]" />
+            <Mail className="h-4 w-4 text-[hsl(var(--primary))]" />
             <span className="text-gray-200 text-sm">{row.getValue('email')}</span>
           </div>
         ),
@@ -168,9 +168,9 @@ export default function AdminHub() {
         cell: ({ row }) => {
           const role = row.getValue('role') as string
           const roleColors: Record<string, string> = {
-            'Super Admin': 'bg-[#DD3903]/20 text-[#DD3903] border-[#DD3903]/30',
-            'Admin': 'bg-[#F0A000]/20 text-[#F0A000] border-[#F0A000]/30',
-            'Manager': 'bg-[#41B2E3]/20 text-[#41B2E3] border-[#41B2E3]/30',
+            'Super Admin': 'bg-[hsl(var(--destructive))]/20 text-[hsl(var(--destructive))] border-[hsl(var(--destructive))]/30',
+            'Admin': 'bg-[hsl(var(--warning))]/20 text-[hsl(var(--warning))] border-[hsl(var(--warning))]/30',
+            'Manager': 'bg-[hsl(var(--primary))]/20 text-[hsl(var(--primary))] border-[hsl(var(--primary))]/30',
             'User': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
             'Read-Only': 'bg-muted/40 text-muted-foreground border-border/50',
           }
@@ -205,8 +205,8 @@ export default function AdminHub() {
             </div>
           ) : (
             <div className="flex items-center gap-1">
-              <XCircle className="h-4 w-4 text-[#DD3903]" />
-              <span className="text-[#DD3903] text-sm font-medium">Disabled</span>
+              <XCircle className="h-4 w-4 text-[hsl(var(--destructive))]" />
+              <span className="text-[hsl(var(--destructive))] text-sm font-medium">Disabled</span>
             </div>
           )
         },
@@ -246,26 +246,26 @@ export default function AdminHub() {
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 hover:bg-[#41B2E3]/20"
+              className="h-8 w-8 p-0 hover:bg-[hsl(var(--primary))]/20"
               title="View Details"
             >
-              <Eye className="h-4 w-4 text-[#41B2E3]" />
+              <Eye className="h-4 w-4 text-[hsl(var(--primary))]" />
             </Button>
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 hover:bg-[#F0A000]/20"
+              className="h-8 w-8 p-0 hover:bg-[hsl(var(--warning))]/20"
               title="Edit User"
             >
-              <Edit className="h-4 w-4 text-[#F0A000]" />
+              <Edit className="h-4 w-4 text-[hsl(var(--warning))]" />
             </Button>
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 w-8 p-0 hover:bg-[#DD3903]/20"
+              className="h-8 w-8 p-0 hover:bg-[hsl(var(--destructive))]/20"
               title="Delete User"
             >
-              <Trash2 className="h-4 w-4 text-[#DD3903]" />
+              <Trash2 className="h-4 w-4 text-[hsl(var(--destructive))]" />
             </Button>
           </div>
         ),
@@ -282,7 +282,7 @@ export default function AdminHub() {
         header: 'Timestamp',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-[#41B2E3]" />
+            <Clock className="h-4 w-4 text-[hsl(var(--primary))]" />
             <span className="text-white font-mono text-sm">{row.getValue('timestamp')}</span>
           </div>
         ),
@@ -292,7 +292,7 @@ export default function AdminHub() {
         header: 'User',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-[#41B2E3]" />
+            <User className="h-4 w-4 text-[hsl(var(--primary))]" />
             <span className="text-white font-medium">{row.getValue('user')}</span>
           </div>
         ),
@@ -304,9 +304,9 @@ export default function AdminHub() {
           const action = row.getValue('action') as string
           const actionColors: Record<string, string> = {
             'CREATE': 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-            'UPDATE': 'bg-[#41B2E3]/20 text-[#41B2E3] border-[#41B2E3]/30',
-            'DELETE': 'bg-[#DD3903]/20 text-[#DD3903] border-[#DD3903]/30',
-            'EXPORT': 'bg-[#F0A000]/20 text-[#F0A000] border-[#F0A000]/30',
+            'UPDATE': 'bg-[hsl(var(--primary))]/20 text-[hsl(var(--primary))] border-[hsl(var(--primary))]/30',
+            'DELETE': 'bg-[hsl(var(--destructive))]/20 text-[hsl(var(--destructive))] border-[hsl(var(--destructive))]/30',
+            'EXPORT': 'bg-[hsl(var(--warning))]/20 text-[hsl(var(--warning))] border-[hsl(var(--warning))]/30',
           }
           return (
             <span className={cn(
@@ -362,10 +362,10 @@ export default function AdminHub() {
   }, [adminUsers, auditLogs])
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] p-3 space-y-3">
+    <div className="min-h-screen bg-[hsl(var(--background))] p-3 space-y-3">
       {/* Header with gradient accent */}
       <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#F0A000] to-[#DD3903]" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[hsl(var(--warning))] to-[hsl(var(--destructive))]" />
         <div className="pt-3">
           <h1 className="text-2xl font-bold text-white mb-1">Administration</h1>
           <p className="text-sm text-gray-300">
@@ -379,7 +379,7 @@ export default function AdminHub() {
         <StatCard
           label="Total Users"
           value={adminStats.totalUsers}
-          icon={<Users className="h-5 w-5 text-[#41B2E3]" />}
+          icon={<Users className="h-5 w-5 text-[hsl(var(--primary))]" />}
           trend="neutral"
         />
         <StatCard
@@ -391,7 +391,7 @@ export default function AdminHub() {
         <StatCard
           label="Suspended"
           value={adminStats.suspendedUsers}
-          icon={<AlertTriangle className="h-5 w-5 text-[#DD3903]" />}
+          icon={<AlertTriangle className="h-5 w-5 text-[hsl(var(--destructive))]" />}
           trend="down"
         />
         <StatCard
@@ -403,13 +403,13 @@ export default function AdminHub() {
         <StatCard
           label="Total Logins"
           value={`${(adminStats.totalLogins / 1000).toFixed(1)}K`}
-          icon={<Activity className="h-5 w-5 text-[#41B2E3]" />}
+          icon={<Activity className="h-5 w-5 text-[hsl(var(--primary))]" />}
           trend="neutral"
         />
         <StatCard
           label="Recent Activity"
           value={adminStats.recentActivity}
-          icon={<Database className="h-5 w-5 text-[#F0A000]" />}
+          icon={<Database className="h-5 w-5 text-[hsl(var(--warning))]" />}
           trend="neutral"
         />
         <StatCard
@@ -421,14 +421,14 @@ export default function AdminHub() {
       </div>
 
       {/* Tab Selection */}
-      <div className="flex gap-2 border-b border-[#41B2E3]/20 pb-2">
+      <div className="flex gap-2 border-b border-[hsl(var(--primary))]/20 pb-2">
         <button
           onClick={() => setActiveTab('users')}
           className={cn(
             'px-4 py-2 rounded-t-lg font-medium transition-all',
             activeTab === 'users'
-              ? 'bg-[#2F3359] text-white border-b-2 border-[#41B2E3]'
-              : 'text-gray-400 hover:text-white hover:bg-[#131B45]'
+              ? 'bg-[hsl(var(--muted))] text-white border-b-2 border-[hsl(var(--primary))]'
+              : 'text-gray-400 hover:text-white hover:bg-[hsl(var(--card))]'
           )}
         >
           <Users className="inline h-4 w-4 mr-2" />
@@ -439,8 +439,8 @@ export default function AdminHub() {
           className={cn(
             'px-4 py-2 rounded-t-lg font-medium transition-all',
             activeTab === 'audit'
-              ? 'bg-[#2F3359] text-white border-b-2 border-[#41B2E3]'
-              : 'text-gray-400 hover:text-white hover:bg-[#131B45]'
+              ? 'bg-[hsl(var(--muted))] text-white border-b-2 border-[hsl(var(--primary))]'
+              : 'text-gray-400 hover:text-white hover:bg-[hsl(var(--card))]'
           )}
         >
           <Activity className="inline h-4 w-4 mr-2" />
@@ -462,18 +462,18 @@ export default function AdminHub() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                className="bg-[#131B45] border-[#41B2E3]/20 text-white hover:bg-[#41B2E3]/20"
+                className="bg-[hsl(var(--card))] border-[hsl(var(--primary))]/20 text-white hover:bg-[hsl(var(--primary))]/20"
               >
                 Export Users
               </Button>
-              <Button className="bg-[#DD3903] hover:bg-[#DD3903]/90 text-white">
+              <Button className="bg-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/90 text-white">
                 Add User
               </Button>
             </div>
           </div>
 
           {(!isLoading && adminUsers.length === 0) ? (
-            <div className="rounded-lg border border-[#41B2E3]/20 bg-[#131B45] p-6 text-sm text-gray-200">
+            <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
               No users found. Ensure `/api/users` is populated for this tenant.
             </div>
           ) : (
@@ -505,13 +505,13 @@ export default function AdminHub() {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                className="bg-[#131B45] border-[#41B2E3]/20 text-white hover:bg-[#41B2E3]/20"
+                className="bg-[hsl(var(--card))] border-[hsl(var(--primary))]/20 text-white hover:bg-[hsl(var(--primary))]/20"
               >
                 Export Logs
               </Button>
               <Button
                 variant="outline"
-                className="bg-[#131B45] border-[#41B2E3]/20 text-white hover:bg-[#41B2E3]/20"
+                className="bg-[hsl(var(--card))] border-[hsl(var(--primary))]/20 text-white hover:bg-[hsl(var(--primary))]/20"
               >
                 Filter by Date
               </Button>
@@ -519,7 +519,7 @@ export default function AdminHub() {
           </div>
 
           {(!isLoading && auditLogs.length === 0) ? (
-            <div className="rounded-lg border border-[#41B2E3]/20 bg-[#131B45] p-6 text-sm text-gray-200">
+            <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
               No audit logs available. Verify `/api/audit-logs` permissions and data.
             </div>
           ) : (
@@ -538,7 +538,7 @@ export default function AdminHub() {
       )}
 
       {/* Footer */}
-      <div className="text-center text-xs text-gray-400 pt-3 border-t border-[#41B2E3]/10">
+      <div className="text-center text-xs text-gray-400 pt-3 border-t border-[hsl(var(--primary))]/10">
         CTA Administration • ArchonY Platform • Secure access management • Professional data tables
       </div>
     </div>
@@ -555,7 +555,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, trend = 'neutral' }: StatCardProps) {
   return (
-    <div className="bg-[#2F3359] border border-[#41B2E3]/20 rounded-lg p-3 hover:border-[#41B2E3]/40 transition-all">
+    <div className="bg-[hsl(var(--muted))] border border-[hsl(var(--primary))]/20 rounded-lg p-3 hover:border-[hsl(var(--primary))]/40 transition-all">
       <div className="flex items-center justify-between mb-1.5">
         <div className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">
           {label}
@@ -567,7 +567,7 @@ function StatCard({ label, value, icon, trend = 'neutral' }: StatCardProps) {
         {trend !== 'neutral' && (
           <div className={cn(
             'flex items-center text-xs mb-1',
-            trend === 'up' ? 'text-emerald-400' : 'text-[#DD3903]'
+            trend === 'up' ? 'text-emerald-400' : 'text-[hsl(var(--destructive))]'
           )}>
             {trend === 'up' ? (
               <TrendingUp className="h-3 w-3" />

@@ -74,7 +74,7 @@ export class TripoSRService {
       );
 
       // Start polling for completion in background
-      this.pollTaskStatus(tenantId, damageReportId, taskId);
+      void this.pollTaskStatus(tenantId, damageReportId, taskId);
 
       return {
         task_id: taskId,
@@ -140,7 +140,7 @@ export class TripoSRService {
       } else if (status === 'processing') {
         // Continue polling
         setTimeout(() => {
-          this.pollTaskStatus(tenantId, damageReportId, taskId);
+          void this.pollTaskStatus(tenantId, damageReportId, taskId);
         }, this.pollInterval);
       }
     } catch (error: unknown) {
@@ -148,7 +148,7 @@ export class TripoSRService {
 
       // Retry after interval
       setTimeout(() => {
-        this.pollTaskStatus(tenantId, damageReportId, taskId);
+        void this.pollTaskStatus(tenantId, damageReportId, taskId);
       }, this.pollInterval);
     }
   }

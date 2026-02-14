@@ -104,8 +104,8 @@ export class MobileAppSimulator extends EventEmitter {
     const msUntilSixAM = nextSixAM.getTime() - now.getTime()
 
     setTimeout(() => {
-      this.generatePreTripInspections()
-      this.inspectionTimer = setInterval(() => this.generatePreTripInspections(), 24 * 60 * 60 * 1000)
+      void this.generatePreTripInspections()
+      this.inspectionTimer = setInterval(() => void this.generatePreTripInspections(), 24 * 60 * 60 * 1000)
     }, msUntilSixAM)
 
     // Start motion event generation (every hour)

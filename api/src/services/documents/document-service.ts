@@ -263,7 +263,9 @@ export class DocumentService {
     userId: string
   ): Promise<Document | null> {
     const document = this.documents.get(documentId)
-    if (!document) return null
+    if (!document) {
+return null
+}
 
     // Create new version if content changed
     if (updates.storageUrl && updates.storageUrl !== document.storageUrl) {
@@ -290,7 +292,9 @@ export class DocumentService {
    */
   async deleteDocument(documentId: string): Promise<boolean> {
     const document = this.documents.get(documentId)
-    if (!document) return false
+    if (!document) {
+return false
+}
 
     try {
       // Delete file from storage
@@ -349,7 +353,9 @@ export class DocumentService {
    */
   async downloadDocument(documentId: string): Promise<Buffer | null> {
     const document = this.documents.get(documentId)
-    if (!document) return null
+    if (!document) {
+return null
+}
 
     try {
       const buffer = fs.readFileSync(document.storageUrl)
@@ -472,13 +478,14 @@ export class DocumentService {
             )
             break
 
-          case 'reindex':
+          case 'reindex': {
             const doc = await this.getDocument(documentId)
             if (doc) {
               const indexingService = getIndexingService()
               await indexingService.indexDocument(doc)
             }
             break
+          }
         }
 
         result.successCount++
@@ -509,15 +516,33 @@ export class DocumentService {
   }
 
   private getDocumentType(mimeType: string): any {
-    if (mimeType === 'application/pdf') return 'pdf'
-    if (mimeType.includes('word')) return 'word'
-    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return 'excel'
-    if (mimeType.startsWith('image/')) return 'image'
-    if (mimeType.startsWith('text/')) return 'text'
-    if (mimeType.includes('presentation')) return 'presentation'
-    if (mimeType.startsWith('video/')) return 'video'
-    if (mimeType.startsWith('audio/')) return 'audio'
-    if (mimeType.includes('zip') || mimeType.includes('archive')) return 'archive'
+    if (mimeType === 'application/pdf') {
+return 'pdf'
+}
+    if (mimeType.includes('word')) {
+return 'word'
+}
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) {
+return 'excel'
+}
+    if (mimeType.startsWith('image/')) {
+return 'image'
+}
+    if (mimeType.startsWith('text/')) {
+return 'text'
+}
+    if (mimeType.includes('presentation')) {
+return 'presentation'
+}
+    if (mimeType.startsWith('video/')) {
+return 'video'
+}
+    if (mimeType.startsWith('audio/')) {
+return 'audio'
+}
+    if (mimeType.includes('zip') || mimeType.includes('archive')) {
+return 'archive'
+}
     return 'other'
   }
 
@@ -537,7 +562,9 @@ export class DocumentService {
   }
 
   private countWords(text: string): number {
-    if (!text) return 0
+    if (!text) {
+return 0
+}
     return text.trim().split(/\s+/).length
   }
 
@@ -570,8 +597,12 @@ export class DocumentService {
       const { field, from, to } = filters.dateRange
       results = results.filter(doc => {
         const docDate = new Date((doc as unknown as Record<string, unknown>)[field] as string)
-        if (from && docDate < new Date(from)) return false
-        if (to && docDate > new Date(to)) return false
+        if (from && docDate < new Date(from)) {
+return false
+}
+        if (to && docDate > new Date(to)) {
+return false
+}
         return true
       })
     }

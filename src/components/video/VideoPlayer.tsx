@@ -177,13 +177,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
           ctx.fillRect(x, y - labelHeight, width, labelHeight);
 
           // Draw label text
-          ctx.fillStyle = '#000000';
+          ctx.fillStyle = 'hsl(var(--background))';
           ctx.font = overlay.type === 'warning' ? 'bold 14px Arial' : '12px Arial';
           ctx.fillText(overlay.label, x + labelPadding, y - labelPadding);
 
           // Draw confidence if available
           if (overlay.confidence) {
-            ctx.fillStyle = '#ffffff';
+            ctx.fillStyle = 'hsl(var(--foreground))';
             ctx.font = '10px Arial';
             ctx.fillText(`${(overlay.confidence * 100).toFixed(0)}%`, x + width - 30, y - labelPadding);
           }
@@ -353,7 +353,7 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
         </Box>
 
         {/* Video Container */}
-        <Box sx={{ position: 'relative', backgroundColor: '#000', borderRadius: 1 }}>
+        <Box sx={{ position: 'relative', backgroundColor: 'hsl(var(--background))', borderRadius: 1 }}>
           {isYouTube ? (
             // YouTube Embed
             <Box sx={{ position: 'relative', paddingTop: '56.25%' /* 16:9 */ }}>

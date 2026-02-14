@@ -678,7 +678,7 @@ async function main() {
 }
 
 if (require.main === module) {
-  main().catch(console.error);
+  main().catch((err) => console.error(err));
 }
 
 export { main as seedEdgeCases };

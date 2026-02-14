@@ -22,7 +22,9 @@ const repository = container.get<PersonalUsePoliciesRepository>(TYPES.PersonalUs
 
 function getTenantId(req: AuthRequest): string {
   const tenantId = req.user?.tenant_id || req.user?.tenantId || req.tenantId;
-  if (!tenantId || typeof tenantId !== 'string') return '';
+  if (!tenantId || typeof tenantId !== 'string') {
+return '';
+}
   return tenantId;
 }
 
@@ -70,57 +72,57 @@ const createPolicySchema = z.object({
 router.get(
   '/',
   requirePermission('policy:view:global'),
-	async (req: AuthRequest, res: Response) => {
-	    try {
-	      const tenantId = getTenantId(req);
-	      if (!tenantId) {
-	        return res.status(403).json({ error: 'Invalid authentication token', code: 'MISSING_TENANT_ID' });
-	      }
-	      const client = requireTenantDbClient(req);
-	      const result = await client.query(
-	        `SELECT *
-	         FROM personal_use_policies
-	         WHERE tenant_id = $1 AND is_active = true
-	         ORDER BY effective_date DESC NULLS LAST, created_at DESC
-	         LIMIT 1`,
-	        [tenantId]
-	      );
-	      const policy = result.rows[0] || null;
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const tenantId = getTenantId(req);
+      if (!tenantId) {
+        return res.status(403).json({ error: 'Invalid authentication token', code: 'MISSING_TENANT_ID' });
+      }
+      const client = requireTenantDbClient(req);
+      const result = await client.query(
+        `SELECT *
+         FROM personal_use_policies
+         WHERE tenant_id = $1 AND is_active = true
+         ORDER BY effective_date DESC NULLS LAST, created_at DESC
+         LIMIT 1`,
+        [tenantId]
+      );
+      const policy = result.rows[0] || null;
 
-	      if (!policy) {
-	        // Return default policy if none exists
-	        return res.json({
-	          success: true,
-	          data: {
-	            tenant_id: tenantId,
-	            allow_personal_use: false,
-	            require_approval: true,
-	            charge_personal_use: false,
-	            reporting_required: true,
-	            approval_workflow: ApprovalWorkflow.MANAGER,
-	            notification_settings: {
-	              notify_at_percentage: 80,
-	              notify_manager_on_exceed: true,
-	              notify_driver_on_limit: true,
-	              email_notifications: true
-	            },
-	            effective_date: new Date().toISOString().split('T')[0],
-	            is_default: true
-	          },
-	          message: 'No policy configured - using defaults. Create a policy to customize.'
-	        });
-	      }
+      if (!policy) {
+        // Return default policy if none exists
+        return res.json({
+          success: true,
+          data: {
+            tenant_id: tenantId,
+            allow_personal_use: false,
+            require_approval: true,
+            charge_personal_use: false,
+            reporting_required: true,
+            approval_workflow: ApprovalWorkflow.MANAGER,
+            notification_settings: {
+              notify_at_percentage: 80,
+              notify_manager_on_exceed: true,
+              notify_driver_on_limit: true,
+              email_notifications: true
+            },
+            effective_date: new Date().toISOString().split('T')[0],
+            is_default: true
+          },
+          message: 'No policy configured - using defaults. Create a policy to customize.'
+        });
+      }
 
-	      res.json({
-	        success: true,
-	        data: policy
-	      });
-	    } catch (error: unknown) {
-	      logger.error('Get policy error:', error);
-	      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
-	    }
-	  }
-	);
+      res.json({
+        success: true,
+        data: policy
+      });
+    } catch (error: unknown) {
+      logger.error('Get policy error:', error);
+      res.status(500).json({ error: 'Failed to retrieve personal use policy' });
+    }
+  }
+);
 
 /**
  * PUT /api/personal-use-policies/:tenant_id

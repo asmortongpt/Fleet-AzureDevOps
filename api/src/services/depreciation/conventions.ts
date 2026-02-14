@@ -10,7 +10,9 @@ export function daysBetween(start: Date, end: Date) {
 }
 
 export function conventionMonths(start: Date, end: Date, usefulLifeMonths: number, convention: Convention) {
-  if (end < start) return 0;
+  if (end < start) {
+return 0;
+}
   if (convention === "ACTUAL_DAYS") {
     const days = daysBetween(start, end) + 1;
     return Math.min(usefulLifeMonths, days / 30.4167); // avg month

@@ -25,7 +25,7 @@ export class OCRService {
   private workerQueue: string[] = []
 
   constructor() {
-    this.initializeWorkers()
+    void this.initializeWorkers()
   }
 
   /**
@@ -207,7 +207,9 @@ export class OCRService {
    * Parse OCR blocks from Tesseract result
    */
   private parseBlocks(blocks: any[]): OCRBlock[] {
-    if (!blocks) return []
+    if (!blocks) {
+return []
+}
 
     return blocks.map(block => ({
       text: block.text,
@@ -233,7 +235,9 @@ export class OCRService {
    * Parse OCR words
    */
   private parseWords(words: any[]): OCRWord[] {
-    if (!words) return []
+    if (!words) {
+return []
+}
 
     return words.map(word => ({
       text: word.text,

@@ -221,8 +221,11 @@ if (require.main === module) {
 
     for (const config of routeConfigs) {
       const success = await registerRoute(config.path, config.module);
-      if (success) loaded++;
-      else failed++;
+      if (success) {
+loaded++;
+} else {
+failed++;
+}
     }
 
     console.log(`Routes loaded: ${loaded} success, ${failed} failed`);
@@ -232,5 +235,5 @@ if (require.main === module) {
     });
   };
 
-  loadRoutes();
+  void loadRoutes();
 }

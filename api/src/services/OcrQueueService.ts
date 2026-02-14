@@ -18,6 +18,9 @@ import { JobPriority, QueueName } from '../types/queue.types';
 import { OcrService, OcrOptions, OcrResult } from './OcrService';
 import { queueService } from './queue.service';
 
+// Export singleton instance
+import { pool } from '../db'
+
 // OCR Job Status
 export enum OcrJobStatus {
   PENDING = 'pending',
@@ -754,9 +757,6 @@ export class OcrQueueService {
     }
   }
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const ocrQueueService = new OcrQueueService(pool)
 
 export default ocrQueueService

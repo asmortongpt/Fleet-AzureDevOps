@@ -23,9 +23,9 @@ const safeLog = (
 ) => {
   const logger = securityLogger as unknown as Record<string, unknown>
   const logFn =
-    (logger && (logger[level] as unknown)) ||
-    (logger && (logger.incident as unknown)) ||
-    (logger && (logger.warn as unknown)) ||
+    (logger && (logger[level])) ||
+    (logger && (logger.incident)) ||
+    (logger && (logger.warn)) ||
     null
 
   if (typeof logFn === 'function') {
@@ -38,7 +38,7 @@ const safeLog = (
  */
 const DANGEROUS_PATTERNS = {
   // XSS patterns
-  script: /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+  script: /<script\b[\s\S]*?<\/script>/gi,
   onEvent: /\son\w+\s*=\s*["'][^"']*["']/gi,
   javascript: /javascript:/gi,
 
@@ -46,8 +46,8 @@ const DANGEROUS_PATTERNS = {
   noSqlOperators: /(\$where|\$ne|\$gt|\$lt|\$gte|\$lte|\$in|\$nin|\$regex)/gi,
 
   // Path traversal
-  pathTraversal: /\.\.[\/\\]/g,
-  absolutePath: /^[\/\\]|^[a-zA-Z]:[\/\\]/,
+  pathTraversal: /\.\.[/\\]/g,
+  absolutePath: /^[/\\]|^[a-zA-Z]:[/\\]/,
 
   // Command injection
   commandChars: /[;&|`$()]/g,
@@ -267,7 +267,7 @@ function sanitizeValue(value: unknown, config: SanitizationConfig, fieldName?: s
     )
   }
 
-  if (value && typeof value === `object` && (value as object).constructor === Object) {
+  if (value && typeof value === `object` && (value).constructor === Object) {
     const sanitized: Record<string, unknown> = {}
 
     for (const [key, val] of Object.entries(value as Record<string, unknown>)) {

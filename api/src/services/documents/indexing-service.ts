@@ -453,10 +453,14 @@ Text: ${text.substring(0, 6000)}`
     status: 'processing' | 'completed' | 'failed'
   ): Promise<void> {
     const job = this.activeJobs.get(jobId)
-    if (!job) return
+    if (!job) {
+return
+}
 
     const step = job.steps.find(s => s.name === stepName)
-    if (!step) return
+    if (!step) {
+return
+}
 
     step.status = status
 

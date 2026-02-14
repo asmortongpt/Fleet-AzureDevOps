@@ -18,7 +18,6 @@ import {
   ZAxis,
 } from 'recharts'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -51,18 +50,15 @@ export function ScatterChart({
   height = 400,
   loading = false,
   showRegressionLine = true,
-  color = 'hsl(210, 100%, 56%)',
+  color = 'hsl(var(--chart-1))',
 }: ScatterChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'hsl(var(--foreground))',
+    grid: 'hsl(var(--border))',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'hsl(var(--card))',
+      border: 'hsl(var(--border))',
+      text: 'hsl(var(--foreground))',
     },
   }
 
@@ -192,7 +188,7 @@ export function ScatterChart({
                     { x: Math.min(...data.map(d => d.x)), y: regression.slope * Math.min(...data.map(d => d.x)) + regression.intercept },
                     { x: Math.max(...data.map(d => d.x)), y: regression.slope * Math.max(...data.map(d => d.x)) + regression.intercept },
                   ]}
-                  stroke="hsl(142, 76%, 36%)"
+                  stroke="hsl(var(--chart-2))"
                   strokeWidth={2}
                   strokeDasharray="5 5"
                   label={{

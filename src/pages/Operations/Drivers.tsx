@@ -146,10 +146,10 @@ export function DriversOperations() {
                   <span
                     className={cn(
                       'w-2.5 h-2.5 rounded-full flex-shrink-0',
-                      driver.hosStatus === 'driving' && 'bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.5)]',
-                      driver.hosStatus === 'on_duty' && 'bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.5)]',
+                      driver.hosStatus === 'driving' && 'bg-green-400 shadow-[0_0_6px_hsl(var(--success) / 0.5)]',
+                      driver.hosStatus === 'on_duty' && 'bg-blue-400 shadow-[0_0_6px_hsl(var(--primary) / 0.5)]',
                       driver.hosStatus === 'off_duty' && 'bg-slate-400',
-                      driver.hosStatus === 'sleeper' && 'bg-purple-400 shadow-[0_0_6px_rgba(192,132,252,0.5)]'
+                      driver.hosStatus === 'sleeper' && 'bg-purple-400 shadow-[0_0_6px_hsl(var(--accent) / 0.5)]'
                     )}
                     title={`HOS: ${driver.hosStatus.replace('_', ' ')}`}
                   />

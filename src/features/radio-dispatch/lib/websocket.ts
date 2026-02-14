@@ -128,7 +128,6 @@ export const wsClient = new WebSocketClient();
 
 // React hook for WebSocket
 import { useEffect, useRef } from 'react';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

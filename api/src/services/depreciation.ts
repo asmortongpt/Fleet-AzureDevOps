@@ -373,7 +373,7 @@ export class DepreciationService {
 
     let currentBookValue = depreciation.original_cost - depreciation.total_depreciation;
     let accumulatedDepreciation = depreciation.total_depreciation;
-    let currentDate = new Date();
+    const currentDate = new Date();
 
     for (let i = 0; i < numberOfPeriods; i++) {
       const periodStart = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);

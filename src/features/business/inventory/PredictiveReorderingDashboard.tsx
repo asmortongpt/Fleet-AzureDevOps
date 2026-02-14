@@ -287,7 +287,13 @@ const PredictiveReorderingDashboard: React.FC = () => {
     ];
   };
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+  const COLORS = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-5))',
+    'hsl(var(--chart-4))'
+  ];
 
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
@@ -539,22 +545,22 @@ const PredictiveReorderingDashboard: React.FC = () => {
                       type="monotone"
                       dataKey="historical"
                       stackId="1"
-                      stroke="#8884d8"
-                      fill="#8884d8"
+                      stroke="hsl(var(--chart-4))"
+                      fill="hsl(var(--chart-4))"
                       name="Historical Usage"
                     />
                     <Area
                       type="monotone"
                       dataKey="predicted"
                       stackId="2"
-                      stroke="#82ca9d"
-                      fill="#82ca9d"
+                      stroke="hsl(var(--chart-2))"
+                      fill="hsl(var(--chart-2))"
                       name="AI Prediction"
                     />
                     <Line
                       type="monotone"
                       dataKey="scheduled"
-                      stroke="#ff7300"
+                      stroke="hsl(var(--chart-3))"
                       name="Scheduled Maintenance"
                     />
                   </AreaChart>
@@ -604,8 +610,8 @@ const PredictiveReorderingDashboard: React.FC = () => {
                     <YAxis />
                     <ChartTooltip />
                     <Legend />
-                    <Bar dataKey="stockLevel" fill="#8884d8" name="Current Stock" />
-                    <Bar dataKey="optimalLevel" fill="#82ca9d" name="Optimal Level" />
+                    <Bar dataKey="stockLevel" fill="hsl(var(--chart-4))" name="Current Stock" />
+                    <Bar dataKey="optimalLevel" fill="hsl(var(--chart-2))" name="Optimal Level" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -625,7 +631,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                       labelLine={false}
                       label={({ payload }) => payload?.category}
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="hsl(var(--chart-4))"
                       dataKey="value"
                     >
                       {getInventoryAnalyticsData().map((entry, index) => (

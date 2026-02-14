@@ -255,7 +255,7 @@ const showStatus = async () => {
 const command = process.argv[2];
 
 if (command === 'status') {
-  showStatus();
+  void showStatus();
 } else {
-  runMigrations();
+  void runMigrations();
 }

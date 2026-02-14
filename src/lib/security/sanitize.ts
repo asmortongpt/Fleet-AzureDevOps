@@ -6,7 +6,6 @@
  */
 
 import DOMPurify from 'dompurify';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

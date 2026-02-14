@@ -660,7 +660,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
             title="API Usage Trends"
             data={apiUsageData}
             dataKeys={['calls']}
-            colors={['#3b82f6']}
+            colors={['hsl(var(--chart-1))']}
             height={250}
           />
         </Section>

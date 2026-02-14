@@ -367,7 +367,9 @@ export class WorkflowEngine {
     const matching: WorkflowDefinition[] = []
 
     for (const workflow of this.workflows.values()) {
-      if (!workflow.enabled) continue
+      if (!workflow.enabled) {
+continue
+}
 
       for (const trigger of workflow.triggerConditions) {
         if (this.evaluateTrigger(trigger, document)) {
@@ -392,9 +394,10 @@ export class WorkflowEngine {
       case 'status-change':
         return document.status === trigger.condition.status
 
-      case 'content-match':
+      case 'content-match': {
         const content = document.extractedText || ''
         return new RegExp(trigger.condition.pattern, 'i').test(content)
+      }
 
       case 'metadata-match':
         // Check if document metadata matches trigger conditions
@@ -605,7 +608,9 @@ ${document.extractedText?.substring(0, 6000) || ''}`
         : undefined
     }
 
-    if (!document.approvals) document.approvals = []
+    if (!document.approvals) {
+document.approvals = []
+}
     document.approvals.push(approval)
 
     // In production, this would send notifications to approvers
@@ -660,7 +665,9 @@ ${document.extractedText?.substring(0, 6000) || ''}`
    */
   private matchesMetadata(metadata: any, condition: any): boolean {
     for (const [key, value] of Object.entries(condition)) {
-      if (metadata[key] !== value) return false
+      if (metadata[key] !== value) {
+return false
+}
     }
     return true
   }

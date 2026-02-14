@@ -3,7 +3,9 @@ import Redis from "ioredis";
 import { AI_CONFIG } from "../config";
 
 let redis: Redis | null = null;
-if (AI_CONFIG.redisUrl) redis = new Redis(AI_CONFIG.redisUrl);
+if (AI_CONFIG.redisUrl) {
+redis = new Redis(AI_CONFIG.redisUrl);
+}
 
 const inMemory = new Map<string, { value: any; expiresAt: number }>();
 
@@ -13,7 +15,9 @@ export async function getCache(key: string) {
     return raw ? JSON.parse(raw) : null;
   }
   const entry = inMemory.get(key);
-  if (!entry) return null;
+  if (!entry) {
+return null;
+}
   if (Date.now() > entry.expiresAt) {
     inMemory.delete(key);
     return null;

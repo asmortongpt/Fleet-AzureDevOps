@@ -682,7 +682,9 @@ router.get('/analytics', async (req: Request, res: Response) => {
         totalWorkOrders: workOrders.length,
         pendingWorkOrders: pendingWorkOrders.length,
         completedThisMonth: workOrders.filter(w => {
-          if (!w.actualEndDate) return false;
+          if (!w.actualEndDate) {
+return false;
+}
           const endDate = new Date(w.actualEndDate);
           const now = new Date();
           return endDate.getMonth() === now.getMonth() && endDate.getFullYear() === now.getFullYear();

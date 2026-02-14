@@ -19,15 +19,17 @@ import {
 } from '@phosphor-icons/react';
 // motion removed - React 19 incompatible
 import { AlertTriangle, Car } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useFleetData } from '@/hooks/use-fleet-data';
+import { useWorkOrders } from '@/hooks/use-api';
+import { useMaintenanceData } from '@/hooks/use-maintenance-data';
 import { cn } from '@/lib/utils';
 
-import { AlertTriangle, Car } from 'lucide-react';
 interface WorkOrderStats {
   open: number;
   in_progress: number;
@@ -57,51 +59,71 @@ interface PartsInventory {
 }
 
 export function MaintenanceManagerDashboard() {
-  const [workOrderStats, setWorkOrderStats] = useState<WorkOrderStats>({
-    open: 8,
-    in_progress: 5,
-    completed_this_week: 23,
-    avg_repair_time_hours: 4.2
-  });
+  const fleetData = useFleetData();
+  const vehicles = fleetData.vehicles || [];
+  const { data: workOrders } = useWorkOrders();
+  const { maintenanceRecords } = useMaintenanceData(vehicles);
 
-  const [overdueMaintenanceItems, setOverdueMaintenanceItems] = useState<MaintenanceItem[]>([
-    {
-      id: 1,
-      vehicle_id: 1042,
-      vehicle_name: 'Vehicle #1042',
-      maintenance_type: 'Oil Change',
-      days_overdue: 5,
-      status: 'overdue'
-    },
-    {
-      id: 2,
-      vehicle_id: 1089,
-      vehicle_name: 'Vehicle #1089',
-      maintenance_type: 'Tire Rotation',
-      days_overdue: 3,
-      status: 'overdue'
-    },
-    {
-      id: 3,
-      vehicle_id: 1103,
-      vehicle_name: 'Vehicle #1103',
-      maintenance_type: 'Brake Inspection',
-      days_overdue: 2,
-      status: 'overdue'
-    }
-  ]);
+  const workOrderStats = useMemo<WorkOrderStats>(() => {
+    const rows = Array.isArray(workOrders)
+      ? workOrders
+      : Array.isArray((workOrders as any)?.data)
+        ? (workOrders as any).data
+        : [];
 
-  const [upcomingSchedule, setUpcomingSchedule] = useState<UpcomingMaintenance[]>([
-    { date: 'Mon 1/15', count: 4 },
-    { date: 'Tue 1/16', count: 2 },
-    { date: 'Thu 1/18', count: 6 }
-  ]);
+    const open = rows.filter((order: any) => ['open', 'pending'].includes(String(order.status || '').toLowerCase())).length;
+    const in_progress = rows.filter((order: any) => ['in-progress', 'in_progress', 'active'].includes(String(order.status || '').toLowerCase())).length;
+    const completed_this_week = rows.filter((order: any) => {
+      const date = new Date(order.completedDate || order.completed_date || order.completed_at || order.updated_at || order.created_at || 0);
+      if (Number.isNaN(date.getTime())) return false;
+      const start = new Date();
+      start.setDate(start.getDate() - 7);
+      return date >= start && ['completed', 'closed'].includes(String(order.status || '').toLowerCase());
+    }).length;
+    const avg_repair_time_hours = rows.length === 0 ? 0 : Math.round((rows.reduce((sum: number, order: any) => {
+      const started = new Date(order.started_at || order.startedAt || order.created_at || 0).getTime();
+      const completed = new Date(order.completed_at || order.completedAt || Date.now()).getTime();
+      if (!started || !completed || Number.isNaN(started) || Number.isNaN(completed)) return sum;
+      return sum + (completed - started) / (1000 * 60 * 60);
+    }, 0) / Math.max(rows.length, 1)) * 10) / 10;
 
-  const [partsInventory, setPartsInventory] = useState<PartsInventory>({
-    total_items: 48,
-    below_reorder: 3,
-    in_stock: 45
-  });
+    return { open, in_progress, completed_this_week, avg_repair_time_hours };
+  }, [workOrders]);
+
+  const overdueMaintenanceItems = useMemo<MaintenanceItem[]>(() => {
+    return maintenanceRecords
+      .filter((record) => record.status === 'overdue')
+      .slice(0, 6)
+      .map((record) => ({
+        id: Number(record.id),
+        vehicle_id: Number(record.vehicleNumber) || 0,
+        vehicle_name: record.vehicleName || record.vehicleNumber || 'Vehicle',
+        maintenance_type: record.serviceType,
+        days_overdue: record.date ? Math.max(1, Math.ceil((Date.now() - new Date(record.date).getTime()) / (1000 * 60 * 60 * 24))) : undefined,
+        status: 'overdue'
+      }));
+  }, [maintenanceRecords]);
+
+  const upcomingSchedule = useMemo<UpcomingMaintenance[]>(() => {
+    const upcoming = maintenanceRecords.filter((record) => record.status === 'upcoming');
+    const buckets = new Map<string, number>();
+    upcoming.forEach((record) => {
+      const date = record.date ? new Date(record.date) : null;
+      if (!date || Number.isNaN(date.getTime())) return;
+      const label = date.toLocaleDateString(undefined, { weekday: 'short', month: 'numeric', day: 'numeric' });
+      buckets.set(label, (buckets.get(label) || 0) + 1);
+    });
+    return Array.from(buckets.entries()).slice(0, 4).map(([date, count]) => ({ date, count }));
+  }, [maintenanceRecords]);
+
+  const partsInventory = useMemo<PartsInventory>(() => {
+    const inventory = (fleetData as any).inventory || (fleetData as any).partsInventory || [];
+    const rows = Array.isArray(inventory) ? inventory : [];
+    const total_items = rows.length;
+    const below_reorder = rows.filter((item: any) => Number(item.quantity_on_hand ?? item.quantityOnHand ?? 0) <= Number(item.reorder_point ?? item.reorderPoint ?? 0)).length;
+    const in_stock = rows.filter((item: any) => Number(item.quantity_on_hand ?? item.quantityOnHand ?? 0) > 0).length;
+    return { total_items, below_reorder, in_stock };
+  }, [fleetData]);
 
   const navigate = useNavigate();
 

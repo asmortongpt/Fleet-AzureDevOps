@@ -76,10 +76,17 @@ const MetricCard = React.memo<MetricCardProps>(({
   icon,
 }) => {
   const statusColors = {
-    success: 'text-green-600 dark:text-green-400',
-    warning: 'text-[#F0A000] dark:text-yellow-400',
-    error: 'text-[#DD3903] dark:text-red-400',
-    info: 'text-[#41B2E3] dark:text-blue-700',
+    success: 'text-[hsl(var(--chart-2))]',
+    warning: 'text-[hsl(var(--chart-3))]',
+    error: 'text-[hsl(var(--chart-6))]',
+    info: 'text-[hsl(var(--chart-1))]',
+  };
+
+  const statusBackgrounds = {
+    success: 'bg-[hsl(var(--chart-2)/0.12)]',
+    warning: 'bg-[hsl(var(--chart-3)/0.12)]',
+    error: 'bg-[hsl(var(--chart-6)/0.12)]',
+    info: 'bg-[hsl(var(--chart-1)/0.12)]',
   };
 
   const trendIcons = {
@@ -104,14 +111,14 @@ const MetricCard = React.memo<MetricCardProps>(({
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-lg ${statusColors[status]} bg-opacity-10`}>
+        <div className={`p-3 rounded-lg ${statusColors[status]} ${statusBackgrounds[status]}`}>
           {icon}
         </div>
       </div>
       {trend && trend !== 'stable' && (
         <div className="flex items-center mt-4 text-sm">
           {trendIcons[trend]}
-          <span className={`ml-1 ${trend === 'up' ? 'text-green-600' : 'text-[#DD3903]'}`}>
+          <span className={`ml-1 ${trend === 'up' ? 'text-[hsl(var(--chart-2))]' : 'text-[hsl(var(--chart-6))]'}`}>
             {trend === 'up' ? 'Improving' : 'Declining'}
           </span>
         </div>
@@ -221,7 +228,7 @@ const AuditRow = React.memo<AuditRowProps>(({ audit }) => {
             href={audit.reportUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#41B2E3] hover:text-blue-800 dark:text-blue-700 dark:hover:text-blue-300 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#41B2E3] rounded px-2 py-1"
+            className="text-primary hover:text-primary/80 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary rounded px-2 py-1"
             aria-label={`View report for ${audit.type} audit`}
           >
             <FileText className="w-4 h-4" />
@@ -244,7 +251,7 @@ const DashboardTab = React.memo<{
   if (data.isLoading) {
     return (
       <div className="flex items-center justify-center h-64" role="status" aria-live="polite">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         <span className="sr-only">Loading compliance data...</span>
       </div>
     );
@@ -252,14 +259,14 @@ const DashboardTab = React.memo<{
 
   if (data.error) {
     return (
-      <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6" role="alert">
-        <div className="flex items-center">
-          <XCircle className="w-6 h-6 text-[#DD3903] dark:text-red-400 mr-3" />
+        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-6" role="alert">
+          <div className="flex items-center">
+          <XCircle className="w-6 h-6 text-destructive mr-3" />
           <div>
-            <h3 className="text-lg font-semibold text-red-900 dark:text-red-100">
+            <h3 className="text-lg font-semibold text-destructive">
               Error Loading Data
             </h3>
-            <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+            <p className="text-sm text-destructive/80 mt-1">
               {data.error}
             </p>
           </div>
@@ -313,7 +320,7 @@ const DashboardTab = React.memo<{
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Cost Impact
           </h3>
-          <p className="text-3xl font-bold text-[#DD3903] dark:text-red-400">
+          <p className="text-3xl font-bold text-destructive">
             ${totalCostImpact.toLocaleString()}
           </p>
           <p className="text-sm text-muted-foreground mt-2">
@@ -325,7 +332,7 @@ const DashboardTab = React.memo<{
           <h3 className="text-lg font-semibold text-foreground mb-4">
             Avg. Resolution Time
           </h3>
-          <p className="text-3xl font-bold text-[#41B2E3] dark:text-blue-700">
+          <p className="text-3xl font-bold text-primary">
             {Math.round(avgResolutionTime)} days
           </p>
           <p className="text-sm text-muted-foreground mt-2">
@@ -414,7 +421,7 @@ const ViolationsTab = React.memo<{
   if (data.isLoading) {
     return (
       <div className="flex items-center justify-center h-64" role="status" aria-live="polite">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         <span className="sr-only">Loading violations...</span>
       </div>
     );
@@ -521,7 +528,7 @@ const AuditsTab = React.memo<{
   if (data.isLoading) {
     return (
       <div className="flex items-center justify-center h-64" role="status" aria-live="polite">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         <span className="sr-only">Loading audits...</span>
       </div>
     );
@@ -620,7 +627,7 @@ const ReportsTab = React.memo<{
   if (data.isLoading) {
     return (
       <div className="flex items-center justify-center h-64" role="status" aria-live="polite">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
         <span className="sr-only">Loading reports...</span>
       </div>
     );
@@ -656,7 +663,7 @@ const ReportsTab = React.memo<{
               className="bg-card/90 text-card-foreground rounded-lg shadow-sm p-6 border border-border/50"
             >
               <div className="flex items-start justify-between mb-4">
-                <FileText className="w-8 h-8 text-[#41B2E3] dark:text-blue-700" />
+                <FileText className="w-8 h-8 text-primary" />
                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                   report.status === 'APPROVED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
                   report.status === 'PENDING_REVIEW' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :

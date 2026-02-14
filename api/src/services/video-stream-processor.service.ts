@@ -59,7 +59,7 @@ class VideoStreamProcessorService extends EventEmitter {
     this.isProcessing = false;
 
     // Start background processing
-    this.startBackgroundProcessing();
+    void this.startBackgroundProcessing();
   }
 
   /**
@@ -286,7 +286,7 @@ class VideoStreamProcessorService extends EventEmitter {
       });
 
       // Start capturing post-event buffer
-      this.captureEventClip(frame.cameraId, eventId, preEventFrames, session.config.postEventBuffer);
+      void this.captureEventClip(frame.cameraId, eventId, preEventFrames, session.config.postEventBuffer);
 
       // Emit event
       this.emit('safetyEvent', {
@@ -332,7 +332,7 @@ class VideoStreamProcessorService extends EventEmitter {
 
           if (postEventFrames.length >= targetFrames) {
             clearInterval(captureInterval);
-            this.finalizeEventClip(eventId, preEventFrames, postEventFrames);
+            void this.finalizeEventClip(eventId, preEventFrames, postEventFrames);
           }
         }
       }, 1000 / session.config.frameRate);
@@ -341,7 +341,7 @@ class VideoStreamProcessorService extends EventEmitter {
       setTimeout(() => {
         clearInterval(captureInterval);
         if (postEventFrames.length > 0) {
-          this.finalizeEventClip(eventId, preEventFrames, postEventFrames);
+          void this.finalizeEventClip(eventId, preEventFrames, postEventFrames);
         }
       }, (postBufferSeconds + 5) * 1000);
     } catch (error: unknown) {

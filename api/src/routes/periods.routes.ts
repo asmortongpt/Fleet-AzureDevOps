@@ -19,8 +19,12 @@ periodsRouter.post("/accounting/periods", async (req, res) => {
 periodsRouter.post("/accounting/periods/:periodId/close", async (req, res) => {
   const periodId = Number(req.params.periodId);
   const period = await AccountingPeriodsRepository.getById(periodId);
-  if (!period) return res.status(404).json({ error: "Period not found" });
-  if (period.is_closed) return res.status(400).json({ error: "Period already closed" });
+  if (!period) {
+return res.status(404).json({ error: "Period not found" });
+}
+  if (period.is_closed) {
+return res.status(400).json({ error: "Period already closed" });
+}
 
   // fetch assets - replace with your own
   const { rows: assets } = await db.query(`SELECT * FROM assets`);

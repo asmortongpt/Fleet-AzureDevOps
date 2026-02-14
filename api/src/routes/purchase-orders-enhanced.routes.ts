@@ -778,7 +778,7 @@ router.post('/auto-create-from-alerts', [
     const alertsResult = await client.query(alertsQuery, [alert_ids]);
 
     // Group by supplier
-    const supplierGroups = alertsResult.rows.reduce((groups: any, alert: any) => {
+    const supplierGroups: Record<string, SupplierGroup> = alertsResult.rows.reduce((groups: Record<string, SupplierGroup>, alert: any) => {
       const supplierId = alert.primary_supplier_id;
       if (!groups[supplierId]) {
         groups[supplierId] = {
@@ -811,7 +811,7 @@ router.post('/auto-create-from-alerts', [
       items: AlertItem[];
     }
 
-    for (const group of Object.values(supplierGroups) as SupplierGroup[]) {
+    for (const group of Object.values(supplierGroups)) {
       // Generate PO number
       const poNumberResult = await client.query(`
         SELECT COALESCE(MAX(CAST(SUBSTRING(number FROM '[0-9]+') AS INTEGER)), 0) + 1 as next_number

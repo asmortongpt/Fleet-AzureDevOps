@@ -69,8 +69,8 @@ async function fixHistory() {
         console.error(e);
     } finally {
         client.release();
-        pool.end();
+        void pool.end();
     }
 }
 
-fixHistory();
+void fixHistory();

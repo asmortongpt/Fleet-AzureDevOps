@@ -95,7 +95,7 @@ export const workOrderCreateSchema = z.object({
   work_order_number: z.string()
     .min(1, 'Work order number is required')
     .max(50, 'Work order number must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Work order number can only contain letters, numbers, and hyphens')
+    .regex(/^[A-Z0-9-]+$/i, 'Work order number can only contain letters, numbers, and hyphens')
     .optional(), // Will be auto-generated if not provided
 
   // Vehicle (REQUIRED)

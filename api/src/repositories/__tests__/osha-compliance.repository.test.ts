@@ -10,7 +10,7 @@ describe('OSHAComplianceRepository', () => {
   let testVehicleId: number
 
   beforeAll(async () => {
-    repository = new OSHAComplianceRepository()
+    repository = new OSHAComplianceRepository(pool as any)
 
     // Create test tenant data
     const driverResult = await pool.query(

@@ -468,4 +468,4 @@ async function main() {
 export { EndpointTester, endpoints };
 
 // Run if executed directly
-main().catch(console.error);
+main().catch((err) => console.error(err));

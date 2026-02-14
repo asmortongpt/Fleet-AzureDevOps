@@ -9,7 +9,6 @@ import { onCLS, onLCP, onFCP, onTTFB, onINP, type Metric } from 'web-vitals';
 
 import { captureMessage, setContext } from './sentry';
 import { metrics, telemetry } from './telemetry';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

@@ -248,7 +248,7 @@ export function requireRole(...roles: string[]) {
           requiredRoles: roles,
           userRoles: user.roles
         }
-      }).catch(logger.error);
+      }).catch((err) => logger.error(err));
 
       return res.status(403).json({
         error: 'Forbidden',
@@ -294,7 +294,7 @@ export async function applyRecordFilters(
     );
 
     // Store filtered query
-    (req as PermissionRequest).filteredQuery = filteredQuery as Record<string, unknown>;
+    (req as PermissionRequest).filteredQuery = filteredQuery;
 
     next();
   } catch (error) {

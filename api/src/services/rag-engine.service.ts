@@ -6,6 +6,10 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
@@ -441,10 +445,6 @@ ${contextText}`
     return { total: documents.length, successful, failed }
   }
 }
-
-// Import dependencies for singleton instance
-import pool from '../config/database'
-import logger from '../config/logger'
 
 // Export singleton instance
 export const ragEngineService = new RAGEngineService(pool, logger)

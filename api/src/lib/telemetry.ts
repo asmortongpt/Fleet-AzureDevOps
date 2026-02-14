@@ -220,7 +220,7 @@ return
 }
 
   return new Promise((resolve) => {
-    appInsights.defaultClient.flush()
+    void appInsights.defaultClient.flush()
     logger.info('Telemetry data flushed')
     // Small delay to allow flush to complete
     setTimeout(resolve, 100)

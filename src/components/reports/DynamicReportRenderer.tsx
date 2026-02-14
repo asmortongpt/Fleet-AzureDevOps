@@ -32,14 +32,14 @@ interface DynamicReportRendererProps {
 }
 
 const CHART_COLORS = [
-  '#3B82F6', // blue-500
-  '#10B981', // green-500
-  '#F59E0B', // amber-500
-  '#EF4444', // red-500
-  '#8B5CF6', // violet-500
-  '#EC4899', // pink-500
-  '#06B6D4', // cyan-500
-  '#F97316', // orange-500
+  'hsl(var(--primary))', // blue-500
+  'hsl(var(--success))', // green-500
+  'hsl(var(--warning))', // amber-500
+  'hsl(var(--destructive))', // red-500
+  'hsl(var(--accent))', // violet-500
+  'hsl(var(--accent))', // pink-500
+  'hsl(var(--primary))', // cyan-500
+  'hsl(var(--warning))', // orange-500
 ];
 
 /**
@@ -262,19 +262,19 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
         <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis dataKey={x.field} stroke="rgba(255,255,255,0.6)" />
-            <YAxis stroke="rgba(255,255,255,0.6)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.1)" />
+            <XAxis dataKey={x.field} stroke="hsl(var(--muted-foreground) / 0.6)" />
+            <YAxis stroke="hsl(var(--muted-foreground) / 0.6)" />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(0,0,0,0.9)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                backgroundColor: 'hsl(var(--foreground) / 0.9)',
+                border: '1px solid hsl(var(--border) / 0.2)',
                 borderRadius: '12px',
                 padding: '12px'
               }}
-              labelStyle={{ color: '#fff' }}
+              labelStyle={{ color: 'hsl(var(--foreground))' }}
             />
-            <Legend wrapperStyle={{ color: '#fff' }} />
+            <Legend wrapperStyle={{ color: 'hsl(var(--foreground))' }} />
             {color ? (
               // Multiple lines by category
               Array.from(new Set(data.map(d => d[color.field]))).map((category, idx) => (
@@ -318,19 +318,19 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
         <h3 className="text-base font-semibold text-white mb-3">{visual.title}</h3>
         <ResponsiveContainer width="100%" height={400}>
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-            <XAxis dataKey={x.field} stroke="rgba(255,255,255,0.6)" />
-            <YAxis stroke="rgba(255,255,255,0.6)" />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border) / 0.1)" />
+            <XAxis dataKey={x.field} stroke="hsl(var(--muted-foreground) / 0.6)" />
+            <YAxis stroke="hsl(var(--muted-foreground) / 0.6)" />
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(0,0,0,0.9)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                backgroundColor: 'hsl(var(--foreground) / 0.9)',
+                border: '1px solid hsl(var(--border) / 0.2)',
                 borderRadius: '12px',
                 padding: '12px'
               }}
-              labelStyle={{ color: '#fff' }}
+              labelStyle={{ color: 'hsl(var(--foreground))' }}
             />
-            <Legend wrapperStyle={{ color: '#fff' }} />
+            <Legend wrapperStyle={{ color: 'hsl(var(--foreground))' }} />
             <Bar dataKey={y.field} fill={CHART_COLORS[0]} radius={[8, 8, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
@@ -374,7 +374,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
               labelLine={false}
               label={(entry) => entry.name}
               outerRadius={120}
-              fill="#8884d8"
+              fill="hsl(var(--accent))"
               dataKey="value"
             >
               {pieData.map((_entry: { name: string; value: number }, index: number) => (
@@ -383,11 +383,11 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
             </Pie>
             <Tooltip
               contentStyle={{
-                backgroundColor: 'rgba(0,0,0,0.9)',
-                border: '1px solid rgba(255,255,255,0.2)',
+                backgroundColor: 'hsl(var(--foreground) / 0.9)',
+                border: '1px solid hsl(var(--border) / 0.2)',
                 borderRadius: '12px',
                 padding: '12px',
-                color: '#fff'
+                color: 'hsl(var(--foreground))'
               }}
             />
           </PieChart>

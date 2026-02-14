@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { FIPSCryptoService } from '../services/fips-crypto.service';
+import { FIPSCryptoService } from '../../services/fips-crypto.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

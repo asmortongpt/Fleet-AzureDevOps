@@ -23,9 +23,9 @@ import { outlookCalendarService, CalendarEvent } from '../../services/outlookCal
 import { format } from 'date-fns';
 
 import EventCreateModal from './EventCreateModal';
-import { useAuth } from '@/contexts/AuthContext';
 
 import { useAuth } from '@/contexts';
+
 
 const localizer = momentLocalizer(moment);
 
@@ -177,11 +177,11 @@ const FleetCalendar: React.FC = () => {
     const priority = event.resource?.priority || 'normal';
 
     const colors = {
-      maintenance: { bg: '#f59e0b', border: '#d97706' },
-      reservation: { bg: '#3b82f6', border: '#2563eb' },
-      inspection: { bg: '#10b981', border: '#059669' },
-      meeting: { bg: '#0f766e', border: '#0d9488' },
-      other: { bg: '#6b7280', border: '#4b5563' }
+      maintenance: { bg: 'hsl(var(--chart-3))', border: 'hsl(var(--chart-3))' },
+      reservation: { bg: 'hsl(var(--chart-1))', border: 'hsl(var(--chart-1))' },
+      inspection: { bg: 'hsl(var(--chart-2))', border: 'hsl(var(--chart-2))' },
+      meeting: { bg: 'hsl(var(--chart-5))', border: 'hsl(var(--chart-5))' },
+      other: { bg: 'hsl(var(--muted-foreground))', border: 'hsl(var(--muted-foreground))' }
     };
 
     const priorityOpacity = {
@@ -199,7 +199,7 @@ const FleetCalendar: React.FC = () => {
         backgroundColor: color.bg,
         borderLeft: `4px solid ${color.border}`,
         opacity,
-        color: 'white',
+        color: 'hsl(var(--background))',
         borderRadius: '4px',
         padding: '2px 5px'
       }
@@ -207,17 +207,17 @@ const FleetCalendar: React.FC = () => {
   };
 
   const CustomToolbar = ({ label, onNavigate, onView }: any) => (
-    <div className="flex items-center justify-between mb-2 p-2 bg-white rounded-lg shadow-sm">
+    <div className="flex items-center justify-between mb-2 p-2 bg-card rounded-lg shadow-sm border border-border/50">
       <div className="flex items-center space-x-2">
         <button
           onClick={() => onNavigate('PREV')}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-muted rounded-lg transition-colors"
         >
           <ChevronLeft className="w-3 h-3" />
         </button>
         <button
           onClick={() => onNavigate('TODAY')}
-          className="px-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="px-2 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
         >
           Today
         </button>

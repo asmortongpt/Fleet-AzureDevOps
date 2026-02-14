@@ -132,7 +132,7 @@ const extractUserInfo = (payload: any): {
   return {
     id: payload.oid || payload.sub, // Object ID (unique user ID)
     email: payload.email || payload.preferred_username || payload.upn,
-    name: payload.name || payload.given_name + ' ' + payload.family_name,
+    name: payload.name || `${String(payload.given_name || '')} ${String(payload.family_name || '')}`.trim(),
     roles: payload.roles || [],
     tenantId: payload.tid, // Tenant ID
     mfaUsed: validateMFA(payload)

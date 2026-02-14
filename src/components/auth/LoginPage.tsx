@@ -9,7 +9,6 @@
 import { Shield, Lock, Truck, ChevronRight, AlertCircle, Fingerprint } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Shield, Lock, Truck, ChevronRight, AlertCircle, Fingerprint } from 'lucide-react'
 
 import { Alert } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
@@ -22,7 +21,6 @@ import {
 } from "@/lib/auth/index"
 import { cn } from '@/lib/utils'
 import logger from '@/utils/logger'
-import { cn } from '@/lib/utils'
 
 export const LoginPage = () => {
   const navigate = useNavigate()

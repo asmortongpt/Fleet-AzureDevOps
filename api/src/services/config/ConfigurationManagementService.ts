@@ -681,13 +681,19 @@ export class ConfigurationManagementService {
 
         switch (condition.operator) {
           case 'equals':
-            if (attrValue !== condition.value) return false;
+            if (attrValue !== condition.value) {
+return false;
+}
             break;
           case 'in':
-            if (!condition.values?.includes(attrValue)) return false;
+            if (!condition.values?.includes(attrValue)) {
+return false;
+}
             break;
           case 'notIn':
-            if (condition.values?.includes(attrValue)) return false;
+            if (condition.values?.includes(attrValue)) {
+return false;
+}
             break;
         }
       }
@@ -914,7 +920,9 @@ export class ConfigurationManagementService {
   }
 
   private async invalidateCache(key: string): Promise<void> {
-    if (!this.redis) return;
+    if (!this.redis) {
+return;
+}
 
     const pattern = `config:${key}:*`;
     const keys = await this.redis.keys(pattern);

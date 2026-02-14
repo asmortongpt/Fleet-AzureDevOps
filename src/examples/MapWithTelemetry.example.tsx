@@ -399,7 +399,7 @@ const MapWithTelemetry: React.FC<MapWithTelemetryProps> = ({
     return (
       <div style={{ padding: 20, textAlign: 'center' }}>
         <p>Loading map...</p>
-        <p style={{ fontSize: 12, color: '#666' }}>
+        <p style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>
           Provider: {provider} | Markers: {markers.length}
         </p>
       </div>
@@ -414,7 +414,7 @@ const MapWithTelemetry: React.FC<MapWithTelemetryProps> = ({
         style={{
           width: '100%',
           height: '100%',
-          backgroundColor: '#f0f0f0',
+          backgroundColor: 'hsl(var(--muted))',
           position: 'relative',
         }}
       >
@@ -438,7 +438,7 @@ const MapWithTelemetry: React.FC<MapWithTelemetryProps> = ({
           backgroundColor: 'white',
           padding: 10,
           borderRadius: 4,
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          boxShadow: '0 2px 4px hsl(var(--foreground) / 0.1)',
         }}
       >
         <button onClick={() => handleZoomChange(zoom + 1)}>Zoom In</button>
@@ -457,7 +457,7 @@ const MapWithTelemetry: React.FC<MapWithTelemetryProps> = ({
             backgroundColor: 'white',
             padding: 10,
             borderRadius: 4,
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            boxShadow: '0 2px 4px hsl(var(--foreground) / 0.1)',
           }}
         >
           <h4>Selected: {selectedMarker.label}</h4>

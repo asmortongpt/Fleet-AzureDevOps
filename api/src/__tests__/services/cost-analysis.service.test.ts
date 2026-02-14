@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { CostAnalysisService } from '../services/cost-analysis.service';
+import { CostAnalysisService } from '../../services/cost-analysis.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

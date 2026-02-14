@@ -394,7 +394,7 @@ return;
           errorType
         };
 
-      case ErrorType.RATE_LIMIT:
+      case ErrorType.RATE_LIMIT: {
         // Retry with exponential backoff for rate limits
         const rateLimitDelay = this.calculateExponentialBackoff(retryCount, 60000);
         return {
@@ -404,6 +404,7 @@ return;
           reason: 'Rate limit - retry with backoff',
           errorType
         };
+      }
 
       case ErrorType.AUTHENTICATION:
         // Retry once for auth errors (token might be refreshed)
@@ -416,7 +417,7 @@ return;
         };
 
       case ErrorType.NETWORK:
-      case ErrorType.TIMEOUT:
+      case ErrorType.TIMEOUT: {
         // Retry with exponential backoff
         const delay = this.calculateExponentialBackoff(retryCount);
         return {
@@ -426,8 +427,9 @@ return;
           reason: 'Network/timeout error - retry with backoff',
           errorType
         };
+      }
 
-      default:
+      default: {
         // Unknown errors - retry with backoff
         const defaultDelay = this.calculateExponentialBackoff(retryCount);
         return {
@@ -437,6 +439,7 @@ return;
           reason: 'Unknown error - retry with backoff',
           errorType
         };
+      }
     }
   }
 

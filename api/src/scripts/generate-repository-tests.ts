@@ -432,4 +432,4 @@ async function generateTests() {
 }
 
 // Run the generator
-generateTests().catch(console.error);
+generateTests().catch((err) => console.error(err));

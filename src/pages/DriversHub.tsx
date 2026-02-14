@@ -94,8 +94,8 @@ export default function DriversHub() {
         header: 'Driver Name',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#2F3359] flex items-center justify-center">
-              <User className="h-4 w-4 text-[#41B2E3]" />
+            <div className="w-8 h-8 rounded-full bg-[hsl(var(--muted))] flex items-center justify-center">
+              <User className="h-4 w-4 text-[hsl(var(--primary))]" />
             </div>
             <span className="font-semibold text-white">{row.getValue('name')}</span>
           </div>
@@ -106,7 +106,7 @@ export default function DriversHub() {
         header: 'Email',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-[#41B2E3]" />
+            <Mail className="h-4 w-4 text-[hsl(var(--primary))]" />
             <span className="text-gray-200 text-sm">{row.getValue('email')}</span>
           </div>
         ),
@@ -116,7 +116,7 @@ export default function DriversHub() {
         header: 'Phone',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <Phone className="h-4 w-4 text-[#41B2E3]" />
+            <Phone className="h-4 w-4 text-[hsl(var(--primary))]" />
             <span className="text-gray-200 font-mono text-sm">{row.getValue('phone')}</span>
           </div>
         ),
@@ -130,7 +130,7 @@ export default function DriversHub() {
           const vehicle = row.getValue('currentVehicle') as string | undefined
           return vehicle ? (
             <div className="flex items-center gap-2">
-              <Car className="h-4 w-4 text-[#F0A000]" />
+              <Car className="h-4 w-4 text-[hsl(var(--warning))]" />
               <span className="text-white text-sm">{vehicle}</span>
             </div>
           ) : (
@@ -143,7 +143,7 @@ export default function DriversHub() {
         header: 'Location',
         cell: ({ row }) => (
           <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-[#41B2E3]" />
+            <MapPin className="h-4 w-4 text-[hsl(var(--primary))]" />
             <span className="text-gray-200 text-sm">{row.getValue('location') || 'Unknown'}</span>
           </div>
         ),
@@ -156,8 +156,8 @@ export default function DriversHub() {
           const isOvertime = hours > 8
           return (
             <div className="flex items-center gap-2">
-              <Clock className={cn('h-4 w-4', isOvertime ? 'text-[#DD3903]' : 'text-[#41B2E3]')} />
-              <span className={cn('font-medium', isOvertime ? 'text-[#DD3903]' : 'text-white')}>
+              <Clock className={cn('h-4 w-4', isOvertime ? 'text-[hsl(var(--destructive))]' : 'text-[hsl(var(--primary))]')} />
+              <span className={cn('font-medium', isOvertime ? 'text-[hsl(var(--destructive))]' : 'text-white')}>
                 {hours.toFixed(1)}h
               </span>
             </div>
@@ -171,7 +171,7 @@ export default function DriversHub() {
           const hours = row.getValue('hoursWeek') as number
           const isOvertime = hours > 40
           return (
-            <span className={cn('font-medium', isOvertime ? 'text-[#F0A000]' : 'text-white')}>
+            <span className={cn('font-medium', isOvertime ? 'text-[hsl(var(--warning))]' : 'text-white')}>
               {hours.toFixed(1)}h
             </span>
           )
@@ -182,7 +182,7 @@ export default function DriversHub() {
         header: 'Safety Score',
         cell: ({ row }) => {
           const score = row.getValue('safetyScore') as number
-          const color = score >= 95 ? 'text-emerald-400' : score >= 85 ? 'text-[#F0A000]' : 'text-[#DD3903]'
+          const color = score >= 95 ? 'text-emerald-400' : score >= 85 ? 'text-[hsl(var(--warning))]' : 'text-[hsl(var(--destructive))]'
           return (
             <div className="flex items-center gap-2">
               <Shield className={cn('h-4 w-4', color)} />
@@ -198,7 +198,7 @@ export default function DriversHub() {
           const rating = row.getValue('rating') as number
           return (
             <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 text-[#F0A000] fill-[#F0A000]" />
+              <Star className="h-4 w-4 text-[hsl(var(--warning))] fill-[hsl(var(--warning))]" />
               <span className="text-white font-medium">{rating.toFixed(1)}</span>
             </div>
           )
@@ -227,8 +227,8 @@ export default function DriversHub() {
             <div className="flex items-center gap-2">
               {violations > 0 ? (
                 <>
-                  <AlertTriangle className="h-4 w-4 text-[#DD3903]" />
-                  <span className="text-[#DD3903] font-semibold">{violations}</span>
+                  <AlertTriangle className="h-4 w-4 text-[hsl(var(--destructive))]" />
+                  <span className="text-[hsl(var(--destructive))] font-semibold">{violations}</span>
                 </>
               ) : (
                 <>
@@ -278,10 +278,10 @@ export default function DriversHub() {
   }, [drivers])
 
   return (
-    <div className="min-h-screen bg-[#0A0E27] p-3 space-y-3">
+    <div className="min-h-screen bg-[hsl(var(--background))] p-3 space-y-3">
       {/* Header with gradient accent */}
       <div className="relative">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#F0A000] to-[#DD3903]" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[hsl(var(--warning))] to-[hsl(var(--destructive))]" />
         <div className="pt-3">
           <h1 className="text-2xl font-bold text-white mb-1">Driver Management</h1>
           <p className="text-sm text-gray-300">
@@ -295,7 +295,7 @@ export default function DriversHub() {
         <StatCard
           label="Total Drivers"
           value={driverStats.total}
-          icon={<User className="h-5 w-5 text-[#41B2E3]" />}
+          icon={<User className="h-5 w-5 text-[hsl(var(--primary))]" />}
           trend="neutral"
         />
         <StatCard
@@ -307,7 +307,7 @@ export default function DriversHub() {
         <StatCard
           label="On Leave"
           value={driverStats.onLeave}
-          icon={<Calendar className="h-5 w-5 text-[#F0A000]" />}
+          icon={<Calendar className="h-5 w-5 text-[hsl(var(--warning))]" />}
           trend="neutral"
         />
         <StatCard
@@ -319,19 +319,19 @@ export default function DriversHub() {
         <StatCard
           label="Avg Rating"
           value={driverStats.avgRating}
-          icon={<Star className="h-5 w-5 text-[#F0A000]" />}
+          icon={<Star className="h-5 w-5 text-[hsl(var(--warning))]" />}
           trend="neutral"
         />
         <StatCard
           label="Violations"
           value={driverStats.totalViolations}
-          icon={<AlertTriangle className="h-5 w-5 text-[#DD3903]" />}
+          icon={<AlertTriangle className="h-5 w-5 text-[hsl(var(--destructive))]" />}
           trend="down"
         />
         <StatCard
           label="Hours Today"
           value={driverStats.totalHoursToday}
-          icon={<Clock className="h-5 w-5 text-[#41B2E3]" />}
+          icon={<Clock className="h-5 w-5 text-[hsl(var(--primary))]" />}
           trend="neutral"
         />
       </div>
@@ -349,18 +349,18 @@ export default function DriversHub() {
           <div className="flex gap-2">
             <Button
               variant="outline"
-              className="bg-[#131B45] border-[#41B2E3]/20 text-white hover:bg-[#41B2E3]/20"
+              className="bg-[hsl(var(--card))] border-[hsl(var(--primary))]/20 text-white hover:bg-[hsl(var(--primary))]/20"
             >
               Export Data
             </Button>
-            <Button className="bg-[#DD3903] hover:bg-[#DD3903]/90 text-white">
+            <Button className="bg-[hsl(var(--destructive))] hover:bg-[hsl(var(--destructive))]/90 text-white">
               Add Driver
             </Button>
           </div>
         </div>
 
         {(!isLoading && drivers.length === 0) ? (
-          <div className="rounded-lg border border-[#41B2E3]/20 bg-[#131B45] p-6 text-sm text-gray-200">
+          <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
             No driver records found. Connect the drivers service or seed the CTA dataset to populate this table.
           </div>
         ) : (
@@ -378,7 +378,7 @@ export default function DriversHub() {
       </div>
 
       {/* Footer */}
-      <div className="text-center text-xs text-gray-400 pt-3 border-t border-[#41B2E3]/10">
+      <div className="text-center text-xs text-gray-400 pt-3 border-t border-[hsl(var(--primary))]/10">
         CTA Driver Management • ArchonY Platform • Real-time updates • Professional data tables
       </div>
     </div>
@@ -395,7 +395,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, trend = 'neutral' }: StatCardProps) {
   return (
-    <div className="bg-[#2F3359] border border-[#41B2E3]/20 rounded-lg p-3 hover:border-[#41B2E3]/40 transition-all">
+    <div className="bg-[hsl(var(--muted))] border border-[hsl(var(--primary))]/20 rounded-lg p-3 hover:border-[hsl(var(--primary))]/40 transition-all">
       <div className="flex items-center justify-between mb-1.5">
         <div className="text-[10px] font-semibold text-gray-300 uppercase tracking-wide">
           {label}
@@ -407,7 +407,7 @@ function StatCard({ label, value, icon, trend = 'neutral' }: StatCardProps) {
         {trend !== 'neutral' && (
           <div className={cn(
             'flex items-center text-xs mb-1',
-            trend === 'up' ? 'text-emerald-400' : 'text-[#DD3903]'
+            trend === 'up' ? 'text-emerald-400' : 'text-[hsl(var(--destructive))]'
           )}>
             {trend === 'up' ? (
               <TrendingUp className="h-3 w-3" />

@@ -61,8 +61,12 @@ router.get(
     `;
 
     const params = [vendorId, tenantId];
-    if (start_date) params.push(start_date as string);
-    if (end_date) params.push(end_date as string);
+    if (start_date) {
+params.push(start_date as string);
+}
+    if (end_date) {
+params.push(end_date as string);
+}
     params.push(limit as string);
 
     const result = await pool.query(query, params);
@@ -330,9 +334,15 @@ router.get(
     `;
 
     const countParams: any[] = [tenantId];
-    if (vendor_id) countParams.push(vendor_id as string);
-    if (contract_type) countParams.push(contract_type as string);
-    if (status) countParams.push(status as string);
+    if (vendor_id) {
+countParams.push(vendor_id as string);
+}
+    if (contract_type) {
+countParams.push(contract_type as string);
+}
+    if (status) {
+countParams.push(status as string);
+}
 
     const countResult = await pool.query(countQuery, countParams);
 

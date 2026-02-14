@@ -263,7 +263,7 @@ export function startTeamsSync(): void {
     }
   )
 
-  task.start()
+  void task.start()
 
   logger.info('Teams sync job started successfully', {
     schedule: CRON_SCHEDULE,
@@ -273,12 +273,12 @@ export function startTeamsSync(): void {
   // Graceful shutdown
   process.on('SIGTERM', () => {
     logger.info('SIGTERM received, stopping Teams sync')
-    task.stop()
+    void task.stop()
   })
 
   process.on('SIGINT', () => {
     logger.info('SIGINT received, stopping Teams sync')
-    task.stop()
+    void task.stop()
   })
 }
 

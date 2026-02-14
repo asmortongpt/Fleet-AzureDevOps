@@ -12,6 +12,9 @@ import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model
 
 import fuelPurchasingService from './fuel-purchasing.service'
 
+// Export singleton instance
+import { pool } from '../db'
+
 export interface OptimalRefuelingLocation {
   vehicleId: string
   currentLocation: { lat: number; lng: number }
@@ -521,9 +524,6 @@ return 0
     }
   }
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const fuelOptimizationService = new FuelOptimizationService(pool)
 
 export default fuelOptimizationService

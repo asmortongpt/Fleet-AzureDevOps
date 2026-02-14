@@ -77,10 +77,10 @@ router.get(
       res.json({
         data: result.rows.map((row) => ({
           time: row.bucket,
-          cpu: row.cpu != null ? Number(row.cpu) : null,
-          memory: row.memory != null ? Number(row.memory) : null,
-          requests: row.requests != null ? Number(row.requests) : null,
-          responseTime: row.response_time != null ? Number(row.response_time) : null
+          cpu: row.cpu !== null && row.cpu !== undefined ? Number(row.cpu) : null,
+          memory: row.memory !== null && row.memory !== undefined ? Number(row.memory) : null,
+          requests: row.requests !== null && row.requests !== undefined ? Number(row.requests) : null,
+          responseTime: row.response_time !== null && row.response_time !== undefined ? Number(row.response_time) : null
         }))
       })
     } catch (error) {

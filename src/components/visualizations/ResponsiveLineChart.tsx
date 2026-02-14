@@ -20,13 +20,9 @@ import {
   ReferenceArea,
 } from 'recharts'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
-import { TrendingDown, TrendingUp } from 'lucide-react';
 interface DataPoint {
   name: string
   value?: number
@@ -49,12 +45,12 @@ interface ResponsiveLineChartProps {
 }
 
 const GRADIENT_COLORS = [
-  { id: 'line-gradient-1', stroke: '#3b82f6', fill: '#3b82f6' },
-  { id: 'line-gradient-2', stroke: '#10b981', fill: '#10b981' },
-  { id: 'line-gradient-3', stroke: '#f59e0b', fill: '#f59e0b' },
-  { id: 'line-gradient-4', stroke: '#ef4444', fill: '#ef4444' },
-  { id: 'line-gradient-5', stroke: '#8b5cf6', fill: '#8b5cf6' },
-  { id: 'line-gradient-6', stroke: '#06b6d4', fill: '#06b6d4' },
+  { id: 'line-gradient-1', stroke: 'hsl(var(--chart-1))', fill: 'hsl(var(--chart-1))' },
+  { id: 'line-gradient-2', stroke: 'hsl(var(--chart-2))', fill: 'hsl(var(--chart-2))' },
+  { id: 'line-gradient-3', stroke: 'hsl(var(--chart-3))', fill: 'hsl(var(--chart-3))' },
+  { id: 'line-gradient-4', stroke: 'hsl(var(--chart-6))', fill: 'hsl(var(--chart-6))' },
+  { id: 'line-gradient-5', stroke: 'hsl(var(--chart-4))', fill: 'hsl(var(--chart-4))' },
+  { id: 'line-gradient-6', stroke: 'hsl(var(--chart-5))', fill: 'hsl(var(--chart-5))' },
 ]
 
 export function ResponsiveLineChart({
@@ -71,16 +67,13 @@ export function ResponsiveLineChart({
   showAverage = false,
   highlightZones,
 }: ResponsiveLineChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'hsl(var(--foreground))',
+    grid: 'hsl(var(--border))',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'hsl(var(--card))',
+      border: 'hsl(var(--border))',
+      text: 'hsl(var(--foreground))',
     },
   }
 
@@ -143,7 +136,7 @@ export function ResponsiveLineChart({
           cy={cy}
           r={6}
           fill={stroke}
-          stroke="#fff"
+          stroke="hsl(var(--background))"
           strokeWidth={2}
           className="drop-shadow-lg"
         />
@@ -155,7 +148,7 @@ export function ResponsiveLineChart({
         cy={cy}
         r={4}
         fill={stroke}
-        stroke="#fff"
+        stroke="hsl(var(--background))"
         strokeWidth={1.5}
       />
     )
@@ -229,7 +222,7 @@ export function ResponsiveLineChart({
                     key={index}
                     x1={zone.start}
                     x2={zone.end}
-                    fill={zone.color || '#f59e0b'}
+                    fill={zone.color || 'hsl(var(--chart-3))'}
                     fillOpacity={0.1}
                   />
                 ))}

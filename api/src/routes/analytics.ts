@@ -102,7 +102,7 @@ const initRedis = async () => {
 // Cache middleware
 const CACHE_TTL = 300 // 5 minutes
 const cacheMiddleware = (keyPrefix: string) => {
-    return async (req: Request, res: Response, next: Function) => {
+    return async (req: Request, res: Response, next: () => void) => {
         try {
             await initRedis()
             const cacheKey = `${keyPrefix}:${JSON.stringify(req.query)}`
@@ -126,7 +126,7 @@ const cacheMiddleware = (keyPrefix: string) => {
             // Override json function to cache response
             res.json = function (body: unknown) {
                 if (res.statusCode === 200) {
-                    redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(body)).catch(logger.error)
+                    redisClient.setEx(cacheKey, CACHE_TTL, JSON.stringify(body)).catch((err) => logger.error(err))
                 }
                 return originalJson(body)
             } as typeof res.json
@@ -149,7 +149,9 @@ const cacheMiddleware = (keyPrefix: string) => {
 router.get('/dashboard', cacheMiddleware('analytics:dashboard'), async (req: Request, res: Response) => {
     try {
         const tenantId = req.user?.tenant_id ?? ''
-        if (!tenantId) return res.status(401).json({ error: 'Unauthorized' })
+        if (!tenantId) {
+return res.status(401).json({ error: 'Unauthorized' })
+}
 
         const daysRaw = Array.isArray(req.query.days) ? req.query.days[0] : req.query.days
         const days = Math.max(1, Math.min(365, parseInt(String(daysRaw ?? '30'), 10) || 30))

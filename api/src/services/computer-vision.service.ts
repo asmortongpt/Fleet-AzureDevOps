@@ -311,7 +311,9 @@ export class ComputerVisionService extends EventEmitter {
    * Start processing vision analysis
    */
   public start(): void {
-    if (this.isRunning) return;
+    if (this.isRunning) {
+return;
+}
 
     this.isRunning = true;
     const intervalMs = 1000 / this.config.processingFps;
@@ -327,7 +329,9 @@ export class ComputerVisionService extends EventEmitter {
    * Stop processing
    */
   public stop(): void {
-    if (!this.isRunning) return;
+    if (!this.isRunning) {
+return;
+}
 
     this.isRunning = false;
     if (this.processingInterval) {
@@ -514,10 +518,18 @@ export class ComputerVisionService extends EventEmitter {
     const handsOnWheel: 'both' | 'one' | 'none' =
       Math.random() < 0.85 ? 'both' : Math.random() < 0.5 ? 'one' : 'none';
 
-    if (!seatbeltOn) alerts.push('no_seatbelt');
-    if (phoneInHand) alerts.push('phone_use');
-    if (smoking) alerts.push('smoking');
-    if (eating) alerts.push('eating');
+    if (!seatbeltOn) {
+alerts.push('no_seatbelt');
+}
+    if (phoneInHand) {
+alerts.push('phone_use');
+}
+    if (smoking) {
+alerts.push('smoking');
+}
+    if (eating) {
+alerts.push('eating');
+}
 
     // Facial recognition
     const recognized = this.config.enableFacialRecognition && Math.random() < 0.9;

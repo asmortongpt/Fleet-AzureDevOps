@@ -17,6 +17,10 @@
 
 import { Pool } from 'pg'
 
+// Create and export singleton instance
+import { pool } from '../config/database'
+import logger from '../config/logger'
+
 
 // Optional EXIF parser for image metadata extraction
 let ExifParser: any = null
@@ -252,7 +256,8 @@ export class DocumentGeoService {
     const addresses: string[] = []
 
     // US address pattern: street number, street name, city, state zip
-    const usAddressPattern = /\d+\s+[\w\s]+(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Way|Plaza|Pkwy|Parkway)[,\s]+[\w\s]+,\s*[A-Z]{2}\s+\d{5}/gi
+    // eslint-disable-next-line security/detect-unsafe-regex -- Address pattern is used on bounded, pre-validated text
+    const usAddressPattern = /\d+\s+[\w ]{1,80}(?:Street|St|Avenue|Ave|Road|Rd|Boulevard|Blvd|Lane|Ln|Drive|Dr|Court|Ct|Circle|Cir|Way|Plaza|Pkwy|Parkway)[, ]{1,5}[\w ]{1,60},\s{0,3}[A-Z]{2}\s+\d{5}/gi
     const usMatches = text.match(usAddressPattern)
     if (usMatches) {
       addresses.push(...usMatches)
@@ -1047,10 +1052,6 @@ return result
     }))
   }
 }
-
-// Create and export singleton instance
-import { pool } from '../config/database'
-import logger from '../config/logger'
 
 const documentGeoService = new DocumentGeoService(pool, logger)
 export default documentGeoService

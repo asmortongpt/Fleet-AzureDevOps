@@ -87,7 +87,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
   return (
     <div className="flex flex-col h-full bg-background">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#1E3A8A] via-[#1D4ED8] to-[#0F172A] text-white px-3 py-3">
+      <div className="bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--primary))] to-[hsl(var(--background))] text-white px-3 py-3">
         <div className="flex items-center justify-between max-w-6xl mx-auto">
           <div className="flex items-center gap-2">
             <Button
@@ -174,7 +174,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
               </Card>
 
               {/* How it works */}
-              <Card className="p-3 bg-[linear-gradient(135deg,rgba(15,23,42,0.6),rgba(30,58,138,0.4))] border-border/50">
+              <Card className="p-3 bg-[linear-gradient(135deg,hsl(var(--background) / 0.6),hsl(var(--primary) / 0.4))] border-border/50">
                 <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Sparkles className="h-4 w-4" />
                   How it works

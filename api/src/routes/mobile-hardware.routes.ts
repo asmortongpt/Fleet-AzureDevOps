@@ -107,7 +107,7 @@ async function ensureMobileHardwareTables(): Promise<void> {
 }
 
 // Run table creation on module load
-ensureMobileHardwareTables()
+void ensureMobileHardwareTables()
 
 /**
  * ============================================================================
@@ -893,7 +893,7 @@ router.post(`/dashcam/event`, requirePermission(`safety_incident:create:global`)
       type: row.event_type,
       severity: row.severity,
       notes: row.notes,
-      gpsData: (row.latitude != null && row.longitude != null) ? {
+      gpsData: (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) ? {
         latitude: Number(row.latitude),
         longitude: Number(row.longitude),
         speed: row.speed ? Number(row.speed) : undefined,
@@ -1019,7 +1019,7 @@ router.get('/dashcam/events', requirePermission('safety_incident:view:global'), 
       severity: row.severity,
       vehicleId: row.vehicle_id ? String(row.vehicle_id) : null,
       driverId: row.driver_id ? String(row.driver_id) : null,
-      gpsData: (row.latitude != null && row.longitude != null) ? {
+      gpsData: (row.latitude !== null && row.latitude !== undefined && row.longitude !== null && row.longitude !== undefined) ? {
         latitude: Number(row.latitude),
         longitude: Number(row.longitude),
         speed: row.speed ? Number(row.speed) : undefined

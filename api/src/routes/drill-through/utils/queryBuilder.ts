@@ -167,10 +167,14 @@ export function buildDrillThroughQuery(
 
   // Build parameterized filter conditions using only whitelisted column names
   for (const [key, value] of Object.entries(filters)) {
-    if (value === undefined || value === null) continue;
+    if (value === undefined || value === null) {
+continue;
+}
 
     const sanitizedKey = sanitizeColumnName(key);
-    if (!ALLOWED_FILTER_COLUMNS.has(sanitizedKey)) continue;
+    if (!ALLOWED_FILTER_COLUMNS.has(sanitizedKey)) {
+continue;
+}
 
     // Determine correct column prefix based on entity type
     let columnRef = sanitizedKey;

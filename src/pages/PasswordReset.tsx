@@ -50,7 +50,7 @@ export function PasswordReset() {
     <div
       className="relative flex min-h-screen items-center justify-center overflow-hidden"
       style={{
-        background: 'linear-gradient(135deg, #1A0B2E 0%, #2F3359 50%, #1A0B2E 100%)',
+        background: 'linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--card)) 50%, hsl(var(--background)) 100%)',
         minHeight: '100vh'
       }}
     >
@@ -60,14 +60,14 @@ export function PasswordReset() {
         <div
           className="absolute top-1/4 left-1/4 h-96 w-96 animate-pulse rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(0, 212, 255, 0.25) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, hsl(var(--chart-5) / 0.25) 0%, transparent 70%)',
             filter: 'blur(60px)'
           }}
         />
         <div
           className="absolute bottom-1/4 right-1/4 h-96 w-96 animate-pulse rounded-full"
           style={{
-            background: 'radial-gradient(circle, rgba(255, 87, 34, 0.2) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, hsl(var(--chart-6) / 0.2) 0%, transparent 70%)',
             filter: 'blur(60px)',
             animationDelay: '2s'
           }}
@@ -77,7 +77,8 @@ export function PasswordReset() {
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundImage: 'linear-gradient(90deg, hsl(var(--border) / 0.08) 1px, transparent 1px), linear-gradient(hsl(var(--border) / 0.08) 1px, transparent 1px)',
+            backgroundSize: '60px 60px'
           }}
         />
       </div>
@@ -93,12 +94,12 @@ export function PasswordReset() {
               height="80"
               viewBox="0 0 80 80"
               className="absolute top-0 left-1/2 -translate-x-1/2"
-              style={{ filter: 'drop-shadow(0 4px 8px rgba(253, 184, 19, 0.5))' }}
+              style={{ filter: 'drop-shadow(0 4px 8px hsl(var(--chart-3) / 0.5))' }}
             >
               <defs>
                 <linearGradient id="ctaGradientPasswordReset" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" style={{ stopColor: '#F0A000' }} />
-                  <stop offset="100%" style={{ stopColor: '#DD3903' }} />
+                  <stop offset="0%" style={{ stopColor: 'hsl(var(--chart-3))' }} />
+                  <stop offset="100%" style={{ stopColor: 'hsl(var(--chart-6))' }} />
                 </linearGradient>
               </defs>
               <path
@@ -123,9 +124,9 @@ export function PasswordReset() {
                   fontFamily: '"Inter", -apple-system, sans-serif',
                   fontWeight: 700,
                   letterSpacing: '0.15em',
-                  color: '#ffffff',
-                  textShadow: '0 2px 8px rgba(0, 212, 255, 0.6), 0 4px 12px rgba(253, 184, 19, 0.4)',
-                  background: 'linear-gradient(90deg, #ffffff 0%, #41B2E3 50%, #ffffff 100%)',
+                  color: 'hsl(var(--foreground))',
+                  textShadow: '0 2px 8px hsl(var(--chart-5) / 0.6), 0 4px 12px hsl(var(--chart-3) / 0.4)',
+                  background: 'linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--chart-1)) 50%, hsl(var(--foreground)) 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   backgroundClip: 'text'
@@ -136,8 +137,8 @@ export function PasswordReset() {
               <div
                 className="text-[10px] font-semibold uppercase tracking-[0.2em]"
                 style={{
-                  color: '#41B2E3',
-                  textShadow: '0 0 10px rgba(0, 212, 255, 0.8)',
+                  color: 'hsl(var(--chart-1))',
+                  textShadow: '0 0 10px hsl(var(--chart-5) / 0.8)',
                   fontWeight: 600
                 }}
               >
@@ -147,22 +148,22 @@ export function PasswordReset() {
           </div>
 
           {/* Capital Tech Alliance - Company Name */}
-          <h1
-            className="mb-2 text-2xl font-semibold tracking-tight"
-            style={{
-              color: '#e8eaed',
-              textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)'
-            }}
-          >
-            Capital Tech Alliance
-          </h1>
+        <h1
+          className="mb-2 text-2xl font-semibold tracking-tight"
+          style={{
+              color: 'hsl(var(--foreground))',
+              textShadow: '0 2px 4px hsl(var(--foreground) / 0.5)'
+          }}
+        >
+          Capital Tech Alliance
+        </h1>
 
           {/* Official CTA Gradient Bar */}
           <div
             className="mx-auto w-24 h-1 rounded-full mb-3"
             style={{
-              background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
-              boxShadow: '0 2px 8px rgba(253, 184, 19, 0.6)'
+              background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
+              boxShadow: '0 2px 8px hsl(var(--chart-3) / 0.6)'
             }}
           />
         </div>
@@ -173,7 +174,7 @@ export function PasswordReset() {
             {/* Card Title Section */}
             <div className="mb-3.5 text-center">
               <h2 className="mb-1 flex items-center justify-center gap-2 text-xl font-semibold text-foreground">
-                <Shield className="h-5 w-5" style={{ color: '#41B2E3' }} />
+                <Shield className="h-5 w-5 text-primary" />
                 <span>Reset Password</span>
               </h2>
               <p className="text-xs text-muted-foreground mb-2">
@@ -220,15 +221,15 @@ export function PasswordReset() {
                     type="submit"
                     size="lg"
                     style={{
-                      background: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',
-                      boxShadow: '0 10px 20px rgba(253, 184, 19, 0.4)'
+                      background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)',
+                      boxShadow: '0 10px 20px hsl(var(--chart-3) / 0.4)'
                     }}
                     className="group relative mb-3.5 h-11 w-full overflow-hidden font-semibold text-white transition-all duration-300 hover:scale-[1.02] hover:shadow-xl active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100"
                     disabled={isLoading}
                   >
                     <div
                       className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-                      style={{ background: 'linear-gradient(90deg, #DD3903 0%, #F0A000 100%)' }}
+                      style={{ background: 'linear-gradient(90deg, hsl(var(--chart-6)) 0%, hsl(var(--chart-3)) 100%)' }}
                     />
                     <div className="absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-20">
                       <div className="h-full w-full bg-gradient-to-r from-transparent via-white to-transparent animate-shimmer" />
@@ -250,7 +251,7 @@ export function PasswordReset() {
                   <Link
                     to="/login"
                     className="text-sm font-medium hover:underline"
-                    style={{ color: '#41B2E3' }}
+                    style={{ color: 'hsl(var(--chart-1))' }}
                   >
                     ← Back to Login
                   </Link>

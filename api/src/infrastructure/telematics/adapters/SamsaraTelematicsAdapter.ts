@@ -53,7 +53,9 @@ export class SamsaraTelematicsAdapter implements ITelematicsProviderAdapter {
 
       for (const location of response.data.data) {
         const device = deviceMap.get(location.id);
-        if (!device) continue;
+        if (!device) {
+continue;
+}
 
         const event = AssetPositionEvent.create(
           device.assetId,

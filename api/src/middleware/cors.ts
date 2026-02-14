@@ -117,7 +117,7 @@ export function corsDebugLogger(req: Request, res: Response, next: NextFunction)
   });
 
   // Log response CORS headers after request completes
-  const originalSend = res.send;
+  const originalSend = res.send.bind(res);
   res.send = function (data): Response {
     logger.info('[CORS DEBUG] Response Headers:', {
       'access-control-allow-origin': res.getHeader('access-control-allow-origin'),
@@ -125,7 +125,7 @@ export function corsDebugLogger(req: Request, res: Response, next: NextFunction)
       'access-control-allow-methods': res.getHeader('access-control-allow-methods'),
       'access-control-expose-headers': res.getHeader('access-control-expose-headers')
     });
-    return originalSend.call(this, data);
+    return originalSend(data);
   };
 
   next();
