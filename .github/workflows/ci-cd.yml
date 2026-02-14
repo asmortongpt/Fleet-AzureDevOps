@@ -41,7 +41,7 @@ jobs:
       - name: Run TypeScript type check
         run: |
           cd api
-          npm run build
+          npm run typecheck
 
   test:
     name: Unit & Integration Tests
