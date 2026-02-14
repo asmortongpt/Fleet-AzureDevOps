@@ -5,6 +5,16 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./tests/setup.ts'],
+    exclude: [
+      'tests/integration/**',
+      'node_modules/**',
+      'dist/**',
+      // Integration tests that require real database/Redis (import FleetAPI class from app.ts)
+      'src/tests/paginationRoute.test.ts',
+      'src/routes/__tests__/vendor-management.test.ts',
+      'src/routes/__tests__/insurance.test.ts',
+      'src/__tests__/security/sql-injection.test.ts'
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
