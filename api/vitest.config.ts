@@ -17,7 +17,9 @@ export default defineConfig({
       // Tests that import singletons requiring API keys/credentials at import time
       'src/__tests__/services/ai-task-prioritization.test.ts',
       'src/__tests__/services/multi-llm-orchestrator.service.test.ts',
-      'src/routes/__tests__/auth-jwt-validation.test.ts'
+      'src/routes/__tests__/auth-jwt-validation.test.ts',
+      // Tests that connect to Redis (Bull queues) - hang in CI without Redis
+      'src/__tests__/jobs/queue.test.ts'
     ],
     coverage: {
       provider: 'v8',
