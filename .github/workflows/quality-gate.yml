@@ -29,21 +29,25 @@ jobs:
         continue-on-error: false
 
       - name: TypeScript Type Checking (API)
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: |
           cd api
           npm ci --legacy-peer-deps
-          npm run build
+          npm run typecheck
         continue-on-error: false
 
       - name: ESLint Code Quality
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: npm run lint
         continue-on-error: true
 
       - name: Run Unit Tests
-        run: npm test -- --run --passWithNoTests
+        run: npx vitest run --passWithNoTests
 
       - name: Generate Coverage Report
-        run: npm run test:coverage -- --run --passWithNoTests
+        run: npx vitest run --coverage --passWithNoTests
 
       - name: Security Audit
         run: npm audit --audit-level=high --production

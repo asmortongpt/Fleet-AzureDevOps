@@ -45,10 +45,12 @@ jobs:
         run: npm run typecheck
 
       - name: Lint check
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: npm run lint
 
       - name: Run tests
-        run: npm test -- --watchAll=false --passWithNoTests
+        run: npx vitest run --passWithNoTests
 
       # Note: Build verification removed - build-frontend job handles the actual build
 
@@ -159,9 +161,9 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "/"
+          app_location: "dist"
           api_location: ""  # Empty = no API deployment
-          output_location: "dist"
+          output_location: ""
           skip_app_build: true  # Use pre-built dist/ from artifacts
           skip_api_build: true  # Skip API build entirely
 
