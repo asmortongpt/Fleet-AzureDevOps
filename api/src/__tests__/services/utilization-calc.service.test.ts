@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { UtilizationCalcService } from '../services/utilization-calc.service';
+import { UtilizationCalcService } from '../../services/utilization-calc.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

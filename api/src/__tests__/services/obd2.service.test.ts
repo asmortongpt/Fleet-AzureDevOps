@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { OBD2ServiceBackend } from '../services/obd2.service';
+import { OBD2ServiceBackend } from '../../services/obd2.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

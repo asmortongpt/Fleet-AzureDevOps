@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { AssignmentNotificationService } from '../services/assignment-notification.service';
+import { AssignmentNotificationService } from '../../services/assignment-notification.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

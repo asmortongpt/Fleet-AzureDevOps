@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { VehicleIdentificationService } from '../services/vehicle-identification.service';
+import { VehicleIdentificationService } from '../../services/vehicle-identification.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

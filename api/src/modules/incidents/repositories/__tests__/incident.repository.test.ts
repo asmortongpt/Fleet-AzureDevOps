@@ -5,7 +5,7 @@ import { IncidentRepository } from '../incident.repository';
 
 vi.mock('../../../../db', () => ({
   pool: {
-    query: vi.fn()
+    query: vi.fn().mockResolvedValue({ rows: [], rowCount: 0, command: 'SELECT', oid: 0, fields: [] })
   }
 }));
 
@@ -15,7 +15,7 @@ describe('IncidentRepository', () => {
   const mockUserId = 1;
 
   beforeEach(() => {
-    repository = new IncidentRepository();
+    repository = new IncidentRepository(pool as any);
     vi.clearAllMocks();
   });
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { FleetOptimizerService } from '../services/fleet-optimizer.service';
+import { FleetOptimizerService } from '../../services/fleet-optimizer.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

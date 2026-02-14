@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { FuelPurchasingService } from '../services/fuel-purchasing.service';
+import { FuelPurchasingService } from '../../services/fuel-purchasing.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { DriverScorecardService } from '../services/driver-scorecard.service';
+import { DriverScorecardService } from '../../services/driver-scorecard.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

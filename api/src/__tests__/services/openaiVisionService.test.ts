@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { OpenAIVisionService } from '../services/openaiVisionService';
+import { OpenAIVisionService } from '../../services/openaiVisionService';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

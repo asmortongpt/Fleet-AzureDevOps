@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { MicrosoftIntegrationService } from '../services/microsoft-integration.service';
+import { MicrosoftIntegrationService } from '../../services/microsoft-integration.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 

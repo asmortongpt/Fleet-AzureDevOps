@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
-import { MicrosoftGraphService } from '../services/microsoft-graph.service';
+import { MicrosoftGraphService } from '../../services/microsoft-graph.service';
 import { createMockDatabase, createMockLogger, MockDatabase, MockLogger } from '../utils/test-db-mocks';
 
 
