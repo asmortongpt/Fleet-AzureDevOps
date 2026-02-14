@@ -25,6 +25,8 @@ jobs:
         run: npm ci --legacy-peer-deps
 
       - name: TypeScript Type Checking (Frontend)
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
         run: npm run typecheck
         continue-on-error: false
 
