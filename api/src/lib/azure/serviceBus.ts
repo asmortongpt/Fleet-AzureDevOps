@@ -3,7 +3,9 @@ import { ServiceBusClient } from '@azure/service-bus';
 
 export function getServiceBusClient(): ServiceBusClient {
   const conn = process.env.AZURE_SERVICE_BUS_CONNECTION_STRING;
-  if (!conn) throw new Error('Missing AZURE_SERVICE_BUS_CONNECTION_STRING');
+  if (!conn) {
+throw new Error('Missing AZURE_SERVICE_BUS_CONNECTION_STRING');
+}
   return new ServiceBusClient(conn);
 }
 

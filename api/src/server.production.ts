@@ -82,7 +82,9 @@ if (allowedOrigins.includes('*')) {
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or Postman)
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      return callback(null, true);
+    }
 
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -487,6 +489,6 @@ async function startServer() {
   }
 }
 
-startServer();
+void startServer();
 
 export default app;

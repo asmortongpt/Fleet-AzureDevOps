@@ -42,7 +42,7 @@ export function usePhotorealisticModel({
   make,
   model,
   year,
-  color = '#3B82F6',
+  color = 'hsl(var(--primary))',
   placeholderUrl,
   enableAI = true,
 }: UsePhotorealisticModelOptions): PhotorealisticModelState {

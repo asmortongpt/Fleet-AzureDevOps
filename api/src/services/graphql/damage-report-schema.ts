@@ -633,7 +633,9 @@ const RootSubscriptionType = new GraphQLObjectType({
       subscribe: withFilter(
         () => pubsub.asyncIterator(['DAMAGE_REPORT_CREATED']),
         (payload, args) => {
-          if (!args.vehicleId) return true
+          if (!args.vehicleId) {
+return true
+}
           return payload.damageReportCreated.vehicleId === args.vehicleId
         }
       ),
@@ -648,7 +650,9 @@ const RootSubscriptionType = new GraphQLObjectType({
       subscribe: withFilter(
         () => pubsub.asyncIterator(['DAMAGE_REPORT_UPDATED']),
         (payload, args) => {
-          if (!args.reportId) return true
+          if (!args.reportId) {
+return true
+}
           return payload.damageReportUpdated.id === args.reportId
         }
       ),

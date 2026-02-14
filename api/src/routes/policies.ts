@@ -14,7 +14,9 @@ const router = express.Router()
 router.use(authenticateJWT)
 
 const parsePolicyContent = (content: unknown): Record<string, unknown> => {
-  if (!content) return {}
+  if (!content) {
+return {}
+}
   if (typeof content === 'string') {
     try {
       return JSON.parse(content)
@@ -22,7 +24,9 @@ const parsePolicyContent = (content: unknown): Record<string, unknown> => {
       return {}
     }
   }
-  if (typeof content === 'object') return content as Record<string, unknown>
+  if (typeof content === 'object') {
+return content as Record<string, unknown>
+}
   return {}
 }
 
@@ -52,8 +56,12 @@ const evaluateCondition = (actual: unknown, operator: string, expected: unknown)
     case 'in':
       return Array.isArray(expected) ? expected.includes(actual) : false
     case 'contains':
-      if (Array.isArray(actual)) return actual.includes(expected)
-      if (typeof actual === 'string') return actual.includes(String(expected))
+      if (Array.isArray(actual)) {
+return actual.includes(expected)
+}
+      if (typeof actual === 'string') {
+return actual.includes(String(expected))
+}
       return false
     default:
       return false

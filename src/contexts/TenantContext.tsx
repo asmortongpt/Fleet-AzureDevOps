@@ -49,7 +49,7 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
             if (import.meta.env.VITE_SKIP_AUTH === 'true') {
                 setSettings({
                     branding: {
-                        primaryColor: '#0f172a',
+                        primaryColor: 'hsl(var(--primary))',
                         logoUrl: '/logos/logo-horizontal.svg',
                         companyName: 'Capital Transit Authority',
                     },
@@ -78,7 +78,7 @@ export const TenantProvider = ({ children }: TenantProviderProps) => {
 
                 setSettings({
                     branding: {
-                        primaryColor: settingsData.branding?.primaryColor || '#0f172a',
+                        primaryColor: settingsData.branding?.primaryColor || 'hsl(var(--primary))',
                         logoUrl: settingsData.branding?.logoUrl || '/logos/logo-horizontal.svg',
                         companyName: settingsData.branding?.companyName || tenantPayload?.name || user.tenantName || 'Organization',
                     },

@@ -392,7 +392,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                         <YAxis />
                         <RechartsTooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="value" stroke="#8884d8" strokeWidth={2} />
+                        <Line type="monotone" dataKey="value" stroke="hsl(var(--accent))" strokeWidth={2} />
                       </LineChart>
                     </ResponsiveContainer>
                   </CardContent>
@@ -412,12 +412,12 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                           cx="50%"
                           cy="50%"
                           outerRadius={80}
-                          fill="#8884d8"
+                          fill="hsl(var(--accent))"
                           dataKey="value"
                           label
                         >
                           {costBreakdown.map((entry, index) => {
-                            const palette = ['#2563eb', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#14b8a6'];
+                            const palette = ['hsl(var(--primary))', 'hsl(var(--warning))', 'hsl(var(--success))', 'hsl(var(--destructive))', 'hsl(var(--accent))', 'hsl(var(--success))'];
                             return <Cell key={`cell-${index}`} fill={palette[index % palette.length]} />;
                           })}
                         </Pie>
@@ -572,7 +572,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                         <XAxis dataKey="date" tickFormatter={(date) => format(parseISO(date), 'MMM')} />
                         <YAxis />
                         <RechartsTooltip />
-                        <Area type="monotone" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.3} />
+                        <Area type="monotone" dataKey="value" stroke="hsl(var(--accent))" fill="hsl(var(--accent))" fillOpacity={0.3} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </CardContent>

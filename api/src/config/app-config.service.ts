@@ -184,7 +184,9 @@ class AppConfigService {
     const getValue = async (keyVaultKey: string, envKey: string, defaultValue?: string): Promise<string | undefined> => {
       if (useKeyVault) {
         const value = await keyVault.getSecret(keyVaultKey);
-        if (value) return value;
+        if (value) {
+return value;
+}
       }
       return process.env[envKey] || defaultValue;
     };

@@ -128,15 +128,25 @@ const router = express.Router()
 router.use(authenticateJWT)
 
 const scoreStatus = (score: number) => {
-  if (score >= 95) return 'excellent'
-  if (score >= 85) return 'good'
-  if (score >= 75) return 'warning'
+  if (score >= 95) {
+return 'excellent'
+}
+  if (score >= 85) {
+return 'good'
+}
+  if (score >= 75) {
+return 'warning'
+}
   return 'critical'
 }
 
 const scoreTrend = (current: number, previous: number) => {
-  if (current > previous) return 'up'
-  if (current < previous) return 'down'
+  if (current > previous) {
+return 'up'
+}
+  if (current < previous) {
+return 'down'
+}
   return 'stable'
 }
 

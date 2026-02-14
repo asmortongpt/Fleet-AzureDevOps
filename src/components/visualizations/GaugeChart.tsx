@@ -6,7 +6,6 @@
 // motion removed - React 19 incompatible
 import { useMemo } from 'react'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -40,15 +39,12 @@ export function GaugeChart({
   loading = false,
   size = 200,
 }: GaugeChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    low: 'hsl(0, 84%, 60%)',      // Red
-    medium: 'hsl(45, 93%, 47%)',  // Yellow
-    high: 'hsl(142, 76%, 36%)',   // Green
-    background: isDark ? '#1f2937' : '#f3f4f6',
+    text: 'hsl(var(--foreground))',
+    low: 'hsl(var(--chart-6))',
+    medium: 'hsl(var(--chart-3))',
+    high: 'hsl(var(--chart-2))',
+    background: 'hsl(var(--muted))',
   }
 
   // Calculate percentage and angle

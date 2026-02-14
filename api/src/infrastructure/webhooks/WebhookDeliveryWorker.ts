@@ -31,7 +31,9 @@ export class WebhookDeliveryWorker {
     const event = await this.repository.getEvent(data.eventId);
     const subscription = await this.repository.getSubscription(data.subscriptionId);
 
-    if (!subscription.isActive) return;
+    if (!subscription.isActive) {
+return;
+}
 
     const signature = event.generateSignature(subscription.secret);
 

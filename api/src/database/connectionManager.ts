@@ -412,7 +412,7 @@ export class DatabaseConnectionManager {
 
         // Trigger reconnection for webapp pool
         if (poolType === PoolType.WEBAPP) {
-          this.attemptReconnection(poolType);
+          void this.attemptReconnection(poolType);
         }
       }
     }, interval);
@@ -612,6 +612,7 @@ export class DatabaseConnectionManager {
               console.log(`[${poolType}] Pool closed successfully`);
               state.pool = null;
               state.initialized = false;
+              return undefined;
             })
             .catch((error) => {
               console.error(`[${poolType}] Error closing pool:`, error);

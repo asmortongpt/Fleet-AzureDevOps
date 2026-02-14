@@ -38,7 +38,7 @@ class PushNotificationScheduler {
    */
   stop() {
     if (this.cronJob) {
-      this.cronJob.stop();
+      void this.cronJob.stop();
       this.cronJob = null;
       logger.info('Push notification scheduler stopped');
     }

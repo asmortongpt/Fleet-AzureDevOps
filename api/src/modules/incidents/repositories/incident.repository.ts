@@ -101,7 +101,9 @@ export class IncidentRepository extends BaseRepository<Incident> {
   }
 
   async update(id: string | number, data: Partial<Incident>, tenantId: string | number): Promise<Incident | null> {
-    if (Object.keys(data).length === 0) return this.findById(id, tenantId);
+    if (Object.keys(data).length === 0) {
+return this.findById(id, tenantId);
+}
 
     const fields = Object.keys(data);
     const setClause = fields.map((key, i) => `${key} = $${i + 3}`).join(', ');

@@ -37,7 +37,9 @@ export class TestIsolationManager {
   private cleanupTimer?: NodeJS.Timeout;
 
   constructor(baseUrl?: string, options: IsolationOptions = {}) {
-    this.baseUrl = baseUrl || process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/postgres' : (() => { throw new Error('DATABASE_URL must be set in production'); })());
+    this.baseUrl = baseUrl || process.env.DATABASE_URL || (process.env.NODE_ENV !== 'production' ? 'postgresql://postgres:postgres@localhost:5432/postgres' : (() => {
+ throw new Error('DATABASE_URL must be set in production'); 
+})());
 
     // Connect to postgres database for admin operations
     const adminUrl = this.baseUrl.replace(/\/[^/]+$/, '/postgres');
@@ -270,7 +272,7 @@ export class TestIsolationManager {
    */
   private startCleanupTimer(): void {
     this.cleanupTimer = setInterval(() => {
-      this.cleanupIdleDatabases().catch(console.error);
+      this.cleanupIdleDatabases().catch((err) => console.error(err));
     }, 60000); // Check every minute
 
     // Don't keep process alive for cleanup timer
@@ -362,7 +364,9 @@ export async function setupTestDatabase(testInfo?: { file?: string }): Promise<s
  */
 export async function teardownTestDatabase(): Promise<void> {
   const id = process.env.CURRENT_TEST_DB_ID;
-  if (!id) return;
+  if (!id) {
+return;
+}
 
   const manager = getIsolationManager();
   await manager.releaseTestDatabase(id);

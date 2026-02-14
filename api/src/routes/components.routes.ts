@@ -16,7 +16,9 @@ componentsRouter.post("/assets/:assetId/components", async (req, res) => {
   const assetId = Number(req.params.assetId);
   const body = req.body ?? {};
   const validation = await validateComponent(body);
-  if (!validation.ok) return res.status(400).json(validation);
+  if (!validation.ok) {
+return res.status(400).json(validation);
+}
 
   await assertNotAffectingClosedPeriods({ assetId, effectiveDate: body.depreciation_start_date ?? body.installed_date });
 
@@ -42,7 +44,9 @@ componentsRouter.patch("/assets/:assetId/components/:componentId", async (req, r
   const body = req.body ?? {};
 
   const validation = await validateComponent(body);
-  if (!validation.ok) return res.status(400).json(validation);
+  if (!validation.ok) {
+return res.status(400).json(validation);
+}
 
   if (body.depreciation_start_date || body.installed_date) {
     await assertNotAffectingClosedPeriods({ assetId, componentId, effectiveDate: body.depreciation_start_date ?? body.installed_date });

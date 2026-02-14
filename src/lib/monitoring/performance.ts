@@ -1,5 +1,4 @@
 import { ApplicationInsights } from '@microsoft/applicationinsights-web'
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

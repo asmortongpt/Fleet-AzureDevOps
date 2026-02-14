@@ -86,14 +86,14 @@ function validateMapboxToken(token: string | undefined): boolean {
 
 function getVehicleColor(status: Vehicle["status"]): string {
   const colors: Record<Vehicle["status"], string> = {
-    active: "#10b981",
-    idle: "#6b7280",
-    charging: "#3b82f6",
-    service: "#f59e0b",
-    emergency: "#ef4444",
-    offline: "#374151"
+    active: "hsl(var(--success))",
+    idle: "hsl(var(--muted-foreground))",
+    charging: "hsl(var(--primary))",
+    service: "hsl(var(--warning))",
+    emergency: "hsl(var(--destructive))",
+    offline: "hsl(var(--muted-foreground))"
   }
-  return colors[status] || "#6b7280"
+  return colors[status] || "hsl(var(--muted-foreground))"
 }
 
 function createVehiclePopupHTML(vehicle: Vehicle): string {
@@ -103,16 +103,16 @@ function createVehiclePopupHTML(vehicle: Vehicle): string {
   return `
     <div style="padding: 12px; min-width: 200px; font-family: system-ui, -apple-system, sans-serif;">
       <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">${escapeHtml(vehicle.name)}</div>
-      <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
         <strong>Type:</strong> ${escapeHtml(vehicle.type)}
       </div>
-      <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
         <strong>Status:</strong> <span style="color: ${getVehicleColor(vehicle.status)}">${escapeHtml(vehicle.status)}</span>
       </div>
-      <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
         <strong>Driver:</strong> ${escapeHtml(vehicle.driver || "Unassigned")}
       </div>
-      <div style="font-size: 12px; color: #666;">
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground));">
         <strong>Location:</strong> ${escapeHtml(locationText)}
       </div>
     </div>
@@ -123,16 +123,16 @@ function createFacilityPopupHTML(facility: GISFacility): string {
   return `
     <div style="padding: 12px; min-width: 200px; font-family: system-ui, -apple-system, sans-serif;">
       <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">${escapeHtml(facility.name)}</div>
-      <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
         <strong>Type:</strong> ${escapeHtml(facility.type.replace("-", " "))}
       </div>
-      <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
-        <strong>Status:</strong> <span style="color: ${facility.status === "operational" ? "#10b981" : "#f59e0b"}">${escapeHtml(facility.status)}</span>
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
+        <strong>Status:</strong> <span style="color: ${facility.status === "operational" ? "hsl(var(--success))" : "hsl(var(--warning))"}">${escapeHtml(facility.status)}</span>
       </div>
-      <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
         <strong>Capacity:</strong> ${facility.capacity} vehicles
       </div>
-      <div style="font-size: 12px; color: #666;">
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground));">
         <strong>Address:</strong> ${escapeHtml(facility.address)}
       </div>
     </div>
@@ -144,23 +144,23 @@ function createCameraPopupHTML(camera: TrafficCamera): string {
     <div style="padding: 12px; min-width: 250px; max-width: 350px; font-family: system-ui, -apple-system, sans-serif;">
       <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">${escapeHtml(camera.name)}</div>
       ${camera.address ? `
-        <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+        <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
           <strong>Address:</strong> ${escapeHtml(camera.address)}
         </div>
       ` : ''}
       ${camera.crossStreets ? `
-        <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+        <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
           <strong>Cross Streets:</strong> ${escapeHtml(camera.crossStreets)}
         </div>
       ` : ''}
-      <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
-        <strong>Status:</strong> <span style="color: ${camera.operational ? "#10b981" : "#ef4444"}">${camera.operational ? "Operational" : "Offline"}</span>
+      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
+        <strong>Status:</strong> <span style="color: ${camera.operational ? "hsl(var(--success))" : "hsl(var(--destructive))"}">${camera.operational ? "Operational" : "Offline"}</span>
       </div>
       ${camera.cameraUrl && sanitizeUrl(camera.cameraUrl) ? `
         <div style="margin-top: 8px;">
           <a href="${sanitizeUrl(camera.cameraUrl)}" target="_blank" rel="noopener noreferrer" style="
             display: inline-block;
-            background-color: #3b82f6;
+            background-color: hsl(var(--primary));
             color: white;
             padding: 6px 12px;
             border-radius: 4px;
@@ -171,7 +171,7 @@ function createCameraPopupHTML(camera: TrafficCamera): string {
         </div>
       ` : ''}
       ${camera.latitude && camera.longitude ? `
-        <div style="font-size: 11px; color: #999; margin-top: 8px;">
+        <div style="font-size: 11px; color: hsl(var(--muted-foreground)); margin-top: 8px;">
           ${camera.latitude.toFixed(5)}, ${camera.longitude.toFixed(5)}
         </div>
       ` : ''}
@@ -248,7 +248,7 @@ export function MapboxMap({
       height: 24px;
       border-radius: 50%;
       border: 2px solid white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 4px hsl(var(--foreground) / 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -281,12 +281,12 @@ export function MapboxMap({
     el.className = "facility-marker"
     el.setAttribute("data-facility-id", facility.id)
     el.style.cssText = `
-      background-color: #3b82f6;
+      background-color: hsl(var(--primary));
       width: 32px;
       height: 32px;
       border-radius: 8px;
       border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 6px hsl(var(--foreground) / 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -303,7 +303,7 @@ export function MapboxMap({
   }, [])
 
   const createCameraMarkerElement = useCallback((camera: TrafficCamera): HTMLElement => {
-    const color = camera.operational ? "#3b82f6" : "#6b7280"
+    const color = camera.operational ? "hsl(var(--primary))" : "hsl(var(--muted-foreground))"
     const el = document.createElement("div")
     el.className = "camera-marker"
     el.setAttribute("data-camera-id", camera.id)
@@ -313,7 +313,7 @@ export function MapboxMap({
       height: 28px;
       border-radius: 6px;
       border: 2px solid white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 6px hsl(var(--foreground) / 0.3);
       display: flex;
       align-items: center;
       justify-content: center;

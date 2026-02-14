@@ -8,6 +8,14 @@ import { BaseRepository, PaginationParams } from './base/BaseRepository';
 
 import { CacheService, CacheKeys } from '../services/cache.service'
 
+/**
+ * VehiclesRepository - BACKEND-17
+ * All queries use parameterized statements ($1, $2, $3) for SQL injection prevention
+ * All operations enforce tenant isolation
+ * Includes Redis caching layer with cache invalidation on mutations
+ */
+import { TYPES } from '../types';
+
 export interface Vehicle {
   id: string
   vin: string
@@ -37,14 +45,6 @@ export interface Vehicle {
   createdAt: Date
   updatedAt: Date
 }
-
-/**
- * VehiclesRepository - BACKEND-17
- * All queries use parameterized statements ($1, $2, $3) for SQL injection prevention
- * All operations enforce tenant isolation
- * Includes Redis caching layer with cache invalidation on mutations
- */
-import { TYPES } from '../types';
 
 export class VehiclesRepository extends BaseRepository<Vehicle> {
   private cache: CacheService

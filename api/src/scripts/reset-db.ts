@@ -33,4 +33,4 @@ async function resetDatabase() {
     }
 }
 
-resetDatabase();
+void resetDatabase();

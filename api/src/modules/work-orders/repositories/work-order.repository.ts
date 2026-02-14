@@ -87,7 +87,9 @@ export class WorkOrderRepository extends BaseRepository<WorkOrder> {
   }
 
   async update(id: string | number, data: Partial<WorkOrder>, tenantId: string | number): Promise<WorkOrder | null> {
-    if (Object.keys(data).length === 0) return this.findById(id, tenantId);
+    if (Object.keys(data).length === 0) {
+return this.findById(id, tenantId);
+}
 
     const fields = Object.keys(data);
     const setClause = fields.map((key, i) => `${key} = $${i + 3}`).join(', ');

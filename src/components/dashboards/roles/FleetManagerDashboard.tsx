@@ -30,7 +30,6 @@ import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { FleetStats, CostSummary } from '@/services/dashboardApi';
 
-import { AlertCircle, AlertTriangle } from 'lucide-react';
 export function FleetManagerDashboard() {
   const navigate = useNavigate();
 

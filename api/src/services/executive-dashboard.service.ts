@@ -10,6 +10,9 @@ import { Pool } from 'pg'
 
 import logger from '../config/logger'
 
+// Export singleton instance
+import { db } from '../db'
+
 const openai = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null
@@ -780,9 +783,6 @@ class ExecutiveDashboardService {
     }
   }
 }
-
-// Export singleton instance
-import { db } from '../db'
 const executiveDashboardService = new ExecutiveDashboardService(db as unknown as Pool)
 
 export { ExecutiveDashboardService }

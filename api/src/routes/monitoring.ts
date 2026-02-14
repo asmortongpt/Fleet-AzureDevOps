@@ -47,7 +47,7 @@ const metricsStore = {
 const trackMetrics = (req: Request, res: Response, next: () => void) => {
   const startTime = performance.now()
   const endpoint = `${req.method} ${req.path}`
-  const originalEnd = res.end
+  const originalEnd = res.end.bind(res)
 
   res.end = function (...args: unknown[]) {
     const responseTime = performance.now() - startTime
@@ -85,7 +85,7 @@ const trackMetrics = (req: Request, res: Response, next: () => void) => {
       }
     }
 
-    return originalEnd.apply(this, args as unknown as [chunk: unknown, encoding: BufferEncoding, cb?: () => void])
+    return originalEnd(...args as unknown as [chunk: unknown, encoding: BufferEncoding, cb?: () => void])
   }
 
   next()
@@ -100,13 +100,17 @@ router.get('/health', async (req: Request, res: Response) => {
     const apiStartTime = performance.now()
     const testResult = await Promise.race([
       new Promise(resolve => setTimeout(() => resolve('ok'), 100)),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), 1000)),
+      new Promise((_resolve, reject) => setTimeout(() => reject(new Error('Timeout')), 1000)),
     ])
     const apiResponseTime = performance.now() - apiStartTime
 
     let overallStatus: 'healthy' | 'degraded' | 'down' = 'healthy'
-    if (apiResponseTime > 500) overallStatus = 'degraded'
-    if (testResult !== 'ok') overallStatus = 'degraded'
+    if (apiResponseTime > 500) {
+overallStatus = 'degraded'
+}
+    if (testResult !== 'ok') {
+overallStatus = 'degraded'
+}
 
     const health = {
       status: overallStatus,
@@ -147,7 +151,9 @@ router.get('/metrics', (req: Request, res: Response) => {
     const endpoints = Array.from(metricsStore.requests.entries())
       .map(([path, metrics]) => {
         const recentMetrics = metrics.filter(m => m.timestamp > oneHourAgo)
-        if (recentMetrics.length === 0) return null
+        if (recentMetrics.length === 0) {
+return null
+}
 
         const responseTimes = recentMetrics.map(m => m.responseTime).sort((a, b) => a - b)
         const errorCount = recentMetrics.filter(m => m.statusCode >= 400).length

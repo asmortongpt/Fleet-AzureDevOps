@@ -17,6 +17,10 @@ import documentAuditService from './document-audit.service'
 import { StorageAdapter } from './storage/storage-adapter.base'
 import { StorageFactory } from './storage/storage-factory'
 
+// Export singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
 export class DocumentVersionService {
   constructor(private db: Pool, private logger: any) {}
 
@@ -580,10 +584,6 @@ export class DocumentVersionService {
     // No-op for static calls, instances should call their own initialize
   }
 }
-
-// Export singleton instance
-import pool from '../config/database'
-import logger from '../config/logger'
 
 export const documentVersionService = new DocumentVersionService(pool, logger)
 export default documentVersionService

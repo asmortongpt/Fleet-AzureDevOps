@@ -326,7 +326,7 @@ async function runAllExamples() {
 
 // Run if executed directly
 if (require.main === module) {
-  runAllExamples().catch(console.error);
+  runAllExamples().catch((err) => console.error(err));
 }
 
 export {

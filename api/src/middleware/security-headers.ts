@@ -59,7 +59,9 @@ export function securityHeaders(config: SecurityHeadersConfig = {}) {
 
     let cspValue = Object.entries(cspDirectives)
       .map(([key, values]) => {
-        if (values.length === 0) return key;
+        if (values.length === 0) {
+return key;
+}
         return `${key} ${values.join(' ')}`;
       })
       .join('; ');
@@ -116,7 +118,9 @@ export function securityHeaders(config: SecurityHeadersConfig = {}) {
       // Object form: { camera: ["'self'"], microphone: ["'self'"] }
       permissionsPolicy = Object.entries(config.permissionsPolicy)
         .map(([key, values]) => {
-          if (values.length === 0) return `${key}=()`;
+          if (values.length === 0) {
+return `${key}=()`;
+}
           return `${key}=(${values.join(' ')})`;
         })
         .join(', ');
@@ -217,13 +221,11 @@ export function cacheControl(req: Request, res: Response, next: NextFunction): v
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-  }
-  // Static assets - aggressive caching
-  else if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+  } else if (path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+    // Static assets - aggressive caching
     res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
-  }
-  // HTML - short cache with revalidation
-  else if (path.match(/\.html$/)) {
+  } else if (path.match(/\.html$/)) {
+    // HTML - short cache with revalidation
     res.setHeader('Cache-Control', 'no-cache, must-revalidate');
   }
 

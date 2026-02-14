@@ -199,11 +199,11 @@ function VehicleSilhouette({ className }: { className?: string }) {
       <ellipse cx="50" cy="15" rx="12" ry="8" fill="currentColor" className="text-slate-800" />
       <ellipse cx="50" cy="65" rx="12" ry="8" fill="currentColor" className="text-slate-800" />
       {/* Headlights */}
-      <ellipse cx="175" cy="30" rx="4" ry="8" fill="#FFF3" />
-      <ellipse cx="175" cy="50" rx="4" ry="8" fill="#FFF3" />
+      <ellipse cx="175" cy="30" rx="4" ry="8" fill="hsl(var(--foreground) / 0.2)" />
+      <ellipse cx="175" cy="50" rx="4" ry="8" fill="hsl(var(--foreground) / 0.2)" />
       {/* Taillights */}
-      <ellipse cx="25" cy="30" rx="3" ry="6" fill="#F003" />
-      <ellipse cx="25" cy="50" rx="3" ry="6" fill="#F003" />
+      <ellipse cx="25" cy="30" rx="3" ry="6" fill="hsl(var(--destructive) / 0.2)" />
+      <ellipse cx="25" cy="50" rx="3" ry="6" fill="hsl(var(--destructive) / 0.2)" />
     </svg>
   )
 }

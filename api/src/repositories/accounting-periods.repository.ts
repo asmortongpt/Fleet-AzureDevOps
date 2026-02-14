@@ -33,7 +33,9 @@ export class AccountingPeriodsRepository {
       `UPDATE accounting_periods SET is_closed=TRUE, closed_at=NOW(), closed_by=$2 WHERE id=$1 RETURNING *`,
       [id, closedBy]
     );
-    if (!rows[0]) throw new Error("Period not found");
+    if (!rows[0]) {
+throw new Error("Period not found");
+}
     return rows[0];
   }
 }

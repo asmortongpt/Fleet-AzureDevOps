@@ -15,6 +15,9 @@ import { Pool } from 'pg'
 
 import logger from '../config/logger'
 
+// Export singleton instance
+import { pool } from '../db'
+
 export interface OBD2Adapter {
   id: number
   tenant_id: number
@@ -606,9 +609,6 @@ export class OBD2ServiceBackend {
     }
   }
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const obd2ServiceBackend = new OBD2ServiceBackend(pool)
 
 export default obd2ServiceBackend

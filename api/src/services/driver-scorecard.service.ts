@@ -9,6 +9,9 @@
 
 import type { Pool } from 'pg'
 
+// Create and export singleton instance
+import pool from '../config/database'
+
 export interface LeaderboardEntry {
   rank: number
   driverId: string
@@ -101,13 +104,15 @@ export class DriverScorecardService {
       end = periodEnd.toISOString().slice(0, 10)
     } else {
       const latest = await this.getLatestPeriod(tenantId)
-      if (!latest) return []
+      if (!latest) {
+return []
+}
       start = latest.period_start
       end = latest.period_end
     }
 
     // Ensure ranks are present for this period (idempotent).
-    await this.recomputeRanks(tenantId, start!, end!)
+    await this.recomputeRanks(tenantId, start, end)
 
     const result = await this.db.query(
       `SELECT
@@ -274,9 +279,6 @@ export class DriverScorecardService {
     return
   }
 }
-
-// Create and export singleton instance
-import pool from '../config/database'
 
 const driverScorecardService = new DriverScorecardService(pool)
 export default driverScorecardService

@@ -6,7 +6,9 @@ import { registerServer } from "./mcp/toolRouter";
 let initialized = false;
 
 export function initAIPlatform() {
-  if (initialized) return;
+  if (initialized) {
+return;
+}
   registerServer(policyMcpServer);
   registerServer(fleetCoreMcpServer);
   registerServer(documentsMcpServer);

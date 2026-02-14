@@ -64,7 +64,7 @@ export const emailSchema = z.string()
  * Phone number validation (flexible international format)
  */
 export const phoneSchema = z.string()
-  .regex(/^[\d\s\-\+\(\)]{10,20}$/, 'Invalid phone number format');
+  .regex(/^[\d\s+()-]{10,20}$/, 'Invalid phone number format');
 
 /**
  * VIN validation (17 characters, excludes I, O, Q)
@@ -80,7 +80,7 @@ export const vinSchema = z.string()
 export const licensePlateSchema = z.string()
   .min(2, 'License plate must be at least 2 characters')
   .max(15, 'License plate must be 15 characters or less')
-  .regex(/^[A-Z0-9\s\-]+$/i, 'Invalid license plate format')
+  .regex(/^[A-Z0-9\s-]+$/i, 'Invalid license plate format')
   .transform(val => val.toUpperCase());
 
 /**
@@ -145,6 +145,7 @@ export const addressSchema = z.object({
   street: z.string().min(1).max(255),
   city: z.string().min(1).max(100),
   state: z.string().min(2).max(50),
+  // eslint-disable-next-line security/detect-unsafe-regex -- anchored fixed-width ZIP pattern, safe
   zipCode: z.string().regex(/^\d{5}(-\d{4})?$/, 'Invalid ZIP code format'),
   country: z.string().length(2, 'Country must be 2-letter code').default('US'),
 });
@@ -154,7 +155,7 @@ export const addressSchema = z.object({
  */
 export const fileMetadataSchema = z.object({
   filename: z.string().min(1).max(255),
-  mimetype: z.string().regex(/^[a-z]+\/[a-z0-9\-\+\.]+$/i, 'Invalid MIME type'),
+  mimetype: z.string().regex(/^[a-z]+\/[a-z0-9+.-]+$/i, 'Invalid MIME type'),
   size: z.number().int().positive().max(50 * 1024 * 1024), // 50MB max
 });
 

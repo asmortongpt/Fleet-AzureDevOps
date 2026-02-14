@@ -129,8 +129,12 @@ export class FleetAPI {
     this.app.use(cors({
       origin: (origin, callback) => {
         // Allow same-origin or non-browser requests with no Origin header
-        if (!origin) return callback(null, true);
-        if (allowlist.includes(origin)) return callback(null, true);
+        if (!origin) {
+          return callback(null, true);
+        }
+        if (allowlist.includes(origin)) {
+          return callback(null, true);
+        }
         return callback(new Error(`CORS: Origin ${origin} not allowed`), false);
       },
       credentials: true, // requires explicit allowlist (no wildcard)
@@ -436,7 +440,7 @@ export class FleetAPI {
 if (require.main === module) {
   const api = new FleetAPI();
   const port = parseInt(process.env.PORT || '3000', 10);
-  api.start(port);
+  void api.start(port);
 }
 
 export default FleetAPI;

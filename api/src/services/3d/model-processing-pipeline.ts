@@ -196,17 +196,17 @@ export class Model3DProcessingPipeline extends EventEmitter {
   // Set up queue processors
   private setupQueueProcessors(): void {
     // Preprocessing: Image optimization and validation
-    this.preprocessQueue.process(5, async (job: Job<Model3DProcessingJob>) => {
+    void this.preprocessQueue.process(5, async (job: Job<Model3DProcessingJob>) => {
       return this.preprocessImages(job)
     })
 
     // Model Generation: TripoSR processing
-    this.modelGenerationQueue.process(2, async (job: Job<PreprocessResult>) => {
+    void this.modelGenerationQueue.process(2, async (job: Job<PreprocessResult>) => {
       return this.generate3DModel(job)
     })
 
     // Postprocessing: Optimization, compression, and CDN upload
-    this.postprocessQueue.process(3, async (job: Job<GenerationResult>) => {
+    void this.postprocessQueue.process(3, async (job: Job<GenerationResult>) => {
       return this.postprocessModel(job)
     })
   }
@@ -218,7 +218,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
       this.emit('preprocess-completed', { jobId: job.id, result })
 
       // Automatically move to next stage
-      this.modelGenerationQueue.add(result, {
+      void this.modelGenerationQueue.add(result, {
         ...QUEUE_CONFIG.defaultJobOptions,
         priority: job.opts.priority,
       })
@@ -234,7 +234,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
       this.emit('generation-completed', { jobId: job.id, result })
 
       // Move to postprocessing
-      this.postprocessQueue.add(result, {
+      void this.postprocessQueue.add(result, {
         ...QUEUE_CONFIG.defaultJobOptions,
         priority: job.opts.priority,
       })
@@ -242,14 +242,14 @@ export class Model3DProcessingPipeline extends EventEmitter {
 
     this.modelGenerationQueue.on('progress', (job, progress) => {
       this.emit('generation-progress', { jobId: job.id, progress })
-      this.updateJobProgress(job.data.reportId, progress)
+      void this.updateJobProgress(job.data.reportId, progress)
     })
 
     // Postprocessing events
     this.postprocessQueue.on('completed', (job, result) => {
       this.emit('processing-completed', result)
-      this.sendWebhookNotification(result)
-      this.updateMetrics('completed', job)
+      void this.sendWebhookNotification(result)
+      void this.updateMetrics('completed', job)
     })
 
     this.postprocessQueue.on('failed', (job, err) => {
@@ -413,7 +413,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
           timeout: 300000, // 5 minutes timeout
           onUploadProgress: (progressEvent) => {
             const progress = 33 + (progressEvent.loaded / (progressEvent.total ?? 1)) * 33
-            job.progress(progress)
+            void job.progress(progress)
           },
         }
       )
@@ -559,8 +559,11 @@ export class Model3DProcessingPipeline extends EventEmitter {
   private async compressModel(modelBuffer: Buffer): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       zlib.gzip(modelBuffer, { level: 9 }, (err, compressed) => {
-        if (err) reject(err)
-        else resolve(compressed)
+        if (err) {
+reject(err)
+} else {
+resolve(compressed)
+}
       })
     })
   }
@@ -805,7 +808,7 @@ export class Model3DProcessingPipeline extends EventEmitter {
   // Metrics and monitoring
   private initializeMetrics(): void {
     setInterval(() => {
-      this.collectMetrics()
+      void this.collectMetrics()
     }, 30000) // Every 30 seconds
   }
 

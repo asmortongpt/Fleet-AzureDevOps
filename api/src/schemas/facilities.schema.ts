@@ -29,7 +29,7 @@ const facilityTypeEnum = z.enum([
 const stateCodeRegex = /^[A-Z]{2}$/;
 
 // Phone number validation
-const phoneRegex = /^[\d\s\-\+\(\)]{10,20}$/;
+const phoneRegex = /^[\d\s+()-]{10,20}$/;
 
 /**
  * Facility creation schema
@@ -61,6 +61,7 @@ export const facilityCreateSchema = z.object({
     .optional(),
 
   zip_code: z.string()
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored fixed-width ZIP pattern, safe
     .regex(/^\d{5}(-\d{4})?$/, 'ZIP code must be in format 12345 or 12345-6789')
     .optional(),
 
@@ -164,6 +165,7 @@ export const facilityUpdateSchema = z.object({
     .optional(),
 
   zip_code: z.string()
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored fixed-width ZIP pattern, safe
     .regex(/^\d{5}(-\d{4})?$/, 'ZIP code must be in format 12345 or 12345-6789')
     .nullable()
     .optional(),

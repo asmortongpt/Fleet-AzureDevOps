@@ -106,6 +106,7 @@ router.post(
           scanResult === 'clean' ? 'Clean' : 'Threat Detected',
           scanResult
         )
+        return undefined
       }).catch(err => {
         logger.error('Virus scan error:', err)
       })

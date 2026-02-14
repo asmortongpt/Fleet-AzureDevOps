@@ -461,16 +461,22 @@ export function requireRBAC(config: {
       for (const middleware of middlewares) {
         // Wrap middleware to support async execution
         await new Promise<void>((resolve, reject) => {
-          middleware(req, res, (err?: unknown) => {
-            if (err) return reject(err)
+          void middleware(req, res, (err?: unknown) => {
+            if (err) {
+return reject(err)
+}
             // If response headers are sent, stop execution
-            if (res.headersSent) return resolve()
+            if (res.headersSent) {
+return resolve()
+}
             resolve()
           })
         })
 
         // If response headers are sent, stop execution chain
-        if (res.headersSent) return
+        if (res.headersSent) {
+return
+}
       }
 
       // If we got here and headers aren't sent, proceed to next handler

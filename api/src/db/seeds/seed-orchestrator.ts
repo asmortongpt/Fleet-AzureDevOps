@@ -458,7 +458,9 @@ export class SeedOrchestrator {
       const driverMapResult = await client.query('SELECT id, user_id FROM drivers WHERE tenant_id = $1', [tenantId]);
       const userToDriverMap = new Map<string, string>();
       for (const row of driverMapResult.rows) {
-        if (row.user_id) userToDriverMap.set(row.user_id, row.id);
+        if (row.user_id) {
+          userToDriverMap.set(row.user_id, row.id);
+        }
       }
 
       for (const vehicle of vehicles) {
@@ -521,7 +523,9 @@ export class SeedOrchestrator {
       const driverMapResult = await client.query('SELECT id, user_id FROM drivers WHERE tenant_id = $1', [tenantId]);
       const userToDriverMap = new Map<string, string>();
       for (const row of driverMapResult.rows) {
-        if (row.user_id) userToDriverMap.set(row.user_id, row.id);
+        if (row.user_id) {
+          userToDriverMap.set(row.user_id, row.id);
+        }
       }
 
       for (const vehicle of vehicles) {

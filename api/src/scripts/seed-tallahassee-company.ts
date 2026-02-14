@@ -127,7 +127,9 @@ function getSketchfabModel(make: string, model: string): { url: string; id: stri
 
 function generate3DModel(template: typeof VEHICLE_TEMPLATES[0]) {
   const sketchfab = getSketchfabModel(template.make, template.model);
-  if (!sketchfab) return null;
+  if (!sketchfab) {
+return null;
+}
 
   const qualityTiers = ['high', 'medium', 'low'];
   const vehicleType = template.type === 'sedan' ? 'car' : template.type;
@@ -676,9 +678,15 @@ async function seedTallahasseeCompany() {
       ]);
 
       ids.userIds.push({ id: result.rows[0].id, ...emp });
-      if (role === 'Driver') ids.driverUserIds.push(result.rows[0].id);
-      if (role === 'Mechanic') ids.mechanicUserIds.push(result.rows[0].id);
-      if (role === 'Manager') ids.managerUserIds.push(result.rows[0].id);
+      if (role === 'Driver') {
+ids.driverUserIds.push(result.rows[0].id);
+}
+      if (role === 'Mechanic') {
+ids.mechanicUserIds.push(result.rows[0].id);
+}
+      if (role === 'Manager') {
+ids.managerUserIds.push(result.rows[0].id);
+}
     }
     console.log(`   Created ${roles.length} users\n`);
 

@@ -34,7 +34,7 @@ class VideoRetentionPolicyJob {
 
     // Also run on startup (but delayed by 5 minutes)
     setTimeout(() => {
-      this.executeRetentionPolicy();
+      void this.executeRetentionPolicy();
     }, 5 * 60 * 1000);
   }
 

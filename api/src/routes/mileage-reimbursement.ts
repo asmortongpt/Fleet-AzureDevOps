@@ -135,9 +135,8 @@ router.post('/calculate',csrfProtection, async (req: Request, res: Response) => 
     if (custom_rate && MILEAGE_CONFIG.allowCustomRates) {
       applicableRate = custom_rate
       rateSource = 'custom'
-    }
-    // Priority 2: Tenant-specific rate
-    else if (tenant_id) {
+    } else if (tenant_id) {
+      // Priority 2: Tenant-specific rate
       try {
         const tenantRateResult = await pool.query(
           `SELECT settings->>'mileage_rate' as rate FROM tenants WHERE id = $1`,

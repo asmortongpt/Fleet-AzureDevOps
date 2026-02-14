@@ -30,7 +30,7 @@ const MaintenanceManagement: React.FC<MaintenanceManagementProps> = ({ currentTh
     padding: '12px 24px',
     border: 'none',
     background: isActive ? currentTheme.primary : 'transparent',
-    color: isActive ? '#fff' : currentTheme.text,
+    color: isActive ? 'hsl(var(--primary-foreground))' : currentTheme.text,
     fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',

@@ -65,7 +65,6 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
-import logger from '@/utils/logger';
 import {
   PolicyViolation,
   ViolationType,

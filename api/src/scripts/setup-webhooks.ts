@@ -94,7 +94,7 @@ class WebhookSetup {
       throw new Error(`Failed to create subscription: ${JSON.stringify(error)}`);
     }
 
-    return response.json() as Promise<any>;
+    return response.json();
   }
 
   async listSubscriptions(): Promise<any[]> {
@@ -225,7 +225,7 @@ async function main() {
 
 // Run if called directly
 if (require.main === module) {
-  main();
+  void main();
 }
 
 export { WebhookSetup };

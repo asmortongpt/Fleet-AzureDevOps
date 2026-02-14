@@ -20,7 +20,6 @@ import {
   AreaChart,
 } from 'recharts'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -54,25 +53,22 @@ export function InteractiveLineChart({
   height = 400,
   loading = false,
   showArea = false,
-  colors = ['hsl(210, 100%, 56%)', 'hsl(142, 76%, 36%)', 'hsl(291, 64%, 42%)'],
+  colors = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-4))'],
   enableBrush = true,
   enableZoom = true,
 }: InteractiveLineChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const [zoomLevel, setZoomLevel] = useState(1)
   const [brushIndexes, setBrushIndexes] = useState<{ startIndex?: number; endIndex?: number }>({})
 
   const chartColors = {
-    text: isDark ? '#e5e7eb' : '#374151',
-    grid: isDark ? '#374151' : '#e5e7eb',
+    text: 'hsl(var(--foreground))',
+    grid: 'hsl(var(--border))',
     tooltip: {
-      background: isDark ? '#1f2937' : '#ffffff',
-      border: isDark ? '#374151' : '#e5e7eb',
-      text: isDark ? '#e5e7eb' : '#111827',
+      background: 'hsl(var(--card))',
+      border: 'hsl(var(--border))',
+      text: 'hsl(var(--foreground))',
     },
-    brush: isDark ? '#374151' : '#e5e7eb',
+    brush: 'hsl(var(--border))',
   }
 
   const ChartComponent = showArea ? AreaChart : LineChart
@@ -203,7 +199,8 @@ export function InteractiveLineChart({
                     type="monotone"
                     dataKey={key}
                     stroke={color}
-                    fill={`${color}40`}
+                    fill={color}
+                    fillOpacity={0.2}
                     strokeWidth={2}
                     animationDuration={1500}
                     dot={{ r: 4, fill: color }}
@@ -228,7 +225,7 @@ export function InteractiveLineChart({
                   dataKey={xAxisKey}
                   height={30}
                   stroke={chartColors.brush}
-                  fill={isDark ? '#1f2937' : '#f3f4f6'}
+                  fill="hsl(var(--card))"
                   onChange={(indexes: any) => setBrushIndexes(indexes)}
                   travellerWidth={10}
                 />

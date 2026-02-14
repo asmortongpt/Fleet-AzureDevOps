@@ -183,7 +183,7 @@ const ComplianceDetailsPanel: React.FC<{
                   key={vehicleId}
                   className="flex items-center justify-between p-2 rounded-md bg-muted/50"
                 >
-                  <div className="text-sm font-medium">Vehicle #{index + 1}</div>
+                  <div className="text-sm font-medium">{vehicleId ? `Vehicle ${vehicleId}` : `Vehicle ${index + 1}`}</div>
                   <Badge variant="outline" className="text-xs">
                     {selectedZone.type}
                   </Badge>

@@ -32,7 +32,9 @@ export async function generateExcel(data: any[]): Promise<ExcelJS.Workbook> {
     for (let i = 0; i < sampleSize; i++) {
       const val = data[i][header];
       const strLen = val === null || val === undefined ? 0 : String(val).length;
-      if (strLen > maxWidth) maxWidth = strLen;
+      if (strLen > maxWidth) {
+maxWidth = strLen;
+}
     }
 
     return {
@@ -68,9 +70,15 @@ export async function generateExcel(data: any[]): Promise<ExcelJS.Workbook> {
     const rowData = data[rowIdx];
     const values = headers.map((header) => {
       const val = rowData[header];
-      if (val === null || val === undefined) return '';
-      if (val instanceof Date) return val;
-      if (typeof val === 'object') return JSON.stringify(val);
+      if (val === null || val === undefined) {
+return '';
+}
+      if (val instanceof Date) {
+return val;
+}
+      if (typeof val === 'object') {
+return JSON.stringify(val);
+}
       return val;
     });
 

@@ -203,7 +203,9 @@ return
    * Track quality gates and deployments
    */
   trackQualityGate(gateType: string, status: string, executionTime: number) {
-    if (!this.isConfigured || !this.client) return
+    if (!this.isConfigured || !this.client) {
+return
+}
 
     this.client.trackEvent({
       name: 'QualityGateExecuted',
@@ -244,7 +246,7 @@ return
 }
 
     return new Promise((resolve) => {
-      this.client!.flush()
+      void this.client!.flush()
       // Wait a moment for flush to complete
       setTimeout(() => resolve(), 100)
     })

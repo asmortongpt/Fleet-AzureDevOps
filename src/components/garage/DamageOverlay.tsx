@@ -47,10 +47,10 @@ export interface DamageOverlayProps {
 // =============================================================================
 
 const SEVERITY_COLORS: Record<DamageSeverity, string> = {
-    minor: '#22c55e',      // Green
-    moderate: '#eab308',   // Yellow  
-    severe: '#f97316',     // Orange
-    critical: '#ef4444',   // Red
+    minor: 'hsl(var(--success))',      // Green
+    moderate: 'hsl(var(--warning))',   // Yellow  
+    severe: 'hsl(var(--warning))',     // Orange
+    critical: 'hsl(var(--destructive))',   // Red
 }
 
 const SEVERITY_LABELS: Record<DamageSeverity, string> = {

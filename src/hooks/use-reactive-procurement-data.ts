@@ -30,7 +30,6 @@ import type {
   TrendDataPoint,
   ProcurementAlert,
 } from '@/types/procurement'
-import logger from '@/utils/logger';
 import {
   VendorSchema,
   PurchaseOrderSchema,

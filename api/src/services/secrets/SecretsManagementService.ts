@@ -100,7 +100,7 @@ export class SecretsManagementService {
     // For now, load environment variables into our local store
     Object.keys(process.env).forEach(key => {
       if (process.env[key]) {
-        this.secrets.set(key, process.env[key] as string);
+        this.secrets.set(key, process.env[key]);
       }
     });
 
@@ -224,9 +224,13 @@ export class SecretsManagementService {
     permission: SecretPermission
   ): Promise<boolean> {
     const secretPerms = this.permissions.get(secretName);
-    if (!secretPerms) return false;
+    if (!secretPerms) {
+return false;
+}
     const userPerms = secretPerms.get(userId);
-    if (!userPerms) return false;
+    if (!userPerms) {
+return false;
+}
     return userPerms.includes(permission) || userPerms.includes('admin');
   }
 
@@ -263,16 +267,27 @@ export class SecretsManagementService {
 
     for (const [, meta] of this.metadata.entries()) {
       if (meta.expiresAt) {
-        if (meta.expiresAt <= now) expired++;
-        else if (meta.expiresAt <= thirtyDays) expiringSoon++;
+        if (meta.expiresAt <= now) {
+expired++;
+} else if (meta.expiresAt <= thirtyDays) {
+expiringSoon++;
+}
       }
-      if (!meta.rotationPolicy?.enabled) withoutRotationPolicy++;
+      if (!meta.rotationPolicy?.enabled) {
+withoutRotationPolicy++;
+}
     }
 
     const recommendations: string[] = [];
-    if (expired > 0) recommendations.push(`${expired} secret(s) have expired and need immediate rotation`);
-    if (expiringSoon > 0) recommendations.push(`${expiringSoon} secret(s) expiring within 30 days`);
-    if (withoutRotationPolicy > 0) recommendations.push(`${withoutRotationPolicy} secret(s) without rotation policy`);
+    if (expired > 0) {
+recommendations.push(`${expired} secret(s) have expired and need immediate rotation`);
+}
+    if (expiringSoon > 0) {
+recommendations.push(`${expiringSoon} secret(s) expiring within 30 days`);
+}
+    if (withoutRotationPolicy > 0) {
+recommendations.push(`${withoutRotationPolicy} secret(s) without rotation policy`);
+}
 
     return {
       totalSecrets: this.secrets.size,

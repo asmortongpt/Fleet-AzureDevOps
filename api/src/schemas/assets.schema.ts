@@ -62,7 +62,7 @@ export const assetCreateSchema = z.object({
   asset_tag: z.string()
     .min(1, 'Asset tag is required')
     .max(50, 'Asset tag must be 50 characters or less')
-    .regex(/^[A-Z0-9\-]+$/i, 'Asset tag can only contain letters, numbers, and hyphens'),
+    .regex(/^[A-Z0-9-]+$/i, 'Asset tag can only contain letters, numbers, and hyphens'),
 
   asset_name: z.string()
     .min(1, 'Asset name is required')

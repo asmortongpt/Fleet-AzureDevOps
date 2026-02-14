@@ -108,7 +108,9 @@ export class InspectionRepository extends BaseRepository<Inspection> {
   }
 
   async update(id: string | number, data: Partial<Inspection>, tenantId: string | number): Promise<Inspection | null> {
-    if (Object.keys(data).length === 0) return this.findById(id, tenantId);
+    if (Object.keys(data).length === 0) {
+return this.findById(id, tenantId);
+}
 
     const fields = Object.keys(data);
     const setClause = fields.map((key, i) => `${key} = $${i + 3}`).join(', ');

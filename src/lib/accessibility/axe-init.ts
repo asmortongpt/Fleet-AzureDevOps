@@ -7,7 +7,6 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 
@@ -34,7 +33,7 @@ export async function initializeAxe() {
       axeInitialized = true;
       logger.info(
         '%c[Accessibility] Axe-core initialized - WCAG 2.1 AA compliance checking enabled',
-        'color: #16a34a; font-weight: bold;'
+        'color: hsl(var(--success)); font-weight: bold;'
       );
     } catch (error) {
       logger.error('[Accessibility] Failed to initialize axe-core:', error);
@@ -183,20 +182,20 @@ export function logAccessibilityViolations(violations: any[]) {
   if (violations.length === 0) {
     logger.info(
       '%c✅ No accessibility violations found',
-      'color: #16a34a; font-weight: bold; font-size: 14px;'
+      'color: hsl(var(--success)); font-weight: bold; font-size: 14px;'
     );
     return;
   }
 
   console.group(
     `%c⚠️ ${violations.length} Accessibility Violations Found`,
-    'color: #dc2626; font-weight: bold; font-size: 14px;'
+    'color: hsl(var(--destructive)); font-weight: bold; font-size: 14px;'
   );
 
   for (const violation of violations) {
     console.group(
       `%c${violation.impact.toUpperCase()}: ${violation.help}`,
-      `color: ${violation.impact === 'critical' || violation.impact === 'serious' ? '#dc2626' : '#f59e0b'}; font-weight: bold;`
+      `color: ${violation.impact === 'critical' || violation.impact === 'serious' ? 'hsl(var(--destructive))' : 'hsl(var(--warning))'}; font-weight: bold;`
     );
 
     logger.info('Description:', violation.description);

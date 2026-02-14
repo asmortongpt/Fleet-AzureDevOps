@@ -49,7 +49,13 @@ const BudgetFinanceSystem: React.FC = () => {
     { month: 'Jun', budget: 250000, actual: 248000 }
   ];
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
+  const COLORS = [
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-5))',
+    'hsl(var(--chart-4))'
+  ];
 
   return (
     <Box sx={{ width: '100%' }}>
@@ -117,8 +123,8 @@ const BudgetFinanceSystem: React.FC = () => {
                     <YAxis />
                     <Tooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
                     <Legend />
-                    <Line type="monotone" dataKey="budget" stroke="#8884d8" name="Budget" />
-                    <Line type="monotone" dataKey="actual" stroke="#82ca9d" name="Actual" />
+                    <Line type="monotone" dataKey="budget" stroke="hsl(var(--chart-4))" name="Budget" />
+                    <Line type="monotone" dataKey="actual" stroke="hsl(var(--chart-2))" name="Actual" />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -138,7 +144,7 @@ const BudgetFinanceSystem: React.FC = () => {
                       labelLine={false}
                       label={(entry: any) => entry.category}
                       outerRadius={80}
-                      fill="#8884d8"
+                      fill="hsl(var(--chart-4))"
                       dataKey="spent"
                     >
                       {expenseCategories.map((entry, index) => (

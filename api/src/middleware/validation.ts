@@ -244,7 +244,7 @@ export const commonSchemas = {
   /**
    * Phone number validation (flexible international format)
    */
-  phone: z.string().regex(/^[\d\s\-\+\(\)]+$/, 'Invalid phone number format'),
+  phone: z.string().regex(/^[\d\s+()-]+$/, 'Invalid phone number format'),
 
   /**
    * VIN validation (17 characters, excludes I, O, Q)
@@ -260,7 +260,7 @@ export const commonSchemas = {
   licensePlate: z.string()
     .min(2)
     .max(15)
-    .regex(/^[A-Z0-9\s\-]+$/i, 'Invalid license plate format')
+    .regex(/^[A-Z0-9\s-]+$/i, 'Invalid license plate format')
     .transform(val => val.toUpperCase()),
 
   /**
@@ -303,7 +303,7 @@ export const commonSchemas = {
    */
   fileMetadata: z.object({
     filename: z.string().min(1).max(255),
-    mimetype: z.string().regex(/^[a-z]+\/[a-z0-9\-\+\.]+$/i),
+    mimetype: z.string().regex(/^[a-z]+\/[a-z0-9+.-]+$/i),
     size: z.number().int().positive().max(50 * 1024 * 1024) // 50MB max
   })
 }
@@ -337,7 +337,7 @@ function sanitizeInput(data: unknown): unknown {
 function sanitizeString(str: string): string {
   return str
     // Remove script tags
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
     // Remove event handlers
     .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
     .replace(/\s*on\w+\s*=\s*[^\s>]*/gi, '')

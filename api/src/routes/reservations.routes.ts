@@ -115,7 +115,9 @@ function getUserContext(req: AuthRequest): UserContext {
 router.get('/', authenticateJWT, async (req: AuthRequest, res: Response) => {
   try {
     const tenantId = req.user?.tenant_id || req.user?.tenantId;
-    if (!tenantId) return res.status(401).json({ success: false, error: 'Missing tenant context' });
+    if (!tenantId) {
+return res.status(401).json({ success: false, error: 'Missing tenant context' });
+}
 
     const {
       limit = '50',

@@ -118,6 +118,7 @@ if (parentPort) {
   processOCR(workerData)
     .then(result => {
       parentPort!.postMessage(result);
+      return undefined;
     })
     .catch(error => {
       parentPort!.postMessage({

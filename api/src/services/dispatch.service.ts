@@ -21,6 +21,9 @@ import { Pool } from 'pg'
 import { v4 as uuidv4 } from 'uuid'
 import { WebSocket, WebSocketServer } from 'ws'
 
+// Export singleton instance
+import { db } from '../db'
+
 
 // Types
 export interface DispatchChannel {
@@ -717,9 +720,6 @@ return
     }
   }
 }
-
-// Export singleton instance
-import { db } from '../db'
 // @ts-expect-error - Build compatibility fix
 const dispatchService = new DispatchService(db)
 

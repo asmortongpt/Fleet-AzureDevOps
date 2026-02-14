@@ -5,7 +5,6 @@ import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 
 import { cacheService } from './RedisService';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

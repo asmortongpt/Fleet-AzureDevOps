@@ -107,7 +107,7 @@ const sdk = new NodeSDK({
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  sdk
+  void sdk
     .shutdown()
     .then(() => logger.info('OpenTelemetry SDK shut down successfully'))
     .catch((error) => logger.error('Error shutting down OpenTelemetry SDK', { error }))

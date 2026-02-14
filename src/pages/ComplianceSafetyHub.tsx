@@ -39,8 +39,8 @@ import {
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
-import useSWR from 'swr'
 import { useNavigate } from 'react-router-dom'
+import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from '@/components/ui/badge'
@@ -48,14 +48,14 @@ import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
 import { Section } from '@/components/ui/section'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { getCsrfToken } from '@/hooks/use-api'
-import { useFleetData } from '@/hooks/use-fleet-data'
-import logger from '@/utils/logger';
 import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
 } from '@/components/visualizations'
+import { getCsrfToken } from '@/hooks/use-api'
+import { useFleetData } from '@/hooks/use-fleet-data'
+import logger from '@/utils/logger';
 
 
 const fetcher = (url: string) =>
@@ -574,7 +574,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
             title="Safety Score Distribution"
             data={scoreDistribution}
             dataKeys={['drivers']}
-            colors={['#3b82f6']}
+            colors={['hsl(var(--primary))']}
             height={250}
           />
         </Section>
@@ -647,7 +647,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
             title="Incident Trends"
             data={incidentTrendData}
             dataKeys={['incidents']}
-            colors={['#ef4444']}
+            colors={['hsl(var(--destructive))']}
             height={300}
           />
         </Section>

@@ -100,11 +100,11 @@ router.get('/pm-schedules/:scheduleId', async (req: Request, res: Response) => {
       nextDueDate: row.nextDueDate || null,
       nextDueMileage: row.nextDueMileage ? Number(row.nextDueMileage) : null,
       currentMileage: row.currentMileage ? Number(row.currentMileage) : null,
-      daysUntilDue: row.daysUntilDue != null ? Number(row.daysUntilDue) : null,
-      milesUntilDue: row.milesUntilDue != null ? Number(row.milesUntilDue) : null,
+      daysUntilDue: row.daysUntilDue !== null && row.daysUntilDue !== undefined ? Number(row.daysUntilDue) : null,
+      milesUntilDue: row.milesUntilDue !== null && row.milesUntilDue !== undefined ? Number(row.milesUntilDue) : null,
       status: row.status,
       frequency: row.frequency || null,
-      estimatedCost: row.estimatedCostCents != null ? Number(row.estimatedCostCents) / 100 : null,
+      estimatedCost: row.estimatedCostCents !== null && row.estimatedCostCents !== undefined ? Number(row.estimatedCostCents) / 100 : null,
       assignedTechnician: null, // Resolved from work orders if needed
       serviceProvider: row.serviceProvider || row.vendorName || null,
       serviceProviderContact: row.vendorContactName
@@ -186,17 +186,17 @@ router.get('/vehicles/:vehicleId/service-history', async (req: Request, res: Res
       serviceDate: row.serviceDate || null,
       serviceType: row.serviceType || null,
       description: row.description || null,
-      mileage: row.mileage != null ? Number(row.mileage) : null,
+      mileage: row.mileage !== null && row.mileage !== undefined ? Number(row.mileage) : null,
       technician:
         row.techFirstName || row.techLastName
           ? `${row.techFirstName || ''} ${row.techLastName || ''}`.trim()
           : null,
       technicianPhone: row.technicianPhone || null,
       technicianEmail: row.technicianEmail || null,
-      laborHours: row.laborHours != null ? Number(row.laborHours) : null,
-      laborCost: row.laborCostCents != null ? Number(row.laborCostCents) / 100 : null,
-      partsCost: row.partsCostCents != null ? Number(row.partsCostCents) / 100 : null,
-      totalCost: row.totalCostCents != null ? Number(row.totalCostCents) / 100 : null,
+      laborHours: row.laborHours !== null && row.laborHours !== undefined ? Number(row.laborHours) : null,
+      laborCost: row.laborCostCents !== null && row.laborCostCents !== undefined ? Number(row.laborCostCents) / 100 : null,
+      partsCost: row.partsCostCents !== null && row.partsCostCents !== undefined ? Number(row.partsCostCents) / 100 : null,
+      totalCost: row.totalCostCents !== null && row.totalCostCents !== undefined ? Number(row.totalCostCents) / 100 : null,
       status: row.status || null,
       notes: row.notes || null,
       warranty: row.underWarranty
@@ -332,8 +332,8 @@ router.get('/repairs/:repairId', async (req: Request, res: Response) => {
       priority: wo.priority || null,
       diagnosisDate: wo.scheduledStartDate || null,
       diagnosisNotes: wo.notes || null,
-      estimatedCost: wo.estimatedCost != null ? Number(wo.estimatedCost) : null,
-      actualCost: wo.actualCost != null ? Number(wo.actualCost) : null,
+      estimatedCost: wo.estimatedCost !== null && wo.estimatedCost !== undefined ? Number(wo.estimatedCost) : null,
+      actualCost: wo.actualCost !== null && wo.actualCost !== undefined ? Number(wo.actualCost) : null,
       assignedTechnician:
         wo.assignedTechnician ||
         (wo.techFirstName || wo.techLastName
@@ -343,7 +343,7 @@ router.get('/repairs/:repairId', async (req: Request, res: Response) => {
       technicianEmail: wo.technicianEmail || null,
       startDate: wo.startDate || null,
       completionDate: wo.completionDate || null,
-      laborHours: wo.laborHours != null ? Number(wo.laborHours) : null,
+      laborHours: wo.laborHours !== null && wo.laborHours !== undefined ? Number(wo.laborHours) : null,
       odometerAtStart: wo.odometerAtStart || null,
       odometerAtEnd: wo.odometerAtEnd || null,
       invoiceNumber: wo.invoiceNumber || null,
@@ -352,16 +352,16 @@ router.get('/repairs/:repairId', async (req: Request, res: Response) => {
       partsUsed: partsResult.rows.map((p) => ({
         partNumber: p.partNumber || null,
         partName: p.partName || null,
-        quantity: p.quantity != null ? Number(p.quantity) : null,
-        unitCost: p.unitCost != null ? Number(p.unitCost) : null,
-        totalCost: p.totalCost != null ? Number(p.totalCost) : null,
+        quantity: p.quantity !== null && p.quantity !== undefined ? Number(p.quantity) : null,
+        unitCost: p.unitCost !== null && p.unitCost !== undefined ? Number(p.unitCost) : null,
+        totalCost: p.totalCost !== null && p.totalCost !== undefined ? Number(p.totalCost) : null,
         supplier: p.supplier || null,
       })),
       laborEntries: laborResult.rows.map((l) => ({
         technicianName: l.technicianName || null,
-        hours: l.hours != null ? Number(l.hours) : null,
-        rate: l.rate != null ? Number(l.rate) : null,
-        total: l.total != null ? Number(l.total) : null,
+        hours: l.hours !== null && l.hours !== undefined ? Number(l.hours) : null,
+        rate: l.rate !== null && l.rate !== undefined ? Number(l.rate) : null,
+        total: l.total !== null && l.total !== undefined ? Number(l.total) : null,
         description: l.description || null,
         date: l.date || null,
       })),
@@ -457,8 +457,9 @@ router.get('/inspections/:inspectionId', async (req: Request, res: Response) => 
           severity: item.severity || undefined,
         }
         inspectionItems.push(inspItem)
-        if (inspItem.result === 'pass') itemsPassed++
-        else if (inspItem.result === 'fail') {
+        if (inspItem.result === 'pass') {
+itemsPassed++
+} else if (inspItem.result === 'fail') {
           itemsFailed++
           failedItems.push({
             item: inspItem.item,
@@ -466,9 +467,11 @@ router.get('/inspections/:inspectionId', async (req: Request, res: Response) => 
             notes: inspItem.notes || 'Failed inspection item',
             correctiveAction: item.correctiveAction || null,
             actionStatus: item.actionStatus || 'pending',
-            estimatedCost: item.estimatedCost != null ? Number(item.estimatedCost) : null,
+            estimatedCost: item.estimatedCost !== null && item.estimatedCost !== undefined ? Number(item.estimatedCost) : null,
           })
-        } else if (inspItem.result === 'advisory') itemsAdvisory++
+        } else if (inspItem.result === 'advisory') {
+itemsAdvisory++
+}
       }
     } else if (typeof checklistData === 'object' && checklistData.items) {
       // Handle {items: [...]} format
@@ -481,8 +484,9 @@ router.get('/inspections/:inspectionId', async (req: Request, res: Response) => 
           severity: item.severity || undefined,
         }
         inspectionItems.push(inspItem)
-        if (inspItem.result === 'pass') itemsPassed++
-        else if (inspItem.result === 'fail') {
+        if (inspItem.result === 'pass') {
+itemsPassed++
+} else if (inspItem.result === 'fail') {
           itemsFailed++
           failedItems.push({
             item: inspItem.item,
@@ -490,9 +494,11 @@ router.get('/inspections/:inspectionId', async (req: Request, res: Response) => 
             notes: inspItem.notes || 'Failed inspection item',
             correctiveAction: item.correctiveAction || null,
             actionStatus: item.actionStatus || 'pending',
-            estimatedCost: item.estimatedCost != null ? Number(item.estimatedCost) : null,
+            estimatedCost: item.estimatedCost !== null && item.estimatedCost !== undefined ? Number(item.estimatedCost) : null,
           })
-        } else if (inspItem.result === 'advisory') itemsAdvisory++
+        } else if (inspItem.result === 'advisory') {
+itemsAdvisory++
+}
       }
     }
 
@@ -526,7 +532,7 @@ router.get('/inspections/:inspectionId', async (req: Request, res: Response) => 
       inspectionType: row.inspectionType || null,
       inspectionDate: row.inspectionDate || null,
       completedAt: row.completedAt || null,
-      mileage: row.currentMileage != null ? Number(row.currentMileage) : null,
+      mileage: row.currentMileage !== null && row.currentMileage !== undefined ? Number(row.currentMileage) : null,
       inspector: {
         name:
           row.inspectorName ||
@@ -636,7 +642,7 @@ router.get('/service-records/:serviceRecordId', async (req: Request, res: Respon
       serviceType: row.serviceType || null,
       serviceCategory: row.serviceCategory || null,
       description: row.description || null,
-      mileage: row.mileage != null ? Number(row.mileage) : row.odometerReading != null ? Number(row.odometerReading) : null,
+      mileage: row.mileage !== null && row.mileage !== undefined ? Number(row.mileage) : row.odometerReading !== null && row.odometerReading !== undefined ? Number(row.odometerReading) : null,
       vehicleId: row.vehicleId ? String(row.vehicleId) : null,
       vehicleNumber: row.vehicleNumber || null,
       vehicleMake: row.vehicleMake || null,
@@ -648,11 +654,11 @@ router.get('/service-records/:serviceRecordId', async (req: Request, res: Respon
           : null,
       technicianPhone: row.technicianPhone || null,
       technicianEmail: row.technicianEmail || null,
-      laborHours: row.laborHours != null ? Number(row.laborHours) : null,
-      laborCost: row.laborCostCents != null ? Number(row.laborCostCents) / 100 : null,
-      partsCost: row.partsCostCents != null ? Number(row.partsCostCents) / 100 : null,
-      totalCost: row.totalCostCents != null ? Number(row.totalCostCents) / 100 : null,
-      estimatedCost: row.estimatedCostCents != null ? Number(row.estimatedCostCents) / 100 : null,
+      laborHours: row.laborHours !== null && row.laborHours !== undefined ? Number(row.laborHours) : null,
+      laborCost: row.laborCostCents !== null && row.laborCostCents !== undefined ? Number(row.laborCostCents) / 100 : null,
+      partsCost: row.partsCostCents !== null && row.partsCostCents !== undefined ? Number(row.partsCostCents) / 100 : null,
+      totalCost: row.totalCostCents !== null && row.totalCostCents !== undefined ? Number(row.totalCostCents) / 100 : null,
+      estimatedCost: row.estimatedCostCents !== null && row.estimatedCostCents !== undefined ? Number(row.estimatedCostCents) / 100 : null,
       status: row.status || null,
       notes: row.notes || null,
       warranty: row.underWarranty
@@ -804,7 +810,7 @@ router.get('/vendors/:vendorId', async (req: Request, res: Response) => {
       activeContracts: contracts ? Number(contracts.activeContracts) : 0,
       totalServicesYTD: services ? Number(services.totalServicesYTD) : 0,
       totalCostYTD: services ? Number(services.totalCostYTD) : 0,
-      averageRating: perf ? Number(perf.overallScore) : v.rating != null ? Number(v.rating) : null,
+      averageRating: perf ? Number(perf.overallScore) : v.rating !== null && v.rating !== undefined ? Number(v.rating) : null,
       qualityScore: perf ? Number(perf.qualityScore) : null,
       responsivenessScore: perf ? Number(perf.responsivenessScore) : null,
       customerSatisfaction: perf ? Number(perf.customerSatisfaction) : null,
@@ -979,7 +985,7 @@ router.get('/garage-bays/:bayNumber/work-order', async (req: Request, res: Respo
       vehicleMake: wo.vehicleMake || null,
       vehicleModel: wo.vehicleModel || null,
       vehicleYear: wo.vehicleYear || null,
-      mileage: wo.mileage != null ? Number(wo.mileage) : wo.odometerAtStart || null,
+      mileage: wo.mileage !== null && wo.mileage !== undefined ? Number(wo.mileage) : wo.odometerAtStart || null,
       licensePlate: wo.licensePlate || null,
       vehicleName: wo.vehicleName || null,
       assignedTechnicians: techResult.rows.map((t) => ({
@@ -989,12 +995,12 @@ router.get('/garage-bays/:bayNumber/work-order', async (req: Request, res: Respo
       parts: partsResult.rows.map((p) => ({
         partNumber: p.partNumber || null,
         description: p.description || null,
-        quantity: p.quantity != null ? Number(p.quantity) : null,
+        quantity: p.quantity !== null && p.quantity !== undefined ? Number(p.quantity) : null,
         status: p.status || 'unknown',
       })),
       notes: wo.notes || null,
-      estimatedCost: wo.estimatedCost != null ? Number(wo.estimatedCost) : null,
-      actualCost: wo.actualCost != null ? Number(wo.actualCost) : null,
+      estimatedCost: wo.estimatedCost !== null && wo.estimatedCost !== undefined ? Number(wo.estimatedCost) : null,
+      actualCost: wo.actualCost !== null && wo.actualCost !== undefined ? Number(wo.actualCost) : null,
     }
 
     res.json(workOrder)

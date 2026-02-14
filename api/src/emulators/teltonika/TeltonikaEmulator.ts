@@ -752,7 +752,9 @@ export class TeltonikaEmulator extends EventEmitter {
       let digit = parseInt(imei[i]);
       if (double) {
         digit *= 2;
-        if (digit > 9) digit -= 9;
+        if (digit > 9) {
+digit -= 9;
+}
       }
       sum += digit;
       double = !double;

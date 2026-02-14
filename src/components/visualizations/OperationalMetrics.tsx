@@ -257,7 +257,7 @@ export function CircularGauge({
             cy="50"
             r="45"
             fill="none"
-            stroke="#e2e8f0"
+            stroke="hsl(var(--border))"
             strokeWidth="8"
           />
           {/* Progress circle */}
@@ -277,12 +277,12 @@ export function CircularGauge({
 
         {/* Center text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className={`${sizes[size].text} font-bold text-slate-900`}>{value}</span>
-          <span className="text-xs text-slate-600">{unit}</span>
+          <span className={`${sizes[size].text} font-bold text-foreground`}>{value}</span>
+          <span className="text-xs text-muted-foreground">{unit}</span>
         </div>
       </div>
 
-      <span className={`${sizes[size].label} font-medium text-slate-700 mt-2 text-center`}>
+      <span className={`${sizes[size].label} font-medium text-foreground/80 mt-2 text-center`}>
         {label}
       </span>
     </div>

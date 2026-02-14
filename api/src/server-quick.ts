@@ -88,7 +88,9 @@ app.get("/api/vehicles", (req, res) => {
 
 app.get("/api/vehicles/:id", (req, res) => {
   const vehicle = mockVehicles.find(v => v.id === req.params.id);
-  if (!vehicle) return res.status(404).json({ error: "Vehicle not found" });
+  if (!vehicle) {
+    return res.status(404).json({ error: "Vehicle not found" });
+  }
   res.json(vehicle);
 });
 

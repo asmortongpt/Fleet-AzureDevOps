@@ -104,14 +104,18 @@ function getMigrationFiles(): string[] {
 
 function getAllowlist(): Set<string> | null {
   const raw = process.env.MIGRATIONS_ALLOWLIST;
-  if (!raw) return null;
+  if (!raw) {
+return null;
+}
   const items = raw.split(',').map((s) => s.trim()).filter(Boolean);
   return new Set(items);
 }
 
 function getSkiplist(): Set<string> | null {
   const raw = process.env.MIGRATIONS_SKIP;
-  if (!raw) return null;
+  if (!raw) {
+return null;
+}
   const items = raw.split(',').map((s) => s.trim()).filter(Boolean);
   return new Set(items);
 }
@@ -179,9 +183,15 @@ async function runMigrations(): Promise<void> {
     const allowlist = getAllowlist();
     const skiplist = getSkiplist();
     const pendingMigrations = migrationFiles.filter((file) => {
-      if (appliedMigrations.has(file)) return false;
-      if (skiplist?.has(file)) return false;
-      if (allowlist) return allowlist.has(file);
+      if (appliedMigrations.has(file)) {
+return false;
+}
+      if (skiplist?.has(file)) {
+return false;
+}
+      if (allowlist) {
+return allowlist.has(file);
+}
       return true;
     });
 
@@ -223,7 +233,7 @@ async function runMigrations(): Promise<void> {
 
 // Run migrations if this script is executed directly
 if (require.main === module) {
-  runMigrations();
+  void runMigrations();
 }
 
 export { runMigrations };

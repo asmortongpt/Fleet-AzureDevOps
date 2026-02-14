@@ -455,7 +455,9 @@ export class DashCamEmulator extends EventEmitter {
   private processEventQueue(): void {
     while (this.eventQueue.length > 0) {
       const event = this.eventQueue.shift();
-      if (!event) break;
+      if (!event) {
+break;
+}
 
       // Events are already processed when triggered
       // This is just for cleanup
@@ -468,7 +470,9 @@ export class DashCamEmulator extends EventEmitter {
   private updateOngoingRecordings(): void {
     this.recordingFiles.forEach((videoFile, position) => {
       const camera = this.cameraStatus.get(position);
-      if (!camera) return;
+      if (!camera) {
+return;
+}
 
       // Update frame count
       const elapsedSeconds = (Date.now() - videoFile.timestamp.getTime()) / 1000;
@@ -611,7 +615,9 @@ export class DashCamEmulator extends EventEmitter {
    */
   deleteFile(fileId: string): boolean {
     const index = this.completedFiles.findIndex(f => f.id === fileId);
-    if (index === -1) return false;
+    if (index === -1) {
+return false;
+}
 
     const file = this.completedFiles[index];
     this.storageUsedGB -= file.fileSize / this.BYTES_PER_GB;

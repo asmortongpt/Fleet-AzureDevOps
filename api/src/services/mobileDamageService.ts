@@ -240,13 +240,11 @@ export class MobileDamageService {
     // Priority 1: LiDAR analysis (most accurate)
     if (params.lidarData && params.photos.length > 0) {
       baseAnalysis = await this.analyzeLiDARScan(params.lidarData, params.photos);
-    }
-    // Priority 2: Video analysis (multiple angles)
-    else if (params.videoData) {
+    } else if (params.videoData) {
+      // Priority 2: Video analysis (multiple angles)
       baseAnalysis = await this.analyzeVideoWalkthrough(params.videoData);
-    }
-    // Priority 3: Photo analysis with depth
-    else if (params.photos.length > 0) {
+    } else if (params.photos.length > 0) {
+      // Priority 3: Photo analysis with depth
       const photoAnalyses = await Promise.all(
         params.photos.map((photo) => this.analyzePhotoWithDepth(photo))
       );

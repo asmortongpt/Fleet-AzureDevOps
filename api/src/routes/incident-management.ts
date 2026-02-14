@@ -15,27 +15,47 @@ type UIIncidentStatus = 'open' | 'investigating' | 'resolved' | 'closed'
 
 function mapDbStatusToUI(status: string | null | undefined): UIIncidentStatus {
   const s = String(status || '').toLowerCase()
-  if (s === 'pending') return 'open'
-  if (s === 'in_progress' || s === 'on_hold') return 'investigating'
-  if (s === 'completed') return 'resolved'
-  if (s === 'cancelled' || s === 'failed') return 'closed'
+  if (s === 'pending') {
+return 'open'
+}
+  if (s === 'in_progress' || s === 'on_hold') {
+return 'investigating'
+}
+  if (s === 'completed') {
+return 'resolved'
+}
+  if (s === 'cancelled' || s === 'failed') {
+return 'closed'
+}
   return 'open'
 }
 
 function mapUIStatusToDb(status: UIIncidentStatus | string | null | undefined): string {
   const s = String(status || '').toLowerCase()
-  if (s === 'open') return 'pending'
-  if (s === 'investigating') return 'in_progress'
-  if (s === 'resolved') return 'completed'
-  if (s === 'closed') return 'cancelled'
+  if (s === 'open') {
+return 'pending'
+}
+  if (s === 'investigating') {
+return 'in_progress'
+}
+  if (s === 'resolved') {
+return 'completed'
+}
+  if (s === 'closed') {
+return 'cancelled'
+}
   return 'pending'
 }
 
 function toTimestamp(date: string | undefined, time: string | undefined): string | null {
-  if (!date) return null
+  if (!date) {
+return null
+}
   const iso = time ? `${date}T${time}` : `${date}T00:00:00`
   const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return null
+  if (Number.isNaN(d.getTime())) {
+return null
+}
   // store without timezone (DB column is timestamp without time zone)
   return d.toISOString().replace('Z', '')
 }
@@ -380,19 +400,39 @@ router.put(
       `SELECT id, status, metadata FROM incidents WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
-    if (current.rows.length === 0) return res.status(404).json({ error: 'Incident not found' })
+    if (current.rows.length === 0) {
+return res.status(404).json({ error: 'Incident not found' })
+}
 
     const currentRow = current.rows[0]
     let metadata = currentRow.metadata || {}
-    if (body.incident_title !== undefined) metadata.incident_title = body.incident_title
-    if (body.incident_time !== undefined) metadata.incident_time = body.incident_time
-    if (body.weather_conditions !== undefined) metadata.weather_conditions = body.weather_conditions
-    if (body.road_conditions !== undefined) metadata.road_conditions = body.road_conditions
-    if (body.injury_details !== undefined) metadata.injury_details = body.injury_details
-    if (body.property_damage !== undefined) metadata.property_damage = body.property_damage
-    if (body.damage_estimate !== undefined) metadata.damage_estimate = body.damage_estimate
-    if (body.resolution_notes !== undefined) metadata.resolution_notes = body.resolution_notes
-    if (body.preventive_measures !== undefined) metadata.preventive_measures = body.preventive_measures
+    if (body.incident_title !== undefined) {
+metadata.incident_title = body.incident_title
+}
+    if (body.incident_time !== undefined) {
+metadata.incident_time = body.incident_time
+}
+    if (body.weather_conditions !== undefined) {
+metadata.weather_conditions = body.weather_conditions
+}
+    if (body.road_conditions !== undefined) {
+metadata.road_conditions = body.road_conditions
+}
+    if (body.injury_details !== undefined) {
+metadata.injury_details = body.injury_details
+}
+    if (body.property_damage !== undefined) {
+metadata.property_damage = body.property_damage
+}
+    if (body.damage_estimate !== undefined) {
+metadata.damage_estimate = body.damage_estimate
+}
+    if (body.resolution_notes !== undefined) {
+metadata.resolution_notes = body.resolution_notes
+}
+    if (body.preventive_measures !== undefined) {
+metadata.preventive_measures = body.preventive_measures
+}
 
     if (dbStatus && dbStatus !== currentRow.status) {
       metadata = addStatusHistory(metadata, { status: dbStatus, by: userId })
@@ -494,7 +534,9 @@ router.post(
       [id, tenantId, JSON.stringify([action])]
     )
 
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Incident not found' })
+    if (result.rows.length === 0) {
+return res.status(404).json({ error: 'Incident not found' })
+}
     res.status(201).json({ action })
   }
 )
@@ -515,7 +557,9 @@ router.post(
       `SELECT id, metadata FROM incidents WHERE id = $1 AND tenant_id = $2`,
       [id, tenantId]
     )
-    if (current.rows.length === 0) return res.status(404).json({ error: 'Incident not found' })
+    if (current.rows.length === 0) {
+return res.status(404).json({ error: 'Incident not found' })
+}
 
     let metadata = current.rows[0].metadata || {}
     metadata.resolution_notes = body.resolution_notes || metadata.resolution_notes

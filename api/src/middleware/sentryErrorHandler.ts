@@ -74,7 +74,9 @@ const extractErrorDetails = (error: HttpError) => {
  * Format validation errors for better readability
  */
 const formatValidationErrors = (errors: HttpError['errors']): string => {
-  if (!errors) return '';
+  if (!errors) {
+return '';
+}
   return errors
     .map(err => `${err.type || err.param} in ${err.path || 'unknown'}: ${err.msg}`)
     .join(', ');
@@ -320,7 +322,10 @@ export const handleUnhandledRejection = () => {
     // Don't exit in development
     if (process.env.NODE_ENV === 'production') {
       // Give Sentry time to send the error before shutting down
-      sentryService.flush(2000).then(() => {
+      void sentryService.flush(2000).then(() => {
+        process.exit(1);
+        return undefined;
+      }).catch(() => {
         process.exit(1);
       });
     }
@@ -341,7 +346,10 @@ export const handleUncaughtException = () => {
     });
 
     // Give Sentry time to send the error before shutting down
-    sentryService.flush(2000).then(() => {
+    void sentryService.flush(2000).then(() => {
+      process.exit(1);
+      return undefined;
+    }).catch(() => {
       process.exit(1);
     });
   });

@@ -140,7 +140,7 @@ interface ChargingProfile {
 class OCPPService extends EventEmitter {
   private db: Pool;
   private connections: Map<string, WebSocket>;
-  private pendingCalls: Map<string, { resolve: Function; reject: Function; timeout: NodeJS.Timeout }>;
+  private pendingCalls: Map<string, { resolve: (value: unknown) => void; reject: (reason?: unknown) => void; timeout: NodeJS.Timeout }>;
   private messageIdCounter: number;
 
   constructor(db: Pool) {
@@ -192,18 +192,18 @@ class OCPPService extends EventEmitter {
       ws.on(`open`, () => {
         logger.info('Connected to station', { stationId });
         this.connections.set(stationId, ws);
-        this.updateStationStatus(stationId, { is_online: true, last_heartbeat: new Date() });
+        void this.updateStationStatus(stationId, { is_online: true, last_heartbeat: new Date() });
         this.emit('stationConnected', stationId);
       });
 
       ws.on('message', (data: Buffer) => {
-        this.handleMessage(stationId, data.toString());
+        void this.handleMessage(stationId, data.toString());
       });
 
       ws.on(`close`, () => {
         logger.info('Disconnected from station', { stationId });
         this.connections.delete(stationId);
-        this.updateStationStatus(stationId, { is_online: false });
+        void this.updateStationStatus(stationId, { is_online: false });
         this.emit('stationDisconnected', stationId);
 
         // Attempt reconnection after 30 seconds
@@ -623,7 +623,7 @@ class OCPPService extends EventEmitter {
       ws.send(JSON.stringify(message));
 
       // Log message
-      this.logOCPPMessage(stationId, `Outbound`, MessageType.CALL, action, payload, messageId);
+      void this.logOCPPMessage(stationId, `Outbound`, MessageType.CALL, action, payload, messageId);
     });
   }
 
@@ -639,7 +639,7 @@ return;
     const message = [MessageType.CALLRESULT, messageId, payload];
     ws.send(JSON.stringify(message));
 
-    this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLRESULT, '', payload, messageId);
+    void this.logOCPPMessage(stationId, 'Outbound', MessageType.CALLRESULT, '', payload, messageId);
   }
 
   /**
@@ -654,7 +654,7 @@ return;
     const message = [MessageType.CALLERROR, messageId, errorCode, errorDescription, {}];
     ws.send(JSON.stringify(message));
 
-    this.logOCPPMessage(stationId, `Outbound`, MessageType.CALLERROR, errorCode, { errorDescription }, messageId);
+    void this.logOCPPMessage(stationId, `Outbound`, MessageType.CALLERROR, errorCode, { errorDescription }, messageId);
   }
 
   /**

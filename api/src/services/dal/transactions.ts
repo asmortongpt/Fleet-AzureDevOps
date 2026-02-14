@@ -266,19 +266,21 @@ export async function withTransactionTimeout<T>(
   callback: (client: PoolClient) => Promise<T>,
   timeoutMs: number
 ): Promise<T> {
-  return new Promise<T>(async (resolve, reject) => {
+  return new Promise<T>((resolve, reject) => {
     const timeoutId = setTimeout(() => {
       reject(new TransactionError(`Transaction timeout after ${timeoutMs}ms`))
     }, timeoutMs)
 
-    try {
-      const result = await withTransaction(pool, callback)
-      clearTimeout(timeoutId)
-      resolve(result)
-    } catch (error) {
-      clearTimeout(timeoutId)
-      reject(error)
-    }
+    withTransaction(pool, callback)
+      .then((result) => {
+        clearTimeout(timeoutId)
+        resolve(result)
+        return undefined
+      })
+      .catch((error) => {
+        clearTimeout(timeoutId)
+        reject(error)
+      })
   })
 }
 

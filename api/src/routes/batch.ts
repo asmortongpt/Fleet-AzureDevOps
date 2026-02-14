@@ -43,7 +43,8 @@ async function executeInternalRequest(
 ): Promise<{ success: boolean; status: number; data?: any; error?: string }> {
   try {
     // Parse URL to extract endpoint
-    const urlMatch = batchReq.url.match(/^\/api\/v1\/(.+?)(\?.*)?$/);
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored URL parser, safe
+    const urlMatch = batchReq.url.match(/^\/api\/v1\/([^?]+)(?:\?.*)?$/);
     if (!urlMatch) {
       return {
         success: false,

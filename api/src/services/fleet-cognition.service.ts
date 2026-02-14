@@ -6,6 +6,10 @@
 
 import { Pool } from 'pg'
 
+// Export singleton instance
+import logger from '../config/logger'
+import { pool } from '../db'
+
 
 export interface CognitionInsight {
   insight_type: string
@@ -746,10 +750,6 @@ class FleetCognitionService {
     this.logger.info('Fleet cognition service shut down')
   }
 }
-
-// Export singleton instance
-import logger from '../config/logger'
-import { pool } from '../db'
 const fleetCognitionService = new FleetCognitionService(pool, logger)
 
 export default fleetCognitionService

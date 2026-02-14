@@ -576,7 +576,7 @@ async function runAllExamples() {
 
 // Run examples if executed directly
 if (require.main === module) {
-  runAllExamples();
+  void runAllExamples();
 }
 
 // Export for use in other modules

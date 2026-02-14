@@ -14,25 +14,25 @@ export const syncQueue = new Bull('sync', { redis: redisConfig });
 export const notificationQueue = new Bull('notifications', { redis: redisConfig });
 
 // Job processors
-emailQueue.process(async (job) => {
+void emailQueue.process(async (job) => {
   logger.info('Processing email job', { data: { jobId: job.id } });
   // TODO: Implement email sending logic
   return { success: true };
 });
 
-reportQueue.process(async (job) => {
+void reportQueue.process(async (job) => {
   logger.info('Processing report job', { data: { jobId: job.id } });
   // TODO: Implement report generation logic
   return { success: true };
 });
 
-syncQueue.process(async (job) => {
+void syncQueue.process(async (job) => {
   logger.info('Processing sync job', { data: { jobId: job.id } });
   // TODO: Implement external API sync logic
   return { success: true };
 });
 
-notificationQueue.process(async (job) => {
+void notificationQueue.process(async (job) => {
   logger.info('Processing notification job', { data: { jobId: job.id } });
   // TODO: Implement notification sending logic
   return { success: true };

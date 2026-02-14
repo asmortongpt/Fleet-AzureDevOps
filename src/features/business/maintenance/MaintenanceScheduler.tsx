@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 
 import { maintenanceService } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 
@@ -160,12 +159,12 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
 
       {error && (
         <div style={{
-          backgroundColor: '#fee',
-          border: '1px solid #fcc',
+          backgroundColor: 'hsl(var(--destructive) / 0.12)',
+          border: '1px solid hsl(var(--destructive) / 0.3)',
           borderRadius: '6px',
           padding: '12px',
           marginBottom: '16px',
-          color: '#c00'
+          color: 'hsl(var(--destructive))'
         }}>
           {error}
         </div>
@@ -173,12 +172,12 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
 
       {successMessage && (
         <div style={{
-          backgroundColor: '#efe',
-          border: '1px solid #cfc',
+          backgroundColor: 'hsl(var(--chart-2) / 0.12)',
+          border: '1px solid hsl(var(--chart-2) / 0.3)',
           borderRadius: '6px',
           padding: '12px',
           marginBottom: '16px',
-          color: '#060'
+          color: 'hsl(var(--chart-2))'
         }}>
           {successMessage}
         </div>
@@ -324,7 +323,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
             style={{
               ...buttonStyle,
               backgroundColor: currentTheme.primary,
-              color: '#fff'
+              color: 'hsl(var(--primary-foreground))'
             }}
           >
             {loading ? 'Scheduling...' : 'Schedule Maintenance'}

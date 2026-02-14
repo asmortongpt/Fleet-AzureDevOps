@@ -202,14 +202,17 @@ export function AuthCallback() {
   }, [instance, accounts, navigate, hasProcessed])
 
   return (
-    <div className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center bg-[#0A0E27]">
+    <div className="min-h-screen w-full relative overflow-hidden flex flex-col items-center justify-center bg-[hsl(var(--background))]">
       {/* CINEMATIC BACKGROUND */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,#1A2251_0%,#0A0E27_100%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,hsl(var(--card))_0%,hsl(var(--background))_100%)]" />
         <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[#41B2E3] rounded-full blur-[180px] pointer-events-none opacity-10"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-[hsl(var(--primary))] rounded-full blur-[180px] pointer-events-none opacity-10"
         />
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjA1Ii8+PC9zdmc+')] opacity-20" />
+        <div className="absolute inset-0 opacity-20" style={{
+          backgroundImage: 'linear-gradient(90deg, hsl(var(--border) / 0.08) 1px, transparent 1px), linear-gradient(hsl(var(--border) / 0.08) 1px, transparent 1px)',
+          backgroundSize: '60px 60px'
+        }} />
       </div>
 
       <div className="relative z-10 flex flex-col items-center">
@@ -220,7 +223,7 @@ export function AuthCallback() {
           <img
             src="/logos/png/archony-logo-reverse-300px.png"
             alt="ArchonY"
-            className="h-12 w-auto mb-6 drop-shadow-[0_0_20px_rgba(65,178,227,0.4)] mix-blend-lighten"
+            className="h-12 w-auto mb-6 drop-shadow-[0_0_20px_hsl(var(--primary)/0.4)] mix-blend-lighten"
           />
           <div className="flex items-center gap-3">
             <div className="h-px w-6 bg-border/50" />
@@ -233,7 +236,7 @@ export function AuthCallback() {
         <div className="flex flex-col items-center gap-8 glass-premium p-10 rounded-[32px] border-border/50 shadow-2xl">
           <div className="relative">
             <div
-              className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[#41B2E3] border-b-2 border-l-2 border-border/50 animate-spin"
+              className="w-16 h-16 rounded-full border-t-2 border-r-2 border-[hsl(var(--primary))] border-b-2 border-l-2 border-border/50 animate-spin"
             />
             <div className="absolute inset-0 flex items-center justify-center">
               <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
@@ -252,7 +255,7 @@ export function AuthCallback() {
 
           <div className="w-48 h-1 bg-muted/40 rounded-full overflow-hidden relative">
             <div
-              className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-[#41B2E3] to-transparent shadow-[0_0_10px_#41B2E3] animate-pulse"
+              className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-[hsl(var(--primary))] to-transparent shadow-[0_0_10px_hsl(var(--primary))] animate-pulse"
             />
           </div>
         </div>

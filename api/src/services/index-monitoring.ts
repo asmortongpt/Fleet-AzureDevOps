@@ -216,7 +216,9 @@ export class IndexMonitoring {
     const unusedIndexes = await this.getUnusedIndexes(pool);
     for (const index of unusedIndexes) {
       // Skip if it's a small index (< 1MB)
-      if (index.index_size.includes('kB')) continue;
+      if (index.index_size.includes('kB')) {
+continue;
+}
 
       recommendations.push({
         type: 'drop',
@@ -426,9 +428,15 @@ export class IndexMonitoring {
   }
 
   private static getHealthScoreLabel(score: number): string {
-    if (score >= 90) return 'Excellent - Indexes are well-maintained';
-    if (score >= 75) return 'Good - Minor improvements recommended';
-    if (score >= 60) return 'Fair - Several optimizations needed';
+    if (score >= 90) {
+return 'Excellent - Indexes are well-maintained';
+}
+    if (score >= 75) {
+return 'Good - Minor improvements recommended';
+}
+    if (score >= 60) {
+return 'Fair - Several optimizations needed';
+}
     return 'Poor - Immediate attention required';
   }
 }
@@ -443,7 +451,7 @@ if (require.main === module) {
     connectionString: process.env.DATABASE_URL || 'postgresql://localhost/fleet_db'
   });
 
-  (async () => {
+  void (async () => {
     try {
       await IndexMonitoring.printHealthReport(pool);
 

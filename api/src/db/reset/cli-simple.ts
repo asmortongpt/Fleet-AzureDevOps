@@ -257,4 +257,4 @@ Examples:
 `);
 }
 
-main();
+void main();

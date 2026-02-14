@@ -14,7 +14,6 @@
 
 import { Truck, Settings, Wrench, Filter, CheckCircle, Calendar, X } from 'lucide-react'
 import React, { useState } from 'react'
-import { Truck, Settings, Wrench, Filter, CheckCircle, Calendar, X } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
 

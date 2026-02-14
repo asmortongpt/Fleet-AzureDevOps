@@ -130,18 +130,18 @@ router.post(
 // List Emails
 // ============================================================================
 
-	router.get(
-	  '/messages',
-	  authorize('admin', 'fleet_manager', 'dispatcher'),
-	  auditLog({ action: 'READ', resourceType: 'outlook_messages' }),
-	  async (req: AuthRequest, res: Response) => {
-	    try {
-	      const useLocal = resolveOutlookSource(req) === 'local'
+router.get(
+  '/messages',
+  authorize('admin', 'fleet_manager', 'dispatcher'),
+  auditLog({ action: 'READ', resourceType: 'outlook_messages' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const useLocal = resolveOutlookSource(req) === 'local'
 
-	      if (useLocal) {
-	        const { top = '50', skip = '0' } = req.query
-	        const limit = parseInt(top as string)
-	        const offset = parseInt(skip as string)
+      if (useLocal) {
+        const { top = '50', skip = '0' } = req.query
+        const limit = parseInt(top as string)
+        const offset = parseInt(skip as string)
 
         const result = await pool.query(
           `SELECT
@@ -220,7 +220,7 @@ router.post(
       })
     }
   }
-	)
+)
 
 // ============================================================================
 // Get Single Email
@@ -517,36 +517,36 @@ router.post(
 // List Mail Folders
 // ============================================================================
 
-	router.get(
-	  '/folders',
-	  authorize('admin', 'fleet_manager', 'dispatcher'),
-	  auditLog({ action: 'READ', resourceType: 'outlook_folders' }),
-	  async (req: AuthRequest, res: Response) => {
-	    try {
-	      const useLocal = resolveOutlookSource(req) === 'local'
-	      if (useLocal) {
-	        const result = await pool.query(
-	          `SELECT
-	            id,
-	            folder_id,
-	            display_name,
-	            parent_folder_id,
-	            total_item_count,
-	            unread_item_count,
-	            metadata
-	           FROM outlook_folders
-	           WHERE tenant_id = $1
-	           ORDER BY display_name ASC`,
-	          [req.user!.tenant_id]
-	        )
-	        return res.json({ success: true, data: result.rows })
-	      }
+router.get(
+  '/folders',
+  authorize('admin', 'fleet_manager', 'dispatcher'),
+  auditLog({ action: 'READ', resourceType: 'outlook_folders' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const useLocal = resolveOutlookSource(req) === 'local'
+      if (useLocal) {
+        const result = await pool.query(
+          `SELECT
+            id,
+            folder_id,
+            display_name,
+            parent_folder_id,
+            total_item_count,
+            unread_item_count,
+            metadata
+           FROM outlook_folders
+           WHERE tenant_id = $1
+           ORDER BY display_name ASC`,
+          [req.user!.tenant_id]
+        )
+        return res.json({ success: true, data: result.rows })
+      }
 
-	      const { userId, includeChildFolders } = req.query
+      const { userId, includeChildFolders } = req.query
 
-	      const result = await outlookService.getFolders(
-	        userId as string,
-	        includeChildFolders === 'true'
+      const result = await outlookService.getFolders(
+        userId as string,
+        includeChildFolders === 'true'
       )
 
       res.json({

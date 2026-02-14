@@ -27,7 +27,7 @@ const vehicleModelsService = new VehicleModelsService(pool)
 
 // Optional authentication - allow public access for some endpoints
 const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction) => {
-  authenticateJWT(req, res, (() => {
+  void authenticateJWT(req, res, (() => {
     // Continue even if not authenticated
     next()
   }) as NextFunction)

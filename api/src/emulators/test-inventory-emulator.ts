@@ -135,4 +135,4 @@ async function main() {
 }
 
 // Run the test
-main().catch(console.error)
+main().catch((err) => console.error(err))

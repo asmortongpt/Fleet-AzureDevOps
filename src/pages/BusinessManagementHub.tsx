@@ -251,7 +251,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             title="Actual Costs"
             data={costTrendData}
             dataKeys={['actual']}
-            colors={['#10b981']}
+            colors={['hsl(var(--chart-2))']}
             height={300}
           />
         </Section>
@@ -621,7 +621,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               title="Report Generation"
               data={reportGenerationTrend}
               dataKeys={['value']}
-              colors={['#3b82f6']}
+              colors={['hsl(var(--chart-1))']}
               height={300}
             />
           ) : (

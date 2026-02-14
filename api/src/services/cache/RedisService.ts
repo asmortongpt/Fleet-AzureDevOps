@@ -44,7 +44,7 @@ export class RedisService {
 
   constructor() {
     this.lruCache = new LRUCache(this.config.lru);
-    this.initRedis();
+    void this.initRedis();
   }
 
   private async initRedis(): Promise<void> {

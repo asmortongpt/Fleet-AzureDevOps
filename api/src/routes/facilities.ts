@@ -2,6 +2,12 @@ import { Router } from 'express'
 import { z } from 'zod'
 
 import logger from '../config/logger'
+import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
+import { asyncHandler } from '../middleware/errorHandler'
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
+import { validateParams, validateBody, validateQuery } from '../middleware/validate'
+import { tenantSafeQuery } from '../utils/dbHelpers'
 
 interface VehicleRow {
   id: string | number
@@ -15,12 +21,6 @@ interface VehicleRow {
   fuel_level: number | null
   metadata: Record<string, unknown> | string | null
 }
-import { authenticateJWT } from '../middleware/auth'
-import { csrfProtection } from '../middleware/csrf'
-import { asyncHandler } from '../middleware/errorHandler'
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
-import { validateParams, validateBody, validateQuery } from '../middleware/validate'
-import { tenantSafeQuery } from '../utils/dbHelpers'
 
 const router = Router()
 
@@ -349,7 +349,7 @@ router.get(
 
     const vehicles = result.rows.map((row: VehicleRow) => {
       const metadata: Record<string, unknown> = row.metadata && typeof row.metadata === 'object'
-        ? row.metadata as Record<string, unknown>
+        ? row.metadata
         : typeof row.metadata === 'string'
           ? (() => {
               try {

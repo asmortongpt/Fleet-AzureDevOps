@@ -210,7 +210,7 @@ const styles: Record<string, React.CSSProperties> = {
     right: 0,
     zIndex: 10000,
     backgroundColor: 'white',
-    boxShadow: '0 -2px 10px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 -2px 10px hsl(var(--foreground) / 0.1)',
     fontFamily: 'system-ui, -apple-system, sans-serif',
   },
   positionTop: {
@@ -231,16 +231,16 @@ const styles: Record<string, React.CSSProperties> = {
     margin: '0 0 8px 0',
     fontSize: 18,
     fontWeight: 600,
-    color: '#1f2937',
+    color: 'hsl(var(--foreground))',
   },
   description: {
     margin: 0,
     fontSize: 14,
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
     lineHeight: 1.5,
   },
   link: {
-    color: '#3b82f6',
+    color: 'hsl(var(--primary))',
     textDecoration: 'underline',
   },
   actions: {
@@ -250,7 +250,7 @@ const styles: Record<string, React.CSSProperties> = {
   },
   buttonPrimary: {
     padding: '10px 24px',
-    backgroundColor: '#3b82f6',
+    backgroundColor: 'hsl(var(--primary))',
     color: 'white',
     border: 'none',
     borderRadius: 6,
@@ -262,8 +262,8 @@ const styles: Record<string, React.CSSProperties> = {
   buttonSecondary: {
     padding: '10px 24px',
     backgroundColor: 'white',
-    color: '#374151',
-    border: '1px solid #d1d5db',
+    color: 'hsl(var(--muted-foreground))',
+    border: '1px solid hsl(var(--border))',
     borderRadius: 6,
     fontSize: 14,
     fontWeight: 500,
@@ -280,7 +280,7 @@ const styles: Record<string, React.CSSProperties> = {
     background: 'none',
     border: 'none',
     fontSize: 32,
-    color: '#9ca3af',
+    color: 'hsl(var(--muted-foreground))',
     cursor: 'pointer',
     padding: 0,
     width: 40,
@@ -295,7 +295,7 @@ const styles: Record<string, React.CSSProperties> = {
   detailsDescription: {
     margin: '0 0 20px 0',
     fontSize: 14,
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
   },
   categoryList: {
     display: 'flex',
@@ -304,9 +304,9 @@ const styles: Record<string, React.CSSProperties> = {
   },
   categoryItem: {
     padding: 16,
-    backgroundColor: '#f9fafb',
+    backgroundColor: 'hsl(var(--muted))',
     borderRadius: 8,
-    border: '1px solid #e5e7eb',
+    border: '1px solid hsl(var(--border))',
   },
   categoryHeader: {
     display: 'flex',
@@ -322,7 +322,7 @@ const styles: Record<string, React.CSSProperties> = {
   categoryName: {
     fontSize: 15,
     fontWeight: 600,
-    color: '#1f2937',
+    color: 'hsl(var(--foreground))',
     marginBottom: 4,
     display: 'flex',
     alignItems: 'center',
@@ -331,14 +331,14 @@ const styles: Record<string, React.CSSProperties> = {
   requiredBadge: {
     fontSize: 11,
     fontWeight: 600,
-    color: '#059669',
-    backgroundColor: '#d1fae5',
+    color: 'hsl(var(--success))',
+    backgroundColor: 'hsl(var(--success) / 0.1)',
     padding: '2px 8px',
     borderRadius: 4,
   },
   categoryDescription: {
     fontSize: 13,
-    color: '#6b7280',
+    color: 'hsl(var(--muted-foreground))',
     lineHeight: 1.5,
   },
   detailsActions: {
@@ -346,7 +346,7 @@ const styles: Record<string, React.CSSProperties> = {
     gap: 12,
     justifyContent: 'flex-end',
     paddingTop: 16,
-    borderTop: '1px solid #e5e7eb',
+    borderTop: '1px solid hsl(var(--border))',
   },
 };
 

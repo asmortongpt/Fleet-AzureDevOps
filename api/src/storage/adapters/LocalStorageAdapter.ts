@@ -158,7 +158,9 @@ export class LocalStorageAdapter extends BaseStorageAdapter {
       try {
         await fs.unlink(filePath).catch(() => { });
         await fs.unlink(metadataFilePath).catch(() => { });
-      } catch { }
+      } catch {
+        // Cleanup errors are intentionally ignored; the original error is re-thrown below
+      }
 
       throw new Error(
         `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}`

@@ -109,8 +109,12 @@ router.get(
         )))
 
         const maintenanceScore = (() => {
-          if (!nextInspectionDate) return 80
-          if (nextInspectionDate.getTime() < now.getTime()) return 60
+          if (!nextInspectionDate) {
+return 80
+}
+          if (nextInspectionDate.getTime() < now.getTime()) {
+return 60
+}
           return 90
         })()
 

@@ -93,7 +93,9 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
     const useLocal = req.query.source === 'local' || process.env.CALENDAR_SOURCE !== 'graph'
     if (useLocal) {
       const tenantId = req.user?.tenant_id
-      if (!tenantId) return res.status(401).json({ error: 'Tenant ID required' })
+      if (!tenantId) {
+return res.status(401).json({ error: 'Tenant ID required' })
+}
 
       const result = await pool.query(
         `SELECT
@@ -123,7 +125,7 @@ router.get('/events', authenticateJWT, async (req: Request, res: Response) => {
       })
     }
 
-    const events = await getEvents(userId as string, start, end)
+    const events = await getEvents(userId, start, end)
 
     res.json({
       success: true,

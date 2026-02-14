@@ -31,7 +31,9 @@ import SmartcarService from './smartcar.service';
 class TeltonikaService {
   constructor(_db: Pool) {}
   async registerDevice(_vehicleId: number, _imei: string, _deviceModel: string, _serialNumber: string): Promise<void> {}
-  isConfigured(): boolean { return false; }
+  isConfigured(): boolean {
+ return false; 
+}
 }
 
 // ============================================================================
@@ -943,8 +945,12 @@ class VehicleHardwareConfigService {
     const sortedProviders = Object.values(providers)
       .filter(p => p !== undefined)
       .sort((a, b) => {
-        if (a.status === 'current' && b.status !== 'current') return -1;
-        if (a.status !== 'current' && b.status === 'current') return 1;
+        if (a.status === 'current' && b.status !== 'current') {
+return -1;
+}
+        if (a.status !== 'current' && b.status === 'current') {
+return 1;
+}
         return b.timestamp.getTime() - a.timestamp.getTime();
       });
 

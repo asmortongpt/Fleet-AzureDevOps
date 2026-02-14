@@ -330,7 +330,13 @@ const SafetyComplianceSystem: React.FC = () => {
   };
 
   const metrics = calculateSafetyMetrics();
-  const COLORS = ['#4caf50', '#ff9800', '#f44336', '#2196f3', '#9c27b0'];
+  const COLORS = [
+    'hsl(var(--chart-2))',
+    'hsl(var(--chart-3))',
+    'hsl(var(--chart-6))',
+    'hsl(var(--chart-1))',
+    'hsl(var(--chart-4))'
+  ];
 
   const handleNewIncident = () => {
     setSelectedItem({
@@ -471,7 +477,7 @@ const SafetyComplianceSystem: React.FC = () => {
                     <PolarGrid />
                     <PolarAngleAxis dataKey="category" />
                     <PolarRadiusAxis angle={90} domain={[0, 100]} />
-                    <Radar name="Current Score" dataKey="score" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+                    <Radar name="Current Score" dataKey="score" stroke="hsl(var(--chart-4))" fill="hsl(var(--chart-4))" fillOpacity={0.6} />
                     <Legend />
                   </RadarChart>
                 </ResponsiveContainer>
@@ -491,9 +497,9 @@ const SafetyComplianceSystem: React.FC = () => {
                     <YAxis />
                     <ChartTooltip />
                     <Legend />
-                    <Line type="monotone" dataKey="incidents" stroke="#f44336" name="Incidents" />
-                    <Line type="monotone" dataKey="nearMiss" stroke="#ff9800" name="Near Miss" />
-                    <Line type="monotone" dataKey="target" stroke="#4caf50" name="Target" strokeDasharray="5 5" />
+                    <Line type="monotone" dataKey="incidents" stroke="hsl(var(--chart-6))" name="Incidents" />
+                    <Line type="monotone" dataKey="nearMiss" stroke="hsl(var(--chart-3))" name="Near Miss" />
+                    <Line type="monotone" dataKey="target" stroke="hsl(var(--chart-2))" name="Target" strokeDasharray="5 5" />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -511,8 +517,8 @@ const SafetyComplianceSystem: React.FC = () => {
                     <XAxis dataKey="training" angle={-45} textAnchor="end" height={80} />
                     <YAxis />
                     <ChartTooltip />
-                    <Bar dataKey="completed" fill="#8884d8" name="Completed" />
-                    <Bar dataKey="required" fill="#82ca9d" name="Required" />
+                    <Bar dataKey="completed" fill="hsl(var(--chart-4))" name="Completed" />
+                    <Bar dataKey="required" fill="hsl(var(--chart-2))" name="Required" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

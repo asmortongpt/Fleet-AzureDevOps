@@ -287,10 +287,10 @@ export function PendingDamageMarker({ position, severity }: PendingDamageMarkerP
     const meshRef = useRef<THREE.Mesh>(null)
 
     const color =
-        severity <= 2 ? '#22c55e' :
-            severity <= 5 ? '#eab308' :
-                severity <= 8 ? '#f97316' :
-                    '#ef4444'
+        severity <= 2 ? 'hsl(var(--success))' :
+            severity <= 5 ? 'hsl(var(--warning))' :
+                severity <= 8 ? 'hsl(var(--warning))' :
+                    'hsl(var(--destructive))'
 
     return (
         <group position={position}>

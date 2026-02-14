@@ -13,6 +13,9 @@ import { Pool } from 'pg'
 
 import logger from '../config/logger'
 
+// Import pool for singleton instance
+import pool from '../config/database'
+
 export interface AlertRule {
   id: string
   rule_type: 'maintenance_due' | 'geofence_violation' | 'incident_critical' |
@@ -617,9 +620,6 @@ return baseUrl
     return result.rows
   }
 }
-
-// Import pool for singleton instance
-import pool from '../config/database'
 
 // Export singleton instance
 export const alertEngineService = new AlertEngineService(pool)

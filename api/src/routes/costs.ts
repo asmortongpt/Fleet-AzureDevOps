@@ -956,7 +956,9 @@ router.get('/export', asyncHandler(async (req, res) => {
       const values = headers.map(h => {
         const key = h === 'source' ? 'source_table' : h
         const val = row[key]
-        if (val === null || val === undefined) return ''
+        if (val === null || val === undefined) {
+return ''
+}
         const str = String(val)
         return str.includes(',') || str.includes('"') || str.includes('\n')
           ? `"${str.replace(/"/g, '""')}"`
@@ -1193,7 +1195,9 @@ router.get('/forecast', asyncHandler(async (req, res) => {
     const categoryCounts: Record<string, number> = {}
     stateResult.rows
       .filter(r => r.cost_category !== null)
-      .forEach(r => { categoryCounts[r.cost_category] = r.cat_count })
+      .forEach(r => {
+ categoryCounts[r.cost_category] = r.cat_count 
+})
 
     // Forecast based on moving average
     const monthlyTotals = trendResult.rows.map(r => parseFloat(r.total))

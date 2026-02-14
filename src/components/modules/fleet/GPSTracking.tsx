@@ -30,6 +30,12 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
   vehicles = [],
   facilities = []
 }) => {
+  const inMotion = vehicles.filter((vehicle) => {
+    const status = String(vehicle.status || '').toLowerCase()
+    return ['active', 'in_use', 'en_route', 'moving'].includes(status)
+  }).length
+  const stationary = Math.max(vehicles.length - inMotion, 0)
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -66,15 +72,15 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
             <div className="space-y-3">
               <div className="flex justify-between items-center">
                 <span className="text-slate-700">Tracked Vehicles</span>
-                <span className="text-white font-medium">{vehicles.length || 127}</span>
+                <span className="text-white font-medium">{vehicles.length}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-700">In Motion</span>
-                <span className="text-green-400 font-medium">89</span>
+                <span className="text-green-400 font-medium">{inMotion}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-slate-700">Stationary</span>
-                <span className="text-yellow-400 font-medium">38</span>
+                <span className="text-yellow-400 font-medium">{stationary}</span>
               </div>
             </div>
           </div>
@@ -86,13 +92,7 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
             </h3>
             <div className="space-y-2 text-sm">
               <div className="text-slate-700">
-                <span className="text-white">Vehicle #127</span> entered geofence
-              </div>
-              <div className="text-slate-700">
-                <span className="text-white">Vehicle #089</span> completed route
-              </div>
-              <div className="text-slate-700">
-                <span className="text-white">Vehicle #045</span> speed alert
+                No recent activity available.
               </div>
             </div>
           </div>

@@ -69,8 +69,8 @@ export default function VehicleShowroom3D() {
 
   // State
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
-  const [exteriorColor, setExteriorColor] = useState<string>('#ffffff');
-  const [interiorColor, setInteriorColor] = useState<string>('#333333');
+  const [exteriorColor, setExteriorColor] = useState<string>(VEHICLE_COLORS.white);
+  const [interiorColor, setInteriorColor] = useState<string>(VEHICLE_COLORS.charcoal);
   const [paintType, setPaintType] = useState<PaintType>('metallic');
   const [quality, setQuality] = useState<MaterialQuality>('medium');
   const [environment, setEnvironment] = useState<'studio' | 'sunset' | 'city' | 'night'>('studio');
@@ -98,7 +98,7 @@ export default function VehicleShowroom3D() {
         year: v.year,
         vehicleType: typeMap[v.type] || 'sedan',
         modelUrl: '',
-        exteriorColor: '#ffffff',
+        exteriorColor: VEHICLE_COLORS.white,
       };
     });
   }, [vehiclesData]);
@@ -110,13 +110,13 @@ export default function VehicleShowroom3D() {
       const vehicle = showroomVehicles.find(v => v.id === parseInt(vehicleIdParam));
       if (vehicle) {
         setSelectedVehicle(vehicle);
-        setExteriorColor(vehicle.exteriorColor || '#ffffff');
-        setInteriorColor(vehicle.interiorColor || '#333333');
+        setExteriorColor(vehicle.exteriorColor || VEHICLE_COLORS.white);
+        setInteriorColor(vehicle.interiorColor || VEHICLE_COLORS.charcoal);
       }
     } else {
       // Default to first vehicle
       setSelectedVehicle(showroomVehicles[0]);
-      setExteriorColor(showroomVehicles[0].exteriorColor || '#ffffff');
+      setExteriorColor(showroomVehicles[0].exteriorColor || VEHICLE_COLORS.white);
     }
   }, [vehicleIdParam, showroomVehicles]);
 
@@ -166,8 +166,8 @@ export default function VehicleShowroom3D() {
 
   const handleVehicleSelect = useCallback((vehicle: Vehicle) => {
     setSelectedVehicle(vehicle);
-    setExteriorColor(vehicle.exteriorColor || '#ffffff');
-    setInteriorColor(vehicle.interiorColor || '#333333');
+    setExteriorColor(vehicle.exteriorColor || VEHICLE_COLORS.white);
+    setInteriorColor(vehicle.interiorColor || VEHICLE_COLORS.charcoal);
     setSearchParams({ id: vehicle.id.toString() });
   }, [setSearchParams]);
 

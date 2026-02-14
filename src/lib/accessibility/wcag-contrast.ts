@@ -45,7 +45,7 @@ export function getContrastRatio(color1: string, color2: string): number {
   const rgb2 = hexToRgb(color2);
 
   if (!rgb1 || !rgb2) {
-    throw new Error('Invalid color format. Use hex colors like #FFFFFF');
+    throw new Error('Invalid color format. Use hex colors like FFFFFF');
   }
 
   const l1 = getLuminance(rgb1.r, rgb1.g, rgb1.b);
@@ -160,7 +160,7 @@ export function findCompliantColor(
   }
 
   // If all else fails, return black or white depending on background
-  return bgLuminance > 0.5 ? '#000000' : '#FFFFFF';
+  return bgLuminance > 0.5 ? 'hsl(var(--foreground))' : 'hsl(var(--background))';
 }
 
 /**

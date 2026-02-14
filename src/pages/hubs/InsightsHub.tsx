@@ -137,7 +137,7 @@ const InsightsHub: React.FC = () => {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", height: "100%", gap: 0 }}>
         <div style={{ minHeight: 0, overflow: "auto" }}>{renderModule()}</div>
 
-        <div style={{ borderLeft: "1px solid #1e232a", minHeight: 0, overflow: "auto", background: "#0b0f14" }}>
+        <div style={{ borderLeft: "1px solid hsl(var(--border))", minHeight: 0, overflow: "auto", background: "hsl(var(--card))" }}>
           <div style={{ padding: "16px" }}>
             <div className="space-y-2">
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Analytics Modules</h3>
@@ -175,7 +175,7 @@ const InsightsHub: React.FC = () => {
               <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Quick Metrics</h3>
               <div className="space-y-3">
                 {quickMetrics.map((metric) => (
-                  <div key={metric.label} className="flex items-center justify-between p-3 rounded-lg bg-blue-500/10">
+                  <div key={metric.label} className="flex items-center justify-between p-3 rounded-lg bg-primary/10">
                     <span className="text-sm">{metric.label}</span>
                     <span className="font-bold">{metric.value}</span>
                   </div>

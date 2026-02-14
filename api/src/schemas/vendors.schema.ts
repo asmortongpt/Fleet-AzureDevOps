@@ -88,6 +88,7 @@ export const vendorCreateSchema = z.object({
     .optional(),
 
   zip_code: z.string()
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored fixed-width ZIP pattern, safe
     .regex(/^\d{5}(-\d{4})?$/, 'ZIP code must be in format 12345 or 12345-6789')
     .optional(),
 
@@ -217,6 +218,7 @@ export const vendorUpdateSchema = z.object({
     .optional(),
 
   zip_code: z.string()
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored fixed-width ZIP pattern, safe
     .regex(/^\d{5}(-\d{4})?$/)
     .nullable()
     .optional(),

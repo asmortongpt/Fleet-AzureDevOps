@@ -11,6 +11,12 @@ import express, { Request, Response } from 'express'
 
 import { EmulatorOrchestrator } from '../emulators/EmulatorOrchestrator'
 import type { CameraAngle, VideoLibraryFilter, VideoScenario, WeatherCondition } from '../services/video-dataset.service'
+import { pool } from '../db'
+import { csrfProtection } from '../middleware/csrf'
+import { telemetryService } from '../services/TelemetryService'
+import { logger } from '../utils/logger'
+import { getVideoDatasetService } from '../services/video-dataset.service'
+import { authenticateJWT } from '../middleware/auth'
 
 type TelemetryType = 'gps' | 'obd2' | 'iot' | 'radio' | 'driver'
 
@@ -18,12 +24,6 @@ declare global {
   // eslint-disable-next-line no-var
   var __fleetEmulatorOrchestrator: EmulatorOrchestrator | undefined
 }
-import { pool } from '../db'
-import { csrfProtection } from '../middleware/csrf'
-import { telemetryService } from '../services/TelemetryService'
-import { logger } from '../utils/logger'
-import { getVideoDatasetService } from '../services/video-dataset.service'
-import { authenticateJWT } from '../middleware/auth'
 
 const router = express.Router()
 
@@ -38,7 +38,9 @@ let isInitialized = false
  * Initialize the telemetry service and orchestrator
  */
 async function ensureInitialized(): Promise<void> {
-  if (isInitialized) return
+  if (isInitialized) {
+return
+}
 
   try {
     // TelemetryService expects a minimal query/execute interface.
@@ -85,8 +87,10 @@ async function getOrchestrator(): Promise<EmulatorOrchestrator> {
     const started = Date.now()
     while (Date.now() - started < 5_000) {
       const total = orchestrator.getStatus()?.vehicles?.total ?? 0
-      if (total > 0) break
-      await new Promise((r) => setTimeout(r, 100))
+      if (total > 0) {
+break
+}
+      await new Promise((resolve) => setTimeout(resolve, 100))
     }
   }
   return orchestrator
@@ -886,11 +890,21 @@ router.get('/video/library', async (req: Request, res: Response) => {
     const { cameraAngle, scenario, weather, timeOfDay, tags } = req.query
 
     const filter: VideoLibraryFilter = {}
-    if (cameraAngle) filter.cameraAngle = cameraAngle as CameraAngle
-    if (scenario) filter.scenario = scenario as VideoScenario
-    if (weather) filter.weather = weather as WeatherCondition
-    if (timeOfDay) filter.timeOfDay = timeOfDay as string
-    if (tags) filter.tags = (Array.isArray(tags) ? tags : [tags]) as string[]
+    if (cameraAngle) {
+filter.cameraAngle = cameraAngle as CameraAngle
+}
+    if (scenario) {
+filter.scenario = scenario as VideoScenario
+}
+    if (weather) {
+filter.weather = weather as WeatherCondition
+}
+    if (timeOfDay) {
+filter.timeOfDay = timeOfDay as string
+}
+    if (tags) {
+filter.tags = (Array.isArray(tags) ? tags : [tags]) as string[]
+}
 
     const videos = videoService.getVideos(filter)
 

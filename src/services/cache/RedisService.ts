@@ -3,7 +3,6 @@
 
 import { LRUCache } from 'lru-cache';
 import { createClient, RedisClientType } from 'redis';
-import logger from '@/utils/logger';
 
 import logger from '@/utils/logger';
 

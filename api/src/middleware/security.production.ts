@@ -75,7 +75,7 @@ const CSRF_SECRET = (() => {
   if (!secret && process.env.NODE_ENV === 'production') {
     throw new Error('CSRF_SECRET environment variable must be set in production');
   }
-  return secret || 'dev-csrf-secret-' + process.pid;
+  return secret || `dev-csrf-secret-${String(process.pid)}`;
 })();
 
 const {

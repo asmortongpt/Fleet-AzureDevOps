@@ -106,7 +106,7 @@ export class ServiceBus {
     }, intervalMs)
 
     // Run initial health check immediately
-    this.checkAllHealth()
+    void this.checkAllHealth()
   }
 
   /**

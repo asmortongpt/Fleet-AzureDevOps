@@ -17,26 +17,26 @@
 /** Brand color palette - ADELE Vibrant Palette */
 export const brandColors = {
   /** DAYTIME - Navy blue. Used for primary surfaces, icon rail bg, text on light */
-  daytime: '#2F3359',
+  daytime: 'hsl(var(--muted-foreground))',
   /** BLUE SKIES - Cyan. Used for interactive elements, active states, links */
-  blueSkies: '#41B2E3',
-  /** MIDNIGHT - Deep dark blue (client-adjusted darker than ADELE original #1A0B2E).
+  blueSkies: 'hsl(var(--primary))',
+  /** MIDNIGHT - Deep dark blue (client-adjusted darker than ADELE original).
    *  Used for app background, deep surfaces, overlays */
-  midnight: '#0A0E27',
+  midnight: 'hsl(var(--background))',
   /** NOON - Orange. Used for alerts, warnings, CTAs, gradient end */
-  noon: '#DD3903',
+  noon: 'hsl(var(--destructive))',
   /** GOLDEN HOUR - Yellow. Used for highlights, gradient start, CTA accent bar */
-  goldenHour: '#F0A000',
+  goldenHour: 'hsl(var(--warning))',
 } as const
 
 /** Derived surface colors for the dark theme */
 export const surfaceColors = {
   /** Slightly lighter than midnight for cards, panels */
-  card: '#111638',
+  card: 'hsl(var(--card))',
   /** Slightly lighter than midnight for icon rail */
-  rail: '#0F1535',
+  rail: 'hsl(var(--card))',
   /** Muted navy for disabled/inactive states */
-  muted: '#161B3D',
+  muted: 'hsl(var(--muted))',
 } as const
 
 /** Brand gradients */
@@ -68,13 +68,13 @@ export const brandIdentity = {
 /** Tailwind-compatible CSS class helpers using the brand */
 export const brandClasses = {
   /** Dawn gradient bar (2-3px height) */
-  dawnGradientBar: 'bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903]',
+  dawnGradientBar: 'bg-gradient-to-r from-[hsl(var(--warning))] via-[hsl(var(--warning))] to-[hsl(var(--destructive))]',
   /** Glass effect on midnight background */
-  glassMidnight: 'bg-[#0A0E27]/95 backdrop-blur-xl',
+  glassMidnight: 'bg-[hsl(var(--background))]/95 backdrop-blur-xl',
   /** Active state indicator color */
-  activeIndicator: 'bg-[#41B2E3]',
+  activeIndicator: 'bg-[hsl(var(--primary))]',
   /** Alert/warning color */
-  alertColor: 'text-[#DD3903]',
+  alertColor: 'text-[hsl(var(--destructive))]',
   /** Success color */
   successColor: 'text-emerald-400',
 } as const

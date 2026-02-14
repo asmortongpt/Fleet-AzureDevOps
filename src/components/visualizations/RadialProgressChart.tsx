@@ -7,7 +7,6 @@
 // motion removed - React 19 incompatible
 import { RadialBarChart, RadialBar, ResponsiveContainer, PolarAngleAxis } from 'recharts'
 
-import { useThemeContext } from '@/components/providers/ThemeProvider'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 interface RadialProgressChartProps {
@@ -41,20 +40,17 @@ export function RadialProgressChart({
   showPercentage = true,
   size = 'md',
 }: RadialProgressChartProps) {
-  const { theme } = useThemeContext()
-  const isDark = theme === 'dark'
-
   const percentage = Math.min((value / maxValue) * 100, 100)
   const sizeConfig = SIZE_CONFIG[size]
 
   // Determine color based on value if not provided
   const getColor = () => {
     if (color) return color
-    if (percentage >= 90) return '#10b981' // green
-    if (percentage >= 75) return '#3b82f6' // blue
-    if (percentage >= 60) return '#f59e0b' // amber
-    if (percentage >= 40) return '#ff6b6b' // orange
-    return '#ef4444' // red
+    if (percentage >= 90) return 'hsl(var(--chart-2))' // green
+    if (percentage >= 75) return 'hsl(var(--chart-1))' // blue
+    if (percentage >= 60) return 'hsl(var(--chart-3))' // amber
+    if (percentage >= 40) return 'hsl(var(--chart-5))' // orange
+    return 'hsl(var(--chart-6))' // red
   }
 
   const progressColor = getColor()
@@ -106,7 +102,7 @@ export function RadialProgressChart({
                   </defs>
                   <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                   <RadialBar
-                    background={{ fill: isDark ? '#374151' : '#e5e7eb' }}
+                    background={{ fill: 'hsl(var(--muted))' }}
                     dataKey="value"
                     cornerRadius={10}
                     animationDuration={1500}

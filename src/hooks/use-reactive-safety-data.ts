@@ -736,18 +736,18 @@ function calculateOSHAIncidentRate(incidents: IncidentReport[], employeeCount: n
 
 // Export utility functions for component use
 export function getSafetyScoreColor(score: number): string {
-  if (score >= 90) return '#22c55e' // green
-  if (score >= 70) return '#eab308' // yellow
-  return '#ef4444' // red
+  if (score >= 90) return 'hsl(var(--chart-2))'
+  if (score >= 70) return 'hsl(var(--chart-3))'
+  return 'hsl(var(--chart-6))'
 }
 
 export function getSeverityColor(severity: 'minor' | 'moderate' | 'major' | 'severe' | 'critical'): string {
   const colors = {
-    minor: '#3b82f6',    // blue
-    moderate: '#eab308', // yellow
-    major: '#f97316',    // orange
-    severe: '#dc2626',   // red-600
-    critical: '#ef4444', // red
+    minor: 'hsl(var(--chart-1))',
+    moderate: 'hsl(var(--chart-3))',
+    major: 'hsl(var(--chart-5))',
+    severe: 'hsl(var(--chart-6))',
+    critical: 'hsl(var(--chart-6))',
   }
   return colors[severity]
 }
@@ -758,10 +758,10 @@ export function formatComplianceStatus(compliant: boolean): string {
 
 export function getInspectionStatusColor(status: 'current' | 'due_soon' | 'overdue' | 'out_of_service'): string {
   const colors = {
-    current: '#22c55e',       // green
-    due_soon: '#eab308',      // yellow
-    overdue: '#f97316',       // orange
-    out_of_service: '#ef4444' // red
+    current: 'hsl(var(--chart-2))',
+    due_soon: 'hsl(var(--chart-3))',
+    overdue: 'hsl(var(--chart-5))',
+    out_of_service: 'hsl(var(--chart-6))'
   }
   return colors[status]
 }

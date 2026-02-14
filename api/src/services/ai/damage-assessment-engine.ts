@@ -350,14 +350,16 @@ export class DamageAssessmentEngine extends EventEmitter {
     const detections = []
 
     for (const analysis of imageAnalyses) {
-      if (!analysis.url) continue
+      if (!analysis.url) {
+continue
+}
 
       // Prepare image for model
       const imageBuffer = await this.downloadImage(analysis.url)
       const tensor = await this.preprocessImageForModel(imageBuffer, [640, 640])
 
       // Run inference
-      const predictions = await model.predict(tensor) as tf.Tensor
+      const predictions = await model.predict(tensor)
       const predictionData = await predictions.array()
 
       // Process predictions
@@ -392,7 +394,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     const tensor = tf.tensor2d([features])
 
     // Predict
-    const prediction = await model.predict(tensor) as tf.Tensor
+    const prediction = await model.predict(tensor)
     const scores = await prediction.array() as number[][]
 
     // Cleanup
@@ -426,7 +428,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     const tensor = tf.tensor2d([features])
 
     // Predict
-    const prediction = await model.predict(tensor) as tf.Tensor
+    const prediction = await model.predict(tensor)
     const [predicted] = await prediction.array() as number[][]
 
     // Cleanup
@@ -459,7 +461,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     const features = this.extractTimeFeatures(detections, severity)
     const tensor = tf.tensor2d([features])
 
-    const prediction = await model.predict(tensor) as tf.Tensor
+    const prediction = await model.predict(tensor)
     const [hours, confidence] = await prediction.array() as number[][]
 
     tensor.dispose()
@@ -491,7 +493,7 @@ export class DamageAssessmentEngine extends EventEmitter {
     if (model) {
       const features = this.extractFraudFeatures(indicators)
       const tensor = tf.tensor2d([features])
-      const prediction = await model.predict(tensor) as tf.Tensor
+      const prediction = await model.predict(tensor)
       const [score] = await prediction.array() as number[][]
       riskScore = score[0]
       tensor.dispose()
@@ -709,7 +711,9 @@ export class DamageAssessmentEngine extends EventEmitter {
   private calculateFraudRiskScore(indicators: any): number {
     // Rule-based fraud scoring
     let score = 0
-    if (indicators.imageManipulation.detected) score += 0.4
+    if (indicators.imageManipulation.detected) {
+score += 0.4
+}
     score += indicators.inconsistencies.length * 0.1
     score += indicators.suspiciousPatterns.length * 0.05
     return Math.min(score, 1)

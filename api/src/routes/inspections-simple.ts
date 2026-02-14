@@ -82,7 +82,9 @@ router.get(
          WHERE i.id = $1 AND i.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
-      if (result.rows.length === 0) return res.status(404).json({ error: 'Inspection not found' })
+      if (result.rows.length === 0) {
+return res.status(404).json({ error: 'Inspection not found' })
+}
       res.json({ data: result.rows[0] })
     } catch (error) {
       logger.error('Get inspection error:', error)
@@ -135,7 +137,9 @@ router.put(
         [req.params.id, req.user!.tenant_id, ...values]
       )
 
-      if (result.rows.length === 0) return res.status(404).json({ error: 'Inspection not found' })
+      if (result.rows.length === 0) {
+return res.status(404).json({ error: 'Inspection not found' })
+}
       res.json({ data: result.rows[0] })
     } catch (error) {
       logger.error('Update inspection error:', error)
@@ -156,7 +160,9 @@ router.delete(
         `DELETE FROM inspections WHERE id = $1 AND tenant_id = $2 RETURNING id`,
         [req.params.id, req.user!.tenant_id]
       )
-      if (result.rows.length === 0) return res.status(404).json({ error: 'Inspection not found' })
+      if (result.rows.length === 0) {
+return res.status(404).json({ error: 'Inspection not found' })
+}
       res.status(204).send()
     } catch (error) {
       logger.error('Delete inspection error:', error)

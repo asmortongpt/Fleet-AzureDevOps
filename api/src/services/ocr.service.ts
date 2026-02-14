@@ -18,6 +18,9 @@ import { Pool } from 'pg'
 
 import logger from '../config/logger'
 
+// Export singleton instance
+import { pool } from '../db'
+
 // Azure Computer Vision configuration
 const AZURE_CV_ENDPOINT = process.env.AZURE_COMPUTER_VISION_ENDPOINT
 const AZURE_CV_KEY = process.env.AZURE_COMPUTER_VISION_KEY
@@ -347,9 +350,6 @@ export class OcrService {
     }
   }
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const ocrService = new OcrService(pool)
 
 // Export individual methods for backward compatibility

@@ -421,7 +421,7 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     try {
       const scanId = req.params.scanId;
-      const format = req.params.format as string;
+      const format = req.params.format;
 
       const scanData = await lidar3DScanningService.getScan(req.user!.tenant_id ?? '', scanId);
       const model = scanData.models.find(m => m.format === format);

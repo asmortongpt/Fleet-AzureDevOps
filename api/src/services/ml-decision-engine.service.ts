@@ -10,6 +10,10 @@
 
 import { Pool } from 'pg'
 
+// Export singleton instance
+import logger from '../config/logger'
+import { pool } from '../db'
+
 
 export interface MaintenancePrediction {
   vehicle_id: string
@@ -766,10 +770,6 @@ trend = 'stable'
     return 0.05
   }
 }
-
-// Export singleton instance
-import logger from '../config/logger'
-import { pool } from '../db'
 const mlDecisionEngineService = new MLDecisionEngineService(pool, logger)
 
 export default mlDecisionEngineService

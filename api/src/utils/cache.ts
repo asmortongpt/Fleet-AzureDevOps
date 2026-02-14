@@ -175,7 +175,7 @@ export const cacheMiddleware = (ttl: number = 300) => {
 
     // Override res.json to cache the response
     res.json = (body: any) => {
-      cache.set(cacheKey, body, ttl);
+      void cache.set(cacheKey, body, ttl);
       return originalJson(body);
     };
 

@@ -5,6 +5,10 @@
 
 import { Pool } from 'pg'
 
+// Export singleton instance
+import logger from '../config/logger'
+import { pool } from '../db'
+
 
 export interface TrainingConfig {
   model_name: string
@@ -756,10 +760,6 @@ return true
     this.logger.info('ML training service shut down')
   }
 }
-
-// Export singleton instance
-import logger from '../config/logger'
-import { pool } from '../db'
 const mlTrainingService = new MLTrainingService(pool, logger)
 
 export default mlTrainingService

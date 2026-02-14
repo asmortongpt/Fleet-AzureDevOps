@@ -36,6 +36,21 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
     )
 
     const currentData = breadcrumbs[breadcrumbs.length - 1]
+    const formatCurrency = (value?: number | string) => {
+        if (value === null || value === undefined || value === '') return '—'
+        if (typeof value === 'string') return value
+        return `$${value.toLocaleString()}`
+    }
+    const formatPercent = (value?: number | string) => {
+        if (value === null || value === undefined || value === '') return '—'
+        if (typeof value === 'string') return value
+        return `${value}%`
+    }
+    const formatNumber = (value?: number | string) => {
+        if (value === null || value === undefined || value === '') return '—'
+        if (typeof value === 'string') return value
+        return value.toLocaleString()
+    }
 
     const handleDrillDown = useCallback((newData: DrilldownData) => {
         setBreadcrumbs(prev => [...prev, newData])
@@ -89,8 +104,8 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                             <CategoryCard
                                 title="Cost Analysis"
-                                value="$2.4M"
-                                change="+12%"
+                                value={formatCurrency(currentData?.data?.summary?.totalCost ?? currentData?.metadata?.summary?.totalCost)}
+                                change={formatPercent(currentData?.metadata?.changes?.cost)}
                                 trend="up"
                                 onClick={() =>
                                     handleDrillDown({
@@ -103,8 +118,8 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                             />
                             <CategoryCard
                                 title="Fleet Utilization"
-                                value="87%"
-                                change="+5%"
+                                value={formatPercent(currentData?.data?.summary?.utilization ?? currentData?.metadata?.summary?.utilization)}
+                                change={formatPercent(currentData?.metadata?.changes?.utilization)}
                                 trend="up"
                                 onClick={() =>
                                     handleDrillDown({
@@ -117,8 +132,8 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                             />
                             <CategoryCard
                                 title="Efficiency Score"
-                                value="92"
-                                change="+8%"
+                                value={formatNumber(currentData?.data?.summary?.efficiencyScore ?? currentData?.metadata?.summary?.efficiencyScore)}
+                                change={formatPercent(currentData?.metadata?.changes?.efficiencyScore)}
                                 trend="up"
                                 onClick={() =>
                                     handleDrillDown({
@@ -151,6 +166,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                                 }
                             />
                             <VehicleList
+                                vehicles={currentData?.data?.topVehicles || currentData?.data?.vehicles || []}
                                 onVehicleClick={(vehicle) =>
                                     handleDrillDown({
                                         level: 'vehicle',
@@ -322,15 +338,14 @@ const CategoryCard = memo<{
     </button>
 ))
 
-const VehicleList = memo<{ onVehicleClick: (vehicle: any) => void }>(({ onVehicleClick }) => (
+const VehicleList = memo<{ vehicles: any[]; onVehicleClick: (vehicle: any) => void }>(({ vehicles, onVehicleClick }) => (
     <div className="bg-slate-800/40 rounded-lg p-2">
         <h3 className="text-white font-semibold mb-2">Top Cost Vehicles</h3>
         <div className="space-y-2">
-            {[
-                { id: 1, name: 'Vehicle #1234', vin: '1HGBH41JXMN109186', cost: '$12,450' },
-                { id: 2, name: 'Vehicle #1235', vin: '1HGBH41JXMN109187', cost: '$11,230' },
-                { id: 3, name: 'Vehicle #1236', vin: '1HGBH41JXMN109188', cost: '$10,890' },
-            ].map((vehicle) => (
+            {vehicles.length === 0 && (
+                <div className="text-sm text-slate-700">No vehicles available.</div>
+            )}
+            {vehicles.map((vehicle) => (
                 <button
                     key={vehicle.id}
                     onClick={() => onVehicleClick(vehicle)}
@@ -338,11 +353,11 @@ const VehicleList = memo<{ onVehicleClick: (vehicle: any) => void }>(({ onVehicl
                 >
                     <div className="flex items-center justify-between">
                         <div>
-                            <p className="text-white font-medium">{vehicle.name}</p>
-                            <p className="text-slate-700 text-sm">{vehicle.vin}</p>
+                            <p className="text-white font-medium">{vehicle.name || vehicle.displayName || vehicle.vehicleNumber || 'Vehicle'}</p>
+                            <p className="text-slate-700 text-sm">{vehicle.vin || vehicle.vehicleIdentificationNumber || '—'}</p>
                         </div>
                         <div className="text-right">
-                            <p className="text-white font-semibold">{vehicle.cost}</p>
+                            <p className="text-white font-semibold">{vehicle.cost || vehicle.totalCost || vehicle.costTotal || '—'}</p>
                             <ChevronRight className="w-4 h-4 text-slate-700 ml-auto" />
                         </div>
                     </div>

@@ -111,7 +111,9 @@ export const setTenantContext = async (
     // Track if we've already cleaned up
     let cleanedUp = false
     const cleanup = async () => {
-      if (cleanedUp) return
+      if (cleanedUp) {
+return
+}
       cleanedUp = true
       try {
         // COMMIT the transaction (or ROLLBACK if there was an error)

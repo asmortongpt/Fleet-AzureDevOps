@@ -240,38 +240,38 @@ export class VehicleAssignmentsRepository {
    * Used in GET /vehicle-assignments/:id
    */
   async findById(id: string, tenantId: string): Promise<any | null> {
-	    const query = `
-	      SELECT
-	        va.id,
-	        va.tenant_id,
-	        va.vehicle_id,
-	        va.driver_id,
-	        va.assigned_date AS start_date,
-	        va.return_date AS end_date,
-	        va.assignment_type,
-	        va.status,
-	        va.is_primary_assignment,
-	        va.max_personal_miles,
-	        va.max_commute_days,
-	        va.agreement_signed,
-	        va.agreement_date,
-	        va.notes,
-	        va.metadata,
-	        va.created_by AS created_by_user_id,
-	        va.created_at,
-	        va.updated_at,
-	        v.unit_number, v.number AS vehicle_number, v.name AS vehicle_name,
-	        v.make, v.model, v.year, v.vin, v.license_plate,
-	        dr.employee_number,
-	        dr.first_name AS driver_first_name, dr.last_name AS driver_last_name,
-	        dr.email AS driver_email, dr.phone AS driver_phone,
-	        cb.first_name AS created_by_first_name, cb.last_name AS created_by_last_name, cb.email AS created_by_email
-	      FROM vehicle_assignments va
-	      JOIN vehicles v ON va.vehicle_id = v.id
-	      JOIN drivers dr ON va.driver_id = dr.id
-	      LEFT JOIN users cb ON va.created_by = cb.id
-	      WHERE va.id = $1 AND va.tenant_id = $2
-	    `;
+    const query = `
+      SELECT
+        va.id,
+        va.tenant_id,
+        va.vehicle_id,
+        va.driver_id,
+        va.assigned_date AS start_date,
+        va.return_date AS end_date,
+        va.assignment_type,
+        va.status,
+        va.is_primary_assignment,
+        va.max_personal_miles,
+        va.max_commute_days,
+        va.agreement_signed,
+        va.agreement_date,
+        va.notes,
+        va.metadata,
+        va.created_by AS created_by_user_id,
+        va.created_at,
+        va.updated_at,
+        v.unit_number, v.number AS vehicle_number, v.name AS vehicle_name,
+        v.make, v.model, v.year, v.vin, v.license_plate,
+        dr.employee_number,
+        dr.first_name AS driver_first_name, dr.last_name AS driver_last_name,
+        dr.email AS driver_email, dr.phone AS driver_phone,
+        cb.first_name AS created_by_first_name, cb.last_name AS created_by_last_name, cb.email AS created_by_email
+      FROM vehicle_assignments va
+      JOIN vehicles v ON va.vehicle_id = v.id
+      JOIN drivers dr ON va.driver_id = dr.id
+      LEFT JOIN users cb ON va.created_by = cb.id
+      WHERE va.id = $1 AND va.tenant_id = $2
+    `;
 
     logger.debug('VehicleAssignmentsRepository.findById', { id, tenantId });
     const result = await this.pool.query(query, [id, tenantId]);

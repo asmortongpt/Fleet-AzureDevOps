@@ -50,7 +50,9 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
-      if (!tenantId) throw new Error('Tenant ID is required');
+      if (!tenantId) {
+throw new Error('Tenant ID is required');
+}
 
       const filters: BudgetFilters = {
         fiscal_year: req.query.fiscal_year
@@ -118,7 +120,9 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
       const userId = req.user?.id ?? '';
-      if (!tenantId) throw new Error('Tenant ID is required');
+      if (!tenantId) {
+throw new Error('Tenant ID is required');
+}
 
       const input: BudgetCreateInput = req.body;
       // `pool` is available from initializeBudgetRoutes closure.
@@ -162,7 +166,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
-      const budgetId = req.params.id as UUID;
+      const budgetId = req.params.id;
       // `pool` is available from initializeBudgetRoutes closure.
 
       const result = await pool.query<Budget>(
@@ -200,7 +204,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
-      const budgetId = req.params.id as UUID;
+      const budgetId = req.params.id;
       const input: BudgetUpdateInput = req.body;
       // `pool` is available from initializeBudgetRoutes closure.
 
@@ -341,7 +345,9 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
       const userId = req.user?.id ?? '';
-      if (!tenantId) throw new Error('Tenant ID is required');
+      if (!tenantId) {
+throw new Error('Tenant ID is required');
+}
 
       const input: PurchaseRequisitionCreateInput = req.body;
       // `pool` is available from initializeBudgetRoutes closure.
@@ -399,7 +405,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
-      const requisitionId = req.params.id as UUID;
+      const requisitionId = req.params.id;
       // `pool` is available from initializeBudgetRoutes closure.
 
       const result = await pool.query<PurchaseRequisition>(
@@ -424,7 +430,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
       const userId = req.user?.id ?? '';
-      const requisitionId = req.params.id as UUID;
+      const requisitionId = req.params.id;
       const { comments } = req.body;
 
       const decision: ApprovalDecisionInput = {
@@ -456,7 +462,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     authenticateJWT,
     asyncHandler(async (req: Request, res: Response) => {
       const userId = req.user?.id ?? '';
-      const requisitionId = req.params.id as UUID;
+      const requisitionId = req.params.id;
       const { comments } = req.body;
 
       if (!comments) {
@@ -493,7 +499,7 @@ export function initializeBudgetRoutes(pool: Pool): Router {
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
       const userId = req.user?.id ?? '';
-      const requisitionId = req.params.id as UUID;
+      const requisitionId = req.params.id;
       const input: ConvertToPOInput = req.body;
       // `pool` is available from initializeBudgetRoutes closure.
 

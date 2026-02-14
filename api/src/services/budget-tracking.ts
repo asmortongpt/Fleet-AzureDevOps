@@ -39,7 +39,9 @@ export class BudgetTrackingService {
     const conn = client || (await this.pool.connect());
 
     try {
-      if (!client) await conn.query('BEGIN');
+      if (!client) {
+await conn.query('BEGIN');
+}
 
       // Get current budget state
       const budgetResult = await conn.query<Budget>(
@@ -100,7 +102,9 @@ export class BudgetTrackingService {
         [budgetId]
       );
 
-      if (!client) await conn.query('COMMIT');
+      if (!client) {
+await conn.query('COMMIT');
+}
 
       return {
         budget: updatedBudget,
@@ -108,10 +112,14 @@ export class BudgetTrackingService {
         transaction_recorded: transactionResult.rows[0],
       };
     } catch (error) {
-      if (!client) await conn.query('ROLLBACK');
+      if (!client) {
+await conn.query('ROLLBACK');
+}
       throw error;
     } finally {
-      if (shouldRelease) conn.release();
+      if (shouldRelease) {
+conn.release();
+}
     }
   }
 

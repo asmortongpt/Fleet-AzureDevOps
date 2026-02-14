@@ -336,7 +336,7 @@ export class TireAnalyticsService {
 
     let totalTireCost = 0;
     let totalMilesDriven = 0;
-    let tireCount = costResult.rows.length;
+    const tireCount = costResult.rows.length;
     const tiresByStatus: Record<TireStatus, number> = {
       [TireStatus.IN_STOCK]: 0,
       [TireStatus.MOUNTED]: 0,

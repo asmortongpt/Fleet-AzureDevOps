@@ -10,13 +10,14 @@
  */
 
 import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, Database, Cpu, Clock, TrendingUp, UserPlus, Download, Eye } from 'lucide-react';
-import React, { useState } from 'react';
+import React, { useMemo } from 'react';
 // motion removed - React 19 incompatible
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data';
 import { cn } from '@/lib/utils';
 
 interface UserStats {
@@ -55,56 +56,44 @@ interface RecentActivity {
 }
 
 export function AdminDashboard() {
-  const [userStats, setUserStats] = useState<UserStats>({
-    total_users: 156,
-    active_today: 89,
+  const adminData = useReactiveAdminData();
+
+  const userStats = useMemo<UserStats>(() => ({
+    total_users: adminData.metrics.totalUsers || 0,
+    active_today: adminData.metrics.activeUsers || 0,
     by_role: {
-      admin: 3,
-      fleet_manager: 5,
-      dispatcher: 8,
-      maintenance_manager: 6,
-      driver: 134
+      admin: adminData.userRoleDistribution.admin || 0,
+      fleet_manager: adminData.userRoleDistribution.fleet_manager || 0,
+      dispatcher: adminData.userRoleDistribution.dispatcher || 0,
+      maintenance_manager: adminData.userRoleDistribution.maintenance_manager || 0,
+      driver: adminData.userRoleDistribution.driver || 0,
     }
-  });
+  }), [adminData.metrics, adminData.userRoleDistribution]);
 
-  const [systemHealth, setSystemHealth] = useState<SystemHealth>({
-    api_uptime: 99.98,
-    api_error_rate: 0.12,
-    database_connections: 24,
-    avg_response_time_ms: 145,
-    status: 'healthy'
-  });
+  const systemHealth = useMemo<SystemHealth>(() => ({
+    api_uptime: 99.9,
+    api_error_rate: 0,
+    database_connections: adminData.systemMetrics?.activeConnections ?? 0,
+    avg_response_time_ms: adminData.systemMetrics?.apiResponseTime ?? 0,
+    status: adminData.metrics.systemHealth > 95 ? 'healthy' as const : adminData.metrics.systemHealth > 85 ? 'warning' as const : 'critical' as const
+  }), [adminData.systemMetrics, adminData.metrics.systemHealth]);
 
-  const [securityMetrics, setSecurityMetrics] = useState<SecurityMetrics>({
-    failed_logins_24h: 3,
-    active_sessions: 67,
-    compliance_violations: 0,
-    pending_audits: 2
-  });
+  const securityMetrics = useMemo<SecurityMetrics>(() => ({
+    failed_logins_24h: adminData.metrics.failedActions || 0,
+    active_sessions: adminData.metrics.activeSessions || 0,
+    compliance_violations: adminData.actionDistribution?.security || 0,
+    pending_audits: adminData.failedActions?.length || 0
+  }), [adminData.metrics, adminData.actionDistribution, adminData.failedActions]);
 
-  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([
-    {
-      id: 1,
-      timestamp: '2026-01-14 10:23 AM',
-      user: 'john.smith@fleet.com',
-      action: 'Created new work order #5432',
-      severity: 'info'
-    },
-    {
-      id: 2,
-      timestamp: '2026-01-14 10:15 AM',
-      user: 'admin@fleet.com',
-      action: 'Modified user permissions for sarah.johnson',
-      severity: 'warning'
-    },
-    {
-      id: 3,
-      timestamp: '2026-01-14 09:58 AM',
-      user: 'dispatcher@fleet.com',
-      action: 'Emergency alert created for Route #48',
-      severity: 'critical'
-    }
-  ]);
+  const recentActivity = useMemo<RecentActivity[]>(() => {
+    return (adminData.recentAuditLogs || []).slice(0, 5).map((log) => ({
+      id: Number(log.id ?? 0),
+      timestamp: log.timestamp ? new Date(log.timestamp).toLocaleString() : '',
+      user: log.userName || log.userId || 'System',
+      action: log.action || log.resource || 'Activity',
+      severity: log.status === 'failure' ? 'critical' : 'info'
+    }));
+  }, [adminData.recentAuditLogs]);
 
   const navigate = useNavigate();
 

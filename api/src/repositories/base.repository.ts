@@ -16,7 +16,9 @@ export abstract class BaseRepository<T> {
   }
 
   private validateColumns(columns: string): string {
-    if (columns === '*') return '*';
+    if (columns === '*') {
+return '*';
+}
     const cols = columns.split(',').map(c => c.trim());
     for (const col of cols) {
       if (!BaseRepository.VALID_COLUMN_REGEX.test(col)) {

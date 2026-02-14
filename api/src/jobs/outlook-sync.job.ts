@@ -436,7 +436,7 @@ export function startOutlookSync(): void {
     }
   )
 
-  task.start()
+  void task.start()
 
   logger.info('Outlook sync job started successfully', {
     schedule: CRON_SCHEDULE,
@@ -446,12 +446,12 @@ export function startOutlookSync(): void {
   // Graceful shutdown
   process.on('SIGTERM', () => {
     logger.info('SIGTERM received, stopping Outlook sync')
-    task.stop()
+    void task.stop()
   })
 
   process.on('SIGINT', () => {
     logger.info('SIGINT received, stopping Outlook sync')
-    task.stop()
+    void task.stop()
   })
 }
 

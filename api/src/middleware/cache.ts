@@ -202,6 +202,7 @@ export function cacheMiddleware(config: CacheConfig = {}) {
             .setex(cacheKey, ttl, JSON.stringify(cacheEntry))
             .then(() => {
               logger.debug(`Cached response: ${cacheKey} (TTL: ${ttl}s)`)
+              return undefined
             })
             .catch((err) => {
               logger.error(`Error caching response for ${cacheKey}:`, err)

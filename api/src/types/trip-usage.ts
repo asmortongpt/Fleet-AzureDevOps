@@ -692,13 +692,14 @@ export function calculateMileageBreakdown(
     case UsageType.PERSONAL:
       return { business_miles: 0, personal_miles: total_miles }
 
-    case UsageType.MIXED:
+    case UsageType.MIXED: {
       if (business_percentage === undefined) {
         throw new Error(`Business percentage required for mixed usage type`)
       }
       const business_miles = Math.round(total_miles * (business_percentage / 100) * 100) / 100
       const personal_miles = Math.round(total_miles * ((100 - business_percentage) / 100) * 100) / 100
       return { business_miles, personal_miles }
+    }
 
     default:
       throw new Error(`Invalid usage type: ${usage_type}`)

@@ -47,9 +47,13 @@ export class CacheService {
 
   async getOrSet<T>(key: string, fetcher: () => Promise<T>, ttl = 3600): Promise<T> {
     const cached = await this.get(key);
-    if (cached) return cached;
+    if (cached) {
+return cached;
+}
     const value = await fetcher();
-    if (value) await this.set(key, value, ttl);
+    if (value) {
+await this.set(key, value, ttl);
+}
     return value;
   }
 

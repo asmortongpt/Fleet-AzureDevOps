@@ -9,11 +9,11 @@ const router = Router();
 // Apply authentication to all routes
 router.use(authenticateJWT)
 
-router.post('/', scanSessionsController.create);
-router.get('/:id', scanSessionsController.get);
-router.get('/vehicle/:vehicleId', scanSessionsController.listByVehicle);
-router.post('/:id/upload-credentials', scanSessionsController.createUploadCredentials);
-router.post('/:id/upload-complete', scanSessionsController.uploadComplete);
-router.put('/:id', scanSessionsController.update);
+router.post('/', (req, res) => scanSessionsController.create(req, res));
+router.get('/:id', (req, res) => scanSessionsController.get(req, res));
+router.get('/vehicle/:vehicleId', (req, res) => scanSessionsController.listByVehicle(req, res));
+router.post('/:id/upload-credentials', (req, res) => scanSessionsController.createUploadCredentials(req, res));
+router.post('/:id/upload-complete', (req, res) => scanSessionsController.uploadComplete(req, res));
+router.put('/:id', (req, res) => scanSessionsController.update(req, res));
 
 export default router;

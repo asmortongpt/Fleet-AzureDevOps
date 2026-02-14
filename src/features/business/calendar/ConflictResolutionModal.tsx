@@ -100,13 +100,13 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'critical':
-        return '#dc2626';
+        return 'hsl(var(--chart-6))';
       case 'high':
-        return '#f59e0b';
+        return 'hsl(var(--chart-3))';
       case 'medium':
-        return '#3b82f6';
+        return 'hsl(var(--chart-1))';
       default:
-        return '#374151';
+        return 'hsl(var(--muted-foreground))';
     }
   };
 
@@ -117,7 +117,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
+      background: 'hsl(var(--foreground) / 0.5)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -131,7 +131,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
         width: '90%',
         maxHeight: '80vh',
         overflow: 'auto',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)'
+        boxShadow: '0 20px 25px -5px hsl(var(--foreground) / 0.1)'
       }}>
         {/* Header */}
         <div style={{
@@ -142,7 +142,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
           paddingBottom: '16px',
           borderBottom: `1px solid ${currentTheme.border}`
         }}>
-          <AlertTriangle size={24} color="#f59e0b" />
+          <AlertTriangle size={24} color="hsl(var(--chart-3))" />
           <div>
             <h2 style={{ margin: 0, color: currentTheme.text }}>
               Scheduling Conflict Detected

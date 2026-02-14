@@ -242,4 +242,4 @@ async function main() {
 }
 
 // Run tests
-main().catch(console.error);
+main().catch((err) => console.error(err));

@@ -251,8 +251,8 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
             borderRadius: '10px',
             border: 'none',
             background: loading ?
-              'linear-gradient(45deg, #374151, #374151)' :
-              'linear-gradient(45deg, #10b981, #059669)',
+              'linear-gradient(45deg, hsl(var(--muted-foreground)), hsl(var(--muted-foreground)))' :
+              'linear-gradient(45deg, hsl(var(--success)), hsl(var(--success)))',
             color: 'white',
             fontWeight: '700',
             fontSize: '14px',
@@ -261,7 +261,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
             alignItems: 'center',
             gap: '10px',
             transition: 'all 0.3s ease',
-            boxShadow: loading ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.25)',
+            boxShadow: loading ? 'none' : '0 4px 12px hsl(var(--success) / 0.25)',
             position: 'relative',
             overflow: 'hidden'
           }}
@@ -381,7 +381,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   height: '200px',
                   position: 'relative',
                   overflow: 'hidden',
-                  background: '#f8f9fa'
+                  background: 'hsl(var(--muted))'
                 }}>
                   {vehicle.isLoadingImages ? (
                     <div style={{
@@ -454,12 +454,12 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                       : confidence <= 1 ? Math.round(confidence * 100) : Math.round(confidence);
 
                     const badge = percent == null
-                      ? { label: 'NO SCORE', icon: '—', color: '#6b7280' }
+                      ? { label: 'NO SCORE', icon: '—', color: 'hsl(var(--muted-foreground))' }
                       : percent >= 95
-                        ? { label: 'VALIDATED', icon: '✅', color: '#10b981' }
+                        ? { label: 'VALIDATED', icon: '✅', color: 'hsl(var(--success))' }
                         : percent >= 80
-                          ? { label: 'UNVERIFIED', icon: '⚠️', color: '#f59e0b' }
-                          : { label: 'LOW CONFIDENCE', icon: '🚨', color: '#dc3545' };
+                          ? { label: 'UNVERIFIED', icon: '⚠️', color: 'hsl(var(--warning))' }
+                          : { label: 'LOW CONFIDENCE', icon: '🚨', color: 'hsl(var(--destructive))' };
 
                     return (
                       <div style={{
@@ -476,7 +476,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                         alignItems: 'center',
                         gap: '4px',
                         maxWidth: '140px',
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                        boxShadow: '0 2px 4px hsl(var(--foreground) / 0.2)'
                       }}>
                         <span style={{ fontSize: '12px' }}>{badge.icon}</span>
                         <span style={{ fontSize: '10px', fontWeight: 'bold' }}>{badge.label}</span>
@@ -490,7 +490,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                       position: 'absolute',
                       bottom: '8px',
                       left: '8px',
-                      background: 'rgba(0,0,0,0.8)',
+                      background: 'hsl(var(--foreground) / 0.8)',
                       color: 'white',
                       padding: '4px 8px',
                       borderRadius: '4px',
@@ -608,7 +608,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
 
             {/* Image viewer */}
             <div style={{
-              background: '#f8f9fa',
+              background: 'hsl(var(--muted))',
               borderRadius: '8px',
               overflow: 'hidden',
               marginBottom: '16px'
@@ -668,14 +668,14 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
             {selectedVehicle.imageConfidence && (
               <div style={{
                 padding: '12px',
-                background: selectedVehicle.imageConfidence >= 0.99 ? '#10b98115' :
-                  selectedVehicle.imageConfidence >= 0.95 ? '#3b82f615' :
-                  selectedVehicle.imageConfidence >= 0.90 ? '#f59e0b15' : '#ef444415',
+                background: selectedVehicle.imageConfidence >= 0.99 ? 'hsl(var(--success) / 0.15)' :
+                  selectedVehicle.imageConfidence >= 0.95 ? 'hsl(var(--primary) / 0.15)' :
+                  selectedVehicle.imageConfidence >= 0.90 ? 'hsl(var(--warning) / 0.15)' : 'hsl(var(--destructive) / 0.15)',
                 borderRadius: '8px',
                 border: `1px solid ${
-                  selectedVehicle.imageConfidence >= 0.99 ? '#10b981' :
-                  selectedVehicle.imageConfidence >= 0.95 ? '#3b82f6' :
-                  selectedVehicle.imageConfidence >= 0.90 ? '#f59e0b' : '#ef4444'
+                  selectedVehicle.imageConfidence >= 0.99 ? 'hsl(var(--success))' :
+                  selectedVehicle.imageConfidence >= 0.95 ? 'hsl(var(--primary))' :
+                  selectedVehicle.imageConfidence >= 0.90 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))'
                 }`,
                 marginBottom: '16px'
               }}>
@@ -691,9 +691,9 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   <span style={{
                     fontWeight: '700',
                     fontSize: '16px',
-                    color: selectedVehicle.imageConfidence >= 0.99 ? '#10b981' :
-                      selectedVehicle.imageConfidence >= 0.95 ? '#3b82f6' :
-                      selectedVehicle.imageConfidence >= 0.90 ? '#f59e0b' : '#ef4444'
+                    color: selectedVehicle.imageConfidence >= 0.99 ? 'hsl(var(--success))' :
+                      selectedVehicle.imageConfidence >= 0.95 ? 'hsl(var(--primary))' :
+                      selectedVehicle.imageConfidence >= 0.90 ? 'hsl(var(--warning))' : 'hsl(var(--destructive))'
                   }}>
                     {(selectedVehicle.imageConfidence * 100).toFixed(0)}%
                   </span>
@@ -710,16 +710,16 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   padding: '6px 8px',
                   borderRadius: '6px',
                   background: selectedVehicle.imageConfidence >= 0.95 ?
-                    'rgba(16, 185, 129, 0.1)' :
+                    'hsl(var(--success) / 0.1)' :
                     selectedVehicle.imageConfidence >= 0.85 ?
-                    'rgba(245, 158, 11, 0.1)' :
-                    'rgba(239, 68, 68, 0.1)',
+                    'hsl(var(--warning) / 0.1)' :
+                    'hsl(var(--destructive) / 0.1)',
                   border: `1px solid ${
                     selectedVehicle.imageConfidence >= 0.95 ?
-                    'rgba(16, 185, 129, 0.2)' :
+                    'hsl(var(--success) / 0.2)' :
                     selectedVehicle.imageConfidence >= 0.85 ?
-                    'rgba(245, 158, 11, 0.2)' :
-                    'rgba(239, 68, 68, 0.2)'
+                    'hsl(var(--warning) / 0.2)' :
+                    'hsl(var(--destructive) / 0.2)'
                   }`
                 }}>
                   {selectedVehicle.imageConfidence >= 0.99 ?

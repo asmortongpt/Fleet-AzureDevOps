@@ -205,11 +205,11 @@ router.get("/:id/trips",
 
     const trips = (tripsResult.rows as TripRow[]).map((row) => {
       const metadata: Record<string, unknown> = row.metadata && typeof row.metadata === 'object'
-        ? row.metadata as Record<string, unknown>
+        ? row.metadata
         : row.metadata
           ? (() => {
               try {
-                return JSON.parse(row.metadata as string) as Record<string, unknown>
+                return JSON.parse(row.metadata) as Record<string, unknown>
               } catch {
                 return {}
               }

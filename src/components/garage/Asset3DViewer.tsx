@@ -230,10 +230,10 @@ interface DamageMarkerProps {
 
 function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
   const severityColors: Record<string, string> = {
-    minor: '#22c55e',    // Green
-    moderate: '#eab308', // Yellow
-    severe: '#f97316',   // Orange
-    critical: '#ef4444', // Red
+    minor: 'hsl(var(--success))',    // Green
+    moderate: 'hsl(var(--warning))', // Yellow
+    severe: 'hsl(var(--warning))',   // Orange
+    critical: 'hsl(var(--destructive))', // Red
   };
 
   const color = severityColors[point.severity] || severityColors.moderate;
@@ -258,7 +258,7 @@ function DamageMarker({ point, isSelected, onClick }: DamageMarkerProps) {
       {/* Inner core */}
       <mesh>
         <sphereGeometry args={[0.05, 8, 8]} />
-        <meshBasicMaterial color="#ffffff" />
+        <meshBasicMaterial color="hsl(var(--foreground))" />
       </mesh>
 
       {/* Tooltip on hover/select */}
@@ -294,7 +294,7 @@ interface VehicleModelProps {
 
 function VehicleModel({
   url,
-  color = '#1a5490',
+  color = 'hsl(var(--primary))',
   damagePoints = [],
   selectedDamageId,
   onSelectDamage,
@@ -346,7 +346,7 @@ function VehicleModel({
         } else if (meshName.includes('wheel') || meshName.includes('rim') || meshName.includes('alloy')) {
           mesh.material = PhotorealisticMaterials.createAluminumMaterial();
         } else if (meshName.includes('leather') || meshName.includes('seat') || meshName.includes('interior')) {
-          mesh.material = PhotorealisticMaterials.createLeatherMaterial('#1a1a1a');
+          mesh.material = PhotorealisticMaterials.createLeatherMaterial('hsl(var(--muted))');
         } else if (meshName.includes('carbon') || meshName.includes('fiber')) {
           mesh.material = PhotorealisticMaterials.createCarbonFiberMaterial();
         } else if (meshName.includes('brake') || meshName.includes('disc') || meshName.includes('rotor')) {
@@ -549,7 +549,7 @@ export function Asset3DViewer({
   make,
   model,
   year,
-  color = '#3B82F6',
+  color = 'hsl(var(--primary))',
   customModelUrl,
   modelUrl,
   damagePoints = [],
@@ -676,8 +676,8 @@ export function Asset3DViewer({
             <directionalLight position={[0, -5, 0]} intensity={0.2} />
 
             {/* Fill lights for automotive look */}
-            <pointLight position={[5, 2, 0]} intensity={0.3} color="#fff5e0" />
-            <pointLight position={[-5, 2, 0]} intensity={0.3} color="#e0f0ff" />
+            <pointLight position={[5, 2, 0]} intensity={0.3} color="hsl(var(--warning))" />
+            <pointLight position={[-5, 2, 0]} intensity={0.3} color="hsl(var(--primary))" />
 
             {/* Environment */}
             <Environment
@@ -689,7 +689,7 @@ export function Asset3DViewer({
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]} receiveShadow>
               <planeGeometry args={[50, 50]} />
               <meshStandardMaterial
-                color="#1a1a2e"
+                color="hsl(var(--background))"
                 metalness={0.8}
                 roughness={0.2}
                 envMapIntensity={0.5}

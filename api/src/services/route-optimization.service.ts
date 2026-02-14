@@ -4,6 +4,9 @@
 
 import { Pool } from 'pg'
 
+// Create singleton instance
+import { pool } from '../config/database'
+
 export interface Stop {
   id?: number
   name: string
@@ -184,7 +187,9 @@ export class RouteOptimizationService {
 
       const sortedStops = [...stops].sort((a, b) => {
         const priorityDiff = (a.priority ?? 1) - (b.priority ?? 1)
-        if (priorityDiff !== 0) return priorityDiff
+        if (priorityDiff !== 0) {
+return priorityDiff
+}
         return a.latitude - b.latitude
       })
 
@@ -195,7 +200,9 @@ export class RouteOptimizationService {
         const vehicle = vehicles[i]
         const driver = drivers[i]
         const routeStops = sortedStops.slice(i * stopsPerRoute, (i + 1) * stopsPerRoute)
-        if (routeStops.length === 0) continue
+        if (routeStops.length === 0) {
+continue
+}
 
         const totalDistance = this.calculateRouteDistance(routeStops)
         const drivingDuration = this.calculateDrivingDuration(totalDistance, vehicle?.avgSpeedMPH)
@@ -359,7 +366,9 @@ export class RouteOptimizationService {
   }
 
   private calculateRouteDistance(stops: Stop[]): number {
-    if (stops.length <= 1) return 0
+    if (stops.length <= 1) {
+return 0
+}
     let distance = 0
     for (let i = 1; i < stops.length; i++) {
       distance += this.haversineDistance(stops[i - 1], stops[i])
@@ -407,9 +416,6 @@ export class RouteOptimizationService {
     return R * c
   }
 }
-
-// Create singleton instance
-import { pool } from '../config/database'
 const instance = new RouteOptimizationService(pool)
 
 // Export instance methods as functions for backward compatibility

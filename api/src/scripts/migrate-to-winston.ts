@@ -119,8 +119,8 @@ stats.consoleInfos += consoleInfoMatches.length
                  modified.slice(afterLastImport)
     } else {
       // No imports found, add at top after any comments
-      const firstLineMatch = modified.match(/^(\/\*[\s\S]*?\*\/|\/\/.*\n)*/
-)
+      // eslint-disable-next-line security/detect-unsafe-regex -- only runs on source files at build time, not user input
+      const firstLineMatch = modified.match(/^(\/\*[\s\S]*?\*\/|\/\/.*\n)*/)
       if (firstLineMatch) {
         const commentEnd = firstLineMatch[0].length
         modified = modified.slice(0, commentEnd) +
@@ -221,4 +221,4 @@ async function main() {
 }
 
 // Run migration
-main().catch(console.error)
+main().catch((err) => console.error(err))

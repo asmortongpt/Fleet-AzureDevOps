@@ -13,8 +13,12 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 
 // GPS Emulator placeholder - initialized by EmulatorOrchestrator at runtime
 const gpsEmulator: { start: () => void; stop: () => void } = {
-  start: () => { logger.warn('GPS emulator not initialized') },
-  stop: () => { logger.warn('GPS emulator not initialized') },
+  start: () => {
+ logger.warn('GPS emulator not initialized') 
+},
+  stop: () => {
+ logger.warn('GPS emulator not initialized') 
+},
 }
 
 const router = Router()

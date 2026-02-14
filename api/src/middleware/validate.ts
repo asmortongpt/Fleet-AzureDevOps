@@ -244,7 +244,7 @@ function sanitizeInput(data: unknown): unknown {
 function sanitizeString(str: string): string {
   return str
     // Remove script tags
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+    .replace(/<script\b[\s\S]*?<\/script>/gi, '')
     // Remove event handlers (onclick, onerror, etc.)
     .replace(/\s*on\w+\s*=\s*["'][^"']*["']/gi, '')
     .replace(/\s*on\w+\s*=\s*[^\s>]*/gi, '')

@@ -14,6 +14,9 @@ import type { Pool } from 'pg'
 
 import costForecastingModel from '../ml-models/cost-forecasting.model'
 
+// Export singleton instance
+import { pool } from '../db'
+
 export interface CostEntry {
   id?: string
   costCategory: string
@@ -94,9 +97,13 @@ function toNumber(n: unknown, fallback = 0): number {
 }
 
 function computeTrend(current: number, previous: number): 'increasing' | 'decreasing' | 'stable' {
-  if (previous <= 0) return current > 0 ? 'increasing' : 'stable'
+  if (previous <= 0) {
+return current > 0 ? 'increasing' : 'stable'
+}
   const delta = (current - previous) / previous
-  if (Math.abs(delta) < 0.05) return 'stable'
+  if (Math.abs(delta) < 0.05) {
+return 'stable'
+}
   return delta > 0 ? 'increasing' : 'decreasing'
 }
 
@@ -378,8 +385,8 @@ export class CostAnalysisService {
       id: r.source_id,
       category: r.cost_category,
       amount: toNumber(r.amount, 0),
-      description: r.description as string | null,
-      date: r.transaction_date as Date,
+      description: r.description,
+      date: r.transaction_date,
     }))
 
     // Per-category mean/stddev and flag z-score outliers.
@@ -392,7 +399,9 @@ export class CostAnalysisService {
 
     const stats = new Map<string, { mean: number; std: number }>()
     for (const [cat, amounts] of byCategory.entries()) {
-      if (amounts.length < 3) continue
+      if (amounts.length < 3) {
+continue
+}
       const mean = amounts.reduce((s, v) => s + v, 0) / amounts.length
       const variance = amounts.reduce((s, v) => s + (v - mean) * (v - mean), 0) / amounts.length
       const std = Math.sqrt(variance)
@@ -402,9 +411,13 @@ export class CostAnalysisService {
     const anomalies = rows
       .map((r) => {
         const st = stats.get(r.category)
-        if (!st || st.std <= 0) return null
+        if (!st || st.std <= 0) {
+return null
+}
         const z = Math.abs((r.amount - st.mean) / st.std)
-        if (z <= 2.5) return null
+        if (z <= 2.5) {
+return null
+}
         const reason = r.amount > st.mean
           ? `High spend vs baseline for ${r.category}`
           : `Low spend vs baseline for ${r.category}`
@@ -529,7 +542,9 @@ export class CostAnalysisService {
       [amount, tenantId, fiscalYear, category, start]
     )
 
-    if (update.rowCount && update.rowCount > 0) return
+    if (update.rowCount && update.rowCount > 0) {
+return
+}
 
     await this.db.query(
       `INSERT INTO budgets (
@@ -565,20 +580,20 @@ export class CostAnalysisService {
       driver_name: string | null
       vendor_name: string | null
     }>(
-	      `SELECT
-	         uc.transaction_date,
-	         uc.cost_category,
-	         uc.cost_subcategory,
-	         uc.amount::text AS amount,
-	         uc.description,
-	         uc.invoice_number,
-	         COALESCE(v.number, v.name) AS vehicle_number,
-	         NULLIF(TRIM(CONCAT(COALESCE(d.first_name, ''), ' ', COALESCE(d.last_name, ''))), '') AS driver_name,
-	         vn.name AS vendor_name
-	       FROM unified_costs uc
-	       LEFT JOIN vehicles v ON uc.vehicle_id = v.id
-	       LEFT JOIN drivers d ON uc.driver_id = d.id
-	       LEFT JOIN vendors vn ON uc.vendor_id = vn.id
+      `SELECT
+         uc.transaction_date,
+         uc.cost_category,
+         uc.cost_subcategory,
+         uc.amount::text AS amount,
+         uc.description,
+         uc.invoice_number,
+         COALESCE(v.number, v.name) AS vehicle_number,
+         NULLIF(TRIM(CONCAT(COALESCE(d.first_name, ''), ' ', COALESCE(d.last_name, ''))), '') AS driver_name,
+         vn.name AS vendor_name
+       FROM unified_costs uc
+       LEFT JOIN vehicles v ON uc.vehicle_id = v.id
+       LEFT JOIN drivers d ON uc.driver_id = d.id
+       LEFT JOIN vendors vn ON uc.vendor_id = vn.id
        WHERE uc.tenant_id = $1
        AND uc.transaction_date BETWEEN $2 AND $3
        ORDER BY uc.transaction_date DESC`,
@@ -610,14 +625,11 @@ export class CostAnalysisService {
         row.driver_name ?? '',
         row.vendor_name ?? '',
       ]
-      csv += values.map((v) => `"${String(v).replace(/\"/g, '\"\"')}"`).join(',') + '\n'
+      csv += values.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',') + '\n'
     }
 
     return csv
   }
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const costAnalysisService = new CostAnalysisService(pool)
 export default costAnalysisService

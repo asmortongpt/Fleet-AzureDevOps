@@ -253,7 +253,7 @@ export class AuditService {
     if (options?.azureKeyVaultUrl) {
       const credential = new DefaultAzureCredential();
       this.secretClient = new SecretClient(options.azureKeyVaultUrl, credential);
-      this.initializeCryptoKeys();
+      void this.initializeCryptoKeys();
     }
   }
 

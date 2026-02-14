@@ -367,11 +367,11 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
   const renderAdapter = ({ item }: { item: OBD2Adapter }) => (
     <div
       style={{
-        backgroundColor: '#fff',
+        backgroundColor: 'hsl(var(--background))',
         borderRadius: 10,
         padding: 16,
         marginBottom: 16,
-        border: item.isConnected ? '2px solid #4CAF50' : '1px solid #ddd',
+        border: item.isConnected ? '2px solid hsl(var(--chart-2))' : '1px solid hsl(var(--border))',
         cursor: isConnecting || item.isConnected ? 'not-allowed' : 'pointer',
         opacity: isConnecting || item.isConnected ? 0.6 : 1
       }}
@@ -382,7 +382,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
           width: 40,
           height: 40,
           borderRadius: 20,
-          backgroundColor: '#e0e0e0',
+          backgroundColor: 'hsl(var(--muted))',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -393,41 +393,41 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 16, fontWeight: 'bold', marginBottom: 2 }}>{item.name}</div>
-          <div style={{ fontSize: 14, color: '#666', marginBottom: 2 }}>
+          <div style={{ fontSize: 14, color: 'hsl(var(--muted-foreground))', marginBottom: 2 }}>
             {item.type} • {item.connectionType.toUpperCase()}
           </div>
-          <div style={{ fontSize: 12, color: '#999' }}>{item.address}</div>
+          <div style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>{item.address}</div>
         </div>
         <div style={{ textAlign: 'right' }}>
           {item.isConnected ? (
             <div style={{
-              backgroundColor: '#4CAF50',
+              backgroundColor: 'hsl(var(--chart-2))',
               paddingLeft: 8,
               paddingRight: 8,
               paddingTop: 2,
               paddingBottom: 2,
               borderRadius: 4,
               marginBottom: 4,
-              color: '#fff',
+              color: 'hsl(var(--background))',
               fontSize: 12,
               fontWeight: 'bold'
             }}>Connected</div>
           ) : item.isPaired ? (
             <div style={{
-              backgroundColor: '#2196F3',
+              backgroundColor: 'hsl(var(--chart-1))',
               paddingLeft: 8,
               paddingRight: 8,
               paddingTop: 2,
               paddingBottom: 2,
               borderRadius: 4,
               marginBottom: 4,
-              color: '#fff',
+              color: 'hsl(var(--background))',
               fontSize: 12,
               fontWeight: 'bold'
             }}>Paired</div>
           ) : null}
           {item.rssi && (
-            <div style={{ fontSize: 12, color: '#666' }}>
+            <div style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>
               Signal: {item.rssi} dBm
             </div>
           )}
@@ -438,30 +438,30 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
 
   const renderDTC = ({ item }: { item: DiagnosticTroubleCode }) => (
     <div style={{
-      backgroundColor: '#fff',
+      backgroundColor: 'hsl(var(--background))',
       borderRadius: 10,
       padding: 16,
       marginBottom: 16,
-      borderLeft: item.severity === 'critical' ? '4px solid #F44336' : item.severity === 'major' ? '4px solid #FF9800' : '4px solid #ddd'
+      borderLeft: item.severity === 'critical' ? '4px solid hsl(var(--chart-6))' : item.severity === 'major' ? '4px solid hsl(var(--chart-3))' : '4px solid hsl(var(--border))'
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
         <div style={{ fontSize: 18, fontWeight: 'bold' }}>{item.code}</div>
         {item.isMILOn && (
           <div style={{
-            backgroundColor: '#F44336',
+            backgroundColor: 'hsl(var(--chart-6))',
             paddingLeft: 8,
             paddingRight: 8,
             paddingTop: 2,
             paddingBottom: 2,
             borderRadius: 4,
-            color: '#fff',
+            color: 'hsl(var(--background))',
             fontSize: 12,
             fontWeight: 'bold'
           }}>⚠️ MIL ON</div>
         )}
       </div>
       <div style={{ fontSize: 14, marginBottom: 8 }}>{item.description}</div>
-      <div style={{ fontSize: 12, color: '#666' }}>
+      <div style={{ fontSize: 12, color: 'hsl(var(--muted-foreground))' }}>
         Type: {item.type} • Severity: {item.severity}
       </div>
     </div>
@@ -475,7 +475,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
     <div style={{
       display: 'flex',
       flexDirection: 'column',
-      backgroundColor: '#f5f5f5',
+      backgroundColor: 'hsl(var(--background))',
       padding: 16,
       minHeight: '100vh'
     }}>
@@ -492,7 +492,7 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
         }}>OBD2 Adapter Scanner</h1>
         <div style={{
           fontSize: 16,
-          color: '#666'
+          color: 'hsl(var(--muted-foreground))'
         }}>{connectionStatus}</div>
       </div>
 
@@ -500,10 +500,10 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
       {connectedAdapter && (
         <div style={{
           marginBottom: 24,
-          backgroundColor: '#fff',
+          backgroundColor: 'hsl(var(--background))',
           borderRadius: 10,
           padding: 16,
-          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 2px 4px hsl(var(--foreground) / 0.1)'
         }}>
           <div style={{
             textAlign: 'center'
@@ -520,13 +520,13 @@ export const OBD2AdapterScanner: React.FC<OBD2AdapterScannerProps> = ({
             }}>{connectedAdapter.name}</div>
             {vin && <div style={{
               fontSize: 14,
-              color: '#666',
+              color: 'hsl(var(--muted-foreground))',
               marginBottom: 4
             }}>VIN: {vin}</div>}
             {connectedAdapter.firmwareVersion && (
               <div style={{
                 fontSize: 14,
-                color: '#666'
+                color: 'hsl(var(--muted-foreground))'
               }}>
                 Firmware: {connectedAdapter.firmwareVersion}
               </div>

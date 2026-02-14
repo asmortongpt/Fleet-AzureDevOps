@@ -15,7 +15,7 @@ const client = new Client({
   database: process.env.DB_NAME,
 });
 
-client.connect();
+void client.connect();
 
 const wss = new WebSocket.Server({ port: Number(process.env.WS_PORT) || 3002 }); // Use 3002 to avoid conflict if 3001 is server? Or rely on env.
 
@@ -25,14 +25,16 @@ wss.on('connection', (ws) => {
       const parsedMessage = JSON.parse(message);
 
       switch (parsedMessage.type) {
-        case 'SUBSCRIBE_VEHICLE':
+        case 'SUBSCRIBE_VEHICLE': {
           const vehicleMessage: VehicleMessage = parsedMessage;
           await client.query('INSERT INTO vehicle_tracking (vehicle_id, room_id) VALUES ($1, $2)', [vehicleMessage.vehicleId, vehicleMessage.roomId]);
           break;
-        case 'UNSUBSCRIBE_VEHICLE':
+        }
+        case 'UNSUBSCRIBE_VEHICLE': {
           const unVehicleMessage: VehicleMessage = parsedMessage;
           await client.query('DELETE FROM vehicle_tracking WHERE vehicle_id = $1 AND room_id = $2', [unVehicleMessage.vehicleId, unVehicleMessage.roomId]);
           break;
+        }
         case 'LOCATION_UPDATE':
           wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
@@ -40,15 +42,17 @@ wss.on('connection', (ws) => {
             }
           });
           break;
-        case 'ALERT':
+        case 'ALERT': {
           const alertMessage: AlertMessage = parsedMessage;
           await client.query('INSERT INTO alerts (vehicle_id, alert_type, alert_message) VALUES ($1, $2, $3)', [alertMessage.vehicleId, alertMessage.alertType, alertMessage.alertMessage]);
           break;
+        }
         case 'PING':
-        case 'PONG':
+        case 'PONG': {
           const pingPongMessage: PingPongMessage = parsedMessage;
           ws.send(JSON.stringify(pingPongMessage));
           break;
+        }
         default:
           throw new Error('Invalid message type');
       }

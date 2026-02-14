@@ -311,8 +311,11 @@ export class VideoEmulatorService extends EventEmitter {
       const storage = emulator.getStorageStatus();
 
       let health: EmulatorStatus['health'] = 'healthy';
-      if (storage.utilizationPercent > 90) health = 'error';
-      else if (storage.utilizationPercent > 80) health = 'warning';
+      if (storage.utilizationPercent > 90) {
+health = 'error';
+} else if (storage.utilizationPercent > 80) {
+health = 'warning';
+}
 
       statuses.push({
         vehicleId,
@@ -358,8 +361,11 @@ export class VideoEmulatorService extends EventEmitter {
     const storage = emulator.getStorageStatus();
 
     let health: EmulatorStatus['health'] = 'healthy';
-    if (storage.utilizationPercent > 90) health = 'error';
-    else if (storage.utilizationPercent > 80) health = 'warning';
+    if (storage.utilizationPercent > 90) {
+health = 'error';
+} else if (storage.utilizationPercent > 80) {
+health = 'warning';
+}
 
     return {
       vehicleId,
@@ -499,7 +505,9 @@ export class VideoEmulatorService extends EventEmitter {
    * Set up event listeners for telematics emulator
    */
   private setupTelematicsListeners(): void {
-    if (!this.telematicsEmulator) return;
+    if (!this.telematicsEmulator) {
+return;
+}
 
     this.telematicsEmulator.on('video-event-detected', (data) => {
       this.emit('telematics-event-detected', data);

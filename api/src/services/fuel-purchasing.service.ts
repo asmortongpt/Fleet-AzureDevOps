@@ -10,6 +10,9 @@ import { Pool } from 'pg'
 import logger from '../config/logger'
 import fuelPriceForecastingModel from '../ml-models/fuel-price-forecasting.model'
 
+// Export singleton instance
+import { pool } from '../db'
+
 export interface FuelStation {
   id: string
   stationName: string
@@ -513,9 +516,6 @@ return null
   }
 
 }
-
-// Export singleton instance
-import { pool } from '../db'
 const fuelPurchasingService = new FuelPurchasingService(pool)
 
 export default fuelPurchasingService

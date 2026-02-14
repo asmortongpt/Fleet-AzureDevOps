@@ -17,6 +17,10 @@
 import OpenAI from 'openai'
 import { Pool } from 'pg'
 
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
 
 // Cohere SDK (optional)
 interface CohereClient {
@@ -610,7 +614,9 @@ return 0
     // Limit cache size
     if (this.cache.size > 1000) {
       const firstKey = this.cache.keys().next().value
-      if (firstKey !== undefined) this.cache.delete(firstKey)
+      if (firstKey !== undefined) {
+this.cache.delete(firstKey)
+}
     }
   }
 
@@ -652,10 +658,6 @@ return 0
     return results.map(r => r.embedding)
   }
 }
-
-// Import dependencies for singleton instance
-import pool from '../config/database'
-import logger from '../config/logger'
 
 // Export singleton instance
 export const embeddingService = new EmbeddingService(pool, logger)

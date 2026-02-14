@@ -203,11 +203,11 @@ export class AuthorizationService {
   ) {
     this.cacheEnabled = enableCache;
     if (this.cacheEnabled) {
-      this.initializeRedis();
+      void this.initializeRedis();
     }
 
     // Metrics reporting interval
-    setInterval(() => this.reportMetrics(), 60000); // Every minute
+    setInterval(() => void this.reportMetrics(), 60000); // Every minute
   }
 
   /**

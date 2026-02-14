@@ -7,7 +7,6 @@ import { LucideIcon, Minus, TrendingDown, TrendingUp } from 'lucide-react';
 import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
 import { cn } from '@/lib/utils'
-import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
 interface StatCardProps {
   title: string
@@ -53,9 +52,9 @@ export function StatCard({
   }
 
   const getSparklineColor = () => {
-    if (trend === 'up') return '#10b981'
-    if (trend === 'down') return '#f43f5e'
-    return '#64748b'
+    if (trend === 'up') return 'hsl(var(--chart-2))'
+    if (trend === 'down') return 'hsl(var(--chart-6))'
+    return 'hsl(var(--muted-foreground))'
   }
 
   const hasSparkline = showSparkline && Array.isArray(sparklineData) && sparklineData.length > 0

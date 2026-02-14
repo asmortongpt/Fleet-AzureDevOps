@@ -72,8 +72,6 @@ const taskHandlers = {
         words: result.data.words,
         lines: result.data.lines
       }
-    } catch (error) {
-      throw error
     } finally {
       // Always terminate worker in finally block to prevent memory leaks
       if (worker) {

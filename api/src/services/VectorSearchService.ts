@@ -17,6 +17,10 @@
 
 import { Pool } from 'pg'
 
+// Import dependencies for singleton instance
+import pool from '../config/database'
+import logger from '../config/logger'
+
 
 export interface VectorStoreConfig {
   backend: 'pgvector' | 'pinecone' | 'qdrant'
@@ -733,10 +737,6 @@ return 'qdrant'
     }
   }
 }
-
-// Import dependencies for singleton instance
-import pool from '../config/database'
-import logger from '../config/logger'
 
 // Export singleton instance
 export const vectorSearchService = new VectorSearchService(pool, logger)

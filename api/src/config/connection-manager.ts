@@ -310,7 +310,9 @@ export class ConnectionManager {
   private updatePoolMetrics(): void {
     for (const [poolType, pool] of this.pools.entries()) {
       const config = this.poolConfigs.get(poolType)
-      if (!config) continue
+      if (!config) {
+continue
+}
 
       const totalCount = pool.totalCount
       const idleCount = pool.idleCount
@@ -712,6 +714,7 @@ export class ConnectionManager {
       closePromises.push(
         pool.end().then(() => {
           logger.info(`✅ ${poolType} pool closed`)
+          return undefined
         }).catch((error) => {
           logger.error(`❌ Error closing ${poolType} pool:`, error)
         })
