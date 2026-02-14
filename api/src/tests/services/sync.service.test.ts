@@ -33,9 +33,10 @@ class SyncService {
 
     let deltaLink = syncState?.deltaLink;
     const allChanges: any[] = [];
+    let hasNextPage = true;
 
     // Perform delta query
-    do {
+    while (hasNextPage) {
       const response: DeltaResponse = deltaLink
         ? await this.graphService.makeGraphRequest(deltaLink)
         : await this.graphService.makeGraphRequest(
@@ -43,7 +44,6 @@ class SyncService {
           );
 
       allChanges.push(...response.value);
-      deltaLink = response[`@odata.nextLink`] || response['@odata.deltaLink'] || null;
 
       // Update sync state
       if (response['@odata.deltaLink']) {
@@ -54,7 +54,13 @@ class SyncService {
           userId
         });
       }
-    } while (deltaLink?.includes(`nextLink`));
+
+      if (response['@odata.nextLink']) {
+        deltaLink = response['@odata.nextLink'];
+      } else {
+        hasNextPage = false;
+      }
+    }
 
     return allChanges;
   }

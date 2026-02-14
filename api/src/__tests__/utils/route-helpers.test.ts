@@ -2,7 +2,7 @@
  * Tests for route-helpers utilities
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect } from 'vitest';
 
 import {
   applyFilters,
@@ -46,12 +46,12 @@ describe('route-helpers', () => {
 
     it('should apply both search and status filters', () => {
       const result = applyFilters(testData, {
-        search: 'john',
+        search: 'jane',
         searchFields: ['name'],
-        status: 'active',
+        status: 'inactive',
       });
       expect(result.length).toBe(1);
-      expect(result[0].name).toBe('John Doe');
+      expect(result[0].name).toBe('Jane Smith');
     });
 
     it('should handle case-insensitive search', () => {

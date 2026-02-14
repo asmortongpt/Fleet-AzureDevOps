@@ -4,12 +4,12 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: ['./tests/setup.ts'],
+    include: ['src/**/*.{test,spec}.ts'],
     exclude: [
-      'tests/integration/**',
       'node_modules/**',
       'dist/**',
-      // Integration tests that require real database/Redis (import FleetAPI class from app.ts)
+      // Integration tests that require real database, Redis, or Express server
+      'tests/**',
       'src/tests/paginationRoute.test.ts',
       'src/routes/__tests__/vendor-management.test.ts',
       'src/routes/__tests__/insurance.test.ts',
