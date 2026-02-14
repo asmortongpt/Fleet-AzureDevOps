@@ -13,12 +13,16 @@ expect.extend(toHaveNoViolations);
 // Cleanup after each test
 afterEach(() => {
   cleanup();
+  // Clear localStorage/sessionStorage before clearing mocks
+  // (vi.clearAllMocks may remove mock implementations on storage)
+  if (typeof localStorage !== 'undefined' && typeof localStorage.clear === 'function') {
+    localStorage.clear();
+  }
+  if (typeof sessionStorage !== 'undefined' && typeof sessionStorage.clear === 'function') {
+    sessionStorage.clear();
+  }
   // Clear all mocks
   vi.clearAllMocks();
-  // Clear localStorage
-  localStorage.clear();
-  // Clear sessionStorage
-  sessionStorage.clear();
 });
 
 // Setup global mocks before all tests

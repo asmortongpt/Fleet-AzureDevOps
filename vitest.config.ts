@@ -9,25 +9,18 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: ['./src/tests/setup.ts'],
-    // Keep default `npm test` focused on fast, deterministic unit tests.
-    // Heavier API/service integration suites live elsewhere and should run under a dedicated script
-    // with a real DB and environment configuration.
+    // Only run frontend unit tests under src/.
+    // Playwright e2e specs, integration suites, and API tests live outside src/
+    // and have their own runners.
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
     exclude: [
       '**/node_modules/**',
-      '**/dist/**',
-      // This repo contains a full backend under `api/` with its own vitest config.
-      // Running backend tests in the frontend runner is slow and can fail due to differing timeouts/env.
-      'api/**',
-      // Local MCP tooling shouldn't be picked up by the app unit test runner.
-      'mcp-server/**',
-      'api/src/__tests__/services/**',
-      'api/src/routes/__tests__/**',
-      'api/tests/**',
-      'tests/e2e/**',
-      'tests/smoke/**',
-      'tests/certification/**',
-      'e2e/**',
+      // E2e-style tests that require a real database
+      'src/__tests__/e2e-production-workflow.test.ts',
     ],
+    testTimeout: 10000,
+    hookTimeout: 10000,
+    teardownTimeout: 5000,
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
