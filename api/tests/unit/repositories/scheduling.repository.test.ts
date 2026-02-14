@@ -14,7 +14,7 @@ describe('SchedulingRepository', () => {
 
   beforeEach(() => {
     pool = {
-      query: jest.fn()
+      query: vi.fn()
     } as any;
     repository = new SchedulingRepository(pool);
   });
@@ -24,7 +24,7 @@ describe('SchedulingRepository', () => {
       const mockRows = [
         { id: 1, vehicle_id: 10, reserved_by: 100, status: 'confirmed' }
       ];
-      (pool.query as jest.Mock).mockResolvedValue({ rows: mockRows });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: mockRows });
 
       const filters = {
         vehicleId: '10',
@@ -44,11 +44,11 @@ describe('SchedulingRepository', () => {
     });
 
     it('should use parameterized queries with tenant_id filter', async () => {
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [] });
 
       await repository.findReservations(mockTenantId);
 
-      const call = (pool.query as jest.Mock).mock.calls[0];
+      const call = (pool.query as import('vitest').Mock).mock.calls[0];
       expect(call[0]).toContain('WHERE vr.tenant_id = ');
       expect(call[1][0]).toBe(mockTenantId);
     });
@@ -57,7 +57,7 @@ describe('SchedulingRepository', () => {
   describe('updateReservation', () => {
     it('should update reservation with allowed fields only', async () => {
       const mockRow = { id: 1, status: 'confirmed' };
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [mockRow] });
 
       const updates = {
         status: 'confirmed',
@@ -84,7 +84,7 @@ describe('SchedulingRepository', () => {
   describe('cancelReservation', () => {
     it('should cancel reservation with parameterized query', async () => {
       const mockRow = { id: 1, status: 'cancelled' };
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [mockRow] });
 
       const result = await repository.cancelReservation(mockTenantId, '1');
 
@@ -96,7 +96,7 @@ describe('SchedulingRepository', () => {
     });
 
     it('should return null if reservation not found', async () => {
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [] });
 
       const result = await repository.cancelReservation(mockTenantId, '999');
       expect(result).toBeNull();
@@ -106,7 +106,7 @@ describe('SchedulingRepository', () => {
   describe('approveReservation', () => {
     it('should approve reservation with correct parameters', async () => {
       const mockRow = { id: 1, approval_status: 'approved' };
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [mockRow] });
 
       const result = await repository.approveReservation(mockTenantId, '1', mockUserId);
 
@@ -121,7 +121,7 @@ describe('SchedulingRepository', () => {
   describe('rejectReservation', () => {
     it('should reject reservation with reason', async () => {
       const mockRow = { id: 1, approval_status: 'rejected' };
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [mockRow] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [mockRow] });
 
       const reason = 'Vehicle unavailable';
       const result = await repository.rejectReservation(mockTenantId, '1', mockUserId, reason);
@@ -137,7 +137,7 @@ describe('SchedulingRepository', () => {
   describe('findMaintenanceAppointments', () => {
     it('should find maintenance appointments with filters', async () => {
       const mockRows = [{ id: 1, vehicle_id: 10 }];
-      (pool.query as jest.Mock).mockResolvedValue({ rows: mockRows });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: mockRows });
 
       const filters = {
         vehicleId: '10',
@@ -161,7 +161,7 @@ describe('SchedulingRepository', () => {
   describe('findCalendarIntegrations', () => {
     it('should find calendar integrations for user', async () => {
       const mockRows = [{ id: 1, provider: 'google' }];
-      (pool.query as jest.Mock).mockResolvedValue({ rows: mockRows });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: mockRows });
 
       const result = await repository.findCalendarIntegrations(mockUserId);
 
@@ -175,7 +175,7 @@ describe('SchedulingRepository', () => {
 
   describe('getIntegrationProvider', () => {
     it('should get integration provider', async () => {
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [{ provider: 'google' }] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [{ provider: 'google' }] });
 
       const result = await repository.getIntegrationProvider(mockUserId, '1');
 
@@ -187,7 +187,7 @@ describe('SchedulingRepository', () => {
     });
 
     it('should return null if integration not found', async () => {
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [] });
 
       const result = await repository.getIntegrationProvider(mockUserId, '999');
       expect(result).toBeNull();
@@ -196,7 +196,7 @@ describe('SchedulingRepository', () => {
 
   describe('deleteCalendarIntegration', () => {
     it('should delete calendar integration', async () => {
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [] });
 
       await repository.deleteCalendarIntegration('1');
 
@@ -209,7 +209,7 @@ describe('SchedulingRepository', () => {
 
   describe('updateLastSyncTime', () => {
     it('should update last sync time', async () => {
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [] });
 
       await repository.updateLastSyncTime('1');
 
@@ -223,7 +223,7 @@ describe('SchedulingRepository', () => {
   describe('findAppointmentTypes', () => {
     it('should find appointment types for tenant', async () => {
       const mockRows = [{ id: 1, name: 'Oil Change' }];
-      (pool.query as jest.Mock).mockResolvedValue({ rows: mockRows });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: mockRows });
 
       const result = await repository.findAppointmentTypes(mockTenantId);
 
@@ -237,7 +237,7 @@ describe('SchedulingRepository', () => {
 
   describe('Security Tests - Parameterized Queries', () => {
     it('should always use parameterized queries with , , etc.', async () => {
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [] });
 
       await repository.findReservations(mockTenantId, { vehicleId: '10' });
       await repository.cancelReservation(mockTenantId, '1');
@@ -246,7 +246,7 @@ describe('SchedulingRepository', () => {
       await repository.findAppointmentTypes(mockTenantId);
 
       // Check that all queries use parameterized format
-      const allCalls = (pool.query as jest.Mock).mock.calls;
+      const allCalls = (pool.query as import('vitest').Mock).mock.calls;
       allCalls.forEach(call => {
         const query = call[0];
         const params = call[1];
@@ -264,14 +264,14 @@ describe('SchedulingRepository', () => {
     });
 
     it('should always filter by tenant_id in multi-tenant queries', async () => {
-      (pool.query as jest.Mock).mockResolvedValue({ rows: [] });
+      (pool.query as import('vitest').Mock).mockResolvedValue({ rows: [] });
 
       await repository.findReservations(mockTenantId);
       await repository.updateReservation(mockTenantId, '1', { status: 'confirmed' });
       await repository.findMaintenanceAppointments(mockTenantId);
       await repository.findAppointmentTypes(mockTenantId);
 
-      const allCalls = (pool.query as jest.Mock).mock.calls;
+      const allCalls = (pool.query as import('vitest').Mock).mock.calls;
       allCalls.forEach(call => {
         const query = call[0];
         const params = call[1];

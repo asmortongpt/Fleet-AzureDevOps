@@ -2,13 +2,13 @@ import { pool } from '../../db'
 import { tripMarkingRepository } from '../trip-marking.repository'
 
 // Mock the database pool
-jest.mock('../../db', () => ({
+vi.mock('../../db', () => ({
   pool: {
-    query: jest.fn()
+    query: vi.fn()
   }
 }))
 
-const mockPool = pool as jest.Mocked<typeof pool>
+const mockPool = pool as import('vitest').Mocked<typeof pool>
 
 describe('TripMarkingRepository', () => {
   const tenantId = 'tenant-123'
@@ -17,7 +17,7 @@ describe('TripMarkingRepository', () => {
   const vehicleId = 'vehicle-101'
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('findTripById', () => {

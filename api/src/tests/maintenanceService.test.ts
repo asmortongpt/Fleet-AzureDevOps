@@ -2,10 +2,10 @@ import { IVehicleService } from '../interfaces/IVehicleService';
 import { MaintenanceRecord } from '../models/MaintenanceRecord';
 import { MaintenanceService } from '../services/maintenanceService';
 
-jest.mock('../services/vehicleService');
+vi.mock('../services/vehicleService');
 
 const mockVehicleService: IVehicleService = {
-  getVehicle: jest.fn(),
+  getVehicle: vi.fn(),
 };
 
 const maintenanceService = new MaintenanceService(mockVehicleService);
@@ -14,8 +14,8 @@ describe('MaintenanceService', () => {
   describe('getMaintenanceRecords', () => {
     it('should return maintenance records', async () => {
       const mockRecords: MaintenanceRecord[] = [{ id: 1, vehicleId: 1 }];
-      jest.spyOn(maintenanceService, 'fetchMaintenanceRecordsFromDatabase').mockResolvedValue(mockRecords);
-      jest.spyOn(mockVehicleService, 'getVehicle').mockResolvedValue({ id: 1 });
+      vi.spyOn(maintenanceService, 'fetchMaintenanceRecordsFromDatabase').mockResolvedValue(mockRecords);
+      vi.spyOn(mockVehicleService, 'getVehicle').mockResolvedValue({ id: 1 });
 
       const result = await maintenanceService.getMaintenanceRecords(1);
 
@@ -29,8 +29,8 @@ describe('MaintenanceService', () => {
     });
 
     it('should throw an error if fetching fails', async () => {
-      jest.spyOn(maintenanceService, 'fetchMaintenanceRecordsFromDatabase').mockRejectedValue(new Error('Database error'));
-      jest.spyOn(mockVehicleService, 'getVehicle').mockResolvedValue({ id: 1 });
+      vi.spyOn(maintenanceService, 'fetchMaintenanceRecordsFromDatabase').mockRejectedValue(new Error('Database error'));
+      vi.spyOn(mockVehicleService, 'getVehicle').mockResolvedValue({ id: 1 });
 
       await expect(maintenanceService.getMaintenanceRecords(1)).rejects.toThrow('Failed to fetch maintenance records');
     });
