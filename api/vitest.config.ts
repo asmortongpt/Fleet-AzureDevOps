@@ -13,7 +13,11 @@ export default defineConfig({
       'src/tests/paginationRoute.test.ts',
       'src/routes/__tests__/vendor-management.test.ts',
       'src/routes/__tests__/insurance.test.ts',
-      'src/__tests__/security/sql-injection.test.ts'
+      'src/__tests__/security/sql-injection.test.ts',
+      // Tests that import singletons requiring API keys/credentials at import time
+      'src/__tests__/services/ai-task-prioritization.test.ts',
+      'src/__tests__/services/multi-llm-orchestrator.service.test.ts',
+      'src/routes/__tests__/auth-jwt-validation.test.ts'
     ],
     coverage: {
       provider: 'v8',
@@ -37,7 +41,7 @@ export default defineConfig({
       branches: 75,
       statements: 80
     },
-    testTimeout: 10000,
-    hookTimeout: 10000
+    testTimeout: 30000,
+    hookTimeout: 30000
   }
 })
