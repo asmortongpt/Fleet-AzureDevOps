@@ -11,8 +11,6 @@
 import { EncryptionService } from '../encryption/EncryptionService'
 import logger from '@/utils/logger';
 
-import logger from '@/utils/logger';
-
 export enum AuditEventType {
   // Authentication
   LOGIN_SUCCESS = 'auth.login.success',

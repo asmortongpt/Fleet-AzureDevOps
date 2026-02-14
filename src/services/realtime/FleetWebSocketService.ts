@@ -5,8 +5,6 @@
 import { EventEmitter } from 'events';
 import logger from '@/utils/logger';
 
-import logger from '@/utils/logger';
-
 interface QueuedMessage {
   message: any;
   timestamp: number;

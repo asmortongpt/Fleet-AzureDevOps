@@ -60,6 +60,9 @@
     "src/db/seeds/**",
     "src/services/authz/examples.ts",
     "src/routes/*.example.ts",
-    "src/routes/*.dal-example.ts"
+    "src/routes/*.dal-example.ts",
+    "src/routes/test-routes.ts",
+    "src/server-full.ts",
+    "src/server-quick.ts"
   ]
 }
