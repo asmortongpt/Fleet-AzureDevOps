@@ -47,7 +47,7 @@ vi.mock('@/services/token-storage', () => ({
 }))
 
 vi.mock('@/config/role-navigation', () => ({
-  getNavigationItemsForRole: vi.fn(() => ['fleet-hub-consolidated', 'drivers', 'vehicles']),
+  getNavigationItemsForRole: vi.fn(() => []),
 }))
 
 vi.mock('@/lib/navigation', () => ({

@@ -489,14 +489,14 @@ describe('GlobalStateContext', () => {
   })
 
   describe('Barrel exports', () => {
-    it('should export GlobalStateProvider', () => {
-      const { GlobalStateProvider } = require('../GlobalStateContext')
-      expect(GlobalStateProvider).toBeDefined()
+    it('should export GlobalStateProvider', async () => {
+      const module = await import('../GlobalStateContext')
+      expect(module.GlobalStateProvider).toBeDefined()
     })
 
-    it('should export useGlobalState', () => {
-      const { useGlobalState } = require('../GlobalStateContext')
-      expect(useGlobalState).toBeDefined()
+    it('should export useGlobalState', async () => {
+      const module = await import('../GlobalStateContext')
+      expect(module.useGlobalState).toBeDefined()
     })
   })
 })
