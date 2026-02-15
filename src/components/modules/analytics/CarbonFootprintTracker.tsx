@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import logger from '@/utils/logger';
+import { brandColors } from '@/theme/designSystem'
 
 interface CarbonData {
   vehicle_id: number;
@@ -402,7 +403,7 @@ const CarbonFootprintTracker: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <CardTitle className="text-base">ESG Performance Score</CardTitle>
-                <p className="text-sm text-slate-700 mt-1">
+                <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   {esgReport.report_period} - {new Date(esgReport.report_year, (esgReport.report_month || 1) - 1).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                 </p>
               </div>
@@ -414,13 +415,13 @@ const CarbonFootprintTracker: React.FC = () => {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               <div>
-                <p className="text-sm text-slate-700 mb-1">Environmental Score</p>
+                <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Environmental Score</p>
                 <p className={`text-sm font-bold ${getESGColor(esgReport.environmental_score)}`}>
                   {formatNumber(esgReport.environmental_score, 0)}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-slate-700 mb-1">EV Adoption</p>
+                <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>EV Adoption</p>
                 <p className="text-sm font-bold text-blue-800">
                   {formatNumber(esgReport.ev_adoption_percent, 1)}%
                 </p>

@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { brandColors } from "@/theme/designSystem"
 import apiClient from "@/lib/api-client"
 
 interface LeaderboardEntry {
@@ -167,7 +168,7 @@ export function DriverScorecard() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-slate-700">Loading driver scorecard...</p>
+          <p style={{ color: brandColors.archon.mediumGray }}>Loading driver scorecard...</p>
         </div>
       </div>
     )
@@ -180,7 +181,7 @@ export function DriverScorecard() {
           <Trophy className="h-8 w-8 text-yellow-600" />
           Driver Scorecard & Gamification
         </h1>
-        <p className="text-slate-700 mt-2">
+        <p className="mt-2" style={{ color: brandColors.archon.mediumGray }}>
           Performance rankings, achievements, and driver engagement
         </p>
       </div>
@@ -355,7 +356,7 @@ export function DriverScorecard() {
                     </div>
                     <div className="flex items-center gap-2">
                       {getTrendIcon(selectedDriver.trend)}
-                      <span className="text-sm text-slate-700">
+                      <span className="text-sm" style={{ color: brandColors.archon.mediumGray }}>
                         {selectedDriver.trend === 'improving' && 'Improving'}
                         {selectedDriver.trend === 'declining' && 'Declining'}
                         {selectedDriver.trend === 'stable' && 'Stable'}
@@ -415,7 +416,7 @@ export function DriverScorecard() {
                               {getAchievementIcon(achievement.icon)}
                             </div>
                             <div className="text-sm font-semibold">{achievement.achievementName}</div>
-                            <div className="text-sm text-slate-700">{achievement.achievementDescription}</div>
+                            <div className="text-sm" style={{ color: brandColors.archon.mediumGray }}>{achievement.achievementDescription}</div>
                             <div className="text-sm mt-1">+{achievement.points.toString()} points</div>
                           </CardContent>
                         </Card>

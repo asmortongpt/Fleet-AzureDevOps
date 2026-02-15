@@ -42,6 +42,7 @@ import {
 } from '@/lib/document-generation/branding-config'
 import { previewDocument } from '@/lib/document-generation/document-generator'
 import type { PolicyDocument } from '@/lib/document-generation/document-generator'
+import { brandColors } from '@/theme/designSystem'
 
 export function BrandingConfigurator() {
   const [config, setConfig] = useState<BrandingConfig>(loadBrandingConfig())

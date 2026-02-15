@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
+import { brandColors } from '@/theme/designSystem'
 
 interface FuelStation {
   id: string
@@ -223,7 +224,7 @@ export function FuelPurchasing() {
             <div className="text-sm font-bold text-green-600">
               ${savings?.totalSavings.toFixed(0) || '0'}
             </div>
-            <div className="text-xs text-slate-700 mt-1">
+            <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>
               {savings?.totalGallons.toFixed(0) || '0'} gallons purchased
             </div>
           </CardContent>
@@ -237,7 +238,7 @@ export function FuelPurchasing() {
             <div className="text-sm font-bold">
               {formatPrice(savings?.averagePricePaid || 0)}
             </div>
-            <div className="text-xs text-slate-700 mt-1">per gallon</div>
+            <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>per gallon</div>
           </CardContent>
         </Card>
 
@@ -249,7 +250,7 @@ export function FuelPurchasing() {
             <div className="text-sm font-bold">
               {formatPrice(savings?.marketAveragePrice || 0)}
             </div>
-            <div className="text-xs text-slate-700 mt-1">per gallon</div>
+            <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>per gallon</div>
           </CardContent>
         </Card>
 
@@ -261,7 +262,7 @@ export function FuelPurchasing() {
             <div className="text-sm font-bold text-blue-800">
               {contracts.length}
             </div>
-            <div className="text-xs text-slate-700 mt-1">supplier agreements</div>
+            <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>supplier agreements</div>
           </CardContent>
         </Card>
       </div>
@@ -391,7 +392,7 @@ export function FuelPurchasing() {
               {loading ? (
                 <div className="text-center py-3">
                   <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                  <p className="text-slate-700">Loading stations...</p>
+                  <p className="" style={{ color: brandColors.archon.mediumGray }}>Loading stations...</p>
                 </div>
               ) : nearbyStations.length > 0 ? (
                 <Table>

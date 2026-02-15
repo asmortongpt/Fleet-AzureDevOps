@@ -19,6 +19,7 @@ import {
 import React, { useState } from 'react';
 
 import logger from '@/utils/logger';
+import { brandColors } from '@/theme/designSystem'
 
 
 interface NotificationStats {
@@ -660,7 +661,7 @@ const PushNotificationAdmin: React.FC = () => {
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <h4 className="font-semibold text-gray-900">{template.template_name}</h4>
-                            <p className="text-sm text-slate-700 mt-1">
+                            <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
                               <span className="font-medium">Category:</span> {template.category}
                             </p>
                             <p className="text-sm text-slate-700">
@@ -668,7 +669,7 @@ const PushNotificationAdmin: React.FC = () => {
                             </p>
                             <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
                               <p className="text-sm font-medium text-gray-700">{template.title_template}</p>
-                              <p className="text-sm text-slate-700 mt-1">{template.message_template}</p>
+                              <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>{template.message_template}</p>
                             </div>
                           </div>
                         </div>
@@ -701,14 +702,14 @@ const PushNotificationAdmin: React.FC = () => {
                     <table className="w-full">
                       <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Title</th>
-                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Category</th>
-                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Priority</th>
-                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Recipients</th>
-                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Delivered</th>
-                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Opened</th>
-                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Status</th>
-                          <th className="px-2 py-3 text-left text-xs font-medium text-slate-700 uppercase">Date</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Title</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Category</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Priority</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Recipients</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Delivered</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Opened</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Status</th>
+                          <th className="px-2 py-3 text-left text-xs font-medium  uppercase" style={{ color: brandColors.archon.mediumGray }}>Date</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-200">
@@ -767,7 +768,7 @@ const PushNotificationAdmin: React.FC = () => {
 
                     <div className="grid grid-cols-2 gap-2">
                       <div className="border border-gray-200 rounded-lg p-3">
-                        <h4 className="text-sm font-medium text-slate-700 mb-2">Delivery Performance</h4>
+                        <h4 className="text-sm font-medium  mb-2" style={{ color: brandColors.archon.mediumGray }}>Delivery Performance</h4>
                         <div className="space-y-3">
                           <div>
                             <div className="flex justify-between text-sm mb-1">
@@ -797,7 +798,7 @@ const PushNotificationAdmin: React.FC = () => {
                       </div>
 
                       <div className="border border-gray-200 rounded-lg p-3">
-                        <h4 className="text-sm font-medium text-slate-700 mb-2">Engagement Metrics</h4>
+                        <h4 className="text-sm font-medium  mb-2" style={{ color: brandColors.archon.mediumGray }}>Engagement Metrics</h4>
                         <div className="space-y-3">
                           <div>
                             <div className="flex justify-between text-sm mb-1">

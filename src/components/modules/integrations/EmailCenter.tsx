@@ -23,6 +23,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { swrFetcher } from "@/lib/fetcher"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { MSOutlookEmail } from "@/lib/types"
+import { brandColors } from '@/theme/designSystem'
 
 type OutlookMessageRow = {
   id: string
@@ -215,10 +216,10 @@ export function EmailCenter() {
           </CardHeader>
           <CardContent className="space-y-1 p-3">
             {isLoadingInbox && (
-              <p className="text-xs text-slate-700 px-1">Loading inbox…</p>
+              <p className="text-xs  px-1" style={{ color: brandColors.archon.mediumGray }}>Loading inbox…</p>
             )}
             {!isLoadingInbox && emails.length === 0 && (
-              <p className="text-xs text-slate-700 px-1">No messages available.</p>
+              <p className="text-xs  px-1" style={{ color: brandColors.archon.mediumGray }}>No messages available.</p>
             )}
             {categories.map(category => (
               <Button

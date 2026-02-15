@@ -34,6 +34,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import apiClient from "@/lib/api-client"
 import logger from '@/utils/logger'
+import { brandColors } from '@/theme/designSystem'
 
 interface DataSource {
   id: string
@@ -364,7 +365,7 @@ export function CustomReportBuilder() {
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-slate-700">Loading report builder...</p>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>Loading report builder...</p>
         </div>
       </div>
     )
@@ -375,7 +376,7 @@ export function CustomReportBuilder() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-gray-900">Custom Report Builder</h1>
-          <p className="text-slate-700">Create and schedule custom reports with drag-and-drop interface</p>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>Create and schedule custom reports with drag-and-drop interface</p>
         </div>
         <Button onClick={handleNewReport}>
           <Plus className="w-4 h-4 mr-2" />
@@ -472,7 +473,7 @@ export function CustomReportBuilder() {
                       <CardDescription>{template.category}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-slate-700 mb-2">{template.description}</p>
+                      <p className="text-sm  mb-2" style={{ color: brandColors.archon.mediumGray }}>{template.description}</p>
                       <Button
                         variant="outline"
                         className="w-full"

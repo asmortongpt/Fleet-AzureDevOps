@@ -21,6 +21,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import logger from '@/utils/logger';
+import { brandColors } from '@/theme/designSystem'
 interface PendingAssignment {
   id: string;
   unit_number: string;
@@ -106,7 +107,7 @@ const MobileManagerView: React.FC = () => {
       {dashboardData.pending_approvals.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-2" />
-          <p className="text-slate-700">No pending approvals</p>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>No pending approvals</p>
         </div>
       ) : (
         dashboardData.pending_approvals.map((assignment: PendingAssignment) => (
@@ -191,7 +192,7 @@ const MobileManagerView: React.FC = () => {
       {dashboardData.current_on_call.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
           <Clock className="w-16 h-16 text-gray-700 mx-auto mb-2" />
-          <p className="text-slate-700">No team members on-call</p>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>No team members on-call</p>
         </div>
       ) : (
         dashboardData.current_on_call.map((period: any) => (

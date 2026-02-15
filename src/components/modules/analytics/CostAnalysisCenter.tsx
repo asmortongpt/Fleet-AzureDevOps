@@ -24,6 +24,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePermissions } from "@/hooks/usePermissions"
 import logger from '@/utils/logger';
+import { brandColors } from '@/theme/designSystem'
 
 interface CostSummary {
   totalCost: number
@@ -282,7 +283,7 @@ export function CostAnalysisCenter() {
               <div className="text-sm font-bold">
                 ${costSummary.totalCost.toLocaleString()}
               </div>
-              <div className="text-xs text-slate-700 mt-1">Current period</div>
+              <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>Current period</div>
             </CardContent>
           </Card>
 
@@ -297,7 +298,7 @@ export function CostAnalysisCenter() {
               <div className="text-sm font-bold">
                 {costSummary.categoryBreakdown.length}
               </div>
-              <div className="text-xs text-slate-700 mt-1">Active cost categories</div>
+              <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>Active cost categories</div>
             </CardContent>
           </Card>
 
@@ -312,7 +313,7 @@ export function CostAnalysisCenter() {
               <div className="text-sm font-bold text-red-600">
                 {costSummary.anomalies.length}
               </div>
-              <div className="text-xs text-slate-700 mt-1">Unusual spending detected</div>
+              <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>Unusual spending detected</div>
             </CardContent>
           </Card>
 
@@ -327,7 +328,7 @@ export function CostAnalysisCenter() {
               <div className="text-sm font-bold text-blue-800">
                 {budgetStatus.filter(b => !b.isOverBudget).length}/{budgetStatus.length}
               </div>
-              <div className="text-xs text-slate-700 mt-1">On track</div>
+              <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>On track</div>
             </CardContent>
           </Card>
         </div>
@@ -508,7 +509,7 @@ export function CostAnalysisCenter() {
                             style={{ width: `${Math.min(status.percentageUsed, 100)}%` }}
                           />
                         </div>
-                        <div className="text-xs text-slate-700 mt-1">{status.percentageUsed.toFixed(1)}%</div>
+                        <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>{status.percentageUsed.toFixed(1)}%</div>
                       </TableCell>
                       <TableCell>${status.forecastedSpend.toLocaleString()}</TableCell>
                     </TableRow>

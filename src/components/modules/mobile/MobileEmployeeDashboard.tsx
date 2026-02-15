@@ -26,6 +26,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import logger from '@/utils/logger';
+import { brandColors } from '@/theme/designSystem'
 interface Assignment {
   id: string;
   vehicle_id: string;
@@ -214,7 +215,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="text-center p-3">
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-2" />
-          <p className="text-slate-700">Unable to load dashboard. Please check your connection.</p>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>Unable to load dashboard. Please check your connection.</p>
         </div>
       </div>
     );
@@ -225,7 +226,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       {dashboardData.assignments.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
           <Car className="w-16 h-16 text-gray-700 mx-auto mb-2" />
-          <p className="text-slate-700">No vehicle assignments</p>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>No vehicle assignments</p>
         </div>
       ) : (
         dashboardData.assignments.map((assignment: Assignment) => (
@@ -309,7 +310,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       {dashboardData.on_call_periods.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
           <Clock className="w-16 h-16 text-gray-700 mx-auto mb-2" />
-          <p className="text-slate-700">No upcoming on-call periods</p>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>No upcoming on-call periods</p>
         </div>
       ) : (
         dashboardData.on_call_periods.map((period: OnCallPeriod) => {
@@ -326,7 +327,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   <h3 className="font-semibold text-gray-900">
                     {isActive ? '🔴 Active Now' : 'Upcoming'}
                   </h3>
-                  <p className="text-sm text-slate-700 mt-1">
+                  <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
                     {startDate.toLocaleDateString()} {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     <br />
                     to {endDate.toLocaleDateString()} {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -342,13 +343,13 @@ const MobileEmployeeDashboard: React.FC = () => {
               </div>
 
               {period.unit_number && (
-                <div className="flex items-center gap-2 text-sm text-slate-700 mb-3">
+                <div className="flex items-center gap-2 text-sm  mb-3" style={{ color: brandColors.archon.mediumGray }}>
                   <Car className="w-4 h-4" />
                   <span>{period.unit_number} - {period.make} {period.model}</span>
                 </div>
               )}
 
-              <div className="flex items-center gap-2 text-sm text-slate-700 mb-3">
+              <div className="flex items-center gap-2 text-sm  mb-3" style={{ color: brandColors.archon.mediumGray }}>
                 <Phone className="w-4 h-4" />
                 <span>Callbacks: {period.callback_count}</span>
               </div>
@@ -404,7 +405,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       {dashboardData.recent_callback_trips.length === 0 ? (
         <div className="bg-white rounded-lg p-3 text-center">
           <Navigation className="w-16 h-16 text-gray-700 mx-auto mb-2" />
-          <p className="text-slate-700">No recent callback trips</p>
+          <p className="" style={{ color: brandColors.archon.mediumGray }}>No recent callback trips</p>
         </div>
       ) : (
         dashboardData.recent_callback_trips.map((trip: CallbackTrip) => (
@@ -429,7 +430,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
             <div className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
-                <span className="text-slate-700">
+                <span className="" style={{ color: brandColors.archon.mediumGray }}>
                   {trip.miles_driven} miles
                 </span>
                 {trip.used_private_vehicle && (

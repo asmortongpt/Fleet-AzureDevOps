@@ -38,6 +38,7 @@ import {
 } from "@/lib/policy-engine/ai-policy-generator"
 import { cn } from "@/lib/utils"
 import logger from '@/utils/logger';
+import { brandColors } from '@/theme/designSystem'
 
 type OnboardingStep = 'profile' | 'analysis' | 'recommendations' | 'implementation'
 
@@ -263,7 +264,7 @@ export function PolicyOnboarding() {
               <h1 className="text-base font-bold text-gray-900">
                 AI-Powered Policy Onboarding
               </h1>
-              <p className="text-slate-700">
+              <p className="" style={{ color: brandColors.archon.mediumGray }}>
                 Intelligent policy generation based on your fleet operations
               </p>
             </div>
@@ -564,7 +565,7 @@ export function PolicyOnboarding() {
               {isAnalyzing && (
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-slate-700">Analysis Progress</span>
+                    <span className="" style={{ color: brandColors.archon.mediumGray }}>Analysis Progress</span>
                     <span className="font-medium text-blue-800">{analysisProgress}%</span>
                   </div>
                   <Progress value={analysisProgress} className="h-2" />
@@ -600,7 +601,7 @@ export function PolicyOnboarding() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-700 mb-1">Recommendations</p>
+                      <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Recommendations</p>
                       <p className="text-base font-bold text-blue-800">{recommendations.length}</p>
                     </div>
                     <FileText className="w-4 h-4 text-blue-800" />
@@ -611,7 +612,7 @@ export function PolicyOnboarding() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-700 mb-1">Gaps Identified</p>
+                      <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Gaps Identified</p>
                       <p className="text-base font-bold text-orange-600">{gaps.length}</p>
                     </div>
                     <AlertTriangle className="w-4 h-4 text-orange-500" />
@@ -622,7 +623,7 @@ export function PolicyOnboarding() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-700 mb-1">Bottlenecks</p>
+                      <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Bottlenecks</p>
                       <p className="text-base font-bold text-red-600">{bottlenecks.length}</p>
                     </div>
                     <Wrench className="w-4 h-4 text-red-500" />
@@ -633,7 +634,7 @@ export function PolicyOnboarding() {
                 <CardContent className="p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-slate-700 mb-1">Est. Savings</p>
+                      <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Est. Savings</p>
                       <p className="text-base font-bold text-green-600">
                         ${recommendations.reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0).toLocaleString()}
                       </p>
@@ -955,14 +956,14 @@ export function PolicyOnboarding() {
                 <h3 className="text-sm font-bold text-gray-900 mb-2">
                   {selectedRecommendations.size} {selectedRecommendations.size === 1 ? 'Policy' : 'Policies'} Activated
                 </h3>
-                <p className="text-slate-700">
+                <p className="" style={{ color: brandColors.archon.mediumGray }}>
                   Your fleet management system is now protected by AI-powered intelligent policies
                 </p>
               </div>
 
               <div className="grid grid-cols-3 gap-2 max-w-2xl mx-auto">
                 <div className="p-2 bg-green-50 rounded-lg border border-green-200">
-                  <p className="text-sm text-slate-700 mb-1">Total Est. Savings</p>
+                  <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Total Est. Savings</p>
                   <p className="text-sm font-bold text-green-600">
                     ${recommendations
                       .filter((_, idx) => selectedRecommendations.has(idx))
@@ -971,7 +972,7 @@ export function PolicyOnboarding() {
                   </p>
                 </div>
                 <div className="p-2 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm text-slate-700 mb-1">Avg Safety Improvement</p>
+                  <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Avg Safety Improvement</p>
                   <p className="text-sm font-bold text-blue-800">
                     +{Math.round(
                       recommendations
@@ -982,7 +983,7 @@ export function PolicyOnboarding() {
                   </p>
                 </div>
                 <div className="p-2 bg-purple-50 rounded-lg border border-purple-200">
-                  <p className="text-sm text-slate-700 mb-1">Avg Efficiency Gain</p>
+                  <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Avg Efficiency Gain</p>
                   <p className="text-sm font-bold text-purple-600">
                     +{Math.round(
                       recommendations
