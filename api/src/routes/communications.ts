@@ -49,11 +49,9 @@ router.get(
       // SECURITY FIX: Add tenant_id filter to communications table directly
       let query = `
         SELECT c.*,
-               from_user.first_name || ' ' || from_user.last_name as from_user_name,
-               COUNT(DISTINCT cel.id) as linked_entities_count
-        FROM communications c
+               from_user.first_name || ' ' || from_user.last_name as from_user_name
+        FROM communication_logs c
         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
-        LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
         WHERE c.tenant_id = $1
       `
       const params: any[] = [req.user!.tenant_id]
@@ -66,13 +64,13 @@ router.get(
       }
 
       if (category) {
-        query += ` AND (c.ai_detected_category = $${paramIndex} OR c.manual_category = $${paramIndex})`
+        query += ` AND c.related_entity_type = $${paramIndex}`
         params.push(category)
         paramIndex++
       }
 
       if (priority) {
-        query += ` AND (c.ai_detected_priority = $${paramIndex} OR c.manual_priority = $${paramIndex})`
+        query += ` AND c.status = $${paramIndex}`
         params.push(priority)
         paramIndex++
       }
@@ -86,15 +84,14 @@ router.get(
       if (search) {
         query += ` AND (
           c.subject ILIKE $${paramIndex} OR
-          c.body ILIKE $${paramIndex} OR
-          c.from_contact_name ILIKE $${paramIndex}
+          c.message_body ILIKE $${paramIndex} OR
+          c.from_address ILIKE $${paramIndex}
         )`
         params.push(`%${search}%`)
         paramIndex++
       }
 
-      query += ` GROUP BY c.id, from_user.first_name, from_user.last_name`
-      query += ` ORDER BY c.communication_datetime DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY c.sent_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
@@ -102,7 +99,7 @@ router.get(
       // SECURITY FIX: Add tenant_id filter to count query
       const countQuery = `
         SELECT COUNT(DISTINCT c.id)
-        FROM communications c
+        FROM communication_logs c
         WHERE c.tenant_id = $1
       `
       const countResult = await pool.query(countQuery, [req.user!.tenant_id])
@@ -135,7 +132,7 @@ router.get(
       const result = await pool.query(
         `SELECT c.*,
                 from_user.first_name || ' ' || from_user.last_name as from_user_name
-         FROM communications c
+         FROM communication_logs c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
          WHERE c.id = $1 AND c.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
@@ -149,7 +146,7 @@ router.get(
       const linksResult = await pool.query(
         `SELECT cel.entity_type, cel.entity_id, cel.link_type, cel.relevance_score, cel.auto_detected
          FROM communication_entity_links cel
-         JOIN communications c ON cel.communication_id = c.id
+         JOIN communication_logs c ON cel.communication_id = c.id
          WHERE cel.communication_id = $1 AND c.tenant_id = $2
          ORDER BY cel.relevance_score DESC`,
         [req.params.id, req.user!.tenant_id]
@@ -166,7 +163,7 @@ router.get(
       ca.file_size,
       ca.created_at
          FROM communication_attachments ca
-         JOIN communications c ON ca.communication_id = c.id
+         JOIN communication_logs c ON ca.communication_id = c.id
          WHERE ca.communication_id = $1 AND c.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -202,7 +199,7 @@ router.post(
       )
 
       const result = await pool.query(
-        `INSERT INTO communications (${columnNames}) VALUES (${placeholders}) RETURNING *`,
+        `INSERT INTO communication_logs (${columnNames}) VALUES (${placeholders}) RETURNING *`,
         [req.user!.tenant_id, req.user!.id, ...values]
       )
 
@@ -259,7 +256,7 @@ router.put(
 
       // SECURITY FIX: Add tenant_id to WHERE clause to prevent cross-tenant updates
       const result = await pool.query(
-        `UPDATE communications
+        `UPDATE communication_logs
          SET ${fields}, updated_at = NOW(), updated_by = $2
          WHERE id = $1 AND tenant_id = $3
          RETURNING *`,
@@ -294,7 +291,7 @@ router.post(
 
       // SECURITY FIX: Validate that communication belongs to tenant before linking
       const commCheck = await pool.query(
-        `SELECT id FROM communications WHERE id = $1 AND tenant_id = $2`,
+        `SELECT id FROM communication_logs WHERE id = $1 AND tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
 
@@ -371,7 +368,7 @@ router.get(
                 cel.link_type,
                 cel.relevance_score,
                 from_user.first_name || ' ' || from_user.last_name as from_user_name
-         FROM communications c
+         FROM communication_logs c
          JOIN communication_entity_links cel ON c.id = cel.communication_id
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
          WHERE cel.entity_type = $1 AND cel.entity_id = $2 AND c.tenant_id = $3
@@ -384,7 +381,7 @@ router.get(
       const countResult = await pool.query(
         `SELECT COUNT(*)
          FROM communication_entity_links cel
-         JOIN communications c ON cel.communication_id = c.id
+         JOIN communication_logs c ON cel.communication_id = c.id
          WHERE cel.entity_type = $1 AND cel.entity_id = $2 AND c.tenant_id = $3`,
         [entity_type, entity_id, req.user!.tenant_id]
       )
@@ -427,7 +424,7 @@ router.get(
                   ELSE 'Upcoming'
                 END AS follow_up_status,
                 COUNT(DISTINCT cel.id) as linked_entities_count
-         FROM communications c
+         FROM communication_logs c
          LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
          LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
          WHERE c.tenant_id = $1
@@ -536,7 +533,7 @@ router.get(
       const totalResult = await pool.query(
         `SELECT COUNT(*) as total,
                 COUNT(CASE WHEN requires_follow_up = TRUE AND follow_up_completed = FALSE THEN 1 END) as pending_followups
-         FROM communications c
+         FROM communication_logs c
          WHERE c.tenant_id = $1
          AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)`,
         [req.user!.tenant_id]
@@ -545,7 +542,7 @@ router.get(
       // SECURITY FIX: By type - use c.tenant_id directly
       const byTypeResult = await pool.query(
         `SELECT communication_type, COUNT(*) as count
-         FROM communications c
+         FROM communication_logs c
          WHERE c.tenant_id = $1
          AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
          GROUP BY communication_type
@@ -557,7 +554,7 @@ router.get(
       const byPriorityResult = await pool.query(
         `SELECT COALESCE(ai_detected_priority, manual_priority, 'Unassigned') as priority,
                 COUNT(*) as count
-         FROM communications c
+         FROM communication_logs c
          WHERE c.tenant_id = $1
          AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
          GROUP BY priority
@@ -568,7 +565,7 @@ router.get(
       // SECURITY FIX: Overdue follow-ups - use c.tenant_id directly
       const overdueResult = await pool.query(
         `SELECT COUNT(*) as overdue_followups
-         FROM communications c
+         FROM communication_logs c
          WHERE c.tenant_id = $1
          AND c.requires_follow_up = TRUE
          AND c.follow_up_completed = FALSE
