@@ -79,7 +79,7 @@ router.get('/',
     }
 
     if (search) {
-      whereConditions.push(`(name ILIKE $${paramCount} OR email ILIKE $${paramCount})`);
+      whereConditions.push(`(CONCAT(first_name, ' ', last_name) ILIKE $${paramCount} OR email ILIKE $${paramCount})`);
       queryParams.push(`%${search}%`);
       paramCount++;
     }
@@ -99,10 +99,9 @@ router.get('/',
       const usersResult = await pool.query(
         `SELECT
           id,
-          name,
+          CONCAT(first_name, ' ', last_name) as name,
           email,
           role,
-          department,
           is_active as status,
           last_login_at as "lastLogin",
           created_at as "createdAt",
@@ -169,10 +168,9 @@ router.get('/:id',
       const result = await pool.query(
         `SELECT
           id,
-          name,
+          CONCAT(first_name, ' ', last_name) as name,
           email,
           role,
-          department,
           is_active as status,
           last_login_at as "lastLogin",
           created_at as "createdAt",
@@ -279,21 +277,25 @@ router.post('/',
         });
       }
 
+      // Parse name into first_name and last_name
+      const nameParts = name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+
       // Create user (password hashing would be done in production)
       const result = await pool.query(
-        `INSERT INTO users (name, email, role, department, is_active, created_at, updated_at)
+        `INSERT INTO users (first_name, last_name, email, role, is_active, created_at, updated_at)
         VALUES ($1, $2, $3, $4, true, NOW(), NOW())
         RETURNING
           id,
-          name,
+          CONCAT(first_name, ' ', last_name) as name,
           email,
           role,
-          department,
           is_active as status,
           last_login_at as "lastLogin",
           created_at as "createdAt",
           updated_at as "updatedAt"`,
-        [name, email, role, department || '']
+        [firstName, lastName, email, role]
       );
 
       const newUser = {
@@ -359,9 +361,13 @@ router.put('/:id',
     let paramCount = 1;
 
     if (name !== undefined) {
-      updates.push(`name = $${paramCount}`);
-      values.push(name);
-      paramCount++;
+      // Parse name into first_name and last_name
+      const nameParts = name.split(' ');
+      const firstName = nameParts[0];
+      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+      updates.push(`first_name = $${paramCount}`, `last_name = $${paramCount + 1}`);
+      values.push(firstName, lastName);
+      paramCount += 2;
     }
 
     if (email !== undefined) {
@@ -393,12 +399,6 @@ router.put('/:id',
       paramCount++;
     }
 
-    if (department !== undefined) {
-      updates.push(`department = $${paramCount}`);
-      values.push(department);
-      paramCount++;
-    }
-
     if (status !== undefined) {
       updates.push(`is_active = $${paramCount}`);
       values.push(status === 'active');
@@ -423,10 +423,9 @@ router.put('/:id',
         WHERE id = $${paramCount}
         RETURNING
           id,
-          name,
+          CONCAT(first_name, ' ', last_name) as name,
           email,
           role,
-          department,
           is_active as status,
           last_login_at as "lastLogin",
           created_at as "createdAt",
