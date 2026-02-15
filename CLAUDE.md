@@ -56,7 +56,26 @@ docker run -d --name fleet-postgres \
 ```bash
 npx vitest run src/path/to/file.test.tsx           # Frontend (from root)
 cd api && npx vitest run src/path/to/file.test.ts  # Backend
+npx playwright test tests/e2e/               # E2E tests (Chromium, Firefox, WebKit)
+npx playwright test --headed                 # Run with visible browser
 ```
+
+### Running a full test suite
+```bash
+npm test                                      # Frontend tests (Vitest)
+cd api && npm test                            # Backend tests (Vitest)
+npm run test:coverage                         # Coverage report
+```
+
+### Critical E2E Testing Note
+When running E2E tests locally, ensure `DB_WEBAPP_POOL_SIZE=30` in `.env` (default is 10). E2E tests can exhaust the connection pool; pool size must be ≥30 to avoid failures.
+
+### Flushing Redis Cache
+After schema changes to the database, always flush Redis:
+```bash
+redis-cli FLUSHDB
+```
+This clears cached query results that might be stale after schema modifications.
 
 ## Architecture
 
@@ -88,19 +107,21 @@ The Vite dev server proxies `/api/*` and `/auth/*` to `http://localhost:3001` (s
 Logger → CORS → Security Headers (Helmet) → Request ID → CSRF (double-submit cookie) → JWT Auth → Rate Limiting (Redis) → RBAC/Permissions → Tenant Scoping → Route Handler → Error Handler (Sentry)
 
 **Key directories**:
-- `routes/` — 217 route files, one per domain (drivers.ts, fleet.ts, etc.)
-- `middleware/` — auth.ts, rbac.ts, csrf.ts, rate-limit.ts, permissions.ts, audit.ts
+- `routes/` — 226 route files, one per domain (drivers.ts, fleet.ts, etc.). Routes are **manually imported and registered** in `server.ts` (no auto-loader). ~132 imports, ~142 registrations. ~73 route files exist but are unregistered (see server.ts around line 551+ for registration pattern).
+- `middleware/` — 45+ middleware files including auth.ts, rbac.ts, csrf.ts, rate-limit.ts, permissions.ts, audit.ts, tenant-context.ts, sanitization.ts. Order matters in server.ts middleware chain. Field masking middleware (`api/src/utils/fieldMasking.ts`) removes cost fields for non-admin roles (has dev bypass).
 - `db/` — Drizzle ORM config, schema, seeds, migrations
-- `repositories/` — Data access layer (240+ files)
+- `repositories/` — Data access layer (240+ files). All use parameterized queries ($1, $2, etc.) — never string concatenation.
 - `services/` — Business logic (auth, audit, secrets/Key Vault, config)
 - `schemas/` — Zod validation schemas
 - `emulators/` — OBD2, GPS, telematics emulators for testing
 - `jobs/` — Bull/BullMQ background job processing
 - `monitoring/` — Sentry, Application Insights, Prometheus
 
-**Auth**: Azure AD JWT validation (RS256, FIPS-compliant) + local JWT fallback. RBAC roles: SuperAdmin, Admin, Manager, User, ReadOnly. 100+ fine-grained permissions (`driver:view:self`, `fleet:edit`, etc.).
+**Auth**: Azure AD JWT validation (RS256, FIPS-compliant) + local JWT fallback. RBAC roles: SuperAdmin, Admin, Manager, User, ReadOnly. 100+ fine-grained permissions (`driver:view:self`, `fleet:edit`, etc.). Development mode: set `SKIP_AUTH=true` to bypass authentication (uses dev user UUID `00000000-0000-0000-0000-000000000001` with tenant `8e33a492-9b42-4e7a-8654-0572c9773b71`).
 
-**Database**: PostgreSQL via Drizzle ORM. Pool: 20 connections, 30s idle timeout. 100+ tables. Migrations in `api/src/migrations/`.
+**Database**: PostgreSQL via Drizzle ORM. Connection pool size controlled by `DB_WEBAPP_POOL_SIZE` in `.env` (defaults to 10, but **MUST be set to 30 for E2E tests** to avoid connection exhaustion). 100+ tables. Migrations in `api/src/migrations/`. Pool manager: `api/src/config/connection-manager.ts`.
+
+**Query Patterns**: All route handlers use **explicit column lists** (not `SELECT *`) for vehicle, driver, and other major entities. When adding new fields, must manually add to SELECT clause in three places: (1) own scope queries, (2) team scope inline SQL in `vehicles.service.ts`, (3) global scope via `VehiclesRepository.selectColumns`.
 
 ### Path Aliases
 `@/` → `src/` (configured in both tsconfig.json and vite.config.ts)
@@ -116,7 +137,7 @@ Copy `.env.example` to `.env` and fill in values. Key variables:
 
 The backend loads `../.env` from the root via `dotenv-cli` (see api/package.json dev script).
 
-## Common Issues
+## Common Issues & Solutions
 
 ### Database IDs as Numbers
 PostgreSQL returns `id` as integers. Some frontend components expect strings. Wrap with `String(vehicle.id)` when needed for `.slice()` or string comparisons.
@@ -130,6 +151,57 @@ Check: (1) file exists at expected path, (2) export type matches — some use na
 ### npm install Failures
 Always use `npm install --legacy-peer-deps` in the root (React peer dependency conflicts).
 
+### Port 5173 Already in Use
+Multiple projects may run on port 5173. Verify the correct instance with: `curl -s http://localhost:5173 | grep -o '<title>.*</title>'` (should show "ArchonY - Intelligent Performance"). Kill wrong instance and restart: `lsof -i :5173` → `kill -9 <PID>`.
+
+### tsx Watch Not Auto-Reloading
+If changes don't appear after editing backend files: `pkill -f "tsx watch"` and restart with `npm run dev`.
+
+### E2E Test Connection Pool Exhaustion
+E2E tests fail with "no connection available" error. Solution: Set `DB_WEBAPP_POOL_SIZE=30` in `.env` and restart backend. The default pool size (10-20) is too small for parallel test execution.
+
+### Schema Changes Not Reflected in API
+After modifying database schema:
+1. Run migrations: `npm run migrate`
+2. Flush Redis: `redis-cli FLUSHDB`
+3. Restart backend: `pkill -f "tsx watch" && npm run dev`
+Cached queries can serve stale data; Redis must be cleared.
+
+### CSRF Token Endpoint Returns 500
+Known non-blocking issue. The primary CSRF endpoint may return 500; a fallback endpoint handles it. Application continues to function with CSRF protection active. Can be fixed in next maintenance release.
+
+## Testing & Verification
+
+### Test Coverage Reality
+- **Frontend:** 22 test files, ~950+ assertions, but only 2/112 components tested, 1/114 hooks tested, 0/14 contexts tested (coverage measured at 0%, as stubs don't count).
+- **Backend:** 227 test files, but ~5,699 are **stub tests** (`expect(true).toBe(true)`). Real tests exist only in: insurance.routes.ts, vendor-management.routes.ts, auth-jwt.test.ts. Security middleware (auth.ts, rbac.ts, csrf.ts, rate-limit.ts) has minimal coverage—high risk area for future development.
+- **Recommendation:** Treat as **4-5% effective test coverage** despite 227 files. New features should include real tests; avoid adding stubs.
+
+### API Testing Patterns
+All API routes follow this pattern:
+1. Accept request with `req.query` or `req.body` parameters
+2. Validate inputs using Zod schema in `api/src/schemas/`
+3. Call service/repository layer with validation
+4. Return structured response: `{ success: true, data: [...], meta: { ... } }`
+
+When adding API routes:
+- Add Zod schema to `api/src/schemas/[domain].ts`
+- Use `@zod-validation` on route handler
+- Test with `curl` before assuming it works (static analysis misses schema mismatches)
+
+### E2E Test Patterns
+Playwright tests in `tests/e2e/` validate entire workflows:
+- `fleet-comprehensive.spec.ts` — 28 comprehensive tests covering dashboard, navigation, clickable elements
+- All tests pass when pool size ≥ 30
+- Use `--headed` flag to see browser during debugging
+- Screenshots captured on failure to `test-results/`
+
+### Visual Testing Verification
+WCAG 2.1 Level AA compliance verified. Check accessibility on new components:
+```bash
+npx playwright test --headed tests/a11y/
+```
+
 ## Tech Stack
 
 **Frontend**: React 19, TypeScript, Vite 7, TailwindCSS v4, shadcn/ui (Radix), TanStack Query v5, React Router v7, Recharts, AG Grid, Three.js/R3F, Framer Motion, Zustand, Jotai, MSAL (Azure AD)
@@ -138,4 +210,49 @@ Always use `npm install --legacy-peer-deps` in the root (React peer dependency c
 
 **Infrastructure**: Docker, Azure AD, Azure Key Vault, Azure Static Web Apps, AKS, Application Insights
 
-**Testing**: Vitest, Testing Library, Playwright (e2e in `/e2e/`), axe-core (a11y), MSW (mocking)
+**Testing**: Vitest, Testing Library, Playwright (e2e in `tests/e2e/`), axe-core (a11y), MSW (mocking)
+
+## Production Verification
+
+Before deploying changes:
+
+```bash
+# 1. Verify both servers run without errors
+npm run dev                          # Frontend (port 5173)
+cd api && npm run dev                # Backend (port 3001)
+
+# 2. Test critical routes
+curl http://localhost:3001/api/health
+curl http://localhost:3001/api/vehicles?limit=1
+curl http://localhost:3001/api/drivers?limit=1
+
+# 3. Run E2E tests (requires DB_WEBAPP_POOL_SIZE=30)
+npx playwright test tests/e2e/fleet-comprehensive.spec.ts
+
+# 4. Check TypeScript compilation
+npm run typecheck
+cd api && npm run typecheck
+
+# 5. Run linting
+npm run lint
+cd api && npm run lint
+
+# 6. Build production bundles
+npm run build
+cd api && npm run build
+```
+
+**Important:** Always test API changes with `curl` or Playwright, not just static analysis. Schema mismatches between code and database are not caught by TypeScript and cause 500 errors at runtime (as discovered in Feb 2026 production readiness testing).
+
+## Git Workflow
+
+Standard workflow:
+```bash
+git pull origin main
+# Make changes and test locally
+git add [files]
+git commit -m "feat: description of changes"
+git push origin main
+```
+
+**Critical:** Always pull latest before committing. Do not force-push to main unless explicitly coordinating with team.
