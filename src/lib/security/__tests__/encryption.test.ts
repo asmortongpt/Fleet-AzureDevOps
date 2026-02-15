@@ -2,6 +2,8 @@
  * AES-256-GCM Encryption Service Tests
  * Comprehensive tests for production-grade encryption
  * Target: 80%+ coverage
+ *
+ * @vitest-environment node
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

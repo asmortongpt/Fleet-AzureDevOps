@@ -27,50 +27,52 @@ afterEach(() => {
 
 // Setup global mocks before all tests
 beforeAll(() => {
-  // Mock window.matchMedia (required for responsive components)
-  Object.defineProperty(window, 'matchMedia', {
-    writable: true,
-    value: vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(), // deprecated
-      removeListener: vi.fn(), // deprecated
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
-    })),
-  });
+  // Guard all DOM/window mocks — they only apply in jsdom environments
+  if (typeof window !== 'undefined') {
+    // Mock window.matchMedia (required for responsive components)
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation((query: string) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(), // deprecated
+        removeListener: vi.fn(), // deprecated
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+
+    // Mock scrollTo
+    window.scrollTo = vi.fn();
+  }
 
   // Mock IntersectionObserver (required for lazy loading)
-  global.IntersectionObserver = class IntersectionObserver {
-    constructor() {}
-    disconnect() {}
-    observe() {}
-    takeRecords() {
-      return [];
-    }
-    unobserve() {}
-  } as any;
+  if (typeof globalThis !== 'undefined') {
+    global.IntersectionObserver = class IntersectionObserver {
+      constructor() {}
+      disconnect() {}
+      observe() {}
+      takeRecords() {
+        return [];
+      }
+      unobserve() {}
+    } as any;
 
-  // Mock ResizeObserver (required for responsive components)
-  global.ResizeObserver = class ResizeObserver {
-    constructor() {}
-    disconnect() {}
-    observe() {}
-    unobserve() {}
-  } as any;
-
-  // Mock scrollTo
-  window.scrollTo = vi.fn();
+    // Mock ResizeObserver (required for responsive components)
+    global.ResizeObserver = class ResizeObserver {
+      constructor() {}
+      disconnect() {}
+      observe() {}
+      unobserve() {}
+    } as any;
+  }
 
   // NOTE: Do not globally mock fetch. Many tests (and app code paths) expect a real fetch
   // implementation. Individual tests should stub fetch explicitly as needed.
 
   // jsdom doesn't implement canvas; axe-core uses it for some rules (e.g., color-contrast).
-  if (typeof HTMLCanvasElement !== 'undefined' && !('getContext' in HTMLCanvasElement.prototype)) {
-    // no-op
-  }
   if (typeof HTMLCanvasElement !== 'undefined') {
     Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
       configurable: true,
@@ -108,7 +110,7 @@ beforeAll(() => {
   // axe-core calls it with (elt, pseudoElt) for some rules; treat it as a no-op on the pseudo arg.
   if (typeof window !== 'undefined' && typeof window.getComputedStyle === 'function') {
     const originalGetComputedStyle = window.getComputedStyle.bind(window);
-     
+
     (window as any).getComputedStyle = (elt: Element, _pseudoElt?: string) => originalGetComputedStyle(elt);
   }
 
