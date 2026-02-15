@@ -29,6 +29,33 @@ afterEach(() => {
 beforeAll(() => {
   // Guard all DOM/window mocks — they only apply in jsdom environments
   if (typeof window !== 'undefined') {
+    // Ensure localStorage and sessionStorage are properly mocked
+    // jsdom provides them, but ensure they work correctly
+    const createStorageMock = () => {
+      const store: Record<string, string> = {};
+      return {
+        getItem: (key: string) => store[key] || null,
+        setItem: (key: string, value: string) => { store[key] = String(value); },
+        removeItem: (key: string) => { delete store[key]; },
+        clear: () => { Object.keys(store).forEach(key => delete store[key]); },
+        key: (index: number) => Object.keys(store)[index] || null,
+        length: Object.keys(store).length,
+      };
+    };
+
+    // Always override with our implementation to ensure consistency
+    Object.defineProperty(window, 'localStorage', {
+      value: createStorageMock(),
+      writable: false,
+      configurable: true,
+    });
+
+    Object.defineProperty(window, 'sessionStorage', {
+      value: createStorageMock(),
+      writable: false,
+      configurable: true,
+    });
+
     // Mock window.matchMedia (required for responsive components)
     Object.defineProperty(window, 'matchMedia', {
       writable: true,
