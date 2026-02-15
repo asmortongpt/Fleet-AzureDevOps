@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
@@ -330,7 +330,6 @@ describe('SearchInput', () => {
     });
 
     it('should disable clear button when input is disabled', async () => {
-      const user = userEvent.setup();
       render(<SearchInput value="test" onChange={mockOnChange} disabled={true} />);
 
       const clearButton = screen.getByLabelText('Clear search');
