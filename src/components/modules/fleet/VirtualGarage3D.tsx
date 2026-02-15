@@ -30,6 +30,7 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { brandColors } from '@/theme/designSystem'
 import {
   AssetCategory,
   AssetType,
@@ -165,8 +166,13 @@ function VehicleSelector({
             'border transition-all',
             selectedId === vehicle.id
               ? 'bg-primary text-primary-foreground border-primary'
-              : 'bg-slate-800/50 border-slate-700/50 hover:bg-slate-700/50'
+              : ''
           )}
+          style={selectedId !== vehicle.id ? {
+            backgroundColor: `${brandColors.archon.lightGray}`,
+            borderColor: `${brandColors.cta.navy}20`,
+            color: brandColors.archon.black
+          } : {}}
         >
           <Car className="w-3 h-3" />
           <div className="text-left">
@@ -335,12 +341,22 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
               <VehicleHUD stats={vehicleStats} />
 
               {/* Deep Drilldowns Integration */}
-              <div className="space-y-3 pt-2 border-t border-slate-700/50">
-                <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] px-1">Deep Intel</h4>
+              <div className="space-y-3 pt-2 border-t" style={{ borderColor: `${brandColors.cta.navy}20` }}>
+                <h4
+                  className="text-[10px] font-bold uppercase tracking-[0.2em] px-1"
+                  style={{ color: brandColors.archon.mediumGray }}
+                >
+                  Deep Intel
+                </h4>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant="outline"
-                    className="h-14 bg-slate-900/60 border-slate-700 hover:bg-slate-800 flex flex-col items-center justify-center gap-1 group"
+                    className="h-14 flex flex-col items-center justify-center gap-1 group"
+                    style={{
+                      backgroundColor: `${brandColors.archon.lightGray}`,
+                      borderColor: `${brandColors.cta.navy}20`,
+                      color: brandColors.archon.black
+                    }}
                     onClick={() => {
                       if (selectedVehicle?.bayId) {
                         push({
@@ -352,12 +368,17 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
                       }
                     }}
                   >
-                    <ArrowsClockwise className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
+                    <ArrowsClockwise className="w-4 h-4" style={{ color: brandColors.cta.orange }} />
                     <span className="text-[10px] font-bold uppercase tracking-wider">Bay Intel</span>
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-14 bg-slate-900/60 border-slate-700 hover:bg-slate-800 flex flex-col items-center justify-center gap-1 group"
+                    className="h-14 flex flex-col items-center justify-center gap-1 group"
+                    style={{
+                      backgroundColor: `${brandColors.archon.lightGray}`,
+                      borderColor: `${brandColors.cta.navy}20`,
+                      color: brandColors.archon.black
+                    }}
                     onClick={() => {
                       if (selectedVehicle?.id) {
                         push({

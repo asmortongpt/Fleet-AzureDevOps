@@ -6,6 +6,8 @@
 import { MapPin, Navigation, Clock, Signal } from 'lucide-react';
 import React from 'react';
 
+import { brandColors } from '@/theme/designSystem';
+
 interface Vehicle {
   id: string;
   name: string;
@@ -39,11 +41,11 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
   return (
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <MapPin className="w-6 h-6 text-cyan-400" />
+        <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: brandColors.archon.black }}>
+          <MapPin className="w-6 h-6" style={{ color: brandColors.cta.orange }} />
           GPS Tracking
         </h1>
-        <div className="flex items-center gap-2 text-sm text-green-400">
+        <div className="flex items-center gap-2 text-sm" style={{ color: brandColors.colors.success[500] }}>
           <Signal className="w-4 h-4" />
           Live Updates Active
         </div>
@@ -51,12 +53,20 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         {/* Map Area */}
-        <div className="lg:col-span-3 bg-slate-800/50 rounded-lg border border-slate-700 p-4 min-h-[500px]">
-          <div className="flex items-center justify-center h-full text-slate-700">
+        <div
+          className="lg:col-span-3 rounded-lg border p-4 min-h-[500px]"
+          style={{
+            backgroundColor: brandColors.archon.lightGray,
+            borderColor: `${brandColors.cta.navy}20`,
+          }}
+        >
+          <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <Navigation className="w-12 h-12 mx-auto mb-4 text-cyan-400" />
-              <p className="text-lg font-medium">GPS Map View</p>
-              <p className="text-sm mt-2">
+              <Navigation className="w-12 h-12 mx-auto mb-4" style={{ color: brandColors.cta.orange }} />
+              <p className="text-lg font-medium" style={{ color: brandColors.archon.black }}>
+                GPS Map View
+              </p>
+              <p className="text-sm mt-2" style={{ color: brandColors.archon.mediumGray }}>
                 {vehicles.length} vehicles • {facilities.length} facilities
               </p>
             </div>
@@ -65,33 +75,57 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
 
         {/* Sidebar */}
         <div className="space-y-4">
-          <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
-            <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-3">
+          <div
+            className="rounded-lg border p-4"
+            style={{
+              backgroundColor: brandColors.archon.lightGray,
+              borderColor: `${brandColors.cta.navy}20`,
+            }}
+          >
+            <h3
+              className="text-sm font-semibold uppercase tracking-wider mb-3"
+              style={{ color: brandColors.cta.navy }}
+            >
               Quick Stats
             </h3>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-slate-700">Tracked Vehicles</span>
-                <span className="text-white font-medium">{vehicles.length}</span>
+                <span style={{ color: brandColors.archon.mediumGray }}>Tracked Vehicles</span>
+                <span className="font-medium" style={{ color: brandColors.archon.black }}>
+                  {vehicles.length}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-700">In Motion</span>
-                <span className="text-green-400 font-medium">{inMotion}</span>
+                <span style={{ color: brandColors.archon.mediumGray }}>In Motion</span>
+                <span className="font-medium" style={{ color: brandColors.colors.success[500] }}>
+                  {inMotion}
+                </span>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-slate-700">Stationary</span>
-                <span className="text-yellow-400 font-medium">{stationary}</span>
+                <span style={{ color: brandColors.archon.mediumGray }}>Stationary</span>
+                <span className="font-medium" style={{ color: brandColors.colors.warning[500] }}>
+                  {stationary}
+                </span>
               </div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 rounded-lg border border-slate-700 p-4">
-            <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <div
+            className="rounded-lg border p-4"
+            style={{
+              backgroundColor: brandColors.archon.lightGray,
+              borderColor: `${brandColors.cta.navy}20`,
+            }}
+          >
+            <h3
+              className="text-sm font-semibold uppercase tracking-wider mb-3 flex items-center gap-2"
+              style={{ color: brandColors.cta.navy }}
+            >
               <Clock className="w-4 h-4" />
               Recent Activity
             </h3>
             <div className="space-y-2 text-sm">
-              <div className="text-slate-700">
+              <div style={{ color: brandColors.archon.mediumGray }}>
                 No recent activity available.
               </div>
             </div>
