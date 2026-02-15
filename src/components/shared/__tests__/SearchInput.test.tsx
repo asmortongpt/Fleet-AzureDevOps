@@ -124,12 +124,12 @@ describe('SearchInput', () => {
     });
 
     it('should handle paste events', async () => {
+      const user = userEvent.setup();
       render(<SearchInput onChange={mockOnChange} />);
 
       const input = screen.getByRole('searchbox');
-      fireEvent.paste(input, {
-        clipboardData: { getData: () => 'pasted text' }
-      });
+      await user.click(input);
+      await user.paste('pasted text');
 
       expect(mockOnChange).toHaveBeenCalled();
     });

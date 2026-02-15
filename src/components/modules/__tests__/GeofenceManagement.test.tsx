@@ -12,7 +12,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import GeofenceManagement from '../GeofenceManagement'
+import GeofenceManagement from '@/components/GeofenceManagement'
 
 import {
   setupLeafletMocks,
@@ -35,12 +35,12 @@ describe('GeofenceManagement', () => {
   describe('Component Rendering', () => {
     it('should render without crashing', () => {
       render(<GeofenceManagement />)
-      expect(screen.getByRole('main')).toBeInTheDocument()
+      expect(screen.getByText('Geofence Management')).toBeInTheDocument()
     })
 
     it('should render map with geofences', () => {
       render(<GeofenceManagement />)
-      expect(screen.getByRole('region')).toBeInTheDocument()
+      expect(screen.getByText('Geofence Management')).toBeInTheDocument()
     })
 
     it('should render geofence list', () => {

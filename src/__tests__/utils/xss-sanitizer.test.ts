@@ -166,21 +166,21 @@ describe('xss-sanitizer', () => {
       const dangerous = 'javascript:alert("XSS")';
       const result = sanitizeUrl(dangerous);
       expect(result).toBe('');
-      expect(console.warn).toHaveBeenCalledWith('Blocked potentially malicious URL:', dangerous);
+      expect(console.warn).toHaveBeenCalledWith('[WARN]', 'Blocked potentially malicious URL:', { url: dangerous });
     });
 
     it('should block data: URLs', () => {
       const dangerous = 'data:text/html,<script>alert("XSS")</script>';
       const result = sanitizeUrl(dangerous);
       expect(result).toBe('');
-      expect(console.warn).toHaveBeenCalledWith('Blocked potentially malicious URL:', dangerous);
+      expect(console.warn).toHaveBeenCalledWith('[WARN]', 'Blocked potentially malicious URL:', { url: dangerous });
     });
 
     it('should block ftp: URLs', () => {
       const dangerous = 'ftp://example.com';
       const result = sanitizeUrl(dangerous);
       expect(result).toBe('');
-      expect(console.warn).toHaveBeenCalledWith('Blocked non-HTTP URL:', dangerous);
+      expect(console.warn).toHaveBeenCalledWith('[WARN]', 'Blocked non-HTTP URL:', { url: dangerous });
     });
 
     it('should handle case-insensitive protocols', () => {

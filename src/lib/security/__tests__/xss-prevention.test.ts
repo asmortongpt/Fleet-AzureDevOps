@@ -10,20 +10,70 @@ import { sanitizeHTML, sanitizeText, sanitizeURL, CSP_HEADERS } from '../xss-pre
 
 // Mock DOMPurify for JSDOM environment
 vi.mock('dompurify', () => {
+  const SAFE_TAGS = new Set([
+    'p', 'br', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'ul', 'ol', 'li', 'a', 'span', 'div', 'pre', 'code', 'blockquote'
+  ]);
+  const SAFE_ATTRS = new Set(['href', 'title', 'class', 'id', 'target', 'rel']);
+  const DANGEROUS_PROTOCOLS = /javascript:|vbscript:|data:text\/html/i;
+
   const mockSanitize = (dirty: string, config?: any) => {
-    // Simple mock implementation
-    if (!config) {
-      // Default: remove script tags
-      return dirty.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    if (!dirty) return dirty;
+
+    const allowedTags = config?.ALLOWED_TAGS
+      ? new Set(config.ALLOWED_TAGS.map((t: string) => t.toLowerCase()))
+      : SAFE_TAGS;
+    const allowedAttrs = config?.ALLOWED_ATTR
+      ? new Set(config.ALLOWED_ATTR.map((a: string) => a.toLowerCase()))
+      : SAFE_ATTRS;
+
+    // If no tags allowed, strip all HTML tags (and remove script tag content)
+    if (allowedTags.size === 0) {
+      let stripped = dirty;
+      stripped = stripped.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+      stripped = stripped.replace(/<[^>]*>/g, '');
+      return stripped;
     }
 
-    if (config.ALLOWED_TAGS && config.ALLOWED_TAGS.length === 0) {
-      // No tags allowed: strip all HTML
-      return dirty.replace(/<[^>]*>/g, '');
-    }
+    let result = dirty;
 
-    // With allowed tags: keep safe tags, remove script
-    return dirty.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    // Remove script tags and their content first
+    result = result.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+
+    // Remove disallowed tags (keep content by default)
+    result = result.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*\/?>/gi, (match, tagName) => {
+      const tag = tagName.toLowerCase();
+      if (!allowedTags.has(tag)) {
+        return '';
+      }
+      // For allowed tags, strip disallowed attributes
+      if (match.startsWith('</')) {
+        return match; // closing tags are fine
+      }
+      // Strip dangerous attributes (event handlers, dangerous protocols)
+      let cleaned = match;
+      // Remove event handler attributes (on*)
+      cleaned = cleaned.replace(/\s+on\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi, '');
+      // Remove attributes with dangerous protocols in values
+      cleaned = cleaned.replace(/\s+(href|src|action|formaction|data|background|style)\s*=\s*(?:"([^"]*)"|'([^']*)')/gi,
+        (attrMatch, attrName, dblVal, sglVal) => {
+          const val = dblVal ?? sglVal ?? '';
+          if (DANGEROUS_PROTOCOLS.test(val)) return '';
+          if (!allowedAttrs.has(attrName.toLowerCase())) return '';
+          return attrMatch;
+        }
+      );
+      // Remove non-whitelisted attributes
+      cleaned = cleaned.replace(/\s+([a-z][a-z0-9-]*)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]*)/gi,
+        (attrMatch, attrName) => {
+          if (allowedAttrs.has(attrName.toLowerCase())) return attrMatch;
+          return '';
+        }
+      );
+      return cleaned;
+    });
+
+    return result;
   };
 
   return {

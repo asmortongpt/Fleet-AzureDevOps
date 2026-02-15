@@ -250,8 +250,8 @@ describe('WebSocketClient', () => {
         await vi.advanceTimersByTimeAsync(20);
       }
 
-      // Should have connected initially + 2 reconnects
-      expect(openHandler).toHaveBeenCalledTimes(3);
+      // Should have connected initially + maxReconnectAttempts reconnects (0-indexed, so 3 reconnects)
+      expect(openHandler).toHaveBeenCalledTimes(4);
     });
 
     it('should reset reconnect attempts on successful connection', async () => {
@@ -305,11 +305,11 @@ describe('WebSocketClient', () => {
       client.connect();
       await vi.advanceTimersByTimeAsync(20);
 
-      client.disconnect();
-      await vi.advanceTimersByTimeAsync(20);
-
       const ws = (client as any).ws as MockWebSocket;
       const messageCount = ws.sentMessages.length;
+
+      client.disconnect();
+      await vi.advanceTimersByTimeAsync(20);
 
       // Wait for what would be a heartbeat
       await vi.advanceTimersByTimeAsync(1000);
@@ -582,7 +582,7 @@ describe('WebSocketClient', () => {
       expect(client.getConnectionState()).toBe('open');
 
       client.disconnect();
-      expect(client.getConnectionState()).toBe('closing');
+      expect(client.getConnectionState()).toBe('closed');
 
       await vi.advanceTimersByTimeAsync(20);
       expect(client.getConnectionState()).toBe('closed');

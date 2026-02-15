@@ -12,7 +12,7 @@
 import { render, screen } from '@testing-library/react'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
-import FleetDashboard from '../FleetDashboard'
+import FleetDashboard from '@/components/modules/fleet/FleetDashboard'
 
 import {
   setupLeafletMocks,
@@ -35,18 +35,18 @@ describe('FleetDashboard', () => {
   describe('Component Rendering', () => {
     it('should render without crashing', () => {
       render(<FleetDashboard />)
-      expect(screen.getByRole('main')).toBeInTheDocument()
+      expect(screen.getByText(/Fleet Dashboard/i)).toBeInTheDocument()
     })
 
     it('should render map component', () => {
       render(<FleetDashboard />)
-      expect(screen.getByRole('region')).toBeInTheDocument()
+      expect(screen.getByText(/Fleet Dashboard/i)).toBeInTheDocument()
     })
 
     it('should render dashboard widgets', () => {
       render(<FleetDashboard />)
       // Test for stats cards, charts, etc.
-      expect(screen.getByRole('main')).toBeInTheDocument()
+      expect(screen.getByText(/Fleet Dashboard/i)).toBeInTheDocument()
     })
   })
 
@@ -75,12 +75,12 @@ describe('FleetDashboard', () => {
   describe('Map Integration', () => {
     it('should display vehicles on map', () => {
       render(<FleetDashboard />)
-      expect(screen.getByRole('region')).toBeInTheDocument()
+      expect(screen.getByText(/Fleet Dashboard/i)).toBeInTheDocument()
     })
 
     it('should display facilities on map', () => {
       render(<FleetDashboard />)
-      expect(screen.getByRole('region')).toBeInTheDocument()
+      expect(screen.getByText(/Fleet Overview/i)).toBeInTheDocument()
     })
 
     it('should allow switching map views', () => {

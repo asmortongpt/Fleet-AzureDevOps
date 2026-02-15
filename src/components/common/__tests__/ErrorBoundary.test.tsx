@@ -151,32 +151,23 @@ describe('ErrorBoundary', () => {
   });
 
   it('should reset error state when Try Again is clicked', () => {
-    let shouldThrow = true;
-    
-    const { rerender } = render(
+    render(
       <ErrorBoundary>
-        <ThrowError shouldThrow={shouldThrow} />
+        <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     );
-    
+
     expect(screen.getByText('Test error')).toBeInTheDocument();
-    
-    // Fix the error
-    shouldThrow = false;
-    
+
     const tryAgainButton = screen.getByRole('button', { name: /try again/i });
-    fireEvent.click(tryAgainButton);
-    
-    // Re-render without error
-    rerender(
-      <ErrorBoundary>
-        <ThrowError shouldThrow={shouldThrow} />
-      </ErrorBoundary>
-    );
-    
-    // Note: In actual React, the error boundary would reset, but testing this
-    // is complex without full integration. This test verifies the button exists.
     expect(tryAgainButton).toBeInTheDocument();
+
+    // Click Try Again - this calls resetErrorBoundary which resets state,
+    // but since the child still throws, the error UI will be shown again.
+    fireEvent.click(tryAgainButton);
+
+    // The error boundary re-caught the error so the error message is still visible
+    expect(screen.getByText('Test error')).toBeInTheDocument();
   });
 
   it('should display error ID for support reference', () => {
