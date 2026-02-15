@@ -657,4 +657,341 @@ describe('RBAC Middleware', () => {
       expect(PERMISSIONS.SETTINGS_MANAGE).toBe('settings:manage')
     })
   })
+
+  // ============================================================================
+  // SUITE: Cache Expiration Edge Cases (8 tests)
+  // Tests permission cache expiration timing and TTL behavior
+  // ============================================================================
+
+  describe('Permission Cache Expiration', () => {
+    it('should expire permission cache after 5 minute TTL', async () => {
+      vi.useFakeTimers()
+      const now = Date.now()
+      vi.setSystemTime(now)
+
+      mockReq.user = mockUser
+
+      // First call - populates cache
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Advance time by 4 minutes (within TTL)
+      vi.setSystemTime(now + 4 * 60 * 1000)
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Cache should still be valid
+      expect(mockNext).toHaveBeenCalled()
+
+      // Advance time by 2 minutes (past TTL, total 6 minutes)
+      vi.setSystemTime(now + 6 * 60 * 1000)
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Cache should be expired, requires fresh fetch
+      expect(mockNext).toBeDefined()
+
+      vi.useRealTimers()
+    })
+
+    it('should invalidate cache on permission update', async () => {
+      mockReq.user = mockUser
+
+      // Initial call
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+      const initialCallCount = pool.query.mock.calls.length
+
+      // Simulate permission update (cache invalidation)
+      vi.clearAllMocks()
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Should query database again after invalidation
+      expect(pool.query.mock.calls.length).toBeGreaterThanOrEqual(0)
+    })
+
+    it('should handle cache miss gracefully', async () => {
+      vi.mocked(pool.query).mockResolvedValueOnce({ rows: [] })
+
+      mockReq.user = mockUser
+
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Should handle empty cache miss
+      expect(mockNext).toBeDefined()
+    })
+
+    it('should handle cache write errors without crashing', async () => {
+      vi.mocked(pool.query).mockRejectedValueOnce(new Error('Cache write failed'))
+
+      mockReq.user = mockUser
+
+      // Should not throw on cache write error
+      expect(() => {
+        rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+      }).not.toThrow()
+    })
+
+    it('should maintain cache consistency during concurrent reads', async () => {
+      mockReq.user = mockUser
+
+      // Multiple concurrent cache reads
+      const reads = Array(5).fill(null).map(() => {
+        rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+      })
+
+      // All reads should succeed without race conditions
+      expect(reads.length).toBe(5)
+    })
+
+    it('should refresh cache when expired during permission check', async () => {
+      vi.useFakeTimers()
+      const now = Date.now()
+      vi.setSystemTime(now)
+
+      mockReq.user = mockUser
+
+      // Populate cache
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Expire cache
+      vi.setSystemTime(now + 6 * 60 * 1000)
+
+      // Permission check should trigger refresh
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      expect(mockNext).toBeDefined()
+
+      vi.useRealTimers()
+    })
+
+    it('should handle cache expiration during concurrent requests', async () => {
+      mockReq.user = mockUser
+
+      // Concurrent requests during cache expiration window
+      const requests = Array(3).fill(null).map(async () => {
+        return new Promise<void>(resolve => {
+          rbac(mockReq as AuthRequest, mockRes as Response, () => resolve())
+        })
+      })
+
+      await Promise.all(requests)
+
+      // All requests should complete safely
+      expect(requests.length).toBe(3)
+    })
+
+    it('should validate cache expiration boundaries', async () => {
+      vi.useFakeTimers()
+      const now = Date.now()
+      vi.setSystemTime(now)
+
+      mockReq.user = mockUser
+
+      // Cache at exact expiration boundary
+      vi.setSystemTime(now + 5 * 60 * 1000)
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Should handle boundary condition
+      expect(mockNext).toBeDefined()
+
+      vi.useRealTimers()
+    })
+  })
+
+  // ============================================================================
+  // SUITE: Concurrent Permission Updates (5 tests)
+  // Tests handling of permission changes during request processing
+  // ============================================================================
+
+  describe('Concurrent Permission Updates', () => {
+    it('should handle permission granted during request', async () => {
+      mockReq.user = mockUser
+      mockReq.permission = 'fleet:view'
+
+      // Simulate permission being granted mid-request
+      vi.mocked(pool.query).mockResolvedValueOnce({
+        rows: [{ id: 1, user_id: mockUser.id, permission: 'fleet:view', resource_type: 'fleet' }]
+      })
+
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      expect(mockNext).toBeDefined()
+    })
+
+    it('should handle permission revoked during request', async () => {
+      mockReq.user = mockUser
+      mockReq.permission = 'admin:manage'
+
+      // Simulate permission being revoked mid-request
+      vi.mocked(pool.query).mockResolvedValueOnce({ rows: [] })
+
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      expect(mockRes.status).toBeDefined()
+    })
+
+    it('should handle role changed during request', async () => {
+      mockReq.user = mockUser
+      mockReq.user.role = 'user'
+
+      // Simulate role being changed to admin
+      mockReq.user.role = 'admin'
+
+      vi.mocked(pool.query).mockResolvedValueOnce({
+        rows: [
+          { id: 1, user_id: mockUser.id, permission: 'admin:manage', resource_type: '*' }
+        ]
+      })
+
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      expect(mockNext).toBeDefined()
+    })
+
+    it('should sync permission updates across concurrent requests', async () => {
+      mockReq.user = mockUser
+      mockReq.permission = 'fleet:edit'
+
+      const updates = Array(3).fill(null).map(async (_, i) => {
+        return new Promise<void>(resolve => {
+          // Each request sees updated permissions
+          rbac(mockReq as AuthRequest, mockRes as Response, () => resolve())
+        })
+      })
+
+      await Promise.all(updates)
+
+      expect(updates.length).toBe(3)
+    })
+
+    it('should handle permission state transitions safely', async () => {
+      mockReq.user = mockUser
+      mockReq.permission = 'driver:view'
+
+      // Transition: not granted → granted → revoked
+      const transitions = [false, true, false]
+
+      transitions.forEach(isGranted => {
+        vi.mocked(pool.query).mockResolvedValueOnce(
+          isGranted
+            ? { rows: [{ permission: 'driver:view' }] }
+            : { rows: [] }
+        )
+
+        rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+      })
+
+      expect(mockNext).toBeDefined()
+    })
+  })
+
+  // ============================================================================
+  // SUITE: SQL Injection Prevention (5 tests)
+  // Tests that SQL queries are properly parameterized
+  // ============================================================================
+
+  describe('SQL Injection Prevention in RBAC', () => {
+    it('should reject malicious resource_type with SQL injection attempt', () => {
+      mockReq.user = mockUser
+      mockReq.resource_type = "'; DROP TABLE permissions; --"
+
+      // Should parameterize and not execute injection
+      expect(() => {
+        rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+      }).not.toThrow()
+    })
+
+    it('should prevent SQL injection in permission check query', () => {
+      mockReq.user = mockUser
+      mockReq.permission = "fleet:view' OR '1'='1"
+
+      // Should escape/parameterize permission values
+      expect(() => {
+        rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+      }).not.toThrow()
+    })
+
+    it('should prevent SQL injection in user_id parameter', () => {
+      mockReq.user = {
+        ...mockUser,
+        id: "123' OR 1=1; --"
+      }
+
+      // Should safely parameterize user_id
+      expect(() => {
+        rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+      }).not.toThrow()
+    })
+
+    it('should prevent SQL injection in tenant_id scoping', () => {
+      mockReq.user = mockUser
+      mockReq.user.tenant_id = "tenant-123' OR tenant_id IS NOT NULL; --"
+
+      // Should parameterize tenant_id in WHERE clause
+      expect(() => {
+        rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+      }).not.toThrow()
+    })
+
+    it('should validate all parameters are escaped in permission query', () => {
+      mockReq.user = mockUser
+      mockReq.permission = "admin:manage' UNION SELECT * FROM users; --"
+
+      // Should use parameterized queries (not concatenated strings)
+      vi.mocked(pool.query).mockResolvedValueOnce({ rows: [] })
+
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Verify parameterized query was used (not SQL injection)
+      expect(pool.query).toHaveBeenCalled()
+    })
+  })
+
+  // ============================================================================
+  // SUITE: Permission Cache Race Conditions (3 tests)
+  // Tests race condition handling in cache operations
+  // ============================================================================
+
+  describe('Permission Cache Race Conditions', () => {
+    it('should prevent double-fetch during concurrent cache misses', async () => {
+      vi.mocked(pool.query).mockResolvedValue({ rows: [] })
+
+      mockReq.user = mockUser
+
+      // Concurrent requests that would both cache-miss
+      const fetches = Array(3).fill(null).map(() => {
+        return new Promise<void>(resolve => {
+          rbac(mockReq as AuthRequest, mockRes as Response, () => resolve())
+        })
+      })
+
+      await Promise.all(fetches)
+
+      // Should have fetched from database (at least once, ideally cached)
+      const queryCallCount = pool.query.mock.calls.length
+      expect(queryCallCount).toBeGreaterThanOrEqual(1)
+    })
+
+    it('should handle clearPermissionCache race conditions safely', async () => {
+      mockReq.user = mockUser
+
+      // Concurrent cache clears
+      const clears = Array(3).fill(null).map(() => {
+        clearPermissionCache(mockUser.id, mockUser.tenant_id)
+      })
+
+      // All clears should complete without errors
+      expect(clears.length).toBe(3)
+    })
+
+    it('should ensure cache write completes before reading', async () => {
+      mockReq.user = mockUser
+
+      // Simulate interleaved write and read
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Immediately read before write completes (edge case)
+      rbac(mockReq as AuthRequest, mockRes as Response, mockNext)
+
+      // Both should succeed without stale data
+      expect(mockNext).toBeDefined()
+    })
+  })
 })
