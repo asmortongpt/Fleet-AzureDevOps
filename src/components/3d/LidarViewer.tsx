@@ -171,37 +171,14 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
 
-    // Draw placeholder
-    drawPlaceholder(gl, canvas);
-
     // In production: Load and render the 3D model
     // loadModel(model.fileUrl, gl, canvas);
   };
 
-  const drawPlaceholder = (gl: WebGLRenderingContext, canvas: HTMLCanvasElement) => {
-    // Draw a simple placeholder visualization
+  const drawPlaceholder = (_gl: WebGLRenderingContext, canvas: HTMLCanvasElement) => {
     const ctx2d = canvas.getContext('2d');
     if (ctx2d) {
-      ctx2d.fillStyle = '#1a1a1a';
-      ctx2d.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx2d.fillStyle = '#ffffff';
-      ctx2d.font = '16px sans-serif';
-      ctx2d.textAlign = 'center';
-      ctx2d.fillText('3D Model Viewer', canvas.width / 2, canvas.height / 2 - 20);
-
-      ctx2d.fillStyle = '#888888';
-      ctx2d.font = '14px sans-serif';
-      ctx2d.fillText(
-        `${selectedModel?.format.toUpperCase()} Model`,
-        canvas.width / 2,
-        canvas.height / 2 + 10
-      );
-      ctx2d.fillText(
-        `${selectedModel?.vertexCount.toLocaleString()} vertices`,
-        canvas.width / 2,
-        canvas.height / 2 + 30
-      );
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
     }
   };
 

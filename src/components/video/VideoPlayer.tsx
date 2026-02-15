@@ -354,7 +354,13 @@ export const VideoPlayer: React.FC<VideoPlayerProps> = ({
 
         {/* Video Container */}
         <Box sx={{ position: 'relative', backgroundColor: 'hsl(var(--background))', borderRadius: 1 }}>
-          {isYouTube ? (
+          {!videoUrl ? (
+            <Box sx={{ padding: 3, textAlign: 'center' }}>
+              <Typography variant="body2" color="text.secondary">
+                No video feed available.
+              </Typography>
+            </Box>
+          ) : isYouTube ? (
             // YouTube Embed
             <Box sx={{ position: 'relative', paddingTop: '56.25%' /* 16:9 */ }}>
               <iframe

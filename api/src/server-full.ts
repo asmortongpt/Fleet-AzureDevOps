@@ -4,6 +4,11 @@ import cors from 'cors'
 import express from 'express'
 import { Pool } from 'pg'
 
+if (process.env.ENABLE_LEGACY_API !== 'true') {
+  console.error('server-full is disabled. Set ENABLE_LEGACY_API=true to run.')
+  process.exit(1)
+}
+
 const app = express()
 const PORT = Number(process.env.PORT || 3001)
 

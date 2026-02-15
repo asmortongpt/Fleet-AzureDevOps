@@ -47,7 +47,8 @@ const AnalyticsDashboard = lazy(() => import("@/components/analytics/AnalyticsDa
 const PolicyEngineWorkbench = lazy(() => import("@/components/modules/admin/PolicyEngineWorkbench").then(m => ({ default: m.PolicyEngineWorkbench })))
 const Notifications = lazy(() => import("@/components/modules/admin/Notifications").then(m => ({ default: m.Notifications })))
 const PushNotificationAdmin = lazy(() => import("@/components/modules/admin/PushNotificationAdmin"))
-const E2ETestPage = lazy(() => import("@/pages/E2ETestPage"))
+const enableE2E = import.meta.env.VITE_ENABLE_E2E === 'true'
+const E2ETestPage = enableE2E ? lazy(() => import("@/pages/E2ETestPage")) : null
 
 // MAINTENANCE MODULES
 const GarageService = lazy(() => import("@/components/modules/maintenance/GarageService").then(m => ({ default: m.GarageService })))
@@ -233,6 +234,9 @@ function App() {
 
     switch (activeModule) {
       case "e2e-test":
+        if (!enableE2E || !E2ETestPage) {
+          return <div className="p-4 text-sm text-muted-foreground">E2E test page is disabled.</div>
+        }
         return <E2ETestPage />
       case "live-fleet-dashboard":
         return <LiveFleetDashboard />

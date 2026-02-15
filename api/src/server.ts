@@ -185,6 +185,13 @@ import policiesRouter from './routes/policies'
 import alertsRouter from './routes/alerts.routes'
 import complianceRouter from './routes/compliance'
 import inventoryRouter from './routes/inventory.routes'
+
+// PHASE 3: Priority A Routes (High-Value Unregistered Features)
+import hosRouter from './routes/hos'
+import communicationsRouter from './routes/communications'
+import reimbursementRouter from './routes/reimbursement-requests'
+import adminRouter from './routes/admin.routes'
+import adminUsersRouter from './routes/admin/users.routes'
 // monitoringRouter imported in separate block
 import { initializeBudgetRoutes } from './routes/budgets'
 import reportsRouter from './routes/reports.routes'
@@ -251,7 +258,6 @@ import warrantiesRouter from './routes/warranties'
 import weatherRouter from './routes/weather'
 
 // E2E Testing Routes (DEVELOPMENT ONLY - NO AUTH)
-import e2eTestRouter from './routes/e2e-test.routes'
 
 // Job Processing Infrastructure
 import logger from './utils/logger'
@@ -440,6 +446,7 @@ app.use('/api/heavy-equipment', heavyEquipmentRouter)
 
 // Dispatch & Communication Routes
 app.use('/api/communication-logs', communicationLogsRouter)
+app.use('/api/communications', communicationsRouter) // PHASE 3: Universal messaging system - Priority A
 app.use('/api/internal-teams', internalTeamsRouter)
 app.use('/api/teams', teamsRouter)
 app.use('/api/tenants', tenantsRouter)
@@ -484,6 +491,7 @@ app.use('/api/cost-benefit-analysis', costBenefitAnalysisRouter)
 app.use('/api/billing-reports', billingReportsRouter)
 app.use('/api/fuel-purchasing', fuelPurchasingRouter)
 app.use('/api/mileage-reimbursement', mileageReimbursementRouter)
+app.use('/api/reimbursements', reimbursementRouter) // PHASE 3: Reimbursement requests & workflows - Priority A
 app.use('/api/personal-use-charges', chargesRouter)
 app.use('/api/personal-use-policies', personalUsePoliciesRouter)
 app.use('/api/flair', flairExpensesRouter)
@@ -548,6 +556,7 @@ app.use('/api/compliance', complianceRouter)
 app.use('/api/annual-reauthorization', annualReauthorizationRouter)
 app.use('/api/training', trainingRouter)
 app.use('/api/certifications', certificationsRouter)
+app.use('/api/hos', hosRouter) // PHASE 3: Hours of Service (DOT compliance) - Priority A
 
 // Policy & Permission Routes
 app.use('/api/policies', policiesRouter)
@@ -602,6 +611,8 @@ app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
 app.use('/api/system', systemConnectionsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
+app.use('/api/admin', adminRouter) // PHASE 3: Admin dashboard & config - Priority A
+app.use('/api/admin/users', adminUsersRouter) // PHASE 3: Admin user management - Priority A
 
 // Medium-Priority Routes (Batch 2)
 app.use('/api/adaptive-cards', adaptiveCardsRouter)
@@ -626,8 +637,13 @@ app.use('/api/weather', weatherRouter)
 // E2E Test Routes - explicit opt-in only (no authentication required)
 // Never enable by default (even in development) so demos don't accidentally expose these endpoints.
 if (process.env.ENABLE_E2E_ROUTES === 'true' && process.env.NODE_ENV !== 'production') {
-  app.use('/api/e2e-test', e2eTestRouter)
-  logger.warn('E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
+  if (process.env.ENABLE_E2E_TEST === 'true') {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const e2eModule = require('./routes/e2e-test.routes')
+    const e2eTestRouter = e2eModule.default || e2eModule
+    app.use('/api/e2e-test', e2eTestRouter)
+    logger.warn('E2E Test routes enabled at /api/e2e-test (NO AUTHENTICATION)')
+  }
 }
 
 // Route aliases for frontend compatibility

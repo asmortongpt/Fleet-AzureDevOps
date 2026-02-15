@@ -39,7 +39,7 @@ export function DrilldownProvider({ children }: { children: ReactNode }) {
   const push = useCallback((level: DrilldownInput) => {
     // Auto-derive label from data.title if not provided (backward compatibility)
     const labelToUse = level.label || level.data?.title || level.type || 'Details'
-    const idToUse = level.id || `drilldown-${Date.now()}`
+    const idToUse = level.id || `drilldown-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
     setLevels(prev => [...prev, { ...level, id: idToUse, label: labelToUse, timestamp: Date.now() }])
   }, [])
 
@@ -52,7 +52,15 @@ export function DrilldownProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const goToLevel = useCallback((index: number) => {
-    setLevels(prev => prev.slice(0, index + 1))
+    // Ignore negative indices or out-of-bounds indices
+    if (index < 0 || isNaN(index)) {
+      return
+    }
+    setLevels(prev => {
+      // Don't allow going beyond current levels
+      const targetIndex = Math.min(index, prev.length - 1)
+      return prev.slice(0, targetIndex + 1)
+    })
   }, [])
 
   const currentLevel = levels[levels.length - 1] || null

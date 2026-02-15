@@ -10,21 +10,25 @@ import { ReactNode } from 'react'
 
 import { WebSocketProvider, useWebSocketContext } from '../WebSocketContext'
 
-// Mock WebSocketClient
-vi.mock('@/lib/websocket-client', () => ({
-  WebSocketClient: vi.fn().mockImplementation(() => ({
-    connect: vi.fn(),
-    disconnect: vi.fn(),
-    send: vi.fn(),
-    subscribe: vi.fn(() => vi.fn()),
-    onOpen: vi.fn((cb) => {
+// Mock WebSocketClient with factory function
+vi.mock('@/lib/websocket-client', () => {
+  class MockWebSocketClient {
+    connect = vi.fn()
+    disconnect = vi.fn()
+    send = vi.fn()
+    subscribe = vi.fn(() => vi.fn())
+    onOpen = vi.fn((cb: () => void) => {
       setTimeout(cb, 10)
       return vi.fn()
-    }),
-    onClose: vi.fn(() => vi.fn()),
-    onError: vi.fn(() => vi.fn()),
-  })),
-}))
+    })
+    onClose = vi.fn(() => vi.fn())
+    onError = vi.fn(() => vi.fn())
+  }
+
+  return {
+    WebSocketClient: MockWebSocketClient,
+  }
+})
 
 vi.mock('@/utils/logger', () => ({
   default: {
