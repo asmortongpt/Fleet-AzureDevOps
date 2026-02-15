@@ -1,4 +1,4 @@
-import { LogOut, User, CreditCard, Users } from 'lucide-react';
+import { LogOut, User, CreditCard, Users, Menu, X } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -15,6 +15,7 @@ import {
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { brandColors } from '@/theme/designSystem';
 import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
 
@@ -39,26 +40,34 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
     return (
         <header className="relative shrink-0">
             <div className={cn(
-                "h-16 border-b border-border/50 backdrop-blur-xl bg-background/80 z-30 flex items-center justify-between transition-all duration-200 shadow-pro-sm",
-                isMobile ? "px-4" : "px-4"
-            )}>
-                {/* Left: CTA Branding */}
-                <div className="flex items-center gap-4 shrink-0">
-                    <div className="flex items-center gap-3">
-                        {/* CTA Logo Placeholder - Replace with actual logo when available */}
-                        <div className="h-10 px-4 flex items-center justify-center bg-gradient-to-r from-[#F0A000] to-[#DD3903] rounded-lg shadow-md">
-                            <span className="text-white font-bold text-sm tracking-wide">CTA</span>
-                        </div>
-                        {!isMobile && (
-                            <>
-                                <div className="h-8 w-px bg-border/50" />
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-semibold text-foreground leading-tight">ArchonY</span>
-                                    <span className="text-xs text-muted-foreground leading-tight mt-1">Intelligent Performance</span>
-                                </div>
-                            </>
-                        )}
-                    </div>
+                "h-16 border-b transition-all duration-200 shadow-md flex items-center justify-between",
+                isMobile ? "px-4" : "px-6"
+            )}
+            style={{
+                backgroundColor: brandColors.archon.white,
+                borderColor: `${brandColors.cta.navy}20`,
+            }}>
+                {/* Left: Archon-Y Branding */}
+                <div className="flex items-center gap-3 shrink-0">
+                    {/* Archon-Y Logo - Use actual icon */}
+                    <img
+                        src="/favicon.png"
+                        alt="Archon-Y Fleet"
+                        className="h-10 w-10 rounded-lg shadow-md"
+                    />
+                    {!isMobile && (
+                        <>
+                            <div className="h-6 w-px" style={{ backgroundColor: `${brandColors.cta.navy}20` }} />
+                            <div className="flex flex-col">
+                                <span className="text-sm font-bold leading-tight" style={{ color: brandColors.archon.black }}>
+                                    Archon-Y Fleet
+                                </span>
+                                <span className="text-xs leading-tight" style={{ color: brandColors.cta.navy }}>
+                                    Intelligent Performance
+                                </span>
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 {/* Center: Search Bar */}
@@ -74,10 +83,13 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                             placeholder={isMobile ? "Search..." : "Search fleet, drivers, or assets..."}
                             ariaLabel="Search fleet, drivers, or assets"
                             className={cn(
-                                "[&_input]:rounded-lg [&_input]:bg-background/50 [&_input]:border-border/50",
-                                "[&_input]:h-10 [&_input]:text-sm [&_input]:px-4",
+                                "[&_input]:rounded-lg [&_input]:bg-white [&_input]:border-2 [&_input]:h-10 [&_input]:text-sm [&_input]:px-4",
                                 "[&_input]:transition-all [&_input]:duration-200",
-                                "[&_input:focus]:bg-background [&_input:focus]:border-secondary/40 [&_input:focus]:shadow-lg [&_input:focus]:shadow-secondary/10"
+                                "[&_input:focus]:shadow-lg [&_input:focus]:shadow-blue-100"
+                            )}
+                            style={{
+                                borderColor: `${brandColors.cta.navy}20`
+                            }}
                             )}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
