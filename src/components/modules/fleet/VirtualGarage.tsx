@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useTenant } from "@/contexts/TenantContext"
 import { useVehicles } from "@/hooks/use-api"
+import { brandColors } from "@/theme/designSystem"
 
 export function VirtualGarage() {
   const { tenantId } = useTenant()
@@ -36,7 +37,10 @@ export function VirtualGarage() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Virtual Garage</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-2" style={{ color: brandColors.archon.black }}>
+            <Car className="w-6 h-6" style={{ color: brandColors.cta.orange }} />
+            Virtual Garage
+          </h1>
           <p className="text-muted-foreground">Manage and monitor your fleet vehicles</p>
         </div>
         <Button>
