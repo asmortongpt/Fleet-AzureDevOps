@@ -15,6 +15,32 @@
 // COLOR PALETTE
 // ============================================================================
 
+// Official Brand Colors (from Fleet-CTA Branding Guidelines)
+export const brandColors = {
+  // Archon-Y Brand (Primary Product)
+  archon: {
+    black: '#000000',      // Primary text, logos
+    white: '#FFFFFF',      // Backgrounds, reverse text
+    lightGray: '#F8F9FA',  // Secondary backgrounds
+    mediumGray: '#6C757D', // Secondary text
+  },
+
+  // CTA Brand (Supporting/Accents)
+  cta: {
+    navy: '#1A1446',     // Headers, CTA backgrounds
+    yellow: '#FFB800',   // Gradient start
+    orange: '#FF6B35',   // Links, buttons, accents
+    red: '#FF3838',      // Gradient end, warnings
+  },
+
+  // CTA Gradient (CSS: linear-gradient(90deg, #FFB800 0%, #FF6B35 50%, #FF3838 100%))
+  gradient: {
+    start: '#FFB800',    // Yellow
+    mid: '#FF6B35',      // Orange
+    end: '#FF3838',      // Red
+  },
+}
+
 export const colors = {
   // Primary Brand Colors (Fleet Blue)
   primary: {
@@ -83,6 +109,34 @@ export const colors = {
     700: '#B91C1C',
     800: '#991B1B',
     900: '#7F1D1D',
+  },
+
+  // CTA Brand Orange (Accent Color)
+  ctaOrange: {
+    50: '#FFF8F3',
+    100: '#FFE8DA',
+    200: '#FFD4B8',
+    300: '#FFC09D',
+    400: '#FF8855',
+    500: '#FF6B35', // CTA Orange - Primary accent
+    600: '#E55A24',
+    700: '#C74719',
+    800: '#A03810',
+    900: '#7A2A09',
+  },
+
+  // CTA Navy (Secondary Brand Color)
+  ctaNavy: {
+    50: '#F3F1F9',
+    100: '#E8E4F2',
+    200: '#D6CACE',
+    300: '#B8ACBE',
+    400: '#6D5F92',
+    500: '#1A1446', // CTA Navy - Headers & important elements
+    600: '#1A1446',
+    700: '#0F0A25',
+    800: '#0A061A',
+    900: '#05030E',
   },
 
   neutral: {
