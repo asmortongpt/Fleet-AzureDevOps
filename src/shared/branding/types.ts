@@ -39,7 +39,7 @@ export interface TenantBranding {
 
 export const DEFAULT_BRANDING: TenantBranding = {
   tenantId: 'default',
-  tenantName: 'Fleet Management System',
+  tenantName: 'CTA Fleet - Intelligent Performance Fleet Management',
   primaryColor: 'hsl(var(--primary))',
   primaryDark: 'hsl(var(--primary))',
   primaryLight: 'hsl(var(--primary))',
@@ -49,7 +49,7 @@ export const DEFAULT_BRANDING: TenantBranding = {
 export const TENANT_PRESETS: Record<string, TenantBranding> = {
   'cta': {
     tenantId: 'cta',
-    tenantName: 'Capital Transit Alliance',
+    tenantName: 'CTA Fleet - Intelligent Performance Fleet Management',
     logoUrl: '/branding/cta-logo.svg',
     primaryColor: 'hsl(var(--primary))',
     primaryDark: 'hsl(var(--primary))',
