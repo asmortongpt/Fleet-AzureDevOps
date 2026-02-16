@@ -494,15 +494,15 @@ describe('ActionToast Component', () => {
     })
 
     it('should handle progress bar updates smoothly', async () => {
-      const { rerender } = render(
-        <div style={{ width: '100%' }} />
+      const { rerender, container } = render(
+        <div style={{ width: '100%' }} data-testid="progress" />
       )
-      expect(screen.getByRole('generic')).toHaveStyle({ width: '100%' })
+      expect(container.querySelector('[data-testid="progress"]')).toHaveStyle({ width: '100%' })
 
       rerender(
-        <div style={{ width: '50%' }} />
+        <div style={{ width: '50%' }} data-testid="progress" />
       )
-      expect(screen.getByRole('generic')).toHaveStyle({ width: '50%' })
+      expect(container.querySelector('[data-testid="progress"]')).toHaveStyle({ width: '50%' })
     })
 
     it('should handle empty action arrays', () => {
