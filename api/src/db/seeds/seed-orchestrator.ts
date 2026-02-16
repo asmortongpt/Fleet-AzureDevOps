@@ -14,6 +14,7 @@ import {
   RouteFactory,
   IncidentFactory,
   ComplianceRecordFactory,
+  OSHARecordFactory,
 } from './factories';
 import type { SeedConfig } from './types';
 
@@ -117,7 +118,10 @@ export class SeedOrchestrator {
       await client.query('BEGIN');
       console.log('🗑️  Resetting database...\n');
 
-      // Delete in reverse dependency order
+      // Disable foreign key constraints temporarily
+      await client.query('SET CONSTRAINTS ALL DEFERRED');
+
+      // Delete in reverse dependency order (most dependent first)
       const tables = [
         'compliance_records',
         'incidents',
@@ -126,14 +130,23 @@ export class SeedOrchestrator {
         'maintenance_schedules',
         'work_orders',
         'drivers',
+        'gps_tracks',
+        'telemetry_data',
         'vehicles',
         'users',
         'tenants',
       ];
 
       for (const table of tables) {
-        const result = await client.query(`DELETE FROM ${table}`);
-        console.log(`   Deleted ${result.rowCount} rows from ${table}`);
+        try {
+          const result = await client.query(`DELETE FROM ${table}`);
+          console.log(`   Deleted ${result.rowCount} rows from ${table}`);
+        } catch (err: any) {
+          // Skip tables that don't exist or have issues
+          if (err.code !== '42P01') { // 42P01 = table doesn't exist
+            throw err;
+          }
+        }
       }
 
       await client.query('COMMIT');
