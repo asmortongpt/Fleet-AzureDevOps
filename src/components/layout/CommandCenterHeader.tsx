@@ -1,7 +1,7 @@
 import { LogOut, User, CreditCard, Users, Menu, X } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
-import { ArchonYLogo } from '@/components/branding/ArchonYLogo';
+import { CTALogo } from '@/components/branding/CTALogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { SearchInput } from '@/components/shared/SearchInput';
@@ -48,9 +48,9 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                 backgroundColor: brandColors.archon.white,
                 borderColor: `${brandColors.cta.navy}20`,
             }}>
-                {/* Left: Archon-Y Branding */}
+                {/* Left: CTA Branding */}
                 <div className="flex items-center gap-2 shrink-0">
-                    <ArchonYLogo variant={isMobile ? "icon" : "full"} />
+                    <CTALogo variant={isMobile ? "icon" : "full"} />
                 </div>
 
                 {/* Center: Search Bar */}
