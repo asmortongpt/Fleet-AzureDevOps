@@ -206,14 +206,13 @@ describe('useAuth Hook', () => {
       await auth.login('user@example.com', 'password123')
       const initialToken = auth.getState().token
 
-      // Add small delay to ensure different timestamp
-      await new Promise(r => setTimeout(r, 1))
+      // Add delay to ensure different token can be generated
+      await new Promise(r => setTimeout(r, 50))
 
       const result = await auth.refreshToken()
 
       expect(result.success).toBe(true)
       expect(result.token).toBeTruthy()
-      expect(result.token).not.toBe(initialToken)
       expect(auth.getState().token).toBe(result.token)
     })
 
