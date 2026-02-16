@@ -1,5 +1,5 @@
 /**
- * SinglePageShell - Root layout for the ArchonY single-page application
+ * SinglePageShell - Root layout for CTA Fleet application
  *
  * Fixed viewport (100vh x 100vw, overflow-hidden). No page scrolling.
  * Layout: IconRail (56px left) + CompactHeader (44px top) + MapCanvas + Panels
@@ -64,7 +64,7 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Top: Compact Header with ArchonY branding */}
+        {/* Top: Compact Header with CTA Fleet branding */}
         <CompactHeader />
 
         {/* Content: Module content OR Map + Overlays */}
