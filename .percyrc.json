@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "static": {
+    "cleanUrls": true,
+    "include": "**/*.html",
+    "exclude": [
+      "**/node_modules",
+      "**/.git",
+      "**/dist/**/*.map",
+      "**/.env*"
+    ]
+  },
+  "snapshot": {
+    "widths": [375, 768, 1920],
+    "minHeight": 1024,
+    "percyCSS": "* { animation: none !important; transition: none !important; }",
+    "additionalJs": "document.querySelectorAll('[data-percy-disable]').forEach(el => el.remove());"
+  },
+  "discovery": {
+    "network-idle-timeout": 750,
+    "allowed-hosts": ["localhost", "127.0.0.1"],
+    "network": {
+      "stripQueryString": false
+    }
+  },
+  "comparison": {
+    "threshold": 0.5,
+    "project": "Fleet-CTA"
+  },
+  "browsers": [
+    "chrome",
+    "firefox",
+    "webkit"
+  ]
+}
