@@ -21,12 +21,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: ['./tests/integration/setup.ts'],
+    setupFiles: ['./tests/integration/setup.ts', './tests/integration/middleware-setup.ts'],
     // Only run our new integration tests
     include: [
       'tests/integration/auth.test.ts',
       'tests/integration/vehicles.test.ts',
-      'tests/integration/health.test.ts'
+      'tests/integration/health.test.ts',
+      'tests/integration/middleware/**/*.test.ts'
     ],
     // Exclude other integration tests that have different setup requirements
     exclude: [
