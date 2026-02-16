@@ -130,4 +130,4 @@ export function CompactHeader() {
   )
 }
 
-export { CTAMark, ArchonYLogo }
+export { CTAMark, CTAFleetLogo }
