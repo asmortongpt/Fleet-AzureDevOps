@@ -44,10 +44,10 @@ export function RecurringScheduleDialog({
     estimated_cost: 0,
     recurrence_pattern: {
       type: "time",
-      interval_value: 90,
+      interval_value: 0,
       interval_unit: "days",
-      lead_time_days: 7,
-      warning_threshold_days: 14
+      lead_time_days: 0,
+      warning_threshold_days: 0
     },
     auto_create_work_order: true,
     work_order_template: {

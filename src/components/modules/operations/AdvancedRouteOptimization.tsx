@@ -163,7 +163,7 @@ export function AdvancedRouteOptimization() {
         totalDuration: route.estimated_duration || 0,
         estimatedFuel: (route.total_distance || 0) / 18, // Estimate: 18 mpg average
         estimatedCost: ((route.total_distance || 0) / 18) * 3.85, // Estimate: $3.85/gal
-        optimizationScore: route.status === 'completed' ? 95 : route.status === 'in_progress' ? 92 : 88,
+        optimizationScore: Number(route.optimization_score || route.optimizationScore || 0),
         constraints: route.constraints || []
       }))
 

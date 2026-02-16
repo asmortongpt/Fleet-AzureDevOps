@@ -61,9 +61,9 @@ export function PartsInventory() {
     manufacturer: "",
     compatibleVehicles: [],
     quantityOnHand: 0,
-    minStockLevel: 10,
-    maxStockLevel: 100,
-    reorderPoint: 20,
+    minStockLevel: 0,
+    maxStockLevel: 0,
+    reorderPoint: 0,
     unitCost: 0,
     location: ""
   })

@@ -53,14 +53,8 @@ export const FleetDashboard: React.FC = () => {
         setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error');
-        // Set fallback metrics from database count
-        setMetrics({
-          total: 150,
-          active: 50,
-          available: 85,
-          maintenance: 15,
-          alerts: 15
-        });
+        // No fallback - show error state instead of hardcoded data
+        setMetrics(null);
       } finally {
         setLoading(false);
       }
