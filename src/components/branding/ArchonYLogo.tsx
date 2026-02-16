@@ -17,14 +17,13 @@ export function ArchonYLogo({
   className,
   showAnimation = false
 }: ArchonYLogoProps) {
-  // Luxury color palette with sophisticated tones
+  // Brand color palette from CLAUDE.md specification
   const colors = {
-    primary: '#1A1F35',      // Deep Navy (darker for luxury)
-    accent1: '#FF6B35',      // CTA Orange
-    accent2: '#41B2E3',      // Blue Skies
-    accent3: '#7C3AED',      // Purple (new luxury accent)
+    navy: '#2F3359',         // Navy (official spec)
+    orange: '#FF6B35',       // CTA Orange
+    blue: '#41B2E3',         // Blue Skies
     gold: '#F0A000',         // Golden Hour
-    platinum: '#E8E8E8',     // Platinum highlight
+    red: '#DD3903',          // Noon Red
   }
 
   // Advanced animation variants with 3D effects
@@ -37,7 +36,7 @@ export function ArchonYLogo({
   const iconVariants = {
     idle: {
       scale: 1,
-      filter: 'drop-shadow(0 0 12px rgba(65, 178, 227, 0.4))',
+      filter: 'drop-shadow(0 0 12px rgba(65, 178, 227, 0.3))',
       rotateX: 0,
       rotateY: 0,
     },
@@ -81,7 +80,7 @@ export function ArchonYLogo({
           <motion.div
             className="absolute inset-0 rounded-full"
             style={{
-              background: `radial-gradient(circle, ${colors.accent2}50, transparent)`,
+              background: `radial-gradient(circle, ${colors.blue}50, transparent)`,
             }}
             initial={glowPulseAnimation.initial}
             animate={glowPulseAnimation.animate}
@@ -90,7 +89,7 @@ export function ArchonYLogo({
           <motion.div
             className="absolute inset-1 rounded-full"
             style={{
-              background: `radial-gradient(circle, ${colors.accent3}30, transparent)`,
+              background: `radial-gradient(circle, ${colors.red}20, transparent)`,
             }}
             animate={{ opacity: [0.3, 0.6, 0.3], scale: [1, 1.1, 1] }}
             transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' }}
@@ -107,14 +106,14 @@ export function ArchonYLogo({
             <defs>
               {/* Premium multi-stop gradients */}
               <linearGradient id="luxuryGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor={colors.accent1} />
-                <stop offset="40%" stopColor={colors.accent2} />
-                <stop offset="70%" stopColor={colors.accent3} />
+                <stop offset="0%" stopColor={colors.orange} />
+                <stop offset="40%" stopColor={colors.blue} />
+                <stop offset="70%" stopColor={colors.red} />
                 <stop offset="100%" stopColor={colors.gold} />
               </linearGradient>
               <linearGradient id="luxuryGradient2" x1="100%" y1="0%" x2="0%" y2="100%">
-                <stop offset="0%" stopColor={colors.accent2} />
-                <stop offset="100%" stopColor={colors.accent1} />
+                <stop offset="0%" stopColor={colors.blue} />
+                <stop offset="100%" stopColor={colors.orange} />
               </linearGradient>
               <filter id="luxuryGlow">
                 <feGaussianBlur stdDeviation="2.5" result="coloredBlur"/>
@@ -134,7 +133,7 @@ export function ArchonYLogo({
               cy="24"
               r="21"
               fill="none"
-              stroke={colors.platinum}
+              stroke={'rgba(255,255,255,0.3)'}
               strokeWidth="0.8"
               opacity="0.3"
               animate={reverseRotation.animate}
@@ -181,9 +180,9 @@ export function ArchonYLogo({
             </g>
 
             {/* Accent corner flourishes - luxury details */}
-            <motion.circle cx="10" cy="10" r="1.5" fill={colors.accent2} opacity="0.6" animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }} />
-            <motion.circle cx="38" cy="10" r="1.5" fill={colors.accent1} opacity="0.6" animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 0.5 }} />
-            <motion.circle cx="10" cy="38" r="1.5" fill={colors.accent3} opacity="0.6" animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 1 }} />
+            <motion.circle cx="10" cy="10" r="1.5" fill={colors.blue} opacity="0.6" animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }} />
+            <motion.circle cx="38" cy="10" r="1.5" fill={colors.orange} opacity="0.6" animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 0.5 }} />
+            <motion.circle cx="10" cy="38" r="1.5" fill={colors.red} opacity="0.6" animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 1 }} />
             <motion.circle cx="38" cy="38" r="1.5" fill={colors.gold} opacity="0.6" animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 1.5 }} />
           </svg>
         </motion.div>
@@ -194,12 +193,12 @@ export function ArchonYLogo({
             <motion.span
               className="text-lg font-black tracking-tight"
               style={{
-                background: `linear-gradient(135deg, ${colors.accent1} 0%, ${colors.accent2} 50%, ${colors.accent3} 100%)`,
+                background: `linear-gradient(135deg, ${colors.orange} 0%, ${colors.blue} 50%, ${colors.red} 100%)`,
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
-              whileHover={{ scale: 1.08, textShadow: `0 0 8px ${colors.accent2}` }}
+              whileHover={{ scale: 1.08, textShadow: `0 0 8px ${colors.blue}` }}
               animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
               transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY }}
             >
@@ -208,7 +207,7 @@ export function ArchonYLogo({
             <motion.span
               className="text-xs font-bold tracking-widest"
               style={{
-                background: `linear-gradient(90deg, ${colors.accent1}, ${colors.gold})`,
+                background: `linear-gradient(90deg, ${colors.orange}, ${colors.gold})`,
                 backgroundClip: 'text',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -221,7 +220,7 @@ export function ArchonYLogo({
           <motion.span
             className="text-xs font-bold tracking-widest"
             style={{
-              background: `linear-gradient(90deg, ${colors.accent2} 0%, ${colors.accent3} 50%, ${colors.gold} 100%)`,
+              background: `linear-gradient(90deg, ${colors.blue} 0%, ${colors.red} 50%, ${colors.gold} 100%)`,
               backgroundClip: 'text',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -249,14 +248,14 @@ export function ArchonYLogo({
         {/* Premium multi-layer glow */}
         <motion.div
           className="absolute inset-0 rounded-full"
-          style={{ background: `radial-gradient(circle, ${colors.accent2}40, transparent)` }}
+          style={{ background: `radial-gradient(circle, ${colors.blue}40, transparent)` }}
           initial={glowPulseAnimation.initial}
           animate={glowPulseAnimation.animate}
           transition={glowPulseAnimation.transition}
         />
         <motion.div
           className="absolute inset-1 rounded-full"
-          style={{ background: `radial-gradient(circle, ${colors.accent3}25, transparent)` }}
+          style={{ background: `radial-gradient(circle, ${colors.red}25, transparent)` }}
           animate={{ scale: [0.95, 1.1, 0.95] }}
           transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }}
         />
@@ -270,14 +269,14 @@ export function ArchonYLogo({
         >
           <defs>
             <linearGradient id="compactGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={colors.accent1} />
-              <stop offset="40%" stopColor={colors.accent2} />
-              <stop offset="70%" stopColor={colors.accent3} />
+              <stop offset="0%" stopColor={colors.orange} />
+              <stop offset="40%" stopColor={colors.blue} />
+              <stop offset="70%" stopColor={colors.red} />
               <stop offset="100%" stopColor={colors.gold} />
             </linearGradient>
             <linearGradient id="compactReverse" x1="100%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={colors.accent2} />
-              <stop offset="100%" stopColor={colors.accent1} />
+              <stop offset="0%" stopColor={colors.blue} />
+              <stop offset="100%" stopColor={colors.orange} />
             </linearGradient>
             <filter id="compactGlow">
               <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
@@ -289,7 +288,7 @@ export function ArchonYLogo({
           </defs>
 
           {/* Outer decorative ring */}
-          <motion.circle cx="24" cy="24" r="20" fill="none" stroke={colors.platinum} strokeWidth="0.7" opacity="0.3" animate={reverseRotation.animate} transition={reverseRotation.transition} />
+          <motion.circle cx="24" cy="24" r="20" fill="none" stroke={'rgba(255,255,255,0.3)'} strokeWidth="0.7" opacity="0.3" animate={reverseRotation.animate} transition={reverseRotation.transition} />
 
           {/* Main animated gradient ring */}
           <motion.circle
@@ -317,7 +316,7 @@ export function ArchonYLogo({
           </g>
 
           {/* Corner flourishes */}
-          <motion.circle cx="10" cy="10" r="1.2" fill={colors.accent2} opacity="0.5" animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }} />
+          <motion.circle cx="10" cy="10" r="1.2" fill={colors.blue} opacity="0.5" animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY }} />
           <motion.circle cx="38" cy="38" r="1.2" fill={colors.gold} opacity="0.5" animate={{ scale: [1, 1.4, 1] }} transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, delay: 1.5 }} />
         </svg>
       </motion.div>
@@ -335,7 +334,7 @@ export function ArchonYLogo({
       >
         <motion.div
           className="absolute inset-0 rounded-full"
-          style={{ background: `radial-gradient(circle, ${colors.accent2}30, transparent)` }}
+          style={{ background: `radial-gradient(circle, ${colors.blue}30, transparent)` }}
           initial={{ opacity: 0.5 }}
           animate={{ opacity: [0.5, 0.8, 0.5] }}
           transition={{ duration: 2.5, repeat: Infinity }}
@@ -350,13 +349,13 @@ export function ArchonYLogo({
         >
           <defs>
             <linearGradient id="iconLuxury" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor={colors.accent1} />
-              <stop offset="50%" stopColor={colors.accent2} />
-              <stop offset="100%" stopColor={colors.accent3} />
+              <stop offset="0%" stopColor={colors.orange} />
+              <stop offset="50%" stopColor={colors.blue} />
+              <stop offset="100%" stopColor={colors.red} />
             </linearGradient>
           </defs>
 
-          <motion.circle cx="24" cy="24" r="16" fill="none" stroke={colors.platinum} strokeWidth="0.6" opacity="0.25" animate={reverseRotation.animate} transition={reverseRotation.transition} />
+          <motion.circle cx="24" cy="24" r="16" fill="none" stroke={'rgba(255,255,255,0.25)'} strokeWidth="0.6" opacity="0.25" animate={reverseRotation.animate} transition={reverseRotation.transition} />
           <motion.circle
             cx="24"
             cy="24"
@@ -387,7 +386,7 @@ export function ArchonYLogo({
         <motion.span
           className="text-2xl font-black tracking-tight"
           style={{
-            background: `linear-gradient(135deg, ${colors.accent1} 0%, ${colors.accent2} 50%, ${colors.accent3} 100%)`,
+            background: `linear-gradient(135deg, ${colors.orange} 0%, ${colors.blue} 50%, ${colors.red} 100%)`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -401,7 +400,7 @@ export function ArchonYLogo({
         <motion.span
           className="text-sm font-bold tracking-widest"
           style={{
-            background: `linear-gradient(90deg, ${colors.accent1}, ${colors.gold})`,
+            background: `linear-gradient(90deg, ${colors.orange}, ${colors.gold})`,
             backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -413,7 +412,7 @@ export function ArchonYLogo({
       <motion.span
         className="text-sm font-bold tracking-widest"
         style={{
-          background: `linear-gradient(90deg, ${colors.accent2} 0%, ${colors.accent3} 50%, ${colors.gold} 100%)`,
+          background: `linear-gradient(90deg, ${colors.blue} 0%, ${colors.red} 50%, ${colors.gold} 100%)`,
           backgroundClip: 'text',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',

@@ -13,14 +13,12 @@ export function UltraLuxuryDashboard() {
   const [hoveredSection, setHoveredSection] = useState<string | null>(null)
 
   const colors = {
-    orange: '#FF6B35',
-    blue: '#41B2E3',
-    green: '#10B981',
-    gold: '#F0A000',
-    purple: '#7C3AED',
-    red: '#DD3903',
-    navy: '#1A1F35',
-    platinum: '#E8E8E8',
+    orange: '#FF6B35',      // CTA Orange
+    blue: '#41B2E3',        // Blue Skies
+    green: '#10B981',       // For status indicators (approved by spec)
+    gold: '#F0A000',        // Golden Hour
+    red: '#DD3903',         // Noon Red
+    navy: '#2F3359',        // Navy (from spec)
   }
 
   // Premium metrics with real data
@@ -33,7 +31,7 @@ export function UltraLuxuryDashboard() {
       trend: 12,
       icon: <MapPin className="w-5 h-5" style={{ color: colors.blue }} />,
       color: colors.blue,
-      accentColor: colors.purple,
+      accentColor: colors.red,
     },
     {
       id: 'miles',
@@ -73,7 +71,7 @@ export function UltraLuxuryDashboard() {
     size: Math.random() * 4 + 1,
     duration: Math.random() * 15 + 20,
     delay: Math.random() * 5,
-    color: [colors.blue, colors.orange, colors.purple, colors.gold][i % 4],
+    color: [colors.blue, colors.orange, colors.red, colors.gold][i % 4],
   }))
 
   return (
@@ -101,7 +99,7 @@ export function UltraLuxuryDashboard() {
         />
         <motion.div
           className="absolute top-1/3 right-1/4 w-72 h-72 rounded-full blur-3xl"
-          style={{ background: `radial-gradient(circle, ${colors.purple}20, transparent)` }}
+          style={{ background: `radial-gradient(circle, ${colors.blue}20, transparent)` }}
           animate={{
             opacity: [0.2, 0.5, 0.2],
             scale: [1, 1.25, 1],
@@ -162,7 +160,7 @@ export function UltraLuxuryDashboard() {
             <div className="flex flex-col gap-2">
               <h1 className="text-4xl font-black tracking-tight"
                 style={{
-                  background: `linear-gradient(135deg, ${colors.orange}, ${colors.blue}, ${colors.purple})`,
+                  background: `linear-gradient(135deg, ${colors.orange}, ${colors.blue}, ${colors.red})`,
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -272,7 +270,7 @@ export function UltraLuxuryDashboard() {
           className="mt-16 p-8 rounded-2xl backdrop-blur-2xl border"
           style={{
             border: `1px solid ${colors.blue}20`,
-            background: `linear-gradient(135deg, ${colors.blue}08, ${colors.purple}05)`,
+            background: `linear-gradient(135deg, ${colors.blue}08, ${colors.red}05)`,
             boxShadow: `0 8px 32px ${colors.blue}10, inset 0 1px 0 rgba(255,255,255,0.05)`
           }}
           initial={{ opacity: 0, y: 20 }}
