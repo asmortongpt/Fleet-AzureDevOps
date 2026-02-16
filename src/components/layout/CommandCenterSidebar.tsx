@@ -141,17 +141,13 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 <div className="h-14 flex items-center justify-between px-4 border-b border-border/50 shrink-0">
                     <div className="flex items-center gap-2 min-w-0">
                         {isSidebarOpen ? (
-                            <img
-                                src="/logos/logo-horizontal.svg"
-                                alt="Fleet Management"
-                                className="h-7 w-auto object-contain"
-                            />
+                            <div className="text-lg font-bold bg-gradient-to-r from-[#FF6B35] to-[#41B2E3] bg-clip-text text-transparent">
+                                Archon-Y Fleet
+                            </div>
                         ) : (
-                            <img
-                                src="/logos/logo-horizontal.svg"
-                                alt="Fleet Management"
-                                className="h-8 w-8 object-contain"
-                            />
+                            <div className="text-xs font-bold bg-gradient-to-r from-[#FF6B35] to-[#41B2E3] bg-clip-text text-transparent flex items-center justify-center w-8 h-8">
+                                AF
+                            </div>
                         )}
                     </div>
                 </div>
