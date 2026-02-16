@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="240" height="240" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="240" height="240" fill="#1A1847" rx="12"/>
+
+  <!-- CTA Letters - White -->
+  <text x="120" y="100" font-family="'Inter', 'Arial Black', sans-serif" font-size="90" font-weight="900" fill="white" text-anchor="middle" letter-spacing="-3">CTA</text>
+
+  <!-- Gold/Orange Accent Bar -->
+  <rect x="40" y="130" width="160" height="6" fill="#F0A000" rx="3"/>
+</svg>
