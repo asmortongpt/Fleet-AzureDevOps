@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/react';
 export function initSentry() {
   Sentry.init({
     dsn: process.env.VITE_SENTRY_DSN || '',
-    environment: process.env.NODE_ENV || 'production',
+    environment: import.meta.env.MODE || 'production',
     integrations: [
       //       new BrowserTracing(),
       //       new Sentry.Replay({

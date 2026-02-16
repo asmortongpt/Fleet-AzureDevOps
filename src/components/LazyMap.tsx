@@ -232,7 +232,7 @@ function DefaultErrorFallback({
         >
           Try Again
         </button>
-        {process.env.NODE_ENV === 'development' && (
+        {import.meta.env.MODE === 'development' && (
           <details className="mt-3 text-left">
             <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
               Error Details (Dev Only)

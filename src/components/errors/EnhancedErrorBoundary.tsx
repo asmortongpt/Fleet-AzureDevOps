@@ -75,7 +75,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
     const { errorCount } = this.state
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.group('🚨 Error Boundary Caught Error')
       logger.error('Error:', error)
       logger.error('Error Info:', errorInfo)
@@ -443,7 +443,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
 // Export convenience wrapper components
 export const PageErrorBoundary: React.FC<{ children: ReactNode }> = ({ children }) => (
-  <EnhancedErrorBoundary level="page" showDetails={process.env.NODE_ENV === 'development'}>
+  <EnhancedErrorBoundary level="page" showDetails={import.meta.env.MODE === 'development'}>
     {children}
   </EnhancedErrorBoundary>
 )

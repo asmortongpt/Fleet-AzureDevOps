@@ -15,7 +15,7 @@ export const store = configureStore({
     form: formReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }),
-  devTools: process.env.NODE_ENV !== 'production',
+  devTools: import.meta.env.MODE !== 'production',
 });
 
 // Infer the `RootState` and `AppDispatch` types from the store itself

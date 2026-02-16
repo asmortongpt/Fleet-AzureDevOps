@@ -513,7 +513,7 @@ export function UniversalMap(props: UniversalMapProps) {
     const dynamicCenter = calculateDynamicCenter(vehicles, facilities, cameras)
 
     // Log if using dynamic center (only in dev)
-    if (process.env.NODE_ENV === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
+    if (import.meta.env.MODE === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
       logger.debug("Map center calculated from markers:", dynamicCenter)
     }
 
@@ -743,7 +743,7 @@ export function UniversalMap(props: UniversalMapProps) {
         )}
 
         {/* Provider Badge (Development Only) */}
-        {process.env.NODE_ENV === "development" && (
+        {import.meta.env.MODE === "development" && (
           <div className="absolute top-4 right-4 z-40 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono">
             {provider === "google" ? "Google Maps" : "Leaflet/OSM"}
           </div>

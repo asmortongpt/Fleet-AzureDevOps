@@ -1,9 +1,9 @@
 /**
- * CompactHeader - Branded header bar for the ArchonY SPA
+ * CompactHeader - CTA Fleet branding header bar
  *
- * Features the ArchonY wordmark with sweeping arc (matching ADELE branding),
+ * Features the CTA Fleet wordmark with Navy (#1A1847) background and Gold (#F0A000) accents,
  * search trigger, notifications, user avatar.
- * Dawn gradient accent bar (Golden Hour -> Noon) along the bottom edge.
+ * Gold accent bar and gradient along the top and bottom edges.
  */
 import { Search, Bell, User, Command } from 'lucide-react'
 import { useCallback } from 'react'
@@ -15,7 +15,7 @@ import { usePanel } from '@/contexts/PanelContext'
  * CTA Fleet logo - Capital Technology Alliance branding
  * Navy background (#1A1847) with Gold accents (#F0A000)
  */
-function ArchonYLogo({ className = '' }: { className?: string }) {
+function CTAFleetLogo({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 280 52" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
       {/* Gold accent bar */}
@@ -80,12 +80,12 @@ export function CompactHeader() {
     <header className="relative shrink-0 z-20">
       {/* Main header bar */}
       <div className="flex items-center justify-between h-10 sm:h-11 px-2 sm:px-4 bg-background/90 backdrop-blur-sm border-b border-border/50">
-        {/* Left: ArchonY wordmark */}
-        <div className="sm:hidden shrink-0 w-7 h-7 rounded-lg bg-[#2F3359] flex items-center justify-center">
-          <span className="text-[10px] font-extrabold text-white">A</span>
+        {/* Left: CTA Fleet Logo */}
+        <div className="sm:hidden shrink-0 w-7 h-7 rounded-lg bg-[#1A1847] flex items-center justify-center border-l-2 border-[#F0A000]">
+          <span className="text-[10px] font-extrabold text-white">CTA</span>
         </div>
         <div className="hidden sm:flex items-center gap-3 shrink-0">
-          <ArchonYLogo className="h-8 w-auto" />
+          <CTAFleetLogo className="h-8 w-auto" />
         </div>
 
         {/* Center: Search bar */}

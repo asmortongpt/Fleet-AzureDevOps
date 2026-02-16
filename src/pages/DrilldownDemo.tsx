@@ -155,21 +155,17 @@ const PERMISSIONS: DrilldownPermissions = {
 
 export default function DrilldownDemo() {
   const handleView = (record: DrilldownRecord) => {
-    console.log('View record:', record);
   };
 
   const handleEdit = (record: DrilldownRecord) => {
-    console.log('Edit record:', record);
     alert(`Saved changes to ${record.title}`);
   };
 
   const handleDelete = (record: DrilldownRecord) => {
-    console.log('Delete record:', record);
     alert(`Deleted ${record.title}`);
   };
 
   const handleNavigate = (type: string, id: string) => {
-    console.log('Navigate to:', type, id);
     alert(`Navigating to ${type} ${id}`);
   };
 

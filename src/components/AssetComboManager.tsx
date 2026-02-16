@@ -73,7 +73,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
   const [notes, setNotes] = useState('')
 
   useEffect(() => {
-    if (process.env.NODE_ENV === 'test') {
+    if (import.meta.env.MODE === 'test') {
       return
     }
 
@@ -123,7 +123,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       setVehicles(data.data || [])
     } catch (err: unknown) {
       logger.error('Error fetching vehicles:', err)
-      if (process.env.NODE_ENV !== 'test') {
+      if (import.meta.env.MODE !== 'test') {
         setError(err instanceof Error ? err.message : 'Unknown error')
       }
     }

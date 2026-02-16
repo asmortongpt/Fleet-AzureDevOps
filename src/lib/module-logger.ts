@@ -67,7 +67,7 @@ class ModuleLoggerClass {
   private metrics: Map<string, ModuleMetrics> = new NativeMap()
   private maxLogs = 1000
   private isEnabled = true
-  private logToConsole = process.env.NODE_ENV === 'development'
+  private logToConsole = import.meta.env.MODE === 'development'
 
   constructor() {
     // Initialize from localStorage if available
