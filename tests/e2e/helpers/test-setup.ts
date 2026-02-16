@@ -351,7 +351,8 @@ export async function waitForModal(page: Page, modalTitle?: string): Promise<voi
  */
 export async function closeModal(page: Page): Promise<void> {
   const closeButton = page.locator('button[aria-label="Close"]').or(
-    page.locator('[role="dialog"] button:has-text("Close")').or(
+    page.locator('[role="dialog"] button:has-text("Close")')
+  ).or(
     page.locator('[role="dialog"] button:has-text("Cancel")')
   );
 
