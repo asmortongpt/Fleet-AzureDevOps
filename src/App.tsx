@@ -36,6 +36,7 @@ const FleetOptimizer = lazy(() => import("@/components/modules/fleet/FleetOptimi
 // ANALYTICS MODULES 
 //testing 
 const ExecutiveDashboard = lazy(() => import("@/components/modules/analytics/ExecutiveDashboard").then(m => ({ default: m.ExecutiveDashboard })))
+const PremiumFleetDashboard = lazy(() => import("@/components/dashboard/PremiumFleetDashboard").then(m => ({ default: m.PremiumFleetDashboard })))
 const DataWorkbench = lazy(() => import("@/components/modules/analytics/DataWorkbench").then(m => ({ default: m.DataWorkbench })))
 const EndpointMonitor = lazy(() => import("@/components/modules/analytics/EndpointMonitor").then(m => ({ default: m.EndpointMonitor })))
 const CostAnalysisCenter = lazy(() => import("@/components/modules/analytics/CostAnalysisCenter").then(m => ({ default: m.CostAnalysisCenter })))
@@ -246,6 +247,8 @@ function App() {
         return <LiveFleetDashboard />
       case "executive-dashboard":
         return <ExecutiveDashboard />
+      case "premium-fleet-dashboard":
+        return <PremiumFleetDashboard />
       case "admin-dashboard":
         return <AdminConfigurationHub />
       case "operations-workspace":
