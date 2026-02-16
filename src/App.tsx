@@ -509,10 +509,12 @@ function App() {
 
 
   // New single-page layout (feature-flagged)
+  // Pass renderModule content to SinglePageShell so routes work
   if (USE_NEW_LAYOUT) {
+    const moduleContent = renderModule()
     return (
       <DrilldownManager>
-        <SinglePageShell />
+        <SinglePageShell moduleContent={moduleContent} />
 
         {/* Toast notifications */}
         <div role="status" aria-live="polite" aria-label="Toast notifications">

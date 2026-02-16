@@ -23,7 +23,11 @@ import { PanelManager } from './PanelManager'
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
-export const SinglePageShell = memo(function SinglePageShell() {
+interface SinglePageShellProps {
+  moduleContent?: React.ReactNode
+}
+
+export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: SinglePageShellProps) {
   const [isDesktop, setIsDesktop] = useState(true)
   const { setFlyout } = usePanel()
 
@@ -63,19 +67,29 @@ export const SinglePageShell = memo(function SinglePageShell() {
         {/* Top: Compact Header with ArchonY branding */}
         <CompactHeader />
 
-        {/* Content: Map + Overlays */}
+        {/* Content: Module content OR Map + Overlays */}
         <div className={cn("flex-1 relative overflow-hidden", !isDesktop && "pb-14")}>
-          {/* Map (always mounted behind everything) */}
-          <MapCanvas />
+          {moduleContent ? (
+            // Show module content if provided
+            <div className="w-full h-full overflow-auto">
+              {moduleContent}
+            </div>
+          ) : (
+            // Default: Show map with overlays
+            <>
+              {/* Map (always mounted behind everything) */}
+              <MapCanvas />
 
-          {/* Floating KPI strip over map */}
-          <FloatingKPIStrip />
+              {/* Floating KPI strip over map */}
+              <FloatingKPIStrip />
 
-          {/* Right panel system */}
-          <PanelManager />
+              {/* Right panel system */}
+              <PanelManager />
 
-          {/* Bottom activity drawer */}
-          <BottomDrawer />
+              {/* Bottom activity drawer */}
+              <BottomDrawer />
+            </>
+          )}
         </div>
       </div>
 
