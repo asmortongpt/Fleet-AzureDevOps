@@ -1,11 +1,11 @@
 /**
  * GPSTracking - Real-time GPS Vehicle Tracking Module
- * Displays vehicle locations on a map with live updates
+ * Displays vehicle locations on an interactive Leaflet map with live updates
  */
 
-import { MapPin, Navigation, Clock, Signal } from 'lucide-react';
-import React from 'react';
-
+import { MapPin, Navigation, Clock, Signal, AlertCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LeafletMap } from '@/components/LeafletMap';
 import { brandColors, colors } from '@/theme/designSystem';
 
 interface Vehicle {
@@ -52,25 +52,37 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Map Area */}
+        {/* Real Map Area */}
         <div
-          className="lg:col-span-3 rounded-lg border p-4 min-h-[500px]"
+          className="lg:col-span-3 rounded-lg border overflow-hidden min-h-[500px]"
           style={{
-            backgroundColor: brandColors.archon.lightGray,
             borderColor: `${brandColors.cta.navy}20`,
           }}
         >
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <Navigation className="w-12 h-12 mx-auto mb-4" style={{ color: brandColors.cta.orange }} />
-              <p className="text-lg font-medium" style={{ color: brandColors.archon.black }}>
-                GPS Map View
-              </p>
-              <p className="text-sm mt-2" style={{ color: brandColors.archon.mediumGray }}>
-                {vehicles.length} vehicles • {facilities.length} facilities
-              </p>
+          {vehicles.length > 0 ? (
+            <LeafletMap
+              vehicles={vehicles.map(v => ({
+                id: v.id,
+                name: v.name,
+                latitude: v.latitude || 25.7617,
+                longitude: v.longitude || -80.1918,
+                status: v.status || 'active'
+              }))}
+              facilities={facilities}
+              zoom={12}
+              center={[25.7617, -80.1918]} // Miami default
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gray-50">
+              <div className="text-center">
+                <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                <p className="text-lg font-medium text-gray-700">No Vehicles Available</p>
+                <p className="text-sm mt-2 text-gray-500">
+                  Load vehicles to display on map
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Sidebar */}
