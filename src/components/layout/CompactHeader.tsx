@@ -12,42 +12,30 @@ import { useAuth } from '@/contexts'
 import { usePanel } from '@/contexts/PanelContext'
 
 /**
- * ArchonY logo SVG - recreates the "Intelligent Pivot" logo from the ADELE branding document.
- * Sweeping arc over bold tech-forward lettering with "INTELLIGENT PERFORMANCE" tagline.
+ * CTA Fleet logo - Capital Technology Alliance branding
+ * Navy background (#1A1847) with Gold accents (#F0A000)
  */
 function ArchonYLogo({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 280 52" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      {/* Sweeping arc - the signature design element from ADELE doc */}
-      <path
-        d="M2 28C30 8 80 2 140 6C200 10 250 4 278 16"
-        stroke="white"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.6"
-      />
-      {/* Second arc with dawn gradient */}
-      <path
-        d="M10 24C60 10 120 6 180 10C220 14 258 8 270 18"
-        stroke="url(#arcGradient)"
-        strokeWidth="1.2"
-        strokeLinecap="round"
-        fill="none"
-        opacity="0.4"
-      />
-      {/* ARCHON text */}
-      <text x="18" y="36" fill="white" fontSize="22" fontWeight="800" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="3">
-        ARCHON
+      {/* Gold accent bar */}
+      <rect x="0" y="0" width="4" height="52" fill="#F0A000" />
+
+      {/* CTA text - main branding */}
+      <text x="16" y="35" fill="white" fontSize="24" fontWeight="900" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="2">
+        CTA
       </text>
-      {/* Dot separator */}
-      <circle cx="172" cy="30" r="2.5" fill="#41B2E3" />
-      {/* Y character */}
-      <text x="182" y="36" fill="white" fontSize="22" fontWeight="800" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="3">
-        Y
+
+      {/* Gold separator dot */}
+      <circle cx="98" cy="28" r="3" fill="#F0A000" />
+
+      {/* FLEET text */}
+      <text x="110" y="35" fill="white" fontSize="24" fontWeight="700" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="1.5">
+        FLEET
       </text>
-      {/* INTELLIGENT PERFORMANCE tagline */}
-      <text x="64" y="48" fill="white" fillOpacity="0.35" fontSize="6.5" fontWeight="500" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="3.5">
+
+      {/* Capital Technology Alliance tagline */}
+      <text x="16" y="48" fill="#F0A000" fontSize="7" fontWeight="600" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" letterSpacing="1.5">
         INTELLIGENT PERFORMANCE
       </text>
       <defs>
