@@ -355,10 +355,10 @@ if (process.env.NODE_ENV !== 'production' && process.env.SKIP_AUTH === 'true') {
         id: '00000000-0000-0000-0000-000000000001',
         email: 'dev@fleetcta.local',
         role: 'SuperAdmin',
-        tenant_id: '8e33a492-9b42-4e7a-8654-0572c9773b71',
+        tenant_id: '4ea6cc1c-6b44-4f1c-a3e8-9445b6d2d1c9',
         scope_level: 'global',
         userId: '00000000-0000-0000-0000-000000000001',
-        tenantId: '8e33a492-9b42-4e7a-8654-0572c9773b71',
+        tenantId: '4ea6cc1c-6b44-4f1c-a3e8-9445b6d2d1c9',
         name: 'Dev User',
       }
     }

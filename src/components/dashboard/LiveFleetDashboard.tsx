@@ -91,9 +91,9 @@ const normalizeGeofence = (row: any): Geofence => {
 
 export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
 
-  // Fetch from working emulator endpoint instead of broken /api/vehicles endpoint
+  // Fetch from real /api/vehicles endpoint with 300+ real vehicles from database
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useSWR(
-    '/api/emulator/vehicles',
+    '/api/vehicles?limit=300',
     (url) => fetch(url, { credentials: 'include' }).then(r => r.json()),
     { revalidateOnFocus: false, dedupingInterval: 5000 }
   );
@@ -225,12 +225,20 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         setIsLoading(false);
       } else if (vehiclesData) {
         // Handle both direct array and nested data structure
+        // Real API returns: {success, data: {data: [...], total: 300}, meta: {...}}
         let vehicleArray: any[] = [];
 
         if (Array.isArray(vehiclesData)) {
           vehicleArray = vehiclesData;
-        } else if (typeof vehiclesData === 'object' && 'data' in vehiclesData && Array.isArray((vehiclesData as any).data)) {
-          vehicleArray = (vehiclesData as any).data;
+        } else if (typeof vehiclesData === 'object') {
+          // Check for nested structure: data.data (from real /api/vehicles)
+          if ((vehiclesData as any).data?.data && Array.isArray((vehiclesData as any).data.data)) {
+            vehicleArray = (vehiclesData as any).data.data;
+          }
+          // Check for flat structure: data (from other APIs)
+          else if (Array.isArray((vehiclesData as any).data)) {
+            vehicleArray = (vehiclesData as any).data;
+          }
         }
 
         if (vehicleArray.length > 0) {
