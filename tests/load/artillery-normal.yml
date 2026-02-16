@@ -1,0 +1,103 @@
+config:
+  target: "{{ $processEnvironment.BASE_URL || 'http://localhost:3001' }}"
+  phases:
+    - duration: 300  # 5 minutes
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 600  # 10 minutes
+      arrivalRate: 20
+      name: "Normal load"
+    - duration: 300  # 5 minutes
+      arrivalRate: 10
+      name: "Cool down"
+  processor: "./processor.js"
+  variables:
+    vehicleIds: [1, 2, 3, 4, 5]
+    driverIds: [1, 2, 3, 4, 5]
+  http:
+    timeout: 10
+  defaults:
+    headers:
+      User-Agent: "Artillery Load Test"
+  ensure:
+    maxErrorRate: 1
+  processor: "./processor.js"
+
+scenarios:
+  - name: "Fleet Operations"
+    weight: 40
+    flow:
+      - get:
+          url: "/api/vehicles?limit=20"
+          expect:
+            - statusCode: 200
+          timeout: 5000
+      - think: 1
+      - get:
+          url: "/api/vehicles/{{ $randomNumber(1, 50) }}"
+          expect:
+            - statusCode: [200, 404]
+          timeout: 5000
+      - think: 1
+      - get:
+          url: "/api/vehicles?search=test&limit=20"
+          expect:
+            - statusCode: 200
+          timeout: 5000
+
+  - name: "Driver Operations"
+    weight: 30
+    flow:
+      - get:
+          url: "/api/drivers?limit=20"
+          expect:
+            - statusCode: 200
+          timeout: 5000
+      - think: 1
+      - get:
+          url: "/api/drivers/{{ $randomNumber(1, 50) }}"
+          expect:
+            - statusCode: [200, 404]
+          timeout: 5000
+      - think: 1
+      - get:
+          url: "/api/drivers/{{ $randomNumber(1, 50) }}/performance"
+          expect:
+            - statusCode: [200, 404]
+          timeout: 5000
+
+  - name: "Dashboard Operations"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/analytics/fleet-metrics"
+          expect:
+            - statusCode: 200
+          timeout: 10000
+      - think: 1
+      - get:
+          url: "/api/vehicles/telemetry/current"
+          expect:
+            - statusCode: 200
+          timeout: 5000
+      - think: 1
+      - get:
+          url: "/api/compliance/summary"
+          expect:
+            - statusCode: 200
+          timeout: 5000
+
+  - name: "Alerts and Monitoring"
+    weight: 10
+    flow:
+      - get:
+          url: "/api/alerts?limit=20"
+          expect:
+            - statusCode: 200
+          timeout: 5000
+      - think: 1
+      - get:
+          url: "/api/alerts/active"
+          expect:
+            - statusCode: [200, 404]
+          timeout: 5000

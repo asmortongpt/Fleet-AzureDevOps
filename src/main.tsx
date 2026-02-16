@@ -85,21 +85,10 @@ import { BrandingProvider } from "./shared/branding/BrandingProvider"
 // DISABLED: Conflicts with Deep Midnight Dark Theme
 // import "./styles/professional-theme-fix.css"
 
-// Core Tailwind v4 + Enterprise Design System
+// Core Tailwind v4 + Enterprise Design System + Optimized CSS Bundle
+// NOTE: All CSS is now consolidated in index.css to reduce network requests
+// Phase 1 Optimization: Removed separate CSS imports for better performance
 import "./index.css"
-import "./styles/pro-max.css"
-
-// Responsive Utilities
-import "./styles/design-tokens-responsive.css"
-import "./styles/responsive-utilities.css"
-import "./styles/dark-mode-enhancements.css"
-import "./styles/cta-hubs.css"
-
-// WCAG 2.1 AA Accessibility Styles
-import "./styles/accessibility.css"
-
-// Legacy fleet theme - DISABLED to prevent conflicts
-// import "./styles/fleet-theme.css"
 
 // Create a client with reactive data configuration
 const queryClient = new QueryClient({

@@ -1,0 +1,58 @@
+config:
+  target: "{{ $processEnvironment.BASE_URL || 'http://localhost:3001' }}"
+  phases:
+    - duration: 30    # 30 seconds ramp up
+      arrivalRate: 10
+      rampTo: 50
+      name: "Initial ramp"
+    - duration: 120   # 2 minutes moderate
+      arrivalRate: 50
+      rampTo: 100
+      name: "Increasing load"
+    - duration: 180   # 3 minutes heavy
+      arrivalRate: 100
+      rampTo: 150
+      name: "Heavy stress"
+    - duration: 120   # 2 minutes maximum
+      arrivalRate: 150
+      name: "Maximum stress"
+    - duration: 120   # 2 minutes cool down
+      arrivalRate: 150
+      rampTo: 10
+      name: "Cool down"
+  http:
+    timeout: 10
+  defaults:
+    headers:
+      User-Agent: "Artillery Stress Test"
+  ensure:
+    maxErrorRate: 5  # Allow 5% errors during stress
+
+scenarios:
+  - name: "Stress Test - Multi-endpoint Load"
+    weight: 100
+    flow:
+      - get:
+          url: "/api/vehicles?limit=20"
+          expect:
+            - statusCode: [200, 429]  # Allow rate limiting
+          timeout: 5000
+      - think: 0.2
+      - get:
+          url: "/api/drivers?limit=20"
+          expect:
+            - statusCode: [200, 429]
+          timeout: 5000
+      - think: 0.2
+      - get:
+          url: "/api/alerts?limit=20"
+          expect:
+            - statusCode: [200, 429]
+          timeout: 5000
+      - think: 0.2
+      - get:
+          url: "/api/compliance/summary"
+          expect:
+            - statusCode: [200, 429]
+          timeout: 5000
+      - think: 0.2

@@ -75,17 +75,68 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
+        // Phase 2 Performance Optimization: Enhanced code splitting
+        // Reduced main bundle by splitting vendors into logical chunks
         manualChunks: {
+          // Core React & Routing
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+
+          // State Management & Data Fetching
           'query-vendor': ['@tanstack/react-query'],
+          'state-vendor': ['zustand', 'jotai'],
+
+          // UI Libraries
+          'radix-ui-vendor': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-select',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-alert-dialog',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-radio-group',
+            '@radix-ui/react-slider',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-tooltip',
+          ],
+
+          // UI Utilities
+          'ui-vendor': [
+            'zod',
+            'class-variance-authority',
+            'clsx',
+            'tailwind-merge',
+            'cmdk',
+          ],
+
+          // Data Tables & Virtualization
           'ag-grid-vendor': ['ag-grid-react', 'ag-grid-community'],
-          'icons-vendor': ['lucide-react'],
+
+          // Icons
+          'icons-vendor': ['lucide-react', '@phosphor-icons/react', '@mui/icons-material'],
+
+          // Charting & Visualization
           'recharts-vendor': ['recharts'],
+          'mermaid-vendor': ['mermaid'],
+
+          // 3D Graphics (only loaded in VehicleShowroom3D)
           'three-vendor': ['three'],
-          'three-fiber-vendor': ['@react-three/fiber', '@react-three/drei'],
+          'three-fiber-vendor': ['@react-three/fiber', '@react-three/drei', '@react-three/postprocessing', 'postprocessing'],
+
+          // Dates & Time
           'date-vendor': ['date-fns'],
+
+          // Animation
           'motion-vendor': ['framer-motion'],
+
+          // Authentication
           'msal-vendor': ['@azure/msal-browser', '@azure/msal-react'],
+
+          // Internationalization
+          'i18n-vendor': ['i18next', 'i18next-browser-languagedetector', 'react-i18next'],
+
+          // Maps & Location
+          'mapping-vendor': ['leaflet', 'react-leaflet', 'mapbox-gl'],
         },
       },
       // P0-1: Explicitly exclude .env files and msw from being bundled

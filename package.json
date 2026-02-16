@@ -19,7 +19,19 @@
     "coverage:analyze": "node scripts/coverage-analysis.js",
     "coverage:track": "node scripts/track-coverage-trends.js",
     "coverage:badge": "node scripts/generate-coverage-badge.js",
-    "coverage:report": "npm run test:coverage && npm run coverage:analyze && npm run coverage:track && npm run coverage:badge"
+    "coverage:report": "npm run test:coverage && npm run coverage:analyze && npm run coverage:track && npm run coverage:badge",
+    "load:all": "tests/load/run-all-tests.sh",
+    "load:normal": "k6 run tests/load/scenarios/load-normal.js",
+    "load:spike": "k6 run tests/load/scenarios/load-spike.js",
+    "load:stress": "k6 run tests/load/scenarios/load-stress.js",
+    "load:endurance": "k6 run tests/load/scenarios/load-endurance.js",
+    "load:api:vehicles": "k6 run tests/load/api/vehicles.js",
+    "load:api:drivers": "k6 run tests/load/api/drivers.js",
+    "load:api:database": "k6 run tests/load/api/database.js",
+    "load:artillery:normal": "artillery run tests/load/artillery-normal.yml",
+    "load:artillery:spike": "artillery run tests/load/artillery-spike.yml",
+    "load:artillery:stress": "artillery run tests/load/artillery-stress.yml",
+    "load:analyze": "node tests/load/analyze-results.js"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.2.0",
