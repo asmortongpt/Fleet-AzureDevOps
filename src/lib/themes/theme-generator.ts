@@ -116,10 +116,22 @@ export function generateThemeFromColor(options: ThemeGenerationOptions): Theme {
         }
   }
 
+  // Determine variant based on theme options
+  let variant: 'light' | 'dark' | 'high-contrast' | 'deuteranopia' | 'protanopia' | 'tritanopia' | 'custom' = 'custom'
+  if (options.highContrast) {
+    variant = 'high-contrast'
+  } else if (options.colorBlindMode === 'deuteranopia') {
+    variant = 'deuteranopia'
+  } else if (options.colorBlindMode === 'protanopia') {
+    variant = 'protanopia'
+  } else if (options.colorBlindMode === 'tritanopia') {
+    variant = 'tritanopia'
+  }
+
   return {
-    id: `theme-${Date.now()}`,
+    id: `theme-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
     name: basePalette.name,
-    variant: options.highContrast ? 'high-contrast' : 'custom',
+    variant,
     colors: basePalette.colors,
     wcagLevel: basePalette.wcagLevel,
     contrastRatio: basePalette.contrastRatio,

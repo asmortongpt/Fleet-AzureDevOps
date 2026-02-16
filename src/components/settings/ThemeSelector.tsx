@@ -181,9 +181,9 @@ export function ThemeSelector({ onThemeChange }: ThemeSelectorProps) {
               <div className="space-y-2">
                 <h4 className="font-semibold text-sm">Contrast Ratios:</h4>
                 <div className="grid grid-cols-2 gap-2">
-                  {Object.entries(contrastValidation.ratios).map(([pair, ratio]) => (
+                  {Object.entries(contrastValidation.ratios).map(([pair, ratio]: [string, unknown]) => (
                     <div key={pair} className="text-xs p-2 bg-muted rounded">
-                      <div className="font-mono font-semibold">{ratio}</div>
+                      <div className="font-mono font-semibold">{String(ratio)}</div>
                       <div className="text-muted-foreground">{pair}</div>
                     </div>
                   ))}

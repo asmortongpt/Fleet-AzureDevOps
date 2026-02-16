@@ -29,7 +29,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (theme) return theme
     }
     // Default to light theme
-    return getThemeById('light') || PRESET_THEMES_MAP.values().next().value
+    const defaultTheme = getThemeById('light')
+    if (defaultTheme) return defaultTheme
+
+    // Fallback to first available theme
+    const firstTheme = PRESET_THEMES_MAP.values().next().value
+    if (firstTheme) return firstTheme
+
+    throw new Error('No themes available')
   })
 
   const [themes] = useState<Theme[]>(Array.from(PRESET_THEMES_MAP.values()))
