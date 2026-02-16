@@ -74,6 +74,16 @@
 
     <title>Archon-Y Fleet - Intelligent Performance</title>
 
+    <!-- Performance Optimization: Resource Hints -->
+    <!-- DNS Prefetch for external APIs -->
+    <link rel="dns-prefetch" href="https://maps.googleapis.com">
+    <link rel="dns-prefetch" href="https://graph.microsoft.com">
+    <link rel="dns-prefetch" href="https://login.microsoftonline.com">
+
+    <!-- Preconnect to critical domains -->
+    <link rel="preconnect" href="https://maps.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://login.microsoftonline.com" crossorigin>
+
     <!-- Google Maps API - Loaded dynamically by app to avoid exposing key in source -->
     <!-- API key injected at runtime from environment variable VITE_GOOGLE_MAPS_API_KEY -->
     <!-- Note: Using system fonts (see index.css) for WCAG AAA compliance -->

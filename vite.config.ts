@@ -43,13 +43,17 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      disable: true, // Disable PWA temporarily to fix TLS issues
+      // Phase 2 Optimization: Re-enabled PWA for offline support & caching
+      disable: false, // ENABLED: Provides offline support and improved caching
       registerType: 'autoUpdate',
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        globIgnores: ['**/stats.html'],
+        globPatterns: [
+          '**/*.{js,css,html,ico,png,svg,webp}', // Include WebP for modern browsers
+        ],
+        globIgnores: ['**/stats.html', '**/playwright-report/**'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
         runtimeCaching: [
+          // API Responses - Network First with 5-min cache
           {
             urlPattern: /^https:\/\/fleet\.capitaltechalliance\.com\/api\/.*/i,
             handler: 'NetworkFirst',
@@ -57,7 +61,47 @@ export default defineConfig({
               cacheName: 'api-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 5,
+                maxAgeSeconds: 300, // 5 minutes
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // CDN Assets - Cache First with 30-day expiration
+          {
+            urlPattern: /^https:\/\/(cdn|unpkg|jsdelivr|cdnjs)\..*\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'cdn-cache',
+              expiration: {
+                maxAgeSeconds: 86400 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          // Google Fonts - Cache First for 1 year
+          {
+            urlPattern: /^https:\/\/(fonts\.googleapis\.com|fonts\.gstatic\.com)\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'fonts-cache',
+              expiration: {
+                maxAgeSeconds: 31536000, // 1 year
+              },
+            },
+          },
+          // Google Maps - Cache First with 30-day expiration
+          {
+            urlPattern: /^https:\/\/maps\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'maps-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 86400 * 30, // 30 days
               },
             },
           },
