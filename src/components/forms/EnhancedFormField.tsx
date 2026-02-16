@@ -67,7 +67,7 @@ export const EnhancedFormField: React.FC<EnhancedFormFieldProps> = ({
 
   const getBackgroundColor = () => {
     if (disabled) return colors.neutral[100]
-    return colors.white
+    return colors.neutral[50]
   }
 
   const inputProps = {

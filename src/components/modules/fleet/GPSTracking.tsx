@@ -6,7 +6,7 @@
 import { MapPin, Navigation, Clock, Signal } from 'lucide-react';
 import React from 'react';
 
-import { brandColors } from '@/theme/designSystem';
+import { brandColors, colors } from '@/theme/designSystem';
 
 interface Vehicle {
   id: string;
@@ -45,7 +45,7 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
           <MapPin className="w-6 h-6" style={{ color: brandColors.cta.orange }} />
           GPS Tracking
         </h1>
-        <div className="flex items-center gap-2 text-sm" style={{ color: brandColors.colors.success[500] }}>
+        <div className="flex items-center gap-2 text-sm" style={{ color: colors.success[500] }}>
           <Signal className="w-4 h-4" />
           Live Updates Active
         </div>
@@ -97,13 +97,13 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
               </div>
               <div className="flex justify-between items-center">
                 <span style={{ color: brandColors.archon.mediumGray }}>In Motion</span>
-                <span className="font-medium" style={{ color: brandColors.colors.success[500] }}>
+                <span className="font-medium" style={{ color: colors.success[500] }}>
                   {inMotion}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span style={{ color: brandColors.archon.mediumGray }}>Stationary</span>
-                <span className="font-medium" style={{ color: brandColors.colors.warning[500] }}>
+                <span className="font-medium" style={{ color: colors.warning[500] }}>
                   {stationary}
                 </span>
               </div>
