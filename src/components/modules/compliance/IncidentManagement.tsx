@@ -44,6 +44,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/hooks/useAuth";
 import { apiClient } from "@/lib/api-client"
 import logger from '@/utils/logger';
+import { brandColors } from "@/theme/designSystem"
 interface Incident {
   id: string
   incident_title: string

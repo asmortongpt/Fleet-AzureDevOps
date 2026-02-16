@@ -27,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { secureFetch } from "@/hooks/use-api"
 import { useAuth } from "@/hooks/useAuth"
 import logger from "@/utils/logger"
+import { brandColors } from "@/theme/designSystem"
 
 
 interface OSHAForm {

@@ -46,6 +46,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
 import logger from '@/utils/logger'
+import { brandColors } from "@/theme/designSystem"
 
 interface Document {
   id: string

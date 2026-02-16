@@ -22,6 +22,7 @@ import {
 import { useDrilldown } from "@/contexts/DrilldownContext";
 import { useFleetData } from "@/hooks/use-fleet-data";
 import { Vehicle } from "@/lib/types";
+import { brandColors } from "@/theme/designSystem"
 
 interface VehicleRosterProps {
     open: boolean;

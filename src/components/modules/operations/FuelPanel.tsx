@@ -16,6 +16,7 @@ import {
 } from "../../ui/sheet";
 
 import { useFleetData } from "@/hooks/use-fleet-data";
+import { brandColors } from "@/theme/designSystem"
 
 interface FuelPanelProps {
     open: boolean;

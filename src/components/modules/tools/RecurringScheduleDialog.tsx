@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { Textarea } from "@/components/ui/textarea"
 import { RecurrencePattern, WorkOrderTemplate } from "@/lib/types"
+import { brandColors } from "@/theme/designSystem"
 
 interface RecurringScheduleDialogProps {
   open: boolean

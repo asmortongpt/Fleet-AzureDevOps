@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { brandColors } from '@/theme/designSystem';
 import { cn } from '@/lib/utils';
 
 interface CommandCenterSidebarProps {
@@ -56,14 +57,16 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             >
                 {/* Active indicator */}
                 <div className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-3 rounded-r-full bg-primary transition-all duration-200",
+                    "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-3 rounded-r-full transition-all duration-200",
                     isActive ? "opacity-100" : "opacity-0"
-                )} />
+                )}
+                style={{ backgroundColor: isActive ? brandColors.cta.orange : 'transparent' }}
+                />
 
                 <div className={cn(
-                    "w-4 h-4 flex items-center justify-center shrink-0 transition-colors duration-200",
-                    isActive ? "text-primary" : "text-muted-foreground group-hover/navbtn:text-foreground"
-                )}>
+                    "w-4 h-4 flex items-center justify-center shrink-0 transition-colors duration-200"
+                )}
+                style={{ color: isActive ? brandColors.cta.orange : 'inherit' }}>
                     {item.icon}
                 </div>
                 {isSidebarOpen && (

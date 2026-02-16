@@ -78,6 +78,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { useInventory } from "@/hooks/useInventory"
 import { usePermissions } from "@/hooks/usePermissions"
 import { Part, InventoryTransaction } from "@/lib/types"
+import { brandColors } from "@/theme/designSystem"
 
 interface InventoryFilters {
   category: string

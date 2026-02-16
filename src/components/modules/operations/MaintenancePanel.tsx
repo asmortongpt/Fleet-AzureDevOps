@@ -19,6 +19,7 @@ import {
 
 import { useFleetData } from "@/hooks/use-fleet-data";
 import { useMaintenanceData } from "@/hooks/use-maintenance-data";
+import { brandColors } from "@/theme/designSystem"
 
 interface MaintenancePanelProps {
     open: boolean;

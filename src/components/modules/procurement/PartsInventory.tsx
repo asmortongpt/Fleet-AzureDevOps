@@ -35,6 +35,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Part } from "@/lib/types"
+import { brandColors } from "@/theme/designSystem"
 
 
 export function PartsInventory() {

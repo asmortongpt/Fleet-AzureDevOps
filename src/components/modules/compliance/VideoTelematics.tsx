@@ -44,6 +44,7 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { getCsrfToken } from "@/hooks/use-api"
+import { brandColors } from "@/theme/designSystem"
 
 
 interface VideoEvent {
