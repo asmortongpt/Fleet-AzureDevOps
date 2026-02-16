@@ -220,6 +220,11 @@ function App() {
   }, [currentNavItem, canAccess])
 
   const renderModule = () => {
+    // Return null if no module is active - shows map on home page
+    if (!activeModule) {
+      return null
+    }
+
     if (!hasAccessToModule) {
       return (
         <div className="flex flex-col items-center justify-center h-full p-3 text-center bg-gray-50 rounded-lg">
@@ -502,7 +507,8 @@ function App() {
       //     return <Suspense fallback={<div>Loading...</div>}><FleetDesignDemo /></Suspense>
 
       default:
-        return <FleetOperationsHub />
+        // Unknown module - show map (home page)
+        return null
     }
   }
 
