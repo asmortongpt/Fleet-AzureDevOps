@@ -36,17 +36,22 @@ interface VehicleTooltipData {
 
 interface InteractiveTooltipProps {
   children: ReactNode;
-  data: VehicleTooltipData;
+  content?: ReactNode;
+  data?: VehicleTooltipData;
   showDetails?: boolean;
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
   className?: string;
   onViewDetails?: (id: string) => void;
   onTrack?: (id: string) => void;
+  delay?: number;
+  asChild?: boolean;
+  position?: "top" | "right" | "bottom" | "left";
 }
 
 export function InteractiveTooltip({
   children,
+  content,
   data,
   showDetails = true,
   side = "top",
@@ -54,6 +59,9 @@ export function InteractiveTooltip({
   className,
   onViewDetails,
   onTrack,
+  delay = 0,
+  asChild = true,
+  position,
 }: InteractiveTooltipProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -80,15 +88,38 @@ export function InteractiveTooltip({
     },
   };
 
-  const config = statusConfig[data.status];
+  // Support both simple content and complex data
+  const config = data ? statusConfig[data.status] : null;
+  const effectiveSide = (position || side) as "top" | "right" | "bottom" | "left";
 
+  // If simple content is provided, render a simple tooltip
+  if (content && !data) {
+    return (
+      <TooltipProvider delayDuration={delay}>
+        <Tooltip open={isOpen} onOpenChange={setIsOpen}>
+          <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
+          {isOpen && (
+            <TooltipContent
+              side={effectiveSide}
+              align={align}
+              className={cn("bg-gray-900 text-white border-gray-700", className)}
+            >
+              {content}
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  // Complex vehicle data rendering
   return (
-    <TooltipProvider delayDuration={100}>
+    <TooltipProvider delayDuration={delay}>
       <Tooltip open={isOpen} onOpenChange={setIsOpen}>
-        <TooltipTrigger asChild>{children}</TooltipTrigger>
-        {isOpen && (
+        <TooltipTrigger asChild={asChild}>{children}</TooltipTrigger>
+        {isOpen && data && (
           <TooltipContent
-            side={side}
+            side={effectiveSide}
             align={align}
             className={cn("p-0 border-0 bg-transparent shadow-none", className)}
           >
