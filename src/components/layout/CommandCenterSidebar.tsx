@@ -45,37 +45,43 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 variant="ghost"
                 onClick={handleClick}
                 className={cn(
-                    "w-full justify-start h-10 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden",
+                    "w-full justify-start h-11 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden font-semibold",
                     isSidebarOpen ? "px-3 gap-3" : "px-0 justify-center",
                     isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
+                        ? "bg-gradient-to-r from-[#41B2E3]/15 to-transparent text-[#41B2E3] shadow-md shadow-[#41B2E3]/10 border-l-4 border-l-[#41B2E3]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-muted/40 hover:to-transparent"
                 )}
                 style={{ animationDelay: `${index * 30}ms` }}
                 aria-label={item.label}
                 aria-current={isActive ? "page" : undefined}
             >
-                {/* Active indicator */}
+                {/* Active indicator with gradient */}
                 <div className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-3 rounded-r-full transition-all duration-200",
+                    "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full transition-all duration-200",
                     isActive ? "opacity-100" : "opacity-0"
                 )}
-                style={{ backgroundColor: isActive ? brandColors.cta.orange : 'transparent' }}
+                style={{
+                    background: isActive ? 'linear-gradient(to-bottom, #41B2E3, #5BC0EB)' : 'transparent',
+                    boxShadow: isActive ? '0 0 12px rgba(65, 178, 227, 0.5)' : 'none'
+                }}
                 />
 
                 <div className={cn(
-                    "w-4 h-4 flex items-center justify-center shrink-0 transition-colors duration-200"
+                    "w-5 h-5 flex items-center justify-center shrink-0 transition-all duration-200 nav-icon"
                 )}
-                style={{ color: isActive ? brandColors.cta.orange : 'inherit' }}>
+                style={{
+                    color: isActive ? '#41B2E3' : 'inherit',
+                    filter: isActive ? 'drop-shadow(0 0 8px rgba(65, 178, 227, 0.4))' : 'none'
+                }}>
                     {item.icon}
                 </div>
                 {isSidebarOpen && (
                     <>
-                        <span className="font-medium text-sm truncate flex-1 text-left">{item.label}</span>
+                        <span className="font-semibold text-sm truncate flex-1 text-left">{item.label}</span>
                         <ChevronRight className={cn(
-                            "w-3.5 h-3.5 opacity-0 -translate-x-1 transition-all duration-200",
+                            "w-4 h-4 opacity-0 -translate-x-1 transition-all duration-200",
                             "group-hover/navbtn:opacity-50 group-hover/navbtn:translate-x-0",
-                            isActive && "opacity-30"
+                            isActive && "opacity-50"
                         )} />
                     </>
                 )}

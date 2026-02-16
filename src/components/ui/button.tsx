@@ -5,36 +5,38 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-150 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
         default:
-          "bg-primary hover:bg-primary/90 text-primary-foreground border-0 rounded-md shadow-sm",
+          "bg-gradient-to-r from-[#FF6B35] to-[#FF8855] hover:from-[#E55A24] hover:to-[#FF6B35] text-white shadow-md shadow-[#FF6B35]/30 hover:shadow-lg hover:shadow-[#FF6B35]/40 hover:-translate-y-0.5 active:translate-y-0 rounded-lg font-semibold",
         destructive:
-          "bg-destructive text-white hover:bg-destructive/90 rounded-md shadow-sm",
+          "bg-gradient-to-r from-[#DD3903] to-[#FF3838] hover:from-[#B91C1C] hover:to-[#DD3903] text-white shadow-md shadow-[#DD3903]/30 hover:shadow-lg hover:shadow-[#DD3903]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
         outline:
-          "border border-border bg-transparent hover:bg-muted text-foreground rounded-md",
+          "border-2 border-[#41B2E3] bg-transparent hover:bg-[#41B2E3]/10 text-[#41B2E3] rounded-lg transition-all duration-200 font-semibold hover:border-[#41B2E3]/80",
         secondary:
-          "bg-muted text-foreground hover:bg-muted/80 rounded-md",
+          "bg-gradient-to-r from-[#41B2E3] to-[#5BC0EB] hover:from-[#2E9FD1] hover:to-[#41B2E3] text-white shadow-md shadow-[#41B2E3]/30 hover:shadow-lg hover:shadow-[#41B2E3]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
         ghost:
-          "hover:bg-muted hover:text-foreground rounded-md",
+          "hover:bg-gradient-to-r hover:from-primary/15 hover:to-transparent text-foreground rounded-lg transition-all duration-200",
         link:
-          "text-primary underline-offset-4 hover:underline",
+          "text-[#41B2E3] underline-offset-4 hover:underline hover:text-[#5BC0EB] font-semibold",
         success:
-          "bg-emerald-600 text-white hover:bg-emerald-700 rounded-md shadow-sm",
+          "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md shadow-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/40 hover:-translate-y-0.5 rounded-lg font-semibold",
         warning:
-          "bg-amber-500 text-white hover:bg-amber-600 rounded-md shadow-sm",
+          "bg-gradient-to-r from-[#F0A000] to-[#FFB800] hover:from-[#D97706] hover:to-[#F0A000] text-white shadow-md shadow-[#F0A000]/30 hover:shadow-lg hover:shadow-[#F0A000]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
+        professional:
+          "bg-gradient-to-r from-[#2F3359] to-[#3D4573] hover:from-[#1A1446] hover:to-[#2F3359] text-white shadow-md shadow-[#2F3359]/50 hover:shadow-lg hover:shadow-[#2F3359]/60 hover:-translate-y-0.5 rounded-lg font-semibold",
       },
       size: {
-        default: "h-9 px-2 py-2 has-[>svg]:px-3",
-        sm: "h-8 gap-1.5 px-3 text-xs has-[>svg]:px-2",
-        lg: "h-8 px-5 text-sm has-[>svg]:px-2",
-        xl: "h-11 px-3 text-base has-[>svg]:px-5",
-        icon: "size-9",
-        "icon-sm": "size-7",
-        "icon-lg": "size-10",
-        touch: "h-11 px-5 py-2.5 has-[>svg]:px-2 min-h-[44px] min-w-[44px]",
+        default: "h-10 px-4 py-2 has-[>svg]:px-4 rounded-lg",
+        sm: "h-8 gap-1.5 px-3 text-xs has-[>svg]:px-2 rounded-md",
+        lg: "h-11 px-6 text-base has-[>svg]:px-3 rounded-lg",
+        xl: "h-12 px-8 text-lg has-[>svg]:px-4 rounded-xl font-bold",
+        icon: "size-10 rounded-lg",
+        "icon-sm": "size-8 rounded-md",
+        "icon-lg": "size-12 rounded-lg",
+        touch: "h-12 px-6 py-3 has-[>svg]:px-3 min-h-[48px] min-w-[48px] rounded-lg",
       },
     },
     defaultVariants: {

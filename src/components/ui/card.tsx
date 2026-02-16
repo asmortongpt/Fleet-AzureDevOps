@@ -8,7 +8,7 @@ const Card = forwardRef<HTMLDivElement, ComponentProps<"div">>(({ className, ...
       ref={ref}
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground border border-border rounded-lg flex flex-col gap-2 py-2 transition-colors duration-150 hover:border-border/80 shadow-sm",
+        "bg-card text-card-foreground border border-border/60 rounded-xl flex flex-col gap-2 py-3 px-3 transition-all duration-300 hover:border-border/80 hover:shadow-lg hover:-translate-y-0.5 shadow-md hover:shadow-primary/10",
         className
       )}
       {...props}
@@ -113,6 +113,49 @@ function CardCompact({ className, ...props }: ComponentProps<"div">) {
   )
 }
 
+function CardPremium({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-premium"
+      className={cn(
+        "bg-gradient-to-br from-card via-card to-card/95 text-card-foreground flex flex-col gap-3 rounded-xl border border-border/60",
+        "transition-all duration-300 ease-out relative overflow-hidden",
+        "shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-[#41B2E3]/10 hover:border-[#41B2E3]/40 hover:-translate-y-0.5 p-4",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardOrangeAccent({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-orange-accent"
+      className={cn(
+        "bg-card text-card-foreground flex flex-col gap-3 rounded-xl border-l-4 border-l-[#FF6B35] border border-border/60 p-4",
+        "shadow-md shadow-[#FF6B35]/10 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
+function CardBlueAccent({ className, ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="card-blue-accent"
+      className={cn(
+        "bg-card text-card-foreground flex flex-col gap-3 rounded-xl border-l-4 border-l-[#41B2E3] border border-border/60 p-4",
+        "shadow-md shadow-[#41B2E3]/10 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
+        className
+      )}
+      {...props}
+    />
+  )
+}
+
 export {
   Card,
   CardHeader,
@@ -123,4 +166,7 @@ export {
   CardContent,
   CardGlass,
   CardCompact,
+  CardPremium,
+  CardOrangeAccent,
+  CardBlueAccent,
 }

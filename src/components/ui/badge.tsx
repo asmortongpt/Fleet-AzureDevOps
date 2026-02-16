@@ -5,49 +5,49 @@ import { ComponentProps } from "react"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "inline-flex items-center justify-center rounded-lg border px-2.5 py-0.5 text-xs font-semibold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none transition-all duration-200 overflow-hidden",
+  "inline-flex items-center justify-center rounded-full border px-3 py-1 text-xs font-bold w-fit whitespace-nowrap shrink-0 [&>svg]:size-3 gap-1.5 [&>svg]:pointer-events-none transition-all duration-200 overflow-hidden",
   {
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary text-primary-foreground shadow-sm [a&]:hover:bg-primary/90",
+          "border-transparent bg-gradient-to-r from-[#FF6B35] to-[#FF8855] text-white shadow-md shadow-[#FF6B35]/40 font-bold",
         secondary:
-          "border-transparent bg-secondary text-secondary-foreground [a&]:hover:bg-secondary/90",
+          "border-transparent bg-gradient-to-r from-[#41B2E3] to-[#5BC0EB] text-white shadow-md shadow-[#41B2E3]/40 font-bold",
         destructive:
-          "border-transparent bg-destructive text-destructive-foreground shadow-sm [a&]:hover:bg-destructive/90",
+          "border-transparent bg-gradient-to-r from-[#DD3903] to-[#FF3838] text-white shadow-md shadow-[#DD3903]/40 font-bold",
         success:
-          "border-transparent bg-success text-white shadow-sm [a&]:hover:bg-success/90",
+          "border-transparent bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/40 font-bold",
         warning:
-          "border-transparent bg-warning text-white shadow-sm [a&]:hover:bg-warning/90",
+          "border-transparent bg-gradient-to-r from-[#F0A000] to-[#FFB800] text-white shadow-md shadow-[#F0A000]/40 font-bold",
         info:
-          "border-transparent bg-[#dbeafe] text-[#1e3a8a] shadow-sm [a&]:hover:bg-[#bfdbfe]",
+          "border-transparent bg-gradient-to-r from-[#41B2E3] to-[#5BC0EB] text-white shadow-md shadow-[#41B2E3]/30",
         outline:
-          "text-foreground border-border/50 bg-transparent [a&]:hover:bg-muted/50",
+          "text-[#41B2E3] border-[#41B2E3]/30 bg-transparent hover:bg-[#41B2E3]/10 backdrop-blur-sm ring-1 ring-[#41B2E3]/20",
         ghost:
-          "border-transparent text-muted-foreground bg-muted/50 [a&]:hover:bg-muted",
+          "border-transparent text-muted-foreground bg-muted/50 hover:bg-muted",
         // Subtle variants with lighter backgrounds
         "primary-subtle":
-          "border-transparent bg-primary/10 text-primary [a&]:hover:bg-primary/20",
+          "border-transparent bg-[#FF6B35]/15 text-[#FF6B35] hover:bg-[#FF6B35]/25 font-bold ring-1 ring-[#FF6B35]/20",
         "destructive-subtle":
-          "border-transparent bg-destructive/10 text-destructive [a&]:hover:bg-destructive/20",
+          "border-transparent bg-[#DD3903]/15 text-[#DD3903] hover:bg-[#DD3903]/25 font-bold ring-1 ring-[#DD3903]/20",
         "success-subtle":
-          "border-transparent bg-success/10 text-success [a&]:hover:bg-success/20",
+          "border-transparent bg-emerald-500/15 text-emerald-500 hover:bg-emerald-500/25 font-bold ring-1 ring-emerald-500/20",
         "warning-subtle":
-          "border-transparent bg-warning/10 text-warning [a&]:hover:bg-warning/20",
+          "border-transparent bg-[#F0A000]/15 text-[#F0A000] hover:bg-[#F0A000]/25 font-bold ring-1 ring-[#F0A000]/20",
         // Status variants for real-time indicators
         online:
-          "border-transparent bg-success/20 text-success animate-pulse",
+          "border-transparent bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-md shadow-emerald-500/50 animate-pulse font-bold",
         offline:
-          "border-transparent bg-muted text-muted-foreground",
+          "border-transparent bg-muted text-muted-foreground font-bold",
         pending:
-          "border-transparent bg-warning/20 text-warning",
+          "border-transparent bg-gradient-to-r from-[#F0A000] to-[#FFB800] text-white shadow-md shadow-[#F0A000]/40 font-bold",
         error:
-          "border-transparent bg-destructive/20 text-destructive",
+          "border-transparent bg-gradient-to-r from-[#DD3903] to-[#FF3838] text-white shadow-md shadow-[#DD3903]/40 font-bold",
       },
       size: {
-        default: "h-6 text-xs",
-        sm: "h-5 text-[10px] px-2",
-        lg: "h-7 text-sm px-3",
+        default: "h-7 text-xs px-3",
+        sm: "h-6 text-[10px] px-2.5 py-0.5",
+        lg: "h-8 text-sm px-4 py-1",
       },
     },
     defaultVariants: {

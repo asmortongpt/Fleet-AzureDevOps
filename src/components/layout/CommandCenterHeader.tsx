@@ -83,13 +83,10 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                             placeholder={isMobile ? "Search..." : "Search fleet, drivers, or assets..."}
                             ariaLabel="Search fleet, drivers, or assets"
                             className={cn(
-                                "[&_input]:rounded-lg [&_input]:bg-white [&_input]:border-2 [&_input]:h-10 [&_input]:text-sm [&_input]:px-4",
-                                "[&_input]:transition-all [&_input]:duration-200",
-                                "[&_input:focus]:shadow-lg [&_input:focus]:shadow-blue-100"
-                            )}
-                            style={{
-                                borderColor: `${brandColors.cta.navy}20`
-                            }}
+                                "search-input-enhanced",
+                                "[&_input]:rounded-xl [&_input]:bg-gradient-to-r [&_input]:from-muted/40 [&_input]:via-muted/30 [&_input]:to-muted/40 [&_input]:border-[#41B2E3]/20 [&_input]:h-11 [&_input]:text-sm [&_input]:px-4",
+                                "[&_input]:transition-all [&_input]:duration-300",
+                                "[&_input:focus]:border-[#41B2E3] [&_input:focus]:ring-2 [&_input:focus]:ring-[#41B2E3]/20 [&_input:focus]:shadow-md [&_input:focus]:shadow-[#41B2E3]/10"
                             )}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}

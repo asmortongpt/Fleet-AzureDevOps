@@ -54,18 +54,46 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
   className,
   onClick,
 }) => {
+  const getStatusStyles = () => {
+    switch (status) {
+      case 'active':
+        return {
+          borderLeft: '4px solid #10B981',
+          boxShadow: 'inset 0 0 0 1px rgba(16, 185, 129, 0.2), 0 4px 12px rgba(16, 185, 129, 0.1)',
+        };
+      case 'warning':
+        return {
+          borderLeft: '4px solid #F0A000',
+          boxShadow: 'inset 0 0 0 1px rgba(240, 160, 0, 0.2), 0 4px 12px rgba(240, 160, 0, 0.1)',
+        };
+      case 'danger':
+        return {
+          borderLeft: '4px solid #DD3903',
+          boxShadow: 'inset 0 0 0 1px rgba(221, 57, 3, 0.2), 0 4px 12px rgba(221, 57, 3, 0.1)',
+        };
+      case 'success':
+        return {
+          borderLeft: '4px solid #10B981',
+          boxShadow: 'inset 0 0 0 1px rgba(16, 185, 129, 0.2), 0 4px 12px rgba(16, 185, 129, 0.15)',
+        };
+      default:
+        return {};
+    }
+  };
+
   return (
     <div
       className={cn(
-        'rounded-xl overflow-hidden transition-all',
-        onClick && 'cursor-pointer hover:shadow-lg',
+        'rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5',
+        onClick && 'cursor-pointer hover:shadow-xl',
         className
       )}
       style={{
         backgroundColor: colors.neutral[50],
-        boxShadow: shadows.sm,
-        transition: transitions.base,
+        boxShadow: `0 4px 12px rgba(0, 0, 0, 0.1), ${getStatusStyles().boxShadow}`,
+        transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
         border: `1px solid ${colors.neutral[200]}`,
+        ...getStatusStyles(),
       }}
       onClick={onClick}
     >
@@ -130,14 +158,46 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
         </div>
 
         {/* Icon & Status */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {status && (
             <div
-              className="w-2 h-2 rounded-full"
-              style={{ backgroundColor: statusColors[status] }}
+              className="w-3 h-3 rounded-full"
+              style={{
+                backgroundColor: statusColors[status],
+                boxShadow: `0 0 8px ${statusColors[status]}40`,
+              }}
             />
           )}
-          {icon && <div style={{ color: colors.primary[500] }}>{icon}</div>}
+          {icon && (
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{
+                background: status === 'active'
+                  ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))'
+                  : status === 'warning'
+                  ? 'linear-gradient(135deg, rgba(240, 160, 0, 0.2), rgba(240, 160, 0, 0.1))'
+                  : status === 'danger'
+                  ? 'linear-gradient(135deg, rgba(221, 57, 3, 0.2), rgba(221, 57, 3, 0.1))'
+                  : 'linear-gradient(135deg, rgba(47, 51, 89, 0.2), rgba(47, 51, 89, 0.1))',
+                boxShadow: status === 'active'
+                  ? '0 4px 12px rgba(16, 185, 129, 0.2)'
+                  : status === 'warning'
+                  ? '0 4px 12px rgba(240, 160, 0, 0.2)'
+                  : status === 'danger'
+                  ? '0 4px 12px rgba(221, 57, 3, 0.2)'
+                  : '0 4px 12px rgba(47, 51, 89, 0.1)',
+                color: status === 'active'
+                  ? colors.success[500]
+                  : status === 'warning'
+                  ? colors.warning[500]
+                  : status === 'danger'
+                  ? colors.danger[500]
+                  : colors.primary[500],
+              }}
+            >
+              {icon}
+            </div>
+          )}
         </div>
       </div>
 
@@ -162,13 +222,9 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
               e.stopPropagation()
               actionButton.onClick()
             }}
-            className="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all"
+            className="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all bg-gradient-to-r from-[#FF6B35] to-[#FF8855] hover:from-[#E55A24] hover:to-[#FF6B35] shadow-md shadow-[#FF6B35]/30 hover:shadow-lg hover:shadow-[#FF6B35]/40 hover:-translate-y-0.5"
             style={{
-              backgroundColor: colors.primary[500],
               transition: transitions.fast,
-            }}
-            onHover={(e) => {
-              (e.target as HTMLElement).style.backgroundColor = colors.primary[600]
             }}
           >
             {actionButton.label}

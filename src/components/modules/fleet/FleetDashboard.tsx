@@ -49,7 +49,7 @@ export const FleetDashboard: React.FC = () => {
           value={5}
           unit="active"
           icon={<AlertTriangle className="w-6 h-6" />}
-          status="error"
+          status="danger"
         />
       </div>
 
