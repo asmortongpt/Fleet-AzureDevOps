@@ -29,16 +29,17 @@ export const MapCanvas = memo(function MapCanvas() {
   const { data: vehicles = [] } = useQuery<Vehicle[]>({
     queryKey: ['map', 'vehicles'],
     queryFn: async () => {
-      const response = await secureFetch('/api/vehicles?limit=200', { method: 'GET' })
+      // Use working emulator endpoint instead of broken /api/vehicles
+      const response = await secureFetch('/api/emulator/vehicles', { method: 'GET' })
       if (!response.ok) return []
       const json = await response.json()
-      const payload = (json?.data?.data ?? json?.data ?? json) as any
+      const payload = (json?.data ?? json) as any
       const rows = Array.isArray(payload) ? payload : []
 
       return rows.map((v: any) => {
-        const lat = Number(v?.location?.lat ?? v?.location?.latitude ?? v?.latitude)
-        const lng = Number(v?.location?.lng ?? v?.location?.longitude ?? v?.longitude)
-        const hasCoords = Number.isFinite(lat) && Number.isFinite(lng)
+        const lat = Number(v?.location?.lat ?? v?.location?.latitude ?? v?.latitude ?? v?.gps_latitude ?? 0)
+        const lng = Number(v?.location?.lng ?? v?.location?.longitude ?? v?.longitude ?? v?.gps_longitude ?? 0)
+        const hasCoords = Number.isFinite(lat) && Number.isFinite(lng) && lat !== 0 && lng !== 0
         const location = hasCoords
           ? {
               ...(v.location || {}),

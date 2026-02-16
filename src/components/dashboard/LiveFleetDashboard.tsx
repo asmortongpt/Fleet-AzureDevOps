@@ -91,7 +91,12 @@ const normalizeGeofence = (row: any): Geofence => {
 
 export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
 
-  const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useVehicles();
+  // Fetch from working emulator endpoint instead of broken /api/vehicles endpoint
+  const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useSWR(
+    '/api/emulator/vehicles',
+    (url) => fetch(url, { credentials: 'include' }).then(r => r.json()),
+    { revalidateOnFocus: false, dedupingInterval: 5000 }
+  );
   const { data: driversData } = useDrivers();
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
