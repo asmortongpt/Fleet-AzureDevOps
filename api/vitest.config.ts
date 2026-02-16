@@ -23,7 +23,7 @@ export default defineConfig({
     ],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      reporter: ['text', 'text-summary', 'json', 'json-summary', 'html', 'lcov', 'csv'],
       reportsDirectory: './coverage',
       exclude: [
         'node_modules/',
@@ -41,7 +41,10 @@ export default defineConfig({
       lines: 80,
       functions: 80,
       branches: 75,
-      statements: 80
+      statements: 80,
+      all: true,
+      clean: true,
+      skipFull: false,
     },
     testTimeout: 30000,
     hookTimeout: 30000

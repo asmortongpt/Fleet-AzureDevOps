@@ -15,7 +15,11 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "test:a11y": "vitest --run src/tests/accessibility.test.tsx",
-    "test:a11y:watch": "vitest --watch src/tests/accessibility.test.tsx"
+    "test:a11y:watch": "vitest --watch src/tests/accessibility.test.tsx",
+    "coverage:analyze": "node scripts/coverage-analysis.js",
+    "coverage:track": "node scripts/track-coverage-trends.js",
+    "coverage:badge": "node scripts/generate-coverage-badge.js",
+    "coverage:report": "npm run test:coverage && npm run coverage:analyze && npm run coverage:track && npm run coverage:badge"
   },
   "dependencies": {
     "@azure/msal-browser": "^5.2.0",

@@ -23,7 +23,8 @@ export default defineConfig({
     teardownTimeout: 5000,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      reporter: ['text', 'text-summary', 'json', 'json-summary', 'html', 'lcov', 'csv'],
+      reportsDirectory: './coverage',
       exclude: [
         'node_modules/',
         'src/tests/',
@@ -39,6 +40,9 @@ export default defineConfig({
         branches: 70,
         statements: 70,
       },
+      all: true,
+      clean: true,
+      skipFull: false,
     },
     benchmark: {
       include: ['**/*.bench.{ts,tsx}'],
