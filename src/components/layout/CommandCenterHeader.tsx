@@ -72,10 +72,10 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
 
                 {/* Center: Search Bar */}
                 <div className={cn(
-                    "flex-1 max-w-lg mx-6 transition-all duration-300",
+                    "flex-1 max-w-lg mx-6 transition-all duration-300 ease-out",
                     isSearchFocused && "max-w-2xl"
                 )}>
-                    <div className="relative">
+                    <div className="relative group">
                         <SearchInput
                             value={searchQuery}
                             onChange={setSearchQuery}
@@ -83,14 +83,27 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                             placeholder={isMobile ? "Search..." : "Search fleet, drivers, or assets..."}
                             ariaLabel="Search fleet, drivers, or assets"
                             className={cn(
-                                "search-input-enhanced",
-                                "[&_input]:rounded-xl [&_input]:bg-gradient-to-r [&_input]:from-muted/40 [&_input]:via-muted/30 [&_input]:to-muted/40 [&_input]:border-[#41B2E3]/20 [&_input]:h-11 [&_input]:text-sm [&_input]:px-4",
-                                "[&_input]:transition-all [&_input]:duration-300",
-                                "[&_input:focus]:border-[#41B2E3] [&_input:focus]:ring-2 [&_input:focus]:ring-[#41B2E3]/20 [&_input:focus]:shadow-md [&_input:focus]:shadow-[#41B2E3]/10"
+                                "search-input-enhanced input-premium elevation-interactive",
+                                "[&_input]:rounded-xl [&_input]:bg-gradient-to-b [&_input]:from-white/50 [&_input]:to-white/30",
+                                "[&_input]:dark:from-gray-800/50 [&_input]:dark:to-gray-800/30",
+                                "[&_input]:border border-gray-300 [&_input]:dark:border-gray-600",
+                                "[&_input]:h-11 [&_input]:text-sm [&_input]:px-4",
+                                "[&_input]:transition-all [&_input]:duration-300 [&_input]:ease-out",
+                                "[&_input:focus]:border-[#41B2E3] [&_input:focus]:ring-2 [&_input:focus]:ring-[#41B2E3]/40 [&_input:focus]:shadow-lg [&_input:focus]:shadow-[#41B2E3]/20"
                             )}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
                         />
+                        {/* Search indicator glow on focus */}
+                        {isSearchFocused && (
+                            <div
+                                className="absolute inset-0 rounded-xl pointer-events-none"
+                                style={{
+                                    boxShadow: '0 0 20px rgba(65, 178, 227, 0.3)',
+                                    animation: 'fadeInScale 0.3s ease-out'
+                                }}
+                            />
+                        )}
                     </div>
                 </div>
 

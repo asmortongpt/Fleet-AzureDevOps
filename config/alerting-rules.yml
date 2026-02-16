@@ -1,0 +1,302 @@
+# Prometheus Alerting Rules for Fleet Management API
+# These rules define thresholds and conditions for alerts
+
+groups:
+  - name: fleet-api-alerts
+    interval: 30s
+    rules:
+      # ============ HTTP/API Alerts ============
+
+      - alert: HighErrorRate
+        expr: |
+          (
+            sum(rate(http_errors_total[5m])) /
+            sum(rate(http_requests_total[5m]))
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "High error rate detected"
+          description: |
+            Error rate is {{ $value | humanizePercentage }} (threshold: 5%)
+            Cluster: {{ $labels.cluster }}
+
+      - alert: SlowAPIResponse
+        expr: |
+          histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 10m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "Slow API response times"
+          description: |
+            95th percentile response time is {{ $value | humanizeDuration }} (threshold: 1s)
+            Endpoint: {{ $labels.route }}
+
+      - alert: HighRequestVolume
+        expr: |
+          sum(rate(http_requests_total[5m])) > 1000
+        for: 5m
+        labels:
+          severity: info
+          component: api
+        annotations:
+          summary: "High request volume detected"
+          description: "Request rate: {{ $value | humanize }} req/s"
+
+      - alert: APIDown
+        expr: up{job="fleet-api"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "Fleet API is down"
+          description: "Fleet API has been unreachable for the last 1 minute"
+
+      # ============ Database Alerts ============
+
+      - alert: DatabaseConnectionFailed
+        expr: |
+          increase(db_query_errors_total{error_type="connection_error"}[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection failures detected"
+          description: "{{ $value }} connection failures in the last 5 minutes"
+
+      - alert: SlowDatabaseQueries
+        expr: |
+          histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) > 0.5
+        for: 10m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: |
+            95th percentile query time is {{ $value | humanizeDuration }} (threshold: 500ms)
+            Query type: {{ $labels.query_type }}
+            Table: {{ $labels.table }}
+
+      - alert: HighDatabaseErrorRate
+        expr: |
+          (
+            sum(rate(db_query_errors_total[5m])) /
+            sum(rate(db_queries_total[5m]))
+          ) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "High database error rate"
+          description: |
+            Database error rate is {{ $value | humanizePercentage }} (threshold: 1%)
+
+      - alert: LowDatabaseConnectionPool
+        expr: |
+          db_connection_pool_size{pool_name="webapp"} -
+          on(pool_name)
+          count(db_connection_pool_size{pool_name="webapp"}) < 5
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Database connection pool running low"
+          description: |
+            Available connections: {{ $value }}
+            Pool: {{ $labels.pool_name }}
+
+      - alert: HighDatabasePoolUtilization
+        expr: |
+          db_connection_pool_utilization{pool_name="webapp"} > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "High database connection pool utilization"
+          description: |
+            Pool utilization: {{ $value | humanizePercentage }}
+            Pool: {{ $labels.pool_name }}
+
+      # ============ Memory Alerts ============
+
+      - alert: HighMemoryUsage
+        expr: |
+          (process_resident_memory_bytes / process_virtual_memory_bytes) * 100 > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage detected"
+          description: |
+            Memory usage: {{ $value | humanizePercentage }} (threshold: 80%)
+            Resident memory: {{ (process_resident_memory_bytes / 1024 / 1024) | humanize }}MB
+
+      - alert: MemoryLeak
+        expr: |
+          rate(process_resident_memory_bytes[1h]) > 0
+        for: 1h
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Potential memory leak detected"
+          description: |
+            Memory usage has been continuously increasing
+            Current: {{ (process_resident_memory_bytes / 1024 / 1024) | humanize }}MB
+
+      - alert: OutOfMemory
+        expr: |
+          process_resident_memory_bytes / process_virtual_memory_bytes > 0.95
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "System running out of memory"
+          description: |
+            Memory usage is {{ $value | humanizePercentage }}
+            Immediate action required to prevent OOM kill
+
+      # ============ Job Queue Alerts ============
+
+      - alert: LargeJobQueue
+        expr: |
+          job_queue_size > 1000
+        for: 10m
+        labels:
+          severity: warning
+          component: jobs
+        annotations:
+          summary: "Job queue is very large"
+          description: |
+            Queue: {{ $labels.queue_name }}
+            Size: {{ $value | humanize }} jobs
+
+      - alert: HighJobFailureRate
+        expr: |
+          (
+            sum(rate(jobs_failed_total[5m])) /
+            (sum(rate(jobs_processed_total{status="success"}[5m])) + sum(rate(jobs_failed_total[5m])))
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          component: jobs
+        annotations:
+          summary: "High job failure rate"
+          description: |
+            Failure rate: {{ $value | humanizePercentage }} (threshold: 10%)
+            Queue: {{ $labels.queue_name }}
+
+      - alert: SlowJobProcessing
+        expr: |
+          histogram_quantile(0.95, rate(job_duration_seconds_bucket[5m])) > 30
+        for: 10m
+        labels:
+          severity: warning
+          component: jobs
+        annotations:
+          summary: "Slow job processing detected"
+          description: |
+            95th percentile processing time: {{ $value | humanizeDuration }} (threshold: 30s)
+            Queue: {{ $labels.queue_name }}
+
+      # ============ Cache Alerts ============
+
+      - alert: LowCacheHitRate
+        expr: |
+          cache_hit_rate < 50
+        for: 15m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Low cache hit rate"
+          description: |
+            Cache hit rate: {{ $value | humanizePercentage }} (threshold: 50%)
+            Cache: {{ $labels.cache_name }}
+
+      # ============ Business Metric Alerts ============
+
+      - alert: NoActiveVehicles
+        expr: |
+          fleet_active_vehicles == 0
+        for: 5m
+        labels:
+          severity: warning
+          component: business
+        annotations:
+          summary: "No active vehicles in fleet"
+          description: "Active vehicle count is zero"
+
+      - alert: LowOnlineDrivers
+        expr: |
+          fleet_drivers_online < 5
+        for: 10m
+        labels:
+          severity: info
+          component: business
+        annotations:
+          summary: "Low number of online drivers"
+          description: "Online drivers: {{ $value }} (warning threshold: 5)"
+
+      # ============ System Alerts ============
+
+      - alert: ServiceDown
+        expr: |
+          up{job="fleet-api"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service is down"
+          description: "{{ $labels.job }} is unreachable"
+
+      - alert: ServiceHighCPU
+        expr: |
+          rate(process_cpu_seconds_total[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "Service using high CPU"
+          description: "CPU usage: {{ $value | humanizePercentage }}"
+
+  - name: fleet-business-alerts
+    interval: 5m
+    rules:
+      # ============ Business Logic Alerts ============
+
+      - alert: UnprocessedDispatchOrders
+        expr: |
+          job_queue_size{queue_name="dispatch"} > 50
+        for: 15m
+        labels:
+          severity: warning
+          component: dispatch
+        annotations:
+          summary: "Large number of unprocessed dispatch orders"
+          description: "Pending orders: {{ $value }}"
+
+      - alert: AnomalousRouteData
+        expr: |
+          rate(http_requests_total{route="/api/vehicles/*/location"}[5m]) < 1
+        for: 10m
+        labels:
+          severity: warning
+          component: tracking
+        annotations:
+          summary: "Anomalously low location update rate"
+          description: "Location updates: {{ $value | humanize }} per second"

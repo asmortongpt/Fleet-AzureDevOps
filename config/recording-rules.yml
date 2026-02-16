@@ -1,0 +1,294 @@
+# Prometheus Recording Rules for Fleet Management API
+# Recording rules pre-compute frequently used expressions
+# Improves performance for dashboards and alerts
+
+groups:
+  - name: fleet-api-recording-rules
+    interval: 30s
+    rules:
+      # ============ HTTP Metrics ============
+
+      - record: http:request:rate5m
+        expr: sum(rate(http_requests_total[5m])) by (method, route, status_code)
+
+      - record: http:error:rate5m
+        expr: sum(rate(http_errors_total[5m])) by (method, route, error_type)
+
+      - record: http:response:time:p95
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) by (method, route)
+
+      - record: http:response:time:p99
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) by (method, route)
+
+      - record: http:error:rate:percentage
+        expr: |
+          (
+            sum(rate(http_errors_total[5m])) by (method, route) /
+            sum(rate(http_requests_total[5m])) by (method, route)
+          ) * 100
+
+      # ============ Database Metrics ============
+
+      - record: db:query:rate5m
+        expr: sum(rate(db_queries_total[5m])) by (query_type, table)
+
+      - record: db:query:duration:p95
+        expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) by (query_type, table)
+
+      - record: db:query:duration:p99
+        expr: histogram_quantile(0.99, rate(db_query_duration_seconds_bucket[5m])) by (query_type, table)
+
+      - record: db:error:rate5m
+        expr: sum(rate(db_query_errors_total[5m])) by (query_type, error_type)
+
+      - record: db:error:rate:percentage
+        expr: |
+          (
+            sum(rate(db_query_errors_total[5m])) /
+            sum(rate(db_queries_total[5m]))
+          ) * 100
+
+      - record: db:slow:queries
+        expr: histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m])) by (query_type, table) > 0.5
+
+      # ============ Job Queue Metrics ============
+
+      - record: job:processed:rate5m
+        expr: sum(rate(jobs_processed_total[5m])) by (queue_name, status)
+
+      - record: job:failed:rate5m
+        expr: sum(rate(jobs_failed_total[5m])) by (queue_name, error_type)
+
+      - record: job:failure:rate:percentage
+        expr: |
+          (
+            sum(rate(jobs_failed_total[5m])) by (queue_name) /
+            (
+              sum(rate(jobs_processed_total{status="success"}[5m])) by (queue_name) +
+              sum(rate(jobs_failed_total[5m])) by (queue_name)
+            )
+          ) * 100
+
+      - record: job:duration:p95
+        expr: histogram_quantile(0.95, rate(job_duration_seconds_bucket[5m])) by (queue_name)
+
+      - record: job:duration:p99
+        expr: histogram_quantile(0.99, rate(job_duration_seconds_bucket[5m])) by (queue_name)
+
+      # ============ Business Metrics ============
+
+      - record: fleet:route:completion:rate1h
+        expr: rate(fleet_completed_routes_total[1h])
+
+      - record: fleet:orders:dispatched:rate5m
+        expr: rate(fleet_dispatched_orders_total[5m])
+
+      - record: fleet:dispatch:efficiency
+        expr: fleet_dispatched_orders_total / fleet_completed_routes_total
+
+      - record: fleet:driver:to:vehicle:ratio
+        expr: fleet_drivers_online / fleet_active_vehicles
+
+      # ============ Memory Metrics ============
+
+      - record: process:memory:heap:usage:percentage
+        expr: (process_resident_memory_bytes / nodejs_heap_size_limit_bytes) * 100
+
+      - record: process:memory:trend:1h
+        expr: rate(process_resident_memory_bytes[1h])
+
+      - record: process:memory:highusage
+        expr: process:memory:heap:usage:percentage > 80
+
+      # ============ Cache Metrics ============
+
+      - record: cache:hit:rate:percentage
+        expr: |
+          (
+            sum(rate(cache_hits_total[5m])) by (cache_name) /
+            (
+              sum(rate(cache_hits_total[5m])) by (cache_name) +
+              sum(rate(cache_misses_total[5m])) by (cache_name)
+            )
+          ) * 100
+
+      - record: cache:miss:rate:percentage
+        expr: |
+          (
+            sum(rate(cache_misses_total[5m])) by (cache_name) /
+            (
+              sum(rate(cache_hits_total[5m])) by (cache_name) +
+              sum(rate(cache_misses_total[5m])) by (cache_name)
+            )
+          ) * 100
+
+      # ============ Latency Distribution ============
+
+      - record: api:latency:p50
+        expr: histogram_quantile(0.5, rate(http_request_duration_seconds_bucket[5m])) by (route)
+
+      - record: api:latency:p75
+        expr: histogram_quantile(0.75, rate(http_request_duration_seconds_bucket[5m])) by (route)
+
+      - record: api:latency:p90
+        expr: histogram_quantile(0.9, rate(http_request_duration_seconds_bucket[5m])) by (route)
+
+      - record: api:latency:p95
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) by (route)
+
+      - record: api:latency:p99
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) by (route)
+
+      # ============ Availability Metrics ============
+
+      - record: api:availability:percentage
+        expr: (1 - (sum(rate(http_errors_total[5m])) / sum(rate(http_requests_total[5m])))) * 100
+
+      - record: api:uptime
+        expr: up{job="fleet-api"} == 1
+
+      - record: service:availability:5m
+        expr: sum(rate(http_requests_total{status=~"2.."}[5m])) / sum(rate(http_requests_total[5m]))
+
+      # ============ Aggregate Metrics ============
+
+      - record: fleet:total:requests:rate5m
+        expr: sum(rate(http_requests_total[5m]))
+
+      - record: fleet:total:errors:rate5m
+        expr: sum(rate(http_errors_total[5m]))
+
+      - record: fleet:total:db:queries:rate5m
+        expr: sum(rate(db_queries_total[5m]))
+
+      - record: fleet:total:db:errors:rate5m
+        expr: sum(rate(db_query_errors_total[5m]))
+
+      - record: fleet:total:jobs:processed:rate5m
+        expr: sum(rate(jobs_processed_total[5m]))
+
+      - record: fleet:total:jobs:failed:rate5m
+        expr: sum(rate(jobs_failed_total[5m]))
+
+      # ============ Resource Utilization ============
+
+      - record: resource:cpu:usage:percentage
+        expr: (rate(process_cpu_seconds_total[5m])) * 100
+
+      - record: resource:memory:used:mb
+        expr: process_resident_memory_bytes / 1024 / 1024
+
+      - record: resource:memory:heap:used:mb
+        expr: nodejs_heap_size_limit_bytes / 1024 / 1024
+
+      # ============ Queue Performance ============
+
+      - record: queue:average:size
+        expr: avg(job_queue_size) by (queue_name)
+
+      - record: queue:max:size
+        expr: max(job_queue_size) by (queue_name)
+
+      - record: queue:min:size
+        expr: min(job_queue_size) by (queue_name)
+
+      - record: queue:processing:time:avg
+        expr: avg(rate(job_duration_seconds[5m])) by (queue_name)
+
+  - name: fleet-api-business-analytics
+    interval: 5m
+    rules:
+      # ============ Business KPIs ============
+
+      - record: business:vehicles:active:hourly
+        expr: avg_over_time(fleet_active_vehicles[1h])
+
+      - record: business:drivers:online:hourly
+        expr: avg_over_time(fleet_drivers_online[1h])
+
+      - record: business:routes:completed:hourly
+        expr: increase(fleet_completed_routes_total[1h])
+
+      - record: business:orders:dispatched:hourly
+        expr: increase(fleet_dispatched_orders_total[1h])
+
+      - record: business:efficiency:routes:per:driver
+        expr: fleet_completed_routes_total / fleet_drivers_online
+
+      # ============ Daily Aggregates ============
+
+      - record: daily:requests:total
+        expr: increase(http_requests_total[1d])
+
+      - record: daily:errors:total
+        expr: increase(http_errors_total[1d])
+
+      - record: daily:db:queries:total
+        expr: increase(db_queries_total[1d])
+
+      - record: daily:jobs:processed
+        expr: increase(jobs_processed_total[1d])
+
+      - record: daily:jobs:failed
+        expr: increase(jobs_failed_total[1d])
+
+      - record: daily:routes:completed
+        expr: increase(fleet_completed_routes_total[1d])
+
+  - name: fleet-api-slo-tracking
+    interval: 1m
+    rules:
+      # ============ SLO Calculations ============
+
+      - record: slo:availability:percentage
+        expr: |
+          (
+            sum(increase(http_requests_total{status=~"2.."}[5m])) /
+            sum(increase(http_requests_total[5m]))
+          ) * 100
+
+      - record: slo:error:rate:percentage
+        expr: |
+          (
+            sum(increase(http_errors_total[5m])) /
+            sum(increase(http_requests_total[5m]))
+          ) * 100
+
+      - record: slo:latency:p95:seconds
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))
+
+      - record: slo:latency:p99:seconds
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m]))
+
+      # SLO Targets (adjust based on your SLOs)
+      - record: slo:target:availability
+        expr: 0.999
+
+      - record: slo:target:error:rate
+        expr: 0.001
+
+      - record: slo:target:latency:p95
+        expr: 1.0
+
+      - record: slo:target:latency:p99
+        expr: 2.0
+
+      # SLO Compliance
+      - record: slo:availability:compliant
+        expr: slo:availability:percentage >= (slo:target:availability * 100)
+
+      - record: slo:error:rate:compliant
+        expr: slo:error:rate:percentage <= (slo:target:error:rate * 100)
+
+      - record: slo:latency:p95:compliant
+        expr: slo:latency:p95:seconds <= slo:target:latency:p95
+
+      - record: slo:latency:p99:compliant
+        expr: slo:latency:p99:seconds <= slo:target:latency:p99
+
+      # Error Budget
+      - record: slo:error:budget:remaining
+        expr: |
+          (
+            (slo:target:availability / 100) - slo:availability:percentage/100
+          ) * 100

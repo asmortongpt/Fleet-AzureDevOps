@@ -1,0 +1,332 @@
+{
+  "dashboard": {
+    "title": "Fleet Management API - Production Dashboard",
+    "uid": "fleet-api-prod",
+    "tags": ["fleet", "production", "api", "monitoring"],
+    "timezone": "UTC",
+    "schemaVersion": 27,
+    "version": 1,
+    "refresh": "30s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "panels": [
+      {
+        "id": 1,
+        "title": "API Health Overview",
+        "type": "gauge",
+        "gridPos": {
+          "x": 0,
+          "y": 0,
+          "w": 6,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "up{job=\"fleet-api\"}",
+            "refId": "A",
+            "legendFormat": "API Status"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "custom": {},
+            "mappings": [
+              {
+                "type": "value",
+                "options": {
+                  "0": {
+                    "text": "DOWN",
+                    "color": "red"
+                  },
+                  "1": {
+                    "text": "UP",
+                    "color": "green"
+                  }
+                }
+              }
+            ],
+            "max": 1,
+            "min": 0
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Request Rate",
+        "type": "graph",
+        "gridPos": {
+          "x": 6,
+          "y": 0,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (method)",
+            "refId": "A",
+            "legendFormat": "{{ method }}"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Error Rate",
+        "type": "graph",
+        "gridPos": {
+          "x": 18,
+          "y": 0,
+          "w": 6,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(http_errors_total[5m]))",
+            "refId": "A",
+            "legendFormat": "Errors/sec"
+          }
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [0.05],
+                "type": "gt"
+              },
+              "operator": {
+                "type": "and"
+              },
+              "query": {
+                "params": ["A", "5m", "now"]
+              },
+              "reducer": {
+                "params": [],
+                "type": "avg"
+              },
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "5m",
+          "handler": 1,
+          "name": "Error Rate Alert",
+          "noDataState": "no_data",
+          "for": "5m"
+        }
+      },
+      {
+        "id": 4,
+        "title": "Response Time (95th percentile)",
+        "type": "graph",
+        "gridPos": {
+          "x": 0,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+            "refId": "A",
+            "legendFormat": "{{ route }}"
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Database Query Duration",
+        "type": "graph",
+        "gridPos": {
+          "x": 12,
+          "y": 8,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(db_query_duration_seconds_bucket[5m]))",
+            "refId": "A",
+            "legendFormat": "{{ query_type }}"
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Memory Usage",
+        "type": "graph",
+        "gridPos": {
+          "x": 0,
+          "y": 16,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes / 1024 / 1024",
+            "refId": "A",
+            "legendFormat": "RSS (MB)"
+          },
+          {
+            "expr": "process_resident_memory_bytes / nodejs_heap_size_limit_bytes * 100",
+            "refId": "B",
+            "legendFormat": "Heap %"
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "title": "Database Connection Pool",
+        "type": "graph",
+        "gridPos": {
+          "x": 8,
+          "y": 16,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "db_connection_pool_size{pool_name=\"webapp\"}",
+            "refId": "A",
+            "legendFormat": "Pool Size"
+          },
+          {
+            "expr": "db_connection_pool_utilization{pool_name=\"webapp\"}",
+            "refId": "B",
+            "legendFormat": "Utilization %"
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "title": "Active Vehicles",
+        "type": "gauge",
+        "gridPos": {
+          "x": 16,
+          "y": 16,
+          "w": 8,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "fleet_active_vehicles",
+            "refId": "A",
+            "legendFormat": "Active Vehicles"
+          }
+        ]
+      },
+      {
+        "id": 9,
+        "title": "Job Queue Status",
+        "type": "graph",
+        "gridPos": {
+          "x": 0,
+          "y": 24,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "job_queue_size",
+            "refId": "A",
+            "legendFormat": "{{ queue_name }}"
+          }
+        ]
+      },
+      {
+        "id": 10,
+        "title": "Job Processing Rate",
+        "type": "graph",
+        "gridPos": {
+          "x": 12,
+          "y": 24,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "sum(rate(jobs_processed_total[5m])) by (status)",
+            "refId": "A",
+            "legendFormat": "{{ status }}"
+          }
+        ]
+      },
+      {
+        "id": 11,
+        "title": "Cache Hit Rate",
+        "type": "graph",
+        "gridPos": {
+          "x": 0,
+          "y": 32,
+          "w": 12,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "cache_hit_rate",
+            "refId": "A",
+            "legendFormat": "{{ cache_name }}"
+          }
+        ]
+      },
+      {
+        "id": 12,
+        "title": "Drivers Online",
+        "type": "stat",
+        "gridPos": {
+          "x": 12,
+          "y": 32,
+          "w": 6,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "fleet_drivers_online",
+            "refId": "A",
+            "legendFormat": "Drivers"
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Completed Routes (Total)",
+        "type": "stat",
+        "gridPos": {
+          "x": 18,
+          "y": 32,
+          "w": 6,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "fleet_completed_routes_total",
+            "refId": "A",
+            "legendFormat": "Routes"
+          }
+        ]
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "job",
+          "type": "query",
+          "datasource": "Prometheus",
+          "query": "label_values(up, job)",
+          "multi": false,
+          "includeAll": false,
+          "refresh": 1
+        },
+        {
+          "name": "instance",
+          "type": "query",
+          "datasource": "Prometheus",
+          "query": "label_values(up{job=\"$job\"}, instance)",
+          "multi": false,
+          "includeAll": false,
+          "refresh": 1
+        }
+      ]
+    }
+  }
+}

@@ -4,6 +4,51 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * RippleEffect Component
+ * Creates an interactive ripple effect on button clicks
+ * Enhances user feedback and visual appeal
+ */
+const RippleEffect: React.FC<{ trigger?: boolean }> = ({ trigger = false }) => {
+  const [ripples, setRipples] = React.useState<Array<{ id: number; x: number; y: number }>>([])
+
+  const addRipple = (event: React.MouseEvent<HTMLSpanElement>) => {
+    const button = event.currentTarget
+    const rect = button.getBoundingClientRect()
+    const size = Math.max(rect.width, rect.height)
+    const x = event.clientX - rect.left - size / 2
+    const y = event.clientY - rect.top - size / 2
+    const id = Date.now()
+
+    setRipples(prev => [...prev, { id, x, y }])
+
+    setTimeout(() => {
+      setRipples(prev => prev.filter(ripple => ripple.id !== id))
+    }, 600)
+  }
+
+  return (
+    <span
+      className="absolute inset-0 overflow-hidden rounded-[inherit] pointer-events-none"
+      onClick={addRipple}
+    >
+      {ripples.map(ripple => (
+        <span
+          key={ripple.id}
+          className="absolute rounded-full bg-white opacity-50 animate-ping"
+          style={{
+            left: `${ripple.x}px`,
+            top: `${ripple.y}px`,
+            width: '20px',
+            height: '20px',
+            animation: 'ripple 600ms ease-out',
+          }}
+        />
+      ))}
+    </span>
+  )
+}
+
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
@@ -56,13 +101,24 @@ export interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, loading = false, disabled, children, ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
+    const [isPressed, setIsPressed] = React.useState(false)
 
     return (
       <Comp
         data-slot="button"
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size }),
+          "btn-interactive btn-ripple relative overflow-hidden",
+          "transition-all duration-150 ease-out",
+          isPressed && "scale-95",
+          className
+        )}
         ref={ref}
         disabled={disabled || loading}
+        onMouseDown={() => setIsPressed(true)}
+        onMouseUp={() => setIsPressed(false)}
+        onMouseLeave={() => setIsPressed(false)}
+        aria-busy={loading}
         {...props}
       >
         {loading ? (
@@ -72,6 +128,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <circle
                 className="opacity-25"
@@ -98,4 +155,4 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 )
 Button.displayName = "Button"
 
-export { Button, buttonVariants }
+export { Button, buttonVariants, RippleEffect }
