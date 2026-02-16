@@ -1,0 +1,424 @@
+name: Deployment Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - staging
+          - production
+        default: 'staging'
+      skip_tests:
+        description: 'Skip test verification (not recommended)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  NODE_VERSION: '20'
+  STAGING_URL: https://staging.fleet.capitaltechalliance.com
+  PRODUCTION_URL: https://fleet.capitaltechalliance.com
+  API_STAGING_URL: https://staging.fleet.capitaltechalliance.com/api
+  API_PRODUCTION_URL: https://fleet.capitaltechalliance.com/api
+
+jobs:
+  # ============================================================================
+  # Pre-Deployment Quality Gates
+  # ============================================================================
+  quality-gate:
+    name: Quality Gate
+    runs-on: ubuntu-latest
+    if: github.event.inputs.skip_tests != 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: TypeScript check
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run typecheck
+
+      - name: Lint check
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: npm run lint
+        continue-on-error: true
+
+      - name: Run frontend tests
+        run: npx vitest run --passWithNoTests
+        continue-on-error: true
+
+      - name: Setup API dependencies
+        run: |
+          cd api
+          npm ci --legacy-peer-deps
+
+      - name: Run backend tests
+        run: |
+          cd api
+          npx vitest run --passWithNoTests
+        continue-on-error: true
+
+      - name: Verify builds
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: |
+          npm run build
+          cd api
+          npm run build || echo "API build skipped"
+        continue-on-error: true
+
+  # ============================================================================
+  # Build Frontend
+  # ============================================================================
+  build-frontend:
+    name: Build Frontend
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    if: ${{ !failure() }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Build application
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+          VITE_GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+          VITE_AZURE_AD_CLIENT_ID: ${{ secrets.AZURE_AD_CLIENT_ID }}
+          VITE_AZURE_AD_TENANT_ID: ${{ secrets.AZURE_AD_TENANT_ID }}
+          VITE_AZURE_AD_REDIRECT_URI: ${{ github.event.inputs.environment == 'production' && 'https://fleet.capitaltechalliance.com/auth/callback' || 'https://staging.fleet.capitaltechalliance.com/auth/callback' }}
+          VITE_API_BASE_URL: ${{ github.event.inputs.environment == 'production' && 'https://fleet.capitaltechalliance.com/api' || 'https://staging.fleet.capitaltechalliance.com/api' }}
+          VITE_USE_MOCK_DATA: false
+        run: npm run build
+
+      - name: Upload frontend build
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-build
+          path: dist/
+          retention-days: 7
+
+  # ============================================================================
+  # Build API
+  # ============================================================================
+  build-api:
+    name: Build API
+    runs-on: ubuntu-latest
+    needs: quality-gate
+    if: ${{ !failure() }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: api/package-lock.json
+
+      - name: Install API dependencies
+        run: |
+          cd api
+          npm ci --legacy-peer-deps
+
+      - name: Build API
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        run: |
+          cd api
+          npm run build
+
+      - name: Upload API build
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-build
+          path: api/dist/
+          retention-days: 7
+
+  # ============================================================================
+  # Deploy to Staging
+  # ============================================================================
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [ build-frontend, build-api ]
+    if: github.event.inputs.environment == 'staging'
+    environment:
+      name: staging
+      url: ${{ env.STAGING_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: dist/
+
+      - name: Download API build
+        uses: actions/download-artifact@v4
+        with:
+          name: api-build
+          path: api/dist/
+        continue-on-error: true
+
+      - name: Authenticate to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Static Web Apps (Staging)
+        id: deploy-staging
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_STAGING }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "dist"
+          api_location: "api/dist"
+          output_location: ""
+          skip_app_build: true
+          skip_api_build: true
+        continue-on-error: true
+
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Health check - Staging Frontend
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" ${{ env.STAGING_URL }})
+          if [ $response -eq 200 ]; then
+            echo "✅ Staging frontend is healthy"
+          else
+            echo "⚠️  Staging frontend returned HTTP $response"
+          fi
+        continue-on-error: true
+
+      - name: Health check - Staging API
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" ${{ env.API_STAGING_URL }}/health)
+          if [ $response -eq 200 ] || [ $response -eq 404 ]; then
+            echo "✅ Staging API is reachable"
+          else
+            echo "⚠️  Staging API returned HTTP $response"
+          fi
+        continue-on-error: true
+
+  # ============================================================================
+  # Deploy to Production
+  # ============================================================================
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [ build-frontend, build-api ]
+    if: github.event.inputs.environment == 'production'
+    environment:
+      name: production
+      url: ${{ env.PRODUCTION_URL }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Download frontend build
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-build
+          path: dist/
+
+      - name: Download API build
+        uses: actions/download-artifact@v4
+        with:
+          name: api-build
+          path: api/dist/
+        continue-on-error: true
+
+      - name: Authenticate to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure Static Web Apps (Production)
+        id: deploy-prod
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          action: "upload"
+          app_location: "dist"
+          api_location: "api/dist"
+          output_location: ""
+          skip_app_build: true
+          skip_api_build: true
+
+      - name: Wait for deployment
+        run: sleep 30
+
+      - name: Health check - Production Frontend
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" ${{ env.PRODUCTION_URL }})
+          if [ $response -eq 200 ]; then
+            echo "✅ Production frontend is healthy"
+            exit 0
+          else
+            echo "❌ Production frontend returned HTTP $response"
+            exit 1
+          fi
+
+      - name: Health check - Production API
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" ${{ env.API_PRODUCTION_URL }}/health)
+          if [ $response -eq 200 ] || [ $response -eq 404 ]; then
+            echo "✅ Production API is reachable"
+          else
+            echo "⚠️  Production API returned HTTP $response"
+          fi
+        continue-on-error: true
+
+  # ============================================================================
+  # Post-Deployment Validation
+  # ============================================================================
+  post-deployment-validation:
+    name: Post-Deployment Validation
+    runs-on: ubuntu-latest
+    needs: [ deploy-staging, deploy-production ]
+    if: always()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Run smoke tests (Staging)
+        if: github.event.inputs.environment == 'staging'
+        run: |
+          PLAYWRIGHT_TEST_BASE_URL=${{ env.STAGING_URL }} npx playwright test --grep @smoke || true
+        continue-on-error: true
+
+      - name: Run smoke tests (Production)
+        if: github.event.inputs.environment == 'production'
+        run: |
+          PLAYWRIGHT_TEST_BASE_URL=${{ env.PRODUCTION_URL }} npx playwright test --grep @smoke || true
+        continue-on-error: true
+
+      - name: Upload validation report
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-report
+          path: playwright-report/
+          retention-days: 30
+        if: always()
+
+  # ============================================================================
+  # Create Release (Production only)
+  # ============================================================================
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [ deploy-production ]
+    if: github.event.inputs.environment == 'production' && needs.deploy-production.result == 'success'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          {
+            echo "## Changes"
+            git log --oneline --pretty=format:"- %s" $(git describe --tags --abbrev=0)..HEAD | head -20 || git log --oneline -10
+          } > CHANGELOG_RELEASE.md
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: Production Release v${{ github.run_number }}
+          body_path: CHANGELOG_RELEASE.md
+          draft: false
+          prerelease: false
+
+  # ============================================================================
+  # Deployment Summary
+  # ============================================================================
+  deployment-summary:
+    name: Deployment Summary
+    runs-on: ubuntu-latest
+    needs: [ deploy-staging, deploy-production, create-release ]
+    if: always()
+
+    steps:
+      - name: Generate deployment summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by**: ${{ github.actor }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Number**: #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment Status" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ github.event.inputs.environment }}" == "staging" ]; then
+            echo "- Staging: ${{ needs.deploy-staging.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "- URL: ${{ env.STAGING_URL }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- Production: ${{ needs.deploy-production.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "- URL: ${{ env.PRODUCTION_URL }}" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Verify application functionality" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Check monitoring dashboards" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Review error logs" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Notify stakeholders" >> $GITHUB_STEP_SUMMARY

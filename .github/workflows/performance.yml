@@ -1,0 +1,232 @@
+name: Performance Testing
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      compare_branch:
+        description: 'Branch to compare against (e.g., main)'
+        required: false
+        default: 'main'
+
+env:
+  NODE_VERSION: '20'
+
+jobs:
+  # ============================================================================
+  # Performance Tests
+  # ============================================================================
+  performance-tests:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Check if performance tests exist
+        id: perf-check
+        run: |
+          if npm run | grep -q "test:performance"; then
+            echo "has-perf-tests=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-perf-tests=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run performance tests
+        if: steps.perf-check.outputs.has-perf-tests == 'true'
+        run: npm run test:performance
+        continue-on-error: true
+
+      - name: Build performance analysis (Frontend)
+        run: |
+          echo "## 📈 Frontend Build Analysis" >> performance-report.md
+          echo "" >> performance-report.md
+          npm run build 2>&1 | tee build.log
+
+          # Extract build size information
+          if [ -d "dist" ]; then
+            echo "### Build Size" >> performance-report.md
+            echo "" >> performance-report.md
+            echo "Total: $(du -sh dist | cut -f1)" >> performance-report.md
+            echo "" >> performance-report.md
+            echo "Breakdown:" >> performance-report.md
+            find dist -type f -name "*.js" -o -name "*.css" | head -20 | while read file; do
+              size=$(du -sh "$file" | cut -f1)
+              echo "- $file: $size" >> performance-report.md
+            done
+          fi
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        continue-on-error: true
+
+      - name: Build performance analysis (Backend)
+        run: |
+          echo "## 📈 Backend Build Analysis" >> performance-report.md
+          echo "" >> performance-report.md
+          cd api
+          npm run build 2>&1 | tee -a ../build.log || echo "Backend build skipped"
+
+          if [ -d "dist" ]; then
+            echo "### API Build Size" >> ../performance-report.md
+            echo "" >> ../performance-report.md
+            echo "Total: $(du -sh dist | cut -f1)" >> ../performance-report.md
+          fi
+        continue-on-error: true
+
+      - name: Bundle analysis
+        run: |
+          echo "## 📦 Bundle Analysis" >> performance-report.md
+          echo "" >> performance-report.md
+          echo "### Frontend Dependencies" >> performance-report.md
+          cd api && npm ls --depth=0 2>/dev/null | head -30 >> ../performance-report.md || true
+        continue-on-error: true
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-report
+          path: performance-report.md
+          retention-days: 30
+
+      - name: Upload build log
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build.log
+          retention-days: 30
+        if: always()
+
+  # ============================================================================
+  # Compare Against Baseline
+  # ============================================================================
+  performance-comparison:
+    name: Performance Baseline Comparison
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    needs: performance-tests
+
+    steps:
+      - name: Checkout base branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.base_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies (base)
+        run: npm ci --legacy-peer-deps
+
+      - name: Build baseline (base branch)
+        run: npm run build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        continue-on-error: true
+
+      - name: Capture baseline metrics
+        run: |
+          {
+            echo "# Baseline Metrics"
+            echo ""
+            echo "## Build Size"
+            if [ -d "dist" ]; then
+              du -sh dist
+            fi
+          } > baseline-metrics.txt
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (PR)
+        run: npm ci --legacy-peer-deps
+
+      - name: Build PR version
+        run: npm run build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=4096'
+        continue-on-error: true
+
+      - name: Compare performance
+        run: |
+          {
+            echo "# Performance Comparison"
+            echo ""
+            echo "## Build Size Analysis"
+            echo ""
+            echo "### Baseline (Base Branch)"
+            if [ -f "baseline-metrics.txt" ]; then
+              cat baseline-metrics.txt
+            fi
+            echo ""
+            echo "### Current (PR Branch)"
+            if [ -d "dist" ]; then
+              du -sh dist
+            fi
+          } > comparison-report.md
+
+      - name: Upload comparison report
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-comparison
+          path: comparison-report.md
+
+  # ============================================================================
+  # Performance Summary
+  # ============================================================================
+  performance-summary:
+    name: Performance Summary
+    runs-on: ubuntu-latest
+    needs: [ performance-tests, performance-comparison ]
+    if: always()
+
+    steps:
+      - name: Download performance report
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-report
+        continue-on-error: true
+
+      - name: Download comparison report
+        uses: actions/download-artifact@v4
+        with:
+          name: performance-comparison
+        continue-on-error: true
+
+      - name: Generate summary
+        run: |
+          echo "## 📊 Performance Testing Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ -f "performance-report.md" ]; then
+            echo "### Performance Report" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat performance-report.md >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ -f "comparison-report.md" ]; then
+            echo "### Performance Comparison" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            cat comparison-report.md >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "### Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "- Review bundle size if increased significantly" >> $GITHUB_STEP_SUMMARY
+          echo "- Check for large new dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "- Consider code splitting if bundles exceed 500KB" >> $GITHUB_STEP_SUMMARY
