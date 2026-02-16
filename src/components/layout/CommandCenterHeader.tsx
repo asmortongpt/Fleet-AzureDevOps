@@ -1,7 +1,5 @@
 import { LogOut, User, CreditCard, Users, Menu, X } from 'lucide-react';
 import { useState, useCallback } from 'react';
-
-import { CTALogo } from '@/components/branding/CTALogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { SearchInput } from '@/components/shared/SearchInput';
@@ -50,7 +48,15 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
             }}>
                 {/* Left: CTA Branding */}
                 <div className="flex items-center gap-2 shrink-0">
-                    <CTALogo variant={isMobile ? "icon" : "full"} />
+                    <img
+                        src="/logos/cta-logo-primary-lockup.svg"
+                        alt="CTA Fleet - Capital Technology Alliance"
+                        className={cn(
+                            "h-full transition-all duration-200",
+                            isMobile ? "h-12 w-12" : "h-14"
+                        )}
+                        style={{ maxHeight: '100%', objectFit: 'contain' }}
+                    />
                 </div>
 
                 {/* Center: Search Bar */}
