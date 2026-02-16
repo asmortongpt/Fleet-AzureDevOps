@@ -370,7 +370,7 @@ export function EnhancedUniversalMap(props: EnhancedUniversalMapProps) {
       )}
 
       {/* Circuit Breaker Status (Development Only) */}
-      {process.env.NODE_ENV === 'development' && (
+      {import.meta.env.MODE === 'development' && (
         <div className="absolute bottom-4 left-4 z-40 bg-black/70 text-white px-2 py-1 rounded text-xs font-mono space-y-1">
           <div>Circuit: {errorRecovery.circuitState}</div>
           <div>Failures: {errorRecovery.failureCount}</div>

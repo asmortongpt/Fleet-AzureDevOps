@@ -9,6 +9,7 @@ import './i18n/config'
 // Initialize axe-core accessibility testing in development
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { registerSW } from 'virtual:pwa-register'
+import { validateEnvironment } from './lib/config/validate-environment'
 
 import App from "./App"
 import ProtectedRoute from "./components/ProtectedRoute"
@@ -120,7 +121,24 @@ const SentryRoutes = Routes
  * The frontend checks the backend /api/health endpoint to confirm it is operational.
  */
 async function validateStartupConfiguration(): Promise<void> {
-  const apiUrl = import.meta.env.VITE_API_URL || '';
+  // CRITICAL: Validate environment variables before anything else
+  const envErrors = validateEnvironment();
+  if (envErrors.length > 0) {
+    const errorMessages = envErrors.map(e => `• ${e.variable}: ${e.message}`).join('\n');
+    const fullMessage = `[CONFIGURATION ERROR] Missing or invalid environment variables:\n${errorMessages}\n\nPlease set these variables and restart the application.`;
+    console.error(fullMessage);
+    throw new Error(fullMessage);
+  }
+
+  // Environment is valid, proceed with health check
+  let apiUrl = '';
+  try {
+    apiUrl = import.meta.env.VITE_API_URL!;
+  } catch (e) {
+    // Should not happen due to validation above
+    throw new Error('VITE_API_URL is not accessible');
+  }
+
   const healthUrl = `${apiUrl}/api/health`;
 
   try {
@@ -136,7 +154,6 @@ async function validateStartupConfiguration(): Promise<void> {
 
     if (response.ok) {
       const data = await response.json();
-      console.log('[Fleet] Backend health check passed:', data.status || 'ok');
     } else {
       console.warn(`[Fleet] Backend health check returned status ${response.status} - app will continue but some features may be unavailable`);
     }
@@ -165,7 +182,6 @@ validateStartupConfiguration().then(async () => {
     await msalInstance.initialize();
     // Handle any redirect promise from SSO callback
     await msalInstance.handleRedirectPromise();
-    console.log('[Fleet] MSAL initialized successfully');
   } catch (error) {
     console.error('[Fleet] MSAL initialization failed:', error);
   }

@@ -11,7 +11,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       console.error('Application Error:', error);
       console.error('Error Info:', errorInfo);
     }

@@ -10,7 +10,6 @@ const isDev = import.meta.env.DEV;
 export const logger = {
   info: (message: string, ...args: unknown[]): void => {
     if (isDev) {
-      console.log(`[INFO] ${message}`, ...args);
     }
   },
 
@@ -33,7 +32,6 @@ export const logger = {
   },
 
   logAudit: (message: string, ...args: unknown[]): void => {
-    console.log(`[AUDIT] ${message}`, ...args);
   },
 
   logWarning: (message: string, ...args: unknown[]): void => {
@@ -42,7 +40,6 @@ export const logger = {
 
   logInfo: (message: string, ...args: unknown[]): void => {
     if (isDev) {
-      console.log(`[INFO] ${message}`, ...args);
     }
   },
 

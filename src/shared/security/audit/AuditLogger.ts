@@ -229,7 +229,7 @@ class AuditLoggerService {
     this.logs.push(entry)
 
     // For now, also log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       logger.info('[AUDIT]', {
         type: entry.eventType,
         user: entry.userEmail,

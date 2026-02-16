@@ -21,16 +21,13 @@ import { Navigate } from 'react-router-dom';
 import { useAuth, UserRole } from '@/hooks/useAuth';
 import logger from '@/utils/logger';
 
-// Development auth bypass flag (reads from Vite environment variable)
-// WARNING: ONLY set VITE_SKIP_AUTH=true in .env.local for local development/testing
-// NEVER enable in production - enforced by production safety check below
-const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true';
-
-// Safety check: NEVER allow auth bypass in production
-if (SKIP_AUTH && import.meta.env.PROD) {
-  console.error('[SECURITY] Auth bypass attempted in production environment - BLOCKED');
-  throw new Error('Auth bypass is not allowed in production');
+// SECURITY: Auth bypass strictly development-only
+// Production builds MUST NOT have SKIP_AUTH set
+if (import.meta.env.PROD && (import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true')) {
+  throw new Error('[SECURITY] Auth bypass is not permitted in production environments');
 }
+
+const SKIP_AUTH = !import.meta.env.PROD && (import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true');
 
 // SKIP_AUTH mode - all routes will bypass authentication when enabled
 

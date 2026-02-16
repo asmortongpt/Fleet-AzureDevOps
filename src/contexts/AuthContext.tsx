@@ -14,6 +14,7 @@ import { getCsrfToken, refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api'
 import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
 import { getMicrosoftLoginUrl } from '@/lib/microsoft-auth';
 import { loginRequest } from '@/lib/msal-config';
+import { startSessionTimeout, stopSessionTimeout, trackActivity } from '@/lib/auth/session-timeout';
 import logger from '@/utils/logger';
 
 export interface User {
@@ -66,10 +67,15 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-// Development auth bypass check
-const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true';
+// SECURITY: Auth bypass strictly development-only
+// Production builds MUST NOT have SKIP_AUTH set
+if (import.meta.env.PROD && (import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true')) {
+  throw new Error('[SECURITY] Auth bypass is not permitted in production environments');
+}
 
-// Dev user for local testing when auth is bypassed
+const SKIP_AUTH = !import.meta.env.PROD && (import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.VITE_BYPASS_AUTH === 'true');
+
+// Dev user for local testing only
 const DEV_USER: User = {
   id: '00000000-0000-0000-0000-000000000001',
   email: 'dev@fleetcta.local',
@@ -82,9 +88,10 @@ const DEV_USER: User = {
 };
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
-  const [user, setUserState] = useState<User | null>(SKIP_AUTH && !import.meta.env.PROD ? DEV_USER : null);
-  const [isLoading, setIsLoading] = useState(SKIP_AUTH && !import.meta.env.PROD ? false : true);
+  const [user, setUserState] = useState<User | null>(SKIP_AUTH ? DEV_USER : null);
+  const [isLoading, setIsLoading] = useState(SKIP_AUTH ? false : true);
   const [authRefreshNonce, setAuthRefreshNonce] = useState(0);
+  const [showSessionWarning, setShowSessionWarning] = useState(false);
 
   // MSAL hooks for Azure AD authentication
   const { instance, accounts, inProgress} = useMsal();
@@ -97,13 +104,33 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     return () => window.removeEventListener('fleet-auth-refresh', handler);
   }, []);
 
-  // Allow external triggers (e.g., SSO callback) to force a session refresh
+  // Track user activity to reset session timeout
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const handler = () => setAuthRefreshNonce((prev) => prev + 1);
-    window.addEventListener('fleet-auth-refresh', handler);
-    return () => window.removeEventListener('fleet-auth-refresh', handler);
-  }, []);
+    if (!user) return;
+
+    const activityTracker = () => {
+      trackActivity({
+        onWarning: () => setShowSessionWarning(true),
+        onTimeout: () => {
+          logger.warn('[Auth] Session timeout - auto logout');
+          logout();
+        }
+      });
+    };
+
+    // Track mouse, keyboard, and touch events
+    window.addEventListener('mousemove', activityTracker);
+    window.addEventListener('keypress', activityTracker);
+    window.addEventListener('click', activityTracker);
+    window.addEventListener('touchstart', activityTracker);
+
+    return () => {
+      window.removeEventListener('mousemove', activityTracker);
+      window.removeEventListener('keypress', activityTracker);
+      window.removeEventListener('click', activityTracker);
+      window.removeEventListener('touchstart', activityTracker);
+    };
+  }, [user]);
 
   // SECURITY (CRIT-F-001): Initialize auth state from MSAL or httpOnly cookies
   useEffect(() => {
@@ -233,6 +260,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         const sessionUser = await fetchSessionUser();
         if (sessionUser) {
           setUserState(sessionUser);
+
+          // Initialize session timeout (30 min idle = logout)
+          startSessionTimeout({
+            onWarning: () => {
+              setShowSessionWarning(true);
+            },
+            onTimeout: () => {
+              logger.warn('[Auth] Session timeout - auto logout');
+              logout();
+            }
+          });
+
           initializeTokenRefresh({
             onRefresh: (success) => {
               if (!success) {

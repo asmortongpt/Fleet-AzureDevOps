@@ -468,9 +468,9 @@ const WorkTabContent = memo(function WorkTabContent() {
 
   // Handler for joining meetings
   const handleJoinMeeting = (eventName: string) => {
-    toast.success(`Joining meeting: ${eventName}`)
+    // NOTE: Real meeting join (Teams/Outlook integration) coming in next release
+    toast.error(`Meeting join functionality will be available in the next release`)
     logger.info('Join meeting clicked:', eventName)
-    // TODO: Add real meeting join functionality (Teams/Outlook integration)
   }
 
   return (

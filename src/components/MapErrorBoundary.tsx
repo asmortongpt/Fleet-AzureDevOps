@@ -188,7 +188,7 @@ function getErrorDetails(error: CategorizedError, provider?: MapProvider): {
  */
 function reportError(error: Error, errorInfo: ErrorInfo, provider?: MapProvider): void {
   // In production, send to monitoring service (Sentry, LogRocket, etc.)
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.MODE === 'production') {
     logger.error('Map Error Report:', {
       error: {
         message: error.message,
@@ -552,7 +552,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               </AlertDescription>
 
               {/* Technical Details (Development Only) */}
-              {process.env.NODE_ENV === 'development' && (
+              {import.meta.env.MODE === 'development' && (
                 <details className="text-sm">
                   <summary className="cursor-pointer text-slate-700 dark:text-gray-700 hover:text-gray-900 dark:hover:text-gray-100">
                     Technical Details

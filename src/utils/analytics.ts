@@ -62,7 +62,7 @@ class AnalyticsService {
     };
 
     // Log to console in development
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       logger.info('📊 Analytics Event:', { event });
     }
 

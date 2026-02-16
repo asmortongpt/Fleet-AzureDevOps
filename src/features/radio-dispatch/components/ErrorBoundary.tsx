@@ -50,7 +50,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     // Log error details
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.MODE === 'development') {
       logger.error('ErrorBoundary caught an error:', error);
       logger.error('Error Info:', errorInfo);
       logger.error('Component Stack:', errorInfo.componentStack);

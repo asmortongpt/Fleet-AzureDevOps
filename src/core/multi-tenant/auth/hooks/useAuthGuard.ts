@@ -262,7 +262,7 @@ export const useAuditLogger = () => {
 
     try {
       // Log to console for development
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.MODE === 'development') {
         logger.debug('Audit Event:', auditEntry);
       }
 

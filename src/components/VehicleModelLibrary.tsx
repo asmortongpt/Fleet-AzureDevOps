@@ -59,7 +59,7 @@ export function VehicleModelLibrary({
 
   const memoizedComputation = useMemo(() => (compute ? compute() : null), [compute]);
 
-  if (process.env.NODE_ENV === 'test') {
+  if (import.meta.env.MODE === 'test') {
     const { invalidProp, onClick, onKeyDown, onSubmit, ...safeRest } = rest as Record<string, unknown>;
     const [uiStatus, setUiStatus] = useState('');
     const sanitizeValue = (input?: string) =>
@@ -127,7 +127,7 @@ export function VehicleModelLibrary({
 
   // Load models
   useEffect(() => {
-    if (process.env.NODE_ENV === 'test') return;
+    if (import.meta.env.MODE === 'test') return;
     loadModels();
   }, [searchQuery, vehicleType, make, source, quality, page, activeTab]);
 
@@ -166,7 +166,7 @@ export function VehicleModelLibrary({
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setPage(0);
-    if (process.env.NODE_ENV !== 'test') {
+    if (import.meta.env.MODE !== 'test') {
       loadModels();
     }
   };

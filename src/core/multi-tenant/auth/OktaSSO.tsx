@@ -276,7 +276,7 @@ const getOktaConfig = (): OktaConfig => {
     redirectUri: process.env.REACT_APP_OKTA_REDIRECT_URI || window.location.origin + '/login/callback',
     scopes: ['openid', 'profile', 'email', 'groups'],
     pkce: true,
-    disableHttpsCheck: process.env.NODE_ENV === 'development'
+    disableHttpsCheck: import.meta.env.MODE === 'development'
   };
 
   // Validate required configuration
@@ -332,7 +332,7 @@ const logAuthEvent = (event: string, details: any = {}) => {
   logger.debug('🔒 Auth Event:', auditLog);
 
   // In production, send to audit logging API
-  if (process.env.NODE_ENV === 'production') {
+  if (import.meta.env.MODE === 'production') {
     fetch('/api/audit/auth', {
       method: 'POST',
       headers: {

@@ -15,7 +15,7 @@ interface ErrorFallbackProps {
  */
 export function ErrorFallback({ error, errorInfo, onReset }: ErrorFallbackProps) {
   const [showDetails, setShowDetails] = React.useState(false);
-  const isDevelopment = process.env.NODE_ENV === 'development';
+  const isDevelopment = import.meta.env.MODE === 'development';
 
   const handleReload = () => {
     if (onReset) {

@@ -127,7 +127,7 @@ export function ErrorPanel({
           </p>
 
           {/* Additional error details for debugging (development only) */}
-          {process.env.NODE_ENV === 'development' && apiError && (
+          {import.meta.env.MODE === 'development' && apiError && (
             <details className="mb-2 w-full">
               <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">
                 Error Details

@@ -76,7 +76,7 @@ export function UniversalMap(props: UniversalMapProps) {
       return center
     }
     const dynamicCenter = calculateDynamicCenter(vehicles, facilities, cameras)
-    if (process.env.NODE_ENV === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
+    if (import.meta.env.MODE === 'development' && (vehicles.length > 0 || facilities.length > 0 || cameras.length > 0)) {
       logger.debug("Map center calculated from markers:", dynamicCenter)
     }
     return dynamicCenter
