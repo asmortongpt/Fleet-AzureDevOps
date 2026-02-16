@@ -27,6 +27,10 @@ export default defineConfig({
       'tests/integration/auth.test.ts',
       'tests/integration/vehicles.test.ts',
       'tests/integration/health.test.ts',
+      'tests/integration/maintenance.routes.test.ts',
+      'tests/integration/telematics.routes.test.ts',
+      'tests/integration/alerts-compliance.routes.test.ts',
+      'tests/integration/analytics-settings-export.routes.test.ts',
       'tests/integration/middleware/**/*.test.ts'
     ],
     // Exclude other integration tests that have different setup requirements
