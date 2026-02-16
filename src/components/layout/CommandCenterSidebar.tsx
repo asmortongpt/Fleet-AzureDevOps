@@ -8,6 +8,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
+import { ArchonYLogo } from '@/components/branding/ArchonYLogo';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { brandColors } from '@/theme/designSystem';
@@ -139,17 +140,13 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
             >
                 {/* Logo Area */}
                 <div className="h-14 flex items-center justify-between px-4 border-b border-border/50 shrink-0">
-                    <div className="flex items-center gap-2 min-w-0">
-                        {isSidebarOpen ? (
-                            <div className="text-lg font-bold bg-gradient-to-r from-[#FF6B35] to-[#41B2E3] bg-clip-text text-transparent">
-                                Archon-Y Fleet
-                            </div>
-                        ) : (
-                            <div className="text-xs font-bold bg-gradient-to-r from-[#FF6B35] to-[#41B2E3] bg-clip-text text-transparent flex items-center justify-center w-8 h-8">
-                                AF
-                            </div>
-                        )}
-                    </div>
+                    {isSidebarOpen ? (
+                        <ArchonYLogo variant="full" showAnimation />
+                    ) : (
+                        <div className="flex justify-center w-full">
+                            <ArchonYLogo variant="compact" />
+                        </div>
+                    )}
                 </div>
 
                 {/* Nav Links */}

@@ -1,6 +1,7 @@
 import { LogOut, User, CreditCard, Users, Menu, X } from 'lucide-react';
 import { useState, useCallback } from 'react';
 
+import { ArchonYLogo } from '@/components/branding/ArchonYLogo';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { SearchInput } from '@/components/shared/SearchInput';
@@ -48,26 +49,8 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                 borderColor: `${brandColors.cta.navy}20`,
             }}>
                 {/* Left: Archon-Y Branding */}
-                <div className="flex items-center gap-3 shrink-0">
-                    {/* Archon-Y Logo - Use actual icon */}
-                    <img
-                        src="/favicon.png"
-                        alt="Archon-Y Fleet"
-                        className="h-10 w-10 rounded-lg shadow-md"
-                    />
-                    {!isMobile && (
-                        <>
-                            <div className="h-6 w-px" style={{ backgroundColor: `${brandColors.cta.navy}20` }} />
-                            <div className="flex flex-col">
-                                <span className="text-sm font-bold leading-tight" style={{ color: brandColors.archon.black }}>
-                                    Archon-Y Fleet
-                                </span>
-                                <span className="text-xs leading-tight" style={{ color: brandColors.cta.navy }}>
-                                    Intelligent Performance
-                                </span>
-                            </div>
-                        </>
-                    )}
+                <div className="flex items-center gap-2 shrink-0">
+                    <ArchonYLogo variant={isMobile ? "icon" : "full"} />
                 </div>
 
                 {/* Center: Search Bar */}

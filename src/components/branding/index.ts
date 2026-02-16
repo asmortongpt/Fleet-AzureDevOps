@@ -1,0 +1,1 @@
+export { ArchonYLogo } from './ArchonYLogo'

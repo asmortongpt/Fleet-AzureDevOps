@@ -1,119 +1,145 @@
 /**
- * ArchonY Logo - Exact implementation from CTA Branding Guide (Pages 12-15)
- *
- * Brand: ArchonY - "INTELLIGENT PERFORMANCE"
- * Design: Technology-forward font with flowing swoosh/pivot symbol
- * Philosophy: "Simplicity rather than symbols, allowing meaning, performance, and presence to do the work"
- *
- * Color Palette:
- * - Primary: MIDNIGHT (theme background)
- * - Accent: Gradient bar (Golden Hour → Noon)
+ * Archon-Y Fleet Logo Component
+ * Professional branded logo for sidebar and header
  */
+
+import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 interface ArchonYLogoProps {
   variant?: 'full' | 'compact' | 'icon'
   className?: string
-  showTagline?: boolean
+  showAnimation?: boolean
 }
 
 export function ArchonYLogo({
   variant = 'full',
-  className = '',
-  showTagline = false
+  className,
+  showAnimation = false
 }: ArchonYLogoProps) {
+  // Brand colors
+  const colors = {
+    orange: '#FF6B35',
+    blue: '#41B2E3',
+    navy: '#2F3359',
+    gold: '#F0A000'
+  }
 
-  // Full horizontal logo with tagline
+  // Full logo with text
   if (variant === 'full') {
     return (
-      <div className={`flex flex-col ${className}`}>
-        <div className="flex items-center gap-2">
-          {/* ArchonY wordmark with flowing pivot symbol */}
-          <svg
-            viewBox="0 0 180 40"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-8 w-auto"
-          >
-            {/* "ArchonY" text in technology-forward font */}
-            <text
-              x="0"
-              y="28"
-              fontFamily="'Inter', 'SF Pro Display', system-ui, sans-serif"
-              fontSize="28"
-              fontWeight="700"
-              letterSpacing="-0.02em"
-              fill="currentColor"
-              className="text-white"
+      <motion.div
+        className={cn("flex items-center gap-3", className)}
+        initial={showAnimation ? { opacity: 0, x: -10 } : { opacity: 1, x: 0 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        {/* SVG Logo Icon */}
+        <svg
+          viewBox="0 0 40 40"
+          className="w-10 h-10 flex-shrink-0"
+          style={{ filter: 'drop-shadow(0 4px 8px rgba(255, 107, 53, 0.25))' }}
+        >
+          <defs>
+            <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={colors.orange} />
+              <stop offset="100%" stopColor={colors.blue} />
+            </linearGradient>
+            <linearGradient id="innerGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor={colors.gold} />
+              <stop offset="100%" stopColor={colors.orange} />
+            </linearGradient>
+          </defs>
+
+          {/* Outer circle */}
+          <circle cx="20" cy="20" r="18" fill="none" stroke="url(#logoGradient)" strokeWidth="2" />
+
+          {/* Inner design - stylized "A" */}
+          <g fill="url(#innerGradient)">
+            <rect x="16" y="10" width="2" height="16" rx="1" transform="rotate(-25 17 18)" />
+            <rect x="22" y="10" width="2" height="16" rx="1" transform="rotate(25 23 18)" />
+            <rect x="14" y="18" width="12" height="2" rx="1" />
+          </g>
+
+          {/* Accent dots */}
+          <circle cx="12" cy="12" r="1.5" fill={colors.blue} opacity="0.6" />
+          <circle cx="28" cy="28" r="1.5" fill={colors.orange} opacity="0.6" />
+        </svg>
+
+        {/* Text */}
+        <div className="flex flex-col gap-0">
+          <div className="flex items-baseline gap-1.5">
+            <span
+              className="text-sm font-black tracking-tight"
+              style={{
+                background: `linear-gradient(135deg, ${colors.orange}, ${colors.blue})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text'
+              }}
             >
-              ArchonY
-            </text>
-
-            {/* Flowing swoosh/pivot symbol integrated with the "Y" */}
-            <path
-              d="M 155 8 Q 165 8, 170 15 Q 175 22, 170 28 Q 165 34, 155 34 Q 150 34, 147 30"
-              stroke="url(#archony-gradient)"
-              strokeWidth="2.5"
-              fill="none"
-              strokeLinecap="round"
-              className="opacity-90"
-            />
-
-            {/* Gradient definition for the swoosh */}
-            <defs>
-              <linearGradient id="archony-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="hsl(var(--chart-3))" />
-                <stop offset="50%" stopColor="hsl(var(--chart-5))" />
-                <stop offset="100%" stopColor="hsl(var(--chart-6))" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-
-        {/* Gradient accent bar below logo */}
-        <div
-          className="h-[3px] w-full rounded-full mt-1"
-          style={{ background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-5)) 50%, hsl(var(--chart-6)) 100%)' }}
-        />
-
-        {/* Optional tagline */}
-        {showTagline && (
-          <div className="mt-1 text-[9px] font-semibold tracking-[0.2em] uppercase text-white/60">
-            INTELLIGENT PERFORMANCE
+              ARCHON-Y
+            </span>
+            <span className="text-xs font-bold tracking-widest opacity-70" style={{ color: colors.navy }}>
+              FLEET
+            </span>
           </div>
-        )}
-      </div>
+          <span className="text-xs font-semibold tracking-wide opacity-60" style={{ color: colors.blue }}>
+            INTELLIGENT
+          </span>
+        </div>
+      </motion.div>
     )
   }
 
-  // Compact logo for sidebar
+  // Compact icon version
   if (variant === 'compact') {
     return (
-      <div className={`flex flex-col items-center ${className}`}>
-        <div className="text-lg font-bold tracking-tight text-white">
-          ArchonY
-        </div>
-        <div
-          className="w-full h-[2px] rounded-full mt-0.5"
-          style={{ background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)' }}
-        />
-      </div>
+      <motion.div
+        className={cn("relative w-10 h-10 flex items-center justify-center", className)}
+        initial={showAnimation ? { scale: 0.8, opacity: 0 } : { scale: 1, opacity: 1 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        <svg
+          viewBox="0 0 40 40"
+          className="w-full h-full"
+          style={{ filter: 'drop-shadow(0 4px 12px rgba(65, 178, 227, 0.3))' }}
+        >
+          <defs>
+            <linearGradient id="compactGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={colors.orange} />
+              <stop offset="100%" stopColor={colors.blue} />
+            </linearGradient>
+          </defs>
+
+          <circle cx="20" cy="20" r="18" fill="none" stroke="url(#compactGradient)" strokeWidth="2.5" />
+          <g fill="url(#compactGradient)">
+            <rect x="16" y="10" width="2.5" height="18" rx="1" transform="rotate(-25 17.25 19)" />
+            <rect x="21.5" y="10" width="2.5" height="18" rx="1" transform="rotate(25 22.75 19)" />
+            <rect x="14" y="19" width="12" height="2.5" rx="1" />
+          </g>
+        </svg>
+      </motion.div>
     )
   }
 
-  // Icon/square variant for app icons and small spaces
-  if (variant === 'icon') {
-    return (
-      <div className={`flex flex-col items-center justify-center ${className}`}>
-        <div className="text-xs font-extrabold tracking-wide text-white">
-          AY
-        </div>
-        <div
-          className="w-5 h-[2px] rounded-full mt-0.5"
-          style={{ background: 'linear-gradient(90deg, hsl(var(--chart-3)) 0%, hsl(var(--chart-6)) 100%)' }}
-        />
-      </div>
-    )
-  }
-
-  return null
+  // Icon only
+  return (
+    <div className={cn("relative w-8 h-8 flex items-center justify-center", className)}>
+      <svg viewBox="0 0 40 40" className="w-full h-full" style={{ filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15))' }}>
+        <defs>
+          <linearGradient id="iconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={colors.orange} />
+            <stop offset="100%" stopColor={colors.blue} />
+          </linearGradient>
+        </defs>
+        <g fill="url(#iconGradient)">
+          <rect x="16" y="8" width="3" height="20" rx="1.5" transform="rotate(-22 17.5 18)" />
+          <rect x="21" y="8" width="3" height="20" rx="1.5" transform="rotate(22 22.5 18)" />
+          <rect x="12" y="19" width="16" height="3" rx="1.5" />
+        </g>
+      </svg>
+    </div>
+  )
 }
