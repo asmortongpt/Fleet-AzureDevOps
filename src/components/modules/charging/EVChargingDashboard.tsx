@@ -297,7 +297,7 @@ const EVChargingDashboard: React.FC = () => {
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
           <Lightning className="w-16 h-16 mx-auto text-blue-800 animate-spin" />
-          <p className="mt-2 text-sm text-slate-700">Loading charging dashboard...</p>
+          <p className="mt-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Loading charging dashboard...</p>
         </div>
       </div>
     );
@@ -313,7 +313,7 @@ const EVChargingDashboard: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-gray-900">EV Charging Dashboard</h1>
-          <p className="text-slate-700 mt-1">Manage charging stations and monitor active sessions</p>
+          <p className="text-slate-700 mt-1" style={{ color: brandColors.archon.mediumGray }}>Manage charging stations and monitor active sessions</p>
         </div>
         <Button onClick={handleRefresh} variant="outline" disabled={isLoading}>
           <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -326,7 +326,7 @@ const EVChargingDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Online Stations</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Online Stations</CardTitle>
             <CheckCircle className="w-3 h-3 text-green-500" />
           </CardHeader>
           <CardContent>
@@ -339,7 +339,7 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Active Sessions</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Active Sessions</CardTitle>
             <Lightning className="w-3 h-3 text-blue-800" />
           </CardHeader>
           <CardContent>
@@ -352,7 +352,7 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Energy Delivered</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Energy Delivered</CardTitle>
             <BatteryEmpty className="w-3 h-3 text-yellow-500" />
           </CardHeader>
           <CardContent>
@@ -365,7 +365,7 @@ const EVChargingDashboard: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-slate-700">Avg Utilization</CardTitle>
+            <CardTitle className="text-sm font-medium text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Avg Utilization</CardTitle>
             <ChartBar className="w-3 h-3 text-purple-500" />
           </CardHeader>
           <CardContent>

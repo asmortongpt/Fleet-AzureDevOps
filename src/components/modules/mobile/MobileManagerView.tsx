@@ -115,7 +115,7 @@ const MobileManagerView: React.FC = () => {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
-                <p className="text-sm text-slate-700">{assignment.employee_number}</p>
+                <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
                 <p className="text-xs text-gray-700 mt-1">{assignment.department_name}</p>
               </div>
               <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
@@ -170,7 +170,7 @@ const MobileManagerView: React.FC = () => {
           <div className="flex items-start justify-between mb-2">
             <div>
               <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
-              <p className="text-sm text-slate-700">{assignment.employee_number}</p>
+              <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
             </div>
             <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
               Active
@@ -200,7 +200,7 @@ const MobileManagerView: React.FC = () => {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900">{period.driver_name}</h3>
-                <p className="text-sm text-slate-700">{period.employee_number}</p>
+                <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{period.employee_number}</p>
               </div>
               <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
                 On-Call Now
@@ -213,7 +213,7 @@ const MobileManagerView: React.FC = () => {
               </p>
             )}
 
-            <div className="flex items-center gap-2 text-sm text-slate-700">
+            <div className="flex items-center gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
               <div className="flex items-center gap-1">
                 <Phone className="w-4 h-4" />
                 <span>{period.driver_phone || 'N/A'}</span>
@@ -241,13 +241,13 @@ const MobileManagerView: React.FC = () => {
           <h2 className="text-base font-bold">Review Assignment</h2>
 
           <div className="space-y-2">
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Driver:</strong> {selectedAssignment.driver_name}
             </p>
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Vehicle:</strong> {selectedAssignment.unit_number} - {selectedAssignment.make} {selectedAssignment.model}
             </p>
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Type:</strong> {selectedAssignment.assignment_type.replace('_', ' ')}
             </p>
           </div>

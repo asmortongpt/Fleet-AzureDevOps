@@ -678,11 +678,11 @@ export function PolicyOnboarding() {
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-sm font-medium text-gray-700 mb-1">Current State</p>
-                          <p className="text-sm text-slate-700">{gap.currentState}</p>
+                          <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{gap.currentState}</p>
                         </div>
                         <div>
                           <p className="text-sm font-medium text-gray-700 mb-1">Desired State</p>
-                          <p className="text-sm text-slate-700">{gap.desiredState}</p>
+                          <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{gap.desiredState}</p>
                         </div>
                       </div>
                       <Separator />
@@ -690,7 +690,7 @@ export function PolicyOnboarding() {
                         <p className="text-sm font-medium text-gray-700 mb-2">Recommendations:</p>
                         <ul className="space-y-1">
                           {gap.recommendations.map((rec, recIdx) => (
-                            <li key={recIdx} className="flex items-start gap-2 text-sm text-slate-700">
+                            <li key={recIdx} className="flex items-start gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                               <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
                               {rec}
                             </li>
@@ -724,18 +724,18 @@ export function PolicyOnboarding() {
                     <CardContent className="space-y-3">
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Impact</p>
-                        <p className="text-sm text-slate-700">{bottleneck.impact}</p>
+                        <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.impact}</p>
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-1">Root Cause</p>
-                        <p className="text-sm text-slate-700">{bottleneck.rootCause}</p>
+                        <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{bottleneck.rootCause}</p>
                       </div>
                       <Separator />
                       <div>
                         <p className="text-sm font-medium text-gray-700 mb-2">Solutions:</p>
                         <ul className="space-y-1">
                           {bottleneck.solutions.map((solution, solIdx) => (
-                            <li key={solIdx} className="flex items-start gap-2 text-sm text-slate-700">
+                            <li key={solIdx} className="flex items-start gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                               <Lightbulb className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                               {solution}
                             </li>
@@ -836,7 +836,7 @@ export function PolicyOnboarding() {
                         <Lightbulb className="w-4 h-4 text-yellow-500" />
                         Rationale
                       </p>
-                      <p className="text-sm text-slate-700">{rec.rationale}</p>
+                      <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{rec.rationale}</p>
                     </div>
 
                     {/* Estimated Impact */}
@@ -879,12 +879,12 @@ export function PolicyOnboarding() {
                     {/* Implementation Steps */}
                     <div>
                       <p className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-slate-700" />
+                        <Clock className="w-4 h-4 text-slate-700" style={{ color: brandColors.archon.mediumGray }} />
                         Implementation Steps
                       </p>
                       <ol className="space-y-1">
                         {rec.implementationSteps.map((step, stepIdx) => (
-                          <li key={stepIdx} className="flex items-start gap-2 text-sm text-slate-700">
+                          <li key={stepIdx} className="flex items-start gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                             <span className="font-medium text-gray-700 flex-shrink-0">
                               {stepIdx + 1}.
                             </span>
@@ -896,7 +896,7 @@ export function PolicyOnboarding() {
 
                     {/* Best Practice Source */}
                     <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                      <p className="text-xs text-slate-700">
+                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                         <span className="font-medium">Source:</span> {rec.bestPracticeSource}
                       </p>
                     </div>
@@ -1003,25 +1003,25 @@ export function PolicyOnboarding() {
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Monitor Policy Performance</p>
-                      <p className="text-xs text-slate-700">View real-time execution metrics</p>
+                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>View real-time execution metrics</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Configure Notifications</p>
-                      <p className="text-xs text-slate-700">Set up alerts and approvals</p>
+                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Set up alerts and approvals</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Train Your Team</p>
-                      <p className="text-xs text-slate-700">Share policy documentation</p>
+                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Share policy documentation</p>
                     </div>
                   </Button>
                   <Button variant="outline" className="h-auto py-3">
                     <div className="text-left">
                       <p className="font-medium">Review & Refine</p>
-                      <p className="text-xs text-slate-700">Adjust based on results</p>
+                      <p className="text-xs text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Adjust based on results</p>
                     </div>
                   </Button>
                 </div>

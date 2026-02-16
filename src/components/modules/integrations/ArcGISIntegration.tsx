@@ -827,7 +827,7 @@ export function ArcGISIntegration() {
         <AlertTitle>{connectionResult.success ? 'Success' : 'Error'}</AlertTitle>
         <AlertDescription>{connectionResult.message}</AlertDescription>
         {connectionResult.details && (
-          <div className="mt-2 text-sm text-slate-700">
+          <div className="mt-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
             <div>Type: {connectionResult.details.layerType ?? 'N/A'}</div>
             <div>Capabilities: {connectionResult.details.capabilities?.join(', ') ?? 'N/A'}</div>
           </div>

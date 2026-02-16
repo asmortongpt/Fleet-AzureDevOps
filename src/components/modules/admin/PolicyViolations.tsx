@@ -397,7 +397,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
           <h1 className="text-base font-bold text-slate-900 dark:text-white">
             Policy Violations
           </h1>
-          <p className="text-slate-600 dark:text-slate-700 mt-1">
+          <p className="text-slate-600 dark:text-slate-700 mt-1" style={{ color: brandColors.archon.mediumGray }}>
             Monitor and manage policy violations across your fleet
           </p>
         </div>
@@ -440,7 +440,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">{statistics?.totalViolations || 0}</div>
-                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   Last 30 days
                 </p>
               </CardContent>
@@ -455,7 +455,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold text-red-600">
                   {statistics?.openViolations || 0}
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   Requires attention
                 </p>
               </CardContent>
@@ -470,7 +470,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold text-red-700">
                   {statistics?.criticalViolations || 0}
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   High priority
                 </p>
               </CardContent>
@@ -485,7 +485,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div className="text-sm font-bold">
                   {statistics?.avgResolutionHours.toFixed(1) || '0'}h
                 </div>
-                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-700 mt-1" style={{ color: brandColors.archon.mediumGray }}>
                   Time to resolve
                 </p>
               </CardContent>
@@ -616,7 +616,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 <div>
                   <label className="text-sm font-medium mb-1 block">Search</label>
                   <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-700" />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-700" style={{ color: brandColors.archon.mediumGray }} />
                     <Input
                       placeholder="Search violations..."
                       value={filters.search || ''}
@@ -776,7 +776,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
               <CardTitle>Compliance Reporting</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <p className="text-slate-600 dark:text-slate-700">
+              <p className="text-slate-600 dark:text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                 Generate comprehensive compliance reports for audit and regulatory purposes.
               </p>
 
@@ -797,7 +797,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
               <div className="border-t pt-2 mt-2">
                 <h3 className="font-semibold mb-2">Policy Recommendations</h3>
-                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-700">
+                <ul className="space-y-2 text-sm text-slate-600 dark:text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
                     <span>Personal use policy is effective - only 5% violation rate</span>
@@ -873,19 +873,19 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                   <h4 className="font-semibold mb-2">Violation Metrics</h4>
                   <div className="grid grid-cols-3 gap-2 text-sm">
                     <div>
-                      <div className="text-slate-500">Threshold</div>
+                      <div className="" style={{ color: brandColors.archon.mediumGray }}>Threshold</div>
                       <div className="font-semibold">
                         {selectedViolation.thresholdValue} {selectedViolation.unit}
                       </div>
                     </div>
                     <div>
-                      <div className="text-slate-500">Actual</div>
+                      <div className="" style={{ color: brandColors.archon.mediumGray }}>Actual</div>
                       <div className="font-semibold">
                         {selectedViolation.actualValue} {selectedViolation.unit}
                       </div>
                     </div>
                     <div>
-                      <div className="text-slate-500">Difference</div>
+                      <div className="" style={{ color: brandColors.archon.mediumGray }}>Difference</div>
                       <div className="font-semibold text-red-600">
                         +{selectedViolation.difference} {selectedViolation.unit}
                       </div>
@@ -920,7 +920,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                           {format(parseISO(comment.createdAt), 'PPp')}
                         </span>
                       </div>
-                      <p className="text-slate-700 dark:text-slate-300">{comment.commentText}</p>
+                      <p className="text-slate-700 dark:text-slate-300" style={{ color: brandColors.archon.mediumGray }}>{comment.commentText}</p>
                     </div>
                   ))}
                 </div>

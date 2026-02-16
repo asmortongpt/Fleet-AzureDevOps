@@ -204,7 +204,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       <div className="flex items-center justify-center h-screen bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-slate-700">Loading your dashboard...</p>
+          <p className="mt-2 text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -236,7 +236,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                 <h3 className="font-semibold text-sm text-gray-900">
                   {assignment.unit_number}
                 </h3>
-                <p className="text-sm text-slate-700">
+                <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                   {assignment.make} {assignment.model} {assignment.year}
                 </p>
               </div>
@@ -250,12 +250,12 @@ const MobileEmployeeDashboard: React.FC = () => {
             </div>
 
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2 text-slate-700">
+              <div className="flex items-center gap-2 text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                 <FileText className="w-4 h-4" />
                 <span>License: {assignment.license_plate}</span>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-700">
+              <div className="flex items-center gap-2 text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                 <Calendar className="w-4 h-4" />
                 <span>Type: {assignment.assignment_type.replace('_', ' ')}</span>
               </div>
@@ -415,7 +415,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                 <h3 className="font-semibold text-gray-900">
                   {new Date(trip.trip_date).toLocaleDateString()}
                 </h3>
-                <p className="text-sm text-slate-700">{trip.purpose}</p>
+                <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{trip.purpose}</p>
               </div>
               <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                 trip.reimbursement_status === 'pending'

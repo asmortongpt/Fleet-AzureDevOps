@@ -368,7 +368,7 @@ const PushNotificationAdmin: React.FC = () => {
                 <Bell className="text-blue-800" size={32} />
                 Push Notification Admin
               </h1>
-              <p className="text-slate-700 mt-2">
+              <p className="text-slate-700 mt-2" style={{ color: brandColors.archon.mediumGray }}>
                 Send and manage mobile push notifications for iOS and Android
               </p>
             </div>
@@ -389,7 +389,7 @@ const PushNotificationAdmin: React.FC = () => {
             <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-700">Total Sent</p>
+                  <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Total Sent</p>
                   <p className="text-sm font-bold text-gray-900">{statsQuery.data?.totalSent}</p>
                 </div>
                 <Send className="text-blue-800" size={32} />
@@ -398,7 +398,7 @@ const PushNotificationAdmin: React.FC = () => {
             <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-700">Delivery Rate</p>
+                  <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Delivery Rate</p>
                   <p className="text-sm font-bold text-green-600">{statsQuery.data?.deliveryRate.toFixed(1)}%</p>
                 </div>
                 <CheckCircle className="text-green-600" size={32} />
@@ -407,7 +407,7 @@ const PushNotificationAdmin: React.FC = () => {
             <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-700">Open Rate</p>
+                  <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Open Rate</p>
                   <p className="text-sm font-bold text-blue-800">{statsQuery.data?.openRate.toFixed(1)}%</p>
                 </div>
                 <Eye className="text-blue-800" size={32} />
@@ -416,7 +416,7 @@ const PushNotificationAdmin: React.FC = () => {
             <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-700">Click Rate</p>
+                  <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Click Rate</p>
                   <p className="text-sm font-bold text-purple-600">{statsQuery.data?.clickRate.toFixed(1)}%</p>
                 </div>
                 <TrendingUp className="text-purple-600" size={32} />
@@ -664,7 +664,7 @@ const PushNotificationAdmin: React.FC = () => {
                             <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
                               <span className="font-medium">Category:</span> {template.category}
                             </p>
-                            <p className="text-sm text-slate-700">
+                            <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                               <span className="font-medium">Priority:</span> {template.priority}
                             </p>
                             <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
@@ -717,7 +717,7 @@ const PushNotificationAdmin: React.FC = () => {
                           <tr key={notification.id} className="hover:bg-gray-50">
                             <td className="px-2 py-3 text-sm">
                               <div className="font-medium text-gray-900">{notification.title}</div>
-                              <div className="text-slate-700 text-xs mt-1">{notification.message.substring(0, 50)}...</div>
+                              <div className="text-slate-700 text-xs mt-1" style={{ color: brandColors.archon.mediumGray }}>{notification.message.substring(0, 50)}...</div>
                             </td>
                             <td className="px-2 py-3 text-sm">{notification.category}</td>
                             <td className="px-2 py-3 text-sm">
@@ -743,7 +743,7 @@ const PushNotificationAdmin: React.FC = () => {
                                 {notification.delivery_status}
                               </span>
                             </td>
-                            <td className="px-2 py-3 text-sm text-slate-700">
+                            <td className="px-2 py-3 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                               {new Date(notification.created_at).toLocaleString()}
                             </td>
                           </tr>

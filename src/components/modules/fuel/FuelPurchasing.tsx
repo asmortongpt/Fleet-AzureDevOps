@@ -209,7 +209,7 @@ export function FuelPurchasing() {
           <Fuel className="h-8 w-8 text-blue-800" />
           Fuel Purchasing Intelligence
         </h1>
-        <p className="text-slate-700 mt-2">
+        <p className="text-slate-700 mt-2" style={{ color: brandColors.archon.mediumGray }}>
           Real-time pricing, predictive analytics, and optimization for smart fuel purchasing
         </p>
       </div>
@@ -286,7 +286,7 @@ export function FuelPurchasing() {
                   <Badge variant="secondary" className="uppercase">
                     {purchaseRecommendation.recommendation.replace('_', ' ')}
                   </Badge>
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                     {purchaseRecommendation.confidence}% confidence
                   </span>
                 </div>
@@ -411,7 +411,7 @@ export function FuelPurchasing() {
                       <TableRow key={station.id}>
                         <TableCell>
                           <div className="font-medium">{station.stationName}</div>
-                          <div className="text-sm text-slate-700">{station.brand}</div>
+                          <div className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{station.brand}</div>
                         </TableCell>
                         <TableCell>
                           <div className="text-sm">
@@ -445,7 +445,7 @@ export function FuelPurchasing() {
                   </TableBody>
                 </Table>
               ) : (
-                <div className="text-center py-3 text-slate-700">
+                <div className="text-center py-3 text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
                   No stations found. Try adjusting your search criteria.
                 </div>
               )}
