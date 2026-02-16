@@ -20,8 +20,8 @@ import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
 import logger from '@/utils/logger'
 
-// Feature flag for new single-page layout
-const USE_NEW_LAYOUT = false // TEMPORARILY DISABLED to show redesigned FleetHub
+// Feature flag for new single-page layout - MAP-FIRST UX
+const USE_NEW_LAYOUT = true // ENABLED: Map is central landing page feature
 
 // Lazy load all modules for code splitting - reduces initial bundle by 80%+
 // Modules now organized in feature-based folders for better maintainability
