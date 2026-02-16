@@ -2,7 +2,9 @@ import { withAITracking } from '@microsoft/applicationinsights-react-js'
 import { Shield } from "lucide-react"
 import { useState, useMemo, lazy, Suspense, useEffect } from "react"
 import { Toaster } from 'react-hot-toast'
+import { AnimatePresence, motion } from 'framer-motion'
 
+import { pageTransitionVariants } from '@/lib/animations'
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { ToastContainer } from "@/components/common/ToastContainer"
@@ -543,9 +545,20 @@ function App() {
           }}
         >
           <QueryErrorBoundary>
-            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
-              {renderModule()}
-            </Suspense>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeModule}
+                variants={pageTransitionVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                className="h-full w-full"
+              >
+                <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+                  {renderModule()}
+                </Suspense>
+              </motion.div>
+            </AnimatePresence>
           </QueryErrorBoundary>
         </EnhancedErrorBoundary>
       </CommandCenterLayout>

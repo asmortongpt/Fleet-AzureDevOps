@@ -12,7 +12,9 @@
 
 import React from 'react'
 import { TrendingUp, TrendingDown, Loader } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
+import { cardHoverVariants, cardTapVariants } from '@/lib/animations'
 import { colors, spacing, shadows, transitions, borderRadius } from '@/theme/designSystem'
 
 interface EnhancedDashboardCardProps {
@@ -82,19 +84,21 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
   };
 
   return (
-    <div
+    <motion.div
       className={cn(
-        'rounded-xl overflow-hidden transition-all duration-300 hover:-translate-y-0.5',
-        onClick && 'cursor-pointer hover:shadow-xl',
+        'rounded-xl overflow-hidden',
+        onClick && 'cursor-pointer',
         className
       )}
       style={{
         backgroundColor: colors.neutral[50],
-        boxShadow: `0 4px 12px rgba(0, 0, 0, 0.1), ${getStatusStyles().boxShadow}`,
-        transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
         border: `1px solid ${colors.neutral[200]}`,
         ...getStatusStyles(),
       }}
+      initial="initial"
+      whileHover="hover"
+      whileTap="tap"
+      variants={{ ...cardHoverVariants, ...cardTapVariants }}
       onClick={onClick}
     >
       {/* Header */}
@@ -231,7 +235,7 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
           </button>
         </div>
       )}
-    </div>
+    </motion.div>
   )
 }
 
