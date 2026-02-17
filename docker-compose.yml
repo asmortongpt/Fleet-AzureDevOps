@@ -60,6 +60,7 @@ services:
       BULL_REDIS_HOST: redis
       BULL_REDIS_PORT: 6379
       SKIP_AUTH: "true"
+      DEV_TENANT_ID: "2663b110-1314-44d7-8d74-7709298b55aa"
       OPENAI_API_KEY: ${OPENAI_API_KEY:-placeholder-key-for-startup}
       AZURE_OPENAI_ENDPOINT: ${VITE_AZURE_OPENAI_ENDPOINT:-https://placeholder.openai.azure.com}
       AZURE_OPENAI_DEPLOYMENT_ID: ${VITE_AZURE_OPENAI_DEPLOYMENT_ID:-gpt-4}
