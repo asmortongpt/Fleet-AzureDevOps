@@ -294,7 +294,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   const sidePanel = (
     <div className="space-y-2">
       <div>
-        <h2 className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">Fleet Overview</h2>
+        <h1 className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">Fleet Dashboard</h1>
         <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-700 mt-1">Real-time vehicle monitoring</p>
       </div>
 

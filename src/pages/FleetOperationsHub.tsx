@@ -568,6 +568,7 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   return (
     <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-foreground">Fleet Management</h2>
       {/* Fleet Statistics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <StatCard
@@ -725,6 +726,7 @@ const DriversTabContent = memo(function DriversTabContent() {
 
   return (
     <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-foreground">Drivers Management</h2>
       {/* Driver Statistics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <StatCard
@@ -1142,6 +1144,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
 
   return (
     <div className="space-y-6">
+      <h2 className="text-2xl font-bold text-foreground">Maintenance Management</h2>
       {/* Maintenance Statistics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <StatCard

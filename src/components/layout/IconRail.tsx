@@ -53,8 +53,10 @@ export function IconRail() {
   )
 
   return (
-    <aside
+    <nav
       className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-background/90 border-r border-border/50 z-30"
+      role="navigation"
+      aria-label="Main Navigation"
     >
       {/* Dawn gradient accent bar at top */}
       <div className="w-full h-[3px] bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903] shrink-0" />
@@ -106,6 +108,6 @@ export function IconRail() {
           <div className="w-5 h-[2px] mt-1 rounded-full bg-gradient-to-r from-[#FDB813] to-[#FF5722]" />
         </div>
       </div>
-    </aside>
+    </nav>
   )
 }

@@ -44,8 +44,10 @@ export function FlyoutMenu() {
   const modules = getModulesByCategory(flyoutCategory)
 
   return (
-    <div
+    <nav
       className="absolute left-12 lg:left-14 top-0 bottom-0 z-40 flex"
+      role="navigation"
+      aria-label={flyoutCategory ? `${categoryLabels[flyoutCategory]} modules` : 'Module navigation'}
     >
       <div
         className={cn(
@@ -57,25 +59,26 @@ export function FlyoutMenu() {
       >
         {/* Category header */}
         <div className="sticky top-0 bg-background/95 backdrop-blur px-3 pt-3 pb-1.5 lg:px-4 lg:pt-4 lg:pb-2 border-b border-border/50">
-          <h3 className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] text-[#41B2E3]/80">
+          <h2 className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] text-[#41B2E3]/80">
             {categoryLabels[flyoutCategory]}
-          </h3>
+          </h2>
         </div>
 
         {/* Module list */}
-        <div className="p-2">
+        <ul className="p-2">
           {modules.map(mod => (
-            <button
-              key={mod.id}
-              onClick={() => handleSelectModule(mod.id)}
-              className={cn(
-                'w-full text-left px-2.5 py-2 lg:px-3 lg:py-2.5 rounded-lg text-xs lg:text-[13px] transition-all duration-150',
-                'text-muted-foreground hover:text-foreground hover:bg-muted/40',
-                'focus:outline-none focus:ring-1 focus:ring-[#41B2E3]/40',
-              )}
-            >
-              {mod.label}
-            </button>
+            <li key={mod.id}>
+              <button
+                onClick={() => handleSelectModule(mod.id)}
+                className={cn(
+                  'w-full text-left px-2.5 py-2 lg:px-3 lg:py-2.5 rounded-lg text-xs lg:text-[13px] transition-all duration-150',
+                  'text-muted-foreground hover:text-foreground hover:bg-muted/40',
+                  'focus:outline-none focus:ring-1 focus:ring-[#41B2E3]/40',
+                )}
+              >
+                {mod.label}
+              </button>
+            </li>
           ))}
 
           {modules.length === 0 && (
@@ -83,8 +86,8 @@ export function FlyoutMenu() {
               No modules available
             </p>
           )}
-        </div>
+        </ul>
       </div>
-    </div>
+    </nav>
   )
 }
