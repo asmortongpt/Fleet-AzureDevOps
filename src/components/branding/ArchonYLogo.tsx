@@ -202,7 +202,7 @@ export function ArchonYLogo({
               animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
               transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY }}
             >
-              ARCHON-Y
+              ARCHONY
             </motion.span>
             <motion.span
               className="text-xs font-bold tracking-widest"
@@ -228,7 +228,7 @@ export function ArchonYLogo({
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
           >
-            INTELLIGENT FLEET MANAGEMENT
+            INTELLIGENT PERFORMANCE
           </motion.span>
         </div>
       </motion.div>
@@ -395,7 +395,7 @@ export function ArchonYLogo({
           animate={{ backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'] }}
           transition={{ duration: 6, repeat: Number.POSITIVE_INFINITY }}
         >
-          ARCHON-Y
+          ARCHONY
         </motion.span>
         <motion.span
           className="text-sm font-bold tracking-widest"
@@ -420,7 +420,7 @@ export function ArchonYLogo({
         animate={{ opacity: [0.5, 1, 0.5] }}
         transition={{ duration: 4, repeat: Number.POSITIVE_INFINITY }}
       >
-        INTELLIGENT FLEET MANAGEMENT
+        INTELLIGENT PERFORMANCE
       </motion.span>
     </div>
   )
