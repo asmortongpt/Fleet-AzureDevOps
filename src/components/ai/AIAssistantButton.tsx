@@ -1,17 +1,18 @@
 /**
- * AI Assistant Button - Floating Action Button
+ * AI Assistant Button - Draggable Floating Action Button
  *
  * Features:
- * - Floating button for easy access
+ * - Draggable anywhere on screen via Framer Motion
+ * - Default position: bottom-right corner
  * - Opens AI chat panel in dialog/drawer
  * - Context-aware based on hub type
  * - Responsive design
- *
- * Created: 2025-01-03
+ * - Persists position in localStorage
  */
 
-import { Bot } from 'lucide-react';
-import React, { useState } from 'react';
+import { motion, useDragControls } from 'framer-motion';
+import { Bot, GripVertical } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
 
 import { AIChatPanel } from './AIChatPanel';
 
@@ -30,6 +31,22 @@ import {
 } from '@/components/ui/drawer';
 import { useMediaQuery } from '@/hooks/use-media-query';
 
+const POSITION_KEY = 'cta-ai-assistant-position';
+
+function getSavedPosition(): { x: number; y: number } | null {
+  try {
+    const saved = localStorage.getItem(POSITION_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return null;
+}
+
+function savePosition(x: number, y: number) {
+  try {
+    localStorage.setItem(POSITION_KEY, JSON.stringify({ x, y }));
+  } catch { /* ignore */ }
+}
+
 interface AIAssistantButtonProps {
   hubType?: string;
   variant?: 'floating' | 'inline';
@@ -42,54 +59,107 @@ export function AIAssistantButton({
   className = ''
 }: AIAssistantButtonProps) {
   const [open, setOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const isDesktop = useMediaQuery('(min-width: 768px)');
+  const constraintsRef = useRef<HTMLDivElement>(null);
 
-  const buttonContent = (
-    <Button
-      onClick={() => setOpen(true)}
-      className={`${variant === 'floating'
-        ? 'fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-sm hover:shadow-sm transition-shadow z-50'
-        : 'gap-2'
-      } ${className}`}
-      size={variant === 'floating' ? 'icon' : 'default'}
-      title="Open AI Assistant"
-    >
-      <Bot className={variant === 'floating' ? 'h-6 w-6' : 'h-4 w-4'} />
-      {variant === 'inline' && <span>AI Assistant</span>}
-    </Button>
-  );
-
-  if (isDesktop) {
+  // Inline variant - simple button, no drag
+  if (variant === 'inline') {
     return (
-      <>
-        {buttonContent}
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogContent className="max-w-3xl h-[80vh] p-0">
-            <DialogHeader className="sr-only">
-              <DialogTitle>AI Fleet Assistant</DialogTitle>
-            </DialogHeader>
-            <div className="h-full">
-              <AIChatPanel hubType={hubType} onClose={() => setOpen(false)} />
-            </div>
-          </DialogContent>
-        </Dialog>
-      </>
+      <Button
+        onClick={() => setOpen(true)}
+        className={`gap-2 ${className}`}
+        size="default"
+        title="Open AI Assistant"
+      >
+        <Bot className="h-4 w-4" />
+        <span>AI Assistant</span>
+      </Button>
     );
   }
 
+  // Floating variant - draggable
+  const handleClick = () => {
+    if (!isDragging) {
+      setOpen(true);
+    }
+  };
+
+  const chatDialog = isDesktop ? (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent className="max-w-3xl h-[80vh] p-0">
+        <DialogHeader className="sr-only">
+          <DialogTitle>AI Fleet Assistant</DialogTitle>
+        </DialogHeader>
+        <div className="h-full">
+          <AIChatPanel hubType={hubType} onClose={() => setOpen(false)} />
+        </div>
+      </DialogContent>
+    </Dialog>
+  ) : (
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerContent className="h-[90vh]">
+        <DrawerHeader className="sr-only">
+          <DrawerTitle>AI Fleet Assistant</DrawerTitle>
+        </DrawerHeader>
+        <div className="h-full overflow-hidden">
+          <AIChatPanel hubType={hubType} onClose={() => setOpen(false)} />
+        </div>
+      </DrawerContent>
+    </Drawer>
+  );
+
   return (
     <>
-      {buttonContent}
-      <Drawer open={open} onOpenChange={setOpen}>
-        <DrawerContent className="h-[90vh]">
-          <DrawerHeader className="sr-only">
-            <DrawerTitle>AI Fleet Assistant</DrawerTitle>
-          </DrawerHeader>
-          <div className="h-full overflow-hidden">
-            <AIChatPanel hubType={hubType} onClose={() => setOpen(false)} />
-          </div>
-        </DrawerContent>
-      </Drawer>
+      {/* Full-screen drag constraint boundary */}
+      <div ref={constraintsRef} className="fixed inset-0 pointer-events-none z-[9998]" />
+
+      <motion.div
+        drag
+        dragConstraints={constraintsRef}
+        dragElastic={0.1}
+        dragMomentum={false}
+        onDragStart={() => setIsDragging(true)}
+        onDragEnd={(_, info) => {
+          setTimeout(() => setIsDragging(false), 100);
+          // Save position relative to viewport
+          const el = document.getElementById('cta-ai-fab');
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            savePosition(rect.left, rect.top);
+          }
+        }}
+        initial={getSavedPosition() || { x: 0, y: 0 }}
+        className="fixed bottom-6 right-6 z-[9999] pointer-events-auto"
+        id="cta-ai-fab"
+        style={{ touchAction: 'none' }}
+      >
+        <button
+          onClick={handleClick}
+          title="AI Fleet Assistant - Drag to reposition"
+          className={`
+            group relative flex items-center justify-center
+            h-14 w-14 rounded-full
+            bg-gradient-to-br from-[#1A1847] via-[#2F3359] to-[#1A1847]
+            text-white shadow-lg shadow-[#1A1847]/30
+            hover:shadow-xl hover:shadow-[#F0A000]/20
+            hover:scale-105
+            active:scale-95
+            transition-all duration-200
+            border border-[#F0A000]/30
+            cursor-grab active:cursor-grabbing
+            ${className}
+          `}
+        >
+          <Bot className="h-6 w-6 group-hover:scale-110 transition-transform" />
+          {/* Gold accent ring on hover */}
+          <div className="absolute inset-0 rounded-full border-2 border-[#F0A000]/0 group-hover:border-[#F0A000]/50 transition-all duration-300" />
+          {/* Pulse indicator */}
+          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#F0A000] border-2 border-white" />
+        </button>
+      </motion.div>
+
+      {chatDialog}
     </>
   );
 }
@@ -102,7 +172,7 @@ export function AIAssistantInlineButton({ hubType = 'general' }: { hubType?: str
 }
 
 /**
- * AI Assistant Floating Button - Global floating action button
+ * AI Assistant Floating Button - Global floating action button (draggable)
  */
 export function AIAssistantFloatingButton({ hubType = 'general' }: { hubType?: string }) {
   return <AIAssistantButton hubType={hubType} variant="floating" />;

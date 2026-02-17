@@ -20,6 +20,7 @@ import { MapCanvas } from './MapCanvas'
 import { MobileTabBar } from './MobileTabBar'
 import { PanelManager } from './PanelManager'
 
+import { AIAssistantFloatingButton } from '@/components/ai/AIAssistantButton'
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
@@ -98,6 +99,9 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
 
       {/* Command Palette overlay (Cmd+K) */}
       <CommandPalette />
+
+      {/* Draggable AI Assistant floating button */}
+      <AIAssistantFloatingButton hubType="fleet" />
     </div>
   )
 })

@@ -79,25 +79,36 @@ export function CompactHeader() {
 
   return (
     <header className="relative shrink-0 z-20">
-      {/* Main header bar */}
-      <div className="flex items-center justify-between h-10 sm:h-11 px-2 sm:px-4 bg-background/90 backdrop-blur-sm border-b border-border/50">
-        {/* Left: ARCHONY Logo */}
-        <div className="sm:hidden shrink-0 w-7 h-7 rounded-lg bg-[#1A1847] flex items-center justify-center border-l-2 border-[#F0A000]">
-          <span className="text-[10px] font-extrabold text-white">A</span>
+      {/* Main header bar - CTA Navy background */}
+      <div className="flex items-center justify-between h-12 sm:h-14 px-3 sm:px-5 bg-[#1A1847]">
+        {/* Left: CTA Logo */}
+        <div className="sm:hidden shrink-0 w-8 h-8 rounded-lg overflow-hidden">
+          <img
+            src="/logos/approved-branding/cta-icon-navy.png"
+            alt="CTA"
+            className="w-full h-full object-cover"
+          />
         </div>
-        <div className="hidden sm:flex items-center gap-2 shrink-0">
-          <ArchonYLogo variant="compact" className="h-8 w-auto max-w-[200px]" />
+        <div className="hidden sm:flex items-center gap-3 shrink-0">
+          <img
+            src="/logos/approved-branding/cta-horizontal-dark.png"
+            alt="CTA - Capital Technology Alliance"
+            className="h-9 w-auto object-contain"
+            style={{ maxWidth: '240px' }}
+          />
+          <div className="h-6 w-px bg-white/20" />
+          <span className="text-white/70 text-xs font-medium tracking-wider uppercase">Fleet</span>
         </div>
 
         {/* Center: Search bar */}
         <button
           onClick={handleSearchClick}
-          className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-muted/40 border border-border/50 text-muted-foreground text-xs hover:bg-muted/60 transition-all max-w-[200px] sm:max-w-[320px] w-full mx-2 sm:mx-6"
+          className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-white/10 border border-white/15 text-white/60 text-xs hover:bg-white/15 hover:text-white/80 transition-all max-w-[200px] sm:max-w-[360px] w-full mx-2 sm:mx-6"
         >
           <Search className="w-3.5 h-3.5 shrink-0" />
           <span className="sm:hidden truncate">Search...</span>
           <span className="hidden sm:inline truncate">Search modules, vehicles, drivers...</span>
-          <kbd className="hidden sm:flex items-center gap-0.5 ml-auto shrink-0 text-[10px] text-muted-foreground bg-muted/40 rounded px-1.5 py-0.5 border border-border/50">
+          <kbd className="hidden sm:flex items-center gap-0.5 ml-auto shrink-0 text-[10px] text-white/40 bg-white/10 rounded px-1.5 py-0.5 border border-white/15">
             <Command className="w-2.5 h-2.5" />K
           </kbd>
         </button>
@@ -107,26 +118,26 @@ export function CompactHeader() {
           {/* Notification bell */}
           <button
             aria-label="Notifications"
-            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-all relative"
+            className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-all relative"
           >
-            <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-[#DD3903] ring-2 ring-[#0A0E27]" />
+            <Bell className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+            <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#F0A000] ring-2 ring-[#1A1847]" />
           </button>
 
           {/* User avatar */}
           <button
             aria-label="User profile"
-            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden"
+            className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg overflow-hidden"
           >
-            <div className="w-full h-full bg-gradient-to-br from-[#2F3359] to-[#0A0E27] flex items-center justify-center border border-border/50 rounded-lg">
-              <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
+            <div className="w-full h-full bg-gradient-to-br from-[#F0A000] to-[#DD3903] flex items-center justify-center rounded-lg">
+              <User className="w-4 h-4 sm:w-[18px] sm:h-[18px] text-white" />
             </div>
           </button>
         </div>
       </div>
 
       {/* Dawn gradient accent bar - signature CTA brand element */}
-      <div className="h-[2px] bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903]" />
+      <div className="h-[3px] bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903]" />
     </header>
   )
 }
