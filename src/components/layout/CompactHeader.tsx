@@ -8,6 +8,7 @@
 import { Search, Bell, User, Command } from 'lucide-react'
 import { useCallback } from 'react'
 
+import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
 import { useAuth } from '@/contexts'
 import { usePanel } from '@/contexts/PanelContext'
 
@@ -80,12 +81,12 @@ export function CompactHeader() {
     <header className="relative shrink-0 z-20">
       {/* Main header bar */}
       <div className="flex items-center justify-between h-10 sm:h-11 px-2 sm:px-4 bg-background/90 backdrop-blur-sm border-b border-border/50">
-        {/* Left: CTA Fleet Logo */}
+        {/* Left: ARCHONY Logo */}
         <div className="sm:hidden shrink-0 w-7 h-7 rounded-lg bg-[#1A1847] flex items-center justify-center border-l-2 border-[#F0A000]">
-          <span className="text-[10px] font-extrabold text-white">CTA</span>
+          <span className="text-[10px] font-extrabold text-white">A</span>
         </div>
-        <div className="hidden sm:flex items-center gap-3 shrink-0">
-          <CTAFleetLogo className="h-8 w-auto" />
+        <div className="hidden sm:flex items-center gap-2 shrink-0">
+          <ArchonYLogo variant="compact" className="h-8 w-auto max-w-[200px]" />
         </div>
 
         {/* Center: Search bar */}

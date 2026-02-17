@@ -20,30 +20,38 @@ export function ArchonYLogo({
   // Full logo - official ARCHONY image
   if (variant === 'full') {
     return (
-      <motion.img
-        src="/logos/approved-branding/Screenshot 2026-02-15 at 4.05.10 PM.png"
-        alt="ARCHONY - Intelligent Performance"
-        className={cn("w-full h-auto object-contain", className)}
+      <motion.div
+        className={cn("w-full h-auto", className)}
         initial={showAnimation ? { opacity: 0, scale: 0.95 } : { opacity: 1, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        style={{ maxWidth: '100%' }}
-      />
+      >
+        <img
+          src="/logos/approved-branding/Screenshot 2026-02-15 at 4.05.10 PM.png"
+          alt="ARCHONY - Intelligent Performance"
+          className="w-full h-auto object-contain"
+          style={{ maxWidth: '100%' }}
+        />
+      </motion.div>
     )
   }
 
   // Compact version - uses same official image, scaled down
   if (variant === 'compact') {
     return (
-      <motion.img
-        src="/logos/approved-branding/Screenshot 2026-02-15 at 4.05.10 PM.png"
-        alt="ARCHONY"
-        className={cn("w-full h-auto object-contain", className)}
+      <motion.div
+        className={cn("w-full h-auto", className)}
         initial={showAnimation ? { opacity: 0, scale: 0.95 } : { opacity: 1, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
-        style={{ maxWidth: '280px' }}
-      />
+      >
+        <img
+          src="/logos/approved-branding/Screenshot 2026-02-15 at 4.05.10 PM.png"
+          alt="ARCHONY"
+          className="w-full h-auto object-contain"
+          style={{ maxWidth: '280px' }}
+        />
+      </motion.div>
     )
   }
 
