@@ -122,6 +122,7 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     last_service_date AS "lastServiceDate",
     next_service_date AS "nextServiceDate",
     next_service_mileage AS "nextServiceMileage",
+    health_score AS "healthScore",
     metadata
   `
 

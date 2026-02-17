@@ -18,6 +18,11 @@ const csrfMethods = doubleCsrf({
     }
     return secret || `dev-csrf-secret-${String(process.pid)}`;
   },
+  // csrf-csrf v4+ requires getSessionIdentifier to bind tokens to sessions
+  getSessionIdentifier: (req: Request) => {
+    // Use user ID from JWT auth, or fallback to IP for unauthenticated requests
+    return (req as any).user?.id || req.ip || 'anonymous';
+  },
   cookieName: "x-csrf-token",
   cookieOptions: {
     sameSite: "strict",

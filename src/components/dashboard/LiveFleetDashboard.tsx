@@ -91,11 +91,17 @@ const normalizeGeofence = (row: any): Geofence => {
 
 export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initialLayer }: LiveFleetDashboardProps = {}) {
 
-  // Fetch from real /api/vehicles endpoint with 300+ real vehicles from database
+  // Fetch from real /api/vehicles endpoint (max limit is 200)
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useSWR(
-    '/api/vehicles?limit=300',
+    '/api/vehicles?limit=200',
     (url) => fetch(url, { credentials: 'include' }).then(r => r.json()),
     { revalidateOnFocus: false, dedupingInterval: 5000 }
+  );
+  // Also fetch dashboard stats for accurate counts (DB-aggregated)
+  const { data: dashboardStats } = useSWR(
+    '/api/dashboard/stats',
+    (url) => fetch(url, { credentials: 'include' }).then(r => r.json()),
+    { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
   const { data: driversData } = useDrivers();
   const [vehicles, setVehicles] = useState<any[]>([]);
@@ -254,12 +260,13 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   const selectedVehicle = vehicles.find((v: any) => v.id === selectedVehicleId) || vehicles[0];
 
-  // Quick stats - handle both 'active' and 'service' status
-  const activeCount = vehicles.filter((v: any) => v.status === 'active').length;
-  const maintenanceCount = vehicles.filter((v: any) =>
+  // Quick stats - prefer DB-aggregated dashboard stats, fallback to vehicle array filtering
+  const dbStats = dashboardStats?.data;
+  const activeCount = dbStats?.active_vehicles ?? vehicles.filter((v: any) => v.status === 'active').length;
+  const maintenanceCount = dbStats?.maintenance_vehicles ?? vehicles.filter((v: any) =>
     v.status === 'maintenance' || v.status === 'service'
   ).length;
-  const totalVehicles = vehicles.length;
+  const totalVehicles = dbStats?.total_vehicles ?? vehicles.length;
 
   // Quick actions for mobile
   const quickActions = [

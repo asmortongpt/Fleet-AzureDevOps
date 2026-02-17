@@ -139,7 +139,7 @@ async function validateStartupConfiguration(): Promise<void> {
     throw new Error('VITE_API_URL is not accessible');
   }
 
-  const healthUrl = `${apiUrl}/api/health`;
+  const healthUrl = apiUrl.endsWith('/api') ? `${apiUrl}/health` : `${apiUrl}/api/health`;
 
   try {
     const controller = new AbortController();
