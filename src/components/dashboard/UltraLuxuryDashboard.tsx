@@ -5,7 +5,7 @@
 
 import { motion } from 'framer-motion'
 import { MapPin, Zap, AlertTriangle, TrendingUp, Activity, Navigation, Fuel } from 'lucide-react'
-import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
+import { CTALogo } from '@/components/branding/CTALogo'
 import { AnimatedMetricsVisualization } from './AnimatedMetricsVisualization'
 import { useState } from 'react'
 
@@ -156,7 +156,7 @@ export function UltraLuxuryDashboard() {
       >
         <div className="max-w-7xl mx-auto px-8 py-8 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <ArchonYLogo variant="compact" />
+            <CTALogo variant="compact" />
             <div className="flex flex-col gap-2">
               <h1 className="text-4xl font-black tracking-tight"
                 style={{
@@ -288,7 +288,7 @@ export function UltraLuxuryDashboard() {
               animate={{ rotate: 360 }}
               transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
             >
-              <ArchonYLogo variant="icon" />
+              <CTALogo variant="icon" />
             </motion.div>
           </div>
         </motion.div>

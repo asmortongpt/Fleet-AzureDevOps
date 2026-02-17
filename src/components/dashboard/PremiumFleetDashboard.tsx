@@ -7,7 +7,7 @@
 import { motion, AnimatePresence, Variants } from 'framer-motion'
 import { MapPin, Activity, AlertTriangle, TrendingUp, Wind, Fuel, Zap, Navigation, ChevronRight, Map, Settings, Maximize2, Wifi } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
+import { CTALogo } from '@/components/branding/CTALogo'
 import { LiveFleetMap } from '@/components/Maps/LiveFleetMap'
 import { AdvancedMapController } from '@/components/Maps/AdvancedMapController'
 
@@ -141,7 +141,7 @@ export function PremiumFleetDashboard() {
       >
         <div className="max-w-7xl mx-auto px-6 py-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <ArchonYLogo variant="compact" />
+            <CTALogo variant="compact" />
             <div className="flex flex-col gap-0.5">
               <motion.h1
                 className="text-3xl font-black tracking-tight"
