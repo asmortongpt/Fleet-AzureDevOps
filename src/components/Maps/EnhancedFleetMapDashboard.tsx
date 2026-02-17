@@ -6,7 +6,7 @@
 import { motion } from 'framer-motion'
 import { MapPin, Zap, AlertCircle, TrendingUp, Users, Truck } from 'lucide-react'
 import { LiveFleetMap } from './LiveFleetMap'
-import { CTALogo } from '@/components/branding/CTALogo'
+import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
 
 export function EnhancedFleetMapDashboard() {
   const colors = {
@@ -41,7 +41,7 @@ export function EnhancedFleetMapDashboard() {
             </div>
           </div>
           <div className="hidden md:block opacity-70 hover:opacity-100 transition-opacity">
-            <CTALogo variant="icon" />
+            <ArchonYLogo variant="icon" />
           </div>
         </div>
       </motion.div>

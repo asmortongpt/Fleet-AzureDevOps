@@ -8,7 +8,7 @@ import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
-import { CTALogo } from '@/components/branding/CTALogo';
+import { ArchonYLogo } from '@/components/branding/ArchonYLogo';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { brandColors } from '@/theme/designSystem';
@@ -141,10 +141,10 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                 {/* Logo Area */}
                 <div className="h-14 flex items-center justify-between px-4 border-b border-border/50 shrink-0">
                     {isSidebarOpen ? (
-                        <CTALogo variant="full" showAnimation />
+                        <ArchonYLogo variant="full" showAnimation />
                     ) : (
                         <div className="flex justify-center w-full">
-                            <CTALogo variant="compact" />
+                            <ArchonYLogo variant="compact" />
                         </div>
                     )}
                 </div>
