@@ -21,58 +21,59 @@ export function ArchonYLogo({
   if (variant === 'full') {
     return (
       <motion.svg
-        viewBox="0 0 900 200"
-        className={cn("w-full h-auto", className)}
-        style={{ maxWidth: '900px' }}
+        viewBox="0 0 600 80"
+        className={cn("w-full h-full", className)}
+        style={{ maxWidth: '600px' }}
+        preserveAspectRatio="xMidYMid meet"
         initial={showAnimation ? { opacity: 0, scale: 0.95 } : { opacity: 1, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
       >
         {/* Left arrow/swoosh element */}
         <path
-          d="M 30 80 L 70 40 L 65 55 L 85 35"
+          d="M 20 40 L 45 20 L 42 32 L 58 18"
           fill="none"
           stroke="#1D1D1D"
-          strokeWidth="8"
+          strokeWidth="4"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
 
         {/* Main ARCHONY text */}
         <text
-          x="150"
-          y="110"
+          x="90"
+          y="55"
           fontFamily="'Arial', 'Helvetica', sans-serif"
-          fontSize="80"
+          fontSize="48"
           fontWeight="900"
           fill="#1D1D1D"
-          letterSpacing="4"
+          letterSpacing="2"
         >
           ARCHONY
         </text>
 
         {/* Decorative dot */}
-        <circle cx="780" cy="90" r="6" fill="#1D1D1D" />
+        <circle cx="500" cy="48" r="3" fill="#1D1D1D" />
 
         {/* Main swoosh under text */}
         <path
-          d="M 100 140 Q 400 160 800 100"
+          d="M 60 62 Q 250 70 520 52"
           fill="none"
           stroke="#1D1D1D"
-          strokeWidth="4"
+          strokeWidth="2"
           strokeLinecap="round"
         />
 
         {/* Tagline */}
         <text
-          x="450"
-          y="175"
+          x="300"
+          y="78"
           fontFamily="'Arial', 'Helvetica', sans-serif"
-          fontSize="18"
+          fontSize="9"
           fontWeight="400"
-          fill="#1D1D1D"
+          fill="#666"
           textAnchor="middle"
-          letterSpacing="3"
+          letterSpacing="1.5"
         >
           INTELLIGENT PERFORMANCE
         </text>
