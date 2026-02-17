@@ -1,6 +1,6 @@
 /**
- * ARCHONY Fleet Logo
- * Official logo - uses exact image provided by user
+ * CTA Fleet Logo - Capital Technology Alliance branding
+ * Uses official logo images with clean filenames for cross-server compatibility
  */
 
 import { motion } from 'framer-motion'
@@ -17,7 +17,7 @@ export function ArchonYLogo({
   className,
   showAnimation = false
 }: ArchonYLogoProps) {
-  // Full logo - official ARCHONY image
+  // Full logo - CTA horizontal on light background
   if (variant === 'full') {
     return (
       <motion.div
@@ -27,8 +27,8 @@ export function ArchonYLogo({
         transition={{ duration: 0.8, ease: 'easeOut' }}
       >
         <img
-          src="/logos/approved-branding/Screenshot 2026-02-15 at 4.05.10 PM.png"
-          alt="ARCHONY - Intelligent Performance"
+          src="/logos/approved-branding/cta-horizontal-light.png"
+          alt="CTA - Capital Technology Alliance"
           className="w-full h-auto object-contain"
           style={{ maxWidth: '100%' }}
         />
@@ -36,7 +36,7 @@ export function ArchonYLogo({
     )
   }
 
-  // Compact version - uses same official image, scaled down
+  // Compact version for header bar
   if (variant === 'compact') {
     return (
       <motion.div
@@ -46,8 +46,8 @@ export function ArchonYLogo({
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
         <img
-          src="/logos/approved-branding/Screenshot 2026-02-15 at 4.05.10 PM.png"
-          alt="ARCHONY"
+          src="/logos/approved-branding/cta-horizontal-light.png"
+          alt="CTA Fleet"
           className="w-full h-auto object-contain"
           style={{ maxWidth: '280px' }}
         />
@@ -55,16 +55,20 @@ export function ArchonYLogo({
     )
   }
 
-  // Icon only - simple "A"
+  // Icon only - CTA square icon
   if (variant === 'icon') {
     return (
       <motion.div
-        className={cn("w-10 h-10 flex items-center justify-center font-black text-lg text-white bg-black rounded", className)}
+        className={cn("flex items-center justify-center", className)}
         initial={showAnimation ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
       >
-        A
+        <img
+          src="/logos/approved-branding/cta-icon-navy.png"
+          alt="CTA"
+          className="w-full h-full object-contain rounded"
+        />
       </motion.div>
     )
   }
@@ -77,11 +81,11 @@ export function ArchonYLogo({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6 }}
     >
-      <span className="text-2xl font-black tracking-tight text-[#1D1D1D]">
-        ARCHONY
+      <span className="text-2xl font-black tracking-tight text-[#1A1847]">
+        CTA FLEET
       </span>
-      <span className="text-xs font-light tracking-wider text-[#666]">
-        INTELLIGENT PERFORMANCE
+      <span className="text-xs font-light tracking-wider text-[#F0A000]">
+        CAPITAL TECHNOLOGY ALLIANCE
       </span>
     </motion.div>
   )
