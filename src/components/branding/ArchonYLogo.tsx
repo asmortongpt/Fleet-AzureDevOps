@@ -17,92 +17,124 @@ export function ArchonYLogo({
   className,
   showAnimation = false
 }: ArchonYLogoProps) {
-  // Brand color palette from CLAUDE.md specification
-  const colors = {
-    navy: '#2F3359',         // Navy (official spec)
-    orange: '#FF6B35',       // CTA Orange
-    blue: '#41B2E3',         // Blue Skies
-    gold: '#F0A000',         // Golden Hour
-    red: '#DD3903',          // Noon Red
-  }
-
-  // Advanced animation variants with 3D effects
-  const glowPulseAnimation = {
-    initial: { opacity: 0.5 },
-    animate: { opacity: [0.5, 1, 0.5] },
-    transition: { duration: 3, repeat: Number.POSITIVE_INFINITY, ease: 'easeInOut' } as any
-  }
-
-  const iconVariants = {
-    idle: {
-      scale: 1,
-      filter: 'drop-shadow(0 0 12px rgba(65, 178, 227, 0.3))',
-      rotateX: 0,
-      rotateY: 0,
-    },
-    hover: {
-      scale: 1.12,
-      filter: 'drop-shadow(0 0 24px rgba(65, 178, 227, 0.8))',
-      rotateX: 5,
-      rotateY: 5,
-    }
-  }
-
-  // Sophisticated multi-layer animation sequences
-  const coreRotation = {
-    animate: { rotate: 360 },
-    transition: { duration: 12, repeat: Number.POSITIVE_INFINITY, ease: 'linear' } as any
-  }
-
-  const reverseRotation = {
-    animate: { rotate: -360 },
-    transition: { duration: 16, repeat: Number.POSITIVE_INFINITY, ease: 'linear' } as any
-  }
-
-  // Full logo with text - OFFICIAL ARCHONY LOGO
+  // Full logo with official design
   if (variant === 'full') {
     return (
-      <motion.div
-        className={cn("inline-flex items-center", className)}
-        initial={showAnimation ? { opacity: 0, x: -30, scale: 0.95 } : { opacity: 1, x: 0, scale: 1 }}
-        animate={{ opacity: 1, x: 0, scale: 1 }}
+      <motion.svg
+        viewBox="0 0 900 200"
+        className={cn("w-full h-auto", className)}
+        style={{ maxWidth: '900px' }}
+        initial={showAnimation ? { opacity: 0, scale: 0.95 } : { opacity: 1, scale: 1 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
       >
-        <img
-          src="/logos/archony-approved-logo.svg"
-          alt="ARCHONY - Intelligent Performance"
-          className="h-auto"
-          style={{ width: '100%', maxWidth: '700px' }}
+        {/* Left arrow/swoosh element */}
+        <path
+          d="M 30 80 L 70 40 L 65 55 L 85 35"
+          fill="none"
+          stroke="#1D1D1D"
+          strokeWidth="8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
-      </motion.div>
+
+        {/* Main ARCHONY text */}
+        <text
+          x="150"
+          y="110"
+          fontFamily="'Arial', 'Helvetica', sans-serif"
+          fontSize="80"
+          fontWeight="900"
+          fill="#1D1D1D"
+          letterSpacing="4"
+        >
+          ARCHONY
+        </text>
+
+        {/* Decorative dot */}
+        <circle cx="780" cy="90" r="6" fill="#1D1D1D" />
+
+        {/* Main swoosh under text */}
+        <path
+          d="M 100 140 Q 400 160 800 100"
+          fill="none"
+          stroke="#1D1D1D"
+          strokeWidth="4"
+          strokeLinecap="round"
+        />
+
+        {/* Tagline */}
+        <text
+          x="450"
+          y="175"
+          fontFamily="'Arial', 'Helvetica', sans-serif"
+          fontSize="18"
+          fontWeight="400"
+          fill="#1D1D1D"
+          textAnchor="middle"
+          letterSpacing="3"
+        >
+          INTELLIGENT PERFORMANCE
+        </text>
+      </motion.svg>
     )
   }
 
-  // Compact version - compact horizontal logo
+  // Compact version
   if (variant === 'compact') {
     return (
-      <motion.div
-        className={cn("inline-flex items-center", className)}
+      <motion.svg
+        viewBox="0 0 450 100"
+        className={cn("w-full h-auto", className)}
+        style={{ maxWidth: '450px' }}
         initial={showAnimation ? { opacity: 0, scale: 0.95 } : { opacity: 1, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, ease: 'easeOut' }}
       >
-        <img
-          src="/logos/archony-approved-logo.svg"
-          alt="ARCHONY"
-          className="h-auto"
-          style={{ width: '100%', maxWidth: '280px' }}
+        {/* ARCHONY text - compact */}
+        <text
+          x="75"
+          y="55"
+          fontFamily="'Arial', 'Helvetica', sans-serif"
+          fontSize="40"
+          fontWeight="900"
+          fill="#1D1D1D"
+          letterSpacing="2"
+        >
+          ARCHONY
+        </text>
+
+        {/* Small swoosh */}
+        <path
+          d="M 50 65 Q 200 75 400 50"
+          fill="none"
+          stroke="#1D1D1D"
+          strokeWidth="2"
+          strokeLinecap="round"
         />
-      </motion.div>
+
+        {/* Tagline - smaller */}
+        <text
+          x="225"
+          y="90"
+          fontFamily="'Arial', 'Helvetica', sans-serif"
+          fontSize="10"
+          fontWeight="400"
+          fill="#666"
+          textAnchor="middle"
+          letterSpacing="1.5"
+        >
+          INTELLIGENT PERFORMANCE
+        </text>
+      </motion.svg>
     )
   }
 
-  // Icon only - simple "A" icon
+  // Icon only - simple "A"
   if (variant === 'icon') {
     return (
       <motion.div
-        className={cn("w-10 h-10 flex items-center justify-center rounded-lg bg-gradient-to-br from-[#FF6B35] to-[#41B2E3] text-white font-bold text-lg", className)}
-        whileHover={{ scale: 1.1 }}
+        className={cn("w-10 h-10 flex items-center justify-center font-black text-lg text-white bg-black rounded", className)}
         initial={showAnimation ? { opacity: 0, scale: 0.8 } : { opacity: 1, scale: 1 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4 }}
@@ -118,14 +150,12 @@ export function ArchonYLogo({
       className={cn("flex flex-col gap-1", className)}
       initial={showAnimation ? { opacity: 0, y: -10 } : { opacity: 1, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
+      transition={{ duration: 0.6 }}
     >
-      <div className="flex items-baseline gap-2">
-        <span className="text-2xl font-black tracking-tight text-[#1D1D1D]">
-          ARCHONY
-        </span>
-      </div>
-      <span className="text-sm font-light tracking-wider text-[#666]">
+      <span className="text-2xl font-black tracking-tight text-[#1D1D1D]">
+        ARCHONY
+      </span>
+      <span className="text-xs font-light tracking-wider text-[#666]">
         INTELLIGENT PERFORMANCE
       </span>
     </motion.div>
