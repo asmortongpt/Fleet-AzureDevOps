@@ -28,25 +28,26 @@ router.get(
                 tenant_id,
                 communication_type,
                 direction,
-                from_user_id,
-                to_user_id,
-                from_address,
-                to_address,
+                sender_id AS from_user_id,
+                sender_name,
                 subject,
-                message_body,
+                body AS message_body,
                 status,
-                sent_at,
-                delivered_at,
-                read_at,
+                priority,
+                channel,
+                participants,
+                recipients,
                 related_entity_type,
                 related_entity_id,
-                external_message_id,
+                follow_up_required,
+                follow_up_date,
+                follow_up_notes,
                 metadata,
                 created_at,
                 updated_at
          FROM communication_logs
          WHERE tenant_id = $1
-         ORDER BY sent_at DESC NULLS LAST, created_at DESC
+         ORDER BY created_at DESC
          LIMIT $2 OFFSET $3`,
         [req.user!.tenant_id, limit, offset]
       )

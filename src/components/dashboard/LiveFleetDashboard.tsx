@@ -180,9 +180,10 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   useEffect(() => {
     if (!geofencesResponse) return;
-    const rows = Array.isArray(geofencesResponse)
+    const raw = Array.isArray(geofencesResponse)
       ? geofencesResponse
-      : (geofencesResponse?.data || []);
+      : geofencesResponse?.data;
+    const rows = Array.isArray(raw) ? raw : [];
     setGeofences(rows.map(normalizeGeofence));
   }, [geofencesResponse]);
 

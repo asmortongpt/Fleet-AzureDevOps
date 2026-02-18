@@ -58,7 +58,7 @@ router.get('/health',
         SELECT
           (SELECT COUNT(*) FROM vehicles) as vehicle_count,
           (SELECT COUNT(*) FROM drivers) as driver_count,
-          (SELECT COUNT(*) FROM maintenance_records) as maintenance_count,
+          (SELECT COUNT(*) FROM maintenance_requests) as maintenance_count,
           (SELECT pg_database_size(current_database())) as database_size
       `);
 

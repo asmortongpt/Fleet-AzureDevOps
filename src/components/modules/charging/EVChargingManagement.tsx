@@ -136,7 +136,7 @@ export function EVChargingManagement() {
   })
 
   const sessions = useMemo<ChargingSession[]>(() => {
-    return (rawSessions || []).map((session: any) => {
+    return (Array.isArray(rawSessions) ? rawSessions : []).map((session: any) => {
       const metadata = session.metadata || {}
       const status = session.status === "in_progress" ? "active" : session.status
       return {

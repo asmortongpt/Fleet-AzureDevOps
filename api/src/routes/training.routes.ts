@@ -20,8 +20,9 @@ router.get(
       const offset = (Number(page) - 1) * Number(limit)
 
       const result = await pool.query(
-        `SELECT id, tenant_id, title, description, category, level, duration_minutes,
-                modules, prerequisites, certification, instructor, tags, rating,
+        `SELECT id, tenant_id, course_name AS title, description, category,
+                duration_hours AS duration_minutes, required, provider AS instructor,
+                status, metadata,
                 created_at, updated_at
          FROM training_courses
          WHERE tenant_id = $1
@@ -72,17 +73,17 @@ router.get(
            tp.id,
            tp.course_id,
            tp.driver_id,
-           tp.progress,
-           tp.completed_modules,
-           tp.last_accessed,
-           tp.time_spent_minutes,
+           tp.progress_percent AS progress,
+           tp.status AS completed_modules,
+           tp.started_at AS last_accessed,
+           0 AS time_spent_minutes,
            tp.score,
            d.first_name,
            d.last_name
          FROM training_progress tp
          LEFT JOIN drivers d ON tp.driver_id = d.id
          ${whereClause}
-         ORDER BY tp.last_accessed DESC NULLS LAST`,
+         ORDER BY tp.started_at DESC NULLS LAST, tp.created_at DESC`,
         params
       )
 

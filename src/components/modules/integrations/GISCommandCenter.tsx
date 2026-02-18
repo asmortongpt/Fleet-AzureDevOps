@@ -49,7 +49,7 @@ export function GISCommandCenter() {
   })
 
   const regions = useMemo(() => {
-    const regionSet = new Set(vehicles.map(v => v.region))
+    const regionSet = new Set(vehicles.map(v => v.region).filter(Boolean))
     return ["all", ...Array.from(regionSet)]
   }, [vehicles])
 
@@ -231,9 +231,9 @@ export function GISCommandCenter() {
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="map">Map View</TabsTrigger>
-                <TabsTrigger value="satellite">Satellite</TabsTrigger>
-                <TabsTrigger value="terrain">Terrain</TabsTrigger>
+                <TabsTrigger key="map" value="map">Map View</TabsTrigger>
+                <TabsTrigger key="satellite" value="satellite">Satellite</TabsTrigger>
+                <TabsTrigger key="terrain" value="terrain">Terrain</TabsTrigger>
               </TabsList>
               <TabsContent value={activeTab || "map"} className="mt-2">
                 <div className="aspect-video bg-muted rounded-lg overflow-hidden">
@@ -280,8 +280,8 @@ export function GISCommandCenter() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {filteredFacilities.slice(0, 6).map((facility) => (
-                  <div key={facility.id} className="flex items-start gap-3">
+                {filteredFacilities.slice(0, 6).map((facility, idx) => (
+                  <div key={facility.id ?? idx} className="flex items-start gap-3">
                     <div className="p-2 rounded-lg bg-primary/10 text-primary">
                       {getFacilityIcon((facility as any).type)}
                     </div>

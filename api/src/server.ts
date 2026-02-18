@@ -215,6 +215,7 @@ import sessionRevocationRouter from './routes/session-revocation'
 import sessionsRouter from './routes/sessions'
 import smartcarRouter from './routes/smartcar.routes'
 import storageAdminRouter from './routes/storage-admin'
+import databaseHealthRouter from './routes/database.routes'
 import syncRouter from './routes/sync.routes'
 import tasksRouter from './routes/tasks'
 import taskManagementRouter from './routes/task-management.routes'
@@ -614,6 +615,8 @@ app.use('/api/service-bays', serviceBaysRouter)
 app.use('/api/search', searchRouter)
 app.use('/api/presence', presenceRouter)
 app.use('/api/storage-admin', storageAdminRouter)
+app.use('/api/storage', storageAdminRouter)
+app.use('/api/database', databaseHealthRouter)
 app.use('/api/sync', syncRouter)
 app.use('/api/quality-gates', qualityGatesRouter)
 app.use('/api/system', systemConnectionsRouter)

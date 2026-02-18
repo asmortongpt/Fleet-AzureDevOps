@@ -22,6 +22,7 @@ import StorageManager from '../services/StorageManager';
 import { getErrorMessage } from '../utils/error-handler'
 import { authenticateJWT } from '../middleware/auth'
 import { logger } from '../utils/logger'
+import { pool } from '../db/connection'
 
 
 const router = express.Router();
@@ -325,12 +326,33 @@ router.get('/list', async (req: Request, res: Response) => {
  */
 router.get('/stats', async (req: Request, res: Response) => {
   try {
-    const manager = await getStorageManager();
-    const stats = await manager.getUsageStats();
+    // Try StorageManager first, fall back to direct query
+    try {
+      const manager = await getStorageManager();
+      const stats = await manager.getUsageStats();
+      return res.json({ success: true, data: stats });
+    } catch {
+      // StorageManager may fail if storage_files schema differs
+    }
+
+    // Fallback: query storage_files table directly
+    const result = await pool.query(`
+      SELECT
+        COUNT(*)::int as total_files,
+        COALESCE(SUM(file_size_bytes), 0)::bigint as total_size_bytes,
+        COUNT(DISTINCT storage_provider) as providers,
+        COUNT(DISTINCT entity_type) as entity_types
+      FROM storage_files
+    `);
 
     res.json({
       success: true,
-      data: stats
+      data: {
+        totalFiles: result.rows[0]?.total_files || 0,
+        totalSizeBytes: Number(result.rows[0]?.total_size_bytes || 0),
+        providers: result.rows[0]?.providers || 0,
+        entityTypes: result.rows[0]?.entity_types || 0
+      }
     });
   } catch (error: unknown) {
     logger.error('Stats error:', error);

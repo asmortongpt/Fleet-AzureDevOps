@@ -60,10 +60,10 @@ export class HeavyEquipmentService {
         a.asset_number,
         a.name as asset_name
       FROM equipment_maintenance_schedules s
-      JOIN heavy_equipment he ON he.id = s.equipment_id
+      LEFT JOIN heavy_equipment he ON he.id = s.equipment_id
       LEFT JOIN assets a ON a.id = he.asset_id
       WHERE s.tenant_id = $1
-      ORDER BY s.next_due_date NULLS LAST, s.next_due_hours NULLS LAST, s.created_at DESC
+      ORDER BY s.next_due NULLS LAST, s.created_at DESC
       `,
       [tenantId]
     )
@@ -93,13 +93,13 @@ export class HeavyEquipmentService {
     const result = await this.db.query(
       `
       SELECT
-        equipment_type,
+        certification_type AS equipment_type,
         status,
         COUNT(*)::int as count
       FROM equipment_operator_certifications
       WHERE tenant_id = $1
-      GROUP BY equipment_type, status
-      ORDER BY equipment_type ASC, status ASC
+      GROUP BY certification_type, status
+      ORDER BY certification_type ASC, status ASC
       `,
       [tenantId]
     )
