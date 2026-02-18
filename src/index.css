@@ -1,3 +1,6 @@
+/* Google Fonts - must be first */
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap");
+
 /* ============================================================================
  * PERFORMANCE OPTIMIZATION - Phase 1: CSS Consolidation
  * Consolidated all CSS into single index.css to reduce HTTP requests
