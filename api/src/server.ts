@@ -329,6 +329,13 @@ app.options('/{*splat}', cors(getCorsConfig()))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true, limit: '10mb' }))
 
+// 3.3 Express 5 compatibility: make req.query writable for validation/sanitization middleware
+app.use((req, _res, next) => {
+  const parsed = { ...req.query }
+  Object.defineProperty(req, 'query', { value: parsed, writable: true, configurable: true, enumerable: true })
+  next()
+})
+
 // 3.5. Cookie Parser - Required for CSRF protection
 app.use(cookieParser())
 
