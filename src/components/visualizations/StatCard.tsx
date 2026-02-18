@@ -4,13 +4,14 @@
 
 // motion removed - React 19 incompatible
 import { LucideIcon, Minus, TrendingDown, TrendingUp } from 'lucide-react';
+import { type ReactNode } from 'react'
 import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
 import { cn } from '@/lib/utils'
 
 interface StatCardProps {
   title: string
-  value: string | number
+  value: string | number | ReactNode
   change?: number
   icon: LucideIcon
   trend?: 'up' | 'down' | 'neutral'
@@ -40,9 +41,21 @@ export function StatCard({
   }
 
   const getIconBg = () => {
-    if (trend === 'up') return 'bg-emerald-100/80 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400'
-    if (trend === 'down') return 'bg-rose-100/80 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'
-    return 'bg-primary/10 text-primary'
+    if (trend === 'up') return 'text-white shadow-sm'
+    if (trend === 'down') return 'text-white shadow-sm'
+    return 'text-white shadow-sm'
+  }
+
+  const getIconGradient = () => {
+    if (trend === 'up') return 'linear-gradient(135deg, #10B981, #059669)'
+    if (trend === 'down') return 'linear-gradient(135deg, #F43F5E, #E11D48)'
+    return 'linear-gradient(135deg, #F0A000, #E67E22)'
+  }
+
+  const getAccentGradient = () => {
+    if (trend === 'up') return 'linear-gradient(to bottom, #10B981, #059669)'
+    if (trend === 'down') return 'linear-gradient(to bottom, #F43F5E, #E11D48)'
+    return 'linear-gradient(to bottom, #F0A000, #E67E22)'
   }
 
   const getTrendIcon = () => {
@@ -60,10 +73,17 @@ export function StatCard({
   const hasSparkline = showSparkline && Array.isArray(sparklineData) && sparklineData.length > 0
 
   return (
-    <div className={cn('h-full', className)}>
-      <div className="h-full rounded-xl border border-border/50 bg-card p-4 shadow-sm hover:shadow-md transition-shadow duration-200 cta-card cta-stat">
+    <div className={cn('h-full animate-fade-in-up', className)}>
+      <div className="relative h-full rounded-xl border border-[rgba(240,160,0,0.12)] bg-card/80 backdrop-blur-md p-4 shadow-md hover:shadow-xl hover:-translate-y-1 hover:scale-[1.02] transition-all duration-300 cta-card cta-stat overflow-hidden">
+        {/* Left accent bar */}
+        <div className="absolute left-0 top-0 bottom-0 w-1 rounded-l-xl" style={{ background: getAccentGradient() }} />
+        {/* Top shimmer line */}
+        <div className="absolute top-0 left-4 right-4 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(240, 160, 0, 0.3), transparent)' }} />
         <div className="flex items-start justify-between mb-3">
-          <div className={cn('flex h-9 w-9 items-center justify-center rounded-lg', getIconBg())}>
+          <div
+            className={cn('flex h-10 w-10 items-center justify-center rounded-xl', getIconBg())}
+            style={{ background: getIconGradient(), border: '1px solid rgba(255,255,255,0.2)', boxShadow: '0 4px 12px rgba(0,0,0,0.25)' }}
+          >
             <Icon className="h-4.5 w-4.5" />
           </div>
           {change !== undefined && (

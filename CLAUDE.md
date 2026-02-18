@@ -12,7 +12,7 @@ CTAFleet is an enterprise fleet management system with a React/TypeScript fronte
 ```bash
 npm install --legacy-peer-deps     # Required: React 18/19 peer dep conflicts
 npm run dev                        # Vite dev server → http://localhost:5173
-npm run build                      # Production build (Vite + Terser)
+npm run build                      # Production build (Vite 7 + Rolldown + Oxc minifier)
 npm run typecheck                  # tsc --noEmit
 npm run lint                       # ESLint
 npm test                           # Vitest unit tests

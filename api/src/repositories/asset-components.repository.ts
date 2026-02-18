@@ -46,14 +46,14 @@ export interface UpdateComponentInput {
 export class AssetComponentsRepository {
   static async listByAsset(assetId: number): Promise<AssetComponent[]> {
     const { rows } = await db.query(
-      `SELECT * FROM asset_components WHERE asset_id=$1 ORDER BY installed_date ASC, id ASC`,
+      `SELECT id, asset_id, name, category, installed_date, depreciation_start_date, cost_basis, salvage_value, useful_life_months, depreciation_method, disposed_date, disposed_amount, notes FROM asset_components WHERE asset_id=$1 ORDER BY installed_date ASC, id ASC`,
       [assetId]
     );
     return rows;
   }
 
   static async getById(id: number): Promise<AssetComponent | null> {
-    const { rows } = await db.query(`SELECT * FROM asset_components WHERE id=$1`, [id]);
+    const { rows } = await db.query(`SELECT id, asset_id, name, category, installed_date, depreciation_start_date, cost_basis, salvage_value, useful_life_months, depreciation_method, disposed_date, disposed_amount, notes FROM asset_components WHERE id=$1`, [id]);
     return rows[0] ?? null;
   }
 

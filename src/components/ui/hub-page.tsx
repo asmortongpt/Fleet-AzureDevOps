@@ -99,21 +99,26 @@ export function HubPage({
         >
             {/* Hub Header */}
             <header
-                className="flex items-center justify-between px-5 py-3 border-b border-border/50 bg-card/50"
+                className="relative flex items-center justify-between px-6 py-4 border-b bg-card/70 backdrop-blur-xl animate-fade-in"
                 data-testid="hub-header"
                 style={{
-                    borderBottom: '1px solid rgba(0, 212, 255, 0.3)',
-                    boxShadow: '0 4px 20px rgba(0, 212, 255, 0.15), 0 1px 3px rgba(43, 58, 103, 0.2)'
+                    borderBottom: '1px solid rgba(240, 160, 0, 0.25)',
+                    boxShadow: '0 4px 20px rgba(240, 160, 0, 0.08), 0 1px 3px rgba(43, 58, 103, 0.2)'
                 }}
             >
+                {/* Gold gradient accent bar at top */}
+                <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: 'linear-gradient(90deg, #F0A000, #E67E22, #F0A000)' }} />
                 <div className="flex items-center gap-3 min-w-0">
                     {icon && (
-                        <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary">
+                        <div
+                            className="flex items-center justify-center w-10 h-10 rounded-xl text-white shadow-md"
+                            style={{ background: 'linear-gradient(135deg, #F0A000, #E67E22)' }}
+                        >
                             {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType<{ className: string }>, { className: 'h-5 w-5' })}
                         </div>
                     )}
                     <div>
-                        <h1 className="text-base font-semibold text-foreground">{title}</h1>
+                        <h1 className="text-lg font-bold text-foreground">{title}</h1>
                         {description && (
                             <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-md">{description}</p>
                         )}
@@ -146,7 +151,7 @@ export function HubPage({
                                 value={tab.id}
                                 disabled={tab.disabled}
                                 aria-label={tab.ariaLabel || tab.label}
-                                className="gap-2 rounded-none px-3 data-[state=active]:border-b-2 data-[state=active]:border-primary transition-all duration-150"
+                                className="gap-2 rounded-none px-3 data-[state=active]:border-b-2 data-[state=active]:border-[#F0A000] data-[state=active]:text-[#F0A000] transition-all duration-150"
                                 data-testid={`hub-tab-${tab.id}`}
                             >
                                 {tab.icon && (React.isValidElement(tab.icon) ? tab.icon : typeof tab.icon === 'function' ? React.createElement(tab.icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' }) : null)}
@@ -198,7 +203,7 @@ export function HubSection({
         <section
             className={cn(
                 'flex flex-col',
-                padding && 'p-3',
+                padding && 'p-4',
                 className
             )}
             data-testid="hub-section"
@@ -236,7 +241,7 @@ export function HubGrid({ children, className, columns = 4 }: HubGridProps) {
     }
 
     return (
-        <div className={cn('grid gap-3', gridCols[columns], className)}>
+        <div className={cn('grid gap-4', gridCols[columns], className)}>
             {children}
         </div>
     )

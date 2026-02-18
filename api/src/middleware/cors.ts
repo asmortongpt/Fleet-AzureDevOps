@@ -153,7 +153,7 @@ export function applyCorsMiddleware(app: any): void {
   app.use(corsMiddleware);
 
   // Handle all OPTIONS requests
-  app.options('*', preflightHandler);
+  app.options('/{*splat}', preflightHandler);
 
   // Add CORS error handler
   app.use(corsErrorHandler);

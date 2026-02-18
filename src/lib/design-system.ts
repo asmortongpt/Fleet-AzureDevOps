@@ -31,19 +31,19 @@ export const darkColors = {
 
   // Brand Colors
   primary: '#2F3359',         // DAYTIME Navy
-  secondary: '#41B2E3',       // BLUE SKIES Cyan
+  secondary: '#F0A000',       // GOLDEN HOUR Gold
   accent: '#DD3903',          // NOON Orange-Red
   warning: '#F0A000',         // GOLDEN HOUR Golden
   success: '#10B981',         // Emerald Green
   destructive: '#EF4444',     // Bright red for alerts
 
   // Borders
-  border: 'rgba(65, 178, 227, 0.12)', // BLUE SKIES transparent
-  borderHeavy: 'rgba(65, 178, 227, 0.25)',
+  border: 'rgba(240, 160, 0, 0.12)', // GOLDEN HOUR transparent
+  borderHeavy: 'rgba(240, 160, 0, 0.25)',
 
   // Gradients
   gradients: {
-    primary: 'linear-gradient(135deg, #41B2E3 0%, #2F3359 100%)',     // BLUE SKIES → DAYTIME
+    primary: 'linear-gradient(135deg, #F0A000 0%, #DD3903 100%)',     // GOLDEN HOUR → NOON
     accent: 'linear-gradient(90deg, #F0A000 0%, #DD3903 100%)',       // GOLDEN HOUR → NOON
     skyline: 'linear-gradient(90deg, #0080F0 0%, #41B2E3 25%, #F0A000 75%, #DD3903 100%)',
   },

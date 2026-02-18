@@ -11,7 +11,7 @@ export interface AccountingPeriod {
 
 export class AccountingPeriodsRepository {
   static async list(): Promise<AccountingPeriod[]> {
-    const { rows } = await db.query(`SELECT * FROM accounting_periods ORDER BY period_start DESC`);
+    const { rows } = await db.query(`SELECT id, period_start, period_end, is_closed, closed_at, closed_by FROM accounting_periods ORDER BY period_start DESC`);
     return rows;
   }
 
@@ -24,7 +24,7 @@ export class AccountingPeriodsRepository {
   }
 
   static async getById(id: number): Promise<AccountingPeriod | null> {
-    const { rows } = await db.query(`SELECT * FROM accounting_periods WHERE id=$1`, [id]);
+    const { rows } = await db.query(`SELECT id, period_start, period_end, is_closed, closed_at, closed_by FROM accounting_periods WHERE id=$1`, [id]);
     return rows[0] ?? null;
   }
 

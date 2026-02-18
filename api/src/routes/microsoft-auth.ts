@@ -240,10 +240,10 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
       const frontendUrl = getValidatedFrontendUrl()
       // Redirect without token param - frontend will verify via cookie
       const safeCallbackUrl = buildSafeRedirectUrl(`${frontendUrl}/auth/callback`)
-      res.redirect(safeCallbackUrl)
+      res.redirect(302, safeCallbackUrl)
     } catch (error: unknown) {
       logger.error(`Frontend URL validation failed:`, error instanceof Error ? error.message : 'An unexpected error occurred')
-      res.redirect('/login?error=config_error&message=Invalid+frontend+configuration')
+      res.redirect(302, '/login?error=config_error&message=Invalid+frontend+configuration')
     }
 
   } catch (error: unknown) {

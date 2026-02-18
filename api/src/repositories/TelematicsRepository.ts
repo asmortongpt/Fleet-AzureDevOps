@@ -347,7 +347,7 @@ constructor(pool: Pool) {
    */
   async getDeviceById(deviceId: number, tenantId: number): Promise<VehicleTelematicsConnection | null> {
     const result = await this.pool.query<VehicleTelematicsConnection>(
-      `SELECT * FROM vehicle_telematics_connections
+      `SELECT id, vehicle_id, provider_id, external_vehicle_id, access_token, refresh_token, token_expires_at, last_sync_at, sync_status, sync_error, metadata, tenant_id, created_at, updated_at FROM vehicle_telematics_connections
        WHERE id = $1 AND tenant_id = $2`,
       [deviceId, tenantId]
     )

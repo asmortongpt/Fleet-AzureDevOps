@@ -323,7 +323,7 @@ app.use(securityHeaders({
 app.use(cors(getCorsConfig()))
 
 // Handle preflight requests explicitly for all routes
-app.options('*', cors(getCorsConfig()))
+app.options('/{*splat}', cors(getCorsConfig()))
 
 // 3. Body Parsers - After security headers and CORS
 app.use(express.json({ limit: '10mb' }))

@@ -13,13 +13,21 @@
 /* Comprehensive Animations System - 50+ keyframe animations */
 @import "./styles/animations.css";
 
-/* Performance Note: Removed imports of minimalist-theme.css (unused)
- * Removed: professional-theme-fix.css, fleet-theme.css (disabled)
- * Removed: responsive-utilities.css, design-tokens-responsive.css (now inlined)
- * Removed: dark-mode-enhancements.css (functionality merged into index.css)
- * Removed: cta-hubs.css, accessibility.css (inlined into index.css)
- * Removed: pro-max.css (inlined into index.css)
- * Expected CSS size reduction: ~25% (8-10 KB gzipped)
+/* CTA Hub page styles - used by 15+ hub components */
+@import "./styles/cta-hubs.css";
+
+/* Dashboard layout system - used by dashboard components */
+@import "./styles/dashboard-layout.css";
+
+/* CSS Consolidation: 18 files reduced to 5 active files.
+ * Deleted unused/disabled/inlined files:
+ * - professional-theme-fix.css (disabled in main.tsx)
+ * - minimalist-theme.css, fleet-theme.css (unused)
+ * - design-tokens-responsive.css, responsive-utilities.css (inlined here)
+ * - dark-mode-enhancements.css, pro-max.css (inlined here)
+ * - accessibility.css, accessibility-colors.css, rtl.css (unused)
+ * - mobile-fixes.css, enterprise-tokens.css (unused)
+ * - design-system.css, theme.css, main.css (unused alternate systems)
  */
 
 /* Responsive Design Tokens - Inlined from design-tokens-responsive.css */
@@ -151,8 +159,8 @@
   --primary: #2F3359; /* DAYTIME - Navy for primary elements (EXACT from PDF) */
   --primary-foreground: #ffffff;
 
-  /* CTA Secondary - BLUE SKIES Cyan */
-  --secondary: #41B2E3; /* BLUE SKIES - Bright Cyan for interactive elements (EXACT from PDF) */
+  /* CTA Secondary - GOLDEN HOUR Gold (Primary accent color) */
+  --secondary: #F0A000; /* GOLDEN HOUR - Gold for interactive elements */
   --secondary-foreground: #0A0E1A;
 
   --muted: #1E2654; /* Lighter muted background for better contrast */
@@ -170,9 +178,9 @@
   /* CTA Warning - GOLDEN HOUR Golden */
   --warning: #F0A000; /* GOLDEN HOUR - Golden Yellow-Orange (EXACT from PDF) */
 
-  --border: rgba(65, 178, 227, 0.12); /* BLUE SKIES with transparency (41B2E3) */
+  --border: rgba(240, 160, 0, 0.12); /* GOLDEN HOUR with transparency */
   --input: #111638;
-  --ring: #41B2E3; /* BLUE SKIES for focus rings (EXACT from PDF) */
+  --ring: #F0A000; /* GOLDEN HOUR for focus rings */
 
   --radius: 0.5rem;
 
@@ -197,7 +205,7 @@
   --blue-badge-bg: #2F3359;  /* DAYTIME Navy */
   --blue-badge-text: #2F3359;
   --gray-text: #334155;      /* Slate 700 */
-  --link-color: #41B2E3;     /* BLUE SKIES */
+  --link-color: #F0A000;     /* GOLDEN HOUR */
 }
 
 /**
@@ -273,7 +281,7 @@
   --primary: #2F3359;
   --primary-foreground: #FFFFFF;
 
-  --secondary: #41B2E3;
+  --secondary: #F0A000;
   --secondary-foreground: #0A0E1A;
 
   --muted: #1E2654;
@@ -288,9 +296,9 @@
   --success: #10B981;
   --warning: #F0A000;
 
-  --border: rgba(65, 178, 227, 0.12);
+  --border: rgba(240, 160, 0, 0.12);
   --input: #111638;
-  --ring: #41B2E3;
+  --ring: #F0A000;
 
   /* CTA Dark Brand Colors */
   --cta-daytime: #2F3359;
@@ -574,7 +582,7 @@
   }
 
   .animate-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.06), transparent);
+    background: linear-gradient(90deg, transparent, rgba(240, 160, 0, 0.06), transparent);
     background-size: 200% 100%;
     animation: shimmer 2s ease-in-out infinite;
   }
@@ -620,7 +628,7 @@
   .hover-glow {
     transition-property: all;
     transition-duration: 300ms;
-    box-shadow: 0 0 20px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 0 20px rgba(240, 160, 0, 0.15);
   }
 
   .hover-scale {
@@ -863,15 +871,15 @@
   }
 
   .shadow-glow-sm {
-    box-shadow: 0 0 10px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 10px rgba(240, 160, 0, 0.1);
   }
 
   .shadow-glow-md {
-    box-shadow: 0 0 20px rgba(37, 99, 235, 0.15);
+    box-shadow: 0 0 20px rgba(240, 160, 0, 0.15);
   }
 
   .shadow-glow-lg {
-    box-shadow: 0 0 30px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 0 30px rgba(240, 160, 0, 0.2);
   }
 
   /* Depth shadows for elevated components */
@@ -1067,12 +1075,12 @@
   }
 
   .card-premium:hover {
-    @apply shadow-xl shadow-[#41B2E3]/10 border-[#41B2E3]/40 -translate-y-0.5;
+    @apply shadow-xl shadow-[#F0A000]/10 border-[#F0A000]/40 -translate-y-0.5;
   }
 
   .card-premium::before {
     content: '';
-    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#41B2E3]/30 to-transparent opacity-0 transition-opacity duration-300;
+    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#F0A000]/30 to-transparent opacity-0 transition-opacity duration-300;
   }
 
   .card-premium:hover::before {
@@ -1094,7 +1102,7 @@
 
   .hover-lift-glow:hover {
     @apply -translate-y-1;
-    filter: drop-shadow(0 8px 16px rgba(65, 178, 227, 0.2));
+    filter: drop-shadow(0 8px 16px rgba(240, 160, 0, 0.2));
   }
 
   .hover-glow-orange:hover {
@@ -1136,23 +1144,23 @@
     box-shadow: 0 0 8px rgba(148, 163, 184, 0.4);
   }
 
-  /* NAVIGATION ACTIVE STATE - Blue Skies Accent */
+  /* NAVIGATION ACTIVE STATE - Golden Hour Accent */
   .nav-item-active {
-    @apply bg-gradient-to-r from-[#41B2E3]/15 to-transparent;
-    @apply border-l-4 border-l-[#41B2E3];
-    @apply text-[#41B2E3];
-    @apply shadow-md shadow-[#41B2E3]/10;
+    @apply bg-gradient-to-r from-[#F0A000]/15 to-transparent;
+    @apply border-l-4 border-l-[#F0A000];
+    @apply text-[#F0A000];
+    @apply shadow-md shadow-[#F0A000]/10;
     font-weight: 600;
     transition: all 0.3s ease-out;
   }
 
   .nav-item-active:hover {
-    @apply shadow-lg shadow-[#41B2E3]/15;
+    @apply shadow-lg shadow-[#F0A000]/15;
   }
 
   .nav-item-active .nav-icon {
-    @apply text-[#41B2E3];
-    filter: drop-shadow(0 0 8px rgba(65, 178, 227, 0.4));
+    @apply text-[#F0A000];
+    filter: drop-shadow(0 0 8px rgba(240, 160, 0, 0.4));
   }
 
   /* GRADIENT TEXT UTILITIES */
@@ -1173,8 +1181,8 @@
   }
 
   .subtitle-branded {
-    @apply text-base md:text-lg text-[#41B2E3] font-medium;
-    text-shadow: 0 1px 4px rgba(65, 178, 227, 0.2);
+    @apply text-base md:text-lg text-[#F0A000] font-medium;
+    text-shadow: 0 1px 4px rgba(240, 160, 0, 0.2);
   }
 
   /* ENHANCED BUTTON STATES */
@@ -1203,16 +1211,16 @@
   .search-input-enhanced {
     @apply rounded-xl;
     @apply bg-gradient-to-r from-muted/40 via-muted/30 to-muted/40;
-    @apply border border-[#41B2E3]/20;
+    @apply border border-[#F0A000]/20;
     @apply transition-all duration-300;
-    @apply focus-within:border-[#41B2E3];
-    @apply focus-within:ring-2 focus-within:ring-[#41B2E3]/20;
-    @apply focus-within:shadow-md focus-within:shadow-[#41B2E3]/10;
+    @apply focus-within:border-[#F0A000];
+    @apply focus-within:ring-2 focus-within:ring-[#F0A000]/20;
+    @apply focus-within:shadow-md focus-within:shadow-[#F0A000]/10;
   }
 
   .search-input-enhanced:hover {
-    @apply border-[#41B2E3]/40;
-    @apply shadow-md shadow-[#41B2E3]/10;
+    @apply border-[#F0A000]/40;
+    @apply shadow-md shadow-[#F0A000]/10;
   }
 
   /* METRIC CARDS WITH STATUS COLORS */
@@ -1315,7 +1323,7 @@
       box-shadow: 0 0 0 0 currentColor;
     }
     50% {
-      box-shadow: 0 0 0 8px rgba(65, 178, 227, 0.1);
+      box-shadow: 0 0 0 8px rgba(240, 160, 0, 0.1);
     }
   }
 
@@ -1396,10 +1404,10 @@
 
   @keyframes glow {
     0%, 100% {
-      box-shadow: 0 0 5px rgba(65, 178, 227, 0.5);
+      box-shadow: 0 0 5px rgba(240, 160, 0, 0.5);
     }
     50% {
-      box-shadow: 0 0 15px rgba(65, 178, 227, 0.8);
+      box-shadow: 0 0 15px rgba(240, 160, 0, 0.8);
     }
   }
 
@@ -1458,7 +1466,7 @@
 
   /* ENHANCED FOCUS STATES */
   .focus-ring {
-    @apply outline-none ring-2 ring-offset-2 ring-[#41B2E3]/50 transition-all duration-200;
+    @apply outline-none ring-2 ring-offset-2 ring-[#F0A000]/50 transition-all duration-200;
   }
 
   .focus-ring-orange {
@@ -1555,7 +1563,7 @@
     @apply rounded-xl border border-gray-300 dark:border-gray-600;
     @apply bg-gradient-to-b from-white/50 to-white/30 dark:from-gray-800/50 dark:to-gray-800/30;
     @apply transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-[#41B2E3]/50 focus:border-[#41B2E3];
+    @apply focus:outline-none focus:ring-2 focus:ring-[#F0A000]/50 focus:border-[#F0A000];
   }
 
   .input-premium::placeholder {
@@ -1637,12 +1645,12 @@
   /* ADVANCED NAVIGATION EFFECTS */
   .nav-link-active {
     @apply relative transition-all duration-300;
-    @apply text-[#41B2E3] font-semibold;
+    @apply text-[#F0A000] font-semibold;
   }
 
   .nav-link-active::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#41B2E3] to-[#5BC0EB];
+    @apply absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#F0A000] to-[#FFB800];
     animation: slideInRight 0.3s ease-out;
   }
 
@@ -1651,7 +1659,7 @@
   }
 
   .nav-link:hover {
-    @apply bg-[#41B2E3]/10 text-[#41B2E3];
+    @apply bg-[#F0A000]/10 text-[#F0A000];
   }
 
   /* PREMIUM TEXT EFFECTS */
@@ -1687,16 +1695,16 @@
   }
 
   .card-hover-glow:hover {
-    @apply shadow-2xl shadow-[#41B2E3]/30;
+    @apply shadow-2xl shadow-[#F0A000]/30;
   }
 
   /* PREMIUM DIVIDERS */
   .divider-gradient {
-    @apply h-[1px] bg-gradient-to-r from-transparent via-[#41B2E3]/50 to-transparent;
+    @apply h-[1px] bg-gradient-to-r from-transparent via-[#F0A000]/50 to-transparent;
   }
 
   .divider-dashed {
-    @apply h-px border-t border-dashed border-[#41B2E3]/30;
+    @apply h-px border-t border-dashed border-[#F0A000]/30;
   }
 
   /* ENHANCED STATUS INDICATORS */
@@ -1756,7 +1764,7 @@
 
   /* ENHANCED ACCESSIBILITY */
   .focus-visible {
-    @apply outline-none ring-2 ring-[#41B2E3] ring-offset-2;
+    @apply outline-none ring-2 ring-[#F0A000] ring-offset-2;
   }
 
   .sr-only {

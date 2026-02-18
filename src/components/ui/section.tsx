@@ -24,14 +24,19 @@ export function Section({
   return (
     <section
       className={cn(
-        'rounded-xl border border-border/50 bg-card shadow-sm cta-card',
+        'relative rounded-xl border border-[rgba(240,160,0,0.1)] bg-card/80 backdrop-blur-md shadow-lg hover:shadow-xl hover:border-[#F0A000]/25 transition-all duration-300 cta-card animate-fade-in-up',
         className
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 px-5 py-3.5">
+      {/* Gold gradient accent at top */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-xl" style={{ background: 'linear-gradient(90deg, transparent 5%, rgba(240, 160, 0, 0.5) 30%, rgba(240, 160, 0, 0.6) 50%, rgba(240, 160, 0, 0.5) 70%, transparent 95%)' }} />
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 px-5 py-4" style={{ background: 'linear-gradient(180deg, rgba(240, 160, 0, 0.03) 0%, transparent 100%)' }}>
         <div className="flex items-center gap-3">
           {icon ? (
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-white"
+              style={{ background: 'linear-gradient(135deg, #F0A000, #3B82F6)', border: '1px solid rgba(240, 160, 0, 0.3)', boxShadow: '0 4px 12px rgba(240, 160, 0, 0.2)' }}
+            >
               {icon}
             </div>
           ) : null}

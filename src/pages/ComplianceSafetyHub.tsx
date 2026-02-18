@@ -52,6 +52,7 @@ import {
   StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
+  RadialProgressChart,
 } from '@/components/visualizations'
 import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
@@ -277,33 +278,75 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
 
   return (
     <div className="space-y-6">
-      {/* Compliance Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title="Compliance Rate"
-          value={complianceStats.complianceRate > 0 ? `${complianceStats.complianceRate}%` : "—"}
-          icon={CheckCircle}
-          description="Drivers with all checks current"
-        />
-        <StatCard
-          title="Active Certifications"
-          value={complianceStats.activeCerts || "—"}
-          icon={Award}
-          description="Valid medical cards"
-        />
-        <StatCard
-          title="Expiring Soon"
-          value={complianceStats.expiringSoon || "—"}
-          icon={Clock}
-          description="Within 30 days"
-        />
-        <StatCard
-          title="Non-Compliant"
-          value={complianceStats.nonCompliant || "—"}
-          icon={XCircle}
-          description="Expired or overdue"
-        />
-      </div>
+      {/* Compliance Statistics + optional Radial Chart */}
+      {complianceStats.complianceRate > 0 ? (
+        <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
+          <div className="grid gap-3 md:grid-cols-2">
+            <StatCard
+              title="Compliance Rate"
+              value={`${complianceStats.complianceRate}%`}
+              icon={CheckCircle}
+              description="Drivers with all checks current"
+              trend={complianceStats.complianceRate >= 90 ? 'up' : complianceStats.complianceRate >= 70 ? 'neutral' : 'down'}
+            />
+            <StatCard
+              title="Active Certifications"
+              value={complianceStats.activeCerts || "—"}
+              icon={Award}
+              description="Valid medical cards"
+            />
+            <StatCard
+              title="Expiring Soon"
+              value={complianceStats.expiringSoon || "—"}
+              icon={Clock}
+              description="Within 30 days"
+              trend={complianceStats.expiringSoon > 5 ? 'down' : 'neutral'}
+            />
+            <StatCard
+              title="Non-Compliant"
+              value={complianceStats.nonCompliant || "—"}
+              icon={XCircle}
+              description="Expired or overdue"
+              trend={complianceStats.nonCompliant > 0 ? 'down' : 'up'}
+            />
+          </div>
+          <RadialProgressChart
+            title="Compliance Rate"
+            description="Overall fleet compliance"
+            value={complianceStats.complianceRate}
+            height={220}
+            size="sm"
+            color="#F0A000"
+          />
+        </div>
+      ) : (
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            title="Compliance Rate"
+            value="—"
+            icon={CheckCircle}
+            description="Drivers with all checks current"
+          />
+          <StatCard
+            title="Active Certifications"
+            value={complianceStats.activeCerts || "—"}
+            icon={Award}
+            description="Valid medical cards"
+          />
+          <StatCard
+            title="Expiring Soon"
+            value={complianceStats.expiringSoon || "—"}
+            icon={Clock}
+            description="Within 30 days"
+          />
+          <StatCard
+            title="Non-Compliant"
+            value={complianceStats.nonCompliant || "—"}
+            icon={XCircle}
+            description="Expired or overdue"
+          />
+        </div>
+      )}
 
       {/* Compliance Status by Category */}
       <div>
@@ -1006,6 +1049,7 @@ export default function ComplianceSafetyHub() {
       title="Compliance & Safety"
       description="Comprehensive compliance monitoring, safety management, and policy enforcement"
       icon={<Shield className="h-6 w-6" />}
+      className="cta-hub"
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

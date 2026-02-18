@@ -59,13 +59,13 @@ const buttonVariants = cva(
         destructive:
           "bg-gradient-to-r from-[#DD3903] to-[#FF3838] hover:from-[#B91C1C] hover:to-[#DD3903] text-white shadow-md shadow-[#DD3903]/30 hover:shadow-lg hover:shadow-[#DD3903]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
         outline:
-          "border-2 border-[#41B2E3] bg-transparent hover:bg-[#41B2E3]/10 text-[#41B2E3] rounded-lg transition-all duration-200 font-semibold hover:border-[#41B2E3]/80",
+          "border-2 border-[#F0A000] bg-transparent hover:bg-[#F0A000]/10 text-[#F0A000] rounded-lg transition-all duration-200 font-semibold hover:border-[#F0A000]/80",
         secondary:
-          "bg-gradient-to-r from-[#41B2E3] to-[#5BC0EB] hover:from-[#2E9FD1] hover:to-[#41B2E3] text-white shadow-md shadow-[#41B2E3]/30 hover:shadow-lg hover:shadow-[#41B2E3]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
+          "bg-gradient-to-r from-[#F0A000] to-[#FFB800] hover:from-[#D97706] hover:to-[#F0A000] text-white shadow-md shadow-[#F0A000]/30 hover:shadow-lg hover:shadow-[#F0A000]/40 hover:-translate-y-0.5 rounded-lg font-semibold",
         ghost:
           "hover:bg-gradient-to-r hover:from-primary/15 hover:to-transparent text-foreground rounded-lg transition-all duration-200",
         link:
-          "text-[#41B2E3] underline-offset-4 hover:underline hover:text-[#5BC0EB] font-semibold",
+          "text-[#F0A000] underline-offset-4 hover:underline hover:text-[#FFB800] font-semibold",
         success:
           "bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white shadow-md shadow-emerald-500/30 hover:shadow-lg hover:shadow-emerald-500/40 hover:-translate-y-0.5 rounded-lg font-semibold",
         warning:

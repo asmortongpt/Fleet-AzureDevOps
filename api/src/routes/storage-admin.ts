@@ -137,10 +137,11 @@ router.post('/upload', csrfProtection, upload.single('file'), async (req: Reques
  *       200:
  *         description: File content
  */
-router.get('/download/:key(*)', async (req: Request, res: Response) => {
+router.get('/download/{*key}', async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
-    const key = req.params.key;
+    // Express 5: wildcard params return an array of path segments
+    const key = Array.isArray(req.params.key) ? req.params.key.join('/') : req.params.key;
 
     const result = await manager.download(key, {
       onProgress: (progress) => {
@@ -190,10 +191,11 @@ router.get('/download/:key(*)', async (req: Request, res: Response) => {
  *       200:
  *         description: Presigned URL
  */
-router.get('/url/:key(*)', async (req: Request, res: Response) => {
+router.get('/url/{*key}', async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
-    const key = req.params.key;
+    // Express 5: wildcard params return an array of path segments
+    const key = Array.isArray(req.params.key) ? req.params.key.join('/') : req.params.key;
     const expiresIn = parseInt(req.query.expiresIn as string) || 3600;
 
     const url = await manager.getUrl(key, {
@@ -232,10 +234,11 @@ router.get('/url/:key(*)', async (req: Request, res: Response) => {
  *       200:
  *         description: File deleted successfully
  */
-router.delete('/delete/:key(*)', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
+router.delete('/delete/{*key}', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
-    const key = req.params.key;
+    // Express 5: wildcard params return an array of path segments
+    const key = Array.isArray(req.params.key) ? req.params.key.join('/') : req.params.key;
 
     await manager.delete(key);
 

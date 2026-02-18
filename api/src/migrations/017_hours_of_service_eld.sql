@@ -215,17 +215,52 @@ CREATE TABLE IF NOT EXISTS dot_reports (
 );
 
 -- ============================================================================
+-- ADD MISSING COLUMNS (if hos_logs was created by an earlier migration with fewer columns)
+-- ============================================================================
+DO $$ BEGIN
+  -- Add columns that may be missing from the 015_mobile_integration version
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS vehicle_id UUID REFERENCES vehicles(id) ON DELETE SET NULL;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS end_time TIMESTAMP WITH TIME ZONE;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS duration_minutes INTEGER;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS start_location JSONB;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS end_location JSONB;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS start_odometer INTEGER;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS end_odometer INTEGER;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS miles_driven INTEGER;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS trailer_number VARCHAR(50);
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS shipping_document_number VARCHAR(100);
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS is_violation BOOLEAN DEFAULT false;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS violation_type VARCHAR(50);
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS violation_details TEXT;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS eld_device_id VARCHAR(100);
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS eld_sequence_id BIGINT;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS is_manual_entry BOOLEAN DEFAULT false;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS manual_entry_reason TEXT;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS certified_by UUID;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS certified_at TIMESTAMP WITH TIME ZONE;
+  ALTER TABLE hos_logs ADD COLUMN IF NOT EXISTS certification_signature TEXT;
+END $$;
+
+-- ============================================================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================================================
 
--- HOS Logs indexes
-CREATE INDEX idx_hos_logs_driver_id ON hos_logs(driver_id);
-CREATE INDEX idx_hos_logs_vehicle_id ON hos_logs(vehicle_id);
-CREATE INDEX idx_hos_logs_tenant_id ON hos_logs(tenant_id);
-CREATE INDEX idx_hos_logs_start_time ON hos_logs(start_time DESC);
-CREATE INDEX idx_hos_logs_duty_status ON hos_logs(duty_status);
-CREATE INDEX idx_hos_logs_violations ON hos_logs(is_violation) WHERE is_violation = true;
-CREATE INDEX idx_hos_logs_driver_time ON hos_logs(driver_id, start_time DESC);
+-- HOS Logs indexes (use IF NOT EXISTS since some may exist from earlier migrations)
+CREATE INDEX IF NOT EXISTS idx_hos_logs_driver_id ON hos_logs(driver_id);
+CREATE INDEX IF NOT EXISTS idx_hos_logs_vehicle_id ON hos_logs(vehicle_id);
+CREATE INDEX IF NOT EXISTS idx_hos_logs_tenant_id ON hos_logs(tenant_id);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_hos_logs_start_time') THEN
+    CREATE INDEX idx_hos_logs_start_time ON hos_logs(start_time DESC);
+  ELSE
+    -- Index may exist with ASC ordering from migration 015, drop and recreate with DESC
+    DROP INDEX idx_hos_logs_start_time;
+    CREATE INDEX idx_hos_logs_start_time ON hos_logs(start_time DESC);
+  END IF;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_hos_logs_duty_status ON hos_logs(duty_status);
+CREATE INDEX IF NOT EXISTS idx_hos_logs_violations ON hos_logs(is_violation) WHERE is_violation = true;
+CREATE INDEX IF NOT EXISTS idx_hos_logs_driver_time ON hos_logs(driver_id, start_time DESC);
 
 -- DVIR Reports indexes
 CREATE INDEX idx_dvir_reports_driver_id ON dvir_reports(driver_id);

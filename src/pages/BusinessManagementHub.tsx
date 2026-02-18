@@ -55,6 +55,7 @@ import {
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
+  AnimatedCurrency,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
 import { getCsrfToken } from '@/hooks/use-api'
@@ -213,13 +214,13 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Monthly Budget"
-          value={budgetTotal > 0 ? `$${budgetTotal.toLocaleString()}` : "—"}
+          value={budgetTotal > 0 ? <AnimatedCurrency value={budgetTotal} /> : "—"}
           icon={Wallet}
           description="Current fiscal quarter"
         />
         <StatCard
           title="Actual Spend"
-          value={spentTotal > 0 ? `$${spentTotal.toLocaleString()}` : "—"}
+          value={spentTotal > 0 ? <AnimatedCurrency value={spentTotal} /> : "—"}
           icon={DollarSign}
           description="Last 6 months"
         />
@@ -234,7 +235,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
         />
         <StatCard
           title="Savings YTD"
-          value={savingsYtd > 0 ? `$${savingsYtd.toLocaleString()}` : "$0"}
+          value={savingsYtd > 0 ? <AnimatedCurrency value={savingsYtd} /> : "$0"}
           icon={Target}
           description={budgetTotal > 0 ? "Budget vs spend" : "No budget allocations"}
         />

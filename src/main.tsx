@@ -7,7 +7,7 @@ import ReactDOM from "react-dom/client"
 import './i18n/config'
 
 // Initialize axe-core accessibility testing in development
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } from "react-router-dom"
 import { registerSW } from 'virtual:pwa-register'
 import { validateEnvironment } from './lib/config/validate-environment'
 
@@ -82,13 +82,8 @@ import { NavigationProvider } from "./contexts/NavigationContext"
 import { PanelProvider } from "./contexts/PanelContext"
 import { BrandingProvider } from "./shared/branding/BrandingProvider"
 
-// Professional theme with high contrast colors - fixes green-on-green readability
-// DISABLED: Conflicts with Deep Midnight Dark Theme
-// import "./styles/professional-theme-fix.css"
-
 // Core Tailwind v4 + Enterprise Design System + Optimized CSS Bundle
-// NOTE: All CSS is now consolidated in index.css to reduce network requests
-// Phase 1 Optimization: Removed separate CSS imports for better performance
+// All CSS consolidated in index.css (5 files: index.css + 4 imports)
 import "./index.css"
 
 // Create a client with reactive data configuration
@@ -103,9 +98,36 @@ const queryClient = new QueryClient({
   },
 })
 
-// Use Sentry's BrowserRouter integration (disabled - using regular Routes)
-// const SentryRoutes = Sentry.withSentryRouting(Routes)
-const SentryRoutes = Routes
+// Data router created with createBrowserRouter + createRoutesFromElements
+// This replaces the legacy BrowserRouter with the modern data router API,
+// enabling future use of data loaders, actions, and error boundaries at the route level.
+// Note: Route elements reference components that are rendered inside the provider tree
+// (QueryClient, MSAL, Auth, etc.) because RouterProvider is nested within those providers.
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      {/* Public Login Route */}
+      <Route path="/login" element={<Login />} />
+
+      {/* OAuth Callback Route - Public (no auth required) */}
+      <Route path="/auth/callback" element={<AuthCallback />} />
+
+      {/* Protected Application Routes - Require SSO Authentication */}
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute requireAuth={true}>
+            <SentryErrorBoundary level="section">
+              <NavigationProvider>
+                <App />
+              </NavigationProvider>
+            </SentryErrorBoundary>
+          </ProtectedRoute>
+        }
+      />
+    </>
+  )
+)
 
 /**
  * P0-3 SECURITY FIX: Startup configuration validation
@@ -200,30 +222,8 @@ validateStartupConfiguration().then(async () => {
                         <DrilldownProvider>
                           <InspectProvider>
                             <PanelProvider>
-                            <BrowserRouter>
                             {/* <GlobalCommandPalette /> */}
-                            <SentryRoutes>
-                              {/* Public Login Route */}
-                              <Route path="/login" element={<Login />} />
-
-                              {/* OAuth Callback Route - Public (no auth required) */}
-                              <Route path="/auth/callback" element={<AuthCallback />} />
-
-                              {/* Protected Application Routes - Require SSO Authentication */}
-                              <Route
-                                path="/*"
-                                element={
-                                  <ProtectedRoute requireAuth={true}>
-                                    <SentryErrorBoundary level="section">
-                                      <NavigationProvider>
-                                        <App />
-                                      </NavigationProvider>
-                                    </SentryErrorBoundary>
-                                  </ProtectedRoute>
-                                }
-                              />
-                            </SentryRoutes>
-                          </BrowserRouter>
+                            <RouterProvider router={router} />
                           </PanelProvider>
                         </InspectProvider>
                       </DrilldownProvider>

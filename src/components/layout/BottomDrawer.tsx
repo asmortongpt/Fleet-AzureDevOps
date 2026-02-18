@@ -64,7 +64,7 @@ export function BottomDrawer() {
                   item.type === 'success' ? 'bg-emerald-400' :
                   item.type === 'warning' ? 'bg-[#F0A000]' :
                   item.type === 'alert' ? 'bg-[#DD3903]' :
-                  'bg-[#41B2E3]/50'
+                  'bg-[#F0A000]/50'
                 )} />
                 <span className="text-muted-foreground">{item.text}</span>
               </div>

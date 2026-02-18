@@ -925,7 +925,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     const { code } = req.query
 
     if (!code || typeof code !== 'string') {
-      return res.redirect('/login?error=no_code')
+      return res.redirect(302, '/login?error=no_code')
     }
 
     const AZURE_AD_CONFIG = {
@@ -986,7 +986,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
             message: `Only users with ${allowedDomains.map(d => `@${d}`).join(', ')} email addresses can log in`
           })
         } else {
-          return res.redirect('/login?error=unauthorized_domain')
+          return res.redirect(302, '/login?error=unauthorized_domain')
         }
       }
     }
@@ -1003,7 +1003,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
         ? await pool.query('SELECT id FROM tenants WHERE slug = $1 LIMIT 1', [defaultTenantSlug])
         : await pool.query('SELECT id FROM tenants ORDER BY created_at LIMIT 1')
     if (tenantResult.rows.length === 0) {
-      return res.redirect('/login?error=no_tenant')
+      return res.redirect(302, '/login?error=no_tenant')
     }
     const tenantId = tenantResult.rows[0].id
 
@@ -1074,7 +1074,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
       })
     } else {
       // Redirect to dashboard without token in URL
-      res.redirect('/')
+      res.redirect(302, '/')
     }
   } catch (error: unknown) {
     logger.error('Microsoft SSO callback error:', error instanceof Error ? error.message : 'An unexpected error occurred') // Wave 16: Winston logger
@@ -1082,7 +1082,7 @@ router.get('/microsoft/callback', async (req: Request, res: Response) => {
     if (acceptsJson) {
       return res.status(500).json({ error: 'Microsoft SSO authentication failed', details: error instanceof Error ? error.message : 'An unexpected error occurred' })
     } else {
-      res.redirect('/login?error=sso_failed')
+      res.redirect(302, '/login?error=sso_failed')
     }
   }
 })

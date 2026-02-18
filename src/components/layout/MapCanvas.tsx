@@ -16,8 +16,8 @@ function MapLoadingFallback() {
     <div className="absolute inset-0 flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
         <div className="relative w-10 h-10">
-          <div className="absolute inset-0 border-2 border-[#41B2E3]/20 rounded-full" />
-          <div className="absolute inset-0 border-2 border-[#41B2E3] border-t-transparent rounded-full animate-spin" />
+          <div className="absolute inset-0 border-2 border-[#F0A000]/20 rounded-full" />
+          <div className="absolute inset-0 border-2 border-[#F0A000] border-t-transparent rounded-full animate-spin" />
         </div>
         <span className="text-xs text-muted-foreground tracking-widest uppercase">Loading Map</span>
       </div>
@@ -29,8 +29,8 @@ export const MapCanvas = memo(function MapCanvas() {
   const { data: vehicles = [] } = useQuery<Vehicle[]>({
     queryKey: ['map', 'vehicles'],
     queryFn: async () => {
-      // Use fixed real /api/vehicles endpoint with 300+ real vehicles from database
-      const response = await secureFetch('/api/vehicles?limit=300', { method: 'GET' })
+      // Use fixed real /api/vehicles endpoint with real vehicles from database
+      const response = await secureFetch('/api/vehicles?limit=200', { method: 'GET' })
       if (!response.ok) return []
       const json = await response.json()
       // Real API returns: { success, data: { data: [...], total: 300 }, meta: ... }

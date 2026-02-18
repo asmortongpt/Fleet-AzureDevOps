@@ -81,7 +81,7 @@ app.get(
   '/api/auth/azure/callback',
   passport.authenticate('azure_ad_oauth2', { failureRedirect: '/login' }),
   function (req: Request, res: Response) {
-    res.redirect('/');
+    res.redirect(302, '/');
   }
 );
 
@@ -90,7 +90,7 @@ app.get('/api/auth/azure/logout', function (req: Request, res: Response) {
     if (err) {
  return next(err); 
 }
-    res.redirect('/');
+    res.redirect(302, '/');
   });
 });
 

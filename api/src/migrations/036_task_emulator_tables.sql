@@ -307,10 +307,7 @@ BEGIN
     GRANT SELECT ON high_priority_tasks TO fleet_user;
     GRANT SELECT ON task_statistics TO fleet_user;
     GRANT SELECT ON vehicle_task_summary TO fleet_user;
-    GRANT USAGE, SELECT ON SEQUENCE tasks_id_seq TO fleet_user;
-    GRANT USAGE, SELECT ON SEQUENCE task_comments_id_seq TO fleet_user;
-    GRANT USAGE, SELECT ON SEQUENCE task_attachments_id_seq TO fleet_user;
-    GRANT USAGE, SELECT ON SEQUENCE task_history_id_seq TO fleet_user;
+    -- Note: UUID primary keys don't create sequences; skip sequence grants
   END IF;
 END $$;
 

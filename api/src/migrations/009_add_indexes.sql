@@ -2,8 +2,12 @@
 -- Migration: 009 - Comprehensive Index Addition for Query Optimization
 -- ============================================================================
 -- Created: 2026-02-02
--- Purpose: Add 130+ missing indexes to improve query performance across all
+-- Updated: 2026-02-17 (Fixed column references, added conditional checks)
+-- Purpose: Add missing indexes to improve query performance across all
 --          high-traffic tables in the Fleet Management System
+--
+-- All index creation is wrapped in DO blocks with column existence checks
+-- so the migration is safe to run regardless of schema state.
 --
 -- Expected Performance Improvements:
 -- - GPS/Telemetry queries: 50-70% faster
@@ -18,700 +22,944 @@
 -- ============================================================================
 -- 1. GPS TRACKS INDEXES (Extremely High Write Volume)
 -- ============================================================================
+-- Columns verified: vehicle_id, timestamp, tenant_id, latitude, longitude, speed
+-- Column NOT present: trip_id (conditional)
+DO $$ BEGIN
 
--- Composite index for vehicle timeline queries (most common pattern)
-CREATE INDEX IF NOT EXISTS idx_gps_tracks_vehicle_timestamp
-ON gps_tracks(vehicle_id, timestamp DESC);
+  -- Composite index for vehicle timeline queries (most common pattern)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='timestamp') THEN
+    CREATE INDEX IF NOT EXISTS idx_gps_tracks_vehicle_timestamp
+    ON gps_tracks(vehicle_id, "timestamp" DESC);
+  END IF;
 
--- Partial index for recent data (30 days) - reduces index size by 90%
-CREATE INDEX IF NOT EXISTS idx_gps_tracks_timestamp_partial
-ON gps_tracks(timestamp DESC)
-WHERE timestamp > NOW() - INTERVAL '30 days';
+  -- Index for timestamp-based queries (used for recent data filtering in app code)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='timestamp') THEN
+    CREATE INDEX IF NOT EXISTS idx_gps_tracks_timestamp_desc
+    ON gps_tracks("timestamp" DESC);
+  END IF;
 
--- Tenant isolation index
-CREATE INDEX IF NOT EXISTS idx_gps_tracks_tenant_timestamp
-ON gps_tracks(tenant_id, timestamp DESC);
+  -- Tenant isolation index
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='timestamp') THEN
+    CREATE INDEX IF NOT EXISTS idx_gps_tracks_tenant_timestamp
+    ON gps_tracks(tenant_id, "timestamp" DESC);
+  END IF;
 
--- Geospatial queries (if latitude/longitude exist)
-CREATE INDEX IF NOT EXISTS idx_gps_tracks_location
-ON gps_tracks(latitude, longitude)
-WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+  -- Geospatial queries
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='latitude')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='longitude') THEN
+    CREATE INDEX IF NOT EXISTS idx_gps_tracks_location
+    ON gps_tracks(latitude, longitude)
+    WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+  END IF;
 
--- Speed analysis queries
-CREATE INDEX IF NOT EXISTS idx_gps_tracks_vehicle_speed
-ON gps_tracks(vehicle_id, speed DESC)
-WHERE speed > 0;
+  -- Speed analysis queries
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='speed') THEN
+    CREATE INDEX IF NOT EXISTS idx_gps_tracks_vehicle_speed
+    ON gps_tracks(vehicle_id, speed DESC)
+    WHERE speed > 0;
+  END IF;
 
--- Trip grouping queries
-CREATE INDEX IF NOT EXISTS idx_gps_tracks_trip_id
-ON gps_tracks(trip_id)
-WHERE trip_id IS NOT NULL;
+  -- Trip grouping queries (only if trip_id column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='gps_tracks' AND column_name='trip_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_gps_tracks_trip_id ON gps_tracks(trip_id) WHERE trip_id IS NOT NULL;
+  END IF;
 
-COMMENT ON INDEX idx_gps_tracks_vehicle_timestamp IS 'Performance: Vehicle timeline queries - 60% faster';
-COMMENT ON INDEX idx_gps_tracks_timestamp_partial IS 'Performance: Recent data queries with 90% smaller index';
+END $$;
 
 -- ============================================================================
 -- 2. TELEMETRY DATA INDEXES (High Write Volume)
 -- ============================================================================
+-- Columns verified: vehicle_id, timestamp, tenant_id, battery_voltage
+-- Columns NOT present: engine_state, fuel_level
+DO $$ BEGIN
 
--- Vehicle telemetry timeline
-CREATE INDEX IF NOT EXISTS idx_telemetry_vehicle_timestamp
-ON telemetry_data(vehicle_id, timestamp DESC);
+  -- Vehicle telemetry timeline
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='timestamp') THEN
+    CREATE INDEX IF NOT EXISTS idx_telemetry_vehicle_timestamp
+    ON telemetry_data(vehicle_id, "timestamp" DESC);
+  END IF;
 
--- Partial index for recent telemetry (30 days)
-CREATE INDEX IF NOT EXISTS idx_telemetry_timestamp_partial
-ON telemetry_data(timestamp DESC)
-WHERE timestamp > NOW() - INTERVAL '30 days';
+  -- Index for telemetry timestamp queries
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='timestamp') THEN
+    CREATE INDEX IF NOT EXISTS idx_telemetry_timestamp_desc
+    ON telemetry_data("timestamp" DESC);
+  END IF;
 
--- Tenant isolation
-CREATE INDEX IF NOT EXISTS idx_telemetry_tenant_timestamp
-ON telemetry_data(tenant_id, timestamp DESC);
+  -- Tenant isolation
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='timestamp') THEN
+    CREATE INDEX IF NOT EXISTS idx_telemetry_tenant_timestamp
+    ON telemetry_data(tenant_id, "timestamp" DESC);
+  END IF;
 
--- Engine state analysis
-CREATE INDEX IF NOT EXISTS idx_telemetry_engine_state
-ON telemetry_data(vehicle_id, engine_state)
-WHERE engine_state IS NOT NULL;
+  -- Engine state analysis (only if engine_state column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='engine_state')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='vehicle_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_telemetry_engine_state
+    ON telemetry_data(vehicle_id, engine_state)
+    WHERE engine_state IS NOT NULL;
+  END IF;
 
--- Fuel level monitoring
-CREATE INDEX IF NOT EXISTS idx_telemetry_fuel_level
-ON telemetry_data(vehicle_id, fuel_level)
-WHERE fuel_level IS NOT NULL;
+  -- Fuel level monitoring (only if fuel_level column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='fuel_level')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='vehicle_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_telemetry_fuel_level
+    ON telemetry_data(vehicle_id, fuel_level)
+    WHERE fuel_level IS NOT NULL;
+  END IF;
 
--- Battery voltage monitoring
-CREATE INDEX IF NOT EXISTS idx_telemetry_battery_voltage
-ON telemetry_data(vehicle_id, battery_voltage)
-WHERE battery_voltage IS NOT NULL;
+  -- Battery voltage monitoring
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='battery_voltage')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='telemetry_data' AND column_name='vehicle_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_telemetry_battery_voltage
+    ON telemetry_data(vehicle_id, battery_voltage)
+    WHERE battery_voltage IS NOT NULL;
+  END IF;
 
-COMMENT ON INDEX idx_telemetry_vehicle_timestamp IS 'Performance: Telemetry timeline queries - 60% faster';
+END $$;
 
 -- ============================================================================
 -- 3. FUEL TRANSACTIONS INDEXES (Frequent Queries)
 -- ============================================================================
+-- Columns verified: vehicle_id, transaction_date, driver_id, tenant_id,
+--                   fuel_type, total_cost, fuel_card_id, odometer
+-- Column NOT present: odometer_reading (actual column is "odometer")
+DO $$ BEGIN
 
--- Vehicle fuel history
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_vehicle_date
-ON fuel_transactions(vehicle_id, transaction_date DESC);
+  -- Vehicle fuel history
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='transaction_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_fuel_transactions_vehicle_date
+    ON fuel_transactions(vehicle_id, transaction_date DESC);
+  END IF;
 
--- Driver fuel history
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_driver_date
-ON fuel_transactions(driver_id, transaction_date DESC)
-WHERE driver_id IS NOT NULL;
+  -- Driver fuel history
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='driver_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='transaction_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_fuel_transactions_driver_date
+    ON fuel_transactions(driver_id, transaction_date DESC)
+    WHERE driver_id IS NOT NULL;
+  END IF;
 
--- Tenant fuel reporting
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_tenant_date
-ON fuel_transactions(tenant_id, transaction_date DESC);
+  -- Tenant fuel reporting
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='transaction_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_fuel_transactions_tenant_date
+    ON fuel_transactions(tenant_id, transaction_date DESC);
+  END IF;
 
--- Fuel type analysis
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_type
-ON fuel_transactions(fuel_type)
-WHERE fuel_type IS NOT NULL;
+  -- Fuel type analysis
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='fuel_type') THEN
+    CREATE INDEX IF NOT EXISTS idx_fuel_transactions_type
+    ON fuel_transactions(fuel_type)
+    WHERE fuel_type IS NOT NULL;
+  END IF;
 
--- Cost analysis queries
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_cost
-ON fuel_transactions(tenant_id, total_cost DESC);
+  -- Cost analysis queries
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='total_cost') THEN
+    CREATE INDEX IF NOT EXISTS idx_fuel_transactions_cost
+    ON fuel_transactions(tenant_id, total_cost DESC);
+  END IF;
 
--- Fuel card reconciliation (if fuel_card_id column exists)
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_fuel_card
-ON fuel_transactions(fuel_card_id, transaction_date DESC)
-WHERE fuel_card_id IS NOT NULL;
+  -- Fuel card reconciliation
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='fuel_card_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='transaction_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_fuel_transactions_fuel_card
+    ON fuel_transactions(fuel_card_id, transaction_date DESC)
+    WHERE fuel_card_id IS NOT NULL;
+  END IF;
 
--- Odometer-based queries
-CREATE INDEX IF NOT EXISTS idx_fuel_transactions_odometer
-ON fuel_transactions(vehicle_id, odometer_reading)
-WHERE odometer_reading IS NOT NULL;
+  -- Odometer-based queries (actual column is "odometer", not "odometer_reading")
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='fuel_transactions' AND column_name='odometer') THEN
+    CREATE INDEX IF NOT EXISTS idx_fuel_transactions_odometer
+    ON fuel_transactions(vehicle_id, odometer);
+  END IF;
 
-COMMENT ON INDEX idx_fuel_transactions_vehicle_date IS 'Performance: Vehicle fuel history - 55% faster';
+END $$;
 
 -- ============================================================================
 -- 4. HOS (HOURS OF SERVICE) LOGS INDEXES (Compliance Queries)
 -- ============================================================================
+-- Table hos_logs does NOT exist in current schema. All indexes are conditional.
+DO $$ BEGIN
 
--- Driver HOS timeline
-CREATE INDEX IF NOT EXISTS idx_hos_logs_driver_date
-ON hos_logs(driver_id, start_time DESC);
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='hos_logs') THEN
 
--- Violation tracking (critical for compliance)
-CREATE INDEX IF NOT EXISTS idx_hos_logs_violations
-ON hos_logs(driver_id, is_violation)
-WHERE is_violation = true;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='driver_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='start_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_hos_logs_driver_date
+      ON hos_logs(driver_id, start_time DESC);
+    END IF;
 
--- Tenant HOS reporting
-CREATE INDEX IF NOT EXISTS idx_hos_logs_tenant_date
-ON hos_logs(tenant_id, start_time DESC);
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='driver_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='is_violation') THEN
+      CREATE INDEX IF NOT EXISTS idx_hos_logs_violations
+      ON hos_logs(driver_id, is_violation)
+      WHERE is_violation = true;
+    END IF;
 
--- Status-based queries (driving, on-duty, off-duty)
-CREATE INDEX IF NOT EXISTS idx_hos_logs_status
-ON hos_logs(driver_id, status, start_time DESC);
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='start_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_hos_logs_tenant_date
+      ON hos_logs(tenant_id, start_time DESC);
+    END IF;
 
--- Vehicle HOS correlation
-CREATE INDEX IF NOT EXISTS idx_hos_logs_vehicle_date
-ON hos_logs(vehicle_id, start_time DESC)
-WHERE vehicle_id IS NOT NULL;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='driver_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='status')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='start_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_hos_logs_status
+      ON hos_logs(driver_id, status, start_time DESC);
+    END IF;
 
--- Duration analysis
-CREATE INDEX IF NOT EXISTS idx_hos_logs_duration
-ON hos_logs(driver_id, duration_minutes DESC)
-WHERE duration_minutes > 0;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='vehicle_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='start_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_hos_logs_vehicle_date
+      ON hos_logs(vehicle_id, start_time DESC)
+      WHERE vehicle_id IS NOT NULL;
+    END IF;
 
-COMMENT ON INDEX idx_hos_logs_violations IS 'Performance: Critical for compliance violation queries';
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='driver_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='hos_logs' AND column_name='duration_minutes') THEN
+      CREATE INDEX IF NOT EXISTS idx_hos_logs_duration
+      ON hos_logs(driver_id, duration_minutes DESC)
+      WHERE duration_minutes > 0;
+    END IF;
+
+  END IF;
+
+END $$;
 
 -- ============================================================================
 -- 5. WORK ORDERS INDEXES (Frequent Status Queries)
 -- ============================================================================
+-- Columns verified: vehicle_id, status, assigned_to_id, tenant_id,
+--                   scheduled_start_date, scheduled_end_date, priority,
+--                   type, actual_cost, actual_end_date, warranty_id
+-- Column NOT present: facility_id
+DO $$ BEGIN
 
--- Vehicle maintenance history
-CREATE INDEX IF NOT EXISTS idx_work_orders_vehicle_status
-ON work_orders(vehicle_id, status);
+  -- Vehicle maintenance history
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_vehicle_status
+    ON work_orders(vehicle_id, status);
+  END IF;
 
--- Active work orders for technicians
-CREATE INDEX IF NOT EXISTS idx_work_orders_assigned_status
-ON work_orders(assigned_to_id, status)
-WHERE status != 'completed';
+  -- Active work orders for technicians
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='assigned_to_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_assigned_status
+    ON work_orders(assigned_to_id, status)
+    WHERE status != 'completed';
+  END IF;
 
--- Tenant work order dashboard
-CREATE INDEX IF NOT EXISTS idx_work_orders_tenant_status
-ON work_orders(tenant_id, status);
+  -- Tenant work order dashboard
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_tenant_status
+    ON work_orders(tenant_id, status);
+  END IF;
 
--- Scheduled work order queries
-CREATE INDEX IF NOT EXISTS idx_work_orders_scheduled_dates
-ON work_orders(scheduled_start_date, scheduled_end_date)
-WHERE scheduled_start_date IS NOT NULL;
+  -- Scheduled work order queries
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='scheduled_start_date')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='scheduled_end_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_scheduled_dates
+    ON work_orders(scheduled_start_date, scheduled_end_date)
+    WHERE scheduled_start_date IS NOT NULL;
+  END IF;
 
--- Priority-based queries
-CREATE INDEX IF NOT EXISTS idx_work_orders_priority
-ON work_orders(priority, status);
+  -- Priority-based queries
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='priority')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_priority
+    ON work_orders(priority, status);
+  END IF;
 
--- Work order type analysis
-CREATE INDEX IF NOT EXISTS idx_work_orders_type_status
-ON work_orders(type, status);
+  -- Work order type analysis
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='type')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_type_status
+    ON work_orders(type, status);
+  END IF;
 
--- Cost analysis
-CREATE INDEX IF NOT EXISTS idx_work_orders_actual_cost
-ON work_orders(vehicle_id, actual_cost DESC)
-WHERE actual_cost IS NOT NULL;
+  -- Cost analysis
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='actual_cost') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_actual_cost
+    ON work_orders(vehicle_id, actual_cost DESC)
+    WHERE actual_cost IS NOT NULL;
+  END IF;
 
--- Completion tracking
-CREATE INDEX IF NOT EXISTS idx_work_orders_completion
-ON work_orders(actual_end_date DESC)
-WHERE actual_end_date IS NOT NULL;
+  -- Completion tracking
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='actual_end_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_completion
+    ON work_orders(actual_end_date DESC)
+    WHERE actual_end_date IS NOT NULL;
+  END IF;
 
--- Facility-based queries
-CREATE INDEX IF NOT EXISTS idx_work_orders_facility_date
-ON work_orders(facility_id, scheduled_start_date DESC)
-WHERE facility_id IS NOT NULL;
+  -- Facility-based queries (only if facility_id column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='facility_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='scheduled_start_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_facility_date
+    ON work_orders(facility_id, scheduled_start_date DESC)
+    WHERE facility_id IS NOT NULL;
+  END IF;
 
--- Warranty-eligible work orders (if warranty_id column exists)
-CREATE INDEX IF NOT EXISTS idx_work_orders_warranty
-ON work_orders(warranty_id, status)
-WHERE warranty_id IS NOT NULL;
+  -- Warranty-eligible work orders
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='warranty_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='work_orders' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_work_orders_warranty
+    ON work_orders(warranty_id, status)
+    WHERE warranty_id IS NOT NULL;
+  END IF;
 
-COMMENT ON INDEX idx_work_orders_vehicle_status IS 'Performance: Maintenance history queries - 50% faster';
+END $$;
 
 -- ============================================================================
 -- 6. VEHICLES INDEXES (Core Entity)
 -- ============================================================================
+-- Columns verified: tenant_id, status, assigned_driver_id, assigned_facility_id,
+--                   latitude, longitude, vin, license_plate, odometer
+-- Columns NOT present: asset_category, power_type, fleet_id, acquisition_date
+DO $$ BEGIN
 
--- Tenant vehicle listings
-CREATE INDEX IF NOT EXISTS idx_vehicles_tenant_status
-ON vehicles(tenant_id, status);
+  -- Tenant vehicle listings
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_tenant_status
+    ON vehicles(tenant_id, status);
+  END IF;
 
--- Driver assignments (active only)
-CREATE INDEX IF NOT EXISTS idx_vehicles_assigned_driver
-ON vehicles(assigned_driver_id)
-WHERE assigned_driver_id IS NOT NULL;
+  -- Driver assignments (active only)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='assigned_driver_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_assigned_driver
+    ON vehicles(assigned_driver_id)
+    WHERE assigned_driver_id IS NOT NULL;
+  END IF;
 
--- Facility assignments
-CREATE INDEX IF NOT EXISTS idx_vehicles_assigned_facility
-ON vehicles(assigned_facility_id)
-WHERE assigned_facility_id IS NOT NULL;
+  -- Facility assignments
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='assigned_facility_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_assigned_facility
+    ON vehicles(assigned_facility_id)
+    WHERE assigned_facility_id IS NOT NULL;
+  END IF;
 
--- Geolocation queries (if latitude/longitude columns exist)
-CREATE INDEX IF NOT EXISTS idx_vehicles_location
-ON vehicles(latitude, longitude)
-WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+  -- Geolocation queries
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='latitude')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='longitude') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_location
+    ON vehicles(latitude, longitude)
+    WHERE latitude IS NOT NULL AND longitude IS NOT NULL;
+  END IF;
 
--- Asset category filtering
-CREATE INDEX IF NOT EXISTS idx_vehicles_asset_category
-ON vehicles(tenant_id, asset_category)
-WHERE asset_category IS NOT NULL;
+  -- Asset category filtering (only if asset_category column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='asset_category')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='tenant_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_asset_category
+    ON vehicles(tenant_id, asset_category)
+    WHERE asset_category IS NOT NULL;
+  END IF;
 
--- Power type (EV vs ICE) queries
-CREATE INDEX IF NOT EXISTS idx_vehicles_power_type
-ON vehicles(power_type, status)
-WHERE power_type IS NOT NULL;
+  -- Power type (EV vs ICE) queries (only if power_type column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='power_type')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_power_type
+    ON vehicles(power_type, status)
+    WHERE power_type IS NOT NULL;
+  END IF;
 
--- VIN lookups
-CREATE INDEX IF NOT EXISTS idx_vehicles_vin
-ON vehicles(vin);
+  -- VIN lookups
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='vin') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_vin
+    ON vehicles(vin);
+  END IF;
 
--- License plate lookups
-CREATE INDEX IF NOT EXISTS idx_vehicles_license_plate
-ON vehicles(license_plate)
-WHERE license_plate IS NOT NULL;
+  -- License plate lookups
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='license_plate') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_license_plate
+    ON vehicles(license_plate)
+    WHERE license_plate IS NOT NULL;
+  END IF;
 
--- Odometer-based queries
-CREATE INDEX IF NOT EXISTS idx_vehicles_odometer
-ON vehicles(odometer DESC)
-WHERE odometer IS NOT NULL;
+  -- Odometer-based queries
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='odometer') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_odometer
+    ON vehicles(odometer DESC)
+    WHERE odometer IS NOT NULL;
+  END IF;
 
--- Fleet grouping
-CREATE INDEX IF NOT EXISTS idx_vehicles_fleet_id
-ON vehicles(fleet_id, status)
-WHERE fleet_id IS NOT NULL;
+  -- Fleet grouping (only if fleet_id column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='fleet_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_fleet_id
+    ON vehicles(fleet_id, status)
+    WHERE fleet_id IS NOT NULL;
+  END IF;
 
--- Acquisition tracking
-CREATE INDEX IF NOT EXISTS idx_vehicles_acquisition_date
-ON vehicles(acquisition_date DESC)
-WHERE acquisition_date IS NOT NULL;
+  -- Acquisition tracking (only if acquisition_date column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicles' AND column_name='acquisition_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicles_acquisition_date
+    ON vehicles(acquisition_date DESC)
+    WHERE acquisition_date IS NOT NULL;
+  END IF;
 
-COMMENT ON INDEX idx_vehicles_tenant_status IS 'Performance: Vehicle list queries - 45% faster';
+END $$;
 
 -- ============================================================================
 -- 7. DRIVERS INDEXES (Core Entity)
 -- ============================================================================
+-- Columns verified: tenant_id, status, license_expiry_date, user_id,
+--                   license_number, cdl
+-- Columns NOT present: driver_type, cdl_required (actual column is "cdl")
+DO $$ BEGIN
 
--- Tenant driver listings
-CREATE INDEX IF NOT EXISTS idx_drivers_tenant_status
-ON drivers(tenant_id, status);
+  -- Tenant driver listings
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_drivers_tenant_status
+    ON drivers(tenant_id, status);
+  END IF;
 
--- License expiration monitoring (active licenses only)
-CREATE INDEX IF NOT EXISTS idx_drivers_license_expiry
-ON drivers(license_expiry_date ASC)
-WHERE license_expiry_date > NOW();
+  -- License expiration monitoring
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='license_expiry_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_drivers_license_expiry
+    ON drivers(license_expiry_date ASC)
+    WHERE license_expiry_date IS NOT NULL;
+  END IF;
 
--- User account linkage
-CREATE INDEX IF NOT EXISTS idx_drivers_user_id
-ON drivers(user_id)
-WHERE user_id IS NOT NULL;
+  -- User account linkage
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='user_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_drivers_user_id
+    ON drivers(user_id)
+    WHERE user_id IS NOT NULL;
+  END IF;
 
--- License number lookups
-CREATE INDEX IF NOT EXISTS idx_drivers_license_number
-ON drivers(license_number)
-WHERE license_number IS NOT NULL;
+  -- License number lookups
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='license_number') THEN
+    CREATE INDEX IF NOT EXISTS idx_drivers_license_number
+    ON drivers(license_number)
+    WHERE license_number IS NOT NULL;
+  END IF;
 
--- Driver type filtering
-CREATE INDEX IF NOT EXISTS idx_drivers_type
-ON drivers(driver_type, status)
-WHERE driver_type IS NOT NULL;
+  -- Driver type filtering (only if driver_type column exists)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='driver_type')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_drivers_type
+    ON drivers(driver_type, status)
+    WHERE driver_type IS NOT NULL;
+  END IF;
 
--- CDL requirement queries
-CREATE INDEX IF NOT EXISTS idx_drivers_cdl
-ON drivers(cdl_required, status);
+  -- CDL requirement queries (actual column is "cdl", not "cdl_required")
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='cdl')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='drivers' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_drivers_cdl
+    ON drivers(cdl, status);
+  END IF;
 
-COMMENT ON INDEX idx_drivers_license_expiry IS 'Performance: License expiration monitoring - critical for compliance';
+END $$;
 
 -- ============================================================================
 -- 8. VEHICLE ASSIGNMENTS INDEXES
 -- ============================================================================
+-- Table vehicle_assignments does NOT exist in current schema. All indexes conditional.
+DO $$ BEGIN
 
--- Current vehicle assignments
-CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_vehicle_current
-ON vehicle_assignments(vehicle_id, assigned_date DESC)
-WHERE return_date IS NULL;
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='vehicle_assignments') THEN
 
--- Current driver assignments
-CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_driver_current
-ON vehicle_assignments(driver_id, assigned_date DESC)
-WHERE return_date IS NULL;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='vehicle_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='assigned_date')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='return_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_vehicle_current
+      ON vehicle_assignments(vehicle_id, assigned_date DESC)
+      WHERE return_date IS NULL;
+    END IF;
 
--- Assignment history
-CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_dates
-ON vehicle_assignments(assigned_date DESC, return_date DESC);
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='driver_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='assigned_date')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='return_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_driver_current
+      ON vehicle_assignments(driver_id, assigned_date DESC)
+      WHERE return_date IS NULL;
+    END IF;
 
--- Tenant assignment queries
-CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_tenant
-ON vehicle_assignments(tenant_id, assigned_date DESC);
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='assigned_date')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='return_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_dates
+      ON vehicle_assignments(assigned_date DESC, return_date DESC);
+    END IF;
 
--- Duration analysis
-CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_duration
-ON vehicle_assignments(vehicle_id, assigned_date, return_date);
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='assigned_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_tenant
+      ON vehicle_assignments(tenant_id, assigned_date DESC);
+    END IF;
 
-COMMENT ON INDEX idx_vehicle_assignments_vehicle_current IS 'Performance: Current assignment queries - 70% faster';
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='vehicle_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='assigned_date')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_assignments' AND column_name='return_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_vehicle_assignments_duration
+      ON vehicle_assignments(vehicle_id, assigned_date, return_date);
+    END IF;
+
+  END IF;
+
+END $$;
 
 -- ============================================================================
 -- 9. INCIDENTS INDEXES (Safety & Compliance)
 -- ============================================================================
+-- Columns verified: vehicle_id, driver_id, tenant_id, status, severity,
+--                   incident_date, type, at_fault_party, estimated_cost, claim_id
+-- Note: column is "type" (not "incident_type")
+DO $$ BEGIN
 
--- Vehicle incident history
-CREATE INDEX IF NOT EXISTS idx_incidents_vehicle_date
-ON incidents(vehicle_id, incident_date DESC);
+  -- Vehicle incident history
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='incident_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_incidents_vehicle_date
+    ON incidents(vehicle_id, incident_date DESC);
+  END IF;
 
--- Driver incident history
-CREATE INDEX IF NOT EXISTS idx_incidents_driver_date
-ON incidents(driver_id, incident_date DESC)
-WHERE driver_id IS NOT NULL;
+  -- Driver incident history
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='driver_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='incident_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_incidents_driver_date
+    ON incidents(driver_id, incident_date DESC)
+    WHERE driver_id IS NOT NULL;
+  END IF;
 
--- Tenant incident reporting
-CREATE INDEX IF NOT EXISTS idx_incidents_tenant_status
-ON incidents(tenant_id, status);
+  -- Tenant incident reporting
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_incidents_tenant_status
+    ON incidents(tenant_id, status);
+  END IF;
 
--- Severity-based queries (high/critical priority)
-CREATE INDEX IF NOT EXISTS idx_incidents_severity
-ON incidents(severity, incident_date DESC)
-WHERE severity IN ('high', 'critical');
+  -- Severity-based queries (major/critical/fatal)
+  -- incident_severity enum values: {minor,moderate,major,critical,fatal}
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='severity')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='incident_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_incidents_severity
+    ON incidents(severity, incident_date DESC)
+    WHERE severity IN ('major', 'critical', 'fatal');
+  END IF;
 
--- Incident type analysis
-CREATE INDEX IF NOT EXISTS idx_incidents_type
-ON incidents(incident_type, incident_date DESC);
+  -- Incident type analysis (actual column is "type", not "incident_type")
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='type')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='incident_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_incidents_type
+    ON incidents(type, incident_date DESC);
+  END IF;
 
--- At-fault analysis
-CREATE INDEX IF NOT EXISTS idx_incidents_at_fault
-ON incidents(at_fault_party, incident_date DESC)
-WHERE at_fault_party IS NOT NULL;
+  -- At-fault analysis
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='at_fault_party')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='incident_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_incidents_at_fault
+    ON incidents(at_fault_party, incident_date DESC)
+    WHERE at_fault_party IS NOT NULL;
+  END IF;
 
--- Cost tracking
-CREATE INDEX IF NOT EXISTS idx_incidents_cost
-ON incidents(tenant_id, estimated_cost DESC)
-WHERE estimated_cost IS NOT NULL;
+  -- Cost tracking
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='estimated_cost') THEN
+    CREATE INDEX IF NOT EXISTS idx_incidents_cost
+    ON incidents(tenant_id, estimated_cost DESC)
+    WHERE estimated_cost IS NOT NULL;
+  END IF;
 
--- Insurance claim linkage (if claim_id column exists)
-CREATE INDEX IF NOT EXISTS idx_incidents_claim
-ON incidents(claim_id)
-WHERE claim_id IS NOT NULL;
+  -- Insurance claim linkage
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='incidents' AND column_name='claim_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_incidents_claim
+    ON incidents(claim_id)
+    WHERE claim_id IS NOT NULL;
+  END IF;
 
-COMMENT ON INDEX idx_incidents_severity IS 'Performance: High-severity incident tracking for safety analysis';
+END $$;
 
 -- ============================================================================
 -- 10. MAINTENANCE SCHEDULES INDEXES
 -- ============================================================================
+-- Columns verified: vehicle_id, tenant_id, type, is_active, is_recurring,
+--                   next_service_date
+-- Columns NOT present: next_due_date (actual column is "next_service_date"),
+--                      service_type (actual column is "type")
+DO $$ BEGIN
 
--- Vehicle maintenance schedule
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle
-ON maintenance_schedules(vehicle_id, next_due_date ASC)
-WHERE next_due_date IS NOT NULL;
+  -- Vehicle maintenance schedule (actual column: next_service_date)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='next_service_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_vehicle
+    ON maintenance_schedules(vehicle_id, next_service_date ASC)
+    WHERE next_service_date IS NOT NULL;
+  END IF;
 
--- Upcoming maintenance (next 30 days)
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_upcoming
-ON maintenance_schedules(next_due_date ASC)
-WHERE next_due_date BETWEEN NOW() AND NOW() + INTERVAL '30 days';
+  -- Upcoming maintenance by due date (actual column: next_service_date)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='next_service_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_upcoming
+    ON maintenance_schedules(next_service_date ASC)
+    WHERE next_service_date IS NOT NULL;
+  END IF;
 
--- Tenant maintenance planning
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_tenant
-ON maintenance_schedules(tenant_id, next_due_date ASC);
+  -- Tenant maintenance planning (actual column: next_service_date)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='next_service_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_tenant
+    ON maintenance_schedules(tenant_id, next_service_date ASC);
+  END IF;
 
--- Service type analysis
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_type
-ON maintenance_schedules(service_type, is_active)
-WHERE is_active = true;
+  -- Service type analysis (actual column: "type", not "service_type")
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='type')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='is_active') THEN
+    CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_type
+    ON maintenance_schedules(type, is_active)
+    WHERE is_active = true;
+  END IF;
 
--- Recurring maintenance
-CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_recurring
-ON maintenance_schedules(is_recurring, next_due_date ASC)
-WHERE is_recurring = true;
+  -- Recurring maintenance (actual column: next_service_date)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='is_recurring')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='maintenance_schedules' AND column_name='next_service_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_maintenance_schedules_recurring
+    ON maintenance_schedules(is_recurring, next_service_date ASC)
+    WHERE is_recurring = true;
+  END IF;
 
-COMMENT ON INDEX idx_maintenance_schedules_upcoming IS 'Performance: Proactive maintenance planning - 65% faster';
+END $$;
 
 -- ============================================================================
 -- 11. INSPECTIONS INDEXES
 -- ============================================================================
+-- Columns verified: vehicle_id, driver_id, tenant_id, type, status,
+--                   inspector_id, started_at, passed_inspection
+-- Columns NOT present: inspection_date (actual: started_at),
+--                      inspection_type (actual: type),
+--                      passed (actual: passed_inspection)
+DO $$ BEGIN
 
--- Vehicle inspection history
-CREATE INDEX IF NOT EXISTS idx_inspections_vehicle_date
-ON inspections(vehicle_id, inspection_date DESC);
+  -- Vehicle inspection history (actual column: started_at)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='started_at') THEN
+    CREATE INDEX IF NOT EXISTS idx_inspections_vehicle_date
+    ON inspections(vehicle_id, started_at DESC);
+  END IF;
 
--- Driver inspection history
-CREATE INDEX IF NOT EXISTS idx_inspections_driver_date
-ON inspections(driver_id, inspection_date DESC)
-WHERE driver_id IS NOT NULL;
+  -- Driver inspection history (actual column: started_at)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='driver_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='started_at') THEN
+    CREATE INDEX IF NOT EXISTS idx_inspections_driver_date
+    ON inspections(driver_id, started_at DESC)
+    WHERE driver_id IS NOT NULL;
+  END IF;
 
--- Tenant inspection compliance
-CREATE INDEX IF NOT EXISTS idx_inspections_tenant_date
-ON inspections(tenant_id, inspection_date DESC);
+  -- Tenant inspection compliance (actual column: started_at)
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='tenant_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='started_at') THEN
+    CREATE INDEX IF NOT EXISTS idx_inspections_tenant_date
+    ON inspections(tenant_id, started_at DESC);
+  END IF;
 
--- Inspection type queries
-CREATE INDEX IF NOT EXISTS idx_inspections_type_status
-ON inspections(inspection_type, status);
+  -- Inspection type queries (actual column: "type", not "inspection_type")
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='type')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='status') THEN
+    CREATE INDEX IF NOT EXISTS idx_inspections_type_status
+    ON inspections(type, status);
+  END IF;
 
--- Failed inspections (critical for follow-up)
-CREATE INDEX IF NOT EXISTS idx_inspections_failed
-ON inspections(vehicle_id, inspection_date DESC)
-WHERE passed = false;
+  -- Failed inspections (actual column: passed_inspection, not "passed")
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='vehicle_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='started_at')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='passed_inspection') THEN
+    CREATE INDEX IF NOT EXISTS idx_inspections_failed
+    ON inspections(vehicle_id, started_at DESC)
+    WHERE passed_inspection = false;
+  END IF;
 
--- Inspector performance tracking
-CREATE INDEX IF NOT EXISTS idx_inspections_inspector
-ON inspections(inspector_id, inspection_date DESC)
-WHERE inspector_id IS NOT NULL;
+  -- Inspector performance tracking
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='inspector_id')
+     AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='inspections' AND column_name='started_at') THEN
+    CREATE INDEX IF NOT EXISTS idx_inspections_inspector
+    ON inspections(inspector_id, started_at DESC)
+    WHERE inspector_id IS NOT NULL;
+  END IF;
 
-COMMENT ON INDEX idx_inspections_failed IS 'Performance: Failed inspection tracking for compliance';
-
--- ============================================================================
--- 12. PARTS INVENTORY INDEXES (if table exists)
--- ============================================================================
-
--- Part number lookups
-CREATE INDEX IF NOT EXISTS idx_parts_inventory_part_number
-ON parts_inventory(part_number)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'parts_inventory');
-
--- Low stock alerts
-CREATE INDEX IF NOT EXISTS idx_parts_inventory_low_stock
-ON parts_inventory(quantity_on_hand)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'parts_inventory')
-AND quantity_on_hand <= reorder_point;
-
--- Tenant parts inventory
-CREATE INDEX IF NOT EXISTS idx_parts_inventory_tenant
-ON parts_inventory(tenant_id, part_category)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'parts_inventory');
-
--- ============================================================================
--- 13. PURCHASE ORDERS INDEXES (if table exists)
--- ============================================================================
-
--- Vendor PO tracking
-CREATE INDEX IF NOT EXISTS idx_purchase_orders_vendor_date
-ON purchase_orders(vendor_id, order_date DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'purchase_orders');
-
--- Tenant PO reporting
-CREATE INDEX IF NOT EXISTS idx_purchase_orders_tenant_status
-ON purchase_orders(tenant_id, status)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'purchase_orders');
-
--- PO number lookups
-CREATE INDEX IF NOT EXISTS idx_purchase_orders_po_number
-ON purchase_orders(po_number)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'purchase_orders');
+END $$;
 
 -- ============================================================================
--- 14. VENDORS INDEXES (if table exists)
+-- 12. CONDITIONAL INDEXES (tables that may or may not exist)
 -- ============================================================================
+-- Each table is checked with column-level validation before index creation.
 
--- Active vendor listing
-CREATE INDEX IF NOT EXISTS idx_vendors_active
-ON vendors(is_active, vendor_name)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'vendors')
-AND is_active = true;
+-- Parts inventory
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='parts_inventory') THEN
+    -- Actual column is "category" (not "part_category")
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='parts_inventory' AND column_name='part_number') THEN
+      CREATE INDEX IF NOT EXISTS idx_parts_inventory_part_number ON parts_inventory(part_number);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='parts_inventory' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='parts_inventory' AND column_name='category') THEN
+      CREATE INDEX IF NOT EXISTS idx_parts_inventory_tenant ON parts_inventory(tenant_id, category);
+    END IF;
+  END IF;
+END $$;
 
--- Tenant vendor management
-CREATE INDEX IF NOT EXISTS idx_vendors_tenant
-ON vendors(tenant_id, vendor_type)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'vendors');
+-- Purchase orders
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='purchase_orders') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='purchase_orders' AND column_name='vendor_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='purchase_orders' AND column_name='order_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_purchase_orders_vendor_date ON purchase_orders(vendor_id, order_date DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='purchase_orders' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='purchase_orders' AND column_name='status') THEN
+      CREATE INDEX IF NOT EXISTS idx_purchase_orders_tenant_status ON purchase_orders(tenant_id, status);
+    END IF;
+    -- Actual column is "number" (not "po_number")
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='purchase_orders' AND column_name='number') THEN
+      CREATE INDEX IF NOT EXISTS idx_purchase_orders_number ON purchase_orders(number);
+    END IF;
+  END IF;
+END $$;
 
--- ============================================================================
--- 15. FACILITIES INDEXES (if table exists)
--- ============================================================================
+-- Vendors
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='vendors') THEN
+    -- Actual column is "name" (not "vendor_name") and "type" (not "vendor_type")
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vendors' AND column_name='is_active')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vendors' AND column_name='name') THEN
+      CREATE INDEX IF NOT EXISTS idx_vendors_active ON vendors(is_active, name) WHERE is_active = true;
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vendors' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vendors' AND column_name='type') THEN
+      CREATE INDEX IF NOT EXISTS idx_vendors_tenant ON vendors(tenant_id, type);
+    END IF;
+  END IF;
+END $$;
 
--- Active facility listing
-CREATE INDEX IF NOT EXISTS idx_facilities_active
-ON facilities(tenant_id, is_active)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facilities')
-AND is_active = true;
+-- Facilities
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='facilities') THEN
+    -- Actual column is "type" (not "facility_type")
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='facilities' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='facilities' AND column_name='is_active') THEN
+      CREATE INDEX IF NOT EXISTS idx_facilities_active ON facilities(tenant_id, is_active) WHERE is_active = true;
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='facilities' AND column_name='type')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='facilities' AND column_name='is_active') THEN
+      CREATE INDEX IF NOT EXISTS idx_facilities_type ON facilities(type, is_active);
+    END IF;
+  END IF;
+END $$;
 
--- Facility type queries
-CREATE INDEX IF NOT EXISTS idx_facilities_type
-ON facilities(facility_type, is_active)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facilities');
+-- Invoices
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='invoices') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='invoices' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='invoices' AND column_name='invoice_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_invoices_tenant_date ON invoices(tenant_id, invoice_date DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='invoices' AND column_name='status')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='invoices' AND column_name='due_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_invoices_status ON invoices(status, due_date ASC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='invoices' AND column_name='vendor_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='invoices' AND column_name='invoice_date') THEN
+      CREATE INDEX IF NOT EXISTS idx_invoices_vendor_date ON invoices(vendor_id, invoice_date DESC);
+    END IF;
+  END IF;
+END $$;
 
--- ============================================================================
--- 16. INVOICES INDEXES (if table exists)
--- ============================================================================
+-- Notifications
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='notifications') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='notifications' AND column_name='user_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='notifications' AND column_name='created_at')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='notifications' AND column_name='is_read') THEN
+      CREATE INDEX IF NOT EXISTS idx_notifications_user_unread ON notifications(user_id, created_at DESC) WHERE is_read = false;
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='notifications' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='notifications' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_notifications_tenant_date ON notifications(tenant_id, created_at DESC);
+    END IF;
+  END IF;
+END $$;
 
--- Invoice date range queries
-CREATE INDEX IF NOT EXISTS idx_invoices_tenant_date
-ON invoices(tenant_id, invoice_date DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'invoices');
+-- Alerts (table does not currently exist)
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='alerts') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='alerts' AND column_name='vehicle_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='alerts' AND column_name='created_at')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='alerts' AND column_name='status') THEN
+      CREATE INDEX IF NOT EXISTS idx_alerts_active ON alerts(vehicle_id, created_at DESC) WHERE status = 'active';
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='alerts' AND column_name='alert_type')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='alerts' AND column_name='severity')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='alerts' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_alerts_type_severity ON alerts(alert_type, severity, created_at DESC);
+    END IF;
+  END IF;
+END $$;
 
--- Invoice status tracking
-CREATE INDEX IF NOT EXISTS idx_invoices_status
-ON invoices(status, due_date ASC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'invoices');
+-- Geofences
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='geofences') THEN
+    -- Actual column is "type" (not "geofence_type")
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofences' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofences' AND column_name='is_active') THEN
+      CREATE INDEX IF NOT EXISTS idx_geofences_active ON geofences(tenant_id, is_active) WHERE is_active = true;
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofences' AND column_name='type')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofences' AND column_name='is_active') THEN
+      CREATE INDEX IF NOT EXISTS idx_geofences_type ON geofences(type, is_active);
+    END IF;
+  END IF;
+END $$;
 
--- Vendor invoice history
-CREATE INDEX IF NOT EXISTS idx_invoices_vendor_date
-ON invoices(vendor_id, invoice_date DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'invoices');
+-- Geofence events (table does not currently exist)
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='geofence_events') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofence_events' AND column_name='vehicle_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofence_events' AND column_name='event_timestamp') THEN
+      CREATE INDEX IF NOT EXISTS idx_geofence_events_vehicle_date ON geofence_events(vehicle_id, event_timestamp DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofence_events' AND column_name='geofence_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofence_events' AND column_name='event_timestamp') THEN
+      CREATE INDEX IF NOT EXISTS idx_geofence_events_geofence_date ON geofence_events(geofence_id, event_timestamp DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofence_events' AND column_name='event_type')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='geofence_events' AND column_name='event_timestamp') THEN
+      CREATE INDEX IF NOT EXISTS idx_geofence_events_type ON geofence_events(event_type, event_timestamp DESC);
+    END IF;
+  END IF;
+END $$;
 
--- ============================================================================
--- 17. NOTIFICATIONS INDEXES (if table exists)
--- ============================================================================
+-- Charging stations
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='charging_stations') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_stations' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_stations' AND column_name='status') THEN
+      CREATE INDEX IF NOT EXISTS idx_charging_stations_active ON charging_stations(tenant_id, status) WHERE status = 'active';
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_stations' AND column_name='facility_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_stations' AND column_name='status') THEN
+      CREATE INDEX IF NOT EXISTS idx_charging_stations_facility ON charging_stations(facility_id, status);
+    END IF;
+  END IF;
+END $$;
 
--- User notification queue
-CREATE INDEX IF NOT EXISTS idx_notifications_user_unread
-ON notifications(user_id, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'notifications')
-AND is_read = false;
+-- Charging sessions
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='charging_sessions') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_sessions' AND column_name='vehicle_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_sessions' AND column_name='start_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_charging_sessions_vehicle_date ON charging_sessions(vehicle_id, start_time DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_sessions' AND column_name='station_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_sessions' AND column_name='start_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_charging_sessions_station_date ON charging_sessions(station_id, start_time DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_sessions' AND column_name='station_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_sessions' AND column_name='start_time')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='charging_sessions' AND column_name='end_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_charging_sessions_active ON charging_sessions(station_id, start_time DESC) WHERE end_time IS NULL;
+    END IF;
+  END IF;
+END $$;
 
--- Tenant notifications
-CREATE INDEX IF NOT EXISTS idx_notifications_tenant_date
-ON notifications(tenant_id, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'notifications');
+-- Documents
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='documents') THEN
+    -- Actual columns: related_entity_type/related_entity_id (not entity_type/entity_id)
+    -- Actual column: "type" (not "document_type" for the original enum column)
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='documents' AND column_name='related_entity_type')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='documents' AND column_name='related_entity_id') THEN
+      CREATE INDEX IF NOT EXISTS idx_documents_entity ON documents(related_entity_type, related_entity_id);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='documents' AND column_name='type')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='documents' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_documents_type_date ON documents(type, created_at DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='documents' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='documents' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_documents_tenant_date ON documents(tenant_id, created_at DESC);
+    END IF;
+  END IF;
+END $$;
 
--- ============================================================================
--- 18. ALERTS INDEXES (if table exists)
--- ============================================================================
+-- Audit logs
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='audit_logs') THEN
+    -- Actual columns: entity_type/entity_id (not resource_type/resource_id)
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='user_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_user_date ON audit_logs(user_id, created_at DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_date ON audit_logs(tenant_id, created_at DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='action')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_action_date ON audit_logs(action, created_at DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='entity_type')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='entity_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='audit_logs' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_audit_logs_resource ON audit_logs(entity_type, entity_id, created_at DESC);
+    END IF;
+  END IF;
+END $$;
 
--- Active alerts
-CREATE INDEX IF NOT EXISTS idx_alerts_active
-ON alerts(vehicle_id, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'alerts')
-AND status = 'active';
+-- Users
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='users') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='users' AND column_name='tenant_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='users' AND column_name='is_active') THEN
+      CREATE INDEX IF NOT EXISTS idx_users_tenant_active ON users(tenant_id, is_active);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='users' AND column_name='role')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='users' AND column_name='is_active') THEN
+      CREATE INDEX IF NOT EXISTS idx_users_role ON users(role, is_active) WHERE is_active = true;
+    END IF;
+  END IF;
+END $$;
 
--- Alert type tracking
-CREATE INDEX IF NOT EXISTS idx_alerts_type_severity
-ON alerts(alert_type, severity, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'alerts');
+-- Tenants
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='tenants') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='tenants' AND column_name='is_active')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='tenants' AND column_name='created_at') THEN
+      CREATE INDEX IF NOT EXISTS idx_tenants_active ON tenants(is_active, created_at DESC) WHERE is_active = true;
+    END IF;
+  END IF;
+END $$;
 
--- ============================================================================
--- 19. GEOFENCES INDEXES (if table exists)
--- ============================================================================
-
--- Active geofences
-CREATE INDEX IF NOT EXISTS idx_geofences_active
-ON geofences(tenant_id, is_active)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'geofences')
-AND is_active = true;
-
--- Geofence type queries
-CREATE INDEX IF NOT EXISTS idx_geofences_type
-ON geofences(geofence_type, is_active)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'geofences');
-
--- ============================================================================
--- 20. GEOFENCE EVENTS INDEXES (if table exists)
--- ============================================================================
-
--- Vehicle geofence history
-CREATE INDEX IF NOT EXISTS idx_geofence_events_vehicle_date
-ON geofence_events(vehicle_id, event_timestamp DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'geofence_events');
-
--- Geofence activity tracking
-CREATE INDEX IF NOT EXISTS idx_geofence_events_geofence_date
-ON geofence_events(geofence_id, event_timestamp DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'geofence_events');
-
--- Event type analysis
-CREATE INDEX IF NOT EXISTS idx_geofence_events_type
-ON geofence_events(event_type, event_timestamp DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'geofence_events');
-
--- ============================================================================
--- 21. CHARGING STATIONS INDEXES (EV Management - if tables exist)
--- ============================================================================
-
--- Active charging stations
-CREATE INDEX IF NOT EXISTS idx_charging_stations_active
-ON charging_stations(tenant_id, status)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'charging_stations')
-AND status = 'active';
-
--- Facility charging infrastructure
-CREATE INDEX IF NOT EXISTS idx_charging_stations_facility
-ON charging_stations(facility_id, status)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'charging_stations');
-
--- ============================================================================
--- 22. CHARGING SESSIONS INDEXES (EV Management - if tables exist)
--- ============================================================================
-
--- Vehicle charging history
-CREATE INDEX IF NOT EXISTS idx_charging_sessions_vehicle_date
-ON charging_sessions(vehicle_id, start_time DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'charging_sessions');
-
--- Station utilization tracking
-CREATE INDEX IF NOT EXISTS idx_charging_sessions_station_date
-ON charging_sessions(station_id, start_time DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'charging_sessions');
-
--- Active charging sessions
-CREATE INDEX IF NOT EXISTS idx_charging_sessions_active
-ON charging_sessions(station_id, start_time DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'charging_sessions')
-AND end_time IS NULL;
-
--- ============================================================================
--- 23. DOCUMENTS INDEXES (if table exists)
--- ============================================================================
-
--- Entity document associations
-CREATE INDEX IF NOT EXISTS idx_documents_entity
-ON documents(entity_type, entity_id)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'documents');
-
--- Document type queries
-CREATE INDEX IF NOT EXISTS idx_documents_type_date
-ON documents(document_type, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'documents');
-
--- Tenant document management
-CREATE INDEX IF NOT EXISTS idx_documents_tenant_date
-ON documents(tenant_id, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'documents');
-
--- ============================================================================
--- 24. AUDIT LOGS INDEXES (Critical for Compliance)
--- ============================================================================
-
--- User activity tracking
-CREATE INDEX IF NOT EXISTS idx_audit_logs_user_date
-ON audit_logs(user_id, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'audit_logs');
-
--- Tenant audit queries
-CREATE INDEX IF NOT EXISTS idx_audit_logs_tenant_date
-ON audit_logs(tenant_id, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'audit_logs');
-
--- Action type analysis
-CREATE INDEX IF NOT EXISTS idx_audit_logs_action_date
-ON audit_logs(action, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'audit_logs');
-
--- Resource tracking
-CREATE INDEX IF NOT EXISTS idx_audit_logs_resource
-ON audit_logs(resource_type, resource_id, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'audit_logs');
-
-COMMENT ON INDEX idx_audit_logs_tenant_date IS 'Performance: Critical for compliance audit trails';
-
--- ============================================================================
--- 25. USERS INDEXES
--- ============================================================================
-
--- Tenant user management
-CREATE INDEX IF NOT EXISTS idx_users_tenant_active
-ON users(tenant_id, is_active);
-
--- Email lookups (authentication)
-CREATE INDEX IF NOT EXISTS idx_users_email_lower
-ON users(LOWER(email));
-
--- Role-based queries
-CREATE INDEX IF NOT EXISTS idx_users_role
-ON users(role, is_active)
-WHERE is_active = true;
-
--- ============================================================================
--- 26. TENANTS INDEXES (if multi-tenant columns exist)
--- ============================================================================
-
--- Active tenant listing
-CREATE INDEX IF NOT EXISTS idx_tenants_active
-ON tenants(is_active, created_at DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tenants')
-AND is_active = true;
-
--- ============================================================================
--- 27. ROUTES INDEXES (if table exists)
--- ============================================================================
-
--- Vehicle route history
-CREATE INDEX IF NOT EXISTS idx_routes_vehicle_date
-ON routes(vehicle_id, scheduled_start DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'routes');
-
--- Driver route assignments
-CREATE INDEX IF NOT EXISTS idx_routes_driver_date
-ON routes(driver_id, scheduled_start DESC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'routes');
-
--- Active routes
-CREATE INDEX IF NOT EXISTS idx_routes_active
-ON routes(status, scheduled_start ASC)
-WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'routes')
-AND status IN ('pending', 'in-progress');
+-- Routes
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema='public' AND table_name='routes') THEN
+    -- Actual columns: assigned_vehicle_id (not vehicle_id),
+    --                 assigned_driver_id (not driver_id),
+    --                 scheduled_start_time (not scheduled_start)
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='routes' AND column_name='assigned_vehicle_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='routes' AND column_name='scheduled_start_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_routes_vehicle_date ON routes(assigned_vehicle_id, scheduled_start_time DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='routes' AND column_name='assigned_driver_id')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='routes' AND column_name='scheduled_start_time') THEN
+      CREATE INDEX IF NOT EXISTS idx_routes_driver_date ON routes(assigned_driver_id, scheduled_start_time DESC);
+    END IF;
+    IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='routes' AND column_name='status')
+       AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='routes' AND column_name='scheduled_start_time') THEN
+      -- status enum values: {pending,in_progress,completed,cancelled,on_hold,failed}
+      CREATE INDEX IF NOT EXISTS idx_routes_active ON routes(status, scheduled_start_time ASC) WHERE status IN ('pending', 'in_progress');
+    END IF;
+  END IF;
+END $$;
 
 -- ============================================================================
 -- MIGRATION COMPLETE - PERFORMANCE VERIFICATION

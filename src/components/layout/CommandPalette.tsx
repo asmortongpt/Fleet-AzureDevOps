@@ -111,7 +111,7 @@ export function CommandPalette() {
       <div className="relative w-full max-w-lg mx-4 bg-background/95 border border-border/50 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
         {/* Search input */}
         <div className="flex items-center gap-3 px-4 py-3.5 border-b border-border/50">
-          <Search className="w-4 h-4 text-[#41B2E3]/50 shrink-0" />
+          <Search className="w-4 h-4 text-[#F0A000]/50 shrink-0" />
           <input
             ref={inputRef}
             value={query}
@@ -148,7 +148,7 @@ export function CommandPalette() {
           {Object.entries(grouped).map(([cat, mods]) => (
             <div key={cat}>
               <div className="px-4 py-1.5">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#41B2E3]/40">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.15em] text-[#F0A000]/40">
                   {categoryLabels[cat as ModuleCategory] ?? cat}
                 </span>
               </div>
@@ -164,7 +164,7 @@ export function CommandPalette() {
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-2.5 text-sm transition-all',
                       isSelected
-                        ? 'bg-[#41B2E3]/[0.08] text-foreground'
+                        ? 'bg-[#F0A000]/[0.08] text-foreground'
                         : 'text-muted-foreground hover:bg-muted/40 hover:text-foreground'
                     )}
                   >

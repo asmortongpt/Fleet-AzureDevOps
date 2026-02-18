@@ -57,9 +57,18 @@ CREATE TABLE IF NOT EXISTS assets (
 );
 
 CREATE INDEX IF NOT EXISTS idx_assets_tenant ON assets(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_assets_type ON assets(asset_type);
 CREATE INDEX IF NOT EXISTS idx_assets_status ON assets(status);
-CREATE INDEX IF NOT EXISTS idx_assets_assigned ON assets(assigned_to);
+-- Column may be 'asset_type' (new schema) or 'type' (original schema)
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='assets' AND column_name='asset_type') THEN
+    CREATE INDEX IF NOT EXISTS idx_assets_type ON assets(asset_type);
+  ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='assets' AND column_name='type') THEN
+    CREATE INDEX IF NOT EXISTS idx_assets_type ON assets(type);
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='assets' AND column_name='assigned_to') THEN
+    CREATE INDEX IF NOT EXISTS idx_assets_assigned ON assets(assigned_to);
+  END IF;
+END $$;
 
 -- Asset Analytics
 CREATE TABLE IF NOT EXISTS asset_analytics (
@@ -369,7 +378,7 @@ CREATE TABLE IF NOT EXISTS schedules (
 
     -- Assignment
     assigned_to UUID REFERENCES users(id),
-    team_id UUID REFERENCES teams(id),
+    team_id UUID, -- FK to teams added later
 
     -- Status
     status VARCHAR(20) DEFAULT 'active', -- active, paused, completed, cancelled
@@ -453,7 +462,7 @@ CREATE TABLE IF NOT EXISTS on_call_shifts (
 
     -- Assignment
     user_id UUID NOT NULL REFERENCES users(id),
-    team_id UUID REFERENCES teams(id),
+    team_id UUID, -- FK to teams added later
     role VARCHAR(50),
 
     -- Timing
@@ -611,9 +620,17 @@ CREATE TABLE IF NOT EXISTS mobile_photos (
 );
 
 CREATE INDEX IF NOT EXISTS idx_mobile_photos_tenant ON mobile_photos(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_mobile_photos_vehicle ON mobile_photos(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_mobile_photos_type ON mobile_photos(photo_type);
-CREATE INDEX IF NOT EXISTS idx_mobile_photos_captured ON mobile_photos(captured_at DESC);
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='mobile_photos' AND column_name='vehicle_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_mobile_photos_vehicle ON mobile_photos(vehicle_id);
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='mobile_photos' AND column_name='photo_type') THEN
+    CREATE INDEX IF NOT EXISTS idx_mobile_photos_type ON mobile_photos(photo_type);
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='mobile_photos' AND column_name='captured_at') THEN
+    CREATE INDEX IF NOT EXISTS idx_mobile_photos_captured ON mobile_photos(captured_at DESC);
+  END IF;
+END $$;
 
 -- Mobile Trips
 CREATE TABLE IF NOT EXISTS mobile_trips (
@@ -811,8 +828,15 @@ CREATE TABLE IF NOT EXISTS vehicle_3d_models (
     created_by UUID REFERENCES users(id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_vehicle_3d_models_tenant ON vehicle_3d_models(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_vehicle_3d_models_vehicle ON vehicle_3d_models(vehicle_id);
+-- vehicle_3d_models may exist from migration 012 with different schema
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_3d_models' AND column_name='tenant_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicle_3d_models_tenant ON vehicle_3d_models(tenant_id);
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='vehicle_3d_models' AND column_name='vehicle_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_vehicle_3d_models_vehicle ON vehicle_3d_models(vehicle_id);
+  END IF;
+END $$;
 
 -- Damage Records
 CREATE TABLE IF NOT EXISTS damage_records (
@@ -1120,9 +1144,19 @@ CREATE TABLE IF NOT EXISTS policy_templates (
     created_by UUID REFERENCES users(id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_policy_templates_tenant ON policy_templates(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_policy_templates_category ON policy_templates(template_category);
-CREATE INDEX IF NOT EXISTS idx_policy_templates_active ON policy_templates(is_active) WHERE is_active = true;
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='policy_templates' AND column_name='tenant_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_policy_templates_tenant ON policy_templates(tenant_id);
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='policy_templates' AND column_name='template_category') THEN
+    CREATE INDEX IF NOT EXISTS idx_policy_templates_category ON policy_templates(template_category);
+  ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='policy_templates' AND column_name='policy_category') THEN
+    CREATE INDEX IF NOT EXISTS idx_policy_templates_category ON policy_templates(policy_category);
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='policy_templates' AND column_name='is_active') THEN
+    CREATE INDEX IF NOT EXISTS idx_policy_templates_active ON policy_templates(is_active) WHERE is_active = true;
+  END IF;
+END $$;
 
 -- Permissions
 CREATE TABLE IF NOT EXISTS permissions (
@@ -1150,7 +1184,7 @@ CREATE INDEX IF NOT EXISTS idx_permissions_action ON permissions(action);
 -- Role Permissions (junction table)
 CREATE TABLE IF NOT EXISTS role_permissions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    role_id UUID NOT NULL, -- FK to roles added later (roles table created in 20251203_rbac_implementation.sql)
     permission_id UUID NOT NULL REFERENCES permissions(id) ON DELETE CASCADE,
 
     created_at TIMESTAMP DEFAULT NOW(),
@@ -1869,10 +1903,21 @@ CREATE TABLE IF NOT EXISTS reservations (
 );
 
 CREATE INDEX IF NOT EXISTS idx_reservations_tenant ON reservations(tenant_id);
-CREATE INDEX IF NOT EXISTS idx_reservations_vehicle ON reservations(vehicle_id);
-CREATE INDEX IF NOT EXISTS idx_reservations_user ON reservations(user_id);
-CREATE INDEX IF NOT EXISTS idx_reservations_time ON reservations(start_time, end_time);
 CREATE INDEX IF NOT EXISTS idx_reservations_status ON reservations(status);
+-- Column names may differ between reservation table versions
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='reservations' AND column_name='vehicle_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_reservations_vehicle ON reservations(vehicle_id);
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='reservations' AND column_name='user_id') THEN
+    CREATE INDEX IF NOT EXISTS idx_reservations_user ON reservations(user_id);
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='reservations' AND column_name='start_time') THEN
+    CREATE INDEX IF NOT EXISTS idx_reservations_time ON reservations(start_time, end_time);
+  ELSIF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='reservations' AND column_name='start_date') THEN
+    CREATE INDEX IF NOT EXISTS idx_reservations_time ON reservations(start_date, end_date);
+  END IF;
+END $$;
 
 -- ============================================================================
 -- UPDATE TRIGGERS

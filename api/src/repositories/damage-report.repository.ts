@@ -62,7 +62,7 @@ export class DamageReportRepository {
     }
   ): Promise<DamageReport[]> {
     let query = `
-      SELECT * FROM damage_reports
+      SELECT id, tenant_id, vehicle_id, reported_by, damage_description, damage_severity, damage_location, photos, triposr_task_id, triposr_status, triposr_model_url, linked_work_order_id, inspection_id, created_at, updated_at FROM damage_reports
       WHERE tenant_id = $1
     `;
 
@@ -113,7 +113,7 @@ export class DamageReportRepository {
     id: string
   ): Promise<DamageReportDetailed | null> {
     const query = `
-      SELECT * FROM v_damage_reports_detailed
+      SELECT id, tenant_id, vehicle_id, reported_by, damage_description, damage_severity, damage_location, photos, triposr_task_id, triposr_status, triposr_model_url, linked_work_order_id, inspection_id, created_at, updated_at, vin, make, model, year, reported_by_license, reported_by_name, work_order_id, work_order_status, inspection_date, inspection_status FROM v_damage_reports_detailed
       WHERE tenant_id = $1 AND id = $2
     `;
 
@@ -126,7 +126,7 @@ export class DamageReportRepository {
    */
   async findById(tenantId: string, id: string): Promise<DamageReport | null> {
     const query = `
-      SELECT * FROM damage_reports
+      SELECT id, tenant_id, vehicle_id, reported_by, damage_description, damage_severity, damage_location, photos, triposr_task_id, triposr_status, triposr_model_url, linked_work_order_id, inspection_id, created_at, updated_at FROM damage_reports
       WHERE tenant_id = $1 AND id = $2
     `;
 
@@ -230,7 +230,7 @@ export class DamageReportRepository {
     vehicleId: string
   ): Promise<DamageReport[]> {
     const query = `
-      SELECT * FROM damage_reports
+      SELECT id, tenant_id, vehicle_id, reported_by, damage_description, damage_severity, damage_location, photos, triposr_task_id, triposr_status, triposr_model_url, linked_work_order_id, inspection_id, created_at, updated_at FROM damage_reports
       WHERE tenant_id = $1 AND vehicle_id = $2
       ORDER BY created_at DESC
     `;
@@ -274,7 +274,7 @@ export class DamageReportRepository {
    */
   async findPending3DGeneration(tenantId: string): Promise<DamageReport[]> {
     const query = `
-      SELECT * FROM damage_reports
+      SELECT id, tenant_id, vehicle_id, reported_by, damage_description, damage_severity, damage_location, photos, triposr_task_id, triposr_status, triposr_model_url, linked_work_order_id, inspection_id, created_at, updated_at FROM damage_reports
       WHERE tenant_id = $1
         AND triposr_status = 'pending'
         AND array_length(photos, 1) > 0

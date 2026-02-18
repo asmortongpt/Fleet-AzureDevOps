@@ -1,9 +1,9 @@
 /**
- * IconRail - Left 56px icon navigation rail for the ArchonY SPA
+ * IconRail - Left icon navigation rail
  *
  * 6 category icons vertically stacked. Hover/click opens FlyoutMenu.
- * Active category shows BLUE SKIES left-edge indicator.
- * CTA square logo at bottom with dawn gradient bar.
+ * Active category shows gold left-edge indicator.
+ * CTA square logo at bottom.
  */
 import {
   Truck,
@@ -54,15 +54,12 @@ export function IconRail() {
 
   return (
     <nav
-      className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-[#0F1229] border-r border-[#1A1847]/50 z-30"
+      className="relative flex flex-col items-center w-12 lg:w-14 h-full shrink-0 bg-[#1A1847] border-r border-[#2F3359]/50 z-30"
       role="navigation"
       aria-label="Main Navigation"
     >
-      {/* Dawn gradient accent bar at top */}
-      <div className="w-full h-[3px] bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903] shrink-0" />
-
       {/* Category icons */}
-      <div className="flex flex-col items-center gap-1 pt-4 flex-1">
+      <div className="flex flex-col items-center gap-1 pt-3 flex-1">
         {categories.map(cat => {
           const isActive = activeCategory === cat.id
           const isHovered = flyoutCategory === cat.id
@@ -71,7 +68,7 @@ export function IconRail() {
             <div key={cat.id} className="relative">
               {/* Active indicator - Gold left bar */}
               {isActive && (
-                <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#F0A000] shadow-[0_0_8px_rgba(240,160,0,0.5)]" />
+                <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] rounded-r-full bg-[#F0A000] shadow-[0_0_6px_rgba(240,160,0,0.4)]" />
               )}
 
               <button
@@ -85,7 +82,7 @@ export function IconRail() {
                     ? 'text-[#F0A000] bg-[#F0A000]/10'
                     : isHovered
                       ? 'text-white bg-white/10'
-                      : 'text-white/50 hover:text-white/80'
+                      : 'text-white/40 hover:text-white/70'
                 )}
               >
                 {cat.icon}
@@ -101,14 +98,11 @@ export function IconRail() {
         })}
       </div>
 
-      {/* Bottom: CTA square logo mark */}
+      {/* Bottom: CTA logo mark */}
       <div className="pb-3 flex flex-col items-center">
-        <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg overflow-hidden shadow-lg">
-          <img
-            src="/logos/approved-branding/cta-icon-navy.png"
-            alt="CTA"
-            className="w-full h-full object-cover"
-          />
+        <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-lg bg-[#2F3359] flex flex-col items-center justify-center border border-white/5">
+          <span className="text-[9px] font-extrabold text-white/80 tracking-wide leading-none">CTA</span>
+          <div className="w-5 h-[2px] mt-1 rounded-full bg-gradient-to-r from-[#F0A000] to-[#DD3903]" />
         </div>
       </div>
     </nav>

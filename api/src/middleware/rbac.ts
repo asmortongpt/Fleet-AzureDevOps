@@ -21,7 +21,7 @@ import pool from '../config/database'
 import logger from '../config/logger'
 
 import { AuthRequest } from './auth'
-import { getUserPermissions, clearPermissionCache } from './permissions'
+import { getUserPermissions, clearPermissionCache, invalidatePermissionCache } from './permissions'
 
 // ============================================================================
 // ROLE DEFINITIONS
@@ -602,4 +602,4 @@ async function getSchema(key: string): Promise<Record<string, unknown> | null> {
 }
 
 // Export helper functions for testing
-export { verifyTenantOwnership, logAuthorizationFailure, clearPermissionCache }
+export { verifyTenantOwnership, logAuthorizationFailure, clearPermissionCache, invalidatePermissionCache }

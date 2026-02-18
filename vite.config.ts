@@ -117,76 +117,124 @@ export default defineConfig({
     }),
   ],
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         // Phase 2 Performance Optimization: Enhanced code splitting
-        // Reduced main bundle by splitting vendors into logical chunks
-        manualChunks: {
-          // Core React & Routing
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+        // Migrated from Rollup manualChunks to Rolldown advancedChunks (Vite 7)
+        advancedChunks: {
+          groups: [
+            // Core React & Routing
+            {
+              name: 'react-vendor',
+              test: /[\\/]node_modules[\\/](react|react-dom|react-router-dom)[\\/]/,
+              priority: 20,
+            },
 
-          // State Management & Data Fetching
-          'query-vendor': ['@tanstack/react-query'],
-          'state-vendor': ['zustand', 'jotai'],
+            // State Management & Data Fetching
+            {
+              name: 'query-vendor',
+              test: /[\\/]node_modules[\\/]@tanstack[\\/]react-query[\\/]/,
+              priority: 15,
+            },
+            {
+              name: 'state-vendor',
+              test: /[\\/]node_modules[\\/](zustand|jotai)[\\/]/,
+              priority: 15,
+            },
 
-          // UI Libraries
-          'radix-ui-vendor': [
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-select',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-alert-dialog',
-            '@radix-ui/react-accordion',
-            '@radix-ui/react-checkbox',
-            '@radix-ui/react-radio-group',
-            '@radix-ui/react-slider',
-            '@radix-ui/react-switch',
-            '@radix-ui/react-tooltip',
+            // UI Libraries (Radix)
+            {
+              name: 'radix-ui-vendor',
+              test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
+              priority: 10,
+            },
+
+            // UI Utilities
+            {
+              name: 'ui-vendor',
+              test: /[\\/]node_modules[\\/](zod|class-variance-authority|clsx|tailwind-merge|cmdk)[\\/]/,
+              priority: 10,
+            },
+
+            // Data Tables & Virtualization
+            {
+              name: 'ag-grid-vendor',
+              test: /[\\/]node_modules[\\/]ag-grid-(react|community)[\\/]/,
+              priority: 10,
+            },
+
+            // Icons
+            {
+              name: 'icons-vendor',
+              test: /[\\/]node_modules[\\/](lucide-react|@phosphor-icons[\\/]react|@mui[\\/]icons-material)[\\/]/,
+              priority: 10,
+            },
+
+            // Charting & Visualization
+            {
+              name: 'recharts-vendor',
+              test: /[\\/]node_modules[\\/]recharts[\\/]/,
+              priority: 10,
+            },
+            {
+              name: 'mermaid-vendor',
+              test: /[\\/]node_modules[\\/]mermaid[\\/]/,
+              priority: 10,
+            },
+
+            // 3D Graphics (only loaded in VehicleShowroom3D)
+            {
+              name: 'three-vendor',
+              test: /[\\/]node_modules[\\/]three[\\/]/,
+              priority: 10,
+            },
+            {
+              name: 'three-fiber-vendor',
+              test: /[\\/]node_modules[\\/](@react-three[\\/](fiber|drei|postprocessing)|postprocessing)[\\/]/,
+              priority: 10,
+            },
+
+            // Dates & Time
+            {
+              name: 'date-vendor',
+              test: /[\\/]node_modules[\\/]date-fns[\\/]/,
+              priority: 10,
+            },
+
+            // Animation
+            {
+              name: 'motion-vendor',
+              test: /[\\/]node_modules[\\/]framer-motion[\\/]/,
+              priority: 10,
+            },
+
+            // Authentication
+            {
+              name: 'msal-vendor',
+              test: /[\\/]node_modules[\\/]@azure[\\/]msal-(browser|react)[\\/]/,
+              priority: 10,
+            },
+
+            // Internationalization
+            {
+              name: 'i18n-vendor',
+              test: /[\\/]node_modules[\\/](i18next|i18next-browser-languagedetector|react-i18next)[\\/]/,
+              priority: 10,
+            },
+
+            // Maps & Location
+            {
+              name: 'mapping-vendor',
+              test: /[\\/]node_modules[\\/](leaflet|react-leaflet|mapbox-gl)[\\/]/,
+              priority: 10,
+            },
           ],
-
-          // UI Utilities
-          'ui-vendor': [
-            'zod',
-            'class-variance-authority',
-            'clsx',
-            'tailwind-merge',
-            'cmdk',
-          ],
-
-          // Data Tables & Virtualization
-          'ag-grid-vendor': ['ag-grid-react', 'ag-grid-community'],
-
-          // Icons
-          'icons-vendor': ['lucide-react', '@phosphor-icons/react', '@mui/icons-material'],
-
-          // Charting & Visualization
-          'recharts-vendor': ['recharts'],
-          'mermaid-vendor': ['mermaid'],
-
-          // 3D Graphics (only loaded in VehicleShowroom3D)
-          'three-vendor': ['three'],
-          'three-fiber-vendor': ['@react-three/fiber', '@react-three/drei', '@react-three/postprocessing', 'postprocessing'],
-
-          // Dates & Time
-          'date-vendor': ['date-fns'],
-
-          // Animation
-          'motion-vendor': ['framer-motion'],
-
-          // Authentication
-          'msal-vendor': ['@azure/msal-browser', '@azure/msal-react'],
-
-          // Internationalization
-          'i18n-vendor': ['i18next', 'i18next-browser-languagedetector', 'react-i18next'],
-
-          // Maps & Location
-          'mapping-vendor': ['leaflet', 'react-leaflet', 'mapbox-gl'],
         },
       },
       // P0-1: Explicitly exclude .env files and msw from being bundled
       external: (id: string): boolean => {
         if (id.includes('.env')) {
-          console.warn(`⚠️  SECURITY: Prevented .env file from being bundled: ${id}`);
+          console.warn(`SECURITY: Prevented .env file from being bundled: ${id}`);
           return true;
         }
         // Exclude MSW from production build (development-only mocking)
@@ -198,19 +246,15 @@ export default defineConfig({
     },
     sourcemap: false, // Fix for Radix UI / Vite build sourcemap errors
     chunkSizeWarningLimit: 500,
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-      },
-      // P0-1: Remove any environment variable references in production
-      mangle: {
-        properties: {
-          regex: /(PASSWORD|SECRET|KEY|TOKEN)$/,
-        },
-      },
-    },
+    // Vite 7 defaults to Oxc minifier (30-90x faster than Terser) — no need to specify minify
+    // Console/debugger dropping is handled by Oxc by default in production builds.
+    //
+    // TODO: P0-1 SECURITY — The previous Terser config mangled properties matching
+    // /(PASSWORD|SECRET|KEY|TOKEN)$/ to strip sensitive property names from production bundles.
+    // Oxc minifier does not support property mangling by regex. Implement one of:
+    //   1. A custom Vite plugin (transform hook) that strips/renames these properties
+    //   2. A post-build script using an AST transform (e.g., jscodeshift or oxc-transform)
+    //   3. Ensure sensitive values are never bundled client-side (preferred — audit VITE_ env vars)
   },
   optimizeDeps: {
     include: [

@@ -33,7 +33,7 @@ class ScanSessionRepository {
 
   async getById(id: string): Promise<ScanSession | null> {
     const pool = await connectionManager.getPool();
-    const result = await pool.query(`SELECT * FROM scan_sessions WHERE id=$1`, [id]);
+    const result = await pool.query(`SELECT id, vehicle_id, capture_type, status, raw_assets, processed_assets, quality, evidence, created_at, updated_at FROM scan_sessions WHERE id=$1`, [id]);
     if (result.rows.length === 0) {
 return null;
 }
@@ -42,7 +42,7 @@ return null;
 
   async listByVehicle(vehicleId: string): Promise<ScanSession[]> {
     const pool = await connectionManager.getPool();
-    const result = await pool.query(`SELECT * FROM scan_sessions WHERE vehicle_id=$1 ORDER BY created_at DESC`, [vehicleId]);
+    const result = await pool.query(`SELECT id, vehicle_id, capture_type, status, raw_assets, processed_assets, quality, evidence, created_at, updated_at FROM scan_sessions WHERE vehicle_id=$1 ORDER BY created_at DESC`, [vehicleId]);
     return result.rows.map(r=>this.mapRow(r));
   }
 

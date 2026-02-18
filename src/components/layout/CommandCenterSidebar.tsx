@@ -49,7 +49,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                     "w-full justify-start h-11 rounded-lg transition-all duration-200 group/navbtn relative overflow-hidden font-semibold",
                     isSidebarOpen ? "px-3 gap-3" : "px-0 justify-center",
                     isActive
-                        ? "bg-gradient-to-r from-[#41B2E3]/15 to-transparent text-[#41B2E3] shadow-md shadow-[#41B2E3]/10 border-l-4 border-l-[#41B2E3]"
+                        ? "bg-gradient-to-r from-[#F0A000]/15 to-transparent text-[#F0A000] shadow-md shadow-[#F0A000]/10 border-l-4 border-l-[#F0A000]"
                         : "text-muted-foreground hover:text-foreground hover:bg-gradient-to-r hover:from-muted/40 hover:to-transparent"
                 )}
                 style={{ animationDelay: `${index * 30}ms` }}
@@ -62,8 +62,8 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                     isActive ? "opacity-100" : "opacity-0"
                 )}
                 style={{
-                    background: isActive ? 'linear-gradient(to-bottom, #41B2E3, #5BC0EB)' : 'transparent',
-                    boxShadow: isActive ? '0 0 12px rgba(65, 178, 227, 0.5)' : 'none'
+                    background: isActive ? 'linear-gradient(to-bottom, #F0A000, #FFB800)' : 'transparent',
+                    boxShadow: isActive ? '0 0 12px rgba(240, 160, 0, 0.5)' : 'none'
                 }}
                 />
 
@@ -71,8 +71,8 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                     "w-5 h-5 flex items-center justify-center shrink-0 transition-all duration-200 nav-icon"
                 )}
                 style={{
-                    color: isActive ? '#41B2E3' : 'inherit',
-                    filter: isActive ? 'drop-shadow(0 0 8px rgba(65, 178, 227, 0.4))' : 'none'
+                    color: isActive ? '#F0A000' : 'inherit',
+                    filter: isActive ? 'drop-shadow(0 0 8px rgba(240, 160, 0, 0.4))' : 'none'
                 }}>
                     {item.icon}
                 </div>

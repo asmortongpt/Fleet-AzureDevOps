@@ -72,7 +72,7 @@ export function MobileTabBar() {
               onClick={() => handleTabClick(tab)}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 flex-1 h-full transition-colors',
-                isActive ? 'text-[#41B2E3]' : 'text-muted-foreground'
+                isActive ? 'text-[#F0A000]' : 'text-muted-foreground'
               )}
               aria-label={tab.label}
             >

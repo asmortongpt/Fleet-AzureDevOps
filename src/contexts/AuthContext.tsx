@@ -197,11 +197,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         });
 
         return true;
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const msalError = error as { message?: string; errorCode?: string; name?: string };
         logger.error('[Auth] Failed to sync server session from MSAL:', {
-          error: error.message,
-          errorCode: error.errorCode,
-          name: error.name,
+          error: msalError.message,
+          errorCode: msalError.errorCode,
+          name: msalError.name,
         });
         return false;
       }
@@ -404,11 +405,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         ...loginRequest,
         redirectStartPage: window.location.href,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const msalError = error as { message?: string; errorCode?: string; errorMessage?: string };
       logger.error('[Auth] MSAL login failed:', {
-        error: error.message,
-        errorCode: error.errorCode,
-        errorMessage: error.errorMessage,
+        error: msalError.message,
+        errorCode: msalError.errorCode,
+        errorMessage: msalError.errorMessage,
       });
 
       // Fallback to old OAuth flow if MSAL fails

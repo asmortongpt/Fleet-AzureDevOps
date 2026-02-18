@@ -77,7 +77,7 @@ export default tseslint.config(
       ],
 
       // TypeScript rules - relaxed for existing codebase
-      '@typescript-eslint/no-explicit-any': 'off', // Too many to fix now
+      '@typescript-eslint/no-explicit-any': 'warn', // Gradually fixing - high-traffic files first
       '@typescript-eslint/no-unused-vars': ['warn', {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',

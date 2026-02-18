@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express'
 
 import pool from '../config/database'
 import logger from '../config/logger' // Wave 14: Add Winston logger
+import redisClient from '../config/redis'
 import { isValidIdentifier } from '../utils/sql-safety'
 
 import { AuthRequest } from './auth'
@@ -26,16 +27,54 @@ export interface PermissionContext {
   conditions?: Record<string, any>
 }
 
-// Cache for user permissions (in production, use Redis)
-const permissionCache = new Map<string, Set<string>>()
-const CACHE_TTL = 300000 // 5 minutes
+// Redis key prefix for permission cache
+const PERMISSION_CACHE_PREFIX = 'permissions:'
+const CACHE_TTL_SECONDS = 300 // 5 minutes
+
+/**
+ * Build a Redis cache key for a user's permissions.
+ */
+function permissionCacheKey(userId: string): string {
+  return `${PERMISSION_CACHE_PREFIX}${userId}`
+}
+
+/**
+ * Attempt to read cached permissions from Redis.
+ * Returns null on cache miss or Redis error.
+ */
+async function getPermissionsFromCache(userId: string): Promise<Set<string> | null> {
+  try {
+    const cached = await redisClient.get(permissionCacheKey(userId))
+    if (cached) {
+      const parsed: string[] = JSON.parse(cached)
+      return new Set(parsed)
+    }
+    return null
+  } catch (error) {
+    logger.warn('Redis permission cache read failed, falling back to DB', { error, userId })
+    return null
+  }
+}
+
+/**
+ * Write permissions to the Redis cache with TTL.
+ * Failures are logged but never block the request.
+ */
+async function setPermissionsInCache(userId: string, permissions: Set<string>): Promise<void> {
+  try {
+    const serialized = JSON.stringify(Array.from(permissions))
+    await redisClient.setex(permissionCacheKey(userId), CACHE_TTL_SECONDS, serialized)
+  } catch (error) {
+    logger.warn('Redis permission cache write failed', { error, userId })
+  }
+}
 
 /**
  * Get all permissions for a user
  */
 export async function getUserPermissions(userId: string): Promise<Set<string>> {
-  const cacheKey = `user:${userId}`
-  const cached = permissionCache.get(cacheKey)
+  // Check Redis cache first
+  const cached = await getPermissionsFromCache(userId)
 
   if (cached) {
     return cached
@@ -64,8 +103,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
     // DEVELOPMENT MODE: Grant dev user all permissions
     if (process.env.NODE_ENV === 'development' && userId === '00000000-0000-0000-0000-000000000001') {
       const allPermissions = new Set(['*'])
-      permissionCache.set(cacheKey, allPermissions)
-      setTimeout(() => permissionCache.delete(cacheKey), CACHE_TTL)
+      await setPermissionsInCache(userId, allPermissions)
       logger.debug('🔓 Development mode: Granting all permissions to dev user')
       return allPermissions
     }
@@ -84,8 +122,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
       // For SuperAdmin, we can return a special set or all pins
       // But simpler is to handle bypass in hasPermission
       const allPermissions = new Set(['*']) // Magic string for all permissions
-      permissionCache.set(cacheKey, allPermissions)
-      setTimeout(() => permissionCache.delete(cacheKey), CACHE_TTL)
+      await setPermissionsInCache(userId, allPermissions)
       return allPermissions
     }
 
@@ -94,8 +131,7 @@ export async function getUserPermissions(userId: string): Promise<Set<string>> {
     // are included automatically.
     if (userRole === 'admin') {
       const allPermissions = new Set(['*'])
-      permissionCache.set(cacheKey, allPermissions)
-      setTimeout(() => permissionCache.delete(cacheKey), CACHE_TTL)
+      await setPermissionsInCache(userId, allPermissions)
       return allPermissions
     }
 
@@ -237,9 +273,8 @@ permissions.add(p)
 }
     }
 
-    // Cache the permissions
-    permissionCache.set(cacheKey, permissions)
-    setTimeout(() => permissionCache.delete(cacheKey), CACHE_TTL)
+    // Cache the permissions in Redis
+    await setPermissionsInCache(userId, permissions)
 
     return permissions
   } catch (error) {
@@ -249,10 +284,24 @@ permissions.add(p)
 }
 
 /**
- * Clear permission cache for a user (call when roles change)
+ * Clear permission cache for a user (call when roles change).
+ * This is the legacy name kept for backwards compatibility.
  */
-export function clearPermissionCache(userId: string) {
-  permissionCache.delete(`user:${userId}`)
+export async function clearPermissionCache(userId: string): Promise<void> {
+  try {
+    await redisClient.del(permissionCacheKey(userId))
+  } catch (error) {
+    logger.warn('Failed to clear permission cache from Redis', { error, userId })
+  }
+}
+
+/**
+ * Invalidate the permission cache for a user.
+ * Alias for clearPermissionCache with a more descriptive name.
+ * Deletes the Redis key so the next permission check fetches fresh data from DB.
+ */
+export async function invalidatePermissionCache(userId: string): Promise<void> {
+  return clearPermissionCache(userId)
 }
 
 /**

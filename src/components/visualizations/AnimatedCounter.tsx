@@ -13,6 +13,7 @@ interface AnimatedCounterProps {
   prefix?: string
   suffix?: string
   className?: string
+  useLocale?: boolean
 }
 
 export function AnimatedCounter({
@@ -22,6 +23,7 @@ export function AnimatedCounter({
   prefix = '',
   suffix = '',
   className = '',
+  useLocale = false,
 }: AnimatedCounterProps) {
   const [displayValue, setDisplayValue] = useState(0)
   const previousValue = useRef(0)
@@ -56,7 +58,9 @@ export function AnimatedCounter({
     return () => cancelAnimationFrame(animationFrame)
   }, [value, duration])
 
-  const formatted = displayValue.toFixed(decimals)
+  const formatted = useLocale
+    ? displayValue.toLocaleString(undefined, { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+    : displayValue.toFixed(decimals)
 
   return (
     <span className={className}>
@@ -98,5 +102,5 @@ export function AnimatedCurrency({
   className?: string
   currency?: string
 }) {
-  return <AnimatedCounter value={value} decimals={decimals} prefix={currency} className={className} />
+  return <AnimatedCounter value={value} decimals={decimals} prefix={currency} className={className} useLocale />
 }

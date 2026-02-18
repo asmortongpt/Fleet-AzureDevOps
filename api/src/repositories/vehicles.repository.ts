@@ -110,9 +110,6 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     group_id AS "groupId",
     fleet_id AS "fleetId",
     location_id AS "locationId",
-    current_driver_id AS "currentDriverId",
-    last_odometer_update AS "lastOdometerUpdate",
-    mdm_thing_id AS "mdmThingId",
     is_active AS "isActive",
     purchase_date AS "purchaseDate",
     purchase_price::numeric(12,2) AS "purchasePrice",
@@ -122,7 +119,6 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     last_service_date AS "lastServiceDate",
     next_service_date AS "nextServiceDate",
     next_service_mileage AS "nextServiceMileage",
-    health_score AS "healthScore",
     metadata
   `
 
@@ -536,8 +532,8 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
       FROM vehicles v
       LEFT JOIN drivers d ON v.assigned_driver_id = d.id
       LEFT JOIN LATERAL (
-        SELECT * FROM work_orders
-        WHERE vehicle_id = v.id 
+        SELECT id, vehicle_id, type, description, status, actual_end_date, actual_cost FROM work_orders
+        WHERE vehicle_id = v.id
         ORDER BY actual_end_date DESC
         LIMIT 5
       ) m ON true

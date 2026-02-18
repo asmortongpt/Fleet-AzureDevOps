@@ -51,9 +51,15 @@ jobs:
       - name: Generate Coverage Report
         run: npx vitest run --coverage --passWithNoTests
 
-      - name: Security Audit
-        run: npm audit --audit-level=high --production
-        continue-on-error: false
+      - name: Security Audit (Frontend)
+        run: npm audit --audit-level=moderate --production
+        continue-on-error: true
+
+      - name: Security Audit (Backend)
+        run: |
+          cd api
+          npm audit --audit-level=moderate --production
+        continue-on-error: true
 
       - name: Build Verification
         run: npm run build

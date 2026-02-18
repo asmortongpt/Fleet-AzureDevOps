@@ -45,8 +45,8 @@ function buildKPIs(stats: {
       value: total,
       icon: <Truck className="w-3 h-3 sm:w-3.5 sm:h-3.5" />,
       moduleId: 'fleet',
-      color: '#41B2E3',
-      glowColor: 'rgba(65,178,227,0.3)',
+      color: '#F0A000',
+      glowColor: 'rgba(240,160,0,0.3)',
     },
     {
       label: 'Online',

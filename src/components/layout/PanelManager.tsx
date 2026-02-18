@@ -25,8 +25,8 @@ function PanelLoadingFallback() {
     <div className="flex items-center justify-center h-full">
       <div className="flex flex-col items-center gap-3">
         <div className="relative w-8 h-8">
-          <div className="absolute inset-0 border-2 border-[#41B2E3]/20 rounded-full" />
-          <div className="absolute inset-0 border-2 border-[#41B2E3] border-t-transparent rounded-full animate-spin" />
+          <div className="absolute inset-0 border-2 border-[#F0A000]/20 rounded-full" />
+          <div className="absolute inset-0 border-2 border-[#F0A000] border-t-transparent rounded-full animate-spin" />
         </div>
         <span className="text-xs text-muted-foreground tracking-wider">Loading module...</span>
       </div>

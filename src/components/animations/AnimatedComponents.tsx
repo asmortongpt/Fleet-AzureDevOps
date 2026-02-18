@@ -655,13 +655,13 @@ interface GradientTextProps {
 /**
  * GradientText: Text with animated gradient effect
  * @example
- * <GradientText colors={['#41B2E3', '#FF6B35']}>
+ * <GradientText colors={['#F0A000', '#FF6B35']}>
  *   Gradient Text
  * </GradientText>
  */
 export function GradientText({
   children,
-  colors = ['#41B2E3', '#FF6B35'],
+  colors = ['#F0A000', '#FF6B35'],
   animated = true,
   className = '',
 }: GradientTextProps) {

@@ -31,7 +31,7 @@ export class FuelCardIntegrationRepository {
 
   async read(id: string, tenant_id: string): Promise<FuelCardIntegration | null> {
     const result = await this.pool.query(
-      `SELECT * FROM fuel_card_integrations WHERE id = $1 AND tenant_id = $2`,
+      `SELECT id, tenant_id, provider, card_number, status, created_at, updated_at FROM fuel_card_integrations WHERE id = $1 AND tenant_id = $2`,
       [id, tenant_id]
     );
     return result.rows[0] || null;
@@ -60,7 +60,7 @@ export class FuelCardIntegrationRepository {
   }
 
   async list(filters: any, tenant_id: string): Promise<FuelCardIntegration[]> {
-    let query = `SELECT * FROM fuel_card_integrations WHERE tenant_id = $1`;
+    let query = `SELECT id, tenant_id, provider, card_number, status, created_at, updated_at FROM fuel_card_integrations WHERE tenant_id = $1`;
     const params: any[] = [tenant_id];
     let paramIndex = 2;
 

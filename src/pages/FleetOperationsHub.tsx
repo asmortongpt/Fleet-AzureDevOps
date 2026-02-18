@@ -77,6 +77,7 @@ import {
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
+  AnimatedCounter,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
 import { useReactiveAssetsData } from '@/hooks/use-reactive-assets-data'
@@ -277,10 +278,19 @@ const OverviewTabContent = memo(function OverviewTabContent() {
       <div className="grid gap-6 md:grid-cols-2">
         <Section title="Fleet Health Overview" description="Vehicle health score distribution" icon={<HeartPulse className="h-5 w-5" />}>
           <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center justify-center w-20 h-20 rounded-2xl ${getHealthBg(fleetHealth.avgScore)}`}>
-                <span className={`text-3xl font-bold ${getHealthColor(fleetHealth.avgScore)}`}>
-                  {fleetHealth.avgScore > 0 ? fleetHealth.avgScore : '--'}
+            <div className="flex items-center gap-5">
+              <div className="relative flex items-center justify-center w-24 h-24">
+                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-border/30" />
+                  <circle cx="50" cy="50" r="42" fill="none"
+                    stroke={fleetHealth.avgScore >= 90 ? '#10B981' : fleetHealth.avgScore >= 70 ? '#3B82F6' : fleetHealth.avgScore >= 50 ? '#F59E0B' : '#EF4444'}
+                    strokeWidth="6" strokeLinecap="round"
+                    strokeDasharray={`${(fleetHealth.avgScore / 100) * 263.9} 263.9`}
+                    style={{ transition: 'stroke-dasharray 1s ease-out', filter: `drop-shadow(0 0 6px ${fleetHealth.avgScore >= 90 ? 'rgba(16,185,129,0.4)' : fleetHealth.avgScore >= 70 ? 'rgba(59,130,246,0.4)' : fleetHealth.avgScore >= 50 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'})` }}
+                  />
+                </svg>
+                <span className={`absolute text-2xl font-bold ${getHealthColor(fleetHealth.avgScore)}`}>
+                  {fleetHealth.avgScore > 0 ? <AnimatedCounter value={fleetHealth.avgScore} /> : '--'}
                 </span>
               </div>
               <div>
@@ -348,10 +358,19 @@ const OverviewTabContent = memo(function OverviewTabContent() {
       <div className="grid gap-6 md:grid-cols-2">
         <Section title="Safety Metrics" description="Driver safety scoring and alerts" icon={<Shield className="h-5 w-5" />}>
           <div className="space-y-4">
-            <div className="flex items-center gap-4">
-              <div className={`flex items-center justify-center w-20 h-20 rounded-2xl ${getHealthBg(safetyMetrics.avgSafety)}`}>
-                <span className={`text-3xl font-bold ${getHealthColor(safetyMetrics.avgSafety)}`}>
-                  {safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '--'}
+            <div className="flex items-center gap-5">
+              <div className="relative flex items-center justify-center w-24 h-24">
+                <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                  <circle cx="50" cy="50" r="42" fill="none" stroke="currentColor" strokeWidth="6" className="text-border/30" />
+                  <circle cx="50" cy="50" r="42" fill="none"
+                    stroke={safetyMetrics.avgSafety >= 90 ? '#10B981' : safetyMetrics.avgSafety >= 70 ? '#3B82F6' : safetyMetrics.avgSafety >= 50 ? '#F59E0B' : '#EF4444'}
+                    strokeWidth="6" strokeLinecap="round"
+                    strokeDasharray={`${(safetyMetrics.avgSafety / 100) * 263.9} 263.9`}
+                    style={{ transition: 'stroke-dasharray 1s ease-out', filter: `drop-shadow(0 0 6px ${safetyMetrics.avgSafety >= 90 ? 'rgba(16,185,129,0.4)' : safetyMetrics.avgSafety >= 70 ? 'rgba(59,130,246,0.4)' : safetyMetrics.avgSafety >= 50 ? 'rgba(245,158,11,0.4)' : 'rgba(239,68,68,0.4)'})` }}
+                  />
+                </svg>
+                <span className={`absolute text-2xl font-bold ${getHealthColor(safetyMetrics.avgSafety)}`}>
+                  {safetyMetrics.avgSafety > 0 ? <AnimatedCounter value={safetyMetrics.avgSafety} /> : '--'}
                 </span>
               </div>
               <div>

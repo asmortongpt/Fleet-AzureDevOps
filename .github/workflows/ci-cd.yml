@@ -90,11 +90,63 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run npm audit
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Verify frontend lockfile integrity
+        run: |
+          if git diff --name-only | grep -q "package-lock.json"; then
+            echo "WARNING: Frontend package-lock.json is out of sync"
+            exit 1
+          fi
+
+      - name: Run npm audit (Frontend)
+        run: npm audit --audit-level=moderate --production
+        continue-on-error: true
+
+      - name: Install backend dependencies
         run: |
           cd api
-          npm audit --audit-level=high --production
+          npm ci --legacy-peer-deps
+
+      - name: Verify backend lockfile integrity
+        run: |
+          if git diff --name-only | grep -q "api/package-lock.json"; then
+            echo "WARNING: Backend api/package-lock.json is out of sync"
+            exit 1
+          fi
+
+      - name: Run npm audit (Backend)
+        run: |
+          cd api
+          npm audit --audit-level=moderate --production
         continue-on-error: true
+
+      - name: Generate Frontend SBOM
+        run: npx @cyclonedx/cyclonedx-npm --output-file sbom-frontend.json
+        continue-on-error: true
+
+      - name: Generate Backend SBOM
+        run: |
+          cd api
+          npx @cyclonedx/cyclonedx-npm --output-file ../sbom-backend.json
+        continue-on-error: true
+
+      - name: Upload SBOMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-artifacts
+          path: |
+            sbom-frontend.json
+            sbom-backend.json
+          retention-days: 90
+        if: always()
 
       - name: Run Snyk Security Scan
         uses: snyk/actions/node@master
