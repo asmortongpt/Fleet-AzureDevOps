@@ -384,7 +384,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
   // Use real-time vehicles if available, otherwise use static data
   const rawVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles
   const displayVehicles = useMemo(() =>
-    (rawVehicles as Record<string, unknown>[]).map(mapToFleetVehicle),
+    (rawVehicles as unknown as Record<string, unknown>[]).map(mapToFleetVehicle),
     [rawVehicles, mapToFleetVehicle]
   )
 

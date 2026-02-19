@@ -591,6 +591,7 @@ export default function PeopleCommunicationHub() {
       title="People & Communication"
       description="Team management, internal communication, and work coordination"
       icon={Users}
+      className="cta-hub"
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

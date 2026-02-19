@@ -872,6 +872,18 @@ const DriversTabContent = memo(function DriversTabContent() {
  */
 const OperationsTabContent = memo(function OperationsTabContent() {
   const { routes, tasks, fuelTransactions, metrics: stats, isLoading: loading, error, refresh: refetch } = useReactiveOperationsData()
+  const { vehicles: fleetVehicles } = useReactiveFleetData()
+
+  // Vehicle name lookup for displaying friendly names instead of UUIDs
+  const vehicleNameMap = useMemo(() => {
+    const map: Record<string, string> = {}
+    fleetVehicles.forEach((v: any) => {
+      const id = String(v.id)
+      const name = v.unit_number || v.unitNumber || `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim()
+      if (name) map[id] = name
+    })
+    return map
+  }, [fleetVehicles])
 
   // Default stats if undefined - use metrics structure from hook
   const safeStats = stats || {
@@ -978,9 +990,9 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                   <div className="flex items-center gap-3">
                     <RouteIcon className="h-5 w-5 text-green-500" />
                     <div>
-                      <p className="font-semibold">Route #{route.id}</p>
+                      <p className="font-semibold">{route.name || `${(route.routeType || 'route').charAt(0).toUpperCase() + (route.routeType || 'route').slice(1)} Route`}</p>
                       <p className="text-sm text-muted-foreground">
-                        {route.origin || 'Origin'} → {route.destination || 'Destination'}
+                        {route.originName || 'Origin'} → {route.destinationName || 'Destination'}
                       </p>
                     </div>
                   </div>
@@ -1011,7 +1023,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                 <div key={transaction.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold">Vehicle #{transaction.vehicleId}</p>
+                      <p className="font-semibold">{vehicleNameMap[transaction.vehicleId] || `Vehicle ${transaction.vehicleId.slice(-4).replace(/^0+/, '') || transaction.vehicleId.slice(0, 8)}`}</p>
                       {(transaction.station_brand || transaction.stationBrand) && (
                         <Badge variant="outline" className="text-xs">
                           {transaction.station_brand || transaction.stationBrand}
@@ -1243,11 +1255,16 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                   }`} />
                   <div>
                     <div className="flex items-center gap-2">
-                      <p className="font-semibold">{order.id} - {order.type}</p>
+                      <p className="font-semibold">{order.title || `${(order.type || 'maintenance').charAt(0).toUpperCase() + (order.type || 'maintenance').slice(1)} Maintenance`}</p>
                       {(order.is_emergency || order.isEmergency) && (
                         <Badge variant="destructive" className="text-xs">
                           <Siren className="h-3 w-3 mr-1" />
                           EMERGENCY
+                        </Badge>
+                      )}
+                      {order.type && (
+                        <Badge variant="outline" className="text-xs">
+                          {order.type}
                         </Badge>
                       )}
                       {(order.category || order.work_category) && (
@@ -1257,7 +1274,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                       )}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {(order.vehicleName || order.vehicleId)} · Created: {formatDate(order.createdAt)}
+                      {order.vehicleName || order.vehicleId || 'Unassigned'} · Created: {formatDate(order.createdAt)}
                       {(order.parts_cost || order.partsCost || order.labor_cost || order.laborCost) && (
                         <span className="ml-2">
                           Parts: ${Number(order.parts_cost || order.partsCost || 0).toFixed(0)} | Labor: ${Number(order.labor_cost || order.laborCost || 0).toFixed(0)}
@@ -1298,9 +1315,9 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             {upcomingOrders.length > 0 ? upcomingOrders.slice(0, 4).map((maintenance) => (
               <div key={maintenance.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
                 <div>
-                  <p className="font-semibold">{maintenance.vehicleName || maintenance.vehicleId}</p>
+                  <p className="font-semibold">{maintenance.title || `${(maintenance.type || 'maintenance').charAt(0).toUpperCase() + (maintenance.type || 'maintenance').slice(1)} Maintenance`}</p>
                   <p className="text-sm text-muted-foreground">
-                    {maintenance.type} · {formatDate(maintenance.createdAt)}
+                    {maintenance.vehicleName || maintenance.vehicleId || 'Unassigned'} · {formatDate(maintenance.createdAt)}
                   </p>
                   {maintenance.description && (
                     <p className="text-xs text-muted-foreground">{maintenance.description}</p>
@@ -1330,9 +1347,9 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                 <AlertDescription>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold">{overdue.vehicleName || overdue.vehicleId}</p>
+                      <p className="font-semibold">{overdue.title || `${(overdue.type || 'Maintenance').charAt(0).toUpperCase() + (overdue.type || 'Maintenance').slice(1)} Maintenance`}</p>
                       <p className="text-sm">
-                        {overdue.type || 'Maintenance'} · Overdue by {overdue.daysOverdue} days
+                        {overdue.vehicleName || overdue.vehicleId || 'Unassigned'} · Overdue by {overdue.daysOverdue} days
                       </p>
                     </div>
                     <Button size="sm" onClick={() => handleScheduleMaintenance(overdue.vehicleId || overdue.vehicleName)}>

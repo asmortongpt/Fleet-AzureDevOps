@@ -115,42 +115,46 @@ router.get(
       const queryParams: unknown[] = []
 
       if (isDevelopment && req.user?.tenant_id) {
-        whereClause = 'WHERE tenant_id = $1'
+        whereClause = 'WHERE wo.tenant_id = $1'
         queryParams.push(req.user.tenant_id)
       }
 
       if (status) {
         queryParams.push(status)
-        whereClause += (whereClause ? ' AND' : 'WHERE') + ` status = $${queryParams.length}`
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.status = $${queryParams.length}`
       }
       if (priority) {
         queryParams.push(priority)
-        whereClause += (whereClause ? ' AND' : 'WHERE') + ` priority = $${queryParams.length}`
+        whereClause += (whereClause ? ' AND' : 'WHERE') + ` wo.priority = $${queryParams.length}`
       }
       // Note: facility_id filter removed - column doesn't exist in work_orders table
 
       const result = await client.query(
-        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
-                description, type, priority, status,
-                assigned_to_id as assigned_technician_id,
-                requested_by_id, approved_by_id,
-                scheduled_start_date as scheduled_start,
-                scheduled_end_date as scheduled_end,
-                actual_start_date as actual_start,
-                actual_end_date as actual_end,
-                labor_hours, estimated_cost, actual_cost,
-                odometer_at_start as odometer_reading,
-                notes, metadata, created_at, updated_at,
-                category, facility_id, total_cost, parts_cost, labor_cost,
-                downtime_hours, root_cause, resolution_notes, vendor_id,
-                driver_id, bay_number, is_emergency, quality_check_passed,
-                completed_at, subcategory, external_reference
-         FROM work_orders ${whereClause} ORDER BY created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
+        `SELECT wo.id, wo.tenant_id, wo.number as work_order_number, wo.vehicle_id, wo.title,
+                wo.description, wo.type, wo.priority, wo.status,
+                wo.assigned_to_id as assigned_technician_id,
+                wo.requested_by_id, wo.approved_by_id,
+                wo.scheduled_start_date as scheduled_start,
+                wo.scheduled_end_date as scheduled_end,
+                wo.actual_start_date as actual_start,
+                wo.actual_end_date as actual_end,
+                wo.labor_hours, wo.estimated_cost, wo.actual_cost,
+                wo.odometer_at_start as odometer_reading,
+                wo.notes, wo.metadata, wo.created_at, wo.updated_at,
+                wo.category, wo.facility_id, wo.total_cost, wo.parts_cost, wo.labor_cost,
+                wo.downtime_hours, wo.root_cause, wo.resolution_notes, wo.vendor_id,
+                wo.driver_id, wo.bay_number, wo.is_emergency, wo.quality_check_passed,
+                wo.completed_at, wo.subcategory, wo.external_reference,
+                v.name as vehicle_name, v.make as vehicle_make,
+                v.model as vehicle_model, v.year as vehicle_year
+         FROM work_orders wo
+         LEFT JOIN vehicles v ON v.id = wo.vehicle_id AND v.tenant_id = wo.tenant_id
+         ${whereClause} ORDER BY wo.created_at DESC LIMIT $${queryParams.length + 1} OFFSET $${queryParams.length + 2}`,
         [...queryParams, limit, offset]
       )
 
       const countResult = await client.query(
-        `SELECT COUNT(*) FROM work_orders ${whereClause}`,
+        `SELECT COUNT(*) FROM work_orders wo ${whereClause}`,
         queryParams
       )
 

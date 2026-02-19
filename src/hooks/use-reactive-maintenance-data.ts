@@ -100,6 +100,9 @@ const WorkOrderSchema = z
     work_order_number: z.string().optional(),
     number: z.string().optional(),
     title: z.string().optional(),
+    vehicle_make: z.string().optional().nullable(),
+    vehicle_model: z.string().optional().nullable(),
+    vehicle_year: z.coerce.number().optional().nullable(),
     scheduled_start: z.string().datetime().optional().nullable(),
     scheduled_start_date: z.string().datetime().optional().nullable(),
     scheduled_end: z.string().datetime().optional().nullable(),
@@ -129,16 +132,34 @@ const WorkOrderSchema = z
       low: 'low',
     }
 
+    // Build vehicle display name from joined vehicle data or fall back to vehicleName
+    const vehicleName = row.vehicleName ?? row.vehicle_name ?? (
+      row.vehicle_make && row.vehicle_model
+        ? `${row.vehicle_year ? row.vehicle_year + ' ' : ''}${row.vehicle_make} ${row.vehicle_model}`
+        : undefined
+    )
+
+    // Build a human-readable display title
+    const woNumber = row.work_order_number ?? row.number
+    const rawTitle = row.title
+    const rawType = (row.type as z.infer<typeof WorkOrderTypeEnum>) ?? 'preventive'
+    const displayTitle = rawTitle
+      || (woNumber ? `WO-${woNumber}` : undefined)
+      || row.description?.substring(0, 80)
+      || `${rawType.charAt(0).toUpperCase() + rawType.slice(1)} Maintenance`
+
     return {
       id: row.id,
       vehicleId: row.vehicleId ?? row.vehicle_id ?? '',
-      vehicleName: row.vehicleName ?? row.vehicle_name,
-      type: (row.type as z.infer<typeof WorkOrderTypeEnum>) ?? 'preventive',
+      vehicleName,
+      type: rawType,
       status: statusMap[rawStatus] ?? 'pending',
       priority: priorityMap[rawPriority] ?? 'medium',
       estimatedHours: row.estimatedHours ?? row.estimated_hours ?? 0,
       actualHours: row.actualHours ?? row.actual_hours,
+      title: displayTitle,
       description: row.description,
+      workOrderNumber: woNumber,
       assignedTo: row.assignedTo ?? row.assigned_to_id ?? row.assigned_technician_id,
       assignedToName: row.assignedToName ?? row.assigned_to_name,
       createdAt: row.createdAt ?? row.created_at ?? new Date().toISOString(),

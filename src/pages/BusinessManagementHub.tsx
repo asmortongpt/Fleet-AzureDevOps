@@ -488,7 +488,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                   <div>
                     <p className="font-semibold">{vendor.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {vendor.category} · {vendor.orders} orders
+                      {vendor.category} · {vendor.orders} {vendor.orders === 1 ? 'order' : 'orders'}
                       {vendor.woCost > 0 && (
                         <span className="ml-2 text-orange-500">· WO spend: ${vendor.woCost.toLocaleString()}</span>
                       )}

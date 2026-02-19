@@ -841,6 +841,7 @@ export default function AdminConfigurationHub() {
       title="Administration & Configuration"
       description="System administration, configuration, data governance, integrations, and document management"
       icon={<Settings className="h-5 w-5" />}
+      className="cta-hub"
     >
       <div className="space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
