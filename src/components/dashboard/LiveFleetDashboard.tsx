@@ -4,7 +4,7 @@ import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 
 import { MapFirstLayout } from '../layout/MapFirstLayout';
-import { ProfessionalFleetMap } from '../map/ProfessionalFleetMap';
+import { GoogleMap } from '../GoogleMap';
 import { MobileMapControls } from '../mobile/MobileMapControls';
 import { MobileQuickActions } from '../mobile/MobileQuickActions';
 import { MobileVehicleCard } from '../mobile/MobileVehicleCard';
@@ -517,20 +517,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     <div className="relative h-full w-full">
       <MapFirstLayout
         mapComponent={
-          <ProfessionalFleetMap onVehicleSelect={setSelectedVehicleId}>
-            <TrafficCameraLayer
-              visible={showTrafficCameras}
-              filters={trafficCameraFilters}
-              onCameraSelect={(cam) => setSelectedCameraId(cam.id)}
-              selectedCameraId={selectedCameraId}
-            />
-            <GeofenceLayer
-              visible={showGeofences}
-              geofences={geofences}
-              onGeofenceSelect={setSelectedGeofenceForIntelligence}
-              breachedGeofenceIds={breachedGeofenceIds}
-            />
-          </ProfessionalFleetMap>
+          <GoogleMap
+            vehicles={vehicles}
+            showVehicles={true}
+            mapStyle="roadmap"
+            onVehicleAction={(action, vehicleId) => {
+              if (action === 'select') setSelectedVehicleId(vehicleId);
+            }}
+          />
         }
         sidePanel={sidePanel}
         drawerContent={drawerContent}

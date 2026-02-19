@@ -362,14 +362,37 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
     initialVehicles: vehicles as Vehicle[],
   })
 
+  // Map API vehicles to FleetVehicle shape
+  const mapToFleetVehicle = useCallback((v: Record<string, unknown>): FleetVehicle => ({
+    id: String(v.id || ''),
+    year: Number(v.year || 0),
+    make: String(v.make || ''),
+    model: String(v.model || ''),
+    vin: String(v.vin || ''),
+    licensePlate: String(v.licensePlate || v.license_plate || ''),
+    status: String(v.status || 'unknown'),
+    fuelType: String(v.fuelType || v.fuel_type || ''),
+    fuelLevel: Number(v.fuelLevel ?? v.fuel_level ?? 0),
+    mileage: Number(v.odometer || v.mileage || 0),
+    driver: v.assignedDriverId ? String(v.assignedDriverId) : undefined,
+    department: String(v.number || v.name || ''),
+    nextServiceMiles: Number(v.nextServiceMileage || v.next_service_mileage || 0),
+    lastServiceDate: v.lastServiceDate ? String(v.lastServiceDate) : undefined,
+    location: v.locationAddress ? String(v.locationAddress) : undefined,
+  }), [])
+
   // Use real-time vehicles if available, otherwise use static data
-  const displayVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles as unknown as FleetVehicle[]
+  const rawVehicles = realtimeVehicles.length > 0 ? realtimeVehicles : vehicles
+  const displayVehicles = useMemo(() =>
+    (rawVehicles as Record<string, unknown>[]).map(mapToFleetVehicle),
+    [rawVehicles, mapToFleetVehicle]
+  )
 
   // Drilldown navigation
   const { push: _push } = useDrilldown()
 
   const handleVehicleSelect = useCallback((vehicleId: string) => {
-    const vehicle = (displayVehicles as unknown as FleetVehicle[]).find((v: FleetVehicle) => v.id === vehicleId)
+    const vehicle = (displayVehicles).find((v: FleetVehicle) => v.id === vehicleId)
     if (vehicle) {
       setSelectedVehicle(vehicle)
       setActivePanel('telemetry')
@@ -378,10 +401,10 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
 
   // Stats overlay data
   const stats = useMemo(() => ({
-    active: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'active').length,
-    idle: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'idle').length,
-    service: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'service').length,
-    offline: (displayVehicles as unknown as FleetVehicle[]).filter((v: FleetVehicle) => v.status === 'offline').length
+    active: displayVehicles.filter((v) => v.status === 'active').length,
+    idle: displayVehicles.filter((v) => v.status === 'idle').length,
+    service: displayVehicles.filter((v) => v.status === 'service' || v.status === 'maintenance').length,
+    offline: displayVehicles.filter((v) => v.status === 'offline').length
   }), [displayVehicles])
 
   return (
@@ -398,8 +421,33 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 grid grid-cols-[1fr_400px]">
-        {/* Main view content will be added here */}
+      <div className="flex-1 grid grid-cols-[1fr_350px] overflow-hidden">
+        {/* Left: Main view */}
+        <div className="overflow-hidden">
+          {activeView === 'grid' ? (
+            <VehicleInventoryPanel
+              vehicles={displayVehicles}
+              onVehicleSelect={setSelectedVehicle}
+            />
+          ) : activeView === '3d' ? (
+            <div className="h-full flex items-center justify-center text-muted-foreground">
+              <div className="text-center space-y-2">
+                <div className="text-4xl">🏗️</div>
+                <p>3D Garage view coming soon</p>
+              </div>
+            </div>
+          ) : (
+            <VehicleInventoryPanel
+              vehicles={displayVehicles}
+              onVehicleSelect={setSelectedVehicle}
+            />
+          )}
+        </div>
+
+        {/* Right: Detail panel */}
+        <div className="border-l overflow-hidden">
+          <VehicleTelemetryPanel vehicle={selectedVehicle} telemetry={null} />
+        </div>
       </div>
     </div>
   )
