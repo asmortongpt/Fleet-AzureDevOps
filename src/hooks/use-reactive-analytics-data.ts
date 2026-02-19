@@ -203,7 +203,7 @@ export function useReactiveAnalyticsData() {
     queryKey: ['dashboards', realTimeUpdate],
     queryFn: async ({ signal }) => {
       try {
-        const data = await secureFetch('/dashboards', z.array(DashboardWidgetSchema), signal)
+        const data = await secureFetch('/dashboard', z.array(DashboardWidgetSchema), signal)
         return data
       } catch (error) {
         logger.warn('Dashboards API unavailable, returning empty array:', { error })

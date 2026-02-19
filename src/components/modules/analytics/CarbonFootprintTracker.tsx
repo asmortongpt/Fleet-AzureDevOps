@@ -108,7 +108,7 @@ const CarbonFootprintTracker: React.FC = () => {
           break;
       }
 
-      let url = `/api/ev/carbon-footprint?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
+      let url = `/api/ev-management/carbon-footprint?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
       if (_selectedVehicle) {
         url += `&vehicleId=${_selectedVehicle}`;
       }
@@ -125,7 +125,7 @@ const CarbonFootprintTracker: React.FC = () => {
       const currentYear = new Date().getFullYear();
       const currentMonth = new Date().getMonth() + 1;
       const esgResponse = await fetch(
-        `/api/ev/esg-report?period=monthly&year=${currentYear}&month=${currentMonth}`,
+        `/api/ev-management/esg-report?period=monthly&year=${currentYear}&month=${currentMonth}`,
         { headers }
       );
       const esgData = await esgResponse.json();

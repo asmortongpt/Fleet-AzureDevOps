@@ -214,19 +214,23 @@ export function InstallPrompt({
       });
     }
 
-    // Send to backend analytics
-    fetch('/api/v1/analytics/pwa-install', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action,
-        platform,
-        timestamp: Date.now(),
-        userAgent: navigator.userAgent,
-      }),
-    }).catch((error) => {
-      logger.error('[InstallPrompt] Failed to track installation:', error);
-    });
+    // Send to backend analytics (fire-and-forget, endpoint may not exist)
+    try {
+      fetch('/api/analytics/pwa-install', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          platform,
+          timestamp: Date.now(),
+          userAgent: navigator.userAgent,
+        }),
+      }).catch(() => {
+        // Silently ignore - analytics tracking is non-critical
+      });
+    } catch {
+      // Silently ignore - analytics tracking is non-critical
+    }
   };
 
   // Don't render if not showing

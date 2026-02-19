@@ -155,7 +155,7 @@ const VehicleAssignmentManagement: React.FC = () => {
 
   const fetchOnCallPeriods = async () => {
     try {
-      const response = await fetch('/api/on-call-periods/active/current', {
+      const response = await fetch('/api/on-call-management/active/current', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       });
       const data = await response.json();

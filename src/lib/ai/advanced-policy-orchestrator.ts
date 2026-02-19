@@ -87,13 +87,13 @@ export class AdvancedPolicyOrchestrator {
 
   constructor() {
     this.anthropic = new Anthropic({
-      apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY,
+      apiKey: import.meta.env.VITE_ANTHROPIC_API_KEY || '',
     })
     this.openai = new OpenAI({
-      apiKey: import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY,
+      apiKey: import.meta.env.VITE_OPENAI_API_KEY || '',
     })
     this.gemini = new GoogleGenerativeAI(
-      import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || ''
+      import.meta.env.VITE_GEMINI_API_KEY || ''
     )
   }
 

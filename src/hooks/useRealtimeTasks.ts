@@ -36,7 +36,7 @@ export const useRealtimeTasks = () => {
 
   useEffect(() => {
     // Initialize Socket.IO client
-    const newSocket = io(process.env.REACT_APP_WEBSOCKET_URL || '', {
+    const newSocket = io(import.meta.env.VITE_WEBSOCKET_URL || '', {
       auth: {
         token: localStorage.getItem('token'), // Assuming JWT token is stored in localStorage
       },

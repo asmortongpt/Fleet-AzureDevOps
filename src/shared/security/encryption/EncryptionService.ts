@@ -33,7 +33,7 @@ export class EncryptionService {
 
     // In production: Fetch from Azure Key Vault
     // For now: Derive from environment variable
-    const keyMaterial = process.env.ENCRYPTION_KEY || 'dev-key-replace-in-production'
+    const keyMaterial = import.meta.env.VITE_ENCRYPTION_KEY || 'dev-key-replace-in-production'
 
     // Derive key using PBKDF2
     const encoder = new TextEncoder()

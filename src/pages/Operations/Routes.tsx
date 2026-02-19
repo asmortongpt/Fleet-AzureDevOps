@@ -167,7 +167,7 @@ export function RoutesOperations() {
     try {
       const token = await getCsrfToken();
 
-      const response = await fetch('/api/routes/optimize', {
+      const response = await fetch('/api/route-optimization/optimize', {
         method: 'POST',
         credentials: 'include',
         headers: {

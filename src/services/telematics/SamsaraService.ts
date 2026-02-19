@@ -33,7 +33,7 @@ export class SamsaraService {
 
   constructor() {
     this.config = {
-      apiToken: process.env.SAMSARA_API_TOKEN || '',
+      apiToken: import.meta.env.VITE_SAMSARA_API_TOKEN || '',
       baseUrl: 'https://api.samsara.com',
     };
   }

@@ -355,7 +355,7 @@ export function MapboxMap({
           mapRef.current = null;
         }
 
-        const token = (mapbox as any).accessToken || process.env.NEXT_PUBLIC_MAPBOX_TOKEN || '';
+        const token = (mapbox as any).accessToken || import.meta.env.VITE_MAPBOX_TOKEN || '';
         if (!validateMapboxToken(token)) {
           throw new Error("Invalid or missing Mapbox access token");
         }

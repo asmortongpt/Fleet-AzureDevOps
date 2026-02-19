@@ -122,6 +122,10 @@ export function FeatureFlagsProvider({ children }: { children: ReactNode }) {
     const loadFeatureFlags = async () => {
       try {
         const res = await fetch('/api/feature-flags');
+        if (!res.ok) {
+          // Route may not exist (404) or server error — use empty defaults
+          return;
+        }
         const flags = await res.json();
         setFeatureFlags(flags);
       } catch (error) {

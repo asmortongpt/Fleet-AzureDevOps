@@ -96,7 +96,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/mobile/dashboard/employee', {
+      const response = await fetch('/api/mobile-assignment/dashboard/employee', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
@@ -125,7 +125,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
   const acknowledgeOnCall = async (periodId: string) => {
     try {
-      const response = await fetch(`/api/mobile/on-call/${periodId}/acknowledge`, {
+      const response = await fetch(`/api/mobile-assignment/on-call/${periodId}/acknowledge`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -157,7 +157,7 @@ const MobileEmployeeDashboard: React.FC = () => {
         });
       }
 
-      const response = await fetch('/api/mobile/callback-trip', {
+      const response = await fetch('/api/mobile-assignment/callback-trip', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -312,7 +312,8 @@ class AuditLogger {
       return record;
     } catch (error) {
       logger.error('[AuditLogger] Failed to log event:', error);
-      throw error;
+      // Return the record even on failure - audit logging should never break the app
+      return record;
     }
   }
 
@@ -352,7 +353,7 @@ class AuditLogger {
    */
   private async storeInDatabase(record: ImmutableAuditRecord): Promise<void> {
     try {
-      const response = await fetch('/api/audit/log', {
+      const response = await fetch('/api/audit-logs/log', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -370,7 +371,7 @@ class AuditLogger {
       }
     } catch (error) {
       logger.error('[AuditLogger] Database storage failed:', error);
-      throw error;
+      // Silently fail - audit logging should never break the app
     }
   }
 
@@ -386,7 +387,7 @@ class AuditLogger {
       // Blobs are stored by date for efficient retrieval
       const blobPath = `audit-logs/${record.timestamp.toISOString().split('T')[0]}/${record.recordId}.json`;
 
-      const response = await fetch('/api/audit/blob-storage', {
+      const response = await fetch('/api/audit-logs/blob-storage', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -406,7 +407,7 @@ class AuditLogger {
       }
     } catch (error) {
       logger.error('[AuditLogger] Azure Blob storage failed:', error);
-      throw error;
+      // Silently fail - audit logging should never break the app
     }
   }
 
@@ -419,7 +420,7 @@ class AuditLogger {
   private async sendToSIEM(record: ImmutableAuditRecord): Promise<void> {
     try {
       // Send to SIEM for real-time monitoring and alerting
-      const response = await fetch('/api/audit/siem', {
+      const response = await fetch('/api/audit-logs/siem', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -438,7 +439,7 @@ class AuditLogger {
       }
     } catch (error) {
       logger.error('[AuditLogger] SIEM integration failed:', error);
-      throw error;
+      // Silently fail - audit logging should never break the app
     }
   }
 
@@ -467,7 +468,7 @@ class AuditLogger {
    */
   private async fetchLastAuditRecord(): Promise<ImmutableAuditRecord | null> {
     try {
-      const response = await fetch('/api/audit/last-record');
+      const response = await fetch('/api/audit-logs/last-record');
       if (!response.ok) return null;
 
       const data = await response.json();

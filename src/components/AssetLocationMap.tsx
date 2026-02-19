@@ -50,7 +50,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
     fetchAssets();
     fetchGeofences();
 
-    const newSocket = io(process.env.REACT_APP_WS_URL || '', {
+    const newSocket = io(import.meta.env.VITE_WS_URL || '', {
       query: { tenant_id: tenantId },
       transports: ['websocket'],
       secure: true,

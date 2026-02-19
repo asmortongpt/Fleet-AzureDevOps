@@ -69,13 +69,13 @@ export interface AuthContextType {
 
 // Okta Configuration for DCF Production
 const oktaConfig = {
-  issuer: process.env.VITE_REACT_APP_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
-  clientId: process.env.VITE_REACT_APP_OKTA_CLIENT_ID || 'dcf-fleet-management-client',
-  redirectUri: process.env.VITE_REACT_APP_OKTA_REDIRECT_URI || (typeof window !== "undefined" ? window.location.origin + '/login/callback' : ''),
-  postLogoutRedirectUri: process.env.VITE_REACT_APP_OKTA_POST_LOGOUT_URI || (typeof window !== "undefined" ? window.location.origin : ''),
+  issuer: import.meta.env.VITE_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
+  clientId: import.meta.env.VITE_OKTA_CLIENT_ID || 'dcf-fleet-management-client',
+  redirectUri: import.meta.env.VITE_OKTA_REDIRECT_URI || (typeof window !== "undefined" ? window.location.origin + '/login/callback' : ''),
+  postLogoutRedirectUri: import.meta.env.VITE_OKTA_POST_LOGOUT_URI || (typeof window !== "undefined" ? window.location.origin : ''),
   scopes: ['openid', 'profile', 'email', 'groups', 'dcf.fleet.access'],
   pkce: true,
-  devMode: process.env.VITE_NODE_ENV === 'development',
+  devMode: import.meta.env.VITE_NODE_ENV === 'development',
 
   // SAML 2.0 Configuration
   features: {
@@ -104,7 +104,7 @@ const oktaConfig = {
     autoRenew: true,
     autoRemove: true,
     storage: 'sessionStorage', // Use sessionStorage for enhanced security
-    secure: process.env.VITE_NODE_ENV === 'production',
+    secure: import.meta.env.VITE_NODE_ENV === 'production',
     sameSite: 'strict',
     expireEarlySeconds: 60 // Renew tokens 1 minute before expiry
   },

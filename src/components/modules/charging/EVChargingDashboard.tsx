@@ -74,7 +74,7 @@ const getAuthHeaders = () => {
 
 // Query function for charging stations
 const fetchChargingStations = async (): Promise<ChargingStation[]> => {
-  const response = await fetch('/api/ev/chargers', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/chargers', { headers: getAuthHeaders() });
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch charging stations');
@@ -82,7 +82,7 @@ const fetchChargingStations = async (): Promise<ChargingStation[]> => {
 
 // Query function for active sessions
 const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
-  const response = await fetch('/api/ev/sessions/active', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/sessions/active', { headers: getAuthHeaders() });
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch active sessions');
@@ -90,7 +90,7 @@ const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
 
 // Query function for station utilization
 const fetchStationUtilization = async (): Promise<StationUtilization[]> => {
-  const response = await fetch('/api/ev/station-utilization', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/station-utilization', { headers: getAuthHeaders() });
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch station utilization');
@@ -151,7 +151,7 @@ const EVChargingDashboard: React.FC = () => {
         throw new Error('Please select a vehicle before starting charging');
       }
 
-      const response = await fetch(`/api/ev/chargers/${stationId}/remote-start`, {
+      const response = await fetch(`/api/ev-management/chargers/${stationId}/remote-start`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
@@ -177,7 +177,7 @@ const EVChargingDashboard: React.FC = () => {
   // Mutation for remote stop
   const remoteStopMutation = useMutation({
     mutationFn: async (transactionId: string) => {
-      const response = await fetch(`/api/ev/sessions/${transactionId}/stop`, {
+      const response = await fetch(`/api/ev-management/sessions/${transactionId}/stop`, {
         method: 'POST',
         headers: getAuthHeaders()
       });
@@ -251,7 +251,7 @@ const EVChargingDashboard: React.FC = () => {
     endTime: string;
   }): Promise<void> => {
     try {
-      const response = await fetch('/api/ev/reservations', {
+      const response = await fetch('/api/ev-management/reservations', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({

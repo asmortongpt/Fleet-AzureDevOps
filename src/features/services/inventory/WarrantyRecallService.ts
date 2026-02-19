@@ -123,7 +123,7 @@ const warrantyStore: Map<string, WarrantyInfo> = new Map();
 const recallStore: Map<string, RecallInfo> = new Map();
 
 async function loadWarranties(): Promise<WarrantyInfo[]> {
-  const response = await fetch('/api/warranties?limit=500', { credentials: 'include' });
+  const response = await fetch('/api/warranty/warranties?limit=500', { credentials: 'include' });
   if (!response.ok) {
     throw new Error(`Failed to load warranties: ${response.statusText}`);
   }
@@ -132,7 +132,7 @@ async function loadWarranties(): Promise<WarrantyInfo[]> {
 }
 
 async function loadRecalls(): Promise<RecallInfo[]> {
-  const response = await fetch('/api/recalls?limit=500', { credentials: 'include' });
+  const response = await fetch('/api/warranty/recalls?limit=500', { credentials: 'include' });
   if (!response.ok) {
     throw new Error(`Failed to load recalls: ${response.statusText}`);
   }

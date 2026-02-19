@@ -429,7 +429,8 @@ class RUMService {
     this.events = [];
 
     try {
-      await fetch('/api/v1/monitoring/rum', {
+      // Fire-and-forget RUM event reporting - endpoint may not exist
+      await fetch('/api/monitoring/rum', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

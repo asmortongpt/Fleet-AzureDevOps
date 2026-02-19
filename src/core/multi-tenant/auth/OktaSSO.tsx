@@ -271,9 +271,9 @@ const ROLE_PERMISSIONS = {
 // Get Okta configuration from environment variables
 const getOktaConfig = (): OktaConfig => {
   const config: OktaConfig = {
-    issuer: process.env.REACT_APP_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
-    clientId: process.env.REACT_APP_OKTA_CLIENT_ID || 'your-client-id',
-    redirectUri: process.env.REACT_APP_OKTA_REDIRECT_URI || window.location.origin + '/login/callback',
+    issuer: import.meta.env.VITE_OKTA_ISSUER || 'https://dcf-florida.okta.com/oauth2/default',
+    clientId: import.meta.env.VITE_OKTA_CLIENT_ID || 'your-client-id',
+    redirectUri: import.meta.env.VITE_OKTA_REDIRECT_URI || window.location.origin + '/login/callback',
     scopes: ['openid', 'profile', 'email', 'groups'],
     pkce: true,
     disableHttpsCheck: import.meta.env.MODE === 'development'
@@ -333,7 +333,7 @@ const logAuthEvent = (event: string, details: any = {}) => {
 
   // In production, send to audit logging API
   if (import.meta.env.MODE === 'production') {
-    fetch('/api/audit/auth', {
+    fetch('/api/audit-logs/auth', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

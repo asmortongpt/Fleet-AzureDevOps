@@ -141,8 +141,11 @@ export function useDriver(id: number) {
   return useQuery({
     queryKey: ['driver', id],
     queryFn: async () => {
-      const response = await (api.get as <T>(endpoint: string) => Promise<T>)(`/drivers/${id}`)
-      return mapDriverRow(response)
+      const response = await api.get(`/drivers/${id}`)
+      const row = response && typeof response === 'object' && 'data' in (response as Record<string, unknown>)
+        ? (response as { data: unknown }).data
+        : response
+      return mapDriverRow(row)
     },
     enabled: !!id,
   })
@@ -166,8 +169,11 @@ export function useCreateDriver() {
         status: normalizeStatusForApi(data.status),
         department: data.department
       }
-      const response = await (api.post as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>('/drivers', payload)
-      return mapDriverRow(response)
+      const response = await api.post('/drivers', payload)
+      const row = response && typeof response === 'object' && 'data' in (response as Record<string, unknown>)
+        ? (response as { data: unknown }).data
+        : response
+      return mapDriverRow(row)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
@@ -193,8 +199,11 @@ export function useUpdateDriver() {
         status: normalizeStatusForApi(data.status),
         department: data.department
       }
-      const response = await (api.put as <T>(endpoint: string, data: unknown) => Promise<T>)<Driver>(`/drivers/${id}`, payload)
-      return mapDriverRow(response)
+      const response = await api.put(`/drivers/${id}`, payload)
+      const row = response && typeof response === 'object' && 'data' in (response as Record<string, unknown>)
+        ? (response as { data: unknown }).data
+        : response
+      return mapDriverRow(row)
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['drivers'] })
