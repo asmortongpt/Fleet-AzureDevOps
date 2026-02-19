@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -7,6 +8,29 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const incidentUpdateSchema = z.object({
+  number: z.string().optional(),
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string().optional(),
+  severity: z.string().optional(),
+  status: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  incident_date: z.string().optional(),
+  resolution: z.string().optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().optional(),
+  cost: z.union([z.string(), z.number()]).optional(),
+  insurance_claim_number: z.string().optional(),
+  police_report_number: z.string().optional(),
+  weather_conditions: z.string().optional(),
+  road_conditions: z.string().optional(),
+  injuries: z.union([z.boolean(), z.number()]).optional(),
+  fatalities: z.union([z.boolean(), z.number()]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -177,7 +201,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { fields, values } = buildUpdateClause(req.body, 3)
+      const parsed = incidentUpdateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
+      const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
         `UPDATE incidents SET ${fields}, updated_at = NOW()

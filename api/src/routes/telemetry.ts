@@ -121,7 +121,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updateTelemetrySchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(

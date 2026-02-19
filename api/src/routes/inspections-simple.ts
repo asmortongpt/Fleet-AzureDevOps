@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -7,6 +8,21 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const updateInspectionSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+  started_at: z.string().optional(),
+  completed_at: z.string().nullable().optional(),
+  passed_inspection: z.boolean().optional(),
+  odometer_reading: z.number().optional(),
+  notes: z.string().optional(),
+  defects: z.unknown().optional(),
+  checklist: z.unknown().optional(),
+  signature: z.string().optional(),
+}).passthrough()
 
 /**
  * Simple DB-backed inspections router
@@ -128,7 +144,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { fields, values } = buildUpdateClause(req.body, 3)
+      const parsed = updateInspectionSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
+      const { fields, values } = buildUpdateClause(data, 3)
       const result = await pool.query(
         `UPDATE inspections
          SET ${fields}, updated_at = NOW()

@@ -145,6 +145,14 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
   res.status(201).json({ data: result.rows[0] })
 }))
 
+const updatePurchaseOrderSchema = z.object({
+  status: z.enum(['draft', 'pending', 'approved', 'ordered', 'received', 'cancelled']).optional(),
+  actualDeliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
+  paymentStatus: z.enum(['unpaid', 'partial', 'paid']).optional(),
+  paidAmount: z.number().min(0).optional(),
+  notes: z.string().max(2000).optional(),
+})
+
 router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
   const userId = req.user?.id
@@ -154,7 +162,11 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { status, actualDeliveryDate, paymentStatus, paidAmount, notes } = req.body
+  const parsed = updatePurchaseOrderSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+  }
+  const { status, actualDeliveryDate, paymentStatus, paidAmount, notes } = parsed.data
 
   // Handle approval timestamp
   let approvedAt = null

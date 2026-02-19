@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 18: Add Winston logger
 import { pool } from '../db/connection';
@@ -8,6 +9,22 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const geofenceUpdateSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+  type: z.string().optional(),
+  facility_id: z.union([z.string(), z.number()]).optional(),
+  center_lat: z.number().optional(),
+  center_lng: z.number().optional(),
+  radius: z.number().optional(),
+  polygon: z.unknown().optional(),
+  color: z.string().optional(),
+  is_active: z.boolean().optional(),
+  notify_on_entry: z.boolean().optional(),
+  notify_on_exit: z.boolean().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
 
 
 const router = express.Router()
@@ -148,7 +165,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = geofenceUpdateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(

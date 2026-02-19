@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { NotFoundError } from '../errors/app-error'
@@ -622,14 +623,16 @@ router.post(
 )
 
 // PUT /routes/:id
-const ALLOWED_UPDATE_FIELDS = [
-  "notes",
-  "status",
-  "start_location",
-  "end_location",
-  "waypoints",
-  "distance"
-]
+const updateRouteSchema = z.object({
+  notes: z.string().max(2000).optional(),
+  status: z.enum(['draft', 'planned', 'active', 'in_progress', 'completed', 'cancelled']).optional(),
+  start_location: z.string().max(500).optional(),
+  end_location: z.string().max(500).optional(),
+  waypoints: z.unknown().optional(),
+  distance: z.number().min(0).optional(),
+  assigned_vehicle_id: z.string().uuid().optional(),
+  assigned_driver_id: z.string().uuid().optional(),
+}).passthrough()
 
 router.put(
   '/:id',
@@ -659,7 +662,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'routes' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updateRouteSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+      const data = parsed.data
 
       // SECURITY: IDOR Protection - Validate foreign keys belong to tenant
       const { assigned_vehicle_id, assigned_driver_id } = data

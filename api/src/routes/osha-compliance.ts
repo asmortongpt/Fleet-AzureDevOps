@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../db/connection';
 import { NotFoundError } from '../errors/app-error'
@@ -8,6 +9,24 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const updateOshaLogSchema = z.object({
+  employee_id: z.union([z.string(), z.number()]).optional(),
+  vehicle_id: z.union([z.string(), z.number()]).nullable().optional(),
+  incident_date: z.string().optional(),
+  case_number: z.string().optional(),
+  employee_name: z.string().optional(),
+  job_title: z.string().optional(),
+  injury_type: z.string().optional(),
+  body_part_affected: z.string().optional(),
+  incident_description: z.string().optional(),
+  location: z.string().optional(),
+  status: z.string().optional(),
+  days_away_from_work: z.number().optional(),
+  days_restricted_duty: z.number().optional(),
+  outcome: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
 
 
 const router = express.Router()
@@ -158,7 +177,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'osha_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updateOshaLogSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(

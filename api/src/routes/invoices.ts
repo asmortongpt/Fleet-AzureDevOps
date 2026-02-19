@@ -150,6 +150,15 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
   res.status(201).json({ data: result.rows[0] })
 }))
 
+const updateInvoiceSchema = z.object({
+  status: z.enum(['draft', 'sent', 'paid', 'partial', 'overdue', 'cancelled', 'void']).optional(),
+  paidDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
+  paidAmount: z.number().min(0).optional(),
+  paymentMethod: z.string().max(100).optional(),
+  paymentReference: z.string().max(200).optional(),
+  notes: z.string().max(2000).optional(),
+})
+
 router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
   const client = req.dbClient
@@ -158,7 +167,11 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { status, paidDate, paidAmount, paymentMethod, paymentReference, notes } = req.body
+  const parsed = updateInvoiceSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+  }
+  const { status, paidDate, paidAmount, paymentMethod, paymentReference, notes } = parsed.data
 
   // Calculate balance_due if paid_amount is provided
   let updateBalanceDue = ''

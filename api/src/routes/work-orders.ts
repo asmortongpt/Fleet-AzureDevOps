@@ -57,6 +57,26 @@ const createWorkOrderSchema = z.object({
   notes: z.string().optional()
 })
 
+// Validation schema for work order updates (all fields optional for partial update)
+const updateWorkOrderSchema = z.object({
+  status: z.enum(['open', 'in_progress', 'on_hold', 'completed', 'cancelled']).optional(),
+  priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+  description: z.string().min(1).optional(),
+  vehicle_id: z.string().uuid().optional(),
+  facility_id: z.string().uuid().optional(),
+  assigned_technician_id: z.string().uuid().optional(),
+  scheduled_start: z.string().optional(),
+  scheduled_end: z.string().optional(),
+  actual_start: z.string().optional(),
+  actual_end: z.string().optional(),
+  labor_hours: z.number().min(0).optional(),
+  labor_cost: z.number().min(0).optional(),
+  parts_cost: z.number().min(0).optional(),
+  odometer_reading: z.number().optional(),
+  engine_hours_reading: z.number().optional(),
+  notes: z.string().optional()
+})
+
 /**
  * GET /work-orders
  *
@@ -302,27 +322,38 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'work_orders' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      // Validate request body against schema
+      const parsed = updateWorkOrderSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.issues
+        })
+      }
+
       const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
 
-      // Build dynamic UPDATE clause
-      const fields = []
-      const values = []
+      // Build dynamic UPDATE clause from validated data
+      const fields: string[] = []
+      const values: unknown[] = []
       let paramCount = 1
+
+      const validatedData = parsed.data as Record<string, unknown>
 
       const allowedFields = [
         'status', 'priority', 'description', 'vehicle_id', 'facility_id',
         'assigned_technician_id', 'scheduled_start', 'scheduled_end',
         'actual_start', 'actual_end', 'labor_hours', 'labor_cost',
         'parts_cost', 'odometer_reading', 'engine_hours_reading', 'notes'
-      ]
+      ] as const
 
       for (const field of allowedFields) {
-        if (req.body[field] !== undefined) {
+        if (validatedData[field] !== undefined) {
           fields.push(`${field} = $${paramCount++}`)
-          values.push(req.body[field])
+          values.push(validatedData[field])
         }
       }
 
@@ -346,6 +377,9 @@ router.put(
 
       res.json({ data: result.rows[0] })
     } catch (error) {
+      if (error instanceof ValidationError || error instanceof NotFoundError) {
+        throw error
+      }
       logger.error('Failed to update work order', {
         error,
         workOrderId: req.params.id,

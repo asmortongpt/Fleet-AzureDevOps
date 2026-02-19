@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 17: Add Winston logger
 import { pool } from '../db/connection';
@@ -9,6 +10,25 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { applyFieldMasking } from '../utils/fieldMasking'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const safetyIncidentUpdateSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  incident_type: z.string().optional(),
+  type: z.string().optional(),
+  severity: z.string().optional(),
+  status: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  incident_date: z.string().optional(),
+  reported_by_id: z.union([z.string(), z.number()]).optional(),
+  resolution: z.string().optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().optional(),
+  corrective_action: z.string().optional(),
+  root_cause: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
 
 
 const router = express.Router()
@@ -154,7 +174,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'safety_incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = safetyIncidentUpdateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
