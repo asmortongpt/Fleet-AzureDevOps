@@ -18,6 +18,7 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
@@ -52,11 +53,27 @@ KIMI_*
 kimi-review-screenshots/
 tests/kimi-exhaustive/
 playwright.kimi*.config.ts
+SESSION_*
+COMPLETION_*
+IMPLEMENTATION_*
+REPORT_*
+AUDIT_*
+*_REPORT.md
+*_SUMMARY.md
+*_STATUS.md
+*_COMPLETE.md
+*_FIXES*.md
+*_IMPLEMENTATION*.md
+*_ANALYSIS*.md
+*_OPTIMIZATION*.md
+*_AUDIT*.md
 
 # Backup/temp files
 *.bak
+*.backup
 *.compact_backup
 *.joinbak
+*.orig
 DataWorkbench.bak/
 
 packages
@@ -90,7 +107,6 @@ secrets/
 .secrets/
 keyvault-backup/
 *-backup/
-*.backup
 
 # Azure Key Vault configuration files
 keyvault-config-*.env
@@ -118,12 +134,13 @@ deployment/vendor-access/azure-devops-pat.txt.gpg
 deployment/vendor-access/vendor-distribution-package/
 deployment/vendor-access/.vendor-credentials/
 
-# Python cache files
+# Python cache files and virtual environments
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+.venv*/
 *_spec*.json
 
 # Performance Benchmark Reports
@@ -135,9 +152,7 @@ benchmarks/reports/*.html
 # Testing artifacts
 test-results/
 playwright-report/
-output/playwright/
-output/playwright/*.png
-output/audit/
+output/
 
 # Build outputs
 build/
@@ -152,28 +167,16 @@ diagnose-whitescreen.js
 /Fleet/
 /Fleet-1/
 dist-from-vm/
-dist-from-vm/
-dist-from-vm/
 node_modules/.cache/
 verification-evidence/
 
-# Remove files with API keys/secrets
-PRODUCTION_STATUS_*.md
-PRODUCTION_ISSUES_*.md
-COMPREHENSIVE_TEST_REPORT.md
-qa-framework/auto-remediate-issues.cjs
-
-# Additional QA framework files with secrets
-qa-framework/start-ai-agents.cjs
+# QA framework files with secrets
+qa-framework/*.cjs
 
 # Documentation files with API key examples
 QA_FRAMEWORK_RAG_CAG_MCP_DOCUMENTATION.md
 QA_FRAMEWORK_QUICK_START.md
 RAG_CAG_MCP_RECREATION_GUIDE.md
-PRODUCTION_STATUS_*.md
-PRODUCTION_ISSUES_*.md
-COMPREHENSIVE_TEST_REPORT.md
-qa-framework/*.cjs
 
 # Allow critical project documentation
 !DEMO_VERSION_ROADMAP.md
@@ -181,17 +184,10 @@ qa-framework/*.cjs
 !BUSINESS_REQUIREMENTS_FEATURES.md
 !docs/**/*.md
 artifacts/sync_test_*.json
-.gitignore updated
 azure-test-agents/
 incoming_data/
-*.env.bak*
-.env.bak
-
 # CLAWS.BOT
 claws-reports/
 logs/verification-*.log
-MERGE_EXECUTION_SUMMARY.md
-.env.bak*
-*.bak*
 .worktrees/
 *.zip

@@ -32,6 +32,7 @@ const router = express.Router()
 // POST /sessions - Create new session (called during login)
 router.post(
   '/',
+  authenticateJWT,
   csrfProtection,
   async (req: AuthRequest, res: Response) => {
     try {
@@ -237,6 +238,7 @@ router.get(
 // DELETE /sessions/:id - revoke session
 router.delete(
   '/:id',
+  authenticateJWT,
   csrfProtection,
   requirePermission('session:update:global'),
   auditLog({ action: 'UPDATE', resourceType: 'auth_sessions' }),
