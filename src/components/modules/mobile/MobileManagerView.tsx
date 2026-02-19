@@ -51,9 +51,7 @@ const MobileManagerView: React.FC = () => {
   const fetchDashboardData = async () => {
     try {
       const response = await fetch('/api/mobile-assignment/dashboard/manager', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+        credentials: 'include',
       });
 
       if (response.ok) {
@@ -73,8 +71,8 @@ const MobileManagerView: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           action,
           notes: approvalNotes || undefined,

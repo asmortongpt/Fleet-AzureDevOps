@@ -36,10 +36,11 @@ export const useRealtimeTasks = () => {
 
   useEffect(() => {
     // Initialize Socket.IO client
+    // Auth is handled via httpOnly cookies. Socket.IO will send cookies automatically
+    // when withCredentials is true. Server-side WebSocket auth should validate the
+    // session cookie instead of a token in the auth payload.
     const newSocket = io(import.meta.env.VITE_WEBSOCKET_URL || '', {
-      auth: {
-        token: localStorage.getItem('token'), // Assuming JWT token is stored in localStorage
-      },
+      withCredentials: true,
     });
 
     setSocket(newSocket);

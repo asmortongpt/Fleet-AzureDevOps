@@ -62,16 +62,14 @@ interface ChargingSession {
 // =============================================================================
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
   return {
-    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
   };
 };
 
 const fetchChargingStations = async (): Promise<ChargingStation[]> => {
   try {
-    const response = await fetch('/api/ev-management/chargers', { headers: getAuthHeaders() });
+    const response = await fetch('/api/ev-management/chargers', { headers: getAuthHeaders(), credentials: 'include' });
     const data = await response.json();
     if (data.success) return data.data;
     return [];
@@ -83,7 +81,7 @@ const fetchChargingStations = async (): Promise<ChargingStation[]> => {
 
 const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
   try {
-    const response = await fetch('/api/ev-management/sessions/active', { headers: getAuthHeaders() });
+    const response = await fetch('/api/ev-management/sessions/active', { headers: getAuthHeaders(), credentials: 'include' });
     const data = await response.json();
     if (data.success) return data.data;
     return [];

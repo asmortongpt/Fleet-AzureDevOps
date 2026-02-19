@@ -45,20 +45,18 @@ interface QueueSummary {
 }
 
 const apiClient = async (url: string): Promise<any> => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
+    credentials: 'include'
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
 }
 
 const apiMutation = async (url: string, method: string, data?: unknown): Promise<any> => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
     method,
+    credentials: 'include',
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: data ? JSON.stringify(data) : undefined

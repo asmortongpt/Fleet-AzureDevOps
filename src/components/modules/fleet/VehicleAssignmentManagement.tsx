@@ -142,7 +142,7 @@ const VehicleAssignmentManagement: React.FC = () => {
     setLoading(true);
     try {
       const response = await fetch('/api/vehicle-assignments?limit=100', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        credentials: 'include',
       });
       const data = await response.json();
       setAssignments(data.assignments || []);
@@ -156,7 +156,7 @@ const VehicleAssignmentManagement: React.FC = () => {
   const fetchOnCallPeriods = async () => {
     try {
       const response = await fetch('/api/on-call-management/active/current', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        credentials: 'include',
       });
       const data = await response.json();
       setOnCallPeriods(data || []);
@@ -168,7 +168,7 @@ const VehicleAssignmentManagement: React.FC = () => {
   const fetchComplianceExceptions = async () => {
     try {
       const response = await fetch('/api/reports/policy-compliance', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        credentials: 'include',
       });
       const data = await response.json();
       setComplianceExceptions(data.exceptions || []);
@@ -183,8 +183,8 @@ const VehicleAssignmentManagement: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ action: 'approve' }),
       });
       if (response.ok) fetchAssignments();
@@ -199,8 +199,8 @@ const VehicleAssignmentManagement: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ action: 'deny', notes: reason }),
       });
       if (response.ok) fetchAssignments();

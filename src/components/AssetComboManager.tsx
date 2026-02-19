@@ -88,9 +88,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
     setLoading(true)
     try {
       const response = await fetch('/api/asset-relationships/active', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) throw new Error('Failed to fetch active combinations')
@@ -112,9 +110,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       }
 
       const response = await fetch('/api/vehicles?limit=1000', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) throw new Error('Failed to fetch vehicles')
@@ -132,9 +128,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
   const fetchRelationshipHistory = async (assetId: string) => {
     try {
       const response = await fetch(`/api/asset-relationships/history/${assetId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) throw new Error('Failed to fetch relationship history')
@@ -169,9 +163,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       const response = await fetch('/api/asset-relationships', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(payload)
       })
 
@@ -208,9 +202,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
     try {
       const response = await fetch(`/api/asset-relationships/${relationshipId}/deactivate`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) throw new Error('Failed to deactivate relationship')

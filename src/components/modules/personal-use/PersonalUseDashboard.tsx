@@ -76,20 +76,18 @@ const EmptyState = ({ message }: { message: string }) => (
 )
 
 const apiClient = async (url: string) => {
-  const _token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${_token}` }
+    credentials: 'include'
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
 }
 
 const apiMutation = async (url: string, method: string, data?: any) => {
-  const _token = localStorage.getItem('token')
   const response = await fetch(url, {
     method,
+    credentials: 'include',
     headers: {
-      Authorization: `Bearer ${_token}`,
       'Content-Type': 'application/json'
     },
     body: data ? JSON.stringify(data) : undefined
@@ -114,8 +112,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
   React.useEffect(() => {
-    // Get user info from localStorage or token
-    const _token = localStorage.getItem('token')
+    // Get user info from localStorage (non-sensitive user metadata, not auth token)
     const user = JSON.parse(localStorage.getItem('user') || '{}')
     setUserId(user.id || '')
     setUserRole(user.role || 'driver')

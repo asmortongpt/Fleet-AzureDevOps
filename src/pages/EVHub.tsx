@@ -32,11 +32,9 @@ interface SustainabilityMetrics {
   costSavings: number;
 }
 
-// Helper function to get auth headers
+// Helper function to get headers
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
   return {
-    'Authorization': `Bearer ${token}`,
     'Content-Type': 'application/json'
   };
 };
@@ -44,7 +42,7 @@ const getAuthHeaders = () => {
 // Query function for EV vehicles
 const fetchEVVehicles = async (): Promise<EVVehicle[]> => {
   try {
-    const response = await fetch('/api/ev-management/vehicles', { headers: getAuthHeaders() });
+    const response = await fetch('/api/ev-management/vehicles', { headers: getAuthHeaders(), credentials: 'include' });
     const data = await response.json();
     if (data.success) return data.data;
     return [];

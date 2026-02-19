@@ -146,9 +146,7 @@ export default function DispatchConsole() {
   const loadChannels = async () => {
     try {
       const response = await fetch('/api/dispatch/channels', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       const data = await response.json()
@@ -166,9 +164,7 @@ export default function DispatchConsole() {
   const loadChannelHistory = async (channelId: number) => {
     try {
       const response = await fetch(`/api/dispatch/channels/${channelId}/history?limit=50`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       const data = await response.json()
@@ -183,9 +179,7 @@ export default function DispatchConsole() {
   const loadActiveListeners = async (channelId: number) => {
     try {
       const response = await fetch(`/api/dispatch/channels/${channelId}/listeners`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       const data = await response.json()
@@ -200,9 +194,7 @@ export default function DispatchConsole() {
   const loadEmergencyAlerts = async () => {
     try {
       const response = await fetch('/api/dispatch/emergency?status=active&limit=10', {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       const data = await response.json()
@@ -219,7 +211,6 @@ export default function DispatchConsole() {
       wsRef.current.close()
     }
 
-    const _token = localStorage.getItem('token')
     const wsUrl = `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/api/dispatch/ws`
 
     const ws = new WebSocket(wsUrl)
@@ -434,9 +425,9 @@ export default function DispatchConsole() {
       const response = await fetch('/api/dispatch/emergency', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify({
           alertType: 'panic',
           description: 'Emergency alert triggered from dispatch console'

@@ -101,9 +101,7 @@ export default function EvidenceLocker() {
       if (filters.legalHold !== 'all') params.append('legalHold', filters.legalHold);
 
       const response = await fetch(`/api/video-telematics/evidence-locker?${params.toString()}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -120,9 +118,7 @@ export default function EvidenceLocker() {
   const loadLockerDetails = async (lockerId: number) => {
     try {
       const response = await fetch(`/api/video-telematics/evidence-locker/${lockerId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {
@@ -140,9 +136,9 @@ export default function EvidenceLocker() {
       const response = await fetch('/api/video-telematics/evidence-locker', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(newLocker)
       });
 
@@ -167,9 +163,7 @@ export default function EvidenceLocker() {
   const getVideoPlaybackUrl = async (eventId: number) => {
     try {
       const response = await fetch(`/api/video-telematics/events/${eventId}/clip`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       });
 
       if (response.ok) {

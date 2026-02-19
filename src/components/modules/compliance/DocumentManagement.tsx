@@ -153,9 +153,7 @@ export function DocumentManagement() {
 
       const response = await fetch(`${import.meta.env.VITE_API_URL}/documents/upload`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+        credentials: 'include',
         body: formData
       })
 
