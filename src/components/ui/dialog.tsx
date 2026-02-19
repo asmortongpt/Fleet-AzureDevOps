@@ -60,7 +60,7 @@ function DialogContent({
         className={cn(
           // Base styles
           "fixed top-[50%] left-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
-          "w-full max-w-[calc(100%-2rem)] sm:max-w-lg",
+          "w-full max-w-[calc(100%-1rem)] sm:max-w-[calc(100%-2rem)] md:max-w-lg",
           // Visual styles
           "bg-card/95 backdrop-blur-xl border border-border/50 rounded-lg shadow-sm",
           "grid gap-2 p-3",
