@@ -78,7 +78,7 @@ const upload = multer({
  */
 router.post(
   '/analyze-photo',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   createRateLimiter({ max: 20, windowMs: 60000 }), // 20 requests per minute
   upload.single('photo'),
@@ -163,7 +163,7 @@ router.post(
  */
 router.post(
   '/analyze-lidar',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   createRateLimiter({ max: 10, windowMs: 60000 }), // 10 requests per minute (more intensive)
   upload.array('photos', 10),
@@ -235,7 +235,7 @@ router.post(
  */
 router.post(
   '/analyze-video',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   createRateLimiter({ max: 5, windowMs: 60000 }), // 5 requests per minute (very intensive)
   upload.single('video'),
@@ -300,7 +300,7 @@ router.post(
  */
 router.post(
   '/comprehensive-analysis',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:analyze'),
   createRateLimiter({ max: 5, windowMs: 60000 }), // 5 requests per minute (very intensive)
   upload.array('photos', 20),
@@ -400,7 +400,7 @@ router.post(
  */
 router.post(
   '/save',
-  csrfProtection, csrfProtection, authenticateJWT,
+  csrfProtection, authenticateJWT,
   requirePermission('damage:create'),
   async (req: AuthRequest, res: Response) => {
     try {

@@ -740,7 +740,7 @@ return
             item.rpm ?? null,
             item.coolantTemp ?? null,
             item.batteryVoltage ?? null,
-            diagnosticCodes.length > 0 ? diagnosticCodes : null,
+            diagnosticCodes.length > 0 ? JSON.stringify(diagnosticCodes) : null,
             {
               vehicleNumber: item.vehicleNumber,
               speed: item.speed ?? null,

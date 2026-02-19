@@ -235,7 +235,7 @@ router.get('/url/{*key}', async (req: Request, res: Response) => {
  *       200:
  *         description: File deleted successfully
  */
-router.delete('/delete/{*key}', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
+router.delete('/delete/{*key}', csrfProtection, async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
     // Express 5: wildcard params return an array of path segments
