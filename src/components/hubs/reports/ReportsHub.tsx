@@ -144,9 +144,9 @@ export function ReportsHub() {
     setError(null)
     try {
       const [templatesResponse, historyResponse, scheduledResponse] = await Promise.all([
-        fetchJson("/api/reports/templates"),
-        fetchJson("/api/reports/history"),
-        fetchJson("/api/reports/scheduled")
+        fetchJson("/api/reports/templates").catch(() => ({ data: [] })),
+        fetchJson("/api/reports/history").catch(() => ({ data: [] })),
+        fetchJson("/api/reports/scheduled").catch(() => ({ data: [] }))
       ])
 
       const mappedTemplates: ReportTemplate[] = (templatesResponse.data || []).map((template: any) => ({

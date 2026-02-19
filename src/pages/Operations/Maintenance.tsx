@@ -89,16 +89,16 @@ export function MaintenanceOperations() {
     try {
       setLoading(true);
       const [tasksRes, statsRes] = await Promise.all([
-        fetch('/api/maintenance'),
-        fetch('/api/maintenance/statistics')
+        fetch('/api/maintenance').catch(() => null),
+        fetch('/api/maintenance/statistics').catch(() => null)
       ]);
 
-      if (tasksRes.ok) {
+      if (tasksRes?.ok) {
         const data = await tasksRes.json();
         setTasks(Array.isArray(data.data) ? data.data : []);
       }
 
-      if (statsRes.ok) {
+      if (statsRes?.ok) {
         const data = await statsRes.json();
         setStats(data.data);
       }

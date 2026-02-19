@@ -25,6 +25,8 @@
 
 import { EventEmitter } from 'events';
 
+import logger from '../../config/logger';
+
 // ============================================================================
 // Types
 // ============================================================================
@@ -251,7 +253,7 @@ export class TeltonikaEmulator extends EventEmitter {
       timestamp: new Date(),
     });
 
-    console.log(`[Teltonika Emulator] Started for device ${this.config.imei} (${this.config.model})`);
+    logger.info(`[Teltonika Emulator] Started for device ${this.config.imei} (${this.config.model})`);
   }
 
   public async stop(): Promise<void> {
@@ -271,7 +273,7 @@ export class TeltonikaEmulator extends EventEmitter {
       timestamp: new Date(),
     });
 
-    console.log(`[Teltonika Emulator] Stopped for device ${this.config.imei}`);
+    logger.info(`[Teltonika Emulator] Stopped for device ${this.config.imei}`);
   }
 
   public pause(): void {
@@ -476,12 +478,12 @@ export class TeltonikaEmulator extends EventEmitter {
 
   public registerRFIDTag(rfidTag: string, driverId: string, driverName: string): void {
     this.config.authorizedRFIDTags.set(rfidTag, { driverId, driverName });
-    console.log(`[Teltonika Emulator] Registered RFID tag: ${rfidTag} (${driverName})`);
+    logger.info(`[Teltonika Emulator] Registered RFID tag: ${rfidTag} (${driverName})`);
   }
 
   public unregisterRFIDTag(rfidTag: string): void {
     this.config.authorizedRFIDTags.delete(rfidTag);
-    console.log(`[Teltonika Emulator] Unregistered RFID tag: ${rfidTag}`);
+    logger.info(`[Teltonika Emulator] Unregistered RFID tag: ${rfidTag}`);
   }
 
   public authenticateRFID(rfidTag: string): void {
@@ -504,9 +506,9 @@ export class TeltonikaEmulator extends EventEmitter {
     if (authorized) {
       this.currentRFIDTag = rfidTag;
       this.currentDriverId = driverInfo.driverId;
-      console.log(`[Teltonika Emulator] RFID authenticated: ${driverInfo.driverName}`);
+      logger.info(`[Teltonika Emulator] RFID authenticated: ${driverInfo.driverName}`);
     } else {
-      console.log(`[Teltonika Emulator] RFID authentication failed: ${rfidTag}`);
+      logger.info(`[Teltonika Emulator] RFID authentication failed: ${rfidTag}`);
     }
 
     this.emit('rfid:auth', authEvent);
@@ -524,7 +526,7 @@ export class TeltonikaEmulator extends EventEmitter {
         timestamp: new Date(),
       });
 
-      console.log(`[Teltonika Emulator] RFID cleared: ${previousTag}`);
+      logger.info(`[Teltonika Emulator] RFID cleared: ${previousTag}`);
     }
   }
 
@@ -550,7 +552,7 @@ export class TeltonikaEmulator extends EventEmitter {
       };
 
       this.emit('starter:disabled', event);
-      console.log(`[Teltonika Emulator] Starter disabled: ${reason}`);
+      logger.info(`[Teltonika Emulator] Starter disabled: ${reason}`);
     }
   }
 
@@ -567,7 +569,7 @@ export class TeltonikaEmulator extends EventEmitter {
       };
 
       this.emit('starter:enabled', event);
-      console.log(`[Teltonika Emulator] Starter enabled: ${reason}`);
+      logger.info(`[Teltonika Emulator] Starter enabled: ${reason}`);
     }
   }
 
@@ -582,7 +584,7 @@ export class TeltonikaEmulator extends EventEmitter {
 
     // Check if starter is disabled
     if (state && !this.digitalOutputs.dout1) {
-      console.log(`[Teltonika Emulator] Cannot start ignition - starter disabled`);
+      logger.info(`[Teltonika Emulator] Cannot start ignition - starter disabled`);
       this.emit('ignition:blocked', {
         imei: this.config.imei,
         reason: 'Starter disabled',
@@ -600,9 +602,9 @@ export class TeltonikaEmulator extends EventEmitter {
     });
 
     if (state) {
-      console.log(`[Teltonika Emulator] Ignition turned ON`);
+      logger.info(`[Teltonika Emulator] Ignition turned ON`);
     } else {
-      console.log(`[Teltonika Emulator] Ignition turned OFF`);
+      logger.info(`[Teltonika Emulator] Ignition turned OFF`);
       this.speed = 0;
       this.movement = false;
     }
@@ -629,7 +631,7 @@ export class TeltonikaEmulator extends EventEmitter {
       timestamp: new Date(),
     });
 
-    console.log(`[Teltonika Emulator] PANIC BUTTON TRIGGERED`);
+    logger.info(`[Teltonika Emulator] PANIC BUTTON TRIGGERED`);
 
     // Auto-reset panic button after 2 seconds
     setTimeout(() => {

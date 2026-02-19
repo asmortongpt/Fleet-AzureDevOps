@@ -105,8 +105,11 @@ const sdk = new NodeSDK({
   ],
 });
 
-// Graceful shutdown
+// Graceful shutdown (guarded to prevent "shutdown may only be called once" spam)
+let isShuttingDown = false;
 process.on('SIGTERM', () => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
   void sdk
     .shutdown()
     .then(() => logger.info('OpenTelemetry SDK shut down successfully'))

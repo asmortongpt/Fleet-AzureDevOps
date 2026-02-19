@@ -16,6 +16,8 @@
 import { Router, Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
+import logger from '../../config/logger'
+
 // ==================== TYPE DEFINITIONS ====================
 
 export interface Chartfield {
@@ -188,7 +190,7 @@ return
       this.chartfields.set(key, chartfield)
     })
 
-    console.log(`[PeopleSoft Emulator] Loaded ${this.chartfields.size} City of Tallahassee chartfield combinations`)
+    logger.info(`[PeopleSoft Emulator] Loaded ${this.chartfields.size} City of Tallahassee chartfield combinations`)
   }
 
   private initializeScenarios(): void {
@@ -404,7 +406,7 @@ return
 
     // TODO: Send callback to AMS
     // This would be configured via environment variable for AMS_BASE_URL
-    console.log(`[PeopleSoft Emulator] Journal ${journal_id} posted - callback would be sent to AMS`)
+    logger.info(`[PeopleSoft Emulator] Journal ${journal_id} posted - callback would be sent to AMS`)
   }
 
   getJournalStatus(journal_id: string): JournalStatus | null {

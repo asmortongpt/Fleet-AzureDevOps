@@ -124,13 +124,13 @@ const SafetyComplianceSystem: React.FC = () => {
         policiesPayload,
         violationsPayload
       ] = await Promise.all([
-        fetchApi('/drivers?limit=200'),
-        fetchApi('/incidents?limit=200'),
-        fetchApi('/training/courses?limit=200'),
-        fetchApi('/training/progress'),
-        fetchApi('/osha-compliance/safety-inspections?limit=200'),
-        fetchApi('/policies?limit=200'),
-        tenantId ? fetchApi('/hos/violations?tenant_id=' + tenantId) : Promise.resolve([])
+        fetchApi('/drivers?limit=200').catch(() => []),
+        fetchApi('/incidents?limit=200').catch(() => []),
+        fetchApi('/training/courses?limit=200').catch(() => []),
+        fetchApi('/training/progress').catch(() => []),
+        fetchApi('/osha-compliance/safety-inspections?limit=200').catch(() => []),
+        fetchApi('/policies?limit=200').catch(() => []),
+        tenantId ? fetchApi('/hos/violations?tenant_id=' + tenantId).catch(() => []) : Promise.resolve([])
       ]);
 
       const driversData = Array.isArray(driversPayload) ? driversPayload : [];

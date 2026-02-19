@@ -6,6 +6,7 @@
 
 import { faker } from '@faker-js/faker'
 
+import logger from '../config/logger'
 import { driverEmulator } from './DriverEmulator'
 import { vehicleEmulator } from './VehicleEmulator'
 
@@ -284,7 +285,7 @@ return null
         const transaction = this.generateTransaction(this.nextId)
         this.transactions.set(this.nextId, transaction)
         this.nextId++
-        console.log(`[FuelEmulator] New transaction created: ${transaction.receiptNumber}`)
+        logger.info(`[FuelEmulator] New transaction created: ${transaction.receiptNumber}`)
       }
     }, 60000) // Check every minute
   }

@@ -275,8 +275,7 @@ logger.info('Datadog APM disabled')
 // ARCHITECTURE FIX: Import new error handling infrastructure
 
 // Initialize Sentry
-// TEMP: Disabled to resolve initialization loop
-// sentryService.init()
+sentryService.init()
 
 logger.info('--- IMPORTS COMPLETED, CREATING APP ---');
 const app = express()

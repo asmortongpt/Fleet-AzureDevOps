@@ -91,11 +91,11 @@ const NewAdvancedAnalyticsDashboard: React.FC = () => {
       setError(null);
 
       const [dashboardResponse, vehiclesResponse] = await Promise.all([
-        secureFetch(`/api/analytics/dashboard?days=${encodeURIComponent(dateRange)}`, { method: 'GET' }),
-        secureFetch('/api/vehicles?limit=1000', { method: 'GET' })
+        secureFetch(`/api/analytics/dashboard?days=${encodeURIComponent(dateRange)}`, { method: 'GET' }).catch(() => null),
+        secureFetch('/api/vehicles?limit=1000', { method: 'GET' }).catch(() => null)
       ]);
 
-      if (!dashboardResponse.ok || !vehiclesResponse.ok) {
+      if (!dashboardResponse?.ok || !vehiclesResponse?.ok) {
         throw new Error('Failed to fetch data');
       }
 

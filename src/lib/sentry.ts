@@ -1,53 +1,93 @@
 /**
- * Sentry Error Tracking Configuration for Frontend
- * Production-ready error tracking
+ * Sentry Error Tracking - Re-exports from real implementation
+ *
+ * This module provides backward-compatible exports wrapping the full
+ * @sentry/react implementation at @/lib/monitoring/sentry.
  */
 
-import logger from '@/utils/logger';
+import * as Sentry from '@sentry/react';
 
-export const initSentry = () => {
-  logger.info('Sentry monitoring initialized')
-}
+import {
+  initSentry,
+  captureException,
+  captureMessage,
+  setUserContext,
+} from './monitoring/sentry';
 
-export const logError = (error: Error, context?: any) => {
-  logger.error('Error:', error, context)
-}
+export { initSentry, captureException, captureMessage };
 
-export const setUser = (user: any) => {
-  logger.debug('Set user:', user)
-}
+/**
+ * Set user context (backward-compatible alias)
+ */
+export const setUser = setUserContext;
 
-export const captureException = (error: Error) => {
-  logger.error('Exception:', error)
-}
-
-export const captureMessage = (message: string, level: string = 'info') => {
-  logger.info(`[${level}]`, message)
-}
-
-export const addBreadcrumb = (breadcrumb: any) => {
-  logger.debug('Breadcrumb:', breadcrumb)
-}
-
-export const startTransaction = (context: any) => {
-  logger.debug('Transaction:', context)
-  return {
-    finish: () => {},
-    setStatus: () => {},
-    setData: () => {}
+/**
+ * Add breadcrumb - accepts both object form and individual params
+ */
+export function addBreadcrumb(
+  messageOrBreadcrumb:
+    | string
+    | {
+        message?: string;
+        category?: string;
+        level?: string;
+        data?: Record<string, unknown>;
+      },
+  category?: string,
+  level?: Sentry.SeverityLevel,
+  data?: Record<string, unknown>
+): void {
+  if (typeof messageOrBreadcrumb === 'object') {
+    Sentry.addBreadcrumb({
+      message: messageOrBreadcrumb.message,
+      category: messageOrBreadcrumb.category,
+      level: messageOrBreadcrumb.level as Sentry.SeverityLevel,
+      data: messageOrBreadcrumb.data,
+    });
+  } else {
+    Sentry.addBreadcrumb({
+      message: messageOrBreadcrumb,
+      category,
+      level,
+      data,
+    });
   }
 }
 
-export const getCurrentHub = () => {
-  return {
-    getScope: () => ({
-      setContext: () => {},
-      setUser: () => {},
-      setTag: () => {}
-    })
+/**
+ * Show Sentry user feedback dialog
+ */
+export function showFeedbackWidget(): void {
+  try {
+    Sentry.showReportDialog();
+  } catch {
+    // Feedback widget not available
   }
 }
 
-export const showFeedbackWidget = () => {
-  logger.debug('Feedback widget')
+/**
+ * Log error to Sentry (backward-compatible alias)
+ */
+export function logError(error: Error, context?: Record<string, unknown>): void {
+  captureException(error, context);
+}
+
+/**
+ * Start a performance transaction (legacy alias)
+ */
+export function startTransaction(context: { name: string; op?: string }) {
+  return Sentry.startInactiveSpan({
+    name: context.name,
+    op: context.op,
+  });
+}
+
+/**
+ * Get current scope (replaces deprecated getCurrentHub)
+ */
+export function getCurrentHub() {
+  const scope = Sentry.getCurrentScope();
+  return {
+    getScope: () => scope,
+  };
 }

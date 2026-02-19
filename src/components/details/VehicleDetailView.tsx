@@ -100,30 +100,30 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const fetchVehicleDetails = async () => {
       try {
         const [workOrdersRes, documentsRes, scheduleRes, telemetryRes] = await Promise.all([
-          secureFetch(`/api/v1/work-orders?vehicle_id=${vehicle.id}`),
-          secureFetch(`/api/documents?vehicle_id=${vehicle.id}`),
-          secureFetch(`/api/maintenance-schedules?vehicle_id=${vehicle.id}`),
-          secureFetch(`/api/vehicles/${vehicle.id}/telemetry/unified`)
+          secureFetch(`/api/v1/work-orders?vehicle_id=${vehicle.id}`).catch(() => null),
+          secureFetch(`/api/documents?vehicle_id=${vehicle.id}`).catch(() => null),
+          secureFetch(`/api/maintenance-schedules?vehicle_id=${vehicle.id}`).catch(() => null),
+          secureFetch(`/api/vehicles/${vehicle.id}/telemetry/unified`).catch(() => null)
         ]);
 
         if (!isMounted) return;
 
-        if (workOrdersRes.ok) {
+        if (workOrdersRes?.ok) {
           const payload = await workOrdersRes.json();
           setServiceHistory(payload.data || payload || []);
         }
 
-        if (documentsRes.ok) {
+        if (documentsRes?.ok) {
           const payload = await documentsRes.json();
           setDocuments(payload.data || payload || []);
         }
 
-        if (scheduleRes.ok) {
+        if (scheduleRes?.ok) {
           const payload = await scheduleRes.json();
           setMaintenanceSchedule(payload.data || payload || []);
         }
 
-        if (telemetryRes.ok) {
+        if (telemetryRes?.ok) {
           const payload = await telemetryRes.json();
           setTelemetryData(payload.data || payload || null);
         }

@@ -93,12 +93,12 @@ export default function E2ETestPage() {
 
     try {
       const [usersRes, maintenanceRes, vehiclesRes] = await Promise.all([
-        fetch(`${API_BASE}/api/e2e-test/users`),
-        fetch(`${API_BASE}/api/e2e-test/maintenance-schedules`),
-        fetch(`${API_BASE}/api/e2e-test/vehicles`)
+        fetch(`${API_BASE}/api/e2e-test/users`).catch(() => null),
+        fetch(`${API_BASE}/api/e2e-test/maintenance-schedules`).catch(() => null),
+        fetch(`${API_BASE}/api/e2e-test/vehicles`).catch(() => null)
       ])
 
-      if (!usersRes.ok || !maintenanceRes.ok || !vehiclesRes.ok) {
+      if (!usersRes?.ok || !maintenanceRes?.ok || !vehiclesRes?.ok) {
         throw new Error('Failed to fetch data')
       }
 

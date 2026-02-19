@@ -48,32 +48,32 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
     const fetchDriverDetails = async () => {
       try {
         const [certRes, perfRes, assignRes, trainingRes, incidentRes] = await Promise.all([
-          secureFetch(`/api/v1/drivers/${driver.id}/certifications`),
-          secureFetch(`/api/v1/drivers/${driver.id}/performance`),
-          secureFetch(`/api/v1/drivers/${driver.id}/assignments`),
-          secureFetch(`/api/v1/drivers/${driver.id}/training`),
-          secureFetch(`/api/v1/drivers/${driver.id}/incidents`)
+          secureFetch(`/api/v1/drivers/${driver.id}/certifications`).catch(() => null),
+          secureFetch(`/api/v1/drivers/${driver.id}/performance`).catch(() => null),
+          secureFetch(`/api/v1/drivers/${driver.id}/assignments`).catch(() => null),
+          secureFetch(`/api/v1/drivers/${driver.id}/training`).catch(() => null),
+          secureFetch(`/api/v1/drivers/${driver.id}/incidents`).catch(() => null)
         ]);
 
         if (!isMounted) return;
 
-        if (certRes.ok) {
+        if (certRes?.ok) {
           const payload = await certRes.json();
           setCertifications(payload.data || payload || []);
         }
-        if (perfRes.ok) {
+        if (perfRes?.ok) {
           const payload = await perfRes.json();
           setPerformanceMetrics(payload.data || payload || null);
         }
-        if (assignRes.ok) {
+        if (assignRes?.ok) {
           const payload = await assignRes.json();
           setAssignments(payload.data || payload || []);
         }
-        if (trainingRes.ok) {
+        if (trainingRes?.ok) {
           const payload = await trainingRes.json();
           setTrainingRecords(payload.data || payload || []);
         }
-        if (incidentRes.ok) {
+        if (incidentRes?.ok) {
           const payload = await incidentRes.json();
           setIncidents(payload.data || payload || []);
         }

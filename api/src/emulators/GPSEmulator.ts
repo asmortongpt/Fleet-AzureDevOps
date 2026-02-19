@@ -13,6 +13,8 @@ import { EventEmitter } from 'events'
 
 import { faker } from '@faker-js/faker'
 
+import logger from '../config/logger'
+
 // GPS Position Interface
 export interface GPSPosition {
   id: number
@@ -224,7 +226,7 @@ return
     // Initial update
     this.updateAllVehicles()
 
-    console.log('GPS Emulator started - tracking 50 vehicles')
+    logger.info('GPS Emulator started - tracking 50 vehicles')
   }
 
   /**
@@ -242,7 +244,7 @@ return
       this.updateInterval = null
     }
 
-    console.log('GPS Emulator stopped')
+    logger.info('GPS Emulator stopped')
   }
 
   /**

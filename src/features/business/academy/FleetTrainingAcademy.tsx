@@ -122,15 +122,15 @@ const FleetTrainingAcademy: React.FC = () => {
     try {
       setIsLoading(true);
       const [coursesRes, progressRes] = await Promise.all([
-        fetch('/api/training/courses', { credentials: 'include' }),
-        fetch('/api/training/progress', { credentials: 'include' })
+        fetch('/api/training/courses', { credentials: 'include' }).catch(() => null),
+        fetch('/api/training/progress', { credentials: 'include' }).catch(() => null)
       ]);
 
-      if (!coursesRes.ok) {
-        throw new Error(`Failed to load courses (${coursesRes.status})`);
+      if (!coursesRes?.ok) {
+        throw new Error(`Failed to load courses (${coursesRes?.status ?? 'network error'})`);
       }
-      if (!progressRes.ok) {
-        throw new Error(`Failed to load progress (${progressRes.status})`);
+      if (!progressRes?.ok) {
+        throw new Error(`Failed to load progress (${progressRes?.status ?? 'network error'})`);
       }
 
       const coursesPayload = await coursesRes.json();

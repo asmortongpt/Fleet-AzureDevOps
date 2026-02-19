@@ -75,12 +75,12 @@ export default function AdminHub() {
       try {
         setIsLoading(true)
         const [usersResponse, auditResponse] = await Promise.all([
-          secureFetch('/api/users?limit=200'),
-          secureFetch('/api/audit-logs?limit=200'),
+          secureFetch('/api/users?limit=200').catch(() => null),
+          secureFetch('/api/audit-logs?limit=200').catch(() => null),
         ])
 
         if (!cancelled) {
-          if (usersResponse.ok) {
+          if (usersResponse?.ok) {
             const usersPayload = await usersResponse.json()
             const users = (usersPayload.data || usersPayload || []) as any[]
             setAdminUsers(
@@ -102,7 +102,7 @@ export default function AdminHub() {
             setAdminUsers([])
           }
 
-          if (auditResponse.ok) {
+          if (auditResponse?.ok) {
             const auditPayload = await auditResponse.json()
             const logs = (auditPayload.data || auditPayload || []) as any[]
             setAuditLogs(
