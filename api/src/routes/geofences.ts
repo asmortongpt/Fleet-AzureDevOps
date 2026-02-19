@@ -10,6 +10,22 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+const createGeofenceSchema = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().max(2000).optional(),
+  type: z.string().max(100).optional(),
+  facility_id: z.union([z.string(), z.number()]).optional(),
+  center_lat: z.number().min(-90).max(90).optional(),
+  center_lng: z.number().min(-180).max(180).optional(),
+  radius: z.number().min(0).optional(),
+  polygon: z.unknown().optional(),
+  color: z.string().max(50).optional(),
+  is_active: z.boolean().optional(),
+  notify_on_entry: z.boolean().optional(),
+  notify_on_exit: z.boolean().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
 const geofenceUpdateSchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
@@ -137,7 +153,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'geofences' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createGeofenceSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,

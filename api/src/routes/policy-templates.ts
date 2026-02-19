@@ -10,6 +10,54 @@ import { requirePermission } from '../middleware/permissions'
 import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+const createPolicyTemplateSchema = z.object({
+  policy_code: z.string(),
+  policy_name: z.string(),
+  policy_category: z.string().optional(),
+  sub_category: z.string().optional(),
+  policy_objective: z.string().optional(),
+  policy_scope: z.string().optional(),
+  policy_content: z.string().optional(),
+  procedures: z.union([z.string(), z.array(z.unknown())]).optional(),
+  regulatory_references: z.union([z.string(), z.array(z.unknown())]).optional(),
+  industry_standards: z.union([z.string(), z.array(z.unknown())]).optional(),
+  responsible_roles: z.union([z.string(), z.array(z.string())]).optional(),
+  approval_required_from: z.string().optional(),
+  version: z.union([z.string(), z.number()]).optional(),
+  effective_date: z.string().optional(),
+  review_cycle_months: z.number().optional(),
+  next_review_date: z.string().optional(),
+  expiration_date: z.string().nullable().optional(),
+  supersedes_policy_id: z.union([z.string(), z.number()]).nullable().optional(),
+  status: z.string().optional(),
+  is_mandatory: z.boolean().optional(),
+  applies_to_roles: z.array(z.string()).optional(),
+  requires_training: z.boolean().optional(),
+  requires_test: z.boolean().optional(),
+  test_questions: z.unknown().optional(),
+  related_forms: z.unknown().optional(),
+  attachments: z.unknown().optional(),
+}).passthrough()
+
+const createPolicyViolationSchema = z.object({
+  policy_id: z.union([z.string(), z.number()]),
+  employee_id: z.union([z.string(), z.number()]),
+  violation_date: z.string().optional(),
+  severity: z.string().optional(),
+  description: z.string().optional(),
+  corrective_action: z.string().optional(),
+  status: z.string().optional(),
+}).passthrough()
+
+const createPolicyComplianceAuditSchema = z.object({
+  policy_id: z.union([z.string(), z.number()]),
+  audit_date: z.string().optional(),
+  auditor: z.string().optional(),
+  findings: z.string().optional(),
+  recommendations: z.string().optional(),
+  status: z.string().optional(),
+}).passthrough()
+
 const updatePolicyTemplateSchema = z.object({
   policy_code: z.string().optional(),
   policy_name: z.string().optional(),
@@ -197,10 +245,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policy_templates' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicyTemplateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['created_by'],
         1
       )
@@ -466,10 +517,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policy_violations' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicyViolationSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['created_by'],
         1
       )
@@ -837,10 +891,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policy_compliance_audits' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicyComplianceAuditSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['created_by'],
         1
       )

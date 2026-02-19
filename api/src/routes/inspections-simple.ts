@@ -9,6 +9,21 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+const createInspectionSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string(),
+  status: z.string().optional(),
+  started_at: z.string().optional(),
+  completed_at: z.string().nullable().optional(),
+  passed_inspection: z.boolean().optional(),
+  odometer_reading: z.number().optional(),
+  notes: z.string().optional(),
+  defects: z.unknown().optional(),
+  checklist: z.unknown().optional(),
+  signature: z.string().optional(),
+}).passthrough()
+
 const updateInspectionSchema = z.object({
   vehicle_id: z.union([z.string(), z.number()]).optional(),
   driver_id: z.union([z.string(), z.number()]).optional(),
@@ -117,8 +132,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const parsed = createInspectionSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+
       const { columnNames, placeholders, values } = buildInsertClause(
-        req.body,
+        parsed.data,
         ['tenant_id'],
         1
       )

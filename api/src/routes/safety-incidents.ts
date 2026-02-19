@@ -11,6 +11,24 @@ import { requirePermission } from '../middleware/permissions'
 import { applyFieldMasking } from '../utils/fieldMasking'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+const createSafetyIncidentSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  incident_type: z.string().max(100).optional(),
+  type: z.string().max(100).optional(),
+  severity: z.string().max(50).optional(),
+  status: z.string().max(50).optional(),
+  description: z.string().max(5000).optional(),
+  location: z.string().max(500).optional(),
+  incident_date: z.string().optional(),
+  resolution: z.string().max(5000).optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().max(5000).optional(),
+  corrective_action: z.string().max(5000).optional(),
+  root_cause: z.string().max(5000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
 const safetyIncidentUpdateSchema = z.object({
   vehicle_id: z.union([z.string(), z.number()]).optional(),
   driver_id: z.union([z.string(), z.number()]).optional(),
@@ -131,7 +149,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'safety_incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createSafetyIncidentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
 
       // Auto-generate incident number (shared with incidents table)
       const numberResult = await pool.query(

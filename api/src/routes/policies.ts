@@ -10,6 +10,16 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+const createPolicySchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  content: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+  version: z.union([z.string(), z.number()]).optional(),
+  is_active: z.boolean().optional(),
+  effective_date: z.string().optional(),
+}).passthrough()
+
 const updatePolicySchema = z.object({
   name: z.string().optional(),
   description: z.string().optional(),
@@ -279,10 +289,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicySchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         [`tenant_id`],
         1
       )

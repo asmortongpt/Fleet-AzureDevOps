@@ -11,6 +11,33 @@ import { requirePermission } from '../middleware/permissions'
 import { rateLimit } from '../middleware/rate-limit'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+const createVideoEventSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  event_type: z.string().max(100),
+  event_date: z.string().optional(),
+  video_url: z.string().max(2000).optional(),
+  thumbnail_url: z.string().max(2000).optional(),
+  duration: z.union([z.string(), z.number()]).optional(),
+  severity: z.string().max(50).optional(),
+  notes: z.string().max(5000).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  address: z.string().max(500).optional(),
+  speed_mph: z.number().min(0).max(300).optional(),
+  ai_confidence: z.number().min(0).max(1).optional(),
+  reviewed: z.boolean().optional(),
+  reviewed_by: z.union([z.string(), z.number()]).optional(),
+  reviewed_at: z.string().optional(),
+  coaching_assigned: z.boolean().optional(),
+  coaching_assigned_to: z.union([z.string(), z.number()]).optional(),
+  coaching_status: z.string().max(100).optional(),
+  coaching_notes: z.string().max(5000).optional(),
+  retained: z.boolean().optional(),
+  retention_days: z.number().min(0).max(3650).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
 const videoEventUpdateSchema = z.object({
   vehicle_id: z.union([z.string(), z.number()]).optional(),
   driver_id: z.union([z.string(), z.number()]).optional(),
@@ -177,7 +204,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'video_events' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createVideoEventSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
