@@ -125,13 +125,12 @@ const DriverSkillsSchema = z.object({
 // ============================================================================
 
 const endpoint = process.env.AZURE_OPENAI_ENDPOINT || ''
-const apiKey = process.env.OPENAI_API_KEY || ''
+const apiKey = process.env.AZURE_OPENAI_API_KEY || process.env.OPENAI_API_KEY || ''
 const deploymentId = process.env.AZURE_OPENAI_DEPLOYMENT_ID || 'gpt-4'
 
-const azureOpenAI = new OpenAIClient(
-  endpoint,
-  new AzureKeyCredential(apiKey)
-)
+const azureOpenAI = (endpoint && apiKey)
+  ? new OpenAIClient(endpoint, new AzureKeyCredential(apiKey))
+  : null
 
 // ============================================================================
 // PRIORITY SCORING ENGINE
@@ -189,6 +188,10 @@ Return ONLY valid JSON:
   "reasoning": "concise explanation",
   "confidence": <0-100>
 }`
+
+      if (!azureOpenAI) {
+        return this.calculateBasicPriorityScore(taskData)
+      }
 
       const response = await azureOpenAI.getChatCompletions(
         deploymentId,
@@ -448,6 +451,10 @@ Return ONLY valid JSON array:
   "skillMatch": <0-100>,
   "estimatedCompletionHours": <number>
 }]`
+
+      if (!azureOpenAI) {
+        return []
+      }
 
       const response = await azureOpenAI.getChatCompletions(
         deploymentId,
