@@ -25,6 +25,7 @@
 import crypto from 'crypto'
 import express, { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
+import { z } from 'zod'
 
 import { pool } from '../db'
 import { asyncHandler } from '../middleware/async-handler'
@@ -32,6 +33,14 @@ import { createAuditLog } from '../middleware/audit'
 import { authenticateJWT, authorize, AuthRequest, setCheckRevoked } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { logger } from '../utils/logger'
+
+// --- Zod Schema for revocation input validation ---
+
+const revokeSessionSchema = z.object({
+  token: z.string().min(1).max(4096).optional(),
+  user_id: z.string().uuid().optional(),
+  email: z.string().email().max(254).optional(),
+})
 
 const router = express.Router()
 
@@ -178,7 +187,15 @@ router.post('/revoke', csrfProtection, authenticateJWT, asyncHandler(async (req:
     return res.status(401).json({ error: 'Authentication required' })
   }
 
-  const { token: targetToken, user_id, email } = req.body
+  const parsed = revokeSessionSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: 'Validation failed',
+      details: parsed.error.flatten().fieldErrors,
+    })
+  }
+
+  const { token: targetToken, user_id, email } = parsed.data
   const currentToken = req.headers.authorization?.split(' ')[1] || req.cookies?.auth_token
 
   // Determine target user
@@ -193,7 +210,7 @@ router.post('/revoke', csrfProtection, authenticateJWT, asyncHandler(async (req:
         req.user.id ?? null,
         'LOGOUT',
         'auth',
-        user_id || email,
+        user_id || email || null,
         { reason: 'Unauthorized attempt to revoke other user session' },
         req.ip || null,
         req.get('User-Agent') || null,

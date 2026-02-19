@@ -10,6 +10,7 @@
  */
 
 import { Router } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../config/database';
 import logger from '../config/logger';
@@ -19,6 +20,26 @@ import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { NotFoundError, ValidationError } from '../utils/errors'
+
+// ── Zod Schemas ──────────────────────────────────────────────────────────────
+
+const relationshipTypeEnum = z.enum(['TOWS', 'ATTACHED', 'CARRIES', 'POWERS', 'CONTAINS'])
+
+const createAssetRelationshipSchema = z.object({
+  parent_asset_id: z.union([z.string(), z.number()]),
+  child_asset_id: z.union([z.string(), z.number()]),
+  relationship_type: relationshipTypeEnum,
+  effective_from: z.string().optional(),
+  effective_to: z.string().nullish(),
+  notes: z.string().nullish(),
+})
+
+const updateAssetRelationshipSchema = z.object({
+  relationship_type: relationshipTypeEnum.optional(),
+  effective_from: z.string().optional(),
+  effective_to: z.string().nullish(),
+  notes: z.string().nullish(),
+})
 
 const router = Router()
 
@@ -250,6 +271,12 @@ router.post(
     try {
       await client.query('BEGIN')
 
+      const parsed = createAssetRelationshipSchema.safeParse(req.body)
+      if (!parsed.success) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
       const {
         parent_asset_id,
         child_asset_id,
@@ -257,7 +284,7 @@ router.post(
         effective_from = new Date().toISOString(),
         effective_to,
         notes
-      } = req.body
+      } = parsed.data
 
       // Validation: Verify both assets exist and belong to tenant
       const vehicleCheck = await client.query(
@@ -342,7 +369,13 @@ router.put(
     try {
       await client.query('BEGIN')
 
-      const { relationship_type, effective_from, effective_to, notes } = req.body
+      const parsed = updateAssetRelationshipSchema.safeParse(req.body)
+      if (!parsed.success) {
+        await client.query('ROLLBACK')
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
+      const { relationship_type, effective_from, effective_to, notes } = parsed.data
 
       // Verify relationship exists and belongs to tenant
       const existsCheck = await client.query(

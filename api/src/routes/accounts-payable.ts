@@ -5,6 +5,7 @@
 
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth';
 import { APAgingService } from '../services/ap-aging';
 import { DepreciationService } from '../services/depreciation';
@@ -18,6 +19,49 @@ import {
   CreateDepreciationInput
 } from '../types/accounts-payable';
 import { logger } from '../utils/logger';
+
+// --- Zod Schemas for input validation ---
+
+const createAPSchema = z.object({
+  tenant_id: z.string().uuid().optional(),
+  invoice_id: z.string().uuid().optional(),
+  vendor_id: z.string().uuid('Invalid vendor_id'),
+  invoice_number: z.string().min(1, 'Invoice number is required').max(100),
+  invoice_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  due_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  amount_due: z.number().positive('Amount must be positive'),
+  payment_terms: z.string().max(50).optional(),
+  discount_available: z.number().min(0).optional(),
+  discount_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const paymentSchema = z.object({
+  amount_paid: z.number().positive('Payment amount must be positive'),
+  paid_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]).optional(),
+  payment_method: z.enum(['check', 'ach', 'wire', 'credit-card', 'cash']),
+  payment_reference: z.string().max(200).optional(),
+  payment_notes: z.string().max(1000).optional(),
+});
+
+const createDepreciationSchema = z.object({
+  tenant_id: z.string().uuid().optional(),
+  asset_id: z.string().uuid().optional(),
+  vehicle_id: z.string().uuid().optional(),
+  depreciation_method: z.enum(['straight-line', 'declining-balance', 'units-of-production']),
+  original_cost: z.number().positive('Original cost must be positive'),
+  salvage_value: z.number().min(0, 'Salvage value cannot be negative'),
+  useful_life_years: z.number().int().positive().optional(),
+  useful_life_units: z.number().int().positive().optional(),
+  start_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  notes: z.string().max(1000).optional(),
+});
+
+const calculateDepreciationSchema = z.object({
+  period_start: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  period_end: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
+  units_used: z.union([z.number().int().positive(), z.string().regex(/^\d+$/)]).optional(),
+});
 
 const router = Router();
 
@@ -68,21 +112,21 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
  */
 router.post('/', authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const input: CreateAccountsPayableInput = {
-      tenant_id: req.user?.tenantId || req.body.tenant_id,
-      ...req.body
-    };
+    const parsed = createAPSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+      });
+    }
 
-    // Convert date strings to Date objects
-    if (input.invoice_date) {
-      input.invoice_date = new Date(input.invoice_date);
-    }
-    if (input.due_date) {
-      input.due_date = new Date(input.due_date);
-    }
-    if (input.discount_date) {
-      input.discount_date = new Date(input.discount_date);
-    }
+    const input: CreateAccountsPayableInput = {
+      ...parsed.data,
+      tenant_id: req.user?.tenantId || parsed.data.tenant_id || '',
+      invoice_date: new Date(parsed.data.invoice_date),
+      due_date: new Date(parsed.data.due_date),
+      discount_date: parsed.data.discount_date ? new Date(parsed.data.discount_date) : undefined,
+    };
 
     const ap = await apAgingService.createAP(input);
     res.status(201).json(ap);
@@ -98,10 +142,18 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
  */
 router.post('/:id/pay', authenticateJWT, async (req: Request, res: Response) => {
   try {
+    const parsed = paymentSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+      });
+    }
+
     const { id } = req.params;
     const payment: PaymentInput = {
-      ...req.body,
-      paid_date: new Date(req.body.paid_date || new Date())
+      ...parsed.data,
+      paid_date: parsed.data.paid_date ? new Date(parsed.data.paid_date) : new Date(),
     };
 
     const updatedAP = await apAgingService.recordPayment(id, payment);
@@ -250,15 +302,19 @@ router.get('/vendor/:vendorId/history', authenticateJWT, async (req: Request, re
  */
 router.post('/depreciation', authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const input: CreateDepreciationInput = {
-      tenant_id: req.user?.tenantId || req.body.tenant_id,
-      ...req.body
-    };
-
-    // Convert date to Date object
-    if (input.start_date) {
-      input.start_date = new Date(input.start_date);
+    const parsed = createDepreciationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+      });
     }
+
+    const input: CreateDepreciationInput = {
+      ...parsed.data,
+      tenant_id: req.user?.tenantId || parsed.data.tenant_id || '',
+      start_date: new Date(parsed.data.start_date),
+    };
 
     const depreciation = await depreciationService.createDepreciation(input);
     res.status(201).json(depreciation);
@@ -274,18 +330,22 @@ router.post('/depreciation', authenticateJWT, async (req: Request, res: Response
  */
 router.post('/depreciation/:id/calculate', authenticateJWT, async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const { period_start, period_end, units_used } = req.body;
-
-    if (!period_start || !period_end) {
-      return res.status(400).json({ error: 'period_start and period_end are required' });
+    const parsed = calculateDepreciationSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
+      });
     }
+
+    const { id } = req.params;
+    const { period_start, period_end, units_used } = parsed.data;
 
     const result = await depreciationService.calculatePeriodDepreciation(
       id,
       new Date(period_start),
       new Date(period_end),
-      units_used ? parseInt(units_used) : undefined
+      units_used ? parseInt(String(units_used)) : undefined
     );
 
     res.json(result);

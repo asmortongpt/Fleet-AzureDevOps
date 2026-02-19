@@ -4,6 +4,7 @@ import path from 'path'
 
 import express, { Response } from 'express'
 import multer from 'multer'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 19: Add Winston logger
 import { fileUploadLimiter } from '../config/rate-limiters'
@@ -14,6 +15,58 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission, validateScope } from '../middleware/permissions'
 import { secureFileValidation } from '../utils/file-validation'
+
+// ── Zod Schemas ──────────────────────────────────────────────────────────────
+
+const uploadDocumentSchema = z.object({
+  document_type: z.string().default('Other'),
+  category: z.string().default('General'),
+  description: z.string().optional(),
+  related_entity_type: z.string().optional(),
+  related_entity_id: z.coerce.string().optional(),
+  tags: z.union([z.array(z.string()), z.string()]).default([]),
+})
+
+const cameraCaptureSchema = z.object({
+  document_type: z.string().default('Receipt'),
+  category: z.string().default('Expense'),
+  description: z.string().optional(),
+  related_entity_type: z.string().optional(),
+  related_entity_id: z.coerce.string().optional(),
+  device_manufacturer: z.string().optional(),
+  device_model: z.string().optional(),
+  device_os: z.string().optional(),
+  device_os_version: z.string().optional(),
+  photo_taken_at: z.string().optional(),
+  camera_make: z.string().optional(),
+  latitude: z.coerce.string().optional(),
+  longitude: z.coerce.string().optional(),
+  auto_crop_applied: z.union([z.boolean(), z.string()]).default(false),
+  auto_rotate_applied: z.union([z.boolean(), z.string()]).default(false),
+})
+
+const updateDocumentSchema = z.object({
+  description: z.string().nullish(),
+  category: z.string().nullish(),
+  tags: z.union([z.array(z.string()), z.string()]).nullish(),
+  related_entity_type: z.string().nullish(),
+  related_entity_id: z.coerce.string().nullish(),
+})
+
+const receiptLineItemSchema = z.object({
+  item_description: z.string(),
+  quantity: z.number().optional(),
+  unit_price: z.number().optional(),
+  line_total: z.number().optional(),
+  tax_amount: z.number().optional(),
+  category: z.string().optional(),
+  is_taxable: z.boolean().optional(),
+  ai_confidence: z.number().nullish(),
+})
+
+const updateReceiptItemsSchema = z.object({
+  line_items: z.array(receiptLineItemSchema),
+})
 
 
 const router = express.Router()
@@ -275,14 +328,19 @@ router.post(
         })
       }
 
+      const parsed = uploadDocumentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
       const {
-        document_type = 'Other',
-        category = 'General',
+        document_type,
+        category,
         description,
         related_entity_type,
         related_entity_id,
-        tags = []
-      } = req.body
+        tags
+      } = parsed.data
 
       // Create upload directory if it doesn't exist
       const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads'
@@ -355,9 +413,14 @@ router.post(
         })
       }
 
+      const parsed = cameraCaptureSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
       const {
-        document_type = 'Receipt',
-        category = 'Expense',
+        document_type,
+        category,
         description,
         related_entity_type,
         related_entity_id,
@@ -370,9 +433,9 @@ router.post(
         camera_make,
         latitude,
         longitude,
-        auto_crop_applied = false,
-        auto_rotate_applied = false
-      } = req.body
+        auto_crop_applied,
+        auto_rotate_applied
+      } = parsed.data
 
       // Create upload directory if it doesn't exist
       const uploadDir = process.env.UPLOAD_DIR || '/tmp/uploads'
@@ -453,7 +516,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'documents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { description, category, tags, related_entity_type, related_entity_id } = req.body
+      const parsed = updateDocumentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+
+      const { description, category, tags, related_entity_type, related_entity_id } = parsed.data
 
       // First verify tenant isolation before update
       const checkResult = await pool.query(
@@ -635,11 +703,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'receipt_line_items' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { line_items } = req.body
-
-      if (!Array.isArray(line_items)) {
-        throw new ValidationError("line_items must be an array")
+      const parsed = updateReceiptItemsSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
       }
+
+      const { line_items } = parsed.data
 
       // First verify tenant isolation
       const docResult = await pool.query(

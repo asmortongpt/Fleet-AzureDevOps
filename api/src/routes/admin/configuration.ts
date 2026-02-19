@@ -6,6 +6,7 @@
  */
 
 import { Router, Request, Response, NextFunction } from 'express'
+import { z } from 'zod'
 
 import { configurationService } from '../../services/configuration/configuration-service'
 import { logger } from '../../utils/logger'
@@ -100,10 +101,19 @@ router.get('/config/:key', requireCTAOwner, async (req, res) => {
  * PUT /api/admin/config/:key
  * Update configuration value
  */
+const updateConfigSchema = z.object({
+  value: z.unknown(),
+  reason: z.string().max(500).optional(),
+})
+
 router.put('/config/:key', requireCTAOwner, async (req, res) => {
   try {
     const { key } = req.params
-    const { value, reason } = req.body
+    const parsed = updateConfigSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+    }
+    const { value, reason } = parsed.data
     const authReq = req as Request & { user?: { id?: string } }
     const changedBy = authReq.user?.id ?? 'UNKNOWN'
 
@@ -165,15 +175,25 @@ router.post('/config/:changeId/rollback', requireCTAOwner, async (req, res) => {
  * POST /api/admin/config/profiles
  * Create configuration profile
  */
+const createProfileSchema = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().max(1000).optional(),
+  settings: z.record(z.string(), z.unknown()),
+})
+
 router.post('/config/profiles', requireCTAOwner, async (req, res) => {
   try {
-    const { name, description, settings } = req.body
+    const parsed = createProfileSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+    }
+    const { name, description, settings } = parsed.data
     const authReq = req as Request & { user?: { id?: string } }
     const createdBy = authReq.user?.id ?? 'UNKNOWN'
 
     const profile = await configurationService.createProfile(
       name,
-      description,
+      description ?? '',
       settings,
       createdBy
     )
@@ -225,16 +245,17 @@ router.post('/config/profiles/:profileId/apply', requireCTAOwner, async (req, re
  * POST /api/admin/config/setup/start
  * Start initial setup wizard
  */
+const startSetupSchema = z.object({
+  organizationId: z.string().min(1),
+})
+
 router.post('/config/setup/start', requireCTAOwner, async (req, res) => {
   try {
-    const { organizationId } = req.body
-
-    if (!organizationId) {
-      return res.status(400).json({
-        error: 'Organization ID required',
-        message: 'Please provide organizationId'
-      })
+    const parsed = startSetupSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
     }
+    const { organizationId } = parsed.data
 
     const setup = await configurationService.startInitialSetup(organizationId)
 
@@ -256,10 +277,18 @@ router.post('/config/setup/start', requireCTAOwner, async (req, res) => {
  * POST /api/admin/config/setup/steps/:stepId/complete
  * Complete a setup step
  */
+const completeStepSchema = z.object({
+  values: z.record(z.string(), z.unknown()),
+})
+
 router.post('/config/setup/steps/:stepId/complete', requireCTAOwner, async (req, res) => {
   try {
     const { stepId } = req.params
-    const { values } = req.body
+    const parsed = completeStepSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+    }
+    const { values } = parsed.data
 
     await configurationService.completeSetupStep(stepId, values)
 
@@ -285,16 +314,28 @@ router.post('/config/setup/steps/:stepId/complete', requireCTAOwner, async (req,
  * Apply policy rule to configuration
  * This is called by the Policy Hub when rules are created/updated
  */
+const applyPolicySchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1).max(200),
+  description: z.string(),
+  category: z.string(),
+  priority: z.number().int(),
+  conditions: z.array(z.record(z.string(), z.unknown())),
+  conditionLogic: z.enum(['AND', 'OR']),
+  actions: z.array(z.record(z.string(), z.unknown())),
+  enabled: z.boolean(),
+  createdAt: z.string(),
+  createdBy: z.string(),
+  lastExecuted: z.string().optional(),
+})
+
 router.post('/config/apply-policy', requireCTAOwner, async (req, res) => {
   try {
-    const policyRule: PolicyRule = req.body
-
-    if (!policyRule || !policyRule.id) {
-      return res.status(400).json({
-        error: 'Invalid policy rule',
-        message: 'Please provide a valid policy rule object'
-      })
+    const parsed = applyPolicySchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
     }
+    const policyRule = parsed.data as unknown as PolicyRule
 
     await configurationService.applyPolicyRule(policyRule)
 
