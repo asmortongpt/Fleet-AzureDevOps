@@ -19,6 +19,7 @@
 
 import express, { Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -36,11 +37,19 @@ router.post(
   csrfProtection,
   async (req: AuthRequest, res: Response) => {
     try {
-      const { userId, tenantId, deviceType, expiresIn = 1800 } = req.body
+      const sessionSchema = z.object({
+        userId: z.string().uuid(),
+        tenantId: z.string().uuid(),
+        deviceType: z.enum(['web', 'mobile', 'desktop', 'api']).default('web'),
+        expiresIn: z.number().int().min(60).max(86400).default(1800)
+      })
 
-      if (!userId || !tenantId) {
-        return res.status(400).json({ error: 'userId and tenantId required' })
+      const parsed = sessionSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
       }
+
+      const { userId, tenantId, deviceType, expiresIn } = parsed.data
 
       const sessionId = uuidv4()
       const ipAddress = req.ip || req.socket.remoteAddress || null
