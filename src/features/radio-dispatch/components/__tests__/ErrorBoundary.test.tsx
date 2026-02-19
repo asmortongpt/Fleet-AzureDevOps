@@ -100,8 +100,8 @@ describe('ErrorBoundary', () => {
   });
 
   it('shows technical details toggle in development mode', () => {
-    const originalNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    const originalMode = import.meta.env.MODE;
+    import.meta.env.MODE = 'development';
 
     render(
       <ErrorBoundary>
@@ -111,12 +111,12 @@ describe('ErrorBoundary', () => {
 
     expect(screen.getByText(/show technical details/i)).toBeInTheDocument();
 
-    process.env.NODE_ENV = originalNodeEnv;
+    import.meta.env.MODE = originalMode;
   });
 
   it('expands technical details when clicked', () => {
-    const originalNodeEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    const originalMode = import.meta.env.MODE;
+    import.meta.env.MODE = 'development';
 
     render(
       <ErrorBoundary>
@@ -130,6 +130,6 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText(/component stack/i)).toBeInTheDocument();
     expect(screen.getByText(/hide technical details/i)).toBeInTheDocument();
 
-    process.env.NODE_ENV = originalNodeEnv;
+    import.meta.env.MODE = originalMode;
   });
 });

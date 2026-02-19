@@ -75,8 +75,9 @@ import telemetryService from "./lib/telemetry"
 // PWA Service Worker registration
 
 const reactPlugin = telemetryService.initialize()
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { QueryClientProvider } from "@tanstack/react-query"
 
+import { queryClient } from "./config/query-client"
 import { InspectProvider } from "./services/inspect/InspectContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
 import { PanelProvider } from "./contexts/PanelContext"
@@ -85,18 +86,6 @@ import { BrandingProvider } from "./shared/branding/BrandingProvider"
 // Core Tailwind v4 + Enterprise Design System + Optimized CSS Bundle
 // All CSS consolidated in index.css (5 files: index.css + 4 imports)
 import "./index.css"
-
-// Create a client with reactive data configuration
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false, // Disable auto-refetch on focus for performance
-      refetchInterval: false, // Disable auto-refresh (was 10 seconds - too aggressive)
-      staleTime: 60000, // Data considered fresh for 60 seconds
-      retry: 1,
-    },
-  },
-})
 
 // Data router created with createBrowserRouter + createRoutesFromElements
 // This replaces the legacy BrowserRouter with the modern data router API,
@@ -190,15 +179,6 @@ async function validateStartupConfiguration(): Promise<void> {
 // P0-3: Run validation BEFORE rendering app
 // This ensures app only starts if all security requirements are met
 validateStartupConfiguration().then(async () => {
-  // Initialize MSAL before rendering - required for MSAL v2+
-  try {
-    await msalInstance.initialize();
-    // Handle any redirect promise from SSO callback
-    await msalInstance.handleRedirectPromise();
-  } catch (error) {
-    console.error('[Fleet] MSAL initialization failed:', error);
-  }
-
   // Initialize MSAL before rendering - required for MSAL v2+
   try {
     await msalInstance.initialize();

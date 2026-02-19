@@ -13,42 +13,42 @@ class PrometheusMetrics {
   private initialized = false;
 
   // HTTP metrics
-  private httpRequestDuration: Histogram;
-  private httpRequestTotal: Counter;
-  private httpRequestsInProgress: Gauge;
-  private httpErrorTotal: Counter;
+  private httpRequestDuration!: Histogram;
+  private httpRequestTotal!: Counter;
+  private httpRequestsInProgress!: Gauge;
+  private httpErrorTotal!: Counter;
 
   // Database metrics
-  private dbQueryDuration: Histogram;
-  private dbQueryTotal: Counter;
-  private dbConnectionPoolSize: Gauge;
-  private dbConnectionPoolUtilization: Gauge;
-  private dbQueryErrors: Counter;
+  private dbQueryDuration!: Histogram;
+  private dbQueryTotal!: Counter;
+  private dbConnectionPoolSize!: Gauge;
+  private dbConnectionPoolUtilization!: Gauge;
+  private dbQueryErrors!: Counter;
 
   // Business metrics
-  private activeVehicles: Gauge;
-  private completedRoutes: Counter;
-  private driversOnline: Gauge;
-  private dispatchedOrders: Counter;
+  private activeVehicles!: Gauge;
+  private completedRoutes!: Counter;
+  private driversOnline!: Gauge;
+  private dispatchedOrders!: Counter;
 
   // Cache metrics
-  private cacheHits: Counter;
-  private cacheMisses: Counter;
-  private cacheHitRate: Gauge;
+  private cacheHits!: Counter;
+  private cacheMisses!: Counter;
+  private cacheHitRate!: Gauge;
 
   // Job queue metrics
-  private jobQueueSize: Gauge;
-  private jobsProcessed: Counter;
-  private jobsFailedTotal: Counter;
-  private jobDuration: Histogram;
+  private jobQueueSize!: Gauge;
+  private jobsProcessed!: Counter;
+  private jobsFailedTotal!: Counter;
+  private jobDuration!: Histogram;
 
   // System metrics
-  private processUptime: Gauge;
-  private processCpuUsageSeconds: Counter;
-  private processMemoryHeapBytes: Gauge;
-  private processMemoryHeapLimit: Gauge;
-  private processMemoryRssBytes: Gauge;
-  private gcDuration: Histogram;
+  private processUptime!: Gauge;
+  private processCpuUsageSeconds!: Counter;
+  private processMemoryHeapBytes!: Gauge;
+  private processMemoryHeapLimit!: Gauge;
+  private processMemoryRssBytes!: Gauge;
+  private gcDuration!: Histogram;
 
   // Custom application metrics
   private customMetrics: Map<string, Counter | Gauge | Histogram | Summary> = new Map();

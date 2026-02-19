@@ -39,6 +39,26 @@ dist-ssr
 keyvault-config-*.env
 *-config.env
 **/agent-eval-report*
+
+# AI assistant artifacts - NEVER commit
+.clawdrc.json
+clawd.sh
+clawd.*
+CLAWD_*
+kimi-*.py
+kimi-*.json
+kimi-*.md
+KIMI_*
+kimi-review-screenshots/
+tests/kimi-exhaustive/
+playwright.kimi*.config.ts
+
+# Backup/temp files
+*.bak
+*.compact_backup
+*.joinbak
+DataWorkbench.bak/
+
 packages
 pids
 .file-manifest
