@@ -24,6 +24,10 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+*.bak
+*.bak[0-9]*
+*.orig
+*.backup
 
 # Environment files - NEVER commit secrets
 .env
