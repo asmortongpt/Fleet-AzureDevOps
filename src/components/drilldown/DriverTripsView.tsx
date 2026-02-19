@@ -44,7 +44,11 @@ interface Trip {
   highlights?: string[]
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) {
   const { data: trips, error, isLoading, mutate } = useSWR(

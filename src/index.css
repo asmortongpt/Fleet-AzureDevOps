@@ -76,6 +76,32 @@
   --transition-slow: 350ms;
 }
 
+/* Skip Navigation - WCAG AAA keyboard accessibility */
+.skip-navigation {
+  position: relative;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--cta-midnight, #1A0B2E);
+  color: #fff;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  z-index: 100;
+  transition: top 0.2s;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--cta-blue-skies, #41B2E3);
+  outline-offset: 2px;
+}
+
 @layer base {
   * {
     @apply border-border;

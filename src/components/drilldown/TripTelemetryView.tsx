@@ -42,7 +42,10 @@ interface TelemetryData {
 }
 
 const fetcher = (url: string): Promise<TelemetryData> =>
-  fetch(url).then((r) => r.json())
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
   const [activeTab, setActiveTab] = useState('overview')

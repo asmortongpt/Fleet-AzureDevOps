@@ -12,7 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const fetcher = (url: string) =>
   fetch(url)
-    .then((r) => r.json())
+    .then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      return r.json()
+    })
     .then((data) => data?.data ?? data)
 
 interface IncidentData {

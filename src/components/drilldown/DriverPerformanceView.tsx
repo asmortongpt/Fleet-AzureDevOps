@@ -25,7 +25,11 @@ interface DriverPerformanceViewProps {
   driverName?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function DriverPerformanceView({
   driverId,

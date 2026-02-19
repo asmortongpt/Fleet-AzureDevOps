@@ -23,7 +23,10 @@ import { Progress } from '@/components/ui/progress'
 
 const fetcher = (url: string) =>
   fetch(url)
-    .then((r) => r.json())
+    .then((r) => {
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
+      return r.json()
+    })
     .then((data) => data?.data ?? data)
 
 // ============================================================================

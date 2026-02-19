@@ -38,7 +38,11 @@ interface Trip {
   fuel_used?: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListProps) {
   const { push } = useDrilldown()

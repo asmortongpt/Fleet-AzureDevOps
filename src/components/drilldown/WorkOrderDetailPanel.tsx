@@ -93,7 +93,11 @@ interface MaintenanceHistoryItem {
   status: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps) {
   const { push } = useDrilldown()

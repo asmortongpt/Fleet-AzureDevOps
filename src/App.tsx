@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { pageTransitionVariants } from '@/lib/animations'
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
+import { SkipNavigation } from "@/components/common/SkipNavigation"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
@@ -520,6 +521,7 @@ function App() {
     const moduleContent = renderModule()
     return (
       <DrilldownManager>
+        <SkipNavigation />
         <EnhancedErrorBoundary showDetails={import.meta.env.DEV}>
           <QueryErrorBoundary>
             <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
@@ -554,6 +556,7 @@ function App() {
   // Legacy layout (default)
   return (
     <DrilldownManager>
+      <SkipNavigation />
       <CommandCenterLayout>
         <EnhancedErrorBoundary
           showDetails={import.meta.env.DEV}
