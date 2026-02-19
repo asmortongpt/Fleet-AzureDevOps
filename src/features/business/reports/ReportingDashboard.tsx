@@ -106,7 +106,9 @@ export default function ReportingDashboard() {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/reports`);
+      const response = await fetch(`${API_URL}/api/reports`, {
+        credentials: 'include',
+      });
       const data = await response.json();
       setReports(data);
     } catch (error) {
@@ -116,7 +118,9 @@ export default function ReportingDashboard() {
 
   const fetchScheduledReports = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/scheduled-reports`);
+      const response = await fetch(`${API_URL}/api/scheduled-reports`, {
+        credentials: 'include',
+      });
       const data = await response.json();
       setScheduledReports(data);
     } catch (error) {
@@ -137,6 +141,7 @@ export default function ReportingDashboard() {
     try {
       const response = await fetch(`${API_URL}/api/reports/generate`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           reportType,
@@ -167,7 +172,9 @@ export default function ReportingDashboard() {
 
   const handleDownloadReport = async (reportId: string, reportName: string, format: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/reports/${reportId}/download`);
+      const response = await fetch(`${API_URL}/api/reports/${reportId}/download`, {
+        credentials: 'include',
+      });
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -186,7 +193,7 @@ export default function ReportingDashboard() {
     if (!confirm('Are you sure you want to delete this report?')) return;
 
     try {
-      await fetch(`${API_URL}/api/reports/${reportId}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/reports/${reportId}`, { method: 'DELETE', credentials: 'include' });
       setSuccess('Report deleted successfully');
       fetchReports();
     } catch (error) {
@@ -203,6 +210,7 @@ export default function ReportingDashboard() {
     try {
       const response = await fetch(`${API_URL}/api/scheduled-reports`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scheduledReportData),
       });
@@ -230,6 +238,7 @@ export default function ReportingDashboard() {
     try {
       await fetch(`${API_URL}/api/scheduled-reports/${id}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !isActive }),
       });
@@ -243,7 +252,7 @@ export default function ReportingDashboard() {
     if (!confirm('Are you sure you want to delete this scheduled report?')) return;
 
     try {
-      await fetch(`${API_URL}/api/scheduled-reports/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/scheduled-reports/${id}`, { method: 'DELETE', credentials: 'include' });
       setSuccess('Scheduled report deleted successfully');
       fetchScheduledReports();
     } catch (error) {

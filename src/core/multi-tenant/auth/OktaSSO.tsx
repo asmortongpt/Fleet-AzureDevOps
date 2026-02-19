@@ -335,6 +335,7 @@ const logAuthEvent = (event: string, details: any = {}) => {
   if (import.meta.env.MODE === 'production') {
     fetch('/api/audit-logs/auth', {
       method: 'POST',
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json'
       },

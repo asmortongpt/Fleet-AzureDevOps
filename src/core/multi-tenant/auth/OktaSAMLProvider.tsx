@@ -234,6 +234,7 @@ const handleSecurityEvent = (event: string, data: any) => {
   if (import.meta.env.VITE_NODE_ENV === 'production') {
     fetch('/api/security/events', {
       method: 'POST',
+      credentials: 'include',
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(securityLog)
     }).catch(err => logger.error('Security log failed:', err));

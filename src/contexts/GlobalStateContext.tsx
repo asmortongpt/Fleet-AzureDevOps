@@ -32,7 +32,9 @@ export function TenantProvider({ children }: { children: ReactNode }) {
       try {
         const tenantId = typeof window !== 'undefined' ? localStorage.getItem('tenant_id') : null;
         if (tenantId) {
-          const res = await fetch(`/api/tenants/${tenantId}`);
+          const res = await fetch(`/api/tenants/${tenantId}`, {
+            credentials: 'include',
+          });
           const tenant = await res.json();
           setCurrentTenant(tenant);
         }
@@ -49,7 +51,9 @@ export function TenantProvider({ children }: { children: ReactNode }) {
   const switchTenant = async (tenantId: number) => {
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/tenants/${tenantId}`);
+      const res = await fetch(`/api/tenants/${tenantId}`, {
+        credentials: 'include',
+      });
       const tenant = await res.json();
       setCurrentTenant(tenant);
       if (typeof window !== 'undefined') {
@@ -121,7 +125,9 @@ export function FeatureFlagsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const loadFeatureFlags = async () => {
       try {
-        const res = await fetch('/api/feature-flags');
+        const res = await fetch('/api/feature-flags', {
+          credentials: 'include',
+        });
         if (!res.ok) {
           // Route may not exist (404) or server error — use empty defaults
           return;

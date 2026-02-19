@@ -355,6 +355,7 @@ class AuditLogger {
     try {
       const response = await fetch('/api/audit-logs/log', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-Audit-Hash': record.recordHash
@@ -389,6 +390,7 @@ class AuditLogger {
 
       const response = await fetch('/api/audit-logs/blob-storage', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json'
         },
@@ -422,6 +424,7 @@ class AuditLogger {
       // Send to SIEM for real-time monitoring and alerting
       const response = await fetch('/api/audit-logs/siem', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
           'X-SIEM-Source': 'fleet-management'
@@ -468,7 +471,9 @@ class AuditLogger {
    */
   private async fetchLastAuditRecord(): Promise<ImmutableAuditRecord | null> {
     try {
-      const response = await fetch('/api/audit-logs/last-record');
+      const response = await fetch('/api/audit-logs/last-record', {
+        credentials: 'include',
+      });
       if (!response.ok) return null;
 
       const data = await response.json();
