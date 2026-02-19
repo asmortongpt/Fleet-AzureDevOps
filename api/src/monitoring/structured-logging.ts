@@ -80,7 +80,7 @@ function createStructuredLogger(): winston.Logger {
       filename: path.join(logsDir, 'application-%DATE%.log'),
       datePattern: 'YYYY-MM-DD',
       maxSize: '20m',
-      maxFiles: '14d',
+      maxDays: '14d',
       format: jsonFormatter,
       level: 'info'
     })
@@ -92,7 +92,7 @@ function createStructuredLogger(): winston.Logger {
       filename: path.join(logsDir, 'error-%DATE%.log'),
       datePattern: 'YYYY-MM-DD',
       maxSize: '20m',
-      maxFiles: '30d',
+      maxDays: '30d',
       format: jsonFormatter,
       level: 'error'
     })
@@ -105,7 +105,7 @@ function createStructuredLogger(): winston.Logger {
         filename: path.join(logsDir, 'debug-%DATE%.log'),
         datePattern: 'YYYY-MM-DD',
         maxSize: '20m',
-        maxFiles: '7d',
+        maxDays: '7d',
         format: jsonFormatter,
         level: 'debug'
       })

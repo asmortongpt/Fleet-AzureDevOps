@@ -6,7 +6,6 @@
 import { MapPin, Navigation, Clock, Signal, AlertCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { LeafletMap } from '@/components/LeafletMap';
-import type { Vehicle as FullVehicle, GISFacility } from '@/lib/types';
 import { brandColors, colors } from '@/theme/designSystem';
 
 interface Vehicle {
@@ -68,8 +67,8 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
                 latitude: v.latitude || 25.7617,
                 longitude: v.longitude || -80.1918,
                 status: v.status || 'active'
-              })) as unknown as FullVehicle[]}
-              facilities={facilities as unknown as GISFacility[]}
+              }))}
+              facilities={facilities}
               zoom={12}
               center={[25.7617, -80.1918]} // Miami default
             />

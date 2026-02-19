@@ -18,7 +18,7 @@ export const securityHeaders = helmet({
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:", "blob:"],
       mediaSrc: ["'self'", "blob:", "data:"],
-      scriptSrc: ["'self'"], // Three.js is frontend-only and lazy-loaded; no eval needed server-side
+      scriptSrc: ["'self'", "'unsafe-eval'"], // Three.js requires unsafe-eval
       connectSrc: ["'self'", "ws:", "wss:"],
       objectSrc: ["'none'"],
       baseUri: ["'self'"],

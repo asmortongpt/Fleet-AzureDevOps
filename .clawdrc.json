@@ -1,0 +1,25 @@
+{
+  "clawsbot": {
+    "verification": {
+      "enabled": true,
+      "tools": ["vitest", "eslint", "npm-audit", "tsc"],
+      "trustScoreThreshold": 0.8,
+      "failOnLowTrust": false
+    },
+    "agents": {
+      "maxParallel": 3,
+      "timeout": 300000
+    },
+    "output": {
+      "logLevel": "info",
+      "auditTrail": true,
+      "reportPath": "./claws-reports"
+    },
+    "project": {
+      "type": "react-vite-typescript",
+      "testFramework": "vitest",
+      "linter": "eslint",
+      "packageManager": "npm"
+    }
+  }
+}

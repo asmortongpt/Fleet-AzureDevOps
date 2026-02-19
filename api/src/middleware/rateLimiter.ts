@@ -331,16 +331,14 @@ export function smartRateLimiter(req: Request, res: Response, next: NextFunction
     case 'GET':
     case 'HEAD':
     case 'OPTIONS':
-      readLimiter(req, res, next)
-      return
+      return readLimiter(req, res, next)
     case 'POST':
     case 'PUT':
     case 'PATCH':
     case 'DELETE':
-      writeLimiter(req, res, next)
-      return
+      return writeLimiter(req, res, next)
     default:
-      globalLimiter(req, res, next)
+      return globalLimiter(req, res, next)
   }
 }
 

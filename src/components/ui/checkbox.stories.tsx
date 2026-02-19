@@ -24,7 +24,7 @@ export const Default: Story = {
   args: {
     id: 'checkbox-default',
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Checkbox {...args} />
       <Label htmlFor="checkbox-default">Accept terms and conditions</Label>
@@ -37,7 +37,7 @@ export const Checked: Story = {
     id: 'checkbox-checked',
     defaultChecked: true,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Checkbox {...args} />
       <Label htmlFor="checkbox-checked">Checkbox is checked</Label>
@@ -50,7 +50,7 @@ export const Unchecked: Story = {
     id: 'checkbox-unchecked',
     defaultChecked: false,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Checkbox {...args} />
       <Label htmlFor="checkbox-unchecked">Checkbox is unchecked</Label>
@@ -63,7 +63,7 @@ export const Disabled: Story = {
     id: 'checkbox-disabled',
     disabled: true,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Checkbox {...args} />
       <Label htmlFor="checkbox-disabled" className="opacity-50 cursor-not-allowed">
@@ -79,7 +79,7 @@ export const DisabledChecked: Story = {
     disabled: true,
     defaultChecked: true,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Checkbox {...args} />
       <Label htmlFor="checkbox-disabled-checked" className="opacity-50 cursor-not-allowed">

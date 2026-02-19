@@ -1,11 +1,24 @@
-import redisClient from './redis';
+import Redis from 'ioredis';
+import logger from './logger';
 
 /**
  * Redis Caching Configuration
- * Uses shared Redis client from config/redis.ts (singleton pattern)
+ * Performance optimization for frequently accessed data
  */
 
-const redis = redisClient;
+const redis = new Redis({
+  host: process.env.REDIS_HOST || 'localhost',
+  port: parseInt(process.env.REDIS_PORT || '6379'),
+  password: process.env.REDIS_PASSWORD,
+  retryStrategy: (times) => {
+    const delay = Math.min(times * 50, 2000);
+    return delay;
+  },
+});
+
+redis.on('error', (err) => {
+  logger.error('Redis connection error', { error: err.message });
+});
 
 export class CacheService {
   private ttl = 3600; // 1 hour default

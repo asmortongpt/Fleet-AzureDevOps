@@ -1,0 +1,175 @@
+import { Pool } from 'pg';
+import { BaseRepository } from './BaseRepository';
+
+export class BackupRestoreRepository extends BaseRepository<any> {
+  constructor(pool: Pool) {
+    super(pool, 'LBackup_LRestore_s');
+  }
+
+  /**
+   * Create a new backup
+   * @param backupData - Object containing backup details
+   * @returns Promise resolving to the created backup's ID
+   */
+  async createBackup(backupData: {
+    name: string;
+    description: string;
+    data: string;
+    tenant_id: string;
+  }): Promise<number> {
+    const { name, description, data, tenant_id } = backupData;
+    const query = `
+      INSERT INTO backups (name, description, data, tenant_id, created_at)
+      VALUES ($1, $2, $3, $4, NOW())
+      RETURNING id;
+    `;
+    const values = [name, description, data, tenant_id];
+    const result: QueryResult = await pool.query(query, values);
+    return result.rows[0].id;
+  }
+
+  /**
+   * Get a backup by its ID
+   * @param id - The ID of the backup to retrieve
+   * @param tenant_id - The tenant ID to filter the backup
+   * @returns Promise resolving to the backup object or null if not found
+   */
+  async getBackupById(id: number, tenant_id: string): Promise<Backup | null> {
+    const query = `
+      SELECT id, name, description, data, tenant_id, created_at
+      FROM backups
+      WHERE id = $1 AND tenant_id = $2;
+    `;
+    const values = [id, tenant_id];
+    const result: QueryResult = await pool.query(query, values);
+    return result.rows[0] || null;
+  }
+
+  /**
+   * Update an existing backup
+   * @param id - The ID of the backup to update
+   * @param backupData - Object containing updated backup details
+   * @param tenant_id - The tenant ID to filter the backup
+   * @returns Promise resolving to a boolean indicating success
+   */
+  async updateBackup(
+    id: number,
+    backupData: {
+      name?: string;
+      description?: string;
+      data?: string;
+    },
+    tenant_id: string
+  ): Promise<boolean> {
+    const { name, description, data } = backupData;
+    const setClauses: string[] = [];
+    const values: any[] = [];
+
+    if (name !== undefined) {
+      setClauses.push(`name = $${values.length + 1}`);
+      values.push(name);
+    }
+    if (description !== undefined) {
+      setClauses.push(`description = $${values.length + 1}`);
+      values.push(description);
+    }
+    if (data !== undefined) {
+      setClauses.push(`data = $${values.length + 1}`);
+      values.push(data);
+    }
+
+    values.push(id);
+    values.push(tenant_id);
+
+    if (setClauses.length === 0) {
+      return false;
+    }
+
+    const query = `
+      UPDATE backups
+      SET ${setClauses.join(', ')}
+      WHERE id = $${values.length - 1} AND tenant_id = $${values.length}
+      RETURNING id;
+    `;
+
+    const result: QueryResult = await pool.query(query, values);
+    return result.rowCount > 0;
+  }
+
+  /**
+   * Delete a backup by its ID
+   * @param id - The ID of the backup to delete
+   * @param tenant_id - The tenant ID to filter the backup
+   * @returns Promise resolving to a boolean indicating success
+   */
+  async deleteBackup(id: number, tenant_id: string): Promise<boolean> {
+    const query = `
+      DELETE FROM backups
+      WHERE id = $1 AND tenant_id = $2
+      RETURNING id;
+    `;
+    const values = [id, tenant_id];
+    const result: QueryResult = await pool.query(query, values);
+    return result.rowCount > 0;
+  }
+
+  /**
+   * List all backups for a specific tenant
+   * @param tenant_id - The tenant ID to filter backups
+   * @returns Promise resolving to an array of backup objects
+   */
+  async listBackups(tenant_id: string): Promise<Backup[]> {
+    const query = `
+      SELECT id, name, description, tenant_id, created_at
+      FROM backups
+      WHERE tenant_id = $1
+      ORDER BY created_at DESC;
+    `;
+    const values = [tenant_id];
+    const result: QueryResult = await pool.query(query, values);
+    return result.rows;
+  }
+
+  /**
+   * Restore a backup
+   * @param id - The ID of the backup to restore
+   * @param tenant_id - The tenant ID to filter the backup
+   * @returns Promise resolving to a boolean indicating success
+   */
+  async restoreBackup(id: number, tenant_id: string): Promise<boolean> {
+    // Implement the restore logic here
+    // This is a placeholder and should be replaced with actual restore functionality
+    console.log(`Restoring backup with ID ${id} for tenant ${tenant_id}`);
+    return true;
+  }
+}
+
+  /**
+   * N+1 PREVENTION: Find with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findWithRelatedData(id: string, tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.id = $1 AND t.tenant_id = $2 AND t.deleted_at IS NULL
+    `;
+    const result = await this.query(query, [id, tenantId]);
+    return result.rows[0] || null;
+  }
+
+  /**
+   * N+1 PREVENTION: Find all with related data
+   * Override this method in subclasses for specific relationships
+   */
+  async findAllWithRelatedData(tenantId: string) {
+    const query = `
+      SELECT t.*
+      FROM ${this.tableName} t
+      WHERE t.tenant_id = $1 AND t.deleted_at IS NULL
+      ORDER BY t.created_at DESC
+    `;
+    const result = await this.query(query, [tenantId]);
+    return result.rows;
+  }
+}

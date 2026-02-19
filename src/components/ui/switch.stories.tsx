@@ -25,7 +25,7 @@ export const Default: Story = {
   args: {
     id: 'switch-default',
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Switch {...args} />
       <Label htmlFor="switch-default">Enable Feature</Label>
@@ -38,7 +38,7 @@ export const Checked: Story = {
     id: 'switch-checked',
     defaultChecked: true,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Switch {...args} />
       <Label htmlFor="switch-checked">Feature Enabled</Label>
@@ -51,7 +51,7 @@ export const Unchecked: Story = {
     id: 'switch-unchecked',
     defaultChecked: false,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Switch {...args} />
       <Label htmlFor="switch-unchecked">Feature Disabled</Label>
@@ -64,7 +64,7 @@ export const Disabled: Story = {
     id: 'switch-disabled',
     disabled: true,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Switch {...args} />
       <Label htmlFor="switch-disabled" className="opacity-50 cursor-not-allowed">
@@ -80,7 +80,7 @@ export const DisabledChecked: Story = {
     disabled: true,
     defaultChecked: true,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="flex items-center space-x-2">
       <Switch {...args} />
       <Label htmlFor="switch-disabled-checked" className="opacity-50 cursor-not-allowed">

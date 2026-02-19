@@ -28,7 +28,7 @@ export const Default: Story = {
     max: 100,
     step: 1,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="w-full max-w-xs">
       <Label className="mb-2 block">Volume: 50%</Label>
       <Slider {...args} />
@@ -68,7 +68,7 @@ export const WithSteps: Story = {
     max: 100,
     step: 10,
   },
-  render: (args: Record<string, unknown>) => (
+  render: (args) => (
     <div className="w-full max-w-xs space-y-4">
       <Label>Quality Level (10% intervals)</Label>
       <Slider {...args} />

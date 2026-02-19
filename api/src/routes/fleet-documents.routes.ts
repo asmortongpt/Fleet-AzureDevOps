@@ -116,7 +116,7 @@ router.use(authenticateJWT)
  */
 router.post(
   '/upload',
-  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher', 'driver'),
   upload.single('file'),
   auditLog({ action: 'CREATE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
@@ -444,7 +444,7 @@ router.get(
  */
 router.delete(
   '/:id',
-  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'DELETE', resourceType: 'fleet_document' }),
   async (req: AuthRequest, res: Response) => {
     try {
@@ -569,7 +569,7 @@ router.get(
  */
 router.post(
   '/:id/ocr',
-  csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
+  csrfProtection, csrfProtection, authorize('admin', 'fleet_manager', 'dispatcher'),
   auditLog({ action: 'CREATE', resourceType: 'ocr_processing' }),
   async (req: AuthRequest, res: Response) => {
     try {

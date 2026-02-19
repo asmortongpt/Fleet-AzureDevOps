@@ -137,8 +137,8 @@ export function InteractiveTooltip({
                     "px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1",
                     "bg-white/20 backdrop-blur-sm"
                   )}>
-                    <div className={cn("w-2 h-2 rounded-full", config?.color)} />
-                    {config?.label}
+                    <div className={cn("w-2 h-2 rounded-full", config.color)} />
+                    {config.label}
                   </div>
                 </div>
               </div>

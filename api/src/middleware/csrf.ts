@@ -10,7 +10,7 @@ interface CsrfUtilities {
   doubleCsrfProtection: (req: Request, res: Response, next: NextFunction) => void;
 }
 
-const csrfConfig = {
+const csrfMethods = doubleCsrf({
   getSecret: () => {
     const secret = process.env.CSRF_SECRET;
     if (!secret && process.env.NODE_ENV === 'production') {
@@ -23,18 +23,15 @@ const csrfConfig = {
     // Use user ID from JWT auth, or fallback to IP for unauthenticated requests
     return (req as any).user?.id || req.ip || 'anonymous';
   },
-  cookieName: "x-csrf-token" as const,
+  cookieName: "x-csrf-token",
   cookieOptions: {
-    sameSite: "strict" as const,
+    sameSite: "strict",
     path: "/",
     secure: process.env.NODE_ENV === "production",
   },
   size: 64,
   ignoredMethods: ["GET", "HEAD", "OPTIONS"],
-};
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- csrf-csrf v4 types don't include getSessionIdentifier
-const csrfMethods = doubleCsrf(csrfConfig as any) as unknown as CsrfUtilities;
+}) as unknown as CsrfUtilities;
 
 // Export individual methods
 export const generateToken = csrfMethods.generateCsrfToken;

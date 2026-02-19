@@ -181,7 +181,7 @@ const LoadingSpinner = () => (
 function App() {
   const { canAccess } = useAuth()
   const { activeModule, setActiveModule } = useNavigation()
-  useEffect(() => { telemetryService.initialize() }, [])
+  useState(() => telemetryService.initialize())
 
   const fleetData = useFleetData()
 
