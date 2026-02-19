@@ -43,6 +43,7 @@ import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
@@ -1073,27 +1074,27 @@ export default function ComplianceSafetyHub() {
           </TabsList>
 
           <TabsContent value="compliance" className="mt-6">
-            <ErrorBoundary>
+            <QueryErrorBoundary>
               <ComplianceTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
           <TabsContent value="safety" className="mt-6">
-            <ErrorBoundary>
+            <QueryErrorBoundary>
               <SafetyTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
           <TabsContent value="policies" className="mt-6">
-            <ErrorBoundary>
+            <QueryErrorBoundary>
               <PoliciesTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
           <TabsContent value="reporting" className="mt-6">
-            <ErrorBoundary>
+            <QueryErrorBoundary>
               <ReportingTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
         </Tabs>
       </div>

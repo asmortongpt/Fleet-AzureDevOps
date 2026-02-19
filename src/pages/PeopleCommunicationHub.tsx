@@ -42,6 +42,7 @@ import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
@@ -609,21 +610,21 @@ export default function PeopleCommunicationHub() {
           </TabsList>
 
               <TabsContent value="people" className="mt-6">
-                <ErrorBoundary>
+                <QueryErrorBoundary>
                   <PeopleTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
 
               <TabsContent value="communication" className="mt-6">
-                <ErrorBoundary>
+                <QueryErrorBoundary>
                   <CommunicationTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
 
               <TabsContent value="work" className="mt-6">
-                <ErrorBoundary>
+                <QueryErrorBoundary>
                   <WorkTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
         </Tabs>
       </div>

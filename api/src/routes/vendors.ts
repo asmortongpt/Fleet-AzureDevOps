@@ -1,4 +1,5 @@
 import { Router, Response } from "express"
+import { z } from 'zod'
 
 import { pool } from '../config/database'
 import { csrfProtection } from '../middleware/csrf'
@@ -6,6 +7,31 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
+
+const createVendorSchema = z.object({
+  name: z.string().min(1).max(200),
+  code: z.string().optional(),
+  type: z.string().optional(),
+  contactName: z.string().optional(),
+  contactEmail: z.string().email().optional(),
+  contactPhone: z.string().max(20).optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  zipCode: z.string().optional(),
+  country: z.string().optional(),
+  website: z.string().url().optional(),
+  taxId: z.string().optional(),
+  paymentTerms: z.string().optional(),
+  preferredVendor: z.boolean().optional(),
+  rating: z.number().optional(),
+  notes: z.string().max(2000).optional(),
+  status: z.enum(['active', 'inactive', 'pending']).optional(),
+})
+
+const updateVendorSchema = createVendorSchema.extend({
+  isActive: z.boolean().optional(),
+}).partial()
 
 const router = Router()
 
@@ -71,7 +97,12 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { name, code, type, contactName, contactEmail, contactPhone, address, city, state, zipCode, country, website, taxId, paymentTerms, preferredVendor, rating, notes } = req.body
+  const parsed = createVendorSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+  }
+
+  const { name, code, type, contactName, contactEmail, contactPhone, address, city, state, zipCode, country, website, taxId, paymentTerms, preferredVendor, rating, notes } = parsed.data
 
   const result = await client.query(
     `INSERT INTO vendors (
@@ -98,10 +129,15 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { name, type, isActive, contactName, contactEmail, contactPhone, rating } = req.body
+  const parsed = updateVendorSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+  }
+
+  const { name, type, isActive, contactName, contactEmail, contactPhone, rating } = parsed.data
 
   const result = await client.query(
-    `UPDATE vendors 
+    `UPDATE vendors
      SET name = COALESCE($1, name),
          type = COALESCE($2, type),
          is_active = COALESCE($3, is_active),

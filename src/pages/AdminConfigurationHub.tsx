@@ -51,6 +51,7 @@ import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
@@ -867,33 +868,33 @@ export default function AdminConfigurationHub() {
           </TabsList>
 
               <TabsContent value="admin" className="mt-6">
-                <ErrorBoundary>
+                <QueryErrorBoundary>
                   <AdminTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
 
               <TabsContent value="config" className="mt-6">
-                <ErrorBoundary>
+                <QueryErrorBoundary>
                   <ConfigurationTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
 
               <TabsContent value="data" className="mt-6">
-                <ErrorBoundary>
+                <QueryErrorBoundary>
                   <DataGovernanceTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
 
               <TabsContent value="integrations" className="mt-6">
-                <ErrorBoundary>
+                <QueryErrorBoundary>
                   <IntegrationsTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
 
               <TabsContent value="documents" className="mt-6">
-                <ErrorBoundary>
+                <QueryErrorBoundary>
                   <DocumentsTabContent />
-                </ErrorBoundary>
+                </QueryErrorBoundary>
               </TabsContent>
         </Tabs>
       </div>

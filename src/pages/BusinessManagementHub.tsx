@@ -43,6 +43,7 @@ import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -911,27 +912,27 @@ export default function BusinessManagementHub() {
           </TabsList>
 
           <TabsContent value="financial" className="mt-6">
-            <ErrorBoundary>
+            <QueryErrorBoundary>
               <FinancialTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
           <TabsContent value="procurement" className="mt-6">
-            <ErrorBoundary>
+            <QueryErrorBoundary>
               <ProcurementTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-6">
-            <ErrorBoundary>
+            <QueryErrorBoundary>
               <AnalyticsTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
           <TabsContent value="reports" className="mt-6">
-            <ErrorBoundary>
+            <QueryErrorBoundary>
               <ReportsTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
         </Tabs>
       </div>

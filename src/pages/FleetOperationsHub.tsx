@@ -65,6 +65,7 @@ import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -1675,14 +1676,36 @@ export default function FleetOperationsHub() {
 
         {/* Tab Content */}
         <div>
-          <ErrorBoundary>
-            {activeTab === 'overview' && <OverviewTabContent />}
-            {activeTab === 'fleet' && <FleetTabContent />}
-            {activeTab === 'drivers' && <DriversTabContent />}
-            {activeTab === 'operations' && <OperationsTabContent />}
-            {activeTab === 'maintenance' && <MaintenanceTabContent />}
-            {activeTab === 'assets' && <AssetsTabContent />}
-          </ErrorBoundary>
+          {activeTab === 'overview' && (
+            <QueryErrorBoundary>
+              <OverviewTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'fleet' && (
+            <QueryErrorBoundary>
+              <FleetTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'drivers' && (
+            <QueryErrorBoundary>
+              <DriversTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'operations' && (
+            <QueryErrorBoundary>
+              <OperationsTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'maintenance' && (
+            <QueryErrorBoundary>
+              <MaintenanceTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'assets' && (
+            <QueryErrorBoundary>
+              <AssetsTabContent />
+            </QueryErrorBoundary>
+          )}
         </div>
       </div>
     </HubPage>
