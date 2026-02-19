@@ -89,7 +89,7 @@ router.patch(
       res.json(result.rows[0])
     } catch (error: unknown) {
       if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message })
+        return res.status(404).json({ error: 'Resource not found' })
       }
       return res.status(500).json({ error: 'Failed to update notification' })
     }
@@ -136,7 +136,7 @@ router.delete(
       res.json({ success: true, message: 'Notification deleted successfully' })
     } catch (error: unknown) {
       if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message })
+        return res.status(404).json({ error: 'Resource not found' })
       }
       return res.status(500).json({ error: 'Failed to delete notification' })
     }

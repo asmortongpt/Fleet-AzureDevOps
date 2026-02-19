@@ -68,7 +68,7 @@ router.post('/vehicle-maintenance', csrfProtection, authenticateJWT, async (req:
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending maintenance card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -112,7 +112,7 @@ router.post('/maintenance', csrfProtection, authenticateJWT, async (req: Request
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending maintenance card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -155,7 +155,7 @@ router.post('/maintenance', csrfProtection, authenticateJWT, async (req: Request
     })
   } catch (error: any) {
     logger.error('Error sending maintenance card:', error.message)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -212,7 +212,7 @@ router.post('/work-order', csrfProtection, authenticateJWT, async (req: Request,
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending work order card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -271,7 +271,7 @@ router.post('/incident', csrfProtection, authenticateJWT, async (req: Request, r
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending incident card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -326,7 +326,7 @@ router.post('/approval', csrfProtection, authenticateJWT, async (req: Request, r
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending approval card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -375,7 +375,7 @@ router.post('/driver-performance', csrfProtection, authenticateJWT, async (req: 
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending performance card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -432,7 +432,7 @@ router.post('/fuel-receipt', csrfProtection, authenticateJWT, async (req: Reques
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending fuel receipt card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -489,7 +489,7 @@ router.post('/inspection-checklist', csrfProtection, authenticateJWT, async (req
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending inspection card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -539,7 +539,7 @@ router.post('/inspection', csrfProtection, authenticateJWT, async (req: Request,
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error sending inspection card:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -588,7 +588,7 @@ router.post('/inspection', csrfProtection, authenticateJWT, async (req: Request,
     })
   } catch (error: any) {
     logger.error('Error sending inspection card:', error.message)
-    res.status(500).json({ error: error.message })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -617,7 +617,7 @@ router.post('/:cardType/action', csrfProtection, authenticateJWT, async (req: Re
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error handling card action:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 
@@ -683,7 +683,7 @@ router.get('/preview/:cardType', authenticateJWT, async (req: Request, res: Resp
   } catch (error: unknown) {
     const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('Error generating card preview:', errMsg)
-    res.status(500).json({ error: errMsg })
+    res.status(500).json({ error: 'An internal error occurred' })
   }
 })
 

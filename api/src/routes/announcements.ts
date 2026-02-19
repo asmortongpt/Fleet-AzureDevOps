@@ -158,7 +158,7 @@ router.patch(
     } catch (error: unknown) {
       logger.error('Update announcement error:', error)
       if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message })
+        return res.status(404).json({ error: 'Resource not found' })
       }
       res.status(500).json({ error: 'Internal server error' })
     }

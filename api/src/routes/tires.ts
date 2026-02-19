@@ -8,8 +8,9 @@ import { z } from 'zod';
 import { db } from '../db';
 import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
-import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
+import { csrfProtection } from '../middleware/csrf';
 import { asyncHandler } from '../middleware/errorHandler';
+import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { tireRotationService } from '../services/tire-rotation';
 import { tireAnalyticsService } from '../services/tire-analytics';
 import {
@@ -242,6 +243,7 @@ router.get(
  */
 router.post(
   '/',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
@@ -353,6 +355,7 @@ router.get(
  */
 router.put(
   '/:id',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
@@ -428,6 +431,7 @@ router.put(
  */
 router.post(
   '/vehicles/:vehicleId/tires/mount',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
@@ -491,6 +495,7 @@ router.post(
  */
 router.post(
   '/vehicles/:vehicleId/tires/unmount',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
@@ -562,6 +567,7 @@ router.post(
  */
 router.post(
   '/vehicles/:vehicleId/tires/rotate',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
@@ -627,6 +633,7 @@ router.get(
  */
 router.post(
   '/vehicles/:vehicleId/tires/inspect',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]
@@ -708,6 +715,7 @@ router.get(
  */
 router.post(
   '/pressure-log',
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER],
     permissions: [PERMISSIONS.VEHICLE_UPDATE]

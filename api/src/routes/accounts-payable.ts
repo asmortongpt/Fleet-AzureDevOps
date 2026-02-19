@@ -19,6 +19,7 @@ import {
   CreateDepreciationInput
 } from '../types/accounts-payable';
 import { logger } from '../utils/logger';
+import { csrfProtection } from '../middleware/csrf';
 
 // --- Zod Schemas for input validation ---
 
@@ -102,7 +103,7 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
     res.json(result);
   } catch (error) {
     logger.error('Error listing AP records:', error);
-    res.status(500).json({ error: 'Failed to list AP records', details: String(error) });
+    res.status(500).json({ error: 'Failed to list AP records', details: 'An internal error occurred' });
   }
 });
 
@@ -110,7 +111,7 @@ router.get('/', authenticateJWT, async (req: Request, res: Response) => {
  * POST /api/accounts-payable
  * Create a new AP record
  */
-router.post('/', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
     const parsed = createAPSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -132,7 +133,7 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
     res.status(201).json(ap);
   } catch (error) {
     logger.error('Error creating AP record:', error);
-    res.status(500).json({ error: 'Failed to create AP record', details: String(error) });
+    res.status(500).json({ error: 'Failed to create AP record', details: 'An internal error occurred' });
   }
 });
 
@@ -140,7 +141,7 @@ router.post('/', authenticateJWT, async (req: Request, res: Response) => {
  * POST /api/accounts-payable/:id/pay
  * Record a payment against an AP record
  */
-router.post('/:id/pay', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/:id/pay', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
     const parsed = paymentSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -160,7 +161,7 @@ router.post('/:id/pay', authenticateJWT, async (req: Request, res: Response) => 
     res.json(updatedAP);
   } catch (error) {
     logger.error('Error recording payment:', error);
-    res.status(500).json({ error: 'Failed to record payment', details: String(error) });
+    res.status(500).json({ error: 'Failed to record payment', details: 'An internal error occurred' });
   }
 });
 
@@ -180,7 +181,7 @@ router.get('/aging-report', authenticateJWT, async (req: Request, res: Response)
     res.json(report);
   } catch (error) {
     logger.error('Error generating aging report:', error);
-    res.status(500).json({ error: 'Failed to generate aging report', details: String(error) });
+    res.status(500).json({ error: 'Failed to generate aging report', details: 'An internal error occurred' });
   }
 });
 
@@ -201,7 +202,7 @@ router.get('/cash-flow-forecast', authenticateJWT, async (req: Request, res: Res
     res.json(forecast);
   } catch (error) {
     logger.error('Error generating cash flow forecast:', error);
-    res.status(500).json({ error: 'Failed to generate forecast', details: String(error) });
+    res.status(500).json({ error: 'Failed to generate forecast', details: 'An internal error occurred' });
   }
 });
 
@@ -221,7 +222,7 @@ router.get('/overdue', authenticateJWT, async (req: Request, res: Response) => {
     res.json(overdueInvoices);
   } catch (error) {
     logger.error('Error fetching overdue invoices:', error);
-    res.status(500).json({ error: 'Failed to fetch overdue invoices', details: String(error) });
+    res.status(500).json({ error: 'Failed to fetch overdue invoices', details: 'An internal error occurred' });
   }
 });
 
@@ -246,7 +247,7 @@ router.get('/metrics', authenticateJWT, async (req: Request, res: Response) => {
     });
   } catch (error) {
     logger.error('Error fetching AP metrics:', error);
-    res.status(500).json({ error: 'Failed to fetch metrics', details: String(error) });
+    res.status(500).json({ error: 'Failed to fetch metrics', details: 'An internal error occurred' });
   }
 });
 
@@ -266,7 +267,7 @@ router.get('/discount-opportunities', authenticateJWT, async (req: Request, res:
     res.json(opportunities);
   } catch (error) {
     logger.error('Error fetching discount opportunities:', error);
-    res.status(500).json({ error: 'Failed to fetch opportunities', details: String(error) });
+    res.status(500).json({ error: 'Failed to fetch opportunities', details: 'An internal error occurred' });
   }
 });
 
@@ -288,7 +289,7 @@ router.get('/vendor/:vendorId/history', authenticateJWT, async (req: Request, re
     });
   } catch (error) {
     logger.error('Error fetching vendor payment history:', error);
-    res.status(500).json({ error: 'Failed to fetch payment history', details: String(error) });
+    res.status(500).json({ error: 'Failed to fetch payment history', details: 'An internal error occurred' });
   }
 });
 
@@ -300,7 +301,7 @@ router.get('/vendor/:vendorId/history', authenticateJWT, async (req: Request, re
  * POST /api/accounts-payable/depreciation
  * Create a depreciation record for an asset
  */
-router.post('/depreciation', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/depreciation', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
     const parsed = createDepreciationSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -320,7 +321,7 @@ router.post('/depreciation', authenticateJWT, async (req: Request, res: Response
     res.status(201).json(depreciation);
   } catch (error) {
     logger.error('Error creating depreciation record:', error);
-    res.status(500).json({ error: 'Failed to create depreciation record', details: String(error) });
+    res.status(500).json({ error: 'Failed to create depreciation record', details: 'An internal error occurred' });
   }
 });
 
@@ -328,7 +329,7 @@ router.post('/depreciation', authenticateJWT, async (req: Request, res: Response
  * POST /api/accounts-payable/depreciation/:id/calculate
  * Calculate depreciation for a specific period
  */
-router.post('/depreciation/:id/calculate', authenticateJWT, async (req: Request, res: Response) => {
+router.post('/depreciation/:id/calculate', authenticateJWT, csrfProtection, async (req: Request, res: Response) => {
   try {
     const parsed = calculateDepreciationSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -351,7 +352,7 @@ router.post('/depreciation/:id/calculate', authenticateJWT, async (req: Request,
     res.json(result);
   } catch (error) {
     logger.error('Error calculating depreciation:', error);
-    res.status(500).json({ error: 'Failed to calculate depreciation', details: String(error) });
+    res.status(500).json({ error: 'Failed to calculate depreciation', details: 'An internal error occurred' });
   }
 });
 
@@ -366,7 +367,7 @@ router.get('/depreciation/:id/schedule', authenticateJWT, async (req: Request, r
     res.json(schedule);
   } catch (error) {
     logger.error('Error fetching depreciation schedule:', error);
-    res.status(500).json({ error: 'Failed to fetch schedule', details: String(error) });
+    res.status(500).json({ error: 'Failed to fetch schedule', details: 'An internal error occurred' });
   }
 });
 
@@ -383,7 +384,7 @@ router.get('/depreciation/:id/project', authenticateJWT, async (req: Request, re
     res.json(projection);
   } catch (error) {
     logger.error('Error projecting depreciation:', error);
-    res.status(500).json({ error: 'Failed to project depreciation', details: String(error) });
+    res.status(500).json({ error: 'Failed to project depreciation', details: 'An internal error occurred' });
   }
 });
 
@@ -405,7 +406,7 @@ router.get('/depreciation/monthly-journal', authenticateJWT, async (req: Request
     res.json(journal);
   } catch (error) {
     logger.error('Error generating monthly journal:', error);
-    res.status(500).json({ error: 'Failed to generate journal', details: String(error) });
+    res.status(500).json({ error: 'Failed to generate journal', details: 'An internal error occurred' });
   }
 });
 
@@ -425,7 +426,7 @@ router.get('/depreciation/summary', authenticateJWT, async (req: Request, res: R
     res.json(summary);
   } catch (error) {
     logger.error('Error fetching depreciation summary:', error);
-    res.status(500).json({ error: 'Failed to fetch summary', details: String(error) });
+    res.status(500).json({ error: 'Failed to fetch summary', details: 'An internal error occurred' });
   }
 });
 

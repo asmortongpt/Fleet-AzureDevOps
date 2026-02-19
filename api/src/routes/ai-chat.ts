@@ -153,9 +153,9 @@ router.get(
       // Get messages
       const messagesResult = await pool.query(
         `SELECT id, tenant_id, session_id, role, content, created_at, updated_at FROM chat_messages
-         WHERE session_id = $1
+         WHERE session_id = $1 AND tenant_id = $2
          ORDER BY created_at ASC`,
-        [req.params.id]
+        [req.params.id, req.user!.tenant_id ?? '']
       )
 
       res.json({
@@ -185,8 +185,8 @@ router.delete(
   auditLog({ action: 'DELETE', resourceType: 'chat_session' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      // Delete messages first
-      await pool.query('DELETE FROM chat_messages WHERE session_id = $1', [req.params.id])
+      // Delete messages first (scoped to tenant)
+      await pool.query('DELETE FROM chat_messages WHERE session_id = $1 AND tenant_id = $2', [req.params.id, req.user!.tenant_id ?? ''])
 
       // Delete session
       await pool.query(
@@ -274,9 +274,9 @@ router.post(
 
       // Save user message
       await pool.query(
-        `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW())`,
-        [chatData.sessionId, 'user', chatData.message]
+        `INSERT INTO chat_messages (tenant_id, session_id, role, content, created_at)
+         VALUES ($1, $2, $3, $4, NOW())`,
+        [req.user!.tenant_id ?? '', chatData.sessionId, 'user', chatData.message]
       )
 
       // Get conversation history
@@ -284,10 +284,10 @@ router.post(
       if (chatData.includeHistory) {
         const historyResult = await pool.query(
           `SELECT role, content FROM chat_messages
-           WHERE session_id = $1
+           WHERE session_id = $1 AND tenant_id = $2
            ORDER BY created_at DESC
-           LIMIT $2`,
-          [chatData.sessionId, chatData.maxHistoryMessages]
+           LIMIT $3`,
+          [chatData.sessionId, req.user!.tenant_id ?? '', chatData.maxHistoryMessages]
         )
         conversationHistory = historyResult.rows.reverse()
       }
@@ -366,9 +366,10 @@ router.post(
       // Save assistant message
       await pool.query(
         `INSERT INTO chat_messages (
-          session_id, role, content, sources, model_used, tokens_used, created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+          tenant_id, session_id, role, content, sources, model_used, tokens_used, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
         [
+          req.user!.tenant_id ?? '',
           chatData.sessionId,
           'assistant',
           aiResponse,
@@ -380,8 +381,8 @@ router.post(
 
       // Update session
       await pool.query(
-        `UPDATE chat_sessions SET updated_at = NOW() WHERE id = $1`,
-        [chatData.sessionId]
+        `UPDATE chat_sessions SET updated_at = NOW() WHERE id = $1 AND tenant_id = $2`,
+        [chatData.sessionId, req.user!.tenant_id ?? '']
       )
 
       const responseTime = Date.now() - startTime
@@ -474,10 +475,10 @@ router.post(
       if (chatData.includeHistory) {
         const historyResult = await pool.query(
           `SELECT role, content FROM chat_messages
-           WHERE session_id = $1
+           WHERE session_id = $1 AND tenant_id = $2
            ORDER BY created_at DESC
-           LIMIT $2`,
-          [chatData.sessionId, chatData.maxHistoryMessages || 10]
+           LIMIT $3`,
+          [chatData.sessionId, req.user!.tenant_id ?? '', chatData.maxHistoryMessages || 10]
         )
         conversationHistory = historyResult.rows.reverse()
       }
@@ -557,15 +558,15 @@ router.post(
 
       // Save messages
       await pool.query(
-        `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW())`,
-        [chatData.sessionId, 'user', chatData.message]
+        `INSERT INTO chat_messages (tenant_id, session_id, role, content, created_at)
+         VALUES ($1, $2, $3, $4, NOW())`,
+        [req.user!.tenant_id ?? '', chatData.sessionId, 'user', chatData.message]
       )
 
       await pool.query(
-        `INSERT INTO chat_messages (session_id, role, content, created_at)
-         VALUES ($1, $2, $3, NOW())`,
-        [chatData.sessionId, 'assistant', fullResponse]
+        `INSERT INTO chat_messages (tenant_id, session_id, role, content, created_at)
+         VALUES ($1, $2, $3, $4, NOW())`,
+        [req.user!.tenant_id ?? '', chatData.sessionId, 'assistant', fullResponse]
       )
 
       res.end()

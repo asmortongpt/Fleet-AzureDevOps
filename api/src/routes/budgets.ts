@@ -11,6 +11,7 @@ import { Pool } from 'pg';
 import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth';
 import { asyncHandler } from '../middleware/async-handler';
+import { csrfProtection } from '../middleware/csrf';
 import { validate } from '../middleware/validate';
 import {
   Budget,
@@ -190,6 +191,7 @@ throw new Error('Tenant ID is required');
   router.post(
     '/budgets',
     authenticateJWT,
+    csrfProtection,
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
       const userId = req.user?.id ?? '';
@@ -279,6 +281,7 @@ throw new Error('Tenant ID is required');
   router.put(
     '/budgets/:id',
     authenticateJWT,
+    csrfProtection,
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
       const budgetId = req.params.id;
@@ -423,6 +426,7 @@ throw new Error('Tenant ID is required');
   router.post(
     '/purchase-requisitions',
     authenticateJWT,
+    csrfProtection,
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
       const userId = req.user?.id ?? '';
@@ -513,6 +517,7 @@ throw new Error('Tenant ID is required');
   router.put(
     '/purchase-requisitions/:id/approve',
     authenticateJWT,
+    csrfProtection,
     asyncHandler(async (req: Request, res: Response) => {
       const userId = req.user?.id ?? '';
       const requisitionId = req.params.id;
@@ -549,6 +554,7 @@ throw new Error('Tenant ID is required');
   router.put(
     '/purchase-requisitions/:id/deny',
     authenticateJWT,
+    csrfProtection,
     asyncHandler(async (req: Request, res: Response) => {
       const userId = req.user?.id ?? '';
       const requisitionId = req.params.id;
@@ -586,6 +592,7 @@ throw new Error('Tenant ID is required');
   router.post(
     '/purchase-requisitions/:id/convert-to-po',
     authenticateJWT,
+    csrfProtection,
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
       const userId = req.user?.id ?? '';

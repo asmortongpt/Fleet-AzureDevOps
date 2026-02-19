@@ -461,7 +461,7 @@ router.post('/transactions/import', csrfProtection, asyncHandler(async (req: Req
       importResult.error_count++;
       importResult.errors.push({
         row: i,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
+        error: 'An internal error occurred',
         data: transactions[i]
       });
     }

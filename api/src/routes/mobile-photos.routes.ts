@@ -29,13 +29,6 @@ import PhotoProcessingService from '../services/photo-processing.service';
 
 
 
-const getErrorMessage = (error: unknown): string => {
-  if (error instanceof Error) {
-return error.message;
-}
-  return String(error);
-};
-
 const router = express.Router();
 const photoProcessingService = new PhotoProcessingService(pool);
 
@@ -220,7 +213,6 @@ router.post(
       logger.error('Photo upload error:', error);
       res.status(500).json({
         error: 'Failed to upload photo',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -364,7 +356,7 @@ router.post(
           errors.push({
             index: i,
             fileName: file.originalname,
-            error: getErrorMessage(error),
+            error: 'Failed to upload photo',
           });
         }
       }
@@ -380,8 +372,7 @@ router.post(
     } catch (error: unknown) {
       logger.error(`Batch upload error:`, error);
       res.status(500).json({
-        error: `Failed to upload photos`,
-        details: getErrorMessage(error),
+        error: 'Failed to upload photos',
       });
     }
   }
@@ -452,7 +443,6 @@ router.get(
       logger.error(`Sync queue error:`, error);
       res.status(500).json({
         error: 'Failed to get sync queue',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -517,7 +507,6 @@ router.post(
       logger.error(`Sync complete error:`, error);
       res.status(400).json({
         error: 'Failed to mark photos as synced',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -578,7 +567,6 @@ router.get(
       logger.error('Get status error:', error);
       res.status(500).json({
         error: 'Failed to get photo status',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -637,7 +625,6 @@ router.get(
       logger.error('Get photo error:', error);
       res.status(500).json({
         error: 'Failed to get photo',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -718,7 +705,6 @@ router.delete(
       logger.error('Delete photo error:', error);
       res.status(500).json({
         error: 'Failed to delete photo',
-        details: getErrorMessage(error),
       });
     }
   }
@@ -759,7 +745,6 @@ router.get(
       logger.error('Get stats error:', error);
       res.status(500).json({
         error: 'Failed to get processing stats',
-        details: getErrorMessage(error),
       });
     }
   }

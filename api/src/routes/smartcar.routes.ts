@@ -77,7 +77,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
     })
   } catch (error: unknown) {
     logger.error('Smartcar connect error:', error) // Wave 24: Winston logger
-    res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+    res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -188,7 +188,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     logger.error('Smartcar callback error:', error) // Wave 24: Winston logger
     const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
       error: 'smartcar_auth_failed',
-      message: error instanceof Error ? error.message : 'Connection failed'
+      message: 'Connection failed'
     })
     res.redirect(safeErrorUrl)
   }
@@ -222,7 +222,7 @@ router.get(
       res.json(location)
     } catch (error: unknown) {
       logger.error('Get Smartcar location error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -255,7 +255,7 @@ router.get(
       res.json(battery)
     } catch (error: unknown) {
       logger.error('Get Smartcar battery error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -288,7 +288,7 @@ router.get(
       res.json(charge)
     } catch (error: unknown) {
       logger.error('Get Smartcar charge error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -321,7 +321,7 @@ router.post(
       res.json(result)
     } catch (error: unknown) {
       logger.error('Lock vehicle error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -354,7 +354,7 @@ router.post(
       res.json(result)
     } catch (error: unknown) {
       logger.error('Unlock vehicle error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -387,7 +387,7 @@ router.post(
       res.json(result)
     } catch (error: unknown) {
       logger.error('Start charging error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -420,7 +420,7 @@ router.post(
       res.json(result)
     } catch (error: unknown) {
       logger.error('Stop charging error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -462,7 +462,7 @@ router.delete(
       res.json({ success: true, message: 'Smartcar disconnected successfully' })
     } catch (error: unknown) {
       logger.error('Disconnect Smartcar error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
@@ -489,7 +489,7 @@ router.post(
       res.json({ success: true, message: 'Vehicle data synced successfully' })
     } catch (error: unknown) {
       logger.error('Sync Smartcar data error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
+      res.status(500).json({ error: 'Internal server error' })
     }
   }
 )

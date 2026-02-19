@@ -15,6 +15,7 @@ import { pool } from '../../db/connection';
 import { authenticateJWT } from '../../middleware/auth';
 import { requireRBAC, Role, PERMISSIONS } from '../../middleware/rbac';
 import { asyncHandler } from '../../middleware/errorHandler';
+import { csrfProtection } from '../../middleware/csrf';
 import logger from '../../config/logger';
 
 // --- Zod Schemas for input validation ---
@@ -156,7 +157,7 @@ router.get('/',
       res.status(500).json({
         success: false,
         error: 'Failed to fetch users',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -224,7 +225,7 @@ router.get('/:id',
       res.status(500).json({
         success: false,
         error: 'Failed to fetch user',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -250,7 +251,7 @@ router.get('/:id',
  *   data: User
  * }
  */
-router.post('/',
+router.post('/', csrfProtection,
   asyncHandler(async (req: Request, res: Response) => {
     const parsed = createUserSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -318,7 +319,7 @@ router.post('/',
       res.status(500).json({
         success: false,
         error: 'Failed to create user',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -344,7 +345,7 @@ router.post('/',
  *   data: User
  * }
  */
-router.put('/:id',
+router.put('/:id', csrfProtection,
   asyncHandler(async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
 
@@ -455,7 +456,7 @@ router.put('/:id',
       res.status(500).json({
         success: false,
         error: 'Failed to update user',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -472,7 +473,7 @@ router.put('/:id',
  *   message: string
  * }
  */
-router.delete('/:id',
+router.delete('/:id', csrfProtection,
   asyncHandler(async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
 
@@ -513,7 +514,7 @@ router.delete('/:id',
       res.status(500).json({
         success: false,
         error: 'Failed to delete user',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }
@@ -580,7 +581,7 @@ router.get('/stats/summary',
       res.status(500).json({
         success: false,
         error: 'Failed to fetch user statistics',
-        message: error instanceof Error ? error.message : 'Unknown error',
+        message: 'An internal error occurred',
         timestamp: new Date().toISOString()
       });
     }

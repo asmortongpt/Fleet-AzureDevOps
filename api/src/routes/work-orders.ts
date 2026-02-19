@@ -162,7 +162,7 @@ router.get(
       })
     } catch (error) {
       logger.error('Failed to fetch work orders', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: 'An internal error occurred',
         userId: req.user?.id,
         tenantId: req.user?.tenant_id
       })

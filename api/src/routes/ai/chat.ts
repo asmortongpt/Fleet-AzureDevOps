@@ -64,7 +64,7 @@ router.post('/chat', async (req, res) => {
     logger.error('[AI Chat] Error:', error)
     return res.status(500).json({
       error: 'AI completion failed',
-      message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      message: 'An internal error occurred',
     })
   }
 })
@@ -107,7 +107,7 @@ router.post('/chat/stream', async (req, res) => {
     if (!res.headersSent) {
       return res.status(500).json({
         error: 'AI streaming failed',
-        message: error instanceof Error ? error.message : 'An unexpected error occurred',
+        message: 'An internal error occurred',
       })
     }
   }
@@ -133,7 +133,7 @@ router.get('/providers', async (req, res) => {
     logger.error('[AI Providers] Error:', error)
     return res.status(500).json({
       error: 'Failed to get provider info',
-      message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      message: 'An internal error occurred',
     })
   }
 })
@@ -168,7 +168,7 @@ router.post('/switch-provider', async (req, res) => {
     logger.error('[AI Switch Provider] Error:', error)
     return res.status(500).json({
       error: 'Failed to switch provider',
-      message: error instanceof Error ? error.message : 'An unexpected error occurred',
+      message: 'An internal error occurred',
     })
   }
 })

@@ -345,7 +345,7 @@ router.post(
       logger.error('Failed to create Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to create subscription',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred'
+        details: 'An internal error occurred'
       })
     }
   }
@@ -396,7 +396,7 @@ router.delete(
       logger.error('Failed to delete Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to delete subscription',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred'
+        details: 'An internal error occurred'
       })
     }
   }
@@ -447,7 +447,7 @@ router.post(
       logger.error('Failed to renew Teams subscription:', error)
       res.status(500).json({
         error: 'Failed to renew subscription',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred'
+        details: 'An internal error occurred'
       })
     }
   }

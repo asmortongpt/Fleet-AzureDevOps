@@ -668,10 +668,11 @@ router.get('/drivers/me/vehicle',
 
     logger.info(`Fetching assigned vehicle for driver ${userId}`);
 
-    // Find driver by user email
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
+    // Find driver by user email (tenant-scoped)
     const driverResult = await pool.query(
-      `SELECT id, assigned_vehicle_id FROM drivers WHERE email = $1`,
-      [email]
+      `SELECT id, assigned_vehicle_id FROM drivers WHERE email = $1 AND tenant_id = $2::uuid`,
+      [email, tenantId]
     );
 
     if (driverResult.rows.length === 0 || !driverResult.rows[0].assigned_vehicle_id) {
@@ -693,8 +694,8 @@ router.get('/drivers/me/vehicle',
         v.status,
         v.last_service_date as last_inspection
       FROM vehicles v
-      WHERE v.id = $1
-    `, [vehicleId]);
+      WHERE v.id = $1 AND v.tenant_id = $2::uuid
+    `, [vehicleId, tenantId]);
 
     if (vehicleResult.rows.length === 0) {
       return res.status(404).json({ error: 'Vehicle not found' });
@@ -731,12 +732,13 @@ router.get('/drivers/me/trips/today',
     const userId = req.user?.id;
     const email = req.user?.email;
 
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
     logger.info(`Fetching today's trips for driver ${userId}`);
 
-    // Find driver by user email
+    // Find driver by user email (tenant-scoped)
     const driverResult = await pool.query(
-      `SELECT id FROM drivers WHERE email = $1`,
-      [email]
+      `SELECT id FROM drivers WHERE email = $1 AND tenant_id = $2::uuid`,
+      [email, tenantId]
     );
 
     if (driverResult.rows.length === 0) {
@@ -801,6 +803,7 @@ router.post('/inspections',
   asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user?.id;
     const email = req.user?.email;
+    const tenantId = req.user?.tenant_id || req.user?.tenantId;
     const { vehicle_id, inspection_items, timestamp } = req.body;
 
     // Validate request body
@@ -814,10 +817,10 @@ router.post('/inspections',
 
     logger.info(`Submitting inspection for vehicle ${vehicle_id} by user ${userId}`);
 
-    // Find driver
+    // Find driver (tenant-scoped)
     const driverResult = await pool.query(
-      `SELECT id FROM drivers WHERE email = $1`,
-      [email]
+      `SELECT id FROM drivers WHERE email = $1 AND tenant_id = $2::uuid`,
+      [email, tenantId]
     );
 
     if (driverResult.rows.length === 0) {

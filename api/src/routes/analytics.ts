@@ -8,6 +8,7 @@ import { createClient } from 'redis'
 
 import { db } from '../db'
 import { authenticateJWT } from '../middleware/auth'
+import { csrfProtection } from '../middleware/csrf'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 import { logger } from '../utils/logger'
 
@@ -78,7 +79,7 @@ router.get('/fleet-summary', async (req: Request, res: Response) => {
         })
     } catch (error) {
         logger.error('Error generating fleet summary:', error)
-        res.status(500).json({ error: 'Internal server error', details: String(error) })
+        res.status(500).json({ error: 'An internal error occurred' })
     }
 })
 
@@ -299,7 +300,7 @@ return res.status(401).json({ error: 'Unauthorized' })
         })
     } catch (error) {
         logger.error('Error generating analytics dashboard:', error)
-        res.status(500).json({ error: 'Internal server error', details: String(error) })
+        res.status(500).json({ error: 'An internal error occurred' })
     }
 })
 
@@ -995,7 +996,7 @@ router.get('/costs/trends', cacheMiddleware('analytics:costs:trends'), async (re
  * DELETE /analytics/cache
  * Clear analytics cache
  */
-router.delete('/cache', async (req: Request, res: Response) => {
+router.delete('/cache', csrfProtection, async (req: Request, res: Response) => {
     try {
         await initRedis()
         const keys = await redisClient.keys('analytics:*')

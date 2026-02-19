@@ -358,8 +358,7 @@ router.post('/revoke', csrfProtection, authenticateJWT, asyncHandler(async (req:
     if (errName === 'JsonWebTokenError' || errName === 'TokenExpiredError') {
       return res.status(400).json({
         error: 'Invalid token',
-        message: 'The provided token is invalid or expired',
-        details: errMsg
+        message: 'The provided token is invalid or expired'
       })
     }
 

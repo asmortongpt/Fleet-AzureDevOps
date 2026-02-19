@@ -432,7 +432,7 @@ router.post(
       logger.error('Upload media error:', error)
       res.status(500).json({
         error: 'Failed to upload media',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred',
+        details: 'An internal error occurred',
       })
     }
   }

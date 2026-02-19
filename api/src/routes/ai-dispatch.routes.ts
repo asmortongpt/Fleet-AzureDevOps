@@ -285,11 +285,11 @@ router.post(
         error: error instanceof Error ? error.message : 'Unknown error'
       })
 
-      // Check if it's a "no vehicles" error
+      // Check if it's a "no vehicles" error (business logic, safe for client)
       if (error instanceof Error && error.message.includes('No available vehicles')) {
         return res.status(404).json({
           success: false,
-          error: error.message
+          error: 'No available vehicles found for this incident'
         })
       }
 

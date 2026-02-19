@@ -50,7 +50,7 @@ router.get('/:id', async (req: AuthRequest, res: Response) => {
     })
   } catch (error: unknown) {
     if (error instanceof NotFoundError) {
-      return res.status(404).json({ error: error.message })
+      return res.status(404).json({ error: 'Resource not found' })
     }
     return res.status(500).json({ error: 'Failed to fetch tenant' })
   }
