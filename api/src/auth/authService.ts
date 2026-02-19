@@ -426,8 +426,7 @@ export class AuthService {
       metadata
     }
 
-    // In production, this would be sent to a logging service
-    console.log('AUTH_EVENT:', JSON.stringify(event, null, 2))
+    logger.info('AUTH_EVENT', event)
   }
 }
 

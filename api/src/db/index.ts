@@ -6,6 +6,7 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
 import * as schema from './schema'
 
 // Create PostgreSQL connection pool
@@ -21,11 +22,11 @@ const pool = new Pool({
 
 // Error handling for the pool
 pool.on('error', (err) => {
-  console.error('Unexpected database pool error', err)
+  logger.error('Unexpected database pool error', { error: err.message })
 })
 
 pool.on('connect', () => {
-  console.log('New database connection established')
+  logger.debug('New database connection established')
 })
 
 // Create Drizzle instance with schema
@@ -38,10 +39,10 @@ export { pool }
 export async function testConnection(): Promise<boolean> {
   try {
     const result = await pool.query('SELECT NOW() as current_time')
-    console.log('Database connection test successful', result.rows[0])
+    logger.info('Database connection test successful')
     return true
   } catch (error) {
-    console.error('Database connection test failed', error)
+    logger.error('Database connection test failed', { error: error instanceof Error ? error.message : 'Unknown error' })
     return false
   }
 }
@@ -49,5 +50,5 @@ export async function testConnection(): Promise<boolean> {
 // Graceful shutdown
 export async function closeDatabase(): Promise<void> {
   await pool.end()
-  console.log('Database pool closed')
+  logger.info('Database pool closed')
 }
