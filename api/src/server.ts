@@ -77,7 +77,13 @@ import aiDispatchRouter from './routes/ai-dispatch.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
-import langchainRouter from './routes/langchain.routes'
+// Lazy-loaded: @langchain/core may not be installed in all environments
+let langchainRouter: import('express').Router | null = null
+try {
+  langchainRouter = require('./routes/langchain.routes').default
+} catch {
+  // langchain dependencies not available - route will be skipped
+}
 import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 import analyticsRouter from './routes/analytics'
 import arcgisLayersRouter from './routes/arcgis-layers'
@@ -516,7 +522,7 @@ app.use('/api/ai-dispatch', aiDispatchRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
-app.use('/api/langchain', langchainRouter)
+if (langchainRouter) app.use('/api/langchain', langchainRouter)
 
 // Task & Schedule Management Routes
 app.use('/api/scheduling', schedulingRouter)
