@@ -520,7 +520,13 @@ function App() {
     const moduleContent = renderModule()
     return (
       <DrilldownManager>
-        <SinglePageShell moduleContent={moduleContent} />
+        <EnhancedErrorBoundary showDetails={import.meta.env.DEV}>
+          <QueryErrorBoundary>
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+              <SinglePageShell moduleContent={moduleContent} />
+            </Suspense>
+          </QueryErrorBoundary>
+        </EnhancedErrorBoundary>
 
         {/* Toast notifications */}
         <div role="status" aria-live="polite" aria-label="Toast notifications">

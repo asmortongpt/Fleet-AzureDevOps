@@ -72,6 +72,7 @@ import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 // AI & Automation Routes
 import aiChatRouter from './routes/ai-chat'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
+import aiInsightsRouter from './routes/ai-insights.routes'
 import aiDispatchRouter from './routes/ai-dispatch.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
@@ -192,6 +193,7 @@ import communicationsRouter from './routes/communications'
 import reimbursementRouter from './routes/reimbursement-requests'
 import adminRouter from './routes/admin.routes'
 import adminUsersRouter from './routes/admin/users.routes'
+import adminConfigRouter from './routes/admin/configuration'
 // monitoringRouter imported in separate block
 import { initializeBudgetRoutes } from './routes/budgets'
 import reportsRouter from './routes/reports.routes'
@@ -546,6 +548,7 @@ app.use('/api/vehicle-3d', vehicle3dRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
 app.use('/api/ai/damage-detection', aiDamageDetectionRouter)
+app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/lidar', lidarRouter)
 
 // Trip & Route Management Routes
@@ -623,6 +626,7 @@ app.use('/api/system', systemConnectionsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
 app.use('/api/admin', adminRouter) // PHASE 3: Admin dashboard & config - Priority A
 app.use('/api/admin/users', adminUsersRouter) // PHASE 3: Admin user management - Priority A
+app.use('/api/admin/config', adminConfigRouter)
 
 // Medium-Priority Routes (Batch 2)
 app.use('/api/adaptive-cards', adaptiveCardsRouter)
