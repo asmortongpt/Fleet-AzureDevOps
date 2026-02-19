@@ -178,9 +178,9 @@ function PremiumMetricCard({ metric, index }: { metric: MetricData; index: numbe
             <motion.span
               className="text-sm font-bold flex items-center gap-1 px-3 py-1 rounded-full"
               style={{
-                backgroundColor: `${metric.trend > 0 ? '#10B981' : '#FF6B35'}20`,
-                color: metric.trend > 0 ? '#10B981' : '#FF6B35',
-                border: `1px solid ${metric.trend > 0 ? '#10B981' : '#FF6B35'}40`
+                backgroundColor: `${metric.trend > 0 ? '#10B981' : '#DD3903'}20`,
+                color: metric.trend > 0 ? '#10B981' : '#DD3903',
+                border: `1px solid ${metric.trend > 0 ? '#10B981' : '#DD3903'}40`
               }}
               animate={{
                 scale: [1, 1.08, 1],

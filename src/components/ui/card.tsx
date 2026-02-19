@@ -133,8 +133,8 @@ function CardOrangeAccent({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="card-orange-accent"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-3 rounded-xl border-l-4 border-l-[#FF6B35] border border-border/60 p-4",
-        "shadow-md shadow-[#FF6B35]/10 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
+        "bg-card text-card-foreground flex flex-col gap-3 rounded-xl border-l-4 border-l-[#DD3903] border border-border/60 p-4",
+        "shadow-md shadow-[#DD3903]/10 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
         className
       )}
       {...props}

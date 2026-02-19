@@ -138,7 +138,8 @@ deployment/vendor-access/azure-devops-pat.txt.gpg
 deployment/vendor-access/vendor-distribution-package/
 deployment/vendor-access/.vendor-credentials/
 
-# Python cache files and virtual environments
+# Python scripts and cache files
+*.py
 __pycache__/
 *.py[cod]
 *$py.class

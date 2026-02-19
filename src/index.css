@@ -1177,7 +1177,7 @@
 
   .heading-gradient-orange {
     @apply text-3xl md:text-4xl font-bold;
-    background: linear-gradient(135deg, #FFFFFF 0%, #FF6B35 100%);
+    background: linear-gradient(135deg, #FFFFFF 0%, #DD3903 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1190,10 +1190,10 @@
 
   /* ENHANCED BUTTON STATES */
   .btn-gradient-orange {
-    @apply bg-gradient-to-r from-[#FF6B35] to-[#FF8855] text-white font-semibold;
-    @apply shadow-md shadow-[#FF6B35]/30;
+    @apply bg-gradient-to-r from-[#DD3903] to-[#E85A2A] text-white font-semibold;
+    @apply shadow-md shadow-[#DD3903]/30;
     @apply transition-all duration-200 hover:-translate-y-0.5;
-    @apply hover:shadow-lg hover:shadow-[#FF6B35]/40;
+    @apply hover:shadow-lg hover:shadow-[#DD3903]/40;
   }
 
   .btn-gradient-blue {
@@ -1270,8 +1270,8 @@
   /* BADGE PILL STYLES */
   .badge-pill-orange {
     @apply inline-flex items-center justify-center px-4 py-1 rounded-full;
-    @apply bg-gradient-to-r from-[#FF6B35] to-[#FF8855] text-white font-bold text-xs;
-    @apply shadow-md shadow-[#FF6B35]/40;
+    @apply bg-gradient-to-r from-[#DD3903] to-[#E85A2A] text-white font-bold text-xs;
+    @apply shadow-md shadow-[#DD3903]/40;
   }
 
   .badge-pill-blue {
@@ -1473,7 +1473,7 @@
   }
 
   .focus-ring-orange {
-    @apply outline-none ring-2 ring-offset-2 ring-[#FF6B35]/50 transition-all duration-200;
+    @apply outline-none ring-2 ring-offset-2 ring-[#DD3903]/50 transition-all duration-200;
   }
 
   .focus-ring-gold {
@@ -1554,7 +1554,7 @@
 
   .gradient-overlay-orange::after {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-[#FF6B35]/5 to-[#FF6B35]/0 opacity-0 transition-opacity duration-300;
+    @apply absolute inset-0 bg-gradient-to-br from-[#DD3903]/5 to-[#DD3903]/0 opacity-0 transition-opacity duration-300;
   }
 
   .gradient-overlay-orange:hover::after {
@@ -1674,7 +1674,7 @@
   }
 
   .text-gradient-orange {
-    background: linear-gradient(135deg, #FF6B35 0%, #FF8855 100%);
+    background: linear-gradient(135deg, #DD3903 0%, #E85A2A 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

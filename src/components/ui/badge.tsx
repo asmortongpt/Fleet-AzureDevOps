@@ -10,7 +10,7 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-gradient-to-r from-[#FF6B35] to-[#FF8855] text-white shadow-md shadow-[#FF6B35]/40 font-bold",
+          "border-transparent bg-gradient-to-r from-[#DD3903] to-[#E85A2A] text-white shadow-md shadow-[#DD3903]/40 font-bold",
         secondary:
           "border-transparent bg-gradient-to-r from-[#F0A000] to-[#FFB800] text-white shadow-md shadow-[#F0A000]/40 font-bold",
         destructive:
@@ -27,7 +27,7 @@ const badgeVariants = cva(
           "border-transparent text-muted-foreground bg-muted/50 hover:bg-muted",
         // Subtle variants with lighter backgrounds
         "primary-subtle":
-          "border-transparent bg-[#FF6B35]/15 text-[#FF6B35] hover:bg-[#FF6B35]/25 font-bold ring-1 ring-[#FF6B35]/20",
+          "border-transparent bg-[#DD3903]/15 text-[#DD3903] hover:bg-[#DD3903]/25 font-bold ring-1 ring-[#DD3903]/20",
         "destructive-subtle":
           "border-transparent bg-[#DD3903]/15 text-[#DD3903] hover:bg-[#DD3903]/25 font-bold ring-1 ring-[#DD3903]/20",
         "success-subtle":

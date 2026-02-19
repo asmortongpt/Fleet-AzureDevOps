@@ -226,7 +226,7 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
               e.stopPropagation()
               actionButton.onClick()
             }}
-            className="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all bg-gradient-to-r from-[#FF6B35] to-[#FF8855] hover:from-[#E55A24] hover:to-[#FF6B35] shadow-md shadow-[#FF6B35]/30 hover:shadow-lg hover:shadow-[#FF6B35]/40 hover:-translate-y-0.5"
+            className="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all bg-gradient-to-r from-[#DD3903] to-[#E85A2A] hover:from-[#C43203] hover:to-[#DD3903] shadow-md shadow-[#DD3903]/30 hover:shadow-lg hover:shadow-[#DD3903]/40 hover:-translate-y-0.5"
             style={{
               transition: transitions.fast,
             }}

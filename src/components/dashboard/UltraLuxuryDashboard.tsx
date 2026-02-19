@@ -13,7 +13,7 @@ export function UltraLuxuryDashboard() {
   const [hoveredSection, setHoveredSection] = useState<string | null>(null)
 
   const colors = {
-    orange: '#FF6B35',      // CTA Orange
+    orange: '#DD3903',      // CTA Noon
     blue: '#41B2E3',        // Blue Skies
     green: '#10B981',       // For status indicators (approved by spec)
     gold: '#F0A000',        // Golden Hour

@@ -10,7 +10,7 @@ import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
 
 export function EnhancedFleetMapDashboard() {
   const colors = {
-    orange: '#FF6B35',
+    orange: '#DD3903',
     blue: '#41B2E3',
     green: '#10B981',
     gold: '#F0A000',

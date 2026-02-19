@@ -29,14 +29,14 @@ export const brandColors = {
   cta: {
     navy: '#1A1446',     // Headers, CTA backgrounds
     yellow: '#FFB800',   // Gradient start
-    orange: '#FF6B35',   // Links, buttons, accents
+    orange: '#DD3903',   // Links, buttons, accents (NOON)
     red: '#FF3838',      // Gradient end, warnings
   },
 
-  // CTA Gradient (CSS: linear-gradient(90deg, #FFB800 0%, #FF6B35 50%, #FF3838 100%))
+  // CTA Gradient (CSS: linear-gradient(90deg, #FFB800 0%, #DD3903 50%, #FF3838 100%))
   gradient: {
     start: '#FFB800',    // Yellow
-    mid: '#FF6B35',      // Orange
+    mid: '#DD3903',      // NOON
     end: '#FF3838',      // Red
   },
 }
@@ -112,17 +112,17 @@ export const colors = {
   },
 
   // CTA Brand Orange (Accent Color)
-  ctaOrange: {
-    50: '#FFF8F3',
-    100: '#FFE8DA',
-    200: '#FFD4B8',
-    300: '#FFC09D',
-    400: '#FF8855',
-    500: '#FF6B35', // CTA Orange - Primary accent
-    600: '#E55A24',
-    700: '#C74719',
-    800: '#A03810',
-    900: '#7A2A09',
+  ctaNoon: {
+    50: '#FEF2EE',
+    100: '#FDE0D5',
+    200: '#FBBFAB',
+    300: '#F89878',
+    400: '#E85A2A',
+    500: '#DD3903', // CTA NOON - Primary accent
+    600: '#C43203',
+    700: '#A82B03',
+    800: '#8C2402',
+    900: '#701D02',
   },
 
   // CTA Navy (Secondary Brand Color)
