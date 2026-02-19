@@ -47,6 +47,17 @@ const createHOSLogSchema = z.object({
   manual_entry_reason: z.string().optional(),
 })
 
+const updateHOSLogSchema = z.object({
+  notes: z.string().max(2000).optional(),
+  certified_by: z.string().uuid().optional(),
+  certification_signature: z.string().max(500).optional(),
+})
+
+const resolveViolationSchema = z.object({
+  resolved_by: z.string().uuid(),
+  resolution_notes: z.string().max(2000).optional(),
+})
+
 const createDVIRSchema = z.object({
   driver_id: z.string().uuid(),
   vehicle_id: z.string().uuid(),
@@ -246,8 +257,17 @@ router.patch('/logs/:id', async (req: Request, res: Response) => {
     const { id } = req.params
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
 
+    // Validate request body
+    const parsed = updateHOSLogSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
     // Only allow updating notes and certification status
-    const { notes, certified_by, certification_signature } = req.body
+    const { notes, certified_by, certification_signature } = parsed.data
 
     const result = await pool.query(
       `UPDATE hos_logs
@@ -556,7 +576,17 @@ router.post('/violations/:id/resolve', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
-    const { resolved_by, resolution_notes } = req.body
+
+    // Validate request body
+    const parsed = resolveViolationSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
+    const { resolved_by, resolution_notes } = parsed.data
 
     const result = await pool.query(
       `UPDATE hos_violations

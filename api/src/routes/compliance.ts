@@ -4,6 +4,7 @@
  */
 
 import express from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -121,6 +122,19 @@ async function getComplianceSummary(tenantId?: string): Promise<any> {
   }
   return result.rows[0]
 }
+
+// Validation schemas
+const fedRampReportSchema = z.object({
+  baseline: z.enum(['LOW', 'MODERATE', 'HIGH']).default('MODERATE'),
+  period_start: z.string().max(30).optional(),
+  period_end: z.string().max(30).optional(),
+  tenant_id: z.string().uuid().optional(),
+})
+
+const testControlSchema = z.object({
+  control_id: z.string().min(1).max(50),
+  test_type: z.enum(['automated', 'manual', 'hybrid']).default('automated'),
+})
 
 const router = express.Router()
 
@@ -452,15 +466,15 @@ router.post(
   }),
   async (req, res) => {
     try {
-      const { baseline = 'MODERATE', period_start, period_end, tenant_id } = req.body
-
-      // Validate baseline
-      if (!['LOW', 'MODERATE', 'HIGH'].includes(baseline)) {
+      const parsed = fedRampReportSchema.safeParse(req.body)
+      if (!parsed.success) {
         return res.status(400).json({
-          error: 'Invalid baseline',
-          message: 'Baseline must be LOW, MODERATE, or HIGH'
+          error: 'Validation failed',
+          details: parsed.error.flatten()
         })
       }
+
+      const { baseline, period_start, period_end, tenant_id } = parsed.data
 
       // Parse dates
       const startDate = period_start ? new Date(period_start) : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000) // 90 days ago
@@ -468,7 +482,7 @@ router.post(
 
       // Generate report
       const report = await generateFedRAMPReport(
-        tenant_id || req.user?.tenant_id,
+        tenant_id ?? req.user?.tenant_id ?? null,
         baseline,
         startDate,
         endDate
@@ -742,14 +756,15 @@ router.post(
   }),
   async (req, res) => {
     try {
-      const { control_id, test_type = 'automated' } = req.body
-
-      if (!control_id) {
+      const parsed = testControlSchema.safeParse(req.body)
+      if (!parsed.success) {
         return res.status(400).json({
-          error: 'Missing control_id',
-          message: 'Control ID is required'
+          error: 'Validation failed',
+          details: parsed.error.flatten()
         })
       }
+
+      const { control_id, test_type } = parsed.data
 
       // Load the control from the database
       const controlResult = await pool.query(

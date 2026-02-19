@@ -211,6 +211,7 @@ export function VehicleModelLibrary({
             variant="outline"
             size="icon"
             onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+            aria-label={viewMode === 'grid' ? 'Switch to list view' : 'Switch to grid view'}
           >
             {viewMode === 'grid' ? <List className="h-4 w-4" /> : <Grid3x3 className="h-4 w-4" />}
           </Button>

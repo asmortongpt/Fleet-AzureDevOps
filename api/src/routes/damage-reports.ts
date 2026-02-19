@@ -259,6 +259,12 @@ router.put(
   }
 )
 
+// Validation schema for TripoSR status update
+const triposrStatusSchema = z.object({
+  triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']),
+  triposr_model_url: z.string().url().max(2048).optional(),
+})
+
 // PATCH /damage-reports/:id/triposr-status
 // Update TripoSR processing status
 router.patch(
@@ -267,11 +273,15 @@ router.patch(
   auditLog({ action: 'UPDATE', resourceType: 'damage_reports' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { triposr_status, triposr_model_url } = req.body
-
-      if (!triposr_status) {
-        throw new ValidationError("triposr_status is required")
+      const parsed = triposrStatusSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
       }
+
+      const { triposr_status, triposr_model_url } = parsed.data
 
       const result = await pool.query(
         `UPDATE damage_reports

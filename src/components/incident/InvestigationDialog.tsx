@@ -333,6 +333,7 @@ export function InvestigationDialog({
               size="icon"
               onClick={() => handleOpenChange(false)}
               className="rounded-full"
+              aria-label="Close investigation dialog"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -454,6 +455,7 @@ export function InvestigationDialog({
                 type="button"
                 variant="outline"
                 size="icon"
+                aria-label="Add contributing factor"
                 onClick={() =>
                   addArrayItem('contributing_factors', newContributingFactor, setNewContributingFactor)
                 }
@@ -474,6 +476,7 @@ export function InvestigationDialog({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
+                      aria-label="Remove contributing factor"
                       onClick={() => removeArrayItem('contributing_factors', index)}
                     >
                       <Trash2 className="h-3 w-3" />
@@ -506,6 +509,7 @@ export function InvestigationDialog({
                 type="button"
                 variant="outline"
                 size="icon"
+                aria-label="Add corrective action"
                 onClick={() =>
                   addArrayItem('corrective_actions', newCorrectiveAction, setNewCorrectiveAction)
                 }
@@ -529,6 +533,7 @@ export function InvestigationDialog({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
+                      aria-label="Remove corrective action"
                       onClick={() => removeArrayItem('corrective_actions', index)}
                     >
                       <Trash2 className="h-3 w-3" />
@@ -564,6 +569,7 @@ export function InvestigationDialog({
                 type="button"
                 variant="outline"
                 size="icon"
+                aria-label="Add preventive measure"
                 onClick={() =>
                   addArrayItem('preventive_measures', newPreventiveMeasure, setNewPreventiveMeasure)
                 }
@@ -587,6 +593,7 @@ export function InvestigationDialog({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
+                      aria-label="Remove preventive measure"
                       onClick={() => removeArrayItem('preventive_measures', index)}
                     >
                       <Trash2 className="h-3 w-3" />
@@ -624,6 +631,7 @@ export function InvestigationDialog({
                 type="button"
                 variant="outline"
                 size="icon"
+                aria-label="Add training recommendation"
                 onClick={() =>
                   addArrayItem(
                     'training_recommendations',
@@ -648,6 +656,7 @@ export function InvestigationDialog({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
+                      aria-label="Remove training recommendation"
                       onClick={() => removeArrayItem('training_recommendations', index)}
                     >
                       <Trash2 className="h-3 w-3" />

@@ -1,5 +1,6 @@
 import express, { Response } from 'express'
 import multer from 'multer'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection';
@@ -393,6 +394,30 @@ router.post(
   }
 )
 
+// Validation schema for saving damage records
+const saveDamageSchema = z.object({
+  vehicleId: z.string().uuid(),
+  damages: z.array(z.object({
+    position: z.object({
+      x: z.number(),
+      y: z.number(),
+      z: z.number(),
+    }).optional(),
+    normal: z.object({
+      x: z.number(),
+      y: z.number(),
+      z: z.number(),
+    }).optional(),
+    severity: z.string().min(1).max(50),
+    type: z.string().min(1).max(100),
+    part: z.string().min(1).max(100),
+    description: z.string().max(2000).optional(),
+    costEstimate: z.number().min(0).optional(),
+  })).min(1).max(100),
+  photoUrls: z.array(z.string().url().max(2048)).max(50).optional(),
+  analysisMetadata: z.record(z.string(), z.unknown()).optional(),
+})
+
 /**
  * POST /api/damage/save
  * Save confirmed damage to database
@@ -404,11 +429,15 @@ router.post(
   requirePermission('damage:create'),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { vehicleId, damages, photoUrls, analysisMetadata } = req.body
-
-      if (!vehicleId || !damages || damages.length === 0) {
-        throw new ValidationError("vehicleId and damages are required")
+      const parsed = saveDamageSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
       }
+
+      const { vehicleId, damages, photoUrls, analysisMetadata } = parsed.data
 
       // Validate vehicle belongs to user's tenant
       const hasAccess = await validateVehicleTenant(vehicleId, req.user!.tenant_id ?? '')

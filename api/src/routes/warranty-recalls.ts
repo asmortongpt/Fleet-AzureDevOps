@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -137,6 +138,18 @@ router.get(
   }
 )
 
+// Validation schema for warranty claims
+const createWarrantyClaimSchema = z.object({
+  warrantyId: z.string().uuid(),
+  claimNumber: z.string().min(1).max(100),
+  dateSubmitted: z.string().max(30),
+  issueDescription: z.string().max(5000).optional(),
+  claimType: z.string().min(1).max(100),
+  status: z.enum(['PENDING', 'APPROVED', 'REJECTED', 'IN_REVIEW']).default('PENDING'),
+  resolution: z.string().max(5000).optional(),
+  attachments: z.array(z.string().max(2048)).max(20).optional(),
+})
+
 router.post(
   '/warranties/claims',
   csrfProtection,
@@ -144,6 +157,14 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'warranty_claims' }),
   async (req: AuthRequest, res: Response) => {
     try {
+      const parsed = createWarrantyClaimSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
+      }
+
       const {
         warrantyId,
         claimNumber,
@@ -153,7 +174,7 @@ router.post(
         status,
         resolution,
         attachments
-      } = req.body
+      } = parsed.data
 
       const result = await pool.query(
         `INSERT INTO warranty_claims (

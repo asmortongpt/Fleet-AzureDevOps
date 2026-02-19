@@ -641,7 +641,15 @@ router.post(
         })
       }
 
-      const { override_template, skip_due_check } = req.body as ManualWorkOrderGenerationRequest
+      const generateWOSchema = z.object({
+        override_template: z.record(z.string(), z.unknown()).optional(),
+        skip_due_check: z.boolean().optional(),
+      })
+      const parsed = generateWOSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() })
+      }
+      const { override_template, skip_due_check } = parsed.data
 
       // Get schedule (RLS handles tenant filtering)
       const scheduleResult = await client.query(

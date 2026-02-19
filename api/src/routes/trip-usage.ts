@@ -47,6 +47,14 @@ const updateTripUsageSchema = z.object({
   end_location: z.string().optional()
 })
 
+const approveTripSchema = z.object({
+  approver_notes: z.string().max(2000).optional(),
+})
+
+const rejectTripSchema = z.object({
+  rejection_reason: z.string().min(1).max(2000),
+})
+
 /**
  * POST /api/trip-usage
  * Create a new trip usage classification
@@ -541,7 +549,15 @@ router.post(
   auditLog({ action: 'APPROVE', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { approver_notes } = req.body
+      const parsed = approveTripSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
+      }
+
+      const { approver_notes } = parsed.data
 
       const result = await pool.query(
         `UPDATE trip_usage_classification
@@ -610,11 +626,15 @@ router.post(
   auditLog({ action: 'REJECT', resourceType: 'trip_usage_classification' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { rejection_reason } = req.body
-
-      if (!rejection_reason || rejection_reason.trim().length === 0) {
-        throw new ValidationError("Rejection reason is required")
+      const parsed = rejectTripSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
       }
+
+      const { rejection_reason } = parsed.data
 
       const result = await pool.query(
         `UPDATE trip_usage_classification

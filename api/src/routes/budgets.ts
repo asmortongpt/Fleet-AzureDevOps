@@ -8,6 +8,7 @@
 
 import { Router, Request, Response } from 'express';
 import { Pool } from 'pg';
+import { z } from 'zod';
 import { authenticateJWT } from '../middleware/auth';
 import { asyncHandler } from '../middleware/async-handler';
 import { validate } from '../middleware/validate';
@@ -26,6 +27,78 @@ import {
 import { BudgetTrackingService } from '../services/budget-tracking';
 import { ApprovalWorkflowService } from '../services/approval-workflow';
 import { UUID } from '../types/database-tables';
+
+// ============================================================================
+// Zod Validation Schemas
+// ============================================================================
+
+const budgetCreateSchema = z.object({
+  budget_name: z.string().min(1).max(255),
+  budget_period: z.enum(['monthly', 'quarterly', 'annual']),
+  fiscal_year: z.number().int().min(2000).max(2100),
+  period_start: z.string().or(z.date()),
+  period_end: z.string().or(z.date()),
+  department: z.string().max(255).optional(),
+  cost_center: z.string().max(255).optional(),
+  budget_category: z.enum([
+    'fuel', 'maintenance', 'insurance', 'depreciation',
+    'parts', 'labor', 'equipment', 'administrative', 'other',
+  ]),
+  budgeted_amount: z.number().positive(),
+  notes: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const budgetUpdateSchema = z.object({
+  budget_name: z.string().min(1).max(255).optional(),
+  budgeted_amount: z.number().positive().optional(),
+  forecast_end_of_period: z.number().optional(),
+  status: z.enum(['draft', 'active', 'closed', 'suspended']).optional(),
+  notes: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const lineItemSchema = z.object({
+  description: z.string().min(1),
+  quantity: z.number().positive(),
+  unit_cost: z.number().nonnegative(),
+  total: z.number().nonnegative(),
+  part_number: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+const purchaseRequisitionCreateSchema = z.object({
+  requested_by: z.string().uuid().optional(),
+  department: z.string().max(255).optional(),
+  cost_center: z.string().max(255).optional(),
+  needed_by_date: z.string().or(z.date()).optional(),
+  justification: z.string().min(1),
+  vendor_id: z.string().uuid().optional(),
+  suggested_vendor: z.string().max(255).optional(),
+  line_items: z.array(lineItemSchema).min(1),
+  subtotal: z.number().nonnegative(),
+  tax_amount: z.number().nonnegative().optional(),
+  shipping_cost: z.number().nonnegative().optional(),
+  total_amount: z.number().nonnegative(),
+  budget_id: z.string().uuid().optional(),
+  notes: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const approvalCommentSchema = z.object({
+  comments: z.string().optional(),
+});
+
+const denyCommentSchema = z.object({
+  comments: z.string().min(1, 'Comments are required when denying a requisition'),
+});
+
+const convertToPOSchema = z.object({
+  purchase_order_number: z.string().max(255).optional(),
+  vendor_id: z.string().uuid(),
+  expected_delivery_date: z.string().or(z.date()).optional(),
+  notes: z.string().optional(),
+});
 
 const router = Router();
 
@@ -124,7 +197,11 @@ throw new Error('Tenant ID is required');
 throw new Error('Tenant ID is required');
 }
 
-      const input: BudgetCreateInput = req.body;
+      const parsed = budgetCreateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+      }
+      const input = parsed.data;
       // `pool` is available from initializeBudgetRoutes closure.
 
       const result = await pool.query<Budget>(
@@ -205,7 +282,11 @@ throw new Error('Tenant ID is required');
     asyncHandler(async (req: Request, res: Response) => {
       const tenantId = req.user?.tenant_id ?? '';
       const budgetId = req.params.id;
-      const input: BudgetUpdateInput = req.body;
+      const parsed = budgetUpdateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+      }
+      const input = parsed.data;
       // `pool` is available from initializeBudgetRoutes closure.
 
       const setClauses: string[] = [];
@@ -349,7 +430,11 @@ throw new Error('Tenant ID is required');
 throw new Error('Tenant ID is required');
 }
 
-      const input: PurchaseRequisitionCreateInput = req.body;
+      const parsed = purchaseRequisitionCreateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+      }
+      const input = parsed.data;
       // `pool` is available from initializeBudgetRoutes closure.
 
       // Generate requisition number
@@ -431,7 +516,11 @@ throw new Error('Tenant ID is required');
     asyncHandler(async (req: Request, res: Response) => {
       const userId = req.user?.id ?? '';
       const requisitionId = req.params.id;
-      const { comments } = req.body;
+      const parsed = approvalCommentSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+      }
+      const { comments } = parsed.data;
 
       const decision: ApprovalDecisionInput = {
         approver_id: userId,
@@ -463,13 +552,14 @@ throw new Error('Tenant ID is required');
     asyncHandler(async (req: Request, res: Response) => {
       const userId = req.user?.id ?? '';
       const requisitionId = req.params.id;
-      const { comments } = req.body;
-
-      if (!comments) {
-        return res
-          .status(400)
-          .json({ error: 'Comments are required when denying a requisition' });
+      const parsed = denyCommentSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Comments are required when denying a requisition',
+          details: parsed.error.flatten(),
+        });
       }
+      const { comments } = parsed.data;
 
       const decision: ApprovalDecisionInput = {
         approver_id: userId,
@@ -500,7 +590,11 @@ throw new Error('Tenant ID is required');
       const tenantId = req.user?.tenant_id ?? '';
       const userId = req.user?.id ?? '';
       const requisitionId = req.params.id;
-      const input: ConvertToPOInput = req.body;
+      const parsed = convertToPOSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() });
+      }
+      const input = parsed.data;
       // `pool` is available from initializeBudgetRoutes closure.
 
       // Get requisition

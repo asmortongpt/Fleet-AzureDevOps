@@ -514,6 +514,11 @@ router.post(
   }
 );
 
+// Validation schema for waiving a charge
+const waiveChargeSchema = z.object({
+  waived_reason: z.string().min(1).max(2000),
+});
+
 /**
  * POST /api/personal-use-charges/:id/waive
  * Waive a personal use charge
@@ -525,11 +530,15 @@ router.post(
   auditLog({ action: 'UPDATE', resourceType: 'personal_use_charges' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { waived_reason } = req.body;
-
-      if (!waived_reason || waived_reason.trim().length === 0) {
-        return res.status(400).json({ error: 'Waived reason is required' });
+      const parsed = waiveChargeSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        });
       }
+
+      const { waived_reason } = parsed.data;
 
       const result = await pool.query(
         `UPDATE personal_use_charges

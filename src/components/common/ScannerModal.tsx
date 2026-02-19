@@ -748,6 +748,7 @@ export function ScannerModal({ open, onOpenChange, type, onScan }: ScannerModalP
           size="icon"
           className="absolute top-2 right-2 text-muted-foreground hover:bg-accent"
           onClick={() => onOpenChange(false)}
+          aria-label="Close scanner"
         >
           <X className="w-3 h-3" />
         </Button>

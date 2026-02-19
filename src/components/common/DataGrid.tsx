@@ -197,6 +197,7 @@ export function DataGrid<TData extends { id?: string | number }>({
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
             className="h-8 w-8"
+            aria-label="Go to first page"
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -206,6 +207,7 @@ export function DataGrid<TData extends { id?: string | number }>({
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             className="h-8 w-8"
+            aria-label="Go to previous page"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -221,6 +223,7 @@ export function DataGrid<TData extends { id?: string | number }>({
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             className="h-8 w-8"
+            aria-label="Go to next page"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -230,6 +233,7 @@ export function DataGrid<TData extends { id?: string | number }>({
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
             className="h-8 w-8"
+            aria-label="Go to last page"
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>

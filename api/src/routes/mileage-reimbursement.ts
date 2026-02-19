@@ -1,5 +1,6 @@
 import axios from 'axios'
 import express, { Request, Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 18: Add Winston logger
 import { pool } from '../db/connection';
@@ -13,6 +14,38 @@ const router = express.Router()
 
 // Apply authentication to all routes
 router.use(authenticateJWT)
+
+// ============================================================================
+// VALIDATION SCHEMAS
+// ============================================================================
+
+const calculateMileageSchema = z.object({
+  miles: z.number().min(0.1, 'Miles must be greater than 0').max(10000),
+  origin: z.string().min(1).max(500).optional(),
+  destination: z.string().min(1).max(500).optional(),
+  trip_date: z.string().max(30).optional(),
+  vehicle_type: z.string().max(50).optional(),
+  custom_rate: z.number().min(0).max(10).optional(),
+  tenant_id: z.string().uuid().optional(),
+  driver_id: z.string().uuid().optional(),
+  vehicle_id: z.string().uuid().optional(),
+  purpose: z.string().max(1000).optional(),
+})
+
+const validateTripSchema = z.object({
+  origin: z.string().min(1).max(500),
+  destination: z.string().min(1).max(500),
+  miles: z.number().min(0.1).max(10000),
+  trip_date: z.string().min(1).max(30),
+  purpose: z.string().min(1).max(1000),
+  vehicle_id: z.string().uuid().optional(),
+  driver_id: z.string().uuid(),
+})
+
+const updateTenantRateSchema = z.object({
+  rate: z.number().min(0.01, 'Rate must be greater than 0').max(10),
+  effective_date: z.string().max(30).optional(),
+})
 
 /**
  * Federal Mileage Reimbursement Rate Configuration
@@ -109,6 +142,15 @@ router.get('/rates', async (req: Request, res: Response) => {
  */
 router.post('/calculate',csrfProtection, async (req: Request, res: Response) => {
   try {
+    // Validate request body
+    const parsed = calculateMileageSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
     const {
       miles,
       origin,
@@ -120,12 +162,7 @@ router.post('/calculate',csrfProtection, async (req: Request, res: Response) => 
       driver_id,
       vehicle_id,
       purpose
-    } = req.body
-
-    // Validate required fields
-    if (!miles || miles <= 0) {
-      throw new ValidationError("Valid miles value is required")
-    }
+    } = parsed.data
 
     // Determine applicable rate
     let applicableRate = MILEAGE_CONFIG.defaultRate
@@ -152,7 +189,7 @@ router.post('/calculate',csrfProtection, async (req: Request, res: Response) => 
     }
 
     // Calculate reimbursement
-    const milesFloat = parseFloat(miles)
+    const milesFloat = miles
     const reimbursementAmount = parseFloat((milesFloat * applicableRate).toFixed(2))
 
     // Build response
@@ -225,6 +262,15 @@ router.get('/rates/history', async (req: Request, res: Response) => {
  */
 router.post('/validate-trip',csrfProtection, async (req: Request, res: Response) => {
   try {
+    // Validate request body
+    const parsed = validateTripSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
     const {
       origin,
       destination,
@@ -233,30 +279,10 @@ router.post('/validate-trip',csrfProtection, async (req: Request, res: Response)
       purpose,
       vehicle_id,
       driver_id
-    } = req.body
+    } = parsed.data
 
     const validationErrors: string[] = []
     const warnings: string[] = []
-
-    // Required field validation (federal requirements)
-    if (!origin) {
-validationErrors.push('Origin is required')
-}
-    if (!destination) {
-validationErrors.push('Destination is required')
-}
-    if (!miles || miles <= 0) {
-validationErrors.push('Valid mileage is required')
-}
-    if (!trip_date) {
-validationErrors.push('Trip date is required')
-}
-    if (!purpose) {
-validationErrors.push('Business purpose is required (federal requirement)')
-}
-    if (!driver_id) {
-validationErrors.push('Driver ID is required')
-}
 
     // Federal compliance validations
     if (miles > 500) {
@@ -313,11 +339,17 @@ validationErrors.push('Driver ID is required')
 router.put('/rates/tenant/:tenant_id',csrfProtection, async (req: Request, res: Response) => {
   try {
     const { tenant_id } = req.params
-    const { rate, effective_date } = req.body
 
-    if (!rate || rate <= 0) {
-      throw new ValidationError("Valid rate is required")
+    // Validate request body
+    const parsed = updateTenantRateSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
     }
+
+    const { rate, effective_date } = parsed.data
 
     // Federal compliance check - cannot exceed IRS rate
     if (rate > MILEAGE_CONFIG.defaultRate) {

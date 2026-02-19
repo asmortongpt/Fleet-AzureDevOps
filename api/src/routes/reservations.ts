@@ -27,6 +27,21 @@ const createReservationSchema = z.object({
   notes: z.string().optional(),
 })
 
+const approveReservationSchema = z.object({
+  approved_by: z.string().uuid(),
+  notes: z.string().max(2000).optional(),
+})
+
+const rejectReservationSchema = z.object({
+  rejected_by: z.string().uuid(),
+  reason: z.string().min(1).max(2000),
+})
+
+const cancelReservationSchema = z.object({
+  cancelled_by: z.string().uuid(),
+  reason: z.string().min(1).max(2000),
+})
+
 const updateReservationSchema = z.object({
   start_time: z.string().datetime().optional(),
   end_time: z.string().datetime().optional(),
@@ -331,7 +346,17 @@ router.post('/:id/approve', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
-    const { approved_by, notes } = req.body
+
+    // Validate request body
+    const parsed = approveReservationSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
+    const { approved_by, notes } = parsed.data
 
     const result = await pool.query(
       `UPDATE reservations
@@ -375,7 +400,17 @@ router.post('/:id/reject', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
-    const { rejected_by, reason } = req.body
+
+    // Validate request body
+    const parsed = rejectReservationSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
+    const { rejected_by, reason } = parsed.data
 
     const result = await pool.query(
       `UPDATE reservations
@@ -418,7 +453,17 @@ router.post('/:id/cancel', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
-    const { cancelled_by, reason } = req.body
+
+    // Validate request body
+    const parsed = cancelReservationSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
+    const { cancelled_by, reason } = parsed.data
 
     const result = await pool.query(
       `UPDATE reservations
