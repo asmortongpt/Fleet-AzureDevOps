@@ -386,7 +386,7 @@ router.delete(
         throw new NotFoundError("Work order not found")
       }
 
-      res.json({ message: 'Work order deleted successfully' })
+      res.json({ success: true, message: 'Work order deleted successfully' })
     } catch (error) {
       logger.error('Failed to delete work order', {
         error,

@@ -881,7 +881,7 @@ router.delete(
         throw new NotFoundError("Route not found")
       }
 
-      res.json({ message: 'Route deleted successfully' })
+      res.json({ success: true, message: 'Route deleted successfully' })
     } catch (error) {
       logger.error('Delete route error:', error)
       res.status(500).json({ error: 'Internal server error' })

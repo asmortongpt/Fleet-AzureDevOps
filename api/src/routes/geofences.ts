@@ -184,7 +184,7 @@ router.delete(
         throw new NotFoundError("Geofences not found")
       }
 
-      res.json({ message: 'Geofences deleted successfully' })
+      res.json({ success: true, message: 'Geofences deleted successfully' })
     } catch (error) {
       logger.error('Delete geofences error:', error) // Wave 18: Winston logger
       res.status(500).json({ error: 'Internal server error' })

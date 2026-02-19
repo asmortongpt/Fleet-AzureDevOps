@@ -214,7 +214,7 @@ router.delete(
         return res.status(404).json({ error: 'Incident not found' })
       }
 
-      res.json({ message: 'Incident deleted successfully' })
+      res.json({ success: true, message: 'Incident deleted successfully' })
     } catch (error) {
       logger.error('Delete incident error:', error)
       res.status(500).json({ error: 'Internal server error' })

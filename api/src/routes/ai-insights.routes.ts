@@ -472,7 +472,7 @@ router.put(
         req.user!.id
       )
 
-      res.json({ message: 'Outcome recorded successfully' })
+      res.json({ success: true, message: 'Outcome recorded successfully' })
     } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to record outcome', message: getErrorMessage(error) })
     }
@@ -592,7 +592,7 @@ router.post(
         feedback
       )
 
-      res.json({ message: 'Feedback recorded' })
+      res.json({ success: true, message: 'Feedback recorded' })
     } catch (error: unknown) {
       res.status(500).json({ error: 'Failed to record feedback', message: getErrorMessage(error) })
     }
@@ -724,7 +724,7 @@ router.post(
     try {
       await mlTrainingService.deployModel(req.params.id, req.user!.tenant_id ?? '', req.user!.id)
 
-      res.json({ message: 'Model deployed successfully' })
+      res.json({ success: true, message: 'Model deployed successfully' })
     } catch (error: unknown) {
       res.status(500).json({ error: 'Deployment failed', message: getErrorMessage(error) })
     }

@@ -173,7 +173,7 @@ router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res:
   }
 
   logger.info('Part deleted', { partId: req.params.id, tenantId })
-  res.json({ message: "Part deleted successfully" })
+  res.json({ success: true, message: "Part deleted successfully" })
 }))
 
 export default router

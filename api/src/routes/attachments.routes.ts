@@ -308,7 +308,7 @@ router.delete(
       // REPOSITORY USED HERE (Query 6 eliminated)
       await attachmentRepo.deleteAttachment(parseInt(blobId), Number(req.user!.tenant_id))
 
-      res.json({ message: 'Attachment deleted successfully' })
+      res.json({ success: true, message: 'Attachment deleted successfully' })
     } catch (error: unknown) {
       logger.error('Delete error:', error)
       res.status(500).json({

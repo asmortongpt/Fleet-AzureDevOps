@@ -369,7 +369,7 @@ router.delete(
         return res.status(404).json({ error: 'Maintenance schedule not found' })
       }
 
-      res.json({ message: 'Maintenance schedule deleted successfully', id: result.rows[0].id })
+      res.json({ success: true, message: 'Maintenance schedule deleted successfully', id: result.rows[0].id })
     } catch (error) {
       logger.error('Delete maintenance-schedules error:', error)
       res.status(500).json({ error: 'Failed to delete maintenance schedule' })

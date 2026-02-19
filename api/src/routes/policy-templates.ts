@@ -501,7 +501,7 @@ router.delete(
         return res.status(404).json({ error: 'Policy template not found' })
       }
 
-      res.json({ message: 'Policy template deleted successfully', policy: result.rows[0] })
+      res.json({ success: true, message: 'Policy template deleted successfully', policy: result.rows[0] })
     } catch (error) {
       logger.error('Delete policy template error:', error)
       res.status(500).json({ error: 'Internal server error' })

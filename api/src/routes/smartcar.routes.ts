@@ -459,7 +459,7 @@ router.delete(
         [vehicleId, req.user!.tenant_id]
       )
 
-      res.json({ message: 'Smartcar disconnected successfully' })
+      res.json({ success: true, message: 'Smartcar disconnected successfully' })
     } catch (error: unknown) {
       logger.error('Disconnect Smartcar error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })
@@ -486,7 +486,7 @@ router.post(
 
       await smartcarService.syncVehicleData(vehicleId)
 
-      res.json({ message: 'Vehicle data synced successfully' })
+      res.json({ success: true, message: 'Vehicle data synced successfully' })
     } catch (error: unknown) {
       logger.error('Sync Smartcar data error:', error) // Wave 24: Winston logger
       res.status(500).json({ error: error instanceof Error ? error.message : 'Internal server error' })

@@ -234,7 +234,7 @@ router.delete(
         throw new NotFoundError("SafetyIncidents not found")
       }
 
-      res.json({ message: 'SafetyIncidents deleted successfully' })
+      res.json({ success: true, message: 'SafetyIncidents deleted successfully' })
     } catch (error) {
       logger.error('Delete safety-incidents error:', error) // Wave 17: Winston logger
       res.status(500).json({ error: 'Internal server error' })

@@ -107,7 +107,7 @@ router.patch(
       const { status, firmwareVersion } = req.body;
       await videoService.updateCameraHealth(Number(req.params.id), status, firmwareVersion);
 
-      res.json({ message: 'Camera health updated' });
+      res.json({ success: true, message: 'Camera health updated' });
     } catch (error: unknown) {
       logger.error('Update camera health error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to update camera health' });
@@ -342,7 +342,7 @@ router.patch(
         await aiService.markFalsePositive(Number(req.params.id), Number(req.user!.id), reviewNotes);
       }
 
-      res.json({ message: `Video event reviewed successfully` });
+      res.json({ success: true, message: `Video event reviewed successfully` });
     } catch (error: unknown) {
       logger.error(`Review video event error: `, error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to review video event' });
@@ -468,7 +468,7 @@ router.post(
         Number(req.user!.id)
       );
 
-      res.json({ message: 'Video event added to evidence locker' });
+      res.json({ success: true, message: 'Video event added to evidence locker' });
     } catch (error: unknown) {
       logger.error('Add to evidence locker error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to add video to evidence locker' });
@@ -562,7 +562,7 @@ router.patch(
         driverAcknowledgment
       );
 
-      res.json({ message: 'Coaching session completed successfully' });
+      res.json({ success: true, message: 'Coaching session completed successfully' });
     } catch (error: unknown) {
       logger.error('Complete coaching session error:', error) // Wave 20: Winston logger;
       res.status(500).json({ error: 'Failed to complete coaching session' });

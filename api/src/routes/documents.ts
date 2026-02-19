@@ -526,7 +526,7 @@ router.delete(
 
       // TODO: Delete physical file from storage
 
-      res.json({ message: `Document deleted successfully` })
+      res.json({ success: true, message: `Document deleted successfully` })
     } catch (error) {
       logger.error('Delete document error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })

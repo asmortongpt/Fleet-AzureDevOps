@@ -310,7 +310,7 @@ router.delete(
       return res.status(404).json({ error: 'Facility not found' })
     }
 
-    res.json({ message: 'Facility deleted successfully' })
+    res.json({ success: true, message: 'Facility deleted successfully' })
   })
 )
 

@@ -418,7 +418,7 @@ router.delete("/:id",
       await cacheService.del(cacheKey)
 
       logger.info('Vehicle deleted', { vehicleId, tenantId })
-      res.json({ message: "Vehicle deleted successfully" })
+      res.json({ success: true, message: "Vehicle deleted successfully" })
     } catch (error: unknown) {
       if ((error as Record<string, unknown>).code === '22P02') {
         return res.status(400).json({

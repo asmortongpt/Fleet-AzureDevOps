@@ -158,7 +158,7 @@ router.delete(
         throw new NotFoundError("Telemetry not found")
       }
 
-      res.json({ message: 'Telemetry deleted successfully' })
+      res.json({ success: true, message: 'Telemetry deleted successfully' })
     } catch (error) {
       logger.error('Delete telemetry error:', error)
       res.status(500).json({ error: 'Internal server error' })

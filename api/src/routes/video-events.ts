@@ -202,7 +202,7 @@ router.delete(
         throw new NotFoundError("VideoEvents not found")
       }
 
-      res.json({ message: 'VideoEvents deleted successfully' })
+      res.json({ success: true, message: 'VideoEvents deleted successfully' })
     } catch (error) {
       logger.error('Delete video-events error:', error) // Wave 19: Winston logger
       res.status(500).json({ error: 'Internal server error' })

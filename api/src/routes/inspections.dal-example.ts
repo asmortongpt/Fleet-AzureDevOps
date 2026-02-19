@@ -424,7 +424,7 @@ router.delete(
         throw new NotFoundError('Inspection not found')
       }
 
-      res.json({ message: 'Inspection deleted successfully' })
+      res.json({ success: true, message: 'Inspection deleted successfully' })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
       res.status(statusCode).json({ error: message, code })

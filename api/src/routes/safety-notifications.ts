@@ -196,7 +196,7 @@ router.delete(
                 throw new NotFoundError('Notification not found')
             }
 
-            res.json({ message: 'Notification deleted successfully' })
+            res.json({ success: true, message: 'Notification deleted successfully' })
         } catch (error) {
             logger.error('Delete notification error:', error)
             res.status(500).json({ error: 'Internal server error' })

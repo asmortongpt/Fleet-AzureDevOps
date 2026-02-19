@@ -188,7 +188,7 @@ router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res:
   }
 
   logger.info('Task deleted', { taskId: req.params.id, tenantId })
-  res.json({ message: "Task deleted successfully" })
+  res.json({ success: true, message: "Task deleted successfully" })
 }))
 
 export default router

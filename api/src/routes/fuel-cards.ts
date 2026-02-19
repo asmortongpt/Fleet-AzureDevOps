@@ -186,7 +186,7 @@ router.delete('/:id', csrfProtection, asyncHandler(async (req: Request, res: Res
     throw new NotFoundError('Fuel card not found');
   }
 
-  res.json({ message: 'Fuel card suspended successfully' });
+  res.json({ success: true, message: 'Fuel card suspended successfully' });
 }));
 
 /**
@@ -386,7 +386,7 @@ router.post('/transactions/:id/dispute', csrfProtection, asyncHandler(async (req
   const reconciliationService = container.get<FuelCardReconciliationService>(TYPES.FuelCardReconciliationService);
   await reconciliationService.disputeTransaction(req.params.id, reason, userId, tenantId);
 
-  res.json({ message: 'Transaction disputed successfully' });
+  res.json({ success: true, message: 'Transaction disputed successfully' });
 }));
 
 /**
@@ -413,7 +413,7 @@ router.post('/transactions/manual-reconcile', csrfProtection, asyncHandler(async
     userId
   );
 
-  res.json({ message: 'Transactions manually reconciled successfully' });
+  res.json({ success: true, message: 'Transactions manually reconciled successfully' });
 }));
 
 /**

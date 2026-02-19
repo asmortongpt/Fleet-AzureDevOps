@@ -447,7 +447,7 @@ router.delete(
         return res.status(404).json({ error: 'Relationship not found' })
       }
 
-      res.json({ message: 'Relationship deleted successfully' })
+      res.json({ success: true, message: 'Relationship deleted successfully' })
     } catch (error) {
       logger.error('Error deleting relationship:', error)
       res.status(500).json({ error: 'Failed to delete relationship' })

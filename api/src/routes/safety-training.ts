@@ -277,7 +277,7 @@ router.delete(
                 throw new NotFoundError('Training record not found')
             }
 
-            res.json({ message: 'Training record deleted successfully' })
+            res.json({ success: true, message: 'Training record deleted successfully' })
         } catch (error) {
             logger.error('Delete safety-training error:', error)
             res.status(500).json({ error: 'Internal server error' })

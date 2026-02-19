@@ -332,7 +332,7 @@ router.delete(
         throw new NotFoundError("Policies not found")
       }
 
-      res.json({ message: 'Policies deleted successfully' })
+      res.json({ success: true, message: 'Policies deleted successfully' })
     } catch (error) {
       logger.error('Delete policies error:', error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })

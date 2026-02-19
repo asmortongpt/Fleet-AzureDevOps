@@ -339,7 +339,7 @@ router.delete(
         throw new NotFoundError(`Link not found`)
       }
 
-      res.json({ message: 'Link deleted successfully' })
+      res.json({ success: true, message: 'Link deleted successfully' })
     } catch (error) {
       logger.error('Delete communication link error:', error)
       res.status(500).json({ error: 'Internal server error' })

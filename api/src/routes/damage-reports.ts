@@ -308,7 +308,7 @@ router.delete(
         return res.status(404).json({ error: `Damage report not found` })
       }
 
-      res.json({ message: 'Damage report deleted successfully' })
+      res.json({ success: true, message: 'Damage report deleted successfully' })
     } catch (error) {
       logger.error('Delete damage report error:', error)
       res.status(500).json({ error: 'Internal server error' })

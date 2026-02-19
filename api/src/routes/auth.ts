@@ -801,7 +801,7 @@ router.post('/logout', csrfProtection, async (req: Request, res: Response) => {
     }
   }
 
-  res.json({ message: 'Logged out successfully' })
+  res.json({ success: true, message: 'Logged out successfully' })
 })
 
 /**

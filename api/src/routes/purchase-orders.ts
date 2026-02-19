@@ -1,4 +1,5 @@
 import { Router, Response } from "express"
+import { z } from 'zod'
 
 import { pool } from '../config/database'
 import { csrfProtection } from '../middleware/csrf'
@@ -6,6 +7,20 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
+
+const createPurchaseOrderSchema = z.object({
+  number: z.string().min(1).max(100),
+  vendorId: z.string().uuid(),
+  orderDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+  expectedDeliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
+  subtotal: z.number().min(0),
+  taxAmount: z.number().min(0).optional(),
+  shippingCost: z.number().min(0).optional(),
+  totalAmount: z.number().min(0),
+  shippingAddress: z.string().max(500).optional(),
+  notes: z.string().max(2000).optional(),
+  lineItems: z.array(z.record(z.string(), z.unknown())).optional()
+})
 
 const router = Router()
 
@@ -108,11 +123,11 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { number, vendorId, orderDate, expectedDeliveryDate, subtotal, taxAmount, shippingCost, totalAmount, shippingAddress, notes, lineItems } = req.body
-
-  if (!number || !vendorId || !orderDate || !subtotal || !totalAmount) {
-    return res.status(400).json({ error: 'Required fields: number, vendorId, orderDate, subtotal, totalAmount' })
+  const parsed = createPurchaseOrderSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
   }
+  const { number, vendorId, orderDate, expectedDeliveryDate, subtotal, taxAmount, shippingCost, totalAmount, shippingAddress, notes, lineItems } = parsed.data
 
   const result = await client.query(
     `INSERT INTO purchase_orders (
@@ -190,7 +205,7 @@ router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res:
   }
 
   logger.info('Purchase order deleted', { poId: req.params.id, tenantId })
-  res.json({ message: "Purchase order deleted successfully" })
+  res.json({ success: true, message: "Purchase order deleted successfully" })
 }))
 
 export default router

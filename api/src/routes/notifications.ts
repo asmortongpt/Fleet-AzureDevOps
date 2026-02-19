@@ -110,7 +110,7 @@ router.patch(
         [req.user!.tenant_id]
       )
 
-      res.json({ message: 'All notifications marked as read', count: result.rowCount })
+      res.json({ success: true, message: 'All notifications marked as read', count: result.rowCount })
     } catch (error) {
       return res.status(500).json({ error: 'Failed to update notifications' })
     }
@@ -133,7 +133,7 @@ router.delete(
         throw new NotFoundError('Notification not found')
       }
 
-      res.json({ message: 'Notification deleted successfully' })
+      res.json({ success: true, message: 'Notification deleted successfully' })
     } catch (error: unknown) {
       if (error instanceof NotFoundError) {
         return res.status(404).json({ error: error.message })

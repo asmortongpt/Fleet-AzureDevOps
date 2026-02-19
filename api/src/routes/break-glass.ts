@@ -221,7 +221,7 @@ router.post(
           priority: 'high'
         });
 
-        res.json({ message: 'Elevation request denied' });
+        res.json({ success: true, message: 'Elevation request denied' });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -274,7 +274,7 @@ router.post(
         session.elevated_role_id
       );
 
-      res.json({ message: 'Elevation revoked successfully' });
+      res.json({ success: true, message: 'Elevation revoked successfully' });
     } catch (error) {
       logger.error('Revoke elevation error:', error);
       res.status(500).json({ error: 'Internal server error' });

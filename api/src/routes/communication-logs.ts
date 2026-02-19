@@ -189,7 +189,7 @@ router.delete(
         throw new NotFoundError("CommunicationLogs not found")
       }
 
-      res.json({ message: 'CommunicationLogs deleted successfully' })
+      res.json({ success: true, message: 'CommunicationLogs deleted successfully' })
     } catch (error) {
       logger.error('Delete communication-logs error:', error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })

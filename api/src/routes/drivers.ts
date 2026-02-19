@@ -711,7 +711,7 @@ router.delete(
         return res.status(404).json({ error: 'Driver not found' })
       }
 
-      res.json({ message: 'Driver deleted successfully' })
+      res.json({ success: true, message: 'Driver deleted successfully' })
     } catch (error) {
       logger.error('Delete driver error:', error)
       res.status(500).json({ error: 'Internal server error' })
