@@ -10,17 +10,19 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 
+import { flexUuid } from '../middleware/validation'
+
 // ============================================================================
 // Zod Validation Schemas
 // ============================================================================
 
 const createDeploymentSchema = z.object({
-  tenant_id: z.string().uuid().optional(),
+  tenant_id: flexUuid.optional(),
   environment: z.enum(['development', 'staging', 'production']),
   version: z.string().max(255).optional(),
   commit_hash: z.string().max(255).optional(),
   branch: z.string().max(255).optional(),
-  deployed_by_user_id: z.string().uuid().optional(),
+  deployed_by_user_id: flexUuid.optional(),
   deployment_notes: z.string().optional(),
   metadata: z.record(z.string(), z.unknown()).optional().default({}),
 })

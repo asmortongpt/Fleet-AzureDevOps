@@ -22,6 +22,8 @@ import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 
+import { flexUuid } from '../middleware/validation'
+
 // ============================================================================
 // Zod Validation Schemas
 // ============================================================================
@@ -37,11 +39,11 @@ const createTaskSchema = z.object({
   category: z.string().max(255).optional(),
   priority: z.enum(['critical', 'high', 'medium', 'low']).optional().default('medium'),
   status: z.string().max(50).optional().default('todo'),
-  assigned_to: z.string().uuid().optional(),
+  assigned_to: flexUuid.optional(),
   due_date: z.string().or(z.date()).optional(),
   estimated_hours: z.number().nonnegative().optional(),
-  related_vehicle_id: z.string().uuid().optional(),
-  related_work_order_id: z.string().uuid().optional(),
+  related_vehicle_id: flexUuid.optional(),
+  related_work_order_id: flexUuid.optional(),
   tags: z.array(z.string()).optional(),
   checklist_items: z.array(checklistItemSchema).optional(),
 })
@@ -52,7 +54,7 @@ const updateTaskSchema = z.object({
   category: z.string().max(255).optional(),
   priority: z.enum(['critical', 'high', 'medium', 'low']).optional(),
   status: z.string().max(50).optional(),
-  assigned_to: z.string().uuid().optional(),
+  assigned_to: flexUuid.optional(),
   due_date: z.string().or(z.date()).nullable().optional(),
   estimated_hours: z.number().nonnegative().nullable().optional(),
   actual_hours: z.number().nonnegative().nullable().optional(),

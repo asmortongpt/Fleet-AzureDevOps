@@ -167,7 +167,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       }
       if (filters.search) queryParams.append('search', filters.search);
 
-      const response = await fetch(`/api/policy-violations?${queryParams.toString()}`);
+      const response = await fetch(`/api/policy-violations?${queryParams.toString()}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       setViolations(data.data || []);
     } catch (error) {
@@ -181,7 +183,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
   const loadStatistics = async () => {
     try {
-      const response = await fetch(`/api/policy-violations/statistics?tenantId=${tenantId}`);
+      const response = await fetch(`/api/policy-violations/statistics?tenantId=${tenantId}`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       setStatistics(data.data);
     } catch (error) {
@@ -275,7 +279,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
     // Load comments
     try {
-      const response = await fetch(`/api/policy-violations/${violation.id}/comments`);
+      const response = await fetch(`/api/policy-violations/${violation.id}/comments`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       setComments(data.data || []);
     } catch (error) {
@@ -291,6 +297,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       await fetch(`/api/policy-violations/${selectedViolation.id}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ resolutionNotes }),
       });
 
@@ -310,6 +317,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       await fetch(`/api/policy-violations/${selectedViolation.id}/override`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ reason: overrideReason }),
       });
 
@@ -328,12 +336,15 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       await fetch(`/api/policy-violations/${selectedViolation.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ commentText: newComment }),
       });
 
       setNewComment('');
       // Reload comments
-      const response = await fetch(`/api/policy-violations/${selectedViolation.id}/comments`);
+      const response = await fetch(`/api/policy-violations/${selectedViolation.id}/comments`, {
+        credentials: 'include'
+      });
       const data = await response.json();
       setComments(data.data || []);
     } catch (error) {
@@ -346,6 +357,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const response = await fetch(`/api/policy-violations/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           format: exportFormat,
           filters,

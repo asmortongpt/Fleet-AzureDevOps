@@ -20,6 +20,8 @@ import { getErrorMessage } from '../utils/error-handler'
 import { validateFileContent, validateFileSize } from '../utils/file-validation'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 /**
@@ -396,7 +398,7 @@ router.post(
 
 // Validation schema for saving damage records
 const saveDamageSchema = z.object({
-  vehicleId: z.string().uuid(),
+  vehicleId: flexUuid,
   damages: z.array(z.object({
     position: z.object({
       x: z.number(),

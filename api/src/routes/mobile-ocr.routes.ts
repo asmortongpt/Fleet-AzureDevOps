@@ -26,6 +26,8 @@ import ocrService, { OcrProvider } from '../services/OcrService';
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 
 // Apply authentication to all routes
@@ -50,8 +52,8 @@ const upload = multer({
 
 // Validation schemas
 const FuelReceiptOCRSchema = z.object({
-  vehicleId: z.string().uuid(),
-  driverId: z.string().uuid().optional(),
+  vehicleId: flexUuid,
+  driverId: flexUuid.optional(),
   ocrData: z
     .object({
       date: z.string(),
@@ -69,9 +71,9 @@ const FuelReceiptOCRSchema = z.object({
 });
 
 const OdometerOCRSchema = z.object({
-  vehicleId: z.string().uuid(),
-  tripId: z.string().uuid().optional(),
-  reservationId: z.string().uuid().optional(),
+  vehicleId: flexUuid,
+  tripId: flexUuid.optional(),
+  reservationId: flexUuid.optional(),
   ocrData: z
     .object({
       reading: z.number().positive(),

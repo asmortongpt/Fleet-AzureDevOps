@@ -12,12 +12,14 @@ import { getErrorMessage } from '../utils/error-handler'
 import { logger } from '../utils/logger'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Validation schemas
 const createReimbursementSchema = z.object({
-  charge_id: z.string().uuid(),
+  charge_id: flexUuid,
   request_amount: z.number().positive(),
   description: z.string().optional(),
   expense_date: z.string(),

@@ -30,7 +30,8 @@ export const FleetDashboard: React.FC = () => {
         const response = await fetch('/api/emulator/vehicles', {
           headers: {
             'Authorization': 'Bearer test-token'
-          }
+          },
+          credentials: 'include'
         });
 
         if (!response.ok) throw new Error('Failed to fetch fleet data');

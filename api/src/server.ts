@@ -364,7 +364,7 @@ app.use(telemetryMiddleware)
 if (process.env.NODE_ENV !== 'production' && process.env.SKIP_AUTH === 'true') {
   logger.info('[DEV] Auth bypass middleware enabled - all API requests will use Morton-tech tenant')
   app.use((req: any, _res: any, next: any) => {
-    if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/') && !req.path.startsWith('/api/csrf')) {
+    if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/')) {
       req.user = {
         id: '00000000-0000-0000-0000-000000000001',
         email: 'dev@morton-tech.local',
@@ -442,6 +442,7 @@ app.use('/api/vendor-management', vendorManagementRouter)
 app.use('/api/maintenance', maintenanceRouter)
 app.use('/api/incidents', incidentsRouter)
 app.use('/api/parts', partsRouter)
+app.use('/api/parts-inventory', partsRouter)  // Alias: frontend uses /api/parts-inventory
 app.use('/api/inventory', inventoryRouter) // Registered here as core
 app.use('/api/vendors', vendorsRouter)
 app.use('/api/invoices', invoicesRouter)
@@ -604,6 +605,7 @@ app.use('/api/dashboard', dashboardRouter)
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 app.use('/api/dispatch', dispatchRouter)
+app.use('/api/dispatches', dispatchRouter)  // Alias: frontend uses /api/dispatches
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)

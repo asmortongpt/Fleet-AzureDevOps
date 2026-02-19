@@ -261,7 +261,7 @@ router.get(
 
       // Get OCR data if exists
       const ocrResult = await pool.query(
-        `SELECT id, tenant_id, document_id, status, confidence_score, text_content, processed_at FROM ocr_processing_log WHERE document_id = $1 ORDER BY processed_at DESC LIMIT 1`,
+        `SELECT id, document_id, processing_status, confidence, extracted_text, processed_at FROM ocr_processing_log WHERE document_id = $1 ORDER BY processed_at DESC LIMIT 1`,
         [req.params.id]
       )
 
@@ -357,11 +357,11 @@ router.post(
       // Insert document record
       const result = await pool.query(
         `INSERT INTO documents (
-          document_type, category, filename, original_filename,
-          file_size_bytes, mime_type, file_path, description,
+          document_type, category, file_name, original_filename,
+          file_size_bytes, mime_type, storage_path, description,
           related_entity_type, related_entity_id, tags,
           uploaded_by, uploaded_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW()
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())
         RETURNING *`,
         [
           document_type,
@@ -452,11 +452,11 @@ router.post(
       // Insert document
       const docResult = await pool.query(
         `INSERT INTO documents (
-          document_type, category, filename, original_filename,
-          file_size_bytes, mime_type, file_path, description,
+          document_type, category, file_name, original_filename,
+          file_size_bytes, mime_type, storage_path, description,
           related_entity_type, related_entity_id,
-          uploaded_by, uploaded_at, is_mobile_capture
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), TRUE)
+          uploaded_by, uploaded_at, upload_method
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, NOW(), 'camera_capture')
         RETURNING *`,
         [
           document_type,
@@ -479,7 +479,7 @@ router.post(
       await pool.query(
         `INSERT INTO camera_capture_metadata (
           document_id, device_manufacturer, device_model,
-          device_os, device_os_version, photo_taken_at,
+          os_name, os_version, photo_taken_at,
           camera_make, latitude, longitude,
           auto_crop_applied, auto_rotate_applied
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
@@ -740,8 +740,8 @@ router.put(
           `INSERT INTO receipt_line_items (
             document_id, line_number, item_description,
             quantity, unit_price, line_total, tax_amount,
-            category, is_taxable, ai_confidence
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            product_category, is_taxable
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
           [
             req.params.id,
             index + 1,
@@ -751,8 +751,7 @@ router.put(
             item.line_total || 0,
             item.tax_amount || 0,
             item.category,
-            item.is_taxable !== false,
-            item.ai_confidence || null
+            item.is_taxable !== false
           ]
         )
       )
@@ -805,10 +804,10 @@ router.get(
       // Total documents
       const totalResult = await pool.query(
         `SELECT COUNT(*) as total_documents,
-                COUNT(CASE WHEN is_mobile_capture = TRUE THEN 1 END) as mobile_captures,
+                COUNT(CASE WHEN upload_method = 'camera_capture' THEN 1 END) as mobile_captures,
                 SUM(file_size_bytes) as total_storage_bytes
          FROM documents d
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1`,
         [req.user!.tenant_id]
       )
@@ -817,7 +816,7 @@ router.get(
       const byCategoryResult = await pool.query(
         `SELECT category, COUNT(*) as count
          FROM documents d
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1
          GROUP BY category
          ORDER BY count DESC
@@ -830,7 +829,7 @@ router.get(
         `SELECT processing_status, COUNT(*) as count
          FROM ocr_processing_log opl
          JOIN documents d ON opl.document_id = d.id
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1
          GROUP BY processing_status`,
         [req.user!.tenant_id]
@@ -840,7 +839,7 @@ router.get(
       const recentResult = await pool.query(
         `SELECT d.*, uploader.first_name || ' ' || uploader.last_name as uploaded_by_name
          FROM documents d
-         LEFT JOIN drivers uploader ON d.uploaded_by = uploader.id
+         LEFT JOIN users uploader ON d.uploaded_by = uploader.id
          WHERE uploader.tenant_id = $1
          ORDER BY d.uploaded_at DESC
          LIMIT 10`,

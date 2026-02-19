@@ -10,6 +10,8 @@ import { getErrorMessage } from '../utils/error-handler'
 import { authenticateJWT } from '../middleware/auth'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 // Apply authentication to all routes
@@ -26,9 +28,9 @@ const calculateMileageSchema = z.object({
   trip_date: z.string().max(30).optional(),
   vehicle_type: z.string().max(50).optional(),
   custom_rate: z.number().min(0).max(10).optional(),
-  tenant_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid().optional(),
-  vehicle_id: z.string().uuid().optional(),
+  tenant_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
+  vehicle_id: flexUuid.optional(),
   purpose: z.string().max(1000).optional(),
 })
 
@@ -38,8 +40,8 @@ const validateTripSchema = z.object({
   miles: z.number().min(0.1).max(10000),
   trip_date: z.string().min(1).max(30),
   purpose: z.string().min(1).max(1000),
-  vehicle_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid,
 })
 
 const updateTenantRateSchema = z.object({

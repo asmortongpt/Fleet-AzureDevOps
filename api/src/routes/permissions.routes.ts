@@ -20,6 +20,8 @@ import { auditService } from '../services/auditService';
 import { TYPES } from '../types';
 import { authenticateJWT } from '../middleware/auth'
 
+import { flexUuid } from '../middleware/validation'
+
 // --- Zod Schemas for input validation ---
 
 const checkPermissionSchema = z.object({
@@ -35,7 +37,7 @@ const createRoleSchema = z.object({
 
 const assignRolesSchema = z.object({
   roles: z.array(z.string().min(1).max(100), { message: 'Roles must be an array of strings' }).min(1, 'At least one role is required'),
-  org_id: z.string().uuid().optional(),
+  org_id: flexUuid.optional(),
 });
 
 const router = Router();

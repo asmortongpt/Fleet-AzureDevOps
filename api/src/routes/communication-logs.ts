@@ -10,14 +10,16 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+import { flexUuid } from '../middleware/validation'
+
 const createCommunicationLogSchema = z.object({
   communication_type: z.string().min(1),
   subject: z.string().optional(),
   body: z.string().optional(),
   message_body: z.string().optional(),
-  from_user_id: z.string().uuid().optional(),
-  to_user_id: z.string().uuid().optional(),
-  sender_id: z.string().uuid().optional(),
+  from_user_id: flexUuid.optional(),
+  to_user_id: flexUuid.optional(),
+  sender_id: flexUuid.optional(),
   sender_name: z.string().optional(),
   from_address: z.string().optional(),
   to_address: z.string().optional(),
@@ -28,7 +30,7 @@ const createCommunicationLogSchema = z.object({
   participants: z.unknown().optional(),
   recipients: z.unknown().optional(),
   related_entity_type: z.string().optional(),
-  related_entity_id: z.string().uuid().optional(),
+  related_entity_id: flexUuid.optional(),
   follow_up_required: z.boolean().optional(),
   follow_up_date: z.string().optional(),
   follow_up_notes: z.string().optional(),

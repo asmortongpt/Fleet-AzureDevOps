@@ -15,13 +15,13 @@ export class InspectionService extends BaseService {
     if (!data.vehicle_id) {
 throw new Error("Vehicle ID is required");
 }
-    if (!data.inspection_type) {
+    if (!data.type) {
 throw new Error("Inspection type is required");
 }
 
-    // Validate inspection_type enum
-    const validTypes = ['pre_trip', 'post_trip', 'periodic', 'annual', 'dot', 'safety'];
-    if (data.inspection_type && !validTypes.includes(data.inspection_type)) {
+    // Validate type enum (matches DB inspection_type enum)
+    const validTypes = ['pre_trip', 'post_trip', 'annual', 'dot', 'safety', 'emissions', 'special'];
+    if (data.type && !validTypes.includes(data.type)) {
       throw new Error(`Invalid inspection type. Must be one of: ${validTypes.join(', ')}`);
     }
 
@@ -98,7 +98,7 @@ throw new Error("Inspection type is required");
     if (Object.keys(data).length > 0) {
       const validationData = {
         vehicle_id: data.vehicle_id || 'dummy',
-        inspection_type: data.inspection_type || 'pre_trip',
+        type: data.type || 'pre_trip',
         ...data
       };
       await this.validate(validationData);

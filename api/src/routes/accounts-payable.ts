@@ -21,12 +21,14 @@ import {
 import { logger } from '../utils/logger';
 import { csrfProtection } from '../middleware/csrf';
 
+import { flexUuid } from '../middleware/validation'
+
 // --- Zod Schemas for input validation ---
 
 const createAPSchema = z.object({
-  tenant_id: z.string().uuid().optional(),
-  invoice_id: z.string().uuid().optional(),
-  vendor_id: z.string().uuid('Invalid vendor_id'),
+  tenant_id: flexUuid.optional(),
+  invoice_id: flexUuid.optional(),
+  vendor_id: flexUuid,
   invoice_number: z.string().min(1, 'Invoice number is required').max(100),
   invoice_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
   due_date: z.union([z.string().datetime(), z.string().date(), z.coerce.date()]),
@@ -46,9 +48,9 @@ const paymentSchema = z.object({
 });
 
 const createDepreciationSchema = z.object({
-  tenant_id: z.string().uuid().optional(),
-  asset_id: z.string().uuid().optional(),
-  vehicle_id: z.string().uuid().optional(),
+  tenant_id: flexUuid.optional(),
+  asset_id: flexUuid.optional(),
+  vehicle_id: flexUuid.optional(),
   depreciation_method: z.enum(['straight-line', 'declining-balance', 'units-of-production']),
   original_cost: z.number().positive('Original cost must be positive'),
   salvage_value: z.number().min(0, 'Salvage value cannot be negative'),

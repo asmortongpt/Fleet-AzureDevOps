@@ -8,6 +8,8 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
 
+import { flexUuid } from '../middleware/validation'
+
 const createPartSchema = z.object({
   partNumber: z.string().min(1),
   name: z.string().min(1),
@@ -20,7 +22,7 @@ const createPartSchema = z.object({
   reorderPoint: z.number().int().optional(),
   reorderQuantity: z.number().int().optional(),
   locationInWarehouse: z.string().optional(),
-  facilityId: z.string().uuid().optional(),
+  facilityId: flexUuid.optional(),
 })
 
 const updatePartSchema = createPartSchema.omit({ partNumber: true }).extend({

@@ -8,9 +8,11 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
 
+import { flexUuid } from '../middleware/validation'
+
 const createPurchaseOrderSchema = z.object({
   number: z.string().min(1).max(100),
-  vendorId: z.string().uuid(),
+  vendorId: flexUuid,
   orderDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
   expectedDeliveryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
   subtotal: z.number().min(0),

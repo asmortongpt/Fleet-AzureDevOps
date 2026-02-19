@@ -16,6 +16,8 @@ import {
 } from '../types/maintenance'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 // CRITICAL: Apply middleware in exact order
@@ -269,7 +271,7 @@ router.get(
 
 // POST /maintenance-schedules
 const maintenanceScheduleSchema = z.object({
-  vehicle_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
   schedule_type: z.string().max(100).optional(),
   service_type: z.string().max(200).optional(),
   description: z.string().max(2000).optional(),

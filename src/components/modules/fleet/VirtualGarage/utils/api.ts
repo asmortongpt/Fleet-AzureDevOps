@@ -52,7 +52,7 @@ export interface Inspection {
 export async function fetchVehicleTelemetry(vehicleId: string): Promise<OBD2Telemetry | null> {
   if (!vehicleId) return null
   try {
-    const response = await fetch(`/api/emulator/vehicles/${vehicleId}/telemetry`)
+    const response = await fetch(`/api/emulator/vehicles/${vehicleId}/telemetry`, { credentials: 'include' })
     if (!response.ok) return null
     const data = await response.json()
     if (data.success && data.data) {
@@ -70,7 +70,7 @@ export async function fetchVehicleTelemetry(vehicleId: string): Promise<OBD2Tele
  */
 export async function fetchDamageReports(): Promise<DamageReport[]> {
   try {
-    const response = await fetch("/api/damage-reports")
+    const response = await fetch("/api/damage-reports", { credentials: 'include' })
     if (!response.ok) return []
     return response.json()
   } catch {
@@ -83,7 +83,7 @@ export async function fetchDamageReports(): Promise<DamageReport[]> {
  */
 export async function fetchInspections(): Promise<Inspection[]> {
   try {
-    const response = await fetch("/api/inspections")
+    const response = await fetch("/api/inspections", { credentials: 'include' })
     if (!response.ok) return []
     return response.json()
   } catch {
@@ -99,6 +99,7 @@ export async function submitTripoSRRequest(
 ): Promise<{ task_id: string; status: string }> {
   const response = await fetch("/api/triposr/generate", {
     method: "POST",
+    credentials: 'include',
     body: formData
   })
   if (!response.ok) throw new Error("Failed to submit to TripoSR")

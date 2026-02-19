@@ -17,6 +17,8 @@ import {
   listComplianceReports
 } from '../services/compliance-reporting.service'
 
+import { flexUuid } from '../middleware/validation'
+
 /**
  * Fetch NIST 800-53 controls from the compliance_checklists table.
  * Returns controls keyed by control_id for the in-memory lookup used by the test-control endpoint.
@@ -128,7 +130,7 @@ const fedRampReportSchema = z.object({
   baseline: z.enum(['LOW', 'MODERATE', 'HIGH']).default('MODERATE'),
   period_start: z.string().max(30).optional(),
   period_end: z.string().max(30).optional(),
-  tenant_id: z.string().uuid().optional(),
+  tenant_id: flexUuid.optional(),
 })
 
 const testControlSchema = z.object({

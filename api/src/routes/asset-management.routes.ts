@@ -24,6 +24,8 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router()
 
 // Apply authentication to all routes
@@ -435,8 +437,8 @@ const updateAssetSchema = z.object({
   notes: z.string().max(2000).optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
   assigned_to: z.string().optional(),
-  assigned_to_id: z.string().uuid().optional(),
-  assigned_facility_id: z.string().uuid().optional(),
+  assigned_to_id: flexUuid.optional(),
+  assigned_facility_id: flexUuid.optional(),
   warranty_expiration: z.string().optional(),
   warranty_expiry_date: z.string().optional(),
   last_maintenance: z.string().optional(),

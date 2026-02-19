@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { commonSchemas } from '../middleware/validation';
+import { commonSchemas, flexUuid } from '../middleware/validation';
 
 /**
  * Comprehensive Zod validation schemas for Work Orders
@@ -74,7 +74,7 @@ export const workOrderPartSchema = z.object({
  * Labor entry schema
  */
 export const laborEntrySchema = z.object({
-  technician_id: z.string().uuid().optional(),
+  technician_id: flexUuid.optional(),
   technician_name: z.string().max(255).optional(),
   labor_type: z.string().max(100).optional(),
   hours: z.number()
@@ -155,9 +155,9 @@ export const workOrderCreateSchema = z.object({
   discount_amount: commonSchemas.currency.optional(),
 
   // Related information
-  related_inspection_id: z.string().uuid().optional(),
-  related_maintenance_schedule_id: z.string().uuid().optional(),
-  parent_work_order_id: z.string().uuid().optional(),
+  related_inspection_id: flexUuid.optional(),
+  related_maintenance_schedule_id: flexUuid.optional(),
+  parent_work_order_id: flexUuid.optional(),
 
   // Documentation
   photos: z.array(z.string().url())
@@ -216,8 +216,8 @@ export const workOrderCreateSchema = z.object({
  * PUT /work-orders/:id
  */
 export const workOrderUpdateSchema = z.object({
-  assigned_technician_id: z.string().uuid().nullable().optional(),
-  facility_id: z.string().uuid().nullable().optional(),
+  assigned_technician_id: flexUuid.nullable().optional(),
+  facility_id: flexUuid.nullable().optional(),
 
   type: workOrderTypeEnum.optional(),
   priority: priorityEnum.optional(),
@@ -312,9 +312,9 @@ export const workOrderQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(500).default(50),
 
   // Filtering
-  vehicle_id: z.string().uuid().optional(),
-  facility_id: z.string().uuid().optional(),
-  assigned_technician_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  facility_id: flexUuid.optional(),
+  assigned_technician_id: flexUuid.optional(),
 
   type: workOrderTypeEnum.optional(),
   priority: priorityEnum.optional(),
@@ -331,8 +331,8 @@ export const workOrderQuerySchema = z.object({
   max_cost: commonSchemas.currency.optional(),
 
   // Related entities
-  related_inspection_id: z.string().uuid().optional(),
-  parent_work_order_id: z.string().uuid().optional(),
+  related_inspection_id: flexUuid.optional(),
+  parent_work_order_id: flexUuid.optional(),
 
   // Search
   search: z.string()

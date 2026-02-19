@@ -34,11 +34,13 @@ import { authenticateJWT, authorize, AuthRequest, setCheckRevoked } from '../mid
 import { csrfProtection } from '../middleware/csrf'
 import { logger } from '../utils/logger'
 
+import { flexUuid } from '../middleware/validation'
+
 // --- Zod Schema for revocation input validation ---
 
 const revokeSessionSchema = z.object({
   token: z.string().min(1).max(4096).optional(),
-  user_id: z.string().uuid().optional(),
+  user_id: flexUuid.optional(),
   email: z.string().email().max(254).optional(),
 })
 

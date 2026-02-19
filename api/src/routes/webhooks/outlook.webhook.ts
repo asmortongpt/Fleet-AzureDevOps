@@ -572,6 +572,13 @@ router.post(
       const communication = result.rows[0]
 
       // Re-categorize using AI
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(503).json({
+          error: 'AI categorization unavailable',
+          message: 'OpenAI API key not configured'
+        })
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const OpenAI = require('openai')
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })

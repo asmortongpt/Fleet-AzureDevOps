@@ -10,10 +10,12 @@ import { requirePermission } from '../middleware/permissions'
 import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+import { flexUuid } from '../middleware/validation'
+
 const chargingSessionSchema = z.object({
-  vehicle_id: z.string().uuid(),
-  driver_id: z.string().uuid().optional(),
-  station_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid,
+  driver_id: flexUuid.optional(),
+  station_id: flexUuid.optional(),
   start_time: z.string().datetime().optional(),
   end_time: z.string().datetime().optional(),
   energy_kwh: z.number().min(0).max(10000).optional(),

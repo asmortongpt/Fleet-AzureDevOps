@@ -10,6 +10,8 @@ import { requirePermission } from '../middleware/permissions'
 import { setTenantContext } from '../middleware/tenant-context'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 router.use(setTenantContext)
@@ -630,8 +632,8 @@ const updateRouteSchema = z.object({
   end_location: z.string().max(500).optional(),
   waypoints: z.unknown().optional(),
   distance: z.number().min(0).optional(),
-  assigned_vehicle_id: z.string().uuid().optional(),
-  assigned_driver_id: z.string().uuid().optional(),
+  assigned_vehicle_id: flexUuid.optional(),
+  assigned_driver_id: flexUuid.optional(),
 }).passthrough()
 
 router.put(

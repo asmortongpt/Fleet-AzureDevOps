@@ -106,7 +106,7 @@ export class CacheStrategies {
 
   // Placeholder methods (would be real DB calls in production)
   private static async fetchVehicleFromDB(id: string): Promise<any> {
-    const response = await fetch(`/api/v1/vehicles/${id}`);
+    const response = await fetch(`/api/v1/vehicles/${id}`, { credentials: 'include' });
     return response.json();
   }
 
@@ -114,6 +114,7 @@ export class CacheStrategies {
     const response = await fetch(`/api/v1/vehicles/${id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(data),
     });
     return response.json();
@@ -121,7 +122,7 @@ export class CacheStrategies {
 
   private static async fetchVehiclesFromDB(filters: any): Promise<any[]> {
     const query = new URLSearchParams(filters).toString();
-    const response = await fetch(`/api/v1/vehicles?${query}`);
+    const response = await fetch(`/api/v1/vehicles?${query}`, { credentials: 'include' });
     const json = await response.json();
     return json.vehicles || [];
   }

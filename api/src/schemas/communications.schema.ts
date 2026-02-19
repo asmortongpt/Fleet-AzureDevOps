@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { commonSchemas } from '../middleware/validation'
+import { commonSchemas, flexUuid } from '../middleware/validation'
 
 /**
  * Communications Validation Schemas
@@ -118,7 +118,7 @@ const entityTypeEnum = z.enum([
  */
 export const entityLinkSchema = z.object({
   entity_type: entityTypeEnum,
-  entity_id: z.string().uuid('Invalid entity ID format'),
+  entity_id: flexUuid,
   link_type: entityLinkTypeEnum.default('related'),
   relevance_score: z.number()
     .min(0, 'Relevance score must be 0-100')
@@ -148,7 +148,7 @@ export const createCommunicationSchema = z.object({
   communication_datetime: z.coerce.date(),
 
   // Sender information (OPTIONAL - can be system-generated)
-  from_user_id: z.string().uuid().optional(),
+  from_user_id: flexUuid.optional(),
 
   from_contact_name: z.string()
     .max(200, 'Contact name too long')
@@ -187,7 +187,7 @@ export const createCommunicationSchema = z.object({
 
   follow_up_by_date: z.coerce.date().optional(),
 
-  follow_up_assigned_to: z.string().uuid().optional(),
+  follow_up_assigned_to: flexUuid.optional(),
 
   follow_up_completed: z.boolean().default(false),
 
@@ -256,7 +256,7 @@ export const updateCommunicationSchema = z.object({
 
   requires_follow_up: z.boolean().optional(),
   follow_up_by_date: z.coerce.date().optional(),
-  follow_up_assigned_to: z.string().uuid().optional(),
+  follow_up_assigned_to: flexUuid.optional(),
   follow_up_completed: z.boolean().optional(),
 
   metadata: z.record(
@@ -271,7 +271,7 @@ export const updateCommunicationSchema = z.object({
  */
 export const linkEntitySchema = z.object({
   entity_type: entityTypeEnum,
-  entity_id: z.string().uuid('Invalid entity ID format'),
+  entity_id: flexUuid,
   link_type: entityLinkTypeEnum.default('related')
 }).strict()
 
@@ -305,7 +305,7 @@ export const getCommunicationsQuerySchema = z.object({
 
   // Entity filtering
   entity_type: entityTypeEnum.optional(),
-  entity_id: z.string().uuid().optional(),
+  entity_id: flexUuid.optional(),
 
   // Sorting
   sort: z.enum([

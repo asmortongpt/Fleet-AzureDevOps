@@ -14,6 +14,8 @@ import { tenantSafeQuery } from '../utils/dbHelpers'
 import { logger } from '../utils/logger'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -54,8 +56,8 @@ const initializeBlobService = () => {
 }
 
 const damageReportSchema = z.object({
-  vehicle_id: z.string().uuid(),
-  reported_by: z.string().uuid().optional(),
+  vehicle_id: flexUuid,
+  reported_by: flexUuid.optional(),
   damage_description: z.string(),
   damage_severity: z.enum(['minor', 'moderate', 'severe']),
   damage_location: z.string().optional(),
@@ -65,8 +67,8 @@ const damageReportSchema = z.object({
   triposr_task_id: z.string().optional(),
   triposr_status: z.enum(['pending', 'processing', 'completed', 'failed']).optional(),
   triposr_model_url: z.string().optional(),
-  linked_work_order_id: z.string().uuid().optional(),
-  inspection_id: z.string().uuid().optional(),
+  linked_work_order_id: flexUuid.optional(),
+  inspection_id: flexUuid.optional(),
 })
 
 // GET /damage-reports

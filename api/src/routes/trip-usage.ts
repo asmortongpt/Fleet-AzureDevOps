@@ -17,13 +17,15 @@ import {
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Validation schemas
 const createTripUsageSchema = z.object({
-  vehicle_id: z.string().uuid(),
-  driver_id: z.string().uuid(),
+  vehicle_id: flexUuid,
+  driver_id: flexUuid,
   usage_type: z.enum([UsageType.BUSINESS, UsageType.PERSONAL, UsageType.MIXED]),
   business_purpose: z.string().optional(),
   business_percentage: z.number().min(0).max(100).optional(),
@@ -34,7 +36,7 @@ const createTripUsageSchema = z.object({
   end_location: z.string().optional(),
   start_odometer: z.number().optional(),
   end_odometer: z.number().optional(),
-  trip_id: z.string().uuid().optional()
+  trip_id: flexUuid.optional()
 })
 
 const updateTripUsageSchema = z.object({

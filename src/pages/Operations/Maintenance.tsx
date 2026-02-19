@@ -89,8 +89,8 @@ export function MaintenanceOperations() {
     try {
       setLoading(true);
       const [tasksRes, statsRes] = await Promise.all([
-        fetch('/api/maintenance').catch(() => null),
-        fetch('/api/maintenance/statistics').catch(() => null)
+        fetch('/api/maintenance', { credentials: 'include' }).catch(() => null),
+        fetch('/api/maintenance/statistics', { credentials: 'include' }).catch(() => null)
       ]);
 
       if (tasksRes?.ok) {
@@ -208,6 +208,7 @@ export function MaintenanceOperations() {
       const response = await fetch('/api/maintenance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(formData)
       });
 
@@ -235,6 +236,7 @@ export function MaintenanceOperations() {
       const response = await fetch(`/api/maintenance/${selectedTask.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           status: 'completed',
           completed_date: new Date().toISOString(),
@@ -266,6 +268,7 @@ export function MaintenanceOperations() {
       const response = await fetch(`/api/maintenance/${selectedTask.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           scheduled_date: formData.scheduled_date,
           status: 'scheduled'

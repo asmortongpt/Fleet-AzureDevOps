@@ -26,6 +26,8 @@ import { AssignmentNotificationService } from '../services/assignment-notificati
 import { TYPES } from '../types';
 import { getErrorMessage } from '../utils/error-handler';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 
 // Get repository from DI container
@@ -37,9 +39,9 @@ const notificationService = container.get<AssignmentNotificationService>(TYPES.A
 // =====================================================
 
 const createAssignmentSchema = z.object({
-  vehicle_id: z.string().uuid(),
-  driver_id: z.string().uuid(),
-  department_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid,
+  driver_id: flexUuid,
+  department_id: flexUuid.optional(),
   assignment_type: z.enum(['designated', 'on_call', 'temporary']),
   start_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   end_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
@@ -49,7 +51,7 @@ const createAssignmentSchema = z.object({
   on_call_only: z.boolean().default(false),
   geographic_constraints: z.record(z.string(), z.any()).optional(),
   requires_secured_parking: z.boolean().default(false),
-  secured_parking_location_id: z.string().uuid().optional(),
+  secured_parking_location_id: flexUuid.optional(),
   recommendation_notes: z.string().optional(),
 });
 

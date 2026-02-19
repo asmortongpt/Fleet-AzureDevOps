@@ -31,6 +31,8 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import ReservationsService, { UserContext } from '../services/reservations.service';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 
 // Database pool and service (will be set via setDatabasePool)
@@ -47,7 +49,7 @@ export function setDatabasePool(dbPool: Pool) {
 // ============================================
 
 const createReservationSchema = z.object({
-  vehicle_id: z.string().uuid('Invalid vehicle ID'),
+  vehicle_id: flexUuid,
   start_datetime: z.string().datetime('Invalid start datetime format'),
   end_datetime: z.string().datetime('Invalid end datetime format'),
   // @ts-expect-error - Build compatibility fix

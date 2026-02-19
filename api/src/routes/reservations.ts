@@ -9,6 +9,8 @@ import { z } from 'zod'
 import { logger } from '../utils/logger'
 import { authenticateJWT } from '../middleware/auth'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router()
 
 // Apply authentication to all routes
@@ -16,10 +18,10 @@ router.use(authenticateJWT)
 
 // Validation schemas
 const createReservationSchema = z.object({
-  vehicle_id: z.string().uuid().optional(),
-  asset_id: z.string().uuid().optional(),
-  user_id: z.string().uuid(),
-  driver_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  asset_id: flexUuid.optional(),
+  user_id: flexUuid,
+  driver_id: flexUuid.optional(),
   start_time: z.string().datetime(),
   end_time: z.string().datetime(),
   purpose: z.string().min(1).max(500),
@@ -28,17 +30,17 @@ const createReservationSchema = z.object({
 })
 
 const approveReservationSchema = z.object({
-  approved_by: z.string().uuid(),
+  approved_by: flexUuid,
   notes: z.string().max(2000).optional(),
 })
 
 const rejectReservationSchema = z.object({
-  rejected_by: z.string().uuid(),
+  rejected_by: flexUuid,
   reason: z.string().min(1).max(2000),
 })
 
 const cancelReservationSchema = z.object({
-  cancelled_by: z.string().uuid(),
+  cancelled_by: flexUuid,
   reason: z.string().min(1).max(2000),
 })
 

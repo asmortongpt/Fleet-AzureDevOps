@@ -8,11 +8,13 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
 
+import { flexUuid } from '../middleware/validation'
+
 const createInvoiceSchema = z.object({
   number: z.string().min(1).max(100),
   type: z.enum(['standard', 'credit', 'debit', 'proforma', 'recurring']),
-  vendorId: z.string().uuid().optional(),
-  purchaseOrderId: z.string().uuid().optional(),
+  vendorId: flexUuid.optional(),
+  purchaseOrderId: flexUuid.optional(),
   invoiceDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
   dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
   subtotal: z.number().min(0),

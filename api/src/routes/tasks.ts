@@ -8,15 +8,17 @@ import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
 
+import { flexUuid } from '../middleware/validation'
+
 const createTaskSchema = z.object({
   title: z.string().min(1),
   description: z.string().optional(),
   status: z.enum(['pending', 'in_progress', 'completed', 'cancelled']).optional(),
   priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
-  assignedToId: z.string().uuid().optional(),
+  assignedToId: flexUuid.optional(),
   dueDate: z.string().optional(),
   relatedEntityType: z.string().optional(),
-  relatedEntityId: z.string().uuid().optional(),
+  relatedEntityId: flexUuid.optional(),
   type: z.string().optional(),
   notes: z.string().optional(),
 })

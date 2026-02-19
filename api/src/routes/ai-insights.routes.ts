@@ -18,6 +18,8 @@ import ragEngineService from '../services/rag-engine.service'
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -296,7 +298,7 @@ router.get(
 // ============================================================================
 
 const MaintenancePredictionSchema = z.object({
-  vehicle_id: z.string().uuid()
+  vehicle_id: flexUuid
 })
 
 /**
@@ -333,7 +335,7 @@ router.post(
 )
 
 const DriverBehaviorScoreSchema = z.object({
-  driver_id: z.string().uuid(),
+  driver_id: flexUuid,
   period: z.enum(['7d', '30d', '90d']).optional().default('30d')
 })
 

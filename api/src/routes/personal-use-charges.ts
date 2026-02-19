@@ -13,13 +13,15 @@ import {
   ChargeBreakdownItem
 } from '../types/trip-usage';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 router.use(authenticateJWT);
 
 // Validation schemas
 const createChargeSchema = z.object({
-  driver_id: z.string().uuid(),
-  trip_usage_id: z.string().uuid().optional(),
+  driver_id: flexUuid,
+  trip_usage_id: flexUuid.optional(),
   charge_period: z.string().regex(/^\d{4}-\d{2}$/), // YYYY-MM format
   charge_period_start: z.string(),
   charge_period_end: z.string(),
@@ -56,7 +58,7 @@ const updateChargeSchema = z.object({
 });
 
 const calculateChargesSchema = z.object({
-  driver_id: z.string().uuid(),
+  driver_id: flexUuid,
   charge_period: z.string().regex(/^\d{4}-\d{2}$/)
 });
 

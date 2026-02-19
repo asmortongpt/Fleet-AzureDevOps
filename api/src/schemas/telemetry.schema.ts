@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { commonSchemas } from '../middleware/validation'
+import { commonSchemas, flexUuid } from '../middleware/validation'
 
 /**
  * Telemetry Validation Schemas
@@ -26,7 +26,7 @@ import { commonSchemas } from '../middleware/validation'
  */
 export const createTelemetrySchema = z.object({
   // Vehicle identification (REQUIRED)
-  vehicle_id: z.string().uuid('Invalid vehicle ID format'),
+  vehicle_id: flexUuid,
 
   // Timestamp (REQUIRED)
   timestamp: z.coerce.date(),
@@ -134,7 +134,7 @@ export const getTelemetryQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(1000).default(50),
 
   // Filtering
-  vehicle_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
 
   // Date range
   start_date: z.coerce.date().optional(),

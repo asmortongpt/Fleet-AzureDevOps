@@ -117,7 +117,7 @@ export function DocumentComparison({
     }
 
     // For PDFs and images, we'd need OCR - use the indexing service
-    const response = await fetch(`/api/documents/${version.id}/content`);
+    const response = await fetch(`/api/documents/${version.id}/content`, { credentials: 'include' });
     if (!response.ok) throw new Error('Failed to fetch content');
 
     const data = await response.json();
@@ -174,6 +174,7 @@ export function DocumentComparison({
       const response = await fetch('/api/ai/summarize-changes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           oldContent: oldContent.substring(0, 5000), // Limit for API
           newContent: newContent.substring(0, 5000),

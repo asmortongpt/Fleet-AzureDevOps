@@ -34,6 +34,8 @@ import { applyFieldMasking } from '../utils/fieldMasking'
 import { preventTenantIdOverride, validateTenantReferences, injectTenantId } from '../utils/tenant-validator'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 // CRITICAL: Apply middleware in this exact order
@@ -42,13 +44,14 @@ router.use(setTenantContext)         // 2. Set PostgreSQL tenant context
 
 // Validation schema for work order creation
 const createWorkOrderSchema = z.object({
-  work_order_number: z.string(),
-  vehicle_id: z.string().uuid(),
-  facility_id: z.string().uuid().optional(),
-  assigned_technician_id: z.string().uuid().optional(),
-  type: z.enum(['preventive', 'corrective', 'inspection']),
-  priority: z.enum(['low', 'medium', 'high', 'critical']).default('medium'),
-  status: z.enum(['open', 'in_progress', 'on_hold', 'completed', 'cancelled']).default('open'),
+  work_order_number: z.string().optional(),
+  title: z.string().min(1).max(200).optional(),
+  vehicle_id: flexUuid,
+  facility_id: flexUuid.optional(),
+  assigned_technician_id: flexUuid.optional(),
+  type: z.enum(['preventive', 'corrective', 'inspection', 'recall', 'upgrade']),
+  priority: z.enum(['low', 'medium', 'high', 'critical', 'emergency']).default('medium'),
+  status: z.enum(['pending', 'in_progress', 'on_hold', 'completed', 'cancelled', 'failed']).default('pending'),
   description: z.string().min(1),
   odometer_reading: z.number().optional(),
   engine_hours_reading: z.number().optional(),
@@ -59,12 +62,12 @@ const createWorkOrderSchema = z.object({
 
 // Validation schema for work order updates (all fields optional for partial update)
 const updateWorkOrderSchema = z.object({
-  status: z.enum(['open', 'in_progress', 'on_hold', 'completed', 'cancelled']).optional(),
+  status: z.enum(['pending', 'in_progress', 'on_hold', 'completed', 'cancelled', 'failed']).optional(),
   priority: z.enum(['low', 'medium', 'high', 'critical']).optional(),
   description: z.string().min(1).optional(),
-  vehicle_id: z.string().uuid().optional(),
-  facility_id: z.string().uuid().optional(),
-  assigned_technician_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  facility_id: flexUuid.optional(),
+  assigned_technician_id: flexUuid.optional(),
   scheduled_start: z.string().optional(),
   scheduled_end: z.string().optional(),
   actual_start: z.string().optional(),
@@ -252,23 +255,32 @@ router.post(
       // Validate request body
       const validated = createWorkOrderSchema.parse(req.body)
 
+      // Auto-generate work order number if not provided
+      if (!validated.work_order_number) {
+        validated.work_order_number = `WO-${Date.now().toString(36).toUpperCase()}`
+      }
+
       const client = req.dbClient
       if (!client) {
         return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
       }
 
       // Insert work order - tenant_id comes from req.body (injected by injectTenantId middleware)
+      // Auto-generate title from type and description if not provided
+      const title = validated.title || `${validated.type.charAt(0).toUpperCase() + validated.type.slice(1)} - ${validated.description.substring(0, 100)}`
+
       const result = await client.query(
         `INSERT INTO work_orders (
-          tenant_id, work_order_number, vehicle_id, facility_id,
-          assigned_technician_id, type, priority, status, description,
-          odometer_reading, engine_hours_reading, scheduled_start,
-          scheduled_end, notes, created_by
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+          tenant_id, number, title, vehicle_id, facility_id,
+          assigned_to_id, type, priority, status, description,
+          odometer_at_start, engine_hours_in, scheduled_start_date,
+          scheduled_end_date, notes, created_by
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         RETURNING *`,
         [
           req.body.tenant_id,  // From injectTenantId middleware
           validated.work_order_number,
+          title,
           validated.vehicle_id,
           validated.facility_id || null,
           validated.assigned_technician_id || null,
@@ -408,10 +420,11 @@ router.delete(
       }
 
       // RLS ensures DELETE only affects rows in current tenant
+      // Soft delete by setting status to 'cancelled'
       const result = await client.query(
         `UPDATE work_orders
-         SET deleted_at = CURRENT_TIMESTAMP
-         WHERE id = $1 AND deleted_at IS NULL
+         SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1 AND status != 'cancelled'
          RETURNING id`,
         [req.params.id]
       )

@@ -8,6 +8,8 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -140,7 +142,7 @@ router.get(
 
 // Validation schema for warranty claims
 const createWarrantyClaimSchema = z.object({
-  warrantyId: z.string().uuid(),
+  warrantyId: flexUuid,
   claimNumber: z.string().min(1).max(100),
   dateSubmitted: z.string().max(30),
   issueDescription: z.string().max(5000).optional(),

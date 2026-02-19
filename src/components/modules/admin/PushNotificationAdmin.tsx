@@ -17,6 +17,7 @@ import {
   Eye
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
@@ -149,7 +150,7 @@ const PushNotificationAdmin: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Notification sent successfully!');
+      toast.success('Notification sent successfully!');
       setNotificationForm({
         title: '',
         message: '',
@@ -166,7 +167,7 @@ const PushNotificationAdmin: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['pushNotificationStats'] });
     },
     onError: (error: any) => {
-      alert('Failed to send notification: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to send notification: ' + (error.message || 'Unknown error'));
     }
   });
 
@@ -185,7 +186,7 @@ const PushNotificationAdmin: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Notification scheduled successfully!');
+      toast.success('Notification scheduled successfully!');
       setNotificationForm({
         title: '',
         message: '',
@@ -202,7 +203,7 @@ const PushNotificationAdmin: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['pushNotificationStats'] });
     },
     onError: (error: any) => {
-      alert('Failed to schedule notification: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to schedule notification: ' + (error.message || 'Unknown error'));
     }
   });
 
@@ -221,7 +222,7 @@ const PushNotificationAdmin: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Notification sent from template successfully!');
+      toast.success('Notification sent from template successfully!');
       setNotificationForm({
         title: '',
         message: '',
@@ -238,7 +239,7 @@ const PushNotificationAdmin: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['pushNotificationStats'] });
     },
     onError: (error: any) => {
-      alert('Failed to send notification: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to send notification: ' + (error.message || 'Unknown error'));
     }
   });
 
@@ -253,10 +254,10 @@ const PushNotificationAdmin: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Test notification sent! Check your mobile device.');
+      toast.success('Test notification sent! Check your mobile device.');
     },
     onError: () => {
-      alert('Failed to send test notification');
+      toast.error('Failed to send test notification');
     }
   });
 
@@ -307,7 +308,7 @@ const PushNotificationAdmin: React.FC = () => {
       }
     } catch (error) {
       logger.error('Error sending notification:', error);
-      alert('Failed to send notification');
+      toast.error('Failed to send notification');
     }
   };
 
@@ -323,7 +324,7 @@ const PushNotificationAdmin: React.FC = () => {
       });
     } catch (error) {
       logger.error('Error sending from template:', error);
-      alert('Failed to send notification');
+      toast.error('Failed to send notification');
     }
   };
 

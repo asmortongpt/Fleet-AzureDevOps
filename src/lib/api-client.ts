@@ -55,11 +55,6 @@ class APIClient {
    * - Automatically retries on 403 errors
    */
   private async initializeCsrfToken(): Promise<void> {
-    // Skip CSRF token fetch in dev bypass mode
-    if (import.meta.env.VITE_SKIP_AUTH === 'true') {
-      logger.debug('[CSRF] Skipping token fetch - VITE_SKIP_AUTH is enabled')
-      return
-    }
 
     // If already fetching, return existing promise
     if (this.csrfTokenPromise) {

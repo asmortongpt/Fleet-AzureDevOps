@@ -28,6 +28,8 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 // POST /sessions - Create new session (called during login)
@@ -38,8 +40,8 @@ router.post(
   async (req: AuthRequest, res: Response) => {
     try {
       const sessionSchema = z.object({
-        userId: z.string().uuid(),
-        tenantId: z.string().uuid(),
+        userId: flexUuid,
+        tenantId: flexUuid,
         deviceType: z.enum(['web', 'mobile', 'desktop', 'api']).default('web'),
         expiresIn: z.number().int().min(60).max(86400).default(1800)
       })

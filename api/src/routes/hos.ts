@@ -9,6 +9,8 @@ import { z } from 'zod'
 import { logger } from '../utils/logger'
 import { authenticateJWT } from '../middleware/auth'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router()
 
 // Apply authentication to all routes
@@ -19,8 +21,8 @@ router.use(authenticateJWT)
 // ============================================================================
 
 const createHOSLogSchema = z.object({
-  driver_id: z.string().uuid(),
-  vehicle_id: z.string().uuid().optional(),
+  driver_id: flexUuid,
+  vehicle_id: flexUuid.optional(),
   duty_status: z.enum(['off_duty', 'sleeper_berth', 'driving', 'on_duty_not_driving']),
   start_time: z.string().datetime(),
   end_time: z.string().datetime().optional(),
@@ -49,18 +51,18 @@ const createHOSLogSchema = z.object({
 
 const updateHOSLogSchema = z.object({
   notes: z.string().max(2000).optional(),
-  certified_by: z.string().uuid().optional(),
+  certified_by: flexUuid.optional(),
   certification_signature: z.string().max(500).optional(),
 })
 
 const resolveViolationSchema = z.object({
-  resolved_by: z.string().uuid(),
+  resolved_by: flexUuid,
   resolution_notes: z.string().max(2000).optional(),
 })
 
 const createDVIRSchema = z.object({
-  driver_id: z.string().uuid(),
-  vehicle_id: z.string().uuid(),
+  driver_id: flexUuid,
+  vehicle_id: flexUuid,
   inspection_type: z.enum(['pre_trip', 'post_trip', 'enroute']),
   defects_found: z.boolean(),
   vehicle_safe_to_operate: z.boolean(),

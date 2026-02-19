@@ -24,6 +24,8 @@ import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 let pool: Pool = dbPool
@@ -36,13 +38,13 @@ export function setDatabasePool(newPool: Pool) {
 // =====================================================
 
 const createOnCallPeriodSchema = z.object({
-  driver_id: z.string().uuid(),
-  department_id: z.string().uuid().optional(),
+  driver_id: flexUuid,
+  department_id: flexUuid.optional(),
   start_datetime: z.string().datetime(),
   end_datetime: z.string().datetime(),
   schedule_type: z.string().optional(),
   schedule_notes: z.string().optional(),
-  on_call_vehicle_assignment_id: z.string().uuid().optional(),
+  on_call_vehicle_assignment_id: flexUuid.optional(),
   geographic_region: z.string().optional(),
   commuting_constraints: z.record(z.string(), z.any()).optional(),
 })
@@ -54,8 +56,8 @@ const acknowledgeOnCallSchema = z.object({
 })
 
 const createCallbackTripSchema = z.object({
-  on_call_period_id: z.string().uuid(),
-  driver_id: z.string().uuid(),
+  on_call_period_id: flexUuid,
+  driver_id: flexUuid,
   trip_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   trip_start_time: z.string().datetime().optional(),
   trip_end_time: z.string().datetime().optional(),
@@ -64,7 +66,7 @@ const createCallbackTripSchema = z.object({
   commute_miles: z.number().nonnegative().optional(),
   used_assigned_vehicle: z.boolean().default(false),
   used_private_vehicle: z.boolean().default(false),
-  vehicle_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
   purpose: z.string().optional(),
   notes: z.string().optional(),
   reimbursement_requested: z.boolean().default(false),

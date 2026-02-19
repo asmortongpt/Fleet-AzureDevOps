@@ -9,6 +9,8 @@ import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac'
 import { validateParams, validateBody, validateQuery } from '../middleware/validate'
 import { tenantSafeQuery } from '../utils/dbHelpers'
 
+import { flexUuid } from '../middleware/validation'
+
 interface VehicleRow {
   id: string | number
   name: string
@@ -25,7 +27,7 @@ interface VehicleRow {
 const router = Router()
 
 const facilityIdSchema = z.object({
-  id: z.string().uuid()
+  id: flexUuid
 })
 
 const facilityCreateSchema = z.object({

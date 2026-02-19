@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -77,24 +78,24 @@ const getAuthFetchOptions = (method?: string, body?: unknown): RequestInit => ({
 const fetchChargingStations = async (): Promise<ChargingStation[]> => {
   const response = await fetch('/api/ev-management/chargers', { credentials: 'include' });
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch charging stations');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch charging stations');
 };
 
 // Query function for active sessions
 const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
   const response = await fetch('/api/ev-management/sessions/active', { credentials: 'include' });
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch active sessions');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch active sessions');
 };
 
 // Query function for station utilization
 const fetchStationUtilization = async (): Promise<StationUtilization[]> => {
   const response = await fetch('/api/ev-management/station-utilization', { credentials: 'include' });
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch station utilization');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch station utilization');
 };
 
 const EVChargingDashboard: React.FC = () => {
@@ -162,7 +163,7 @@ const EVChargingDashboard: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Charging started successfully');
+      toast.success('Charging started successfully');
       queryClient.invalidateQueries({ queryKey: ['evActiveSessions'] });
       queryClient.invalidateQueries({ queryKey: ['evChargingStations'] });
     },
@@ -180,7 +181,7 @@ const EVChargingDashboard: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Charging stopped successfully');
+      toast.success('Charging stopped successfully');
       queryClient.invalidateQueries({ queryKey: ['evActiveSessions'] });
       queryClient.invalidateQueries({ queryKey: ['evChargingStations'] });
     },
@@ -253,7 +254,7 @@ const EVChargingDashboard: React.FC = () => {
       const data = await response.json();
 
       if (data.success) {
-        alert('Reservation created successfully');
+        toast.success('Reservation created successfully');
         setShowReservationDialog(false);
         setReservationStationId(null);
         refetchStations();
@@ -262,7 +263,7 @@ const EVChargingDashboard: React.FC = () => {
       }
     } catch (error: unknown) {
       logger.error('Error creating reservation:', error);
-      alert(`Failed to create reservation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to create reservation: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

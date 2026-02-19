@@ -29,6 +29,8 @@ import { BudgetTrackingService } from '../services/budget-tracking';
 import { ApprovalWorkflowService } from '../services/approval-workflow';
 import { UUID } from '../types/database-tables';
 
+import { flexUuid } from '../middleware/validation'
+
 // ============================================================================
 // Zod Validation Schemas
 // ============================================================================
@@ -69,19 +71,19 @@ const lineItemSchema = z.object({
 });
 
 const purchaseRequisitionCreateSchema = z.object({
-  requested_by: z.string().uuid().optional(),
+  requested_by: flexUuid.optional(),
   department: z.string().max(255).optional(),
   cost_center: z.string().max(255).optional(),
   needed_by_date: z.string().or(z.date()).optional(),
   justification: z.string().min(1),
-  vendor_id: z.string().uuid().optional(),
+  vendor_id: flexUuid.optional(),
   suggested_vendor: z.string().max(255).optional(),
   line_items: z.array(lineItemSchema).min(1),
   subtotal: z.number().nonnegative(),
   tax_amount: z.number().nonnegative().optional(),
   shipping_cost: z.number().nonnegative().optional(),
   total_amount: z.number().nonnegative(),
-  budget_id: z.string().uuid().optional(),
+  budget_id: flexUuid.optional(),
   notes: z.string().optional(),
   metadata: z.record(z.string(), z.unknown()).optional(),
 });
@@ -96,7 +98,7 @@ const denyCommentSchema = z.object({
 
 const convertToPOSchema = z.object({
   purchase_order_number: z.string().max(255).optional(),
-  vendor_id: z.string().uuid(),
+  vendor_id: flexUuid,
   expected_delivery_date: z.string().or(z.date()).optional(),
   notes: z.string().optional(),
 });

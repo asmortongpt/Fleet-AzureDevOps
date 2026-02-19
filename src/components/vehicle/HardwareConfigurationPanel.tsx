@@ -560,7 +560,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config`)
+      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config`, { credentials: 'include' })
       if (!response.ok) {
         throw new Error(`Failed to fetch providers: ${response.statusText}`)
       }
@@ -580,6 +580,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config/providers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ type, configuration: config })
       })
 

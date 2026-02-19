@@ -23,6 +23,8 @@ import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 let pool: Pool = dbPool
@@ -35,8 +37,8 @@ export function setDatabasePool(newPool: Pool) {
 // =====================================================
 
 const createCostBenefitSchema = z.object({
-  vehicle_assignment_id: z.string().uuid().optional(),
-  department_id: z.string().uuid(),
+  vehicle_assignment_id: flexUuid.optional(),
+  department_id: flexUuid,
   requesting_position: z.string(),
 
   // Quantifiable costs

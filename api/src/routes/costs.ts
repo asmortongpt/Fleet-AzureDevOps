@@ -13,6 +13,8 @@ import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler'
 import { authenticateJWT } from '../middleware/auth'
 
+import { flexUuid } from '../middleware/validation'
+
 const validCostCategories = [
   'fuel', 'maintenance', 'insurance', 'depreciation',
   'labor', 'tolls', 'parking', 'violations', 'parts',
@@ -20,14 +22,14 @@ const validCostCategories = [
 ] as const
 
 const createCostSchema = z.object({
-  vehicleId: z.string().uuid().optional(),
-  driverId: z.string().uuid().optional(),
+  vehicleId: flexUuid.optional(),
+  driverId: flexUuid.optional(),
   category: z.enum(validCostCategories),
   amount: z.number().positive(),
   date: z.string().min(1),
   description: z.string().min(1),
   invoiceNumber: z.string().optional(),
-  vendorId: z.string().uuid().optional(),
+  vendorId: flexUuid.optional(),
   department: z.string().optional(),
   tags: z.array(z.string()).optional(),
   paymentMethod: z.string().optional(),
@@ -40,9 +42,9 @@ const bulkCostItemSchema = z.object({
   amount: z.number().positive(),
   date: z.string().min(1),
   description: z.string().min(1),
-  vehicleId: z.string().uuid().optional(),
-  driverId: z.string().uuid().optional(),
-  vendorId: z.string().uuid().optional(),
+  vehicleId: flexUuid.optional(),
+  driverId: flexUuid.optional(),
+  vendorId: flexUuid.optional(),
   department: z.string().optional(),
   invoiceNumber: z.string().optional(),
   tags: z.array(z.string()).optional(),
