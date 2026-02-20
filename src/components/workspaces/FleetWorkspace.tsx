@@ -432,12 +432,78 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
               onVehicleSelect={setSelectedVehicle}
             />
           ) : activeView === '3d' ? (
-            <div className="h-full flex items-center justify-center text-muted-foreground">
-              <div className="text-center space-y-2">
-                <div className="text-4xl">🏗️</div>
-                <p>3D Garage view coming soon</p>
+            <ScrollArea className="h-full">
+              <div className="p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Fleet Overview</h3>
+                  <div className="flex gap-2 text-sm text-muted-foreground">
+                    <span>{displayVehicles.length} vehicles</span>
+                  </div>
+                </div>
+                {/* Status summary cards */}
+                <div className="grid grid-cols-4 gap-3">
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <div className="text-2xl font-bold text-green-500">{stats.active}</div>
+                      <div className="text-xs text-muted-foreground">Active</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <div className="text-2xl font-bold text-yellow-500">{stats.idle}</div>
+                      <div className="text-xs text-muted-foreground">Idle</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <div className="text-2xl font-bold text-red-500">{stats.service}</div>
+                      <div className="text-xs text-muted-foreground">In Service</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardContent className="p-3 text-center">
+                      <div className="text-2xl font-bold text-gray-400">{stats.offline}</div>
+                      <div className="text-xs text-muted-foreground">Offline</div>
+                    </CardContent>
+                  </Card>
+                </div>
+                {/* Vehicle grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {displayVehicles.slice(0, 30).map((vehicle: FleetVehicle) => (
+                    <Card
+                      key={vehicle.id}
+                      className="cursor-pointer hover:bg-accent transition-colors"
+                      onClick={() => {
+                        setSelectedVehicle(vehicle)
+                        setActivePanel('telemetry')
+                      }}
+                    >
+                      <CardContent className="p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className={cn(
+                            "h-2.5 w-2.5 rounded-full",
+                            vehicle.status === 'active' ? 'bg-green-500' :
+                            vehicle.status === 'idle' ? 'bg-yellow-500' :
+                            vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-red-500' :
+                            'bg-gray-400'
+                          )} />
+                          <span className="text-sm font-medium truncate">
+                            {vehicle.year} {vehicle.make} {vehicle.model}
+                          </span>
+                        </div>
+                        <div className="text-xs text-muted-foreground space-y-0.5">
+                          <div>{vehicle.licensePlate}</div>
+                          <div className="flex justify-between">
+                            <span>{vehicle.fuelType === 'electric' ? 'Battery' : 'Fuel'}: {vehicle.fuelLevel}%</span>
+                            <span>{(vehicle.mileage / 1000).toFixed(0)}k mi</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
-            </div>
+            </ScrollArea>
           ) : (
             <VehicleInventoryPanel
               vehicles={displayVehicles}

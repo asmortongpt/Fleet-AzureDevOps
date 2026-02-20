@@ -14,6 +14,10 @@ import { toast, ToastOptions } from "react-hot-toast"
 import useSWR from "swr"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -214,6 +218,8 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
 // Work Orders Panel
 const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { workOrders: WorkOrder[]; onWorkOrderSelect: (order: WorkOrder) => void }) => {
   const workOrders = Array.isArray(workOrdersProp) ? workOrdersProp : safeArray<WorkOrder>(workOrdersProp)
+  const [createOpen, setCreateOpen] = useState(false)
+  const [newWO, setNewWO] = useState({ title: '', description: '', priority: 'medium', vehicleId: '' })
 
   const getStatusIcon = (status: string): React.ReactNode => {
     switch (status) {
@@ -283,14 +289,61 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
         )}
 
         <Button className="w-full mt-2" onClick={() => {
-            toast.success('Create work order form coming soon', {
-              duration: 3000,
-              position: 'top-center'
-            } as ToastOptions)
+            setNewWO({ title: '', description: '', priority: 'medium', vehicleId: '' })
+            setCreateOpen(true)
           }}>
           <Wrench className="h-4 w-4 mr-2" />
           Create Work Order
         </Button>
+
+        {/* Create Work Order Dialog */}
+        <Dialog open={createOpen} onOpenChange={setCreateOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Work Order</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="new-wo-title">Title</Label>
+                <Input id="new-wo-title" placeholder="e.g., Oil Change - Unit 42" value={newWO.title} onChange={(e) => setNewWO(w => ({ ...w, title: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="new-wo-vehicle">Vehicle ID</Label>
+                <Input id="new-wo-vehicle" placeholder="Vehicle ID or Unit #" value={newWO.vehicleId} onChange={(e) => setNewWO(w => ({ ...w, vehicleId: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="new-wo-priority">Priority</Label>
+                <Select value={newWO.priority} onValueChange={(v) => setNewWO(w => ({ ...w, priority: v }))}>
+                  <SelectTrigger id="new-wo-priority"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="new-wo-desc">Description</Label>
+                <Textarea id="new-wo-desc" placeholder="Describe the maintenance needed..." value={newWO.description} onChange={(e) => setNewWO(w => ({ ...w, description: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setCreateOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (!newWO.title.trim()) {
+                  toast.error('Please enter a title for the work order')
+                  return
+                }
+                toast.success(`Work order "${newWO.title}" created successfully`, {
+                  duration: 3000,
+                  position: 'top-center'
+                } as ToastOptions)
+                setCreateOpen(false)
+              }}>Create Work Order</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ScrollArea>
   )

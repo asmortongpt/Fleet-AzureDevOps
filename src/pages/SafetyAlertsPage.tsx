@@ -129,7 +129,7 @@ export default function SafetyAlertsPage() {
     shouldRetryOnError: false
   })
 
-  const { data: oshaResponse } = useSWR<{ data?: OSHAMetrics }>(
+  const { data: oshaResponse } = useSWR<OSHAMetrics>(
     `/api/safety-alerts/metrics/osha?year=${currentYear}`,
     fetcher,
     { refreshInterval: 60000, shouldRetryOnError: false }
@@ -146,9 +146,12 @@ export default function SafetyAlertsPage() {
   }, [alertsResponse])
 
   const oshaMetrics = useMemo<OSHAMetrics>(() => {
-    const apiMetrics = (oshaResponse as any)?.data as OSHAMetrics | undefined
-    if (apiMetrics) return apiMetrics
+    // apiFetcher unwraps the { data: ... } envelope, so oshaResponse IS the OSHAMetrics object directly
+    if (oshaResponse && typeof oshaResponse === 'object' && 'totalRecordableIncidents' in oshaResponse) {
+      return oshaResponse
+    }
 
+    // Fallback: compute from alert records when OSHA metrics endpoint has no data
     const totalRecordableIncidents = alerts.filter(a => a.oshaRecordable).length
     const totalCases = alerts.length
     const daysAwayRestrictedTransfer = alerts.reduce(
@@ -322,6 +325,250 @@ export default function SafetyAlertsPage() {
 
   const metrics = oshaMetrics
 
+  // Compute monthly incident trend from real alert data
+  const monthlyTrend = useMemo(() => {
+    const months = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D']
+    const counts = new Array(12).fill(0)
+    alerts.forEach(a => {
+      const d = new Date(a.reportedAt)
+      if (d.getFullYear() === currentYear && !Number.isNaN(d.getTime())) {
+        counts[d.getMonth()]++
+      }
+    })
+    const max = Math.max(...counts, 1)
+    return months.map((label, i) => ({
+      label,
+      count: counts[i],
+      heightPct: Math.round((counts[i] / max) * 100)
+    }))
+  }, [alerts, currentYear])
+
+  // Compute incident category breakdown from real alert data
+  const categoryBreakdown = useMemo(() => {
+    const categories: { key: SafetyAlert['type']; label: string; color: string }[] = [
+      { key: 'near-miss', label: 'Near Miss', color: 'bg-orange-500' },
+      { key: 'hazard', label: 'Hazard', color: 'bg-yellow-500' },
+      { key: 'injury', label: 'Injury', color: 'bg-red-500' },
+      { key: 'equipment-failure', label: 'Equipment', color: 'bg-purple-500' },
+      { key: 'environmental', label: 'Environmental', color: 'bg-green-500' },
+      { key: 'osha-violation', label: 'OSHA Violation', color: 'bg-red-700' },
+    ]
+    const total = alerts.length || 1
+    return categories
+      .map(cat => {
+        const count = alerts.filter(a => a.type === cat.key).length
+        return { ...cat, count, pct: Math.round((count / total) * 100) }
+      })
+      .filter(cat => cat.count > 0)
+      .sort((a, b) => b.count - a.count)
+  }, [alerts])
+
+  // Compute safety performance metrics from real alert data
+  const performanceMetrics = useMemo(() => {
+    // Days since last injury
+    const injuries = alerts
+      .filter(a => a.type === 'injury')
+      .map(a => new Date(a.reportedAt).getTime())
+      .filter(t => !Number.isNaN(t))
+      .sort((a, b) => b - a)
+    const daysSinceLastInjury = injuries.length > 0
+      ? Math.floor((Date.now() - injuries[0]) / 864e5)
+      : alerts.length > 0 ? '—' : '—'
+
+    // Hazard reports resolved rate
+    const hazards = alerts.filter(a => a.type === 'hazard')
+    const hazardsResolved = hazards.filter(a => a.status === 'resolved' || a.status === 'closed').length
+    const hazardResolutionRate = hazards.length > 0
+      ? `${Math.round((hazardsResolved / hazards.length) * 100)}%`
+      : '—'
+
+    // Average resolution time from real data
+    const resolvedAlerts = alerts.filter(a => a.actualResolutionTime && a.reportedAt)
+    let avgResolution = '—'
+    if (resolvedAlerts.length > 0) {
+      const totalMs = resolvedAlerts.reduce((sum, a) => {
+        const start = new Date(a.reportedAt).getTime()
+        const end = new Date(a.actualResolutionTime as string).getTime()
+        if (Number.isNaN(start) || Number.isNaN(end) || end <= start) return sum
+        return sum + (end - start)
+      }, 0)
+      if (totalMs > 0) {
+        avgResolution = `${(totalMs / resolvedAlerts.length / 36e5).toFixed(1)}h`
+      }
+    }
+
+    // Closure rate
+    const closedAlerts = alerts.filter(a => a.status === 'resolved' || a.status === 'closed').length
+    const closureRate = alerts.length > 0
+      ? `${Math.round((closedAlerts / alerts.length) * 100)}%`
+      : '—'
+
+    return [
+      { label: 'Days Since Last Injury', value: String(daysSinceLastInjury) },
+      { label: 'Alert Closure Rate', value: closureRate },
+      { label: 'Hazard Reports Resolved', value: hazardResolutionRate },
+      { label: 'Avg Resolution Time', value: avgResolution },
+    ]
+  }, [alerts])
+
+  // CSV export helper
+  const generateCSV = useCallback((rows: SafetyAlert[], filename: string) => {
+    const headers = [
+      'Alert #', 'Type', 'Severity', 'Title', 'Description', 'Location',
+      'Status', 'OSHA Recordable', 'OSHA Form', 'Reported By', 'Reported At',
+      'Days Away From Work', 'Days Restricted', 'Assigned To', 'Root Cause',
+      'Resolution Time'
+    ]
+    const csvRows = [headers.join(',')]
+    rows.forEach(a => {
+      const row = [
+        a.alertNumber,
+        a.type,
+        a.severity,
+        `"${(a.title || '').replace(/"/g, '""')}"`,
+        `"${(a.description || '').replace(/"/g, '""')}"`,
+        `"${(a.location || '').replace(/"/g, '""')}"`,
+        a.status,
+        a.oshaRecordable ? 'Yes' : 'No',
+        a.oshaFormRequired || '',
+        `"${(a.reportedBy || '').replace(/"/g, '""')}"`,
+        a.reportedAt,
+        a.daysAwayFromWork ?? '',
+        a.daysRestricted ?? '',
+        `"${(a.assignedTo || '').replace(/"/g, '""')}"`,
+        `"${(a.rootCause || '').replace(/"/g, '""')}"`,
+        a.actualResolutionTime || ''
+      ]
+      csvRows.push(row.join(','))
+    })
+    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }, [])
+
+  // Generic blob download helper (defined before OSHA generators that use it)
+  const downloadBlob = useCallback((content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }, [])
+
+  // OSHA Form generators
+  const generateOSHAForm300 = useCallback(() => {
+    const recordable = alerts.filter(a => a.oshaRecordable)
+    const headers = [
+      'Case No.', 'Employee Name', 'Job Title', 'Date of Injury/Illness',
+      'Where Event Occurred', 'Description', 'Classify (Injury/Illness)',
+      'Days Away From Work', 'Days Restricted', 'Death'
+    ]
+    const csvRows = [
+      'OSHA Form 300 - Log of Work-Related Injuries and Illnesses',
+      `Establishment: Fleet CTA | Year: ${currentYear}`,
+      '',
+      headers.join(',')
+    ]
+    recordable.forEach((a, i) => {
+      csvRows.push([
+        i + 1,
+        `"${(a.reportedBy || 'Unknown').replace(/"/g, '""')}"`,
+        '""',
+        a.reportedAt ? new Date(a.reportedAt).toLocaleDateString() : '',
+        `"${(a.location || '').replace(/"/g, '""')}"`,
+        `"${(a.description || '').replace(/"/g, '""')}"`,
+        a.type === 'environmental' ? 'Illness' : 'Injury',
+        a.daysAwayFromWork ?? 0,
+        a.daysRestricted ?? 0,
+        'No'
+      ].join(','))
+    })
+    downloadBlob(csvRows.join('\n'), `OSHA-Form-300-${currentYear}.csv`)
+    toast.success(`OSHA Form 300 generated with ${recordable.length} recordable incidents`)
+  }, [alerts, currentYear, downloadBlob])
+
+  const generateOSHAForm300A = useCallback(() => {
+    const recordable = alerts.filter(a => a.oshaRecordable)
+    const injuries = recordable.filter(a => a.type !== 'environmental').length
+    const illnesses = recordable.filter(a => a.type === 'environmental').length
+    const totalDaysAway = recordable.reduce((sum, a) => sum + (a.daysAwayFromWork || 0), 0)
+    const totalDaysRestricted = recordable.reduce((sum, a) => sum + (a.daysRestricted || 0), 0)
+
+    const lines = [
+      'OSHA Form 300A - Summary of Work-Related Injuries and Illnesses',
+      `Establishment: Fleet CTA | Year: ${currentYear}`,
+      '',
+      'SUMMARY',
+      `Total number of cases: ${recordable.length}`,
+      `Total injuries: ${injuries}`,
+      `Total illnesses: ${illnesses}`,
+      `Total fatalities: 0`,
+      `Total days away from work: ${totalDaysAway}`,
+      `Total days of restricted work activity: ${totalDaysRestricted}`,
+      '',
+      `OSHA Total Recordable Incident Rate (TRIR): ${metrics.incidentRate.toFixed(2)}`,
+      `Days Away/Restricted/Transfer (DART) Rate: ${metrics.daysAwayFromWorkCaseRate.toFixed(2)}`,
+      `Lost Workday Rate: ${metrics.lostWorkdayRate.toFixed(2)}`,
+    ]
+    downloadBlob(lines.join('\n'), `OSHA-Form-300A-${currentYear}.csv`)
+    toast.success('OSHA Form 300A summary generated')
+  }, [alerts, currentYear, metrics, downloadBlob])
+
+  const generateOSHAForm301 = useCallback((alert?: SafetyAlert | null) => {
+    const target = alert || alerts.filter(a => a.oshaRecordable)[0]
+    if (!target) {
+      toast.error('No OSHA recordable incidents available for Form 301')
+      return
+    }
+    const lines = [
+      'OSHA Form 301 - Injury and Illness Incident Report',
+      '',
+      `Case Number: ${target.alertNumber}`,
+      `Date of Report: ${new Date().toLocaleDateString()}`,
+      '',
+      'ABOUT THE EMPLOYEE',
+      `Name: ${target.reportedBy || 'Unknown'}`,
+      '',
+      'ABOUT THE CASE',
+      `Date of Injury/Illness: ${target.reportedAt ? new Date(target.reportedAt).toLocaleDateString() : ''}`,
+      `Time of Event: ${target.reportedAt ? new Date(target.reportedAt).toLocaleTimeString() : ''}`,
+      `Location: ${target.location}`,
+      '',
+      'DESCRIPTION',
+      `${target.description}`,
+      '',
+      `Type: ${target.type}`,
+      `Severity: ${target.severity}`,
+      `OSHA Form Required: ${target.oshaFormRequired || 'N/A'}`,
+      `Days Away From Work: ${target.daysAwayFromWork ?? 0}`,
+      `Days Restricted: ${target.daysRestricted ?? 0}`,
+      '',
+      'ROOT CAUSE',
+      `${target.rootCause || 'Under investigation'}`,
+      '',
+      'CORRECTIVE ACTIONS',
+      ...(target.correctiveActions?.length ? target.correctiveActions.map((a, i) => `${i + 1}. ${a}`) : ['None recorded']),
+      '',
+      'PREVENTIVE MEASURES',
+      ...(target.preventiveMeasures?.length ? target.preventiveMeasures.map((m, i) => `${i + 1}. ${m}`) : ['None recorded']),
+    ]
+    downloadBlob(lines.join('\n'), `OSHA-Form-301-${target.alertNumber}.csv`)
+    toast.success(`OSHA Form 301 generated for ${target.alertNumber}`)
+  }, [alerts, downloadBlob])
+
+  // OSHA Forms dialog state
+  const [oshaFormsOpen, setOshaFormsOpen] = useState(false)
+
   return (
     <ErrorBoundary>
     <div className="h-screen flex flex-col bg-gradient-to-br from-[#111] via-[#111] to-[#111]">
@@ -339,11 +586,22 @@ export default function SafetyAlertsPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" className="gap-2" onClick={() => toast.info('Exporting safety alerts report...')}>
+              <Button
+                variant="outline"
+                className="gap-2"
+                onClick={() => {
+                  if (alerts.length === 0) {
+                    toast.error('No alerts to export')
+                    return
+                  }
+                  generateCSV(alerts, `safety-alerts-${new Date().toISOString().split('T')[0]}.csv`)
+                  toast.success(`Exported ${alerts.length} safety alerts`)
+                }}
+              >
                 <Download className="w-4 h-4" />
                 Export Report
               </Button>
-              <Button variant="outline" className="gap-2" onClick={() => toast.info('Opening OSHA forms...')}>
+              <Button variant="outline" className="gap-2" onClick={() => setOshaFormsOpen(true)}>
                 <FileText className="w-4 h-4" />
                 OSHA Forms
               </Button>
@@ -673,7 +931,7 @@ export default function SafetyAlertsPage() {
                     <FileText className="w-4 h-4 text-emerald-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 300</h3>
                     <p className="text-sm text-white/40 mb-3">Log of Work-Related Injuries and Illnesses</p>
-                    <Button variant="outline" className="w-full" size="sm" onClick={() => toast.info('Generating OSHA Form 300...')}>
+                    <Button variant="outline" className="w-full" size="sm" onClick={generateOSHAForm300}>
                       <Download className="w-4 h-4 mr-2" />
                       Generate Form
                     </Button>
@@ -682,7 +940,7 @@ export default function SafetyAlertsPage() {
                     <FileText className="w-4 h-4 text-purple-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 300A</h3>
                     <p className="text-sm text-white/40 mb-3">Summary of Work-Related Injuries and Illnesses</p>
-                    <Button variant="outline" className="w-full" size="sm" onClick={() => toast.info('Generating OSHA Form 300A summary...')}>
+                    <Button variant="outline" className="w-full" size="sm" onClick={generateOSHAForm300A}>
                       <Download className="w-4 h-4 mr-2" />
                       Generate Summary
                     </Button>
@@ -691,7 +949,7 @@ export default function SafetyAlertsPage() {
                     <FileText className="w-4 h-4 text-green-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 301</h3>
                     <p className="text-sm text-white/40 mb-3">Injury and Illness Incident Report</p>
-                    <Button variant="outline" className="w-full" size="sm" onClick={() => toast.info('Generating OSHA Form 301 report...')}>
+                    <Button variant="outline" className="w-full" size="sm" onClick={() => generateOSHAForm301()}>
                       <Download className="w-4 h-4 mr-2" />
                       Generate Report
                     </Button>
@@ -710,13 +968,20 @@ export default function SafetyAlertsPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-end justify-between h-32 gap-2">
-                    {[45, 32, 28, 56, 41, 23, 35, 29, 18, 24, 15, 12].map((h, i) => (
+                    {monthlyTrend.map((m, i) => (
                       <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <div className="w-full bg-emerald-500/80 rounded-t" style={{ height: `${h * 2}px` }} />
-                        <span className="text-[9px] text-gray-800">{['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][i]}</span>
+                        <span className="text-[9px] text-white/60 mb-1">{m.count > 0 ? m.count : ''}</span>
+                        <div
+                          className="w-full bg-emerald-500/80 rounded-t transition-all"
+                          style={{ height: `${Math.max(m.heightPct, m.count > 0 ? 4 : 0)}%` }}
+                        />
+                        <span className="text-[9px] text-white/60">{m.label}</span>
                       </div>
                     ))}
                   </div>
+                  {alerts.length === 0 && (
+                    <p className="text-xs text-white/40 text-center mt-2">No alert data available for {currentYear}</p>
+                  )}
                 </CardContent>
               </Card>
               <Card className="bg-[#242424] border-white/[0.08]">
@@ -725,20 +990,17 @@ export default function SafetyAlertsPage() {
                   <CardDescription>Distribution breakdown</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {[
-                    { type: 'Near Miss', count: 45, pct: 40, color: 'bg-orange-500' },
-                    { type: 'Hazard', count: 32, pct: 28, color: 'bg-yellow-500' },
-                    { type: 'Injury', count: 18, pct: 16, color: 'bg-red-500' },
-                    { type: 'Equipment', count: 12, pct: 11, color: 'bg-purple-500' },
-                    { type: 'Environmental', count: 6, pct: 5, color: 'bg-green-500' },
-                  ].map(item => (
-                    <div key={item.type} className="space-y-1">
+                  {categoryBreakdown.length === 0 && (
+                    <p className="text-xs text-white/40 text-center">No incidents to categorize</p>
+                  )}
+                  {categoryBreakdown.map(item => (
+                    <div key={item.key} className="space-y-1">
                       <div className="flex justify-between text-xs">
-                        <span className="text-white/80">{item.type}</span>
+                        <span className="text-white/80">{item.label}</span>
                         <span className="text-white font-medium">{item.count} ({item.pct}%)</span>
                       </div>
                       <div className="w-full bg-white/[0.1] rounded-full h-2">
-                        <div className={`${item.color} h-2 rounded-full`} style={{ width: `${item.pct}%` }} />
+                        <div className={`${item.color} h-2 rounded-full`} style={{ width: `${Math.max(item.pct, 2)}%` }} />
                       </div>
                     </div>
                   ))}
@@ -752,16 +1014,10 @@ export default function SafetyAlertsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-4 gap-2">
-                  {[
-                    { label: 'Days Since Last Injury', value: '47', trend: '+12', good: true },
-                    { label: 'Safety Training Completion', value: '94%', trend: '+8%', good: true },
-                    { label: 'Hazard Reports Resolved', value: '89%', trend: '+5%', good: true },
-                    { label: 'Average Resolution Time', value: '4.2h', trend: '-1.3h', good: true },
-                  ].map(metric => (
+                  {performanceMetrics.map(metric => (
                     <div key={metric.label} className="p-2 bg-white/[0.03] rounded-lg">
                       <p className="text-xs text-white/40 mb-1">{metric.label}</p>
                       <p className="text-sm font-bold text-white">{metric.value}</p>
-                      <p className={`text-xs ${metric.good ? 'text-green-400' : 'text-red-400'}`}>{metric.trend}</p>
                     </div>
                   ))}
                 </div>
@@ -857,11 +1113,61 @@ export default function SafetyAlertsPage() {
               Close
             </Button>
             {selectedAlert?.oshaRecordable && (
-              <Button>
+              <Button onClick={() => {
+                generateOSHAForm301(selectedAlert)
+                setDetailsOpen(false)
+              }}>
                 <FileText className="w-4 h-4 mr-2" />
-                Generate OSHA Form
+                Generate OSHA Form 301
               </Button>
             )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* OSHA Forms Quick Access Dialog */}
+      <Dialog open={oshaFormsOpen} onOpenChange={setOshaFormsOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>OSHA Forms</DialogTitle>
+            <DialogDescription>
+              Generate required OSHA compliance forms from your safety alert data.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg border border-white/[0.08]">
+              <div>
+                <p className="font-medium text-sm">Form 300</p>
+                <p className="text-xs text-white/40">Log of Work-Related Injuries and Illnesses</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => { generateOSHAForm300(); setOshaFormsOpen(false) }}>
+                <Download className="w-4 h-4 mr-1" />
+                Download
+              </Button>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg border border-white/[0.08]">
+              <div>
+                <p className="font-medium text-sm">Form 300A</p>
+                <p className="text-xs text-white/40">Summary of Work-Related Injuries and Illnesses</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => { generateOSHAForm300A(); setOshaFormsOpen(false) }}>
+                <Download className="w-4 h-4 mr-1" />
+                Download
+              </Button>
+            </div>
+            <div className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg border border-white/[0.08]">
+              <div>
+                <p className="font-medium text-sm">Form 301</p>
+                <p className="text-xs text-white/40">Injury and Illness Incident Report</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => { generateOSHAForm301(); setOshaFormsOpen(false) }}>
+                <Download className="w-4 h-4 mr-1" />
+                Download
+              </Button>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOshaFormsOpen(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

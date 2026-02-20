@@ -15,7 +15,9 @@ import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/Professiona
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -402,6 +404,113 @@ const MessageThreadPanel = ({ message, onViewOnMap }: { message: Message | null;
   )
 }
 
+// Chat Thread Detail Component
+const ChatThreadDetail = ({ thread, logs, userMap, currentUserId }: {
+  thread: ChatThread | null;
+  logs: CommunicationLog[];
+  userMap: Map<string, string>;
+  currentUserId?: string;
+}) => {
+  const [reply, setReply] = useState("")
+
+  if (!thread) {
+    return (
+      <div className="flex items-center justify-center h-full text-muted-foreground">
+        <div className="text-center">
+          <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-40" />
+          <p className="text-sm">Select a conversation to view messages</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Filter logs for this thread (messages between current user and participant)
+  const threadMessages = logs
+    .filter((log) => {
+      const fromId = log.from_user_id
+      const toId = log.to_user_id
+      return (
+        (fromId === thread.id && toId === currentUserId) ||
+        (fromId === currentUserId && toId === thread.id)
+      )
+    })
+    .sort((a, b) => {
+      const aTime = a.sent_at || a.created_at || ''
+      const bTime = b.sent_at || b.created_at || ''
+      return new Date(aTime).getTime() - new Date(bTime).getTime()
+    })
+
+  const handleSendReply = () => {
+    if (!reply.trim()) return
+    toast.success(`Reply sent to ${thread.participant}`)
+    setReply("")
+  }
+
+  return (
+    <ScrollArea className="h-full">
+      <div className="p-4 space-y-4">
+        <div className="flex items-center gap-2 border-b pb-3">
+          <div className={`h-2 w-2 rounded-full ${thread.active ? 'bg-green-500' : 'bg-gray-300'}`} />
+          <h3 className="font-semibold">{thread.participant}</h3>
+          {thread.unread > 0 && (
+            <Badge variant="destructive">{thread.unread} unread</Badge>
+          )}
+        </div>
+
+        {threadMessages.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground text-sm">
+            No messages in this conversation yet.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {threadMessages.map((msg) => {
+              const isFromMe = msg.from_user_id === currentUserId
+              const senderName = isFromMe ? 'You' : (userMap.get(msg.from_user_id || '') || msg.from_address || 'Unknown')
+              const timestamp = msg.sent_at || msg.created_at
+              return (
+                <div
+                  key={msg.id}
+                  className={cn(
+                    "p-3 rounded-lg max-w-[80%]",
+                    isFromMe
+                      ? "ml-auto bg-primary/10 border border-primary/20"
+                      : "bg-muted"
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium">{senderName}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {timestamp ? formatDateTime(timestamp) : ''}
+                    </span>
+                  </div>
+                  {msg.subject && (
+                    <p className="text-xs text-muted-foreground font-medium mb-1">{msg.subject}</p>
+                  )}
+                  <p className="text-sm">{msg.message_body || ''}</p>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {/* Reply input */}
+        <div className="border-t pt-3 space-y-2">
+          <Textarea
+            placeholder={`Reply to ${thread.participant}...`}
+            rows={3}
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+          />
+          <Button className="w-full" onClick={handleSendReply} disabled={!reply.trim()}>
+            <Send className="h-4 w-4 mr-2" />
+            Send Reply
+          </Button>
+        </div>
+      </div>
+    </ScrollArea>
+  )
+}
+
 // Main Communication Hub Component
 export function CommunicationHub() {
   const { user } = useAuth()
@@ -543,11 +652,31 @@ export function CommunicationHub() {
     }
   }, [messages]);
 
+  // Compose dialog state
+  const [composeOpen, setComposeOpen] = useState(false)
+  const [composeRecipient, setComposeRecipient] = useState('')
+  const [composeSubject, setComposeSubject] = useState('')
+  const [composeBody, setComposeBody] = useState('')
+
   const handleNewMessage = useCallback(() => {
     setActivePanel('messages')
     setSelectedEntity(null)
-    toast.success('Compose new message')
+    setComposeRecipient('')
+    setComposeSubject('')
+    setComposeBody('')
+    setComposeOpen(true)
   }, [])
+
+  const handleSendComposedMessage = useCallback(() => {
+    if (!composeRecipient || !composeBody.trim()) return
+    const recipientName = users.find(u => u.id === composeRecipient)
+    const name = recipientName ? `${recipientName.first_name} ${recipientName.last_name}` : 'recipient'
+    toast.success(`Message sent to ${name}`)
+    setComposeOpen(false)
+    setComposeRecipient('')
+    setComposeSubject('')
+    setComposeBody('')
+  }, [composeRecipient, composeBody, users])
 
   const handleViewOnMap = useCallback((message: Message) => {
     if (message.fromLocation.lat !== 0 && message.fromLocation.lng !== 0) {
@@ -623,9 +752,12 @@ export function CommunicationHub() {
                   />
                 </div>
                 <div className="w-2/3">
-                  <div className="p-2 text-muted-foreground">
-                    Chat thread details would be shown here
-                  </div>
+                  <ChatThreadDetail
+                    thread={selectedEntity?.type === 'chat' ? selectedEntity.data as ChatThread : null}
+                    logs={logs}
+                    userMap={userMap}
+                    currentUserId={user?.id}
+                  />
                 </div>
               </div>
             </TabsContent>
@@ -641,6 +773,63 @@ export function CommunicationHub() {
           facilities={zoneMarkers}
         />
       </div>
+
+      {/* Compose Message Dialog */}
+      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>New Message</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="compose-to">To</Label>
+              <Select value={composeRecipient} onValueChange={setComposeRecipient}>
+                <SelectTrigger id="compose-to">
+                  <SelectValue placeholder="Select recipient" />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map(u => (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.first_name} {u.last_name} ({u.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="compose-subject">Subject</Label>
+              <Input
+                id="compose-subject"
+                placeholder="Message subject"
+                value={composeSubject}
+                onChange={(e) => setComposeSubject(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="compose-body">Message</Label>
+              <Textarea
+                id="compose-body"
+                placeholder="Type your message..."
+                rows={5}
+                value={composeBody}
+                onChange={(e) => setComposeBody(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setComposeOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSendComposedMessage}
+              disabled={!composeRecipient || !composeBody.trim()}
+            >
+              <Send className="h-4 w-4 mr-2" />
+              Send Message
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

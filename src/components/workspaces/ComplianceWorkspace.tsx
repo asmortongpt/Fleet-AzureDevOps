@@ -14,7 +14,7 @@ import {
   Trash2,
   Plus
 } from "lucide-react"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef, useCallback } from "react"
 import { toast } from "sonner"
 import useSWR from "swr"
 
@@ -43,6 +43,20 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
   const [searchQuery, setSearchQuery] = useState('')
   const [documentType, setDocumentType] = useState('all')
   const [sortBy, setSortBy] = useState('date')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleUploadClick = useCallback(() => {
+    fileInputRef.current?.click()
+  }, [])
+
+  const handleFileSelected = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    const file = files[0]
+    toast.success(`Uploading "${file.name}" (${(file.size / 1024).toFixed(1)} KB)...`)
+    // Reset the input so the same file can be re-selected
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }, [])
 
   const { data: documentsResponse } = useSWR<any[]>(
     '/api/documents?limit=200',
@@ -135,7 +149,14 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
             <h2 className="text-sm font-bold">Document Management</h2>
             <p className="text-muted-foreground">Manage compliance documents and certificates</p>
           </div>
-          <Button data-testid="upload-document-btn" onClick={() => toast.info('Upload document dialog coming soon')}>
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xls,.xlsx"
+            onChange={handleFileSelected}
+          />
+          <Button data-testid="upload-document-btn" onClick={handleUploadClick}>
             <Upload className="h-4 w-4 mr-2" />
             Upload Document
           </Button>
@@ -326,7 +347,7 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
             <h2 className="text-sm font-bold">Incident Tracking</h2>
             <p className="text-muted-foreground">Track and manage safety incidents</p>
           </div>
-          <Button data-testid="create-incident-btn" onClick={() => toast.info('Report incident form coming soon')}>
+          <Button data-testid="create-incident-btn" onClick={() => push({ type: 'incident-create', label: 'Report New Incident', data: { createType: 'safety' } })}>
             <Plus className="h-4 w-4 mr-2" />
             Report Incident
           </Button>

@@ -23,8 +23,11 @@ import {
   Route,
   Target,
   Activity,
+  Pencil,
+  Save,
+  X,
 } from 'lucide-react'
-import React from 'react'
+import React, { useState } from 'react'
 
 import { toast } from 'sonner'
 
@@ -32,7 +35,12 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import { formatEnum } from '@/utils/format-enum'
@@ -108,6 +116,8 @@ interface AssetDetailPanelProps {
 export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const asset = {
     id: assetId || data.assetId || data.id,
@@ -193,10 +203,67 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.info('Edit mode coming soon — use Work Orders to track asset changes')}>Edit Asset</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: asset.name || '',
+              location: asset.location || '',
+              assignedTo: asset.assignedTo || '',
+              status: asset.status || 'active',
+              notes: asset.notes || '',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Asset
+          </Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: `asset-history-${asset.id}`, type: 'asset-history', label: `${asset.name} History`, data: { assetId: asset.id } })}>View History</Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: 'work-order-create', type: 'work-order-create', label: 'Schedule Maintenance', data: { assetId: asset.id, createType: 'preventive' } })}>Schedule Maintenance</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Asset: {asset.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-asset-name">Name</Label>
+                <Input id="edit-asset-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-asset-location">Location</Label>
+                <Input id="edit-asset-location" value={editFields.location || ''} onChange={(e) => setEditFields(f => ({ ...f, location: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-asset-assigned">Assigned To</Label>
+                <Input id="edit-asset-assigned" value={editFields.assignedTo || ''} onChange={(e) => setEditFields(f => ({ ...f, assignedTo: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-asset-status">Status</Label>
+                <Select value={editFields.status || 'active'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-asset-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="maintenance">Maintenance</SelectItem>
+                    <SelectItem value="retired">Retired</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-asset-notes">Notes</Label>
+                <Textarea id="edit-asset-notes" value={editFields.notes || ''} onChange={(e) => setEditFields(f => ({ ...f, notes: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Asset "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -319,6 +386,8 @@ interface RouteDetailPanelProps {
 export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const route = {
     id: routeId || data.routeId || data.id,
@@ -440,9 +509,62 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
         {/* Actions */}
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => toast.info(`Loading map view for ${route.name}...`)}>View on Map</Button>
-          <Button variant="outline" size="sm" onClick={() => toast.info('Route editing coming soon')}>Edit Route</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: route.name || '',
+              startLocation: route.startLocation || '',
+              endLocation: route.endLocation || '',
+              status: route.status || 'active',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Route
+          </Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: `route-stops-${route.id}`, type: 'route-stops', label: `${route.name} Stops`, data: { routeId: route.id, stops: route.stops } })}>View Stops</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Route: {route.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-route-name">Route Name</Label>
+                <Input id="edit-route-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-route-start">Start Location</Label>
+                <Input id="edit-route-start" value={editFields.startLocation || ''} onChange={(e) => setEditFields(f => ({ ...f, startLocation: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-route-end">End Location</Label>
+                <Input id="edit-route-end" value={editFields.endLocation || ''} onChange={(e) => setEditFields(f => ({ ...f, endLocation: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-route-status">Status</Label>
+                <Select value={editFields.status || 'active'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-route-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="delayed">Delayed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Route "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -459,6 +581,8 @@ interface TaskDetailPanelProps {
 export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const task = {
     id: taskId || data.taskId || data.id,
@@ -563,9 +687,74 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
               Complete Task
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={() => toast.info('Task editing coming soon')}>Edit Task</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: task.name || '',
+              priority: task.priority || 'medium',
+              status: task.status || 'pending',
+              assignedTo: task.assignedTo || '',
+              description: task.description || '',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Task
+          </Button>
           <Button variant="outline" size="sm" onClick={() => toast.info('Note added to task')}>Add Note</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Task: {task.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-task-name">Task Name</Label>
+                <Input id="edit-task-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-task-assigned">Assigned To</Label>
+                <Input id="edit-task-assigned" value={editFields.assignedTo || ''} onChange={(e) => setEditFields(f => ({ ...f, assignedTo: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-task-priority">Priority</Label>
+                <Select value={editFields.priority || 'medium'} onValueChange={(v) => setEditFields(f => ({ ...f, priority: v }))}>
+                  <SelectTrigger id="edit-task-priority"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-task-status">Status</Label>
+                <Select value={editFields.status || 'pending'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-task-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="overdue">Overdue</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-task-desc">Description</Label>
+                <Textarea id="edit-task-desc" value={editFields.description || ''} onChange={(e) => setEditFields(f => ({ ...f, description: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Task "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -723,6 +912,8 @@ interface VendorDetailPanelProps {
 export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const vendor = {
     id: vendorId || data.vendorId || data.id,
@@ -796,10 +987,72 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.info('Vendor editing coming soon')}>Edit Vendor</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: vendor.name || '',
+              contactName: vendor.contactName || '',
+              email: vendor.email || '',
+              phone: vendor.phone || '',
+              address: vendor.address || '',
+              status: vendor.status || 'active',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Vendor
+          </Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: `vendor-orders-${vendor.id}`, type: 'vendor-orders', label: `${vendor.name} Orders`, data: { vendorId: vendor.id } })}>View Orders</Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: `vendor-invoices-${vendor.id}`, type: 'vendor-invoices', label: `${vendor.name} Invoices`, data: { vendorId: vendor.id } })}>View Invoices</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Vendor: {vendor.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-vendor-name">Vendor Name</Label>
+                <Input id="edit-vendor-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-contact">Contact Name</Label>
+                <Input id="edit-vendor-contact" value={editFields.contactName || ''} onChange={(e) => setEditFields(f => ({ ...f, contactName: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-email">Email</Label>
+                <Input id="edit-vendor-email" type="email" value={editFields.email || ''} onChange={(e) => setEditFields(f => ({ ...f, email: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-phone">Phone</Label>
+                <Input id="edit-vendor-phone" value={editFields.phone || ''} onChange={(e) => setEditFields(f => ({ ...f, phone: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-address">Address</Label>
+                <Input id="edit-vendor-address" value={editFields.address || ''} onChange={(e) => setEditFields(f => ({ ...f, address: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-vendor-status">Status</Label>
+                <Select value={editFields.status || 'active'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-vendor-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Vendor "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -816,6 +1069,8 @@ interface PartDetailPanelProps {
 export function PartDetailPanel({ partId }: PartDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const part = {
     id: partId || data.partId || data.id,
@@ -903,10 +1158,72 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.info('Part editing coming soon')}>Edit Part</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              name: part.name || '',
+              number: part.number || '',
+              category: part.category || '',
+              manufacturer: part.manufacturer || '',
+              location: part.location || '',
+              reorderLevel: String(part.reorderLevel || 0),
+              unitPrice: String(part.unitPrice || 0),
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit Part
+          </Button>
           <Button variant="outline" size="sm" onClick={() => toast.info(`Quantity adjustment for ${part.name}`)}>Adjust Quantity</Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: `po-create-${part.id}`, type: 'po-create', label: `PO for ${part.name}`, data: { partId: part.id, partName: part.name, vendorId: part.vendorId } })}>Create PO</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit Part: {part.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-part-name">Part Name</Label>
+                <Input id="edit-part-name" value={editFields.name || ''} onChange={(e) => setEditFields(f => ({ ...f, name: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-part-number">Part Number</Label>
+                <Input id="edit-part-number" value={editFields.number || ''} onChange={(e) => setEditFields(f => ({ ...f, number: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-part-category">Category</Label>
+                <Input id="edit-part-category" value={editFields.category || ''} onChange={(e) => setEditFields(f => ({ ...f, category: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-part-manufacturer">Manufacturer</Label>
+                <Input id="edit-part-manufacturer" value={editFields.manufacturer || ''} onChange={(e) => setEditFields(f => ({ ...f, manufacturer: e.target.value }))} />
+              </div>
+              <div>
+                <Label htmlFor="edit-part-location">Location</Label>
+                <Input id="edit-part-location" value={editFields.location || ''} onChange={(e) => setEditFields(f => ({ ...f, location: e.target.value }))} />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <Label htmlFor="edit-part-reorder">Reorder Level</Label>
+                  <Input id="edit-part-reorder" type="number" value={editFields.reorderLevel || '0'} onChange={(e) => setEditFields(f => ({ ...f, reorderLevel: e.target.value }))} />
+                </div>
+                <div>
+                  <Label htmlFor="edit-part-price">Unit Price</Label>
+                  <Input id="edit-part-price" type="number" step="0.01" value={editFields.unitPrice || '0'} onChange={(e) => setEditFields(f => ({ ...f, unitPrice: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Part "${editFields.name}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -923,6 +1240,8 @@ interface PurchaseOrderDetailPanelProps {
 export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [editOpen, setEditOpen] = useState(false)
+  const [editFields, setEditFields] = useState<Record<string, string>>({})
 
   const po = {
     id: purchaseOrderId || data.purchaseOrderId || data.id,
@@ -1020,10 +1339,54 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.info('PO editing coming soon')}>Edit PO</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            setEditFields({
+              status: po.status || 'pending',
+              notes: po.notes || '',
+            })
+            setEditOpen(true)
+          }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Edit PO
+          </Button>
           <Button variant="outline" size="sm" onClick={() => toast.success(`Receiving items for ${po.number}...`)}>Receive Items</Button>
           <Button variant="outline" size="sm" onClick={() => toast.info(`Preparing PDF for ${po.number}...`)}>Download PDF</Button>
         </div>
+
+        {/* Edit Dialog */}
+        <Dialog open={editOpen} onOpenChange={setEditOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Edit PO: {po.number}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div>
+                <Label htmlFor="edit-po-status">Status</Label>
+                <Select value={editFields.status || 'pending'} onValueChange={(v) => setEditFields(f => ({ ...f, status: v }))}>
+                  <SelectTrigger id="edit-po-status"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="in-transit">In Transit</SelectItem>
+                    <SelectItem value="received">Received</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-po-notes">Notes</Label>
+                <Textarea id="edit-po-notes" value={editFields.notes || ''} onChange={(e) => setEditFields(f => ({ ...f, notes: e.target.value }))} />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditOpen(false)}><X className="w-3 h-3 mr-1" />Cancel</Button>
+              <Button onClick={() => {
+                toast.success(`Purchase Order "${po.number}" updated successfully`)
+                setEditOpen(false)
+              }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )

@@ -131,6 +131,26 @@ export function OperationsHub() {
       driver.status === 'active' || driver.status === 'available'
     );
 
+    // Derive efficiency score from real data:
+    // Weight: 40% vehicle utilization, 30% route completion, 30% driver availability
+    const vehicleUtil = vehicleRows.length > 0
+      ? (activeVehicles.length / vehicleRows.length) * 100
+      : 0;
+    const totalRoutesToday = routeRows.filter((r) => {
+      const ts = r.actual_end_time || r.updated_at || r.created_at;
+      if (!ts) return false;
+      return new Date(ts).toDateString() === new Date().toDateString();
+    });
+    const routeCompletion = totalRoutesToday.length > 0
+      ? (completedRoutesToday.length / totalRoutesToday.length) * 100
+      : vehicleUtil; // fallback to vehicle utilization if no routes today
+    const driverUtil = driverRows.length > 0
+      ? (availableDrivers.length / driverRows.length) * 100
+      : 0;
+    const efficiencyScore = Math.round(
+      vehicleUtil * 0.4 + routeCompletion * 0.3 + driverUtil * 0.3
+    );
+
     return {
       activeJobs: activeRoutes.length,
       pendingDispatch: pendingRoutes.length || openWorkOrders.length,
@@ -139,7 +159,8 @@ export function OperationsHub() {
       totalVehicles: vehicleRows.length,
       activeVehicles: activeVehicles.length,
       maintenanceVehicles: maintenanceVehicles.length,
-      availableDrivers: availableDrivers.length
+      availableDrivers: availableDrivers.length,
+      efficiencyScore
     };
   }, [vehicles, drivers, workOrders, routes]);
 
@@ -353,7 +374,7 @@ export function OperationsHub() {
               <Zap className="h-4 w-4" />
               Efficiency Score
             </span>
-            <span className="font-semibold text-green-600">92%</span>
+            <span className="font-semibold text-green-600">{metrics.efficiencyScore}%</span>
           </div>
         </CardContent>
       </Card>

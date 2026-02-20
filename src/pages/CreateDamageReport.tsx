@@ -199,8 +199,44 @@ export function CreateDamageReport() {
   }
 
   const handleSaveDraft = () => {
-    // Save to local storage or API
+    try {
+      // Save form data to localStorage (exclude File objects which can't be serialized)
+      const draftData = {
+        vehicle_id: formData.vehicle_id,
+        damage_severity: formData.damage_severity,
+        damage_description: formData.damage_description,
+        damage_location: formData.damage_location,
+        estimated_repair_cost: formData.estimated_repair_cost,
+        photo_count: formData.photos.length,
+        saved_at: new Date().toISOString(),
+      }
+      localStorage.setItem('damage_report_draft', JSON.stringify(draftData))
+      toast.success('Draft saved successfully')
+    } catch (err) {
+      logger.error('Failed to save draft:', err)
+      toast.error('Failed to save draft')
+    }
   }
+
+  // Restore draft from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('damage_report_draft')
+      if (saved) {
+        const draft = JSON.parse(saved)
+        setFormData((prev) => ({
+          ...prev,
+          vehicle_id: draft.vehicle_id || prev.vehicle_id,
+          damage_severity: draft.damage_severity || prev.damage_severity,
+          damage_description: draft.damage_description || prev.damage_description,
+          damage_location: draft.damage_location || prev.damage_location,
+          estimated_repair_cost: draft.estimated_repair_cost || prev.estimated_repair_cost,
+        }))
+      }
+    } catch {
+      // Ignore parse errors from corrupted localStorage
+    }
+  }, [])
 
   return (
     <ErrorBoundary>

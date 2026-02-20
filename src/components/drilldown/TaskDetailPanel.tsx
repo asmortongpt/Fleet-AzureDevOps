@@ -154,13 +154,13 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
 
   const handleCallAssignee = () => {
     if (task?.assignedToPhone) {
-      window.location.href = `tel:${task.assignedToPhone}`
+      window.open(`tel:${task.assignedToPhone}`, '_self')
     }
   }
 
   const handleEmailAssignee = () => {
     if (task?.assignedToEmail) {
-      window.location.href = `mailto:${task.assignedToEmail}`
+      window.open(`mailto:${task.assignedToEmail}`, '_self')
     }
   }
 

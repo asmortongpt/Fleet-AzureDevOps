@@ -4,11 +4,13 @@
  */
 
 import { Link2, AlertCircle, Loader2 } from 'lucide-react'
+import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatDate } from '@/utils/format-helpers'
 
@@ -40,6 +42,8 @@ interface AssetRelationship {
  * /api/asset-relationships will need to be implemented.
  */
 export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProps) {
+  const { push } = useDrilldown()
+
   // Fetch active relationships for this vehicle
   const { data, error, isLoading } = useSWR<{
     relationships: AssetRelationship[]
@@ -147,7 +151,21 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
               </div>
             </div>
 
-            <Button variant="ghost" size="sm" className="ml-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-2"
+              onClick={() => {
+                push({
+                  id: `vehicle-${relationship.child_asset_id}`,
+                  type: 'vehicle',
+                  label: relationship.child_asset_name ||
+                    `${relationship.child_make || ''} ${relationship.child_model || ''}`.trim() ||
+                    'Asset',
+                  data: { vehicleId: relationship.child_asset_id }
+                })
+              }}
+            >
               View
             </Button>
           </div>
@@ -155,7 +173,20 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
       ))}
 
       {/* Action button to manage relationships */}
-      <Button variant="outline" className="w-full" size="sm">
+      <Button
+        variant="outline"
+        className="w-full"
+        size="sm"
+        onClick={() => {
+          push({
+            id: `asset-mgmt-${vehicleId}`,
+            type: 'vehicle',
+            label: 'Manage Attachments',
+            data: { vehicleId, tab: 'attachments' }
+          })
+          toast.success('Opening attachment management')
+        }}
+      >
         <Link2 className="h-4 w-4 mr-2" />
         Manage Attachments
       </Button>

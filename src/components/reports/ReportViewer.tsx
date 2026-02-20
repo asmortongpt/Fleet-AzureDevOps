@@ -1,6 +1,6 @@
 import { subMonths } from 'date-fns';
-import { ArrowLeft, Download, RefreshCw, Maximize2, Share2 } from 'lucide-react';
-import React, { useState, useEffect, useCallback } from 'react';
+import { ArrowLeft, Download, RefreshCw, Maximize2, Minimize2, Share2 } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 
 import { FilterBar, FilterValues } from './filters/FilterBar';
@@ -93,6 +93,8 @@ interface ReportViewerProps {
  */
 export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   const { user } = useAuth();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [reportDef, setReportDef] = useState<ReportDefinition | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -199,6 +201,26 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       }
     });
   }, [reportDef, drilldownState]);
+
+  // Toggle fullscreen mode
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      const el = containerRef.current || document.documentElement;
+      el.requestFullscreen?.().then(() => setIsFullscreen(true)).catch(() => {
+        // Fallback: just toggle a CSS class for max-screen view
+        setIsFullscreen(true);
+      });
+    } else {
+      document.exitFullscreen?.().then(() => setIsFullscreen(false));
+    }
+  }, []);
+
+  // Listen for fullscreen changes (e.g., user presses Escape)
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handler);
+    return () => document.removeEventListener('fullscreenchange', handler);
+  }, []);
 
   // Handle drill-up
   const handleDrillUp = useCallback(() => {
@@ -340,7 +362,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
   }
 
   return (
-    <div className="flex flex-col h-full bg-gray-50">
+    <div ref={containerRef} className="flex flex-col h-full bg-gray-50">
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-3 py-2">
         <div className="flex items-center justify-between">
@@ -372,8 +394,8 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button variant="outline" size="sm" onClick={() => toast.info('Fullscreen mode coming soon')}>
-              <Maximize2 className="h-4 w-4" />
+            <Button variant="outline" size="sm" onClick={toggleFullscreen} title={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}>
+              {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </Button>
           </div>
         </div>

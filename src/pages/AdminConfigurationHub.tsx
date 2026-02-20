@@ -70,12 +70,6 @@ import logger from '@/utils/logger';
 
 const fetcher = apiFetcher
 
-const rawFetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((res) => {
-    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-    return res.json()
-  })
-
 /** Returns semantic color class based on percentage thresholds */
 function semanticPercentColor(value: number): string {
   if (value >= 75) return 'text-emerald-400'
@@ -100,6 +94,8 @@ function semanticPercentBg(value: number): string {
 const AdminTabContent = memo(function AdminTabContent() {
   const { push } = useDrilldown()
   const { navigateTo } = useNavigation()
+  const [auditDateFilter, setAuditDateFilter] = useState<'all' | '24h' | '7d' | '30d'>('all')
+
   const { data: users, error: usersError } = useSWR<any[]>(
     '/api/users?limit=200',
     fetcher,
@@ -117,7 +113,7 @@ const AdminTabContent = memo(function AdminTabContent() {
   )
   const { data: health, error: healthError } = useSWR<any>(
     '/api/health',
-    rawFetcher,
+    fetcher,
     { shouldRetryOnError: false }
   )
   const { data: storageStats, error: storageStatsError } = useSWR<any>(
@@ -145,6 +141,7 @@ const AdminTabContent = memo(function AdminTabContent() {
     return 0
   }, [health])
 
+  // Storage stats: StorageManager returns {totalSize, quotaUsedPercent}, fallback returns {totalSizeBytes}
   const storageUsedPercent = Number(storageStats?.quotaUsedPercent || 0)
 
   const userGroups = useMemo(() => {
@@ -170,6 +167,42 @@ const AdminTabContent = memo(function AdminTabContent() {
   }, [health])
 
   const auditRows = Array.isArray(auditLogs) ? auditLogs : []
+
+  const filteredAuditRows = useMemo(() => {
+    if (auditDateFilter === 'all') return auditRows
+    const now = Date.now()
+    const cutoffs: Record<string, number> = {
+      '24h': 24 * 60 * 60 * 1000,
+      '7d': 7 * 24 * 60 * 60 * 1000,
+      '30d': 30 * 24 * 60 * 60 * 1000,
+    }
+    const cutoff = now - (cutoffs[auditDateFilter] || 0)
+    return auditRows.filter((log: any) => {
+      const ts = log.timestamp || log.created_at
+      return ts && new Date(ts).getTime() >= cutoff
+    })
+  }, [auditRows, auditDateFilter])
+
+  const handleExportLogs = () => {
+    if (filteredAuditRows.length === 0) {
+      toast.error('No audit logs to export')
+      return
+    }
+    const headers = ['Action', 'Resource', 'User', 'Timestamp']
+    const csvRows = filteredAuditRows.map((log: any) =>
+      [log.action, log.resource, log.userName || '', log.timestamp || ''].map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')
+    )
+    const csv = [headers.join(','), ...csvRows].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `audit-logs-${new Date().toISOString().slice(0, 10)}.csv`
+    link.click()
+    URL.revokeObjectURL(url)
+    toast.success(`Exported ${filteredAuditRows.length} audit log entries`)
+    logger.info(`Audit logs exported: ${filteredAuditRows.length}`)
+  }
 
   const handleManageUsers = (role: string) => {
     toast.success(`Opening user management for role: ${formatEnum(role)}`)
@@ -308,8 +341,37 @@ const AdminTabContent = memo(function AdminTabContent() {
             description="System audit log"
             icon={<Activity className="h-5 w-5" />}
           >
+            <div className="flex items-center gap-2 mb-2 shrink-0">
+              <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-[#242424] p-0.5">
+                {(['all', '24h', '7d', '30d'] as const).map((period) => (
+                  <button
+                    key={period}
+                    onClick={() => setAuditDateFilter(period)}
+                    className={`px-2.5 py-1 text-xs rounded-md transition-colors ${
+                      auditDateFilter === period
+                        ? 'bg-white/[0.12] text-foreground font-medium'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.06]'
+                    }`}
+                    aria-label={`Filter audit logs: ${period === 'all' ? 'All time' : `Last ${period}`}`}
+                  >
+                    {period === 'all' ? 'All' : period === '24h' ? '24h' : period === '7d' ? '7 days' : '30 days'}
+                  </button>
+                ))}
+              </div>
+              <div className="flex-1" />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportLogs}
+                disabled={filteredAuditRows.length === 0}
+                aria-label="Export audit logs as CSV"
+              >
+                <Download className="h-3.5 w-3.5 mr-1.5" />
+                Export Logs
+              </Button>
+            </div>
             <div className="flex-1 min-h-0 overflow-y-auto">
-              {auditRows.length === 0 ? (
+              {filteredAuditRows.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
                 <table className="w-full text-sm">
@@ -322,7 +384,7 @@ const AdminTabContent = memo(function AdminTabContent() {
                     </tr>
                   </thead>
                   <tbody>
-                    {auditRows.slice(0, 10).map((log: any) => (
+                    {filteredAuditRows.slice(0, 10).map((log: any) => (
                       <tr
                         key={log.id}
                         className="border-b border-white/[0.04] cursor-pointer"
@@ -490,7 +552,7 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
 const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   const { data: databaseHealth, error: databaseHealthError } = useSWR<any>(
     '/api/database/health',
-    rawFetcher,
+    fetcher,
     { shouldRetryOnError: false }
   )
   const { data: storageStats, error: dgStorageError } = useSWR<any>(
@@ -557,9 +619,16 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
         />
         <StatCard
           title="Storage Used"
-          value={storageStats?.totalSize ? `${(storageStats.totalSize / 1_000_000_000_000).toFixed(2)} TB` : "\u2014"}
+          value={(() => {
+            const bytes = storageStats?.totalSize || storageStats?.totalSizeBytes || 0
+            if (!bytes) return "\u2014"
+            if (bytes >= 1_000_000_000_000) return `${(bytes / 1_000_000_000_000).toFixed(2)} TB`
+            if (bytes >= 1_000_000_000) return `${(bytes / 1_000_000_000).toFixed(2)} GB`
+            if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(1)} MB`
+            return `${(bytes / 1_000).toFixed(0)} KB`
+          })()}
           icon={HardDrive}
-          description={storageStats?.quotaUsedPercent ? `${storageStats.quotaUsedPercent.toFixed(1)}% of quota` : "Of allocated capacity"}
+          description={storageStats?.quotaUsedPercent ? `${Number(storageStats.quotaUsedPercent).toFixed(1)}% of quota` : "Of allocated capacity"}
         />
         <StatCard
           title="Backup Status"
@@ -658,7 +727,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
   const { navigateTo } = useNavigation()
   const { data: integrationsHealth, error: integrationsHealthError } = useSWR<any>(
     '/api/integrations/health',
-    rawFetcher,
+    fetcher,
     { shouldRetryOnError: false }
   )
   const { data: metricsHistory, error: metricsHistoryError } = useSWR<any[]>(

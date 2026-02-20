@@ -303,17 +303,143 @@ export function DrilldownSystem() {
   };
 
   const renderUtilizationDrilldown = async (data: any) => {
-    return <div className="p-3 text-center text-slate-700">
-      <p className="text-base">Utilization Data View</p>
-      <p className="text-sm mt-2">Excel-style utilization analytics coming soon</p>
-    </div>;
+    try {
+      const response = await api.get('/vehicles');
+      const vehicles: Vehicle[] = response.data.data || [];
+
+      // Compute utilization stats
+      const total = vehicles.length;
+      const active = vehicles.filter(v => v.status === 'active').length;
+      const inService = vehicles.filter(v => v.status === 'service').length;
+      const offline = vehicles.filter(v => v.status === 'offline').length;
+      const idle = total - active - inService - offline;
+      const utilizationRate = total > 0 ? Math.round((active / total) * 100) : 0;
+
+      return (
+        <div className="p-3 space-y-3">
+          <h3 className="text-sm font-bold text-white">Fleet Utilization Summary</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Utilization Rate</div>
+              <div className="text-lg font-bold text-emerald-400">{utilizationRate}%</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Total Vehicles</div>
+              <div className="text-lg font-bold text-white">{formatNumber(total)}</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Active</div>
+              <div className="text-lg font-bold text-green-400">{formatNumber(active)}</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">In Service</div>
+              <div className="text-lg font-bold text-yellow-400">{formatNumber(inService)}</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Idle</div>
+              <div className="text-lg font-bold text-orange-400">{formatNumber(idle)}</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Offline</div>
+              <div className="text-lg font-bold text-red-400">{formatNumber(offline)}</div>
+            </div>
+          </div>
+          {/* Breakdown table */}
+          <div className="mt-2">
+            <h4 className="text-xs font-semibold text-slate-300 mb-2">Vehicle Status Breakdown</h4>
+            <div className="space-y-1">
+              {[
+                { label: 'Active', count: active, color: 'bg-green-500' },
+                { label: 'In Service', count: inService, color: 'bg-yellow-500' },
+                { label: 'Idle', count: idle, color: 'bg-orange-500' },
+                { label: 'Offline', count: offline, color: 'bg-red-500' },
+              ].map(row => (
+                <div key={row.label} className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${row.color}`} />
+                  <span className="text-xs text-slate-300 flex-1">{row.label}</span>
+                  <span className="text-xs text-white font-medium">{row.count}</span>
+                  <div className="w-24 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div className={`h-full ${row.color} rounded-full`} style={{ width: `${total > 0 ? (row.count / total) * 100 : 0}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    } catch (err) {
+      logger.error('Failed to load utilization data:', err);
+      return <div className="p-3 text-center text-red-400">Failed to load utilization data</div>;
+    }
   };
 
   const renderCostAnalysisDrilldown = async (data: any) => {
-    return <div className="p-3 text-center text-slate-700">
-      <p className="text-base">Cost Analysis View</p>
-      <p className="text-sm mt-2">Excel-style cost breakdown coming soon</p>
-    </div>;
+    try {
+      const response = await api.get('/maintenance');
+      const records: MaintenanceRecord[] = response.data.data || [];
+
+      // Compute cost breakdown
+      const totalCost = records.reduce((sum, r) => sum + (r.cost || 0), 0);
+      const completedRecords = records.filter(r => r.status === 'completed');
+      const pendingRecords = records.filter(r => r.status === 'scheduled' || r.status === 'in-progress');
+      const completedCost = completedRecords.reduce((sum, r) => sum + (r.cost || 0), 0);
+      const pendingCost = pendingRecords.reduce((sum, r) => sum + (r.cost || 0), 0);
+      const avgCost = records.length > 0 ? totalCost / records.length : 0;
+
+      // Cost by service type
+      const costByType: Record<string, number> = {};
+      records.forEach(r => {
+        const type = r.service_type || 'Other';
+        costByType[type] = (costByType[type] || 0) + (r.cost || 0);
+      });
+      const sortedTypes = Object.entries(costByType).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+      return (
+        <div className="p-3 space-y-3">
+          <h3 className="text-sm font-bold text-white">Cost Analysis Summary</h3>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Total Maintenance Cost</div>
+              <div className="text-lg font-bold text-emerald-400">{formatCurrency(totalCost)}</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Total Records</div>
+              <div className="text-lg font-bold text-white">{records.length}</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Completed Cost</div>
+              <div className="text-lg font-bold text-green-400">{formatCurrency(completedCost)}</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2">
+              <div className="text-xs text-slate-400">Pending Cost</div>
+              <div className="text-lg font-bold text-yellow-400">{formatCurrency(pendingCost)}</div>
+            </div>
+            <div className="bg-slate-800/60 rounded-lg p-2 col-span-2">
+              <div className="text-xs text-slate-400">Average Cost per Record</div>
+              <div className="text-lg font-bold text-blue-400">{formatCurrency(avgCost)}</div>
+            </div>
+          </div>
+          {/* Cost by service type */}
+          <div className="mt-2">
+            <h4 className="text-xs font-semibold text-slate-300 mb-2">Cost by Service Type</h4>
+            <div className="space-y-1">
+              {sortedTypes.map(([type, cost]) => (
+                <div key={type} className="flex items-center gap-2">
+                  <span className="text-xs text-slate-300 flex-1 truncate">{formatEnum(type)}</span>
+                  <span className="text-xs text-emerald-400 font-medium">{formatCurrency(cost)}</span>
+                  <div className="w-24 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                    <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${totalCost > 0 ? (cost / totalCost) * 100 : 0}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    } catch (err) {
+      logger.error('Failed to load cost data:', err);
+      return <div className="p-3 text-center text-red-400">Failed to load cost analysis data</div>;
+    }
   };
 
   if (!isOpen || levels.length === 0) {
