@@ -1,6 +1,6 @@
 import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel, Video, Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 
 import { MapFirstLayout } from '../layout/MapFirstLayout';
@@ -20,6 +20,8 @@ import { DriverDetailPanel } from '@/components/panels/DriverDetailPanel';
 import { GeofenceControlPanel } from '@/components/panels/GeofenceControlPanel';
 import { GeofenceIntelligencePanel } from '@/components/panels/GeofenceIntelligencePanel';
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
+import { useDrilldown } from '@/contexts/DrilldownContext';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useVehicles, useDrivers } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
 import { Geofence, Driver } from '@/lib/types';
@@ -118,7 +120,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
+  const { push: openDrilldown } = useDrilldown();
 
   // -- Data Sync --
   useEffect(() => {
@@ -286,26 +289,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       id: 'dispatch',
       label: 'Dispatch',
       icon: <Truck className="h-5 w-5" />,
-      onClick: () => navigate('/fleet-operations?tab=fleet')
+      onClick: () => navigateTo('fleet')
     },
     {
       id: 'maintenance',
       label: 'Maintenance',
       icon: <Wrench className="h-5 w-5" />,
-      onClick: () => navigate('/fleet-operations?tab=maintenance')
+      onClick: () => navigateTo('maintenance')
     },
     {
       id: 'alerts',
       label: 'Alerts',
       icon: <AlertCircle className="h-5 w-5" />,
-      onClick: () => navigate('/compliance-safety'),
+      onClick: () => navigateTo('safety'),
       badge: maintenanceCount
     },
     {
       id: 'fuel',
       label: 'Fuel',
       icon: <Fuel className="h-5 w-5" />,
-      onClick: () => navigate('/fleet-operations?tab=operations')
+      onClick: () => navigateTo('operations')
     }
   ];
 
@@ -319,19 +322,28 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
       {/* Quick Stats - Responsive Grid */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
-        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
+        <Card
+          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800 cursor-pointer hover:border-emerald-400 transition-colors"
+          onClick={() => openDrilldown({ type: 'active-vehicles', label: 'Active Vehicles' })}
+        >
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-emerald-600 dark:text-emerald-700">{activeCount}</div>
             <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Active</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
+        <Card
+          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-400 transition-colors"
+          onClick={() => openDrilldown({ type: 'maintenance', label: 'Maintenance' })}
+        >
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-amber-600 dark:text-amber-400">{maintenanceCount}</div>
             <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Maint.</div>
           </CardContent>
         </Card>
-        <Card className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800">
+        <Card
+          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800 cursor-pointer hover:border-blue-400 transition-colors"
+          onClick={() => openDrilldown({ type: 'fleet-overview', label: 'Fleet Overview' })}
+        >
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">{totalVehicles}</div>
             <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Total</div>
@@ -393,7 +405,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="dispatch-action"
-            onClick={() => navigate('/fleet-operations?tab=fleet')}
+            onClick={() => navigateTo('fleet')}
           >
             <Truck className="h-4 w-4 mr-1" />
             Dispatch
@@ -403,7 +415,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="maintenance-action"
-            onClick={() => navigate('/fleet-operations?tab=maintenance')}
+            onClick={() => navigateTo('maintenance')}
           >
             <Wrench className="h-4 w-4 mr-1" />
             Maintenance
@@ -413,7 +425,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="alerts-action"
-            onClick={() => navigate('/compliance-safety')}
+            onClick={() => navigateTo('safety')}
           >
             <AlertCircle className="h-4 w-4 mr-1" />
             Alerts
@@ -423,7 +435,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="fuel-action"
-            onClick={() => navigate('/fleet-operations?tab=operations')}
+            onClick={() => navigateTo('operations')}
           >
             <Fuel className="h-4 w-4 mr-1" />
             Fuel
@@ -440,7 +452,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             <MobileVehicleCard
               key={vehicle.id}
               vehicle={vehicle}
-              onClick={(v) => setSelectedVehicleId(v.id)}
+              onClick={(v) => {
+                setSelectedVehicleId(v.id);
+                openDrilldown({
+                  type: 'vehicle',
+                  label: vehicle.vehicleNumber || vehicle.number || 'Vehicle',
+                  data: { vehicleId: v.id }
+                });
+              }}
               variant="list"
             />
           ))}
@@ -454,7 +473,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400'
                 : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-card'
                 }`}
-              onClick={() => setSelectedVehicleId(vehicle.id)}
+              onClick={() => {
+                setSelectedVehicleId(vehicle.id);
+                openDrilldown({
+                  type: 'vehicle',
+                  label: vehicle.vehicleNumber || vehicle.number || 'Vehicle',
+                  data: { vehicleId: vehicle.id }
+                });
+              }}
               data-testid={`vehicle-list-item-${vehicle.id}`}
             >
               <div className="flex items-center justify-between">
@@ -532,7 +558,11 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               if (action === 'select') setSelectedVehicleId(vehicleId);
               if (action === 'viewDetails') {
                 setSelectedVehicleId(vehicleId);
-                navigate(`/fleet-operations?tab=fleet&vehicle=${vehicleId}`);
+                openDrilldown({
+                  type: 'vehicle',
+                  label: vehicles.find((v: any) => v.id === vehicleId)?.vehicleNumber || vehicles.find((v: any) => v.id === vehicleId)?.number || 'Vehicle',
+                  data: { vehicleId }
+                });
               }
             }}
           />
