@@ -11,6 +11,7 @@ import { useForm } from 'react-hook-form'
 import toast from 'react-hot-toast'
 import { z } from 'zod'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -184,7 +185,7 @@ export default function ProfilePage() {
 
 
   return (
-
+    <ErrorBoundary>
     <div className="container mx-auto p-3 max-w-4xl">
       <div className="flex items-center justify-between mb-3">
         <div>
@@ -499,5 +500,6 @@ export default function ProfilePage() {
         </Section>
       </form>
     </div>
+    </ErrorBoundary>
   )
 }

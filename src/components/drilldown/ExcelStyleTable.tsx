@@ -60,7 +60,6 @@ import {
   Filter,
 } from 'lucide-react'
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react'
-import * as XLSX from 'xlsx'
 
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -691,7 +690,9 @@ export function ExcelStyleTable<T extends Record<string, any>>({
   // EXPORT FUNCTIONS
   // ============================================================================
 
-  const exportToExcel = useCallback(() => {
+  const exportToExcel = useCallback(async () => {
+    // Dynamic import — xlsx (~900KB) is only loaded when user clicks "Export"
+    const XLSX = await import('xlsx') as any
     const exportColumns = columns.filter(col => col.exportable !== false)
     const exportData = table.getFilteredRowModel().rows.map(row => {
       const rowData: Record<string, any> = {}
@@ -707,10 +708,12 @@ export function ExcelStyleTable<T extends Record<string, any>>({
     const ws = XLSX.utils.json_to_sheet(exportData)
     const wb = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(wb, ws, 'Data')
-    ;(XLSX as any).writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
+    XLSX.writeFile(wb, `export_${format(new Date(), 'yyyy-MM-dd_HHmmss')}.xlsx`)
   }, [columns, table])
 
-  const exportToCSV = useCallback(() => {
+  const exportToCSV = useCallback(async () => {
+    // Dynamic import — xlsx (~900KB) is only loaded when user clicks "Export"
+    const XLSX = await import('xlsx') as any
     const exportColumns = columns.filter(col => col.exportable !== false)
     const exportData = table.getFilteredRowModel().rows.map(row => {
       const rowData: Record<string, any> = {}

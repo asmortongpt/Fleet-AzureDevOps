@@ -30,6 +30,7 @@ import {
 } from '@phosphor-icons/react';
 import React, { useState, useMemo, useCallback } from 'react';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { HubPage } from '@/components/ui/hub-page';
 import {
   useReactiveComplianceReportingData,
@@ -747,6 +748,7 @@ export function ComplianceReportingHub() {
   ], [complianceData]);
 
   return (
+    <ErrorBoundary>
     <HubPage
       className="cta-hub cta-compliance-hub"
       title="Compliance Reporting"
@@ -755,6 +757,7 @@ export function ComplianceReportingHub() {
       tabs={tabs}
       defaultTab="dashboard"
     />
+    </ErrorBoundary>
   );
 }
 

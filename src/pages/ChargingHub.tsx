@@ -17,6 +17,7 @@ import { useState, useEffect, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table';
 import { useFleetData } from '@/hooks/use-fleet-data';
 import logger from '@/utils/logger';
@@ -310,7 +311,7 @@ export default function ChargingHub() {
   const [sessions, setSessions] = useState<ChargingSession[]>([]);
   const [loading, setLoading] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  const { vehicles } = useFleetData();
+  const { vehicles, error: fleetDataError } = useFleetData();
 
   // Fleet EV status computed from vehicle data
   const evStatus = useMemo(() => {
@@ -387,7 +388,20 @@ export default function ChargingHub() {
     );
   }
 
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-background p-6 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -569,5 +583,6 @@ export default function ChargingHub() {
         />
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

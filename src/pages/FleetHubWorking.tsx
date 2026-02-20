@@ -19,6 +19,7 @@ import { memo, useCallback, useState, useMemo } from 'react'
 
 import { VehicleModelLibrary } from '@/components/VehicleModelLibrary'
 import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { StatCard } from '@/components/ui/stat-card'
 import { Tabs, TabsContent } from "@/components/ui/tabs"
 import { useMaintenanceSchedules, useVehicles, useWorkOrders } from '@/hooks/use-api'
@@ -204,9 +205,10 @@ const TelematicsContent = memo(function TelematicsContent({ telemetryVehicles }:
 })
 
 export default function FleetHub() {
-    const { data: vehicles = [] } = useVehicles();
-    const { data: workOrdersData = [] } = useWorkOrders();
-    const { data: maintenanceSchedulesData = [] } = useMaintenanceSchedules();
+    const { data: vehicles = [], error: vehiclesError } = useVehicles();
+    const { data: workOrdersData = [], error: workOrdersError } = useWorkOrders();
+    const { data: maintenanceSchedulesData = [], error: maintenanceError } = useMaintenanceSchedules();
+    const hasError = vehiclesError || workOrdersError || maintenanceError;
     const { vehicles: telemetryVehicles = [] } = useVehicleTelemetry({ enabled: true, initialVehicles: vehicles as any[] })
     const [activeTab, setActiveTab] = useState("overview");
 
@@ -221,7 +223,22 @@ export default function FleetHub() {
         };
     }, [vehicles, telemetryVehicles]);
 
+    if (hasError) {
+        return (
+            <div className="flex flex-col items-center justify-center h-64 gap-4">
+                <p className="text-destructive font-medium">Failed to load fleet data</p>
+                <p className="text-sm text-muted-foreground">
+                    {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+                </p>
+                <Button variant="outline" onClick={() => window.location.reload()}>
+                    Retry
+                </Button>
+            </div>
+        )
+    }
+
     return (
+        <ErrorBoundary>
         <div className="flex h-full w-full flex-col cta-hub text-white overflow-hidden">
             {/* Fallback Navigation for Automation/Accessibility */}
             <div className="fixed top-0 left-0 z-50 flex gap-2 opacity-0 pointer-events-none">
@@ -337,5 +354,6 @@ export default function FleetHub() {
                 </div>
             </Tabs>
         </div>
+        </ErrorBoundary>
     )
 }

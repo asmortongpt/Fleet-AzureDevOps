@@ -77,7 +77,7 @@ const fetcher = (url: string) =>
  * Financial Tab - Budget tracking and cost analysis
  */
 const FinancialTabContent = memo(function FinancialTabContent() {
-  const { workOrders: fleetWorkOrders, vehicles } = useFleetData()
+  const { workOrders: fleetWorkOrders, vehicles, error: fleetDataError } = useFleetData()
 
   // Work order cost aggregation
   const workOrderCosts = useMemo(() => {
@@ -207,6 +207,18 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       date: row.invoiceDate || row.invoice_date || row.createdAt || row.created_at
     }))
   }, [summary, invoices])
+
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -357,7 +369,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
  * Procurement Tab - Vendor management and purchasing
  */
 const ProcurementTabContent = memo(function ProcurementTabContent() {
-  const { workOrders: fleetWorkOrders } = useFleetData()
+  const { workOrders: fleetWorkOrders, error: fleetDataError } = useFleetData()
 
   const { data: vendorsResponse } = useSWR<any>(
     '/api/vendors',
@@ -437,6 +449,18 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       amount: Number(po.totalAmount || po.total_amount || 0)
     }))
   }, [purchaseOrders])
+
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

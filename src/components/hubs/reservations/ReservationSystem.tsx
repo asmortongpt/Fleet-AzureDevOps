@@ -122,16 +122,18 @@ export const ReservationSystem: React.FC = () => {
   const queryClient = useQueryClient();
 
   // Fetch data
-  const { data: reservations = [], isLoading } = useQuery({
+  const { data: reservations = [], isLoading, error: reservationsError } = useQuery({
     queryKey: ['reservations'],
     queryFn: fetchReservations,
     refetchInterval: 30000 // Refresh every 30s for real-time updates
   });
 
-  const { data: vehicles = [] } = useQuery({
+  const { data: vehicles = [], error: vehiclesError } = useQuery({
     queryKey: ['vehicles'],
     queryFn: fetchVehicles
   });
+
+  const hasError = reservationsError || vehiclesError;
 
   // Filter reservations
   const filteredReservations = reservations.filter(r =>
@@ -147,6 +149,23 @@ export const ReservationSystem: React.FC = () => {
     cancelled: 'bg-red-500/10 text-red-600 border-red-500/20',
     rejected: 'bg-red-500/10 text-red-600 border-red-500/20'
   };
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-red-600 font-medium">Failed to load reservation data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <button
+          className="px-4 py-2 border border-border rounded-lg hover:bg-muted"
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">

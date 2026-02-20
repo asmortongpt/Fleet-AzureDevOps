@@ -10,6 +10,7 @@ import {
 import React, { Suspense, useMemo, useState } from "react";
 import useSWR from "swr";
 
+import ErrorBoundary from "../../components/common/ErrorBoundary";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { CostAnalysisCenter } from "../../components/modules/analytics/CostAnalysisCenter";
 import { CustomReportBuilder } from "../../components/modules/analytics/CustomReportBuilder";
@@ -133,6 +134,7 @@ const InsightsHub: React.FC = () => {
   };
 
   return (
+    <ErrorBoundary>
     <HubLayout title="Insights">
       <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", height: "100%", gap: 0 }}>
         <div style={{ minHeight: 0, overflow: "auto" }}>{renderModule()}</div>
@@ -186,6 +188,7 @@ const InsightsHub: React.FC = () => {
         </div>
       </div>
     </HubLayout>
+    </ErrorBoundary>
   );
 };
 

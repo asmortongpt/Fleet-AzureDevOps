@@ -302,6 +302,18 @@ export function SafetyHub() {
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""
 
+  if (fleetData.error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetData.error instanceof Error ? fleetData.error.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">
       {/* Header */}

@@ -3,6 +3,7 @@ import { Battery, Leaf, TrendingUp, Zap, Car, Plug2, BarChart3, AlertCircle } fr
 import { useState, useEffect } from 'react';
 
 import { Badge } from '@/components/ui/badge';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Progress } from '@/components/ui/progress';
 import { Section } from '@/components/ui/section';
 import logger from '@/utils/logger';
@@ -126,6 +127,7 @@ const EVHub = () => {
     : 0;
 
   return (
+    <ErrorBoundary>
     <div className="h-screen overflow-hidden cta-hub">
       {/* Header */}
       <div className="px-4 py-3 bg-card/90 border-b border-border/50 shadow-sm">
@@ -446,6 +448,7 @@ const EVHub = () => {
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 };
 

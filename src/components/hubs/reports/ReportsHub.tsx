@@ -113,7 +113,7 @@ const getStatusColor = (status: ReportStatus): string => {
 
 export function ReportsHub() {
   const { user } = useAuth()
-  const { vehicles, drivers, workOrders } = useFleetData()
+  const { vehicles, drivers, workOrders, error: fleetDataError } = useFleetData()
   const [activeTab, setActiveTab] = useState("templates")
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
@@ -273,6 +273,18 @@ export function ReportsHub() {
     const avgFleetHealth = totalVehicles > 0 ? Math.round((activeVehicles / totalVehicles) * 100) : 0
     return { totalVehicles, activeDrivers, openWorkOrders, avgFleetHealth }
   }, [vehicles, drivers, workOrders])
+
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">

@@ -39,7 +39,6 @@ import {
   Columns3
 } from 'lucide-react'
 import React, { useCallback, useMemo, useRef, useState, useEffect } from 'react'
-import * as XLSX from 'xlsx'
 
 import { Badge } from './badge'
 import { Button } from './button'
@@ -230,7 +229,7 @@ export function VirtualizedTable<TData>({
   }, [rowSelection, table, onRowsSelected])
 
   // Handlers
-  const handleExportExcel = useCallback(() => {
+  const handleExportExcel = useCallback(async () => {
     const exportData = table
       .getFilteredRowModel()
       .rows.map((row) => row.original)
@@ -238,11 +237,12 @@ export function VirtualizedTable<TData>({
     if (onExport) {
       onExport(exportData)
     } else {
-      // Default Excel export
+      // Dynamic import — xlsx (~900KB) is only loaded when user clicks "Export"
+      const XLSX = await import('xlsx') as any
       const ws = XLSX.utils.json_to_sheet(exportData as any[])
       const wb = XLSX.utils.book_new()
-      XLSX.utils.book_append_sheet(wb, ws, 'Data');
-      (XLSX as any).writeFile(wb, `export_${Date.now()}.xlsx`)
+      XLSX.utils.book_append_sheet(wb, ws, 'Data')
+      XLSX.writeFile(wb, `export_${Date.now()}.xlsx`)
     }
   }, [table, onExport])
 

@@ -321,9 +321,10 @@ export function ProcurementHub() {
 
   const { workOrders: fleetWorkOrders } = useFleetData()
 
-  const { data: vendorsResponse } = useSWR('/api/vendors', fetcher)
-  const { data: ordersResponse } = useSWR('/api/purchase-orders', fetcher)
-  const { data: partsResponse } = useSWR('/api/parts', fetcher)
+  const { data: vendorsResponse, error: vendorsError } = useSWR('/api/vendors', fetcher)
+  const { data: ordersResponse, error: ordersError } = useSWR('/api/purchase-orders', fetcher)
+  const { data: partsResponse, error: partsError } = useSWR('/api/parts', fetcher)
+  const hasError = vendorsError || ordersError || partsError
 
   const vendors = vendorsResponse?.data || []
   const purchaseOrdersRaw = ordersResponse?.data || []
@@ -515,6 +516,20 @@ export function ProcurementHub() {
   const categories = useMemo(() => {
     return Array.from(new Set(suppliers.map((s: any) => s.category))) as string[]
   }, [suppliers])
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load procurement data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen grid grid-cols-[1fr_400px]" data-testid="procurement-hub">

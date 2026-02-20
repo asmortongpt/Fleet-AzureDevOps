@@ -15,6 +15,7 @@ import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -217,6 +218,7 @@ export default function E2ETestPage() {
   }, [])
 
   return (
+    <ErrorBoundary>
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -593,5 +595,6 @@ export default function E2ETestPage() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   )
 }

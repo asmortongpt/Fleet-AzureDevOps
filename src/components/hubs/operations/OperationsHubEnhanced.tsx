@@ -105,10 +105,11 @@ interface TimelineRoute {
 
 export function OperationsHubEnhanced() {
   const { push } = useDrilldown();
-  const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
-  const { data: drivers = [] } = useDrivers();
-  const { data: workOrders = [] } = useWorkOrders();
-  const { data: routes = [] } = useRoutes();
+  const { data: vehicles = [], isLoading: vehiclesLoading, error: vehiclesError } = useVehicles();
+  const { data: drivers = [], error: driversError } = useDrivers();
+  const { data: workOrders = [], error: workOrdersError } = useWorkOrders();
+  const { data: routes = [], error: routesError } = useRoutes();
+  const hasError = vehiclesError || driversError || workOrdersError || routesError;
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState('overview');
@@ -509,6 +510,20 @@ export function OperationsHubEnhanced() {
           <Package className="h-12 w-12 animate-spin mx-auto text-blue-600" />
           <p className="mt-4 text-slate-600">Loading operations data...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load operations data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
       </div>
     );
   }

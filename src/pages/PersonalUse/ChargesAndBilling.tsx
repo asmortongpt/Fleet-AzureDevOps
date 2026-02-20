@@ -4,6 +4,7 @@ import { DollarSign, Receipt, Calendar, Download, FileText, Clock, CheckCircle, 
 import { useState, useEffect, useMemo } from 'react'
 import { toast } from 'sonner'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -295,6 +296,7 @@ export function ChargesAndBilling() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="p-3 space-y-2">
       {/* Header */}
       <div>
@@ -624,5 +626,6 @@ export function ChargesAndBilling() {
         </DialogContent>
       </Dialog>
     </div>
+    </ErrorBoundary>
   )
 }

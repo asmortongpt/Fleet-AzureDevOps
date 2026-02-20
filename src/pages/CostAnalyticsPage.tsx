@@ -35,6 +35,7 @@ import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import HubPage from '@/components/ui/hub-page'
 import { Section } from '@/components/ui/section'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -519,6 +520,18 @@ export default function CostAnalyticsPage() {
     }
   }, [fleetData])
 
+  if (fleetData.error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetData.error instanceof Error ? fleetData.error.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
   const handleExportData = () => {
     toast.success('Exporting cost analytics data...')
     // In production, this would generate and download a CSV/Excel file
@@ -541,6 +554,7 @@ export default function CostAnalyticsPage() {
   }
 
   return (
+    <ErrorBoundary>
     <HubPage
       title="Cost Analytics"
       description={`Comprehensive cost tracking and budget analysis \u2022 IRS Rate: $${CURRENT_IRS_RATE}/mile`}
@@ -1051,5 +1065,6 @@ export default function CostAnalyticsPage() {
         </Section>
       </div>
     </HubPage>
+    </ErrorBoundary>
   )
 }

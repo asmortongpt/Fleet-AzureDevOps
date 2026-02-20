@@ -2,6 +2,7 @@ import { MapPin, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { FleetMap } from '@/components/FleetMap';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -70,6 +71,7 @@ export default function MapDiagnostic() {
   const stopped = statusCounts.stopped || 0;
 
   return (
+    <ErrorBoundary>
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -199,5 +201,6 @@ export default function MapDiagnostic() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   );
 }

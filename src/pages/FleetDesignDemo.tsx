@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
 import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
 import { StatusChip } from '@/shared/design-system/StatusChip'
@@ -58,6 +59,7 @@ export default function FleetDesignDemo() {
     }
 
     return (
+        <ErrorBoundary>
         <div style={{
             padding: 24,
             background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
@@ -303,5 +305,6 @@ export default function FleetDesignDemo() {
                 </div>
             </div>
         </div>
+        </ErrorBoundary>
     )
 }

@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import {
   Card,
   CardContent,
@@ -200,6 +201,7 @@ export function CreateDamageReport() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="container mx-auto py-3 px-2 max-w-4xl">
       <Card>
         <CardHeader>
@@ -500,5 +502,6 @@ export function CreateDamageReport() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   )
 }

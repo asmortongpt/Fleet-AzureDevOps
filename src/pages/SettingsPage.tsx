@@ -7,6 +7,7 @@ import { useAtom } from 'jotai'
 import { Settings, Palette, Bell, Car, ShieldCheck, Lock, Code, Save, Check } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { AdvancedSettings } from '@/components/settings/AdvancedSettings'
 import { AppearanceSettings } from '@/components/settings/AppearanceSettings'
 import { DataPrivacySettings } from '@/components/settings/DataPrivacySettings'
@@ -175,6 +176,7 @@ export default function SettingsPage() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="space-y-2">
       {/* Header */}
       <div className="flex items-center justify-between">
@@ -292,5 +294,6 @@ export default function SettingsPage() {
         Press <kbd className="px-2 py-1 bg-muted rounded">Cmd/Ctrl + S</kbd> to save changes
       </div>
     </div>
+    </ErrorBoundary>
   )
 }

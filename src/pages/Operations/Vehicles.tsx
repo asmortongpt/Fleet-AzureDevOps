@@ -27,6 +27,7 @@ import React, { useState, useCallback, useMemo } from 'react';
 // motion removed - React 19 incompatible
 import { toast } from 'react-hot-toast';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { SplitView ,
   ActionButton,
   InlineEditPanel,
@@ -649,6 +650,7 @@ export function VehiclesOperations() {
   );
 
   return (
+    <ErrorBoundary>
     <>
       <SplitView
         theme="operations"
@@ -723,6 +725,7 @@ export function VehiclesOperations() {
         isLoading={deleteVehicle.isPending}
       />
     </>
+    </ErrorBoundary>
   );
 }
 

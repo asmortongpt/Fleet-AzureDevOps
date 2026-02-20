@@ -393,10 +393,11 @@ export function CommunicationHub() {
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('all')
 
-  const { data: logsResponse } = useSWR<{ data: CommunicationLog[] }>(`/api/communication-logs?limit=200`, swrFetcher)
-  const { data: usersResponse } = useSWR<{ data: ApiUser[] }>(`/api/users?limit=500`, swrFetcher)
-  const { data: geofencesResponse } = useSWR<{ data: GeofenceRow[] }>(`/api/geofences?limit=200`, swrFetcher)
-  const { data: alertsResponse } = useSWR<{ alerts: AlertRow[] }>(`/api/alerts?limit=20`, swrFetcher)
+  const { data: logsResponse, error: logsError } = useSWR<{ data: CommunicationLog[] }>(`/api/communication-logs?limit=200`, swrFetcher)
+  const { data: usersResponse, error: usersError } = useSWR<{ data: ApiUser[] }>(`/api/users?limit=500`, swrFetcher)
+  const { data: geofencesResponse, error: geofencesError } = useSWR<{ data: GeofenceRow[] }>(`/api/geofences?limit=200`, swrFetcher)
+  const { data: alertsResponse, error: alertsError } = useSWR<{ alerts: AlertRow[] }>(`/api/alerts?limit=20`, swrFetcher)
+  const hasError = logsError || usersError || geofencesError || alertsError
 
   const logs = logsResponse?.data || []
   const users = usersResponse?.data || []
@@ -524,6 +525,20 @@ export function CommunicationHub() {
       setSelectedEntity({ type: 'message', data: message });
     }
   }, [messages]);
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load communication data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="flex h-full overflow-hidden">

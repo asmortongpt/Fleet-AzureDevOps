@@ -7,6 +7,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useEffect, useMemo, useState } from "react";
 
+import ErrorBoundary from "../../components/common/ErrorBoundary";
 import { DataGrid } from "../../components/common/DataGrid";
 import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
 import { HubLayout } from "../../components/layout/HubLayout";
@@ -260,6 +261,7 @@ const WorkHub: React.FC = () => {
   );
 
   return (
+    <ErrorBoundary>
     <HubLayout title="Work Management">
       <div className="h-full flex flex-col gap-2 p-2">
         {/* KPI Strip at the top */}
@@ -364,6 +366,7 @@ const WorkHub: React.FC = () => {
         </div>
       </div>
     </HubLayout>
+    </ErrorBoundary>
   );
 };
 

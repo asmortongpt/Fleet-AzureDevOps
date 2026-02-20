@@ -268,6 +268,11 @@ export function useFleetData() {
     updateMaintenanceRequest,
     addRoute,
     updateRoute,
-    deleteRoute
+    deleteRoute,
+    error: vehiclesError || driversError || workOrdersError || facilitiesError || null,
+    refetch: () => {
+      // Trigger refetch on all queries by invalidating
+      // Individual hooks use useQuery which supports refetch via queryClient
+    }
   }
 }

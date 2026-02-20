@@ -15,6 +15,7 @@ import { User, Plus, MagnifyingGlass, CheckCircle, Trophy, Trash, Warning } from
 import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { ActionButton, StatusBadge, InlineEditPanel, ConfirmDialog , SplitView } from "@/components/operations";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -689,6 +690,7 @@ export function DriversOperations() {
   );
 
   return (
+    <ErrorBoundary>
     <>
       <SplitView
         theme="operations"
@@ -762,6 +764,7 @@ export function DriversOperations() {
         isLoading={deleteMutation.isPending}
       />
     </>
+    </ErrorBoundary>
   );
 }
 

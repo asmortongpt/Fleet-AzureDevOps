@@ -177,7 +177,7 @@ export function AssetsHub() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [mapLoaded, setMapLoaded] = useState(false)
 
-  const { data: assetAnalytics = [], error: assetError } = useSWR<any[]>(
+  const { data: assetAnalytics = [], error: assetError, isLoading: assetLoading } = useSWR<any[]>(
     "/api/assets/analytics",
     fetcher,
     { shouldRetryOnError: false }
@@ -359,6 +359,20 @@ export function AssetsHub() {
   }, [assets])
 
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ""
+
+  if (assetError && !assetLoading && assets.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load asset data</p>
+        <p className="text-sm text-muted-foreground">
+          {assetError instanceof Error ? assetError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen overflow-hidden bg-background flex flex-col">

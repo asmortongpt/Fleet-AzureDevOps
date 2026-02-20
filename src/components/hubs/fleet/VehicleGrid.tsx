@@ -7,6 +7,7 @@ import { Car, MapPin, Wrench } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Dialog } from '@/components/shared/Dialog';
+import { Button } from '@/components/ui/button';
 import { secureFetch } from '@/hooks/use-api';
 
 interface Vehicle {
@@ -24,7 +25,7 @@ export const VehicleGrid: React.FC = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
 
   // Fetch vehicles from API
-  const { data: vehicles = [], isLoading } = useQuery({
+  const { data: vehicles = [], isLoading, error } = useQuery({
     queryKey: ['vehicles'],
     queryFn: async () => {
       const res = await secureFetch('/api/vehicles?limit=200');
@@ -76,6 +77,19 @@ export const VehicleGrid: React.FC = () => {
         <div key={i} className="h-48 bg-muted animate-pulse rounded-lg" />
       ))}
     </div>;
+  }
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load vehicle data</p>
+        <p className="text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    );
   }
   if (!vehicles || vehicles.length === 0) {
     return (

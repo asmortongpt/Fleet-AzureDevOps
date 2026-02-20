@@ -30,6 +30,7 @@ import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
 import { cn } from '@/lib/utils'
 
@@ -278,6 +279,7 @@ export default function DriversHub() {
   }, [drivers])
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-[hsl(var(--background))] p-3 space-y-3">
       {/* Header with gradient accent */}
       <div className="relative">
@@ -382,6 +384,7 @@ export default function DriversHub() {
         CTA Driver Management • ArchonY Platform • Real-time updates • Professional data tables
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

@@ -1,6 +1,7 @@
 import { MapPin, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { FleetMap } from '@/components/FleetMap';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -69,6 +70,7 @@ export function FleetMapDemo() {
   );
 
   return (
+    <ErrorBoundary>
     <div className="container mx-auto p-3 space-y-2">
       <div className="flex items-center justify-between">
         <div>
@@ -232,5 +234,6 @@ export function FleetMapDemo() {
         </CardContent>
       </Card>
     </div>
+    </ErrorBoundary>
   );
 }

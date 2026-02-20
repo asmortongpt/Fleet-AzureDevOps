@@ -59,11 +59,12 @@ interface Route {
 
 export function OperationsHub() {
   const { push } = useDrilldown();
-  const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
-  const { data: drivers = [], isLoading: driversLoading } = useDrivers();
-  const { data: workOrders = [], isLoading: workOrdersLoading } = useWorkOrders();
-  const { data: routes = [], isLoading: routesLoading } = useRoutes();
+  const { data: vehicles = [], isLoading: vehiclesLoading, error: vehiclesError } = useVehicles();
+  const { data: drivers = [], isLoading: driversLoading, error: driversError } = useDrivers();
+  const { data: workOrders = [], isLoading: workOrdersLoading, error: workOrdersError } = useWorkOrders();
+  const { data: routes = [], isLoading: routesLoading, error: routesError } = useRoutes();
   const isLoading = vehiclesLoading || driversLoading || workOrdersLoading || routesLoading;
+  const hasError = vehiclesError || driversError || workOrdersError || routesError;
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
@@ -498,6 +499,20 @@ export function OperationsHub() {
           <Package className="h-9 w-12 animate-spin mx-auto text-blue-800" />
           <p className="mt-2 text-slate-600">Loading operations data...</p>
         </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load operations data</p>
+        <p className="text-sm text-muted-foreground">
+          {hasError instanceof Error ? hasError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
       </div>
     );
   }

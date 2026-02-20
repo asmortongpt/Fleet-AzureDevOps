@@ -28,6 +28,7 @@ import { useState, useMemo, useCallback } from "react"
 import { toast } from "sonner"
 import useSWR from "swr"
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -322,6 +323,7 @@ export default function SafetyAlertsPage() {
   const metrics = oshaMetrics
 
   return (
+    <ErrorBoundary>
     <div className="h-screen flex flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
       <div className="flex-none border-b border-slate-800 bg-slate-900/50 backdrop-blur-xl">
@@ -860,5 +862,6 @@ export default function SafetyAlertsPage() {
         </DialogContent>
       </Dialog>
     </div>
+    </ErrorBoundary>
   )
 }

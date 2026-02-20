@@ -72,7 +72,7 @@ const fetcher = (url: string) =>
  * Compliance Tab - Regulatory compliance and certifications
  */
 const ComplianceTabContent = memo(function ComplianceTabContent() {
-  const { drivers, vehicles } = useFleetData()
+  const { drivers, vehicles, error: fleetDataError } = useFleetData()
 
   const now = useMemo(() => new Date(), [])
   const msPerDay = 86400000
@@ -276,6 +276,18 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     logger.info('Schedule renewal clicked:', itemName)
   }
 
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-6">
       {/* Compliance Statistics + optional Radial Chart */}
@@ -426,7 +438,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
  * Safety Tab - Safety metrics and incident management
  */
 const SafetyTabContent = memo(function SafetyTabContent() {
-  const { drivers, incidents: fleetIncidents } = useFleetData()
+  const { drivers, incidents: fleetIncidents, error: fleetDataError } = useFleetData()
   const { data: safetyIncidents } = useSWR<any[]>(
     '/api/safety-incidents?limit=200',
     fetcher,
@@ -575,6 +587,18 @@ const SafetyTabContent = memo(function SafetyTabContent() {
       }
     }).filter((course: any) => course.total > 0)
   }, [trainingCourses, trainingProgress])
+
+  if (fleetDataError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

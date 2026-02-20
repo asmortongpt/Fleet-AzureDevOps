@@ -34,6 +34,7 @@ import { useSearchParams , useNavigate } from 'react-router-dom';
 
 import ARModeExport from '@/components/3d/ARModeExport';
 import VehicleViewer3D from '@/components/3d/VehicleViewer3D';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -82,7 +83,7 @@ export default function VehicleShowroom3D() {
   const [modelError, setModelError] = useState<string | null>(null);
 
   // Fetch vehicles from API
-  const { data: vehiclesData, isLoading: vehiclesLoading } = useVehicles({ tenant_id: tenantId || '' });
+  const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles({ tenant_id: tenantId || '' });
 
   // Map API vehicles to showroom Vehicle interface
   const showroomVehicles: Vehicle[] = useMemo(() => {
@@ -201,6 +202,20 @@ export default function VehicleShowroom3D() {
     );
   }
 
+  if (vehiclesError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load vehicle data</p>
+        <p className="text-sm text-muted-foreground">
+          {vehiclesError instanceof Error ? vehiclesError.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
   if (!selectedVehicle) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -217,6 +232,7 @@ export default function VehicleShowroom3D() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-card">
@@ -555,5 +571,6 @@ export default function VehicleShowroom3D() {
         </div>
       </div>
     </div>
+    </ErrorBoundary>
   );
 }

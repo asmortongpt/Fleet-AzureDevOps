@@ -8,12 +8,13 @@ import React from 'react';
 import { VehicleGrid } from './VehicleGrid';
 
 import { UniversalMap } from '@/components/UniversalMap';
+import { Button } from '@/components/ui/button';
 import { secureFetch } from '@/hooks/use-api';
 import type { Vehicle } from '@/lib/types';
 
 export const FleetHub: React.FC = () => {
   // Fetch vehicles from API for map markers
-  const { data: vehicles = [], isLoading } = useQuery<Vehicle[]>({
+  const { data: vehicles = [], isLoading, error } = useQuery<Vehicle[]>({
     queryKey: ['vehicles'],
     queryFn: async () => {
       const response = await secureFetch('/api/vehicles?limit=200');
@@ -31,6 +32,20 @@ export const FleetHub: React.FC = () => {
     .map((v: any) => Number(v?.avg_mpg ?? v?.avgMpg ?? v?.fuel_efficiency ?? v?.fuel?.efficiency))
     .filter((n: any) => Number.isFinite(n) && n > 0) as number[];
   const avgFuelEconomy = fuelEconValues.length ? (fuelEconValues.reduce((a, b) => a + b, 0) / fuelEconValues.length) : 0;
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load fleet data</p>
+        <p className="text-sm text-muted-foreground">
+          {error instanceof Error ? error.message : 'An unexpected error occurred'}
+        </p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="cta-hub cta-fleet-hub space-y-2 p-3">

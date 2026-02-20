@@ -32,6 +32,7 @@ import {
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import {
   ActionButton,
   InlineEditPanel,
@@ -701,6 +702,7 @@ export function MaintenanceOperations() {
   );
 
   return (
+    <ErrorBoundary>
     <SplitView
       theme="operations"
       listPanel={{
@@ -748,6 +750,7 @@ export function MaintenanceOperations() {
           : null
       }
     />
+    </ErrorBoundary>
   );
 }
 

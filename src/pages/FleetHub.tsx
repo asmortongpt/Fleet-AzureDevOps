@@ -26,6 +26,7 @@ import { useMemo, useState } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import { Progress } from '@/components/ui/progress'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
@@ -336,6 +337,7 @@ export default function FleetHub() {
   }, [vehicles])
 
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-background p-4 space-y-4">
       {/* Minimal Header */}
       <div className="border-b border-border pb-2">
@@ -463,6 +465,7 @@ export default function FleetHub() {
         )}
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

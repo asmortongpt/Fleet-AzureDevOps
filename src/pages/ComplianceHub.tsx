@@ -28,6 +28,7 @@ import { useMemo, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn } from '@/components/ui/data-table'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { cn } from '@/lib/utils'
 
@@ -253,7 +254,20 @@ export default function ComplianceHub() {
     }
   }, [complianceRecords])
 
+  if (fleetData.error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4">
+        <p className="text-destructive font-medium">Failed to load data</p>
+        <p className="text-sm text-muted-foreground">{fleetData.error instanceof Error ? fleetData.error.message : 'An unexpected error occurred'}</p>
+        <Button variant="outline" onClick={() => window.location.reload()}>
+          Retry
+        </Button>
+      </div>
+    )
+  }
+
   return (
+    <ErrorBoundary>
     <div className="min-h-screen bg-background p-3 space-y-3">
       {/* Header with gradient accent */}
       <div className="relative">
@@ -358,6 +372,7 @@ export default function ComplianceHub() {
         CTA Compliance Management • ArchonY Platform • DOT & FMCSA compliant • Professional data tables
       </div>
     </div>
+    </ErrorBoundary>
   )
 }
 

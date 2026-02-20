@@ -4,6 +4,7 @@ import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, C
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { TripMarker } from '@/components/PersonalUse/TripMarker'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -166,6 +167,7 @@ export function PersonalUseDashboard() {
   const yearlyExceeded = yearlyPercentage > 100
 
   return (
+    <ErrorBoundary>
     <div className="p-3 space-y-2">
       {/* Header */}
       <div>
@@ -465,5 +467,6 @@ export function PersonalUseDashboard() {
         />
       )}
     </div>
+    </ErrorBoundary>
   )
 }

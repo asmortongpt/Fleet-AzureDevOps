@@ -4,6 +4,7 @@ import { Receipt, Check, X, Eye, Download, Filter, CheckCircle, XCircle, Clock, 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -271,6 +272,7 @@ export function ReimbursementQueue() {
   }
 
   return (
+    <ErrorBoundary>
     <div className="p-3 space-y-2">
       {/* Header */}
       <div>
@@ -577,5 +579,6 @@ export function ReimbursementQueue() {
         </Dialog>
       )}
     </div>
+    </ErrorBoundary>
   )
 }

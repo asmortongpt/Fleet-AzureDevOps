@@ -24,6 +24,7 @@ import { useQuery } from '@tanstack/react-query';
 import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { ActionButton, StatusBadge , SplitView } from "@/components/operations";
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -465,6 +466,7 @@ export function RoutesOperations() {
   const activeCount = routes.filter(r => r.status === 'active' || r.status === 'in_progress').length;
 
   return (
+    <ErrorBoundary>
     <SplitView
       theme="operations"
       listPanel={{
@@ -511,6 +513,7 @@ export function RoutesOperations() {
           : null
       }
     />
+    </ErrorBoundary>
   );
 }
 

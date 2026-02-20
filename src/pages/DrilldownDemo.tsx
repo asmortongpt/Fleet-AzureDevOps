@@ -5,6 +5,7 @@
 
 import React from 'react';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DataDrilldown, DrilldownRecord, DrilldownPermissions } from '@/components/common/DataDrilldown';
 
 const DEMO_VEHICLES: DrilldownRecord[] = [
@@ -170,6 +171,7 @@ export default function DrilldownDemo() {
   };
 
   return (
+    <ErrorBoundary>
     <div className="container mx-auto p-3">
       <div className="mb-3">
         <h1 className="text-base font-bold">Universal Drilldown Demo</h1>
@@ -189,5 +191,6 @@ export default function DrilldownDemo() {
         onNavigate={handleNavigate}
       />
     </div>
+    </ErrorBoundary>
   );
 }
