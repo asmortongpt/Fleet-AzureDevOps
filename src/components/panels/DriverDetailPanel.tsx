@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Driver, Vehicle } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
 
 interface DriverDetailPanelProps {
     driver: Driver | null
@@ -111,12 +113,12 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                         <div className="flex items-center gap-3">
                                             <Activity className="w-3 h-3 text-blue-800" />
                                             <div>
-                                                <div className="font-semibold text-sm capitalize">{driver.status}</div>
+                                                <div className="font-semibold text-sm">{formatEnum(driver.status)}</div>
                                                 <div className="text-xs text-muted-foreground">Since 08:00 AM</div>
                                             </div>
                                         </div>
                                         <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
-                                            {driver.status}
+                                            {formatEnum(driver.status)}
                                         </Badge>
                                     </div>
                                 </div>
@@ -214,7 +216,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                             </div>
                                             <div className="p-3 bg-muted/40 rounded-lg border border-border/50">
                                                 <div className="text-xs text-muted-foreground uppercase font-semibold">Odometer</div>
-                                                <div className="text-sm font-bold text-foreground">{(assignment.mileage || 0).toLocaleString()} mi</div>
+                                                <div className="text-sm font-bold text-foreground">{formatNumber(assignment.mileage || 0)} mi</div>
                                             </div>
                                         </div>
                                     </div>

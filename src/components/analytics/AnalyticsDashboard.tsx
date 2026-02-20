@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVehicles } from '@/hooks/use-api';
 import type { Vehicle } from '@/types';
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 type AnalyticsType = 'heatmap' | 'routes' | 'performance' | 'fuel';
@@ -71,14 +72,14 @@ export function AnalyticsDashboard() {
   const kpis: KPICard[] = [
     {
       title: 'Total Miles',
-      value: totalMiles.toLocaleString(),
+      value: formatNumber(totalMiles),
       trend: undefined,
       isPositive: undefined,
       icon: <Activity className="h-5 w-5" />
     },
     {
       title: 'Avg MPG',
-      value: avgMPG > 0 ? avgMPG.toFixed(1) : 'N/A',
+      value: avgMPG > 0 ? avgMPG.toFixed(1) : '—',
       trend: undefined,
       isPositive: undefined,
       icon: <Gauge className="h-5 w-5" />
@@ -86,8 +87,8 @@ export function AnalyticsDashboard() {
     {
       title: 'Fuel Cost',
       value: totalFuelCost > 0
-        ? `$${totalFuelCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-        : 'N/A',
+        ? formatCurrency(totalFuelCost)
+        : '—',
       trend: undefined,
       isPositive: undefined,
       icon: <DollarSign className="h-5 w-5" />

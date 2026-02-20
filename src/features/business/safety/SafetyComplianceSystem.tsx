@@ -149,7 +149,7 @@ const SafetyComplianceSystem: React.FC = () => {
           date: dateObj ? dateObj.toISOString().split('T')[0] : '',
           time: dateObj ? dateObj.toTimeString().slice(0, 5) : '',
           type: incident.type || incident.incident_type || 'Incident',
-          severity: incident.severity || 'Unknown',
+          severity: incident.severity || '—',
           vehicleId: incident.vehicle_id,
           driverId: incident.driver_id,
           location: incident.location || incident.address || '',
@@ -898,7 +898,7 @@ const SafetyComplianceSystem: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell>{inspection.violations.length || 'None'}</TableCell>
-                          <TableCell>{inspection.nextDue || 'N/A'}</TableCell>
+                          <TableCell>{inspection.nextDue || '—'}</TableCell>
                           <TableCell>
                             <Chip
                               size="small"

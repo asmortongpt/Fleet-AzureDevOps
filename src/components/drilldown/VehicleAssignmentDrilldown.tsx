@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime } from '@/utils/format-helpers'
 
 const fetcher = (url: string) =>
   fetch(url)
@@ -135,9 +137,9 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       drilldown: {
         recordType: 'driver',
         getRecordId: (a) => a.driverId,
-        getRecordLabel: (a) => a.driverName || 'Unassigned'
+        getRecordLabel: (a) => a.driverName || '—'
       },
-      render: (a) => a.driverName || 'Unassigned'
+      render: (a) => a.driverName || '—'
     },
     {
       key: 'jobNumber',
@@ -155,7 +157,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       sortable: true,
       render: (a) => (
         <Badge variant={a.status === 'active' ? 'default' : a.status === 'completed' ? 'secondary' : 'outline'}>
-          {a.status}
+          {formatEnum(a.status)}
         </Badge>
       )
     },
@@ -190,7 +192,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
       sortable: true,
       render: (v) => (
         <Badge variant={v.status === 'active' ? 'default' : v.status === 'idle' ? 'outline' : 'destructive'}>
-          {v.status}
+          {formatEnum(v.status)}
         </Badge>
       )
     },
@@ -281,7 +283,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
             columns={assignmentColumns}
             recordType="assignment"
             getRecordId={(a) => a.id}
-            getRecordLabel={(a) => `${a.vehicleName} - ${a.driverName || 'Unassigned'}`}
+            getRecordLabel={(a) => `${a.vehicleName} - ${a.driverName || '—'}`}
             getRecordData={(a) => ({ assignmentId: a.id })}
             emptyMessage="No assignments found"
             compact
@@ -335,7 +337,7 @@ export function VehicleAssignmentDrilldown({ filter }: { filter?: string }) {
                     <div>
                       <p className="font-medium">{v.vehicleName}</p>
                       <p className="text-xs text-muted-foreground">
-                        Last used: {v.lastAssignment ? new Date(v.lastAssignment).toLocaleString() : 'Never'}
+                        Last used: {v.lastAssignment ? formatDateTime(v.lastAssignment) : 'Never'}
                       </p>
                     </div>
                     <Button

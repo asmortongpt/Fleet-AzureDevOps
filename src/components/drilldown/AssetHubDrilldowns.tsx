@@ -20,6 +20,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
 import { swrFetcher } from '@/lib/fetcher'
 
 const fetcher = swrFetcher
@@ -131,7 +133,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  ${asset.current_value?.toLocaleString() || '0'}
+                  {formatCurrency(asset.current_value ?? 0)}
                 </div>
               </CardContent>
             </Card>
@@ -169,30 +171,28 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Category</p>
-                      <p className="font-medium">{asset.category || 'N/A'}</p>
+                      <p className="font-medium">{asset.category || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
-                      <p className="font-medium">{asset.type || 'N/A'}</p>
+                      <p className="font-medium">{asset.type || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Manufacturer</p>
-                      <p className="font-medium">{asset.manufacturer || 'N/A'}</p>
+                      <p className="font-medium">{asset.manufacturer || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Model</p>
-                      <p className="font-medium">{asset.model || 'N/A'}</p>
+                      <p className="font-medium">{asset.model || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Serial Number</p>
-                      <p className="font-medium">{asset.serial_number || 'N/A'}</p>
+                      <p className="font-medium">{asset.serial_number || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Acquisition Date</p>
                       <p className="font-medium">
-                        {asset.acquisition_date
-                          ? new Date(asset.acquisition_date).toLocaleDateString()
-                          : 'N/A'}
+                        {formatDate(asset.acquisition_date)}
                       </p>
                     </div>
                   </div>
@@ -236,10 +236,10 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Currently Assigned To: {asset.assigned_to || 'Unassigned'}
+                    Currently Assigned To: {asset.assigned_to || '—'}
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">
-                    Department: {asset.department || 'N/A'}
+                    Department: {asset.department || '—'}
                   </p>
                 </CardContent>
               </Card>
@@ -252,7 +252,7 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Current Location: {asset.current_location || 'Unknown'}
+                    Current Location: {asset.current_location || '—'}
                   </p>
                 </CardContent>
               </Card>
@@ -268,19 +268,19 @@ export function AssetHubDetailPanel({ assetId }: AssetDetailPanelProps) {
                     <div>
                       <p className="text-sm text-muted-foreground">Purchase Price</p>
                       <p className="text-base font-bold">
-                        ${asset.purchase_price?.toLocaleString() || '0'}
+                        {formatCurrency(asset.purchase_price ?? 0)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Current Value</p>
                       <p className="text-base font-bold">
-                        ${asset.current_value?.toLocaleString() || '0'}
+                        {formatCurrency(asset.current_value ?? 0)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Depreciation</p>
                       <p className="text-base font-bold text-destructive">
-                        -${((asset.purchase_price || 0) - (asset.current_value || 0))?.toLocaleString() || '0'}
+                        -{formatCurrency((asset.purchase_price || 0) - (asset.current_value || 0))}
                       </p>
                     </div>
                     <div>
@@ -343,7 +343,7 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  {equipment.operating_hours?.toLocaleString() || '0'} hrs
+                  {formatNumber(equipment.operating_hours ?? 0)} hrs
                 </div>
               </CardContent>
             </Card>
@@ -380,19 +380,19 @@ export function EquipmentDetailPanel({ equipmentId }: EquipmentDetailPanelProps)
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
-                      <p className="font-medium">{equipment.type || 'N/A'}</p>
+                      <p className="font-medium">{equipment.type || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Manufacturer</p>
-                      <p className="font-medium">{equipment.manufacturer || 'N/A'}</p>
+                      <p className="font-medium">{equipment.manufacturer || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Model</p>
-                      <p className="font-medium">{equipment.model || 'N/A'}</p>
+                      <p className="font-medium">{equipment.model || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Serial</p>
-                      <p className="font-medium">{equipment.serial_number || 'N/A'}</p>
+                      <p className="font-medium">{equipment.serial_number || '—'}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -521,10 +521,10 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  ${item.unit_cost?.toFixed(2) || '0.00'}
+                  {formatCurrency(item.unit_cost)}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Total Value: ${((item.quantity || 0) * (item.unit_cost || 0)).toFixed(2)}
+                  Total Value: {formatCurrency((item.quantity || 0) * (item.unit_cost || 0))}
                 </p>
               </CardContent>
             </Card>
@@ -548,11 +548,11 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Category</p>
-                      <p className="font-medium">{item.category || 'N/A'}</p>
+                      <p className="font-medium">{item.category || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Supplier</p>
-                      <p className="font-medium">{item.supplier || 'N/A'}</p>
+                      <p className="font-medium">{item.supplier || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Lead Time</p>
@@ -606,7 +606,7 @@ export function InventoryItemDetailPanel({ itemId }: InventoryItemDetailPanelPro
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Primary Location: {item.primary_location || 'Unknown'}
+                    Primary Location: {item.primary_location || '—'}
                   </p>
                   <p className="text-sm text-muted-foreground mt-2">
                     Total Locations: {item.total_locations || 1}
@@ -681,7 +681,7 @@ export function AssetListView({ filter = 'all' }: AssetListViewProps) {
                       {asset.status}
                     </Badge>
                     <p className="text-sm text-muted-foreground mt-1">
-                      ${asset.current_value?.toLocaleString()}
+                      {formatCurrency(asset.current_value)}
                     </p>
                   </div>
                 </div>
@@ -749,7 +749,7 @@ export function EquipmentListView({ category }: EquipmentListViewProps) {
                   </div>
                   <div className="text-right">
                     <Badge variant={item.status === 'operational' ? 'default' : 'destructive'}>
-                      {item.status}
+                      {formatEnum(item.status)}
                     </Badge>
                     <p className="text-sm text-muted-foreground mt-1">
                       {item.operating_hours} hrs

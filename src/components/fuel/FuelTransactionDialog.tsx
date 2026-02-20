@@ -45,6 +45,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { useVehicles, useDrivers } from '@/hooks/use-api'
 import { useFuelMutations, type CreateFuelTransactionInput } from '@/hooks/use-reactive-fuel-data'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 // ============================================================================
@@ -358,7 +359,7 @@ export function FuelTransactionDialog({
 
               <div className="space-y-2">
                 <Label>Total Cost</Label>
-                <Input value={`$${totalCost}`} disabled className="bg-muted" />
+                <Input value={formatCurrency(Number(totalCost))} disabled className="bg-muted" />
               </div>
             </div>
 

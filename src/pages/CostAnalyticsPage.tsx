@@ -33,6 +33,8 @@ import {
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
 
+import { formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatEnum } from '@/utils/format-enum'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
@@ -182,7 +184,7 @@ export default function CostAnalyticsPage() {
     return [
       {
         label: 'Total Operating Cost',
-        value: `$${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: formatCurrency(totalCost),
         change: budgetVariance,
         changeLabel: monthlyBudget > 0
           ? `${Math.abs(budgetVariance).toFixed(1)}% ${budgetVariance > 0 ? 'over' : 'under'} budget`
@@ -194,15 +196,15 @@ export default function CostAnalyticsPage() {
       },
       {
         label: 'Cost Per Mile',
-        value: `$${costPerMile.toFixed(3)}`,
+        value: formatCurrency(costPerMile),
         change: savingsPercentage,
-        changeLabel: `vs IRS rate ($${CURRENT_IRS_RATE}/mi)`,
+        changeLabel: `vs IRS rate (${formatCurrency(CURRENT_IRS_RATE)}/mi)`,
         icon: <Car className="w-3 h-3" />,
         variant: costPerMile < CURRENT_IRS_RATE ? 'success' : 'warning'
       },
       {
         label: 'Fuel Costs',
-        value: `$${totalFuelCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: formatCurrency(totalFuelCost),
         change: fuelCostPrevious > 0 ? ((fuelCostCurrent - fuelCostPrevious) / fuelCostPrevious) * 100 : 0,
         changeLabel: 'vs last month',
         icon: <Fuel className="w-3 h-3" />,
@@ -210,7 +212,7 @@ export default function CostAnalyticsPage() {
       },
       {
         label: 'Maintenance Costs',
-        value: `$${totalMaintenanceCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: formatCurrency(totalMaintenanceCost),
         change: maintenanceCostPrevious > 0 ? ((maintenanceCostCurrent - maintenanceCostPrevious) / maintenanceCostPrevious) * 100 : 0,
         changeLabel: 'vs last month',
         icon: <Wrench className="w-3 h-3" />,
@@ -218,7 +220,7 @@ export default function CostAnalyticsPage() {
       },
       {
         label: 'Parts Cost',
-        value: `$${totalPartsCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: formatCurrency(totalPartsCost),
         change: totalMaintenanceCost > 0 ? (totalPartsCost / totalMaintenanceCost) * 100 : 0,
         changeLabel: `${totalMaintenanceCost > 0 ? ((totalPartsCost / totalMaintenanceCost) * 100).toFixed(0) : 0}% of maintenance`,
         icon: <Cog className="w-3 h-3" />,
@@ -226,7 +228,7 @@ export default function CostAnalyticsPage() {
       },
       {
         label: 'Labor Cost',
-        value: `$${totalLaborCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+        value: formatCurrency(totalLaborCost),
         change: totalMaintenanceCost > 0 ? (totalLaborCost / totalMaintenanceCost) * 100 : 0,
         changeLabel: `${totalMaintenanceCost > 0 ? ((totalLaborCost / totalMaintenanceCost) * 100).toFixed(0) : 0}% of maintenance`,
         icon: <Clock className="w-3 h-3" />,
@@ -369,7 +371,7 @@ export default function CostAnalyticsPage() {
         fuelCost,
         maintenanceCost,
         variance,
-        department: (vehicle as any).department || 'Unassigned',
+        department: (vehicle as any).department || '—',
         healthScore: (vehicle as any).health_score ?? (vehicle as any).healthScore ?? null,
         downtimeHours
       }
@@ -399,7 +401,7 @@ export default function CostAnalyticsPage() {
 
     // Normalize department names for comparison
     const normalizeDept = (dept: string) => {
-      if (!dept) return 'Unassigned'
+      if (!dept) return '—'
       const lower = dept.toLowerCase().replace(/[_-]/g, ' ')
       for (const d of departments) {
         if (lower.includes(d.toLowerCase())) return d
@@ -474,7 +476,7 @@ export default function CostAnalyticsPage() {
         id: v.id,
         name: `${v.year} ${v.make} ${v.model}`,
         type: v.type || 'unknown',
-        department: (v as any).department || 'Unassigned',
+        department: (v as any).department || '—',
         fuelEfficiency: Number((v as any).fuel_efficiency ?? (v as any).fuelEfficiency ?? 0)
       }))
       .filter(v => v.fuelEfficiency > 0)
@@ -543,7 +545,7 @@ export default function CostAnalyticsPage() {
   return (
     <HubPage
       title="Cost Analytics"
-      description={`Comprehensive cost tracking and budget analysis \u2022 IRS Rate: $${CURRENT_IRS_RATE}/mile`}
+      description={`Comprehensive cost tracking and budget analysis \u2022 IRS Rate: ${formatCurrency(CURRENT_IRS_RATE)}/mile`}
       icon={<DollarSign className="h-5 w-5" />}
       headerActions={
         <>
@@ -619,14 +621,14 @@ export default function CostAnalyticsPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {getTrendIcon(item.trend)}
-                        <span className="font-medium text-sm">{item.category}</span>
+                        <span className="font-medium text-sm">{formatEnum(item.category)}</span>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold">
-                          ${item.amount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          {formatCurrency(item.amount)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Budget: ${item.budget.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          Budget: {formatCurrency(item.budget)}
                         </p>
                       </div>
                     </div>
@@ -641,8 +643,7 @@ export default function CostAnalyticsPage() {
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>{item.percentage.toFixed(1)}% of total</span>
                       <span>
-                        {item.amount > item.budget ? 'Over' : 'Under'} by $
-                        {Math.abs(item.amount - item.budget).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {item.amount > item.budget ? 'Over' : 'Under'} by {formatCurrency(Math.abs(item.amount - item.budget))}
                       </span>
                     </div>
                   </div>
@@ -653,7 +654,7 @@ export default function CostAnalyticsPage() {
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-sm">Parts vs Labor Split</span>
                     <span className="text-xs text-muted-foreground">
-                      ${partsLaborSplit.partsCost.toLocaleString('en-US', { minimumFractionDigits: 2 })} / ${partsLaborSplit.laborCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      {formatCurrency(partsLaborSplit.partsCost)} / {formatCurrency(partsLaborSplit.laborCost)}
                     </span>
                   </div>
                   <div className="relative h-4 bg-muted rounded-full overflow-hidden flex">
@@ -828,7 +829,7 @@ export default function CostAnalyticsPage() {
                       </td>
                       <td className="py-3 px-2 text-right">
                         <p className="font-semibold">
-                          ${vehicle.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          {formatCurrency(vehicle.totalCost)}
                         </p>
                       </td>
                       <td className="py-3 px-2 text-right">
@@ -839,13 +840,13 @@ export default function CostAnalyticsPage() {
                         </Badge>
                       </td>
                       <td className="py-3 px-2 text-right text-sm">
-                        {vehicle.miles.toLocaleString()}
+                        {formatNumber(vehicle.miles)}
                       </td>
                       <td className="py-3 px-2 text-right text-sm">
-                        ${vehicle.fuelCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {formatCurrency(vehicle.fuelCost)}
                       </td>
                       <td className="py-3 px-2 text-right text-sm">
-                        ${vehicle.maintenanceCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {formatCurrency(vehicle.maintenanceCost)}
                       </td>
                       <td className="py-3 px-2 text-right text-sm">
                         {vehicle.downtimeHours > 0 ? (
@@ -940,17 +941,17 @@ export default function CostAnalyticsPage() {
                         </td>
                         <td className="py-3 px-2 text-right">
                           <p className="font-semibold">
-                            ${dept.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                            {formatCurrency(dept.totalCost)}
                           </p>
                         </td>
                         <td className="py-3 px-2 text-right text-sm">
-                          ${dept.avgCostPerVehicle.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          {formatCurrency(dept.avgCostPerVehicle)}
                         </td>
                         <td className="py-3 px-2 text-right text-sm">
-                          ${dept.fuelCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          {formatCurrency(dept.fuelCost)}
                         </td>
                         <td className="py-3 px-2 text-right text-sm">
-                          ${dept.maintenanceCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          {formatCurrency(dept.maintenanceCost)}
                         </td>
                       </tr>
                     )

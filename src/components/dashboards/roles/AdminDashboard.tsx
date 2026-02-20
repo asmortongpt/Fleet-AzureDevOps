@@ -19,6 +19,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useReactiveAdminData } from '@/hooks/use-reactive-admin-data';
 import { cn } from '@/lib/utils';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface UserStats {
   total_users: number;
@@ -88,7 +89,7 @@ export function AdminDashboard() {
   const recentActivity = useMemo<RecentActivity[]>(() => {
     return (adminData.recentAuditLogs || []).slice(0, 5).map((log) => ({
       id: Number(log.id ?? 0),
-      timestamp: log.timestamp ? new Date(log.timestamp).toLocaleString() : '',
+      timestamp: log.timestamp ? formatDateTime(log.timestamp) : '',
       user: log.userName || log.userId || 'System',
       action: log.action || log.resource || 'Activity',
       severity: log.status === 'failure' ? 'critical' : 'info'

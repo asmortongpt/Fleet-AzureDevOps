@@ -9,6 +9,7 @@ import useSWR from 'swr'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { formatDate } from '@/utils/format-helpers'
 
 export interface AssetRelationshipsListProps {
   /** ID of the vehicle to show relationships for */
@@ -140,7 +141,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
                 {relationship.effective_from && (
                   <div>
                     <span className="font-medium">Attached:</span>{' '}
-                    {new Date(relationship.effective_from).toLocaleDateString()}
+                    {formatDate(relationship.effective_from)}
                   </div>
                 )}
                 {relationship.notes && (

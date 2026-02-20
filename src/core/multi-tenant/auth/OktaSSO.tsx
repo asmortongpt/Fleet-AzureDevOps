@@ -880,7 +880,7 @@ export const UserProfile: React.FC = () => {
 
         <div>
           <label className="text-sm font-medium text-gray-700">Employee ID</label>
-          <p className="text-sm text-gray-900">{user.employee_id || 'N/A'}</p>
+          <p className="text-sm text-gray-900">{user.employee_id || '—'}</p>
         </div>
 
         <div>

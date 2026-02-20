@@ -13,6 +13,7 @@ import { Section } from '@/components/ui/section'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 interface ChargeRecord {
@@ -312,7 +313,7 @@ export function ChargesAndBilling() {
             icon={<Clock className="h-4 w-4" />}
             contentClassName="space-y-1"
           >
-            <div className="text-sm font-bold">${Number(summary.total_pending || 0).toFixed(2)}</div>
+            <div className="text-sm font-bold">{formatCurrency(summary.total_pending ?? 0)}</div>
             <p className="text-xs text-muted-foreground">Awaiting invoice</p>
           </Section>
 
@@ -321,7 +322,7 @@ export function ChargesAndBilling() {
             icon={<FileText className="h-4 w-4" />}
             contentClassName="space-y-1"
           >
-            <div className="text-sm font-bold">${Number(summary.total_billed || 0).toFixed(2)}</div>
+            <div className="text-sm font-bold">{formatCurrency(summary.total_billed ?? 0)}</div>
             <p className="text-xs text-muted-foreground">Invoiced, awaiting payment</p>
           </Section>
 
@@ -330,7 +331,7 @@ export function ChargesAndBilling() {
             icon={<CheckCircle className="h-4 w-4" />}
             contentClassName="space-y-1"
           >
-            <div className="text-sm font-bold">${Number(summary.total_paid || 0).toFixed(2)}</div>
+            <div className="text-sm font-bold">{formatCurrency(summary.total_paid ?? 0)}</div>
             <p className="text-xs text-muted-foreground">Total collected</p>
           </Section>
 
@@ -340,7 +341,7 @@ export function ChargesAndBilling() {
             contentClassName="space-y-1"
           >
             <div className="text-sm font-bold text-destructive">
-              ${Number(summary.total_overdue || 0).toFixed(2)}
+              {formatCurrency(summary.total_overdue ?? 0)}
             </div>
             <p className="text-xs text-muted-foreground">Past due date</p>
           </Section>
@@ -456,8 +457,8 @@ export function ChargesAndBilling() {
                           </div>
                         </TableCell>
                         <TableCell>{charge.miles_charged}</TableCell>
-                        <TableCell>${Number(charge.rate_per_mile || 0).toFixed(2)}</TableCell>
-                        <TableCell className="font-medium">${Number(charge.total_charge || 0).toFixed(2)}</TableCell>
+                        <TableCell>{formatCurrency(charge.rate_per_mile ?? 0)}</TableCell>
+                        <TableCell className="font-medium">{formatCurrency(charge.total_charge ?? 0)}</TableCell>
                         <TableCell>{getStatusBadge(charge.charge_status)}</TableCell>
                         <TableCell>{charge.invoice_number || '-'}</TableCell>
                         <TableCell>{charge.due_date || '-'}</TableCell>
@@ -565,7 +566,7 @@ export function ChargesAndBilling() {
                     <TableRow key={driver.name}>
                       <TableCell className="font-medium">{driver.name}</TableCell>
                       <TableCell>{driver.miles}</TableCell>
-                      <TableCell>${Number(driver.charges || 0).toFixed(2)}</TableCell>
+                      <TableCell>{formatCurrency(driver.charges ?? 0)}</TableCell>
                       <TableCell>{getStatusBadge(driver.status)}</TableCell>
                     </TableRow>
                   ))}

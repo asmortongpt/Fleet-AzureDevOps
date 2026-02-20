@@ -52,7 +52,7 @@ export class RealDataService {
       }
       return response.data.data || [];
     } catch (error) {
-      console.error('Error fetching vehicles:', error);
+      if (import.meta.env.DEV) console.error('Error fetching vehicles:', error);
       return [];
     }
   }
@@ -69,7 +69,7 @@ export class RealDataService {
       }
       return response.data.data || [];
     } catch (error) {
-      console.error('Error fetching people:', error);
+      if (import.meta.env.DEV) console.error('Error fetching people:', error);
       return [];
     }
   }

@@ -3,6 +3,7 @@ import { Truck, Circle, AlertTriangle } from 'lucide-react';
 import { UniversalMap } from '@/components/UniversalMap';
 import { Badge } from '@/components/ui/badge';
 import { useVehicles, useRoutes } from '@/hooks/use-api';
+import { formatEnum } from '@/utils/format-enum';
 
 interface Vehicle {
   id: string;
@@ -117,7 +118,7 @@ export function OperationsHubMap({
                   {vehicle.vehicleNumber || (vehicle as any).number || (vehicle as any).name || vehicle.id}
                 </span>
                 <Badge variant="outline" className="text-xs">
-                  {vehicle.status}
+                  {formatEnum(vehicle.status)}
                 </Badge>
               </div>
             ))}

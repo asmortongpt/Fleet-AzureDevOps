@@ -41,6 +41,8 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import type { AssetType, OperationalStatus } from "@/types/asset.types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency, formatCurrencyCompact } from "@/utils/format-helpers"
 
 interface AssetMetrics {
   totalAssets: number
@@ -404,7 +406,7 @@ export function AssetsHub() {
             <CardContent>
               <div className="flex items-center gap-2">
                 <div className="text-base font-bold">
-                  {metrics.totalValue > 0 ? `$${(metrics.totalValue / 1000000).toFixed(2)}M` : "—"}
+                  {metrics.totalValue > 0 ? formatCurrencyCompact(metrics.totalValue) : "—"}
                 </div>
                 {metrics.totalValue > 0 && <TrendingUp className="w-3 h-3 text-green-500" />}
               </div>
@@ -458,7 +460,7 @@ export function AssetsHub() {
             </CardHeader>
             <CardContent>
               <div className="text-base font-bold text-orange-500">
-                {metrics.maintenanceCost > 0 ? `$${(metrics.maintenanceCost / 1000).toFixed(0)}K` : "—"}
+                {metrics.maintenanceCost > 0 ? formatCurrencyCompact(metrics.maintenanceCost) : "—"}
               </div>
               <p className="text-xs text-muted-foreground mt-1">
                 Latest period maintenance spend
@@ -507,7 +509,7 @@ export function AssetsHub() {
                           strokeColor: "#fff",
                           strokeWeight: 2
                         }}
-                        title={`${asset.name} - ${asset.status}`}
+                        title={`${asset.name} - ${formatEnum(asset.status)}`}
                       />
                     ))}
                   </GoogleMap>
@@ -569,7 +571,7 @@ export function AssetsHub() {
                           strokeColor: "#fff",
                           strokeWeight: 1
                         }}
-                        title={`${asset.name} - $${asset.value.toLocaleString()}`}
+                        title={`${asset.name} - ${formatCurrency(asset.value)}`}
                       />
                     ))}
                   </GoogleMap>
@@ -630,7 +632,7 @@ export function AssetsHub() {
                             return (
                             <TableRow key={asset.id}>
                               <TableCell className="font-medium">{asset.asset_name || asset.name}</TableCell>
-                              <TableCell>{asset.asset_type || asset.type || "—"}</TableCell>
+                              <TableCell>{formatEnum(asset.asset_type || asset.type) || "—"}</TableCell>
                               <TableCell className="text-sm">{department}</TableCell>
                               <TableCell>
                                 <div className="flex items-center gap-2">
@@ -655,7 +657,7 @@ export function AssetsHub() {
                               </TableCell>
                               <TableCell>
                                 {asset.current_value || asset.purchase_price
-                                  ? `$${Number(asset.current_value || asset.purchase_price).toLocaleString()}`
+                                  ? formatCurrency(Number(asset.current_value || asset.purchase_price))
                                   : "—"}
                               </TableCell>
                               <TableCell>
@@ -692,16 +694,16 @@ export function AssetsHub() {
                           {utilizationRows.map(asset => (
                             <TableRow key={asset.assetId}>
                               <TableCell className="font-medium">{asset.assetName}</TableCell>
-                              <TableCell>{asset.type}</TableCell>
+                              <TableCell>{formatEnum(asset.type)}</TableCell>
                               <TableCell>
                                 <span className={getUtilizationColor(asset.utilizationRate)}>
                                   {asset.utilizationRate > 0 ? `${asset.utilizationRate.toFixed(1)}%` : "—"}
                                 </span>
                               </TableCell>
                               <TableCell>
-                                {asset.maintenanceCost > 0 ? `$${asset.maintenanceCost.toLocaleString()}` : "—"}
+                                {asset.maintenanceCost > 0 ? formatCurrency(asset.maintenanceCost) : "—"}
                               </TableCell>
-                              <TableCell>{asset.totalCost > 0 ? `$${asset.totalCost.toLocaleString()}` : "—"}</TableCell>
+                              <TableCell>{asset.totalCost > 0 ? formatCurrency(asset.totalCost) : "—"}</TableCell>
                               <TableCell className={asset.roi > 0 ? "text-green-500" : "text-muted-foreground"}>
                                 {asset.roi > 0 ? `${asset.roi}%` : "—"}
                               </TableCell>
@@ -734,7 +736,7 @@ export function AssetsHub() {
                           {replacementRows.map(asset => (
                             <TableRow key={asset.assetId}>
                               <TableCell className="font-medium">{asset.assetName}</TableCell>
-                              <TableCell>{asset.type}</TableCell>
+                              <TableCell>{formatEnum(asset.type)}</TableCell>
                               <TableCell>{asset.age} yrs</TableCell>
                               <TableCell>{getConditionBadge(asset.condition)}</TableCell>
                               <TableCell>{asset.replacementYear}</TableCell>

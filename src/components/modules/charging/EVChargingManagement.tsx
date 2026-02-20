@@ -42,6 +42,7 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { usePolicies } from "@/contexts/PolicyContext"
+import { formatCurrency, formatDate, formatTime } from "@/utils/format-helpers"
 import {
   enforceEVChargingPolicy,
   shouldBlockAction,
@@ -712,7 +713,7 @@ export function EVChargingManagement() {
                   <DollarSign className="w-3 h-3 text-green-600" />
                   <span className="text-sm font-medium">Total Cost</span>
                 </div>
-                <span className="text-sm font-bold">${totalCost.toFixed(2)}</span>
+                <span className="text-sm font-bold">{formatCurrency(totalCost)}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -724,7 +725,7 @@ export function EVChargingManagement() {
               <div className="pt-3 border-t">
                 <div className="text-xs text-muted-foreground">Average cost per kWh</div>
                 <div className="text-sm font-medium">
-                  ${totalEnergy > 0 ? (totalCost / totalEnergy).toFixed(2) : "0.00"}/kWh
+                  {totalEnergy > 0 ? formatCurrency(totalCost / totalEnergy) : "$0.00"}/kWh
                 </div>
               </div>
             </div>
@@ -794,10 +795,10 @@ export function EVChargingManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm">
-                        {new Date(session.startTime).toLocaleDateString()}
+                        {formatDate(session.startTime)}
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        {new Date(session.startTime).toLocaleTimeString()}
+                        {formatTime(session.startTime)}
                       </div>
                     </TableCell>
                     <TableCell>
@@ -807,7 +808,7 @@ export function EVChargingManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="text-sm font-medium">${session.cost.toFixed(2)}</div>
+                      <div className="text-sm font-medium">{formatCurrency(session.cost)}</div>
                     </TableCell>
                     <TableCell>
                       <Badge className={getSessionStatusColor(session.status)} variant="secondary">

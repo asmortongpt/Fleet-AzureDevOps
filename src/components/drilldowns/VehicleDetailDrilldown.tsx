@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatEnum } from '@/utils/format-enum'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface Vehicle {
   make: string;
@@ -44,11 +46,11 @@ export function VehicleDetailDrilldown({ vehicle }: VehicleDetailDrilldownProps)
                 </div>
                 <div>
                   <p className="text-sm font-medium">Mileage</p>
-                  <p className="text-sm">{vehicle.mileage?.toLocaleString()} mi</p>
+                  <p className="text-sm">{formatNumber(vehicle.mileage)} mi</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">Status</p>
-                  <p className="text-sm capitalize">{vehicle.status}</p>
+                  <p className="text-sm">{formatEnum(vehicle.status)}</p>
                 </div>
                 <div>
                   <p className="text-sm font-medium">License Plate</p>

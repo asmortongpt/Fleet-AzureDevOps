@@ -30,6 +30,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface TrainingCourse {
@@ -365,11 +366,11 @@ const FleetTrainingAcademy: React.FC = () => {
             <div className="flex items-center space-x-2">
               <Badge variant="outline" className="px-3 py-1">
                 <Users className="w-4 h-4 mr-1" />
-                {stats.activeLearners.toLocaleString()} Active Learners
+                {formatNumber(stats.activeLearners)} Active Learners
               </Badge>
               <Badge variant="outline" className="px-3 py-1">
                 <Award className="w-4 h-4 mr-1" />
-                {stats.certificationsAvailable.toLocaleString()} Certifications Available
+                {formatNumber(stats.certificationsAvailable)} Certifications Available
               </Badge>
             </div>
           </div>
@@ -381,7 +382,7 @@ const FleetTrainingAcademy: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-blue-100">Courses Completed</p>
-                    <p className="text-sm font-bold">{stats.coursesCompleted.toLocaleString()}</p>
+                    <p className="text-sm font-bold">{formatNumber(stats.coursesCompleted)}</p>
                   </div>
                   <CheckCircle2 className="w-4 h-4 text-blue-200" />
                 </div>
@@ -393,7 +394,7 @@ const FleetTrainingAcademy: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-green-100">Certifications Earned</p>
-                    <p className="text-sm font-bold">{stats.certificationsEarned.toLocaleString()}</p>
+                    <p className="text-sm font-bold">{formatNumber(stats.certificationsEarned)}</p>
                   </div>
                   <Award className="w-4 h-4 text-green-200" />
                 </div>
@@ -417,7 +418,7 @@ const FleetTrainingAcademy: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-purple-100">Learning Hours</p>
-                    <p className="text-sm font-bold">{stats.learningHours.toLocaleString()}</p>
+                    <p className="text-sm font-bold">{formatNumber(stats.learningHours)}</p>
                   </div>
                   <Clock className="w-4 h-4 text-purple-200" />
                 </div>
@@ -522,7 +523,7 @@ const FleetTrainingAcademy: React.FC = () => {
                     </div>
                     <div className="flex items-center">
                       <Users className="w-4 h-4 mr-1" />
-                      {course.enrolledUsers.toLocaleString()}
+                      {formatNumber(course.enrolledUsers)}
                     </div>
                     <div className="flex items-center">
                       <Star className="w-4 h-4 mr-1 fill-yellow-400 text-yellow-400" />
@@ -664,7 +665,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Enrolled:</span>
-                                  <span>{course.enrolledUsers.toLocaleString()}</span>
+                                  <span>{formatNumber(course.enrolledUsers)}</span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Rating:</span>

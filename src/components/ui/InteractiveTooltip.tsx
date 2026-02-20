@@ -9,6 +9,7 @@ import {
 } from "./tooltip";
 
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/utils/format-helpers";
 
 /**
  * InteractiveTooltip - Rich tooltips with vehicle data and interactive elements
@@ -344,7 +345,7 @@ function formatRelativeTime(date: Date): string {
   } else if (diffHours < 24) {
     return `${diffHours}h ago`;
   } else {
-    return date.toLocaleDateString();
+    return formatDate(date);
   }
 }
 

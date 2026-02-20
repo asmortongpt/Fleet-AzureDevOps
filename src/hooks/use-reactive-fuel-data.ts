@@ -23,6 +23,7 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 // ============================================================================
@@ -410,13 +411,13 @@ export function detectFuelExceptions(transaction: FuelTransaction, params: {
   if (params.average_cost_per_gallon) {
     const priceVariance = ((transaction.cost_per_gallon - params.average_cost_per_gallon) / params.average_cost_per_gallon) * 100
     if (priceVariance > 15) {
-      reasons.push(`High price: $${transaction.cost_per_gallon} vs avg $${params.average_cost_per_gallon}`)
+      reasons.push(`High price: ${formatCurrency(transaction.cost_per_gallon)} vs avg ${formatCurrency(params.average_cost_per_gallon)}`)
     }
   }
 
   // Daily spend limit check
   if (params.max_daily_spend && transaction.total_cost > params.max_daily_spend) {
-    reasons.push(`Exceeds daily limit: $${transaction.total_cost} > $${params.max_daily_spend}`)
+    reasons.push(`Exceeds daily limit: ${formatCurrency(transaction.total_cost)} > ${formatCurrency(params.max_daily_spend)}`)
   }
 
   // Weekend fueling (potential unauthorized use)

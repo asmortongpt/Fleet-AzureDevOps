@@ -141,15 +141,15 @@ export function DamageAnalysisResults({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
             <div>
               <p className="text-gray-700">Make</p>
-              <p className="font-medium">{analysis.vehicleInfo.make || 'Unknown'}</p>
+              <p className="font-medium">{analysis.vehicleInfo.make || '—'}</p>
             </div>
             <div>
               <p className="text-gray-700">Model</p>
-              <p className="font-medium">{analysis.vehicleInfo.model || 'Unknown'}</p>
+              <p className="font-medium">{analysis.vehicleInfo.model || '—'}</p>
             </div>
             <div>
               <p className="text-gray-700">Year</p>
-              <p className="font-medium">{analysis.vehicleInfo.year || 'Unknown'}</p>
+              <p className="font-medium">{analysis.vehicleInfo.year || '—'}</p>
             </div>
             <div>
               <p className="text-gray-700">Color</p>

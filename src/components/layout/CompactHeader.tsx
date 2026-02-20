@@ -10,19 +10,19 @@ import { useCallback } from 'react'
 import { useAuth } from '@/contexts'
 import { usePanel } from '@/contexts/PanelContext'
 
-/** CTA square logo mark - navy bg, white CTA text, dawn gradient bar */
+/** CTA square logo mark - charcoal bg, white CTA text, skyline gradient bar */
 export function CTAMark({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-      <rect width="32" height="32" rx="6" fill="#1A1847" />
+      <rect width="32" height="32" rx="6" fill="#242424" />
       <text x="16" y="20" fill="white" fontSize="11" fontWeight="800" fontFamily="system-ui, -apple-system, 'Segoe UI', sans-serif" textAnchor="middle" letterSpacing="0.5">
         CTA
       </text>
       <rect x="6" y="24" width="20" height="2.5" rx="1" fill="url(#ctaDawn)" />
       <defs>
         <linearGradient id="ctaDawn" x1="6" y1="25" x2="26" y2="25" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#F0A000" />
-          <stop offset="1" stopColor="#DD3903" />
+          <stop stopColor="rgba(255,255,255,0.6)" />
+          <stop offset="1" stopColor="rgba(255,255,255,0.2)" />
         </linearGradient>
       </defs>
     </svg>
@@ -40,13 +40,13 @@ export function CompactHeader() {
   return (
     <header className="relative shrink-0 z-20">
       {/* Main header bar */}
-      <div className="flex items-center justify-between h-11 sm:h-12 px-3 sm:px-4 bg-[#1A1847]">
+      <div className="flex items-center justify-between h-11 sm:h-12 px-3 sm:px-4 bg-[#1a1a1a]">
         {/* Left: CTA Logo + Fleet label */}
         <div className="flex items-center gap-2 shrink-0">
           <CTAMark className="w-7 h-7 sm:w-8 sm:h-8" />
           <div className="hidden sm:flex items-center gap-2">
-            <span className="text-white font-bold text-sm tracking-wide">CTA Fleet</span>
-            <span className="text-white/40 text-[10px] font-medium tracking-widest uppercase hidden lg:inline">Intelligent Performance</span>
+            <span className="text-white font-bold text-sm tracking-wide" style={{ fontFamily: '"Cinzel", Georgia, serif' }}>ArchonY</span>
+            <span className="text-white/40 text-[10px] font-medium tracking-widest uppercase hidden lg:inline">Fleet Command</span>
           </div>
         </div>
 
@@ -70,22 +70,22 @@ export function CompactHeader() {
             className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-all relative"
           >
             <Bell className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#F0A000] ring-2 ring-[#1A1847]" />
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-white ring-2 ring-[#1a1a1a]" />
           </button>
 
           <button
             aria-label="User profile"
             className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden"
           >
-            <div className="w-full h-full bg-gradient-to-br from-[#2F3359] to-[#1A1847] flex items-center justify-center rounded-lg border border-white/10">
+            <div className="w-full h-full bg-gradient-to-br from-[#333] to-[#1a1a1a] flex items-center justify-center rounded-lg border border-white/10">
               <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/60" />
             </div>
           </button>
         </div>
       </div>
 
-      {/* Dawn gradient accent bar */}
-      <div className="h-[2px] bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903]" />
+      {/* Skyline gradient accent bar */}
+      <div className="h-[2px]" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.4), rgba(255,255,255,0.1))' }} />
     </header>
   )
 }

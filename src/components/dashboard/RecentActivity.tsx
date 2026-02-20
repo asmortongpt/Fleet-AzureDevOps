@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 type TimeWindow = '5m' | '1h' | '24h';
@@ -268,7 +269,7 @@ export function RecentActivity({ className }: RecentActivityProps) {
                           {event.trend && trendIcons[event.trend]}
                         </div>
                         <span className="text-xs text-muted-foreground">
-                          {new Date(event.timestamp).toLocaleTimeString()}
+                          {formatTime(event.timestamp)}
                         </span>
                       </div>
 

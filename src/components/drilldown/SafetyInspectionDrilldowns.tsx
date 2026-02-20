@@ -33,6 +33,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
 
 const fetcher = (url: string) =>
   fetch(url)
@@ -125,7 +127,7 @@ export function InspectionsMatrixView() {
       header: 'Date',
       cell: ({ row }) => (
         <div>
-          <div>{new Date(row.original.date).toLocaleDateString()}</div>
+          <div>{formatDate(row.original.date)}</div>
           {row.original.time && (
             <div className="text-xs text-muted-foreground">{row.original.time}</div>
           )}
@@ -154,8 +156,8 @@ export function InspectionsMatrixView() {
             {result === 'passed' && <CheckCircle className="w-4 h-4 text-green-500" />}
             {result === 'failed' && <XCircle className="w-4 h-4 text-red-500" />}
             {result === 'conditional' && <AlertTriangle className="w-4 h-4 text-yellow-500" />}
-            <Badge variant={variant} className="capitalize">
-              {result}
+            <Badge variant={variant}>
+              {formatEnum(result)}
             </Badge>
           </div>
         )
@@ -225,7 +227,7 @@ export function InspectionsMatrixView() {
 
         return (
           <div>
-            <div>{dueDate.toLocaleDateString()}</div>
+            <div>{formatDate(dueDate)}</div>
             {daysUntil <= 7 && daysUntil > 0 && (
               <div className="text-xs text-amber-500 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
@@ -262,7 +264,7 @@ export function InspectionsMatrixView() {
 
     const csvData = filteredData.map((inspection) => [
       inspection.inspection_number,
-      new Date(inspection.date).toLocaleDateString(),
+      formatDate(inspection.date),
       inspection.time || '',
       inspection.vehicle_name || '',
       inspection.inspector_name,
@@ -271,7 +273,7 @@ export function InspectionsMatrixView() {
       inspection.violations.toString(),
       inspection.critical_items.toString(),
       inspection.status,
-      inspection.next_due ? new Date(inspection.next_due).toLocaleDateString() : '',
+      inspection.next_due ? formatDate(inspection.next_due) : '',
     ])
 
     const csv = [headers, ...csvData].map((row) => row.join(',')).join('\n')
@@ -481,15 +483,15 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
             <div className="space-y-1">
               <h3 className="text-sm font-bold">Inspection #{inspection.inspection_number}</h3>
               <p className="text-sm text-muted-foreground">
-                {new Date(inspection.date).toLocaleDateString()}{' '}
+                {formatDate(inspection.date)}{' '}
                 {inspection.time && `at ${inspection.time}`}
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusColor(inspection.result)} className="capitalize">
-                  {inspection.result}
+                <Badge variant={getStatusColor(inspection.result)}>
+                  {formatEnum(inspection.result)}
                 </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {inspection.type.replace('-', ' ')}
+                <Badge variant="outline">
+                  {formatEnum(inspection.type)}
                 </Badge>
                 {inspection.score && (
                   <Badge variant={inspection.score >= 90 ? 'secondary' : 'default'}>
@@ -530,7 +532,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
               <CardContent>
                 <div className="text-sm font-bold">
                   {inspection.next_due
-                    ? new Date(inspection.next_due).toLocaleDateString()
+                    ? formatDate(inspection.next_due)
                     : 'Not scheduled'}
                 </div>
                 {inspection.next_due && (
@@ -597,11 +599,11 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Location</p>
-                  <p className="font-medium">{inspection.location || 'N/A'}</p>
+                  <p className="font-medium">{inspection.location || '—'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Inspection Type</p>
-                  <p className="font-medium capitalize">{inspection.type.replace('-', ' ')}</p>
+                  <p className="font-medium">{formatEnum(inspection.type)}</p>
                 </div>
                 {inspection.certification_number && (
                   <div>
@@ -671,13 +673,13 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                                 <div className="flex items-center gap-1">
                                   <Calendar className="h-3 w-3" />
                                   <span>
-                                    Due: {new Date(violation.due_date).toLocaleDateString()}
+                                    Due: {formatDate(violation.due_date)}
                                   </span>
                                 </div>
                               )}
                               {violation.cost_to_fix && (
                                 <div className="flex items-center gap-1">
-                                  <span>Est. Cost: ${violation.cost_to_fix.toFixed(2)}</span>
+                                  <span>Est. Cost: {formatCurrency(violation.cost_to_fix)}</span>
                                 </div>
                               )}
                             </div>
@@ -688,7 +690,7 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                           <div className="pt-2 border-t text-sm">
                             <span className="text-muted-foreground">Resolved on </span>
                             <span className="font-medium">
-                              {new Date(violation.resolved_date).toLocaleDateString()}
+                              {formatDate(violation.resolved_date)}
                             </span>
                             {violation.resolved_by && (
                               <span className="text-muted-foreground"> by {violation.resolved_by}</span>

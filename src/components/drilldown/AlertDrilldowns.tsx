@@ -24,6 +24,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { swrFetcher } from '@/lib/fetcher'
+import { formatDateTime } from '@/utils/format-helpers'
 
 const fetcher = swrFetcher
 
@@ -174,9 +175,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             </CardHeader>
             <CardContent>
               <p className="text-sm font-semibold">
-                {alertData.triggered_at
-                  ? new Date(alertData.triggered_at).toLocaleString()
-                  : 'N/A'}
+                {formatDateTime(alertData.triggered_at)}
               </p>
               <p className="text-xs text-muted-foreground mt-1">
                 {alertData.triggered_at &&
@@ -198,7 +197,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                   ? `${alertData.duration_minutes} min`
                   : alertData.status === 'active'
                     ? 'Ongoing'
-                    : 'N/A'}
+                    : '—'}
               </p>
             </CardContent>
           </Card>
@@ -226,15 +225,15 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <p className="text-sm text-muted-foreground">Type</p>
-                    <p className="font-medium">{alertData.alert_type || 'N/A'}</p>
+                    <p className="font-medium">{alertData.alert_type || '—'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Category</p>
-                    <p className="font-medium">{alertData.category || 'N/A'}</p>
+                    <p className="font-medium">{alertData.category || '—'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Priority</p>
-                    <p className="font-medium capitalize">{alertData.priority || 'Normal'}</p>
+                    <p className="font-medium">{alertData.priority || 'Normal'}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Auto-Clear</p>
@@ -252,7 +251,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                       <span className="font-semibold">{alertData.threshold_value}</span>
                     </p>
                     <p className="text-xs text-muted-foreground mt-1">
-                      Current value: {alertData.current_value || 'N/A'}
+                      Current value: {alertData.current_value || '—'}
                     </p>
                   </div>
                 )}
@@ -271,7 +270,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Vehicle</p>
-                        <p className="font-medium">{alertData.vehicle_name || 'Unknown'}</p>
+                        <p className="font-medium">{alertData.vehicle_name || '—'}</p>
                       </div>
                       <Button
                         variant="outline"
@@ -296,7 +295,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Driver</p>
-                        <p className="font-medium">{alertData.driver_name || 'Unknown'}</p>
+                        <p className="font-medium">{alertData.driver_name || '—'}</p>
                       </div>
                       <Button
                         variant="outline"
@@ -352,9 +351,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     </div>
                     <p className="text-sm">By: {alertData.acknowledged_by}</p>
                     <p className="text-xs text-muted-foreground">
-                      {alertData.acknowledged_at
-                        ? new Date(alertData.acknowledged_at).toLocaleString()
-                        : ''}
+                      {formatDateTime(alertData.acknowledged_at)}
                     </p>
                   </div>
                 )}
@@ -367,7 +364,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                     </div>
                     <p className="text-sm">By: {alertData.resolved_by}</p>
                     <p className="text-xs text-muted-foreground">
-                      {alertData.resolved_at ? new Date(alertData.resolved_at).toLocaleString() : ''}
+                      {formatDateTime(alertData.resolved_at)}
                     </p>
                     {alertData.resolution_notes && (
                       <p className="text-sm mt-2">{alertData.resolution_notes}</p>
@@ -385,7 +382,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                       {alertData.notifications_sent.map((notification, idx) => (
                         <li key={idx}>
                           {notification.recipient} via {notification.method} at{' '}
-                          {new Date(notification.sent_at).toLocaleString()}
+                          {formatDateTime(notification.sent_at)}
                         </li>
                       ))}
                     </ul>
@@ -435,7 +432,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                       <div className="flex-1">
                         <p className="text-sm font-medium">{activity.action}</p>
                         <p className="text-xs text-muted-foreground">
-                          {activity.user} • {new Date(activity.timestamp).toLocaleString()}
+                          {activity.user} • {formatDateTime(activity.timestamp)}
                         </p>
                         {activity.notes && (
                           <p className="text-xs mt-1">{activity.notes}</p>
@@ -574,7 +571,7 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
                       {alert.category} • Alert #{alert.alert_number}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Triggered {new Date(alert.triggered_at).toLocaleString()}
+                      Triggered {formatDateTime(alert.triggered_at)}
                     </p>
                     {alert.vehicle_name && (
                       <p className="text-xs text-muted-foreground">

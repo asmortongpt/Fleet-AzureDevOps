@@ -30,6 +30,8 @@ import { useVehicles, useFacilities, useDrivers, useVehicleMutations } from "@/h
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import type { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
 
 interface FleetVehicle {
   id: string;
@@ -82,7 +84,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
             </p>
           </div>
           <Badge variant={vehicle.status === 'active' ? 'default' : 'secondary'}>
-            {vehicle.status}
+            {formatEnum(vehicle.status)}
           </Badge>
         </div>
 
@@ -119,7 +121,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
                   <MapPin className="h-3 w-3 mr-1" />
                   Location
                 </div>
-                <div className="text-sm font-medium truncate">{telemetry?.location || "Unknown"}</div>
+                <div className="text-sm font-medium truncate">{telemetry?.location || "—"}</div>
               </div>
             </div>
 
@@ -144,7 +146,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
             {/* Odometer */}
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Odometer</span>
-              <span className="font-medium">{vehicle.mileage?.toLocaleString()} miles</span>
+              <span className="font-medium">{formatNumber(vehicle.mileage ?? 0)} miles</span>
             </div>
           </CardContent>
         </Card>
@@ -161,7 +163,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
                 <span className="text-sm">Driver</span>
               </div>
               <span className="text-sm font-medium">
-                {vehicle.driver || "Unassigned"}
+                {vehicle.driver || "—"}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -200,7 +202,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
             <div className="flex items-center justify-between">
               <span className="text-sm">Last Service</span>
               <span className="text-sm text-muted-foreground">
-                {vehicle.lastServiceDate || "N/A"}
+                {vehicle.lastServiceDate || "—"}
               </span>
             </div>
             {vehicle.maintenanceAlerts && vehicle.maintenanceAlerts.length > 0 && (

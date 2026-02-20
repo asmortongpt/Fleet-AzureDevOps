@@ -56,6 +56,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/contexts';
 import purchaseOrderWorkflowService from '@/features/services/procurement/PurchaseOrderWorkflowService';
+import { formatCurrency } from '@/utils/format-helpers';
 
 // Types for Purchase Order Workflow
 type POStatus = 'DRAFT' | 'SUBMITTED' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'ON_HOLD' | 'CANCELLED' | 'ISSUED' | 'RECEIVED' | 'CLOSED';
@@ -506,7 +507,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                                 color={getPriorityColor(po.priority)}
                               />
                               <Chip
-                                label={`$${po.totalAmount.toLocaleString()}`}
+                                label={formatCurrency(po.totalAmount)}
                                 size="small"
                                 variant="outlined"
                               />
@@ -519,7 +520,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           </Box>
                           <Box sx={{ textAlign: 'right' }}>
                             <Typography variant="h6" color="primary">
-                              ${po.totalAmount.toLocaleString()}
+                              {formatCurrency(po.totalAmount)}
                             </Typography>
                             <Typography variant="caption" color="text.secondary">
                               Due: {format(parseISO(po.requestedDeliveryDate), 'MMM dd, yyyy')}
@@ -633,7 +634,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" fontWeight="medium">
-                        ${po.totalAmount.toLocaleString()}
+                        {formatCurrency(po.totalAmount)}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -760,8 +761,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           {analytics.budgetUtilization.map((dept: BudgetUtilization, index: number) => (
                             <TableRow key={index}>
                               <TableCell>{dept.department}</TableCell>
-                              <TableCell>${dept.budgetAllocated.toLocaleString()}</TableCell>
-                              <TableCell>${dept.budgetUsed.toLocaleString()}</TableCell>
+                              <TableCell>{formatCurrency(dept.budgetAllocated)}</TableCell>
+                              <TableCell>{formatCurrency(dept.budgetUsed)}</TableCell>
                               <TableCell>
                                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                   <LinearProgress
@@ -776,7 +777,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                                 </Box>
                               </TableCell>
                               <TableCell>
-                                ${(dept.budgetAllocated - dept.budgetUsed).toLocaleString()}
+                                {formatCurrency(dept.budgetAllocated - dept.budgetUsed)}
                               </TableCell>
                             </TableRow>
                           ))}
@@ -867,7 +868,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                     <Grid size={{ xs: 6 }}>
                       <Typography variant="body2" color="text.secondary">Total Amount</Typography>
                       <Typography variant="h6" color="primary">
-                        ${selectedPO.totalAmount.toLocaleString()}
+                        {formatCurrency(selectedPO.totalAmount)}
                       </Typography>
                     </Grid>
                     <Grid size={{ xs: 6 }}>
@@ -902,8 +903,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                             <TableCell>{item.partNumber}</TableCell>
                             <TableCell>{item.description}</TableCell>
                             <TableCell>{item.quantity} {item.unitOfMeasure}</TableCell>
-                            <TableCell>${item.unitPrice.toLocaleString()}</TableCell>
-                            <TableCell>${item.totalPrice.toLocaleString()}</TableCell>
+                            <TableCell>{formatCurrency(item.unitPrice)}</TableCell>
+                            <TableCell>{formatCurrency(item.totalPrice)}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>

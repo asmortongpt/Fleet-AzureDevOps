@@ -140,22 +140,22 @@ export function AIAssistantButton({
           className={`
             group relative flex items-center justify-center
             h-14 w-14 rounded-full
-            bg-gradient-to-br from-[#1A1847] via-[#2F3359] to-[#1A1847]
-            text-white shadow-lg shadow-[#1A1847]/30
-            hover:shadow-xl hover:shadow-[#F0A000]/20
+            bg-gradient-to-br from-[#242424] via-[#1F3076] to-[#242424]
+            text-white shadow-lg shadow-[#242424]/30
+            hover:shadow-xl hover:shadow-white/15
             hover:scale-105
             active:scale-95
             transition-all duration-200
-            border border-[#F0A000]/30
+            border border-white/20
             cursor-grab active:cursor-grabbing
             ${className}
           `}
         >
           <Bot className="h-6 w-6 group-hover:scale-110 transition-transform" />
-          {/* Gold accent ring on hover */}
-          <div className="absolute inset-0 rounded-full border-2 border-[#F0A000]/0 group-hover:border-[#F0A000]/50 transition-all duration-300" />
+          {/* White accent ring on hover */}
+          <div className="absolute inset-0 rounded-full border-2 border-white/0 group-hover:border-white/40 transition-all duration-300" />
           {/* Pulse indicator */}
-          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#F0A000] border-2 border-white" />
+          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-white border-2 border-slate-700" />
         </button>
       </motion.div>
 

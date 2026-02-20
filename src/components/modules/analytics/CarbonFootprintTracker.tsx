@@ -22,6 +22,7 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatDate, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
 
@@ -141,12 +142,7 @@ const CarbonFootprintTracker: React.FC = () => {
     }
   };
 
-  const formatNumber = (num: number, decimals: number = 2): string => {
-    return num.toLocaleString(undefined, {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
-    });
-  };
+  // Use formatNumber from @/utils/format-helpers
 
   const formatLargeNumber = (num: number): string => {
     if (num >= 1000) {
@@ -179,7 +175,7 @@ const CarbonFootprintTracker: React.FC = () => {
   const downloadReport = async () => {
     try {
       const doc = new jsPDF();
-      const currentDate = new Date().toLocaleDateString();
+      const currentDate = formatDate(new Date());
 
       // Set up document styling
       doc.setFontSize(20);
@@ -195,10 +191,10 @@ const CarbonFootprintTracker: React.FC = () => {
       doc.setFontSize(11);
       if (summary) {
         const summaryText = [
-          `Total Carbon Saved: ${summary.total_saved_kg.toLocaleString()} kg CO2`,
-          `Total Renewable Energy: ${(summary.total_renewable_kwh ?? 0).toLocaleString()} kWh`,
+          `Total Carbon Saved: ${formatNumber(summary.total_saved_kg)} kg CO2`,
+          `Total Renewable Energy: ${formatNumber(summary.total_renewable_kwh ?? 0)} kWh`,
           `Average Emissions Reduction: ${(summary.avg_saved_percent ?? 0).toFixed(1)}%`,
-          `Total Miles Driven: ${summary.total_miles.toLocaleString()} miles`,
+          `Total Miles Driven: ${formatNumber(summary.total_miles)} miles`,
           `Fleet Efficiency: ${(summary.avg_efficiency_kwh_per_mile ?? 0).toFixed(2)} kWh/mile`
         ];
 
@@ -217,9 +213,9 @@ const CarbonFootprintTracker: React.FC = () => {
       const treesEquivalent = summary ? calculateTreeEquivalent(summary.total_saved_kg) : 0;
       const impactText = [
         `Trees Equivalent: ${treesEquivalent} trees planted`,
-        `Carbon Saved vs ICE Baseline: ${summary?.total_saved_kg.toLocaleString() || 0} kg CO2`,
-        `Renewable Energy Usage: ${(summary?.total_renewable_kwh ?? 0).toLocaleString()} kWh`,
-        `Grid Electricity Usage: ${((summary?.total_kwh || 0) - (summary?.total_renewable_kwh ?? 0)).toLocaleString()} kWh`
+        `Carbon Saved vs ICE Baseline: ${formatNumber(summary?.total_saved_kg ?? 0)} kg CO2`,
+        `Renewable Energy Usage: ${formatNumber(summary?.total_renewable_kwh ?? 0)} kWh`,
+        `Grid Electricity Usage: ${formatNumber((summary?.total_kwh || 0) - (summary?.total_renewable_kwh ?? 0))} kWh`
       ];
 
       let yPos = 115;

@@ -4,6 +4,7 @@ import type { DependencyList } from "react"
 import { useAccessibility } from "@/hooks/useAccessibility"
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { formatEnum } from '@/utils/format-enum';
 import logger from '@/utils/logger';
 // ============================================================================
 // Dependency Validation & Dynamic Imports
@@ -540,7 +541,7 @@ export function LeafletMap({
             })
 
             const marker = Leaflet.marker([lat, lng], { icon })
-              .bindPopup(`<b>${vehicle.name}</b><br/>Status: ${vehicle.status}`)
+              .bindPopup(`<b>${vehicle.name}</b><br/>Status: ${formatEnum(vehicle.status)}`)
               .on('click', () => onMarkerClick?.(vehicle.id, 'vehicle'))
 
             marker.addTo(vehicleLayerRef.current)

@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts';
+import { formatDateTime } from '@/utils/format-helpers';
 
 
 interface DecodedToken {
@@ -263,14 +264,14 @@ export function AuthDebugPanel() {
                           : 'text-green-400'
                       }`}
                     >
-                      {timeToExpiry || 'N/A'}
+                      {timeToExpiry || '—'}
                     </span>
                   </div>
 
                   {tokenInfo.payload.exp && (
                     <div className="text-xs text-slate-400">
                       Expires:{' '}
-                      {new Date(tokenInfo.payload.exp * 1000).toLocaleString()}
+                      {formatDateTime(new Date(tokenInfo.payload.exp * 1000))}
                     </div>
                   )}
                 </div>

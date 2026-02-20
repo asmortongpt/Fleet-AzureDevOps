@@ -588,14 +588,14 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                           <Car className="w-4 h-4 text-slate-500" />
                           <span className="text-sm font-medium">Vehicle</span>
                         </div>
-                        <Badge variant="outline">{statistics.topViolatingVehicle || 'N/A'}</Badge>
+                        <Badge variant="outline">{statistics.topViolatingVehicle || '—'}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-slate-500" />
                           <span className="text-sm font-medium">Driver</span>
                         </div>
-                        <Badge variant="outline">{statistics.topViolatingDriver || 'N/A'}</Badge>
+                        <Badge variant="outline">{statistics.topViolatingDriver || '—'}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -605,7 +605,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                         <Badge variant="outline">
                           {statistics.topViolationType
                             ? VIOLATION_TYPE_LABELS[statistics.topViolationType]
-                            : 'N/A'}
+                            : '—'}
                         </Badge>
                       </div>
                     </>
@@ -741,7 +741,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                     ) : filteredViolations.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={8} className="text-center py-3 text-slate-500">
-                          No violations found
+                          No active violations — fleet is in compliance.
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -755,9 +755,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                           </TableCell>
                           <TableCell>{getSeverityBadge(violation.severity)}</TableCell>
                           <TableCell className="font-mono text-sm">
-                            {violation.vehicleNumber || 'N/A'}
+                            {violation.vehicleNumber || '—'}
                           </TableCell>
-                          <TableCell>{violation.driverName || 'N/A'}</TableCell>
+                          <TableCell>{violation.driverName || '—'}</TableCell>
                           <TableCell className="max-w-xs truncate">
                             {violation.description}
                           </TableCell>
@@ -853,11 +853,11 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-500">Vehicle</label>
-                  <div className="mt-1 font-mono">{selectedViolation.vehicleNumber || 'N/A'}</div>
+                  <div className="mt-1 font-mono">{selectedViolation.vehicleNumber || '—'}</div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-500">Driver</label>
-                  <div className="mt-1">{selectedViolation.driverName || 'N/A'}</div>
+                  <div className="mt-1">{selectedViolation.driverName || '—'}</div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-500">Occurred At</label>

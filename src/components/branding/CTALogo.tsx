@@ -1,6 +1,6 @@
 /**
  * CTA (Capital Technology Alliance) Logo Component
- * Official branding with Navy (#1A1847) + Gold (#F0A000) color scheme
+ * Official branding with Charcoal (#242424) + White (#ffffff) color scheme
  *
  * Features:
  * - Official CTA logo with text
@@ -27,10 +27,10 @@ export function CTALogo({
 }: CTALogoProps) {
   // Official CTA color palette
   const colors = {
-    navy: '#1A1847',        // Official Navy
-    gold: '#F0A000',        // Official Gold
+    navy: '#242424',        // Charcoal
+    gold: '#ffffff',        // White
     white: '#FFFFFF',       // Text color
-    darkGold: '#D88F00',    // Gold hover state
+    darkGold: '#e0e0e0',   // Light gray hover state
   }
 
   // Animation variants

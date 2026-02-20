@@ -34,6 +34,7 @@ import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import { secureFetch } from '@/hooks/use-api'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface AdminUser {
   id: number
@@ -215,7 +216,7 @@ export default function AdminHub() {
         accessorKey: 'loginCount',
         header: 'Logins',
         cell: ({ row }) => (
-          <span className="text-white font-medium">{(row.getValue('loginCount') as number).toLocaleString()}</span>
+          <span className="text-white font-medium">{formatNumber(row.getValue('loginCount') as number)}</span>
         ),
       },
       {
@@ -474,7 +475,7 @@ export default function AdminHub() {
 
           {(!isLoading && adminUsers.length === 0) ? (
             <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
-              No users found. Ensure `/api/users` is populated for this tenant.
+              No users found for this tenant.
             </div>
           ) : (
             <DataTable
@@ -520,7 +521,7 @@ export default function AdminHub() {
 
           {(!isLoading && auditLogs.length === 0) ? (
             <div className="rounded-lg border border-[hsl(var(--primary))]/20 bg-[hsl(var(--card))] p-6 text-sm text-gray-200">
-              No audit logs available. Verify `/api/audit-logs` permissions and data.
+              No audit logs available.
             </div>
           ) : (
             <DataTable

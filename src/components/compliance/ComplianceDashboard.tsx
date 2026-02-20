@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
+import { formatDateTime } from '@/utils/format-helpers'
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then((res) => res.json())
@@ -247,7 +248,7 @@ const AlertPanel: React.FC<{ alerts: ComplianceAlert[] }> = ({ alerts }) => {
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {new Date(alert.timestamp).toLocaleString()}
+                        {formatDateTime(alert.timestamp)}
                       </span>
                       {alert.dueDate && (
                         <span className="flex items-center gap-1">
@@ -343,7 +344,7 @@ const TimelineView: React.FC<{ events: ComplianceEvent[] }> = ({ events }) => {
                   <p className="text-sm text-muted-foreground mb-2">{event.description}</p>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
                     <Clock className="h-3 w-3" />
-                    {new Date(event.timestamp).toLocaleString()}
+                    {formatDateTime(event.timestamp)}
                   </div>
                 </div>
               </div>

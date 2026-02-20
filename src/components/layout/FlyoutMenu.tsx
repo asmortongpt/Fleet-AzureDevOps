@@ -59,7 +59,7 @@ export function FlyoutMenu() {
       >
         {/* Category header */}
         <div className="sticky top-0 bg-background/95 backdrop-blur px-3 pt-3 pb-1.5 lg:px-4 lg:pt-4 lg:pb-2 border-b border-border/50">
-          <h2 className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] text-[#F0A000]/80">
+          <h2 className="text-[10px] lg:text-[11px] font-semibold uppercase tracking-[0.15em] text-white/80">
             {categoryLabels[flyoutCategory]}
           </h2>
         </div>
@@ -73,7 +73,7 @@ export function FlyoutMenu() {
                 className={cn(
                   'w-full text-left px-2.5 py-2 lg:px-3 lg:py-2.5 rounded-lg text-xs lg:text-[13px] transition-all duration-150',
                   'text-muted-foreground hover:text-foreground hover:bg-muted/40',
-                  'focus:outline-none focus:ring-1 focus:ring-[#F0A000]/40',
+                  'focus:outline-none focus:ring-1 focus:ring-white/40',
                 )}
               >
                 {mod.label}

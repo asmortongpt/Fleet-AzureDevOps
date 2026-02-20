@@ -25,8 +25,8 @@ function PanelLoadingFallback() {
     <div className="flex items-center justify-center h-full">
       <div className="flex flex-col items-center gap-3">
         <div className="relative w-8 h-8">
-          <div className="absolute inset-0 border-2 border-[#F0A000]/20 rounded-full" />
-          <div className="absolute inset-0 border-2 border-[#F0A000] border-t-transparent rounded-full animate-spin" />
+          <div className="absolute inset-0 border-2 border-white/10 rounded-full" />
+          <div className="absolute inset-0 border-2 border-white/60 border-t-transparent rounded-full animate-spin" />
         </div>
         <span className="text-xs text-muted-foreground tracking-wider">Loading module...</span>
       </div>
@@ -116,8 +116,8 @@ export function PanelManager() {
         </button>
       </div>
 
-      {/* Dawn gradient accent under panel header */}
-      <div className="h-[1px] bg-gradient-to-r from-[#F0A000]/30 via-[#FF8A00]/20 to-transparent" />
+      {/* Subtle accent under panel header */}
+      <div className="h-px bg-gradient-to-r from-white/10 via-white/5 to-transparent" />
 
       {/* Panel content */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden">

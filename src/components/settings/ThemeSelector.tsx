@@ -158,7 +158,7 @@ export function ThemeSelector({ onThemeChange }: ThemeSelectorProps) {
               </div>
               <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <div className="text-sm font-semibold text-blue-900">
-                  Level: {currentTheme.wcagLevel || 'N/A'}
+                  Level: {currentTheme.wcagLevel || '—'}
                 </div>
               </div>
             </div>

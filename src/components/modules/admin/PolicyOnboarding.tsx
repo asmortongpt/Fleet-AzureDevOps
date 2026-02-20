@@ -37,8 +37,9 @@ import {
   type BottleneckAnalysis
 } from "@/lib/policy-engine/ai-policy-generator"
 import { cn } from "@/lib/utils"
-import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
+import { formatCurrency } from '@/utils/format-helpers'
+import logger from '@/utils/logger';
 
 type OnboardingStep = 'profile' | 'analysis' | 'recommendations' | 'implementation'
 
@@ -636,7 +637,7 @@ export function PolicyOnboarding() {
                     <div>
                       <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Est. Savings</p>
                       <p className="text-base font-bold text-green-600">
-                        ${recommendations.reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0).toLocaleString()}
+                        {formatCurrency(recommendations.reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0))}
                       </p>
                     </div>
                     <DollarSign className="w-4 h-4 text-green-500" />
@@ -848,7 +849,7 @@ export function PolicyOnboarding() {
                             <p className="text-xs font-medium text-green-700">Cost Savings</p>
                           </div>
                           <p className="text-sm font-bold text-green-700">
-                            ${rec.estimatedImpact.costSavings.toLocaleString()}
+                            {formatCurrency(rec.estimatedImpact.costSavings)}
                           </p>
                         </div>
                       )}
@@ -965,10 +966,9 @@ export function PolicyOnboarding() {
                 <div className="p-2 bg-green-50 rounded-lg border border-green-200">
                   <p className="text-sm  mb-1" style={{ color: brandColors.archon.mediumGray }}>Total Est. Savings</p>
                   <p className="text-sm font-bold text-green-600">
-                    ${recommendations
+                    {formatCurrency(recommendations
                       .filter((_, idx) => selectedRecommendations.has(idx))
-                      .reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0)
-                      .toLocaleString()}
+                      .reduce((sum, r) => sum + (r.estimatedImpact.costSavings || 0), 0))}
                   </p>
                 </div>
                 <div className="p-2 bg-blue-50 rounded-lg border border-blue-200">

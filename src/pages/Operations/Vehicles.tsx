@@ -12,19 +12,18 @@
 import {
   Car,
   Plus,
-  MagnifyingGlass,
-  Funnel,
+  Search,
+  Filter,
   Gauge,
-  Drop,
+  Droplet,
   CheckCircle,
-  Trash,
-  PencilSimple,
-  GasPump,
+  Trash2,
+  Pencil,
+  Fuel,
   Wrench,
   Clock
-} from '@phosphor-icons/react';
+} from 'lucide-react';
 import React, { useState, useCallback, useMemo } from 'react';
-// motion removed - React 19 incompatible
 import { toast } from 'react-hot-toast';
 
 import { SplitView ,
@@ -37,6 +36,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useVehicles, useVehicleMutations } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
+import { formatNumber } from '@/utils/format-helpers';
 
 interface Vehicle {
   id: string;
@@ -230,57 +230,57 @@ export function VehiclesOperations() {
   // Render vehicle table row
   const renderVehicleRow = (vehicle: Vehicle) => {
     const isSelected = vehicle.id === selectedVehicleId;
-    const statusLabel = STATUS_OPTIONS.find(s => s.value === vehicle.status?.toLowerCase())?.label || 'Unknown';
+    const statusLabel = STATUS_OPTIONS.find(s => s.value === vehicle.status?.toLowerCase())?.label || '—';
 
     return (
       <div
         key={vehicle.id}
         onClick={() => handleSelectVehicle(vehicle.id)}
         className={cn(
-          'border-b border-slate-700/50 cursor-pointer transition-all duration-200 hover:bg-cyan-400/5',
-          isSelected && 'bg-cyan-400/10 border-l-4 border-l-cyan-400'
+          'border-b border-white/[0.08] cursor-pointer transition-all duration-200 hover:bg-muted-foreground/5',
+          isSelected && 'bg-muted-foreground/10 border-l-4 border-l-muted-foreground'
         )}
       >
         <div className="grid grid-cols-12 gap-4 p-4 items-center text-sm">
           {/* Vehicle Number */}
           <div className="col-span-2">
-            <p className="font-mono font-semibold text-white">{vehicle.vehicle_number || '-'}</p>
-            <p className="text-xs text-slate-700 mt-1">ID: {vehicle.id?.slice(0, 8) || 'N/A'}</p>
+            <p className="font-mono font-semibold text-foreground">{vehicle.vehicle_number || '-'}</p>
+            <p className="text-xs text-muted-foreground mt-1">ID: {vehicle.id?.slice(0, 8) || '—'}</p>
           </div>
 
           {/* Make/Model */}
           <div className="col-span-3">
-            <p className="font-semibold text-white">{vehicle.year || '—'} {vehicle.make || '—'}</p>
-            <p className="text-xs text-slate-700 mt-1">{vehicle.model || 'Unknown Model'}</p>
+            <p className="font-semibold text-foreground">{vehicle.year || '—'} {vehicle.make || '—'}</p>
+            <p className="text-xs text-muted-foreground mt-1">{vehicle.model || 'Unknown Model'}</p>
           </div>
 
           {/* Status */}
           <div className="col-span-2">
             <StatusBadge status={getStatusBadgeType(vehicle.status)} size="sm" />
-            <p className="text-xs text-slate-700 mt-2">{statusLabel}</p>
+            <p className="text-xs text-muted-foreground mt-2">{statusLabel}</p>
           </div>
 
           {/* Mileage */}
           <div className="col-span-2">
-            <div className="flex items-center gap-2 text-slate-300">
-              <Gauge className="w-4 h-4 text-cyan-400" weight="bold" />
-              <span className="font-mono">{(vehicle.mileage || 0).toLocaleString()} mi</span>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Gauge className="w-4 h-4 text-muted-foreground" />
+              <span className="font-mono">{formatNumber(vehicle.mileage || 0)} mi</span>
             </div>
-            <p className="text-xs text-slate-700 mt-1">Current Mileage</p>
+            <p className="text-xs text-muted-foreground mt-1">Current Mileage</p>
           </div>
 
           {/* Fuel Level */}
           <div className="col-span-2">
-            <div className="flex items-center gap-2 text-slate-300">
-              <Drop className="w-4 h-4 text-blue-700" weight="bold" />
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Droplet className="w-4 h-4 text-muted-foreground" />
               <span className="font-mono">{vehicle.fuelLevel || 0}%</span>
             </div>
-            <p className="text-xs text-slate-700 mt-1">Fuel Level</p>
+            <p className="text-xs text-muted-foreground mt-1">Fuel Level</p>
           </div>
 
           {/* License Plate */}
           <div className="col-span-1 text-right">
-            <p className="font-mono font-semibold text-slate-300 text-xs">{vehicle.licensePlate || '—'}</p>
+            <p className="font-mono font-semibold text-muted-foreground text-xs">{vehicle.licensePlate || '—'}</p>
           </div>
         </div>
       </div>
@@ -293,59 +293,59 @@ export function VehiclesOperations() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Vehicle Number */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Vehicle Number
           </label>
           <Input
             value={formData.vehicle_number || ''}
             onChange={(e) => handleFormChange('vehicle_number', e.target.value)}
             placeholder="V-12345"
-            className="bg-slate-700/50 border-slate-600 text-white"
+            className="bg-muted border-white/[0.08] text-foreground"
           />
         </div>
 
         {/* License Plate */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             License Plate *
           </label>
           <Input
             value={formData.licensePlate || ''}
             onChange={(e) => handleFormChange('licensePlate', e.target.value.toUpperCase())}
             placeholder="ABC-1234"
-            className="bg-slate-700/50 border-slate-600 text-white font-mono"
+            className="bg-muted border-white/[0.08] text-foreground font-mono"
           />
         </div>
 
         {/* Make */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Make *
           </label>
           <Input
             value={formData.make || ''}
             onChange={(e) => handleFormChange('make', e.target.value)}
             placeholder="Toyota, Ford, etc."
-            className="bg-slate-700/50 border-slate-600 text-white"
+            className="bg-muted border-white/[0.08] text-foreground"
           />
         </div>
 
         {/* Model */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Model *
           </label>
           <Input
             value={formData.model || ''}
             onChange={(e) => handleFormChange('model', e.target.value)}
             placeholder="Camry, F-150, etc."
-            className="bg-slate-700/50 border-slate-600 text-white"
+            className="bg-muted border-white/[0.08] text-foreground"
           />
         </div>
 
         {/* Year */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Year *
           </label>
           <Input
@@ -353,13 +353,13 @@ export function VehiclesOperations() {
             value={formData.year || ''}
             onChange={(e) => handleFormChange('year', parseInt(e.target.value))}
             placeholder="2024"
-            className="bg-slate-700/50 border-slate-600 text-white"
+            className="bg-muted border-white/[0.08] text-foreground"
           />
         </div>
 
         {/* VIN */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             VIN *
           </label>
           <Input
@@ -367,19 +367,19 @@ export function VehiclesOperations() {
             onChange={(e) => handleFormChange('vin', e.target.value.toUpperCase())}
             placeholder="17-character VIN"
             maxLength={17}
-            className="bg-slate-700/50 border-slate-600 text-white font-mono text-sm"
+            className="bg-muted border-white/[0.08] text-foreground font-mono text-sm"
           />
         </div>
 
         {/* Fuel Type */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Fuel Type *
           </label>
           <select
             value={formData.fuelType || 'Gasoline'}
             onChange={(e) => handleFormChange('fuelType', e.target.value)}
-            className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-md text-white text-sm"
+            className="w-full px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm"
           >
             {FUEL_TYPES.map(type => (
               <option key={type} value={type}>{type}</option>
@@ -389,13 +389,13 @@ export function VehiclesOperations() {
 
         {/* Status */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Status *
           </label>
           <select
             value={formData.status || 'active'}
             onChange={(e) => handleFormChange('status', e.target.value)}
-            className="w-full px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-md text-white text-sm"
+            className="w-full px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm"
           >
             {STATUS_OPTIONS.map(opt => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -405,7 +405,7 @@ export function VehiclesOperations() {
 
         {/* Mileage */}
         <div className="space-y-2">
-          <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+          <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Mileage (miles)
           </label>
           <Input
@@ -413,7 +413,7 @@ export function VehiclesOperations() {
             value={formData.mileage || 0}
             onChange={(e) => handleFormChange('mileage', parseInt(e.target.value) || 0)}
             placeholder="0"
-            className="bg-slate-700/50 border-slate-600 text-white"
+            className="bg-muted border-white/[0.08] text-foreground"
           />
         </div>
       </div>
@@ -425,8 +425,8 @@ export function VehiclesOperations() {
     if (isCreating) {
       return (
         <div className="space-y-4">
-          <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
-            <h4 className="text-sm font-bold text-white mb-4">New Vehicle Registration</h4>
+          <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
+            <h4 className="text-sm font-bold text-foreground mb-4">New Vehicle Registration</h4>
             {renderVehicleForm()}
           </div>
         </div>
@@ -435,91 +435,91 @@ export function VehiclesOperations() {
 
     if (!selectedVehicle) return null;
 
-    const statusLabel = STATUS_OPTIONS.find(s => s.value === selectedVehicle.status?.toLowerCase())?.label || 'Unknown';
+    const statusLabel = STATUS_OPTIONS.find(s => s.value === selectedVehicle.status?.toLowerCase())?.label || '—';
 
     return (
       <div className="space-y-4">
         {/* Vehicle Overview */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
           <div className="flex items-center justify-between mb-4">
-            <h4 className="text-sm font-bold text-white">Fleet Information</h4>
+            <h4 className="text-sm font-bold text-foreground">Fleet Information</h4>
             <StatusBadge status={getStatusBadgeType(selectedVehicle.status)} />
           </div>
 
           {!isEditing ? (
             <div className="space-y-3 text-sm">
               {/* Header Row */}
-              <div className="grid grid-cols-2 gap-4 pb-3 border-b border-slate-700/50">
+              <div className="grid grid-cols-2 gap-4 pb-3 border-b border-white/[0.08]">
                 <div>
-                  <span className="text-slate-700 text-xs">Vehicle Number</span>
-                  <p className="text-white font-mono font-semibold mt-1">{selectedVehicle.vehicle_number || 'N/A'}</p>
+                  <span className="text-muted-foreground text-xs">Vehicle Number</span>
+                  <p className="text-foreground font-mono font-semibold mt-1">{selectedVehicle.vehicle_number || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-700 text-xs">Status</span>
-                  <p className="text-white font-semibold mt-1">{statusLabel}</p>
+                  <span className="text-muted-foreground text-xs">Status</span>
+                  <p className="text-foreground font-semibold mt-1">{statusLabel}</p>
                 </div>
               </div>
 
               {/* Make/Model/Year */}
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <span className="text-slate-700 text-xs">Make</span>
-                  <p className="text-white font-semibold mt-1">{selectedVehicle.make || '—'}</p>
+                  <span className="text-muted-foreground text-xs">Make</span>
+                  <p className="text-foreground font-semibold mt-1">{selectedVehicle.make || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-700 text-xs">Model</span>
-                  <p className="text-white font-semibold mt-1">{selectedVehicle.model || '—'}</p>
+                  <span className="text-muted-foreground text-xs">Model</span>
+                  <p className="text-foreground font-semibold mt-1">{selectedVehicle.model || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-700 text-xs">Year</span>
-                  <p className="text-white font-semibold mt-1">{selectedVehicle.year || '—'}</p>
+                  <span className="text-muted-foreground text-xs">Year</span>
+                  <p className="text-foreground font-semibold mt-1">{selectedVehicle.year || '—'}</p>
                 </div>
               </div>
 
               {/* IDs */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-slate-700 text-xs">VIN</span>
-                  <p className="text-white font-mono text-xs mt-1">{selectedVehicle.vin || 'N/A'}</p>
+                  <span className="text-muted-foreground text-xs">VIN</span>
+                  <p className="text-foreground font-mono text-xs mt-1">{selectedVehicle.vin || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-slate-700 text-xs">License Plate</span>
-                  <p className="text-white font-mono font-semibold mt-1">{selectedVehicle.licensePlate || 'N/A'}</p>
+                  <span className="text-muted-foreground text-xs">License Plate</span>
+                  <p className="text-foreground font-mono font-semibold mt-1">{selectedVehicle.licensePlate || '—'}</p>
                 </div>
               </div>
 
               {/* Operational Data */}
-              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-slate-700/50">
+              <div className="grid grid-cols-2 gap-4 pt-3 border-t border-white/[0.08]">
                 <div>
-                  <span className="text-slate-700 text-xs flex items-center gap-1">
-                    <Gauge className="w-3 h-3" weight="bold" />
+                  <span className="text-muted-foreground text-xs flex items-center gap-1">
+                    <Gauge className="w-3 h-3" />
                     Mileage
                   </span>
-                  <p className="text-white font-mono font-semibold mt-1">{(selectedVehicle.mileage || 0).toLocaleString()} mi</p>
+                  <p className="text-foreground font-mono font-semibold mt-1">{formatNumber(selectedVehicle.mileage || 0)} mi</p>
                 </div>
                 <div>
-                  <span className="text-slate-700 text-xs flex items-center gap-1">
-                    <GasPump className="w-3 h-3" weight="bold" />
+                  <span className="text-muted-foreground text-xs flex items-center gap-1">
+                    <Fuel className="w-3 h-3" />
                     Fuel Type
                   </span>
-                  <p className="text-white font-semibold mt-1">{selectedVehicle.fuelType || 'N/A'}</p>
+                  <p className="text-foreground font-semibold mt-1">{selectedVehicle.fuelType || '—'}</p>
                 </div>
               </div>
 
               {/* Fuel Level */}
               <div>
-                <span className="text-slate-700 text-xs flex items-center gap-1">
-                  <Drop className="w-3 h-3" weight="bold" />
+                <span className="text-muted-foreground text-xs flex items-center gap-1">
+                  <Droplet className="w-3 h-3" />
                   Fuel Level
                 </span>
                 <div className="mt-2 flex items-center gap-3">
-                  <div className="flex-1 bg-slate-700/50 rounded-full h-2 overflow-hidden border border-slate-600">
+                  <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden border border-white/[0.08]">
                     <div
                       className="h-full bg-gradient-to-r from-blue-400 to-blue-500 transition-all"
                       style={{ width: `${Math.min(selectedVehicle.fuelLevel || 0, 100)}%` }}
                     />
                   </div>
-                  <span className="text-white font-mono text-sm min-w-12">{selectedVehicle.fuelLevel || 0}%</span>
+                  <span className="text-foreground font-mono text-sm min-w-12">{selectedVehicle.fuelLevel || 0}%</span>
                 </div>
               </div>
             </div>
@@ -529,20 +529,20 @@ export function VehiclesOperations() {
         {/* Quick Stats */}
         {!isEditing && (
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
-              <Wrench className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
-              <p className="text-xs text-slate-700">Maintenance Due</p>
-              <p className="text-white font-semibold text-sm mt-1">Soon</p>
+            <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-3 text-center">
+              <Wrench className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">Maintenance Due</p>
+              <p className="text-foreground font-semibold text-sm mt-1">Soon</p>
             </div>
-            <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
-              <Clock className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
-              <p className="text-xs text-slate-700">Last Service</p>
-              <p className="text-white font-semibold text-sm mt-1">30 days ago</p>
+            <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-3 text-center">
+              <Clock className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">Last Service</p>
+              <p className="text-foreground font-semibold text-sm mt-1">30 days ago</p>
             </div>
-            <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/20 p-3 text-center">
-              <GasPump className="w-4 h-4 text-cyan-400 mx-auto mb-1" weight="bold" />
-              <p className="text-xs text-slate-700">Efficiency</p>
-              <p className="text-white font-semibold text-sm mt-1">18 MPG</p>
+            <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-3 text-center">
+              <Fuel className="w-4 h-4 text-muted-foreground mx-auto mb-1" />
+              <p className="text-xs text-muted-foreground">Efficiency</p>
+              <p className="text-foreground font-semibold text-sm mt-1">18 MPG</p>
             </div>
           </div>
         )}
@@ -561,9 +561,9 @@ export function VehiclesOperations() {
 
         {/* Danger Zone */}
         {!isEditing && (
-          <div className="bg-red-500/10 backdrop-blur-xl rounded-lg border border-red-500/30 p-4">
+          <div className="bg-red-500/10 rounded-lg border border-red-500/30 p-4">
             <h4 className="text-sm font-bold text-red-400 mb-2">Danger Zone</h4>
-            <p className="text-xs text-slate-300 mb-3">
+            <p className="text-xs text-muted-foreground mb-3">
               Permanently remove this vehicle from the fleet. This action cannot be undone.
             </p>
             <Button
@@ -572,7 +572,7 @@ export function VehiclesOperations() {
               size="sm"
               className="border-red-500 text-red-400 hover:bg-red-500/10"
             >
-              <Trash className="w-4 h-4" weight="bold" />
+              <Trash2 className="w-4 h-4" />
               <span className="ml-2">Delete Vehicle</span>
             </Button>
           </div>
@@ -585,25 +585,25 @@ export function VehiclesOperations() {
   const listPanel = (
     <div className="flex flex-col h-full">
       {/* Search and Filters */}
-      <div className="p-4 space-y-3 border-b border-slate-700/50">
+      <div className="p-4 space-y-3 border-b border-white/[0.08]">
         {/* Search */}
         <div className="relative">
-          <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700" weight="bold" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by vehicle #, make, model, or plate..."
-            className="pl-10 bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-700 text-sm"
+            className="pl-10 bg-muted border-white/[0.08] text-foreground placeholder:text-muted-foreground text-sm"
           />
         </div>
 
         {/* Status Filter */}
         <div className="flex items-center gap-2">
-          <Funnel className="w-4 h-4 text-slate-700 flex-shrink-0" weight="bold" />
+          <Filter className="w-4 h-4 text-muted-foreground flex-shrink-0" />
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
-            className="flex-1 px-3 py-2 bg-slate-700/50 border border-slate-600 rounded-md text-white text-sm"
+            className="flex-1 px-3 py-2 bg-muted border border-white/[0.08] rounded-md text-foreground text-sm"
           >
             <option value="all">All Status</option>
             {STATUS_OPTIONS.map(opt => (
@@ -614,7 +614,7 @@ export function VehiclesOperations() {
       </div>
 
       {/* Table Header */}
-      <div className="hidden lg:grid grid-cols-12 gap-4 px-4 py-3 bg-slate-800/50 border-b border-slate-700/50 text-xs font-semibold text-slate-700 uppercase tracking-wider">
+      <div className="hidden lg:grid grid-cols-12 gap-4 px-4 py-3 bg-[#242424] border-b border-white/[0.08] text-xs font-semibold text-muted-foreground uppercase tracking-wider">
         <div className="col-span-2">Vehicle #</div>
         <div className="col-span-3">Make / Model</div>
         <div className="col-span-2">Status</div>
@@ -627,12 +627,12 @@ export function VehiclesOperations() {
       <div className="flex-1 overflow-y-auto">
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="animate-spin w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full" />
+            <div className="animate-spin w-8 h-8 border-4 border-muted-foreground border-t-transparent rounded-full" />
           </div>
         ) : filteredVehicles.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center p-4">
-            <Car className="w-12 h-12 text-slate-600 mb-3" weight="bold" />
-            <p className="text-sm font-semibold text-slate-700">No vehicles found</p>
+            <Car className="w-12 h-12 text-slate-600 mb-3" />
+            <p className="text-sm font-semibold text-muted-foreground">No vehicles found</p>
             <p className="text-xs text-slate-500 mt-1">
               {searchQuery || filterStatus !== 'all'
                 ? 'Try adjusting your search or filters'
@@ -661,9 +661,9 @@ export function VehiclesOperations() {
             <Button
               onClick={handleCreateNew}
               size="sm"
-              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-[0_0_15px_hsl(var(--chart-5)/0.3)]"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold"
             >
-              <Plus className="w-4 h-4" weight="bold" />
+              <Plus className="w-4 h-4" />
               <span className="ml-2">Add Vehicle</span>
             </Button>
           )
@@ -676,7 +676,7 @@ export function VehiclesOperations() {
                   : `${selectedVehicle?.year || '—'} ${selectedVehicle?.make || '—'} ${selectedVehicle?.model || '—'}`,
                 subtitle: isCreating
                   ? 'Complete vehicle details'
-                  : `${selectedVehicle?.vehicle_number || 'N/A'} • ${selectedVehicle?.licensePlate || 'No plate'}`,
+                  : `${selectedVehicle?.vehicle_number || '—'} • ${selectedVehicle?.licensePlate || 'No plate'}`,
                 content: detailContent(),
                 onClose: handleCloseDetail,
                 actions: isCreating ? (
@@ -699,7 +699,7 @@ export function VehiclesOperations() {
                   </div>
                 ) : (
                   <ActionButton
-                    icon={<PencilSimple />}
+                    icon={<Pencil />}
                     label="Edit"
                     onClick={handleEdit}
                     variant="default"

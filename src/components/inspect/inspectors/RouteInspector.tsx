@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from "@/lib/api-client";
+import { formatDate, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface RouteInspectorProps {
   id: string;
@@ -204,7 +205,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                 )}
                 <div>
                   <dt className="text-sm text-slate-700">Created</dt>
-                  <dd className="font-medium">{new Date(route.createdAt).toLocaleDateString()}</dd>
+                  <dd className="font-medium">{formatDate(route.createdAt)}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-slate-700">Status</dt>
@@ -253,7 +254,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                       {stop.location.latitude.toFixed(6)}, {stop.location.longitude.toFixed(6)}
                     </p>
                     <p className="text-xs text-gray-700 mt-2">
-                      Est. Arrival: {new Date(stop.estimatedArrival).toLocaleTimeString()}
+                      Est. Arrival: {formatTime(stop.estimatedArrival)}
                     </p>
                   </div>
                 </div>

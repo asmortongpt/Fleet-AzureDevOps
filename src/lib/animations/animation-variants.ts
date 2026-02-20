@@ -226,9 +226,9 @@ export const pulseVariants: Variants = {
 export const glowVariants: Variants = {
   animate: {
     boxShadow: [
-      '0 0 5px rgba(240, 160, 0, 0)',
-      '0 0 20px rgba(240, 160, 0, 0.5)',
-      '0 0 5px rgba(240, 160, 0, 0)',
+      '0 0 5px rgba(255, 255, 255, 0)',
+      '0 0 20px rgba(255, 255, 255, 0.5)',
+      '0 0 5px rgba(255, 255, 255, 0)',
     ],
     transition: {
       duration: 2,

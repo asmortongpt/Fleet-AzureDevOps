@@ -26,6 +26,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { damageReportsApi, DamageReport } from '@/services/damageReportsApi'
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 
 export function DamageReportDetails() {
   const { id } = useParams<{ id: string }>()
@@ -225,7 +226,7 @@ export function DamageReportDetails() {
                   <div className="flex items-center gap-2">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <p className="font-medium">
-                      {new Date(report.created_at || '').toLocaleString()}
+                      {formatDateTime(report.created_at || '')}
                     </p>
                   </div>
                 </div>
@@ -233,7 +234,7 @@ export function DamageReportDetails() {
                   <div>
                     <p className="text-sm text-muted-foreground">Last Updated</p>
                     <p className="font-medium">
-                      {new Date(report.updated_at).toLocaleString()}
+                      {formatDateTime(report.updated_at)}
                     </p>
                   </div>
                 )}

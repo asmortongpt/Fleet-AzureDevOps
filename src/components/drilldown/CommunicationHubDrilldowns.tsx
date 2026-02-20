@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
 import { swrFetcher } from '@/lib/fetcher'
 
 // ============================================================================
@@ -828,7 +829,7 @@ export function HistoryDrilldown() {
                         'text-slate-700 border-slate-500'
                       }`}
                     >
-                      {item.status}
+                      {formatEnum(item.status)}
                     </Badge>
                     <ArrowRight className="w-4 h-4 text-slate-600" />
                   </div>

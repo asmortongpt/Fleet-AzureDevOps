@@ -39,6 +39,7 @@ import {
   TableRow
 } from '@/components/ui/table';
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface EnvironmentVariable {
   key: string;
@@ -412,7 +413,7 @@ export function SystemConfiguration() {
                       {component.message}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
-                      {component.lastCheck.toLocaleString()}
+                      {formatDateTime(component.lastCheck)}
                     </TableCell>
                   </TableRow>
                 ))}

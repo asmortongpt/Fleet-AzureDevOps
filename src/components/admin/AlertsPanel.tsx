@@ -38,6 +38,7 @@ import {
 } from '@mui/material';
 import React, { useState, useMemo } from 'react';
 
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface Alert {
@@ -164,7 +165,7 @@ const AlertsPanel: React.FC<Props> = ({ alerts = [], loading }) => {
     if (diff < 60000) return 'Just now';
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-    return date.toLocaleDateString();
+    return formatDate(date);
   };
 
   if (loading && alerts.length === 0) {

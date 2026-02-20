@@ -4,6 +4,7 @@ import { useMemo, useRef, useEffect, useState } from "react"
 
 import { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
 
 interface CompactVehicleListProps {
   vehicles: Vehicle[]
@@ -148,7 +149,7 @@ export function CompactVehicleList({
                       <span className="text-[10px] font-semibold">{vehicle.fuelLevel}%</span>
                     </div>
                     <div className={cn("status-badge", getStatusColor(vehicle.status))} data-testid="vehicle-status">
-                      {vehicle.status}
+                      {formatEnum(vehicle.status)}
                     </div>
                     <button
                       data-testid="view-details-btn"

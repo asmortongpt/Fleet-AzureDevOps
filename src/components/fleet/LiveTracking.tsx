@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import type { Vehicle } from "@/types/Vehicle"
+import { formatEnum } from "@/utils/format-enum"
 
 
 interface GpsRecord {
@@ -159,7 +160,7 @@ export default function LiveTracking() {
                     vehicle.status === "active" ? "default" :
                     vehicle.status === "idle" ? "secondary" : "outline"
                   }>
-                    {vehicle.status}
+                    {formatEnum(vehicle.status)}
                   </Badge>
                 </div>
               ))

@@ -25,6 +25,7 @@ import { auditSecurityHeaders } from '@/lib/security/headers';
 import { apiRateLimiter } from '@/lib/security/rate-limiter';
 import { auditResourceSRI } from '@/lib/security/sri';
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface SecurityCheck {
   name: string;
@@ -366,7 +367,7 @@ export function SecurityAudit() {
               <h2 className="text-sm font-bold">Security Audit</h2>
               <p className="text-sm text-muted-foreground">
                 {lastAudit
-                  ? `Last audit: ${lastAudit.toLocaleString()}`
+                  ? `Last audit: ${formatDateTime(lastAudit)}`
                   : 'Run security audit to check your application'}
               </p>
             </div>

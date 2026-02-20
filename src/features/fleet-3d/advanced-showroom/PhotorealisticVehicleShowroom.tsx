@@ -3,6 +3,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { RealDataService } from '../../services/RealDataService';
 
 import { secureFetch } from '@/hooks/use-api';
+import { formatEnum } from '@/utils/format-enum';
+import { formatNumber } from '@/utils/format-helpers';
 
 interface PhotorealisticVehicleShowroomProps {
   currentTheme: any;
@@ -87,7 +89,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
 
           const vehicleWithImages: VehicleWithImages = {
             id: String(vehicle.id),
-            make: vehicle.make || 'Unknown',
+            make: vehicle.make || '—',
             model: vehicle.model || 'Vehicle',
             year: vehicle.year || 2023,
             vin: vehicle.vin || '',
@@ -441,9 +443,8 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                     borderRadius: '6px',
                     fontSize: '12px',
                     fontWeight: '600',
-                    textTransform: 'capitalize'
                   }}>
-                    {vehicle.status}
+                    {formatEnum(vehicle.status)}
                   </div>
 
                   {/* VALIDATION & HONESTY LOOP BADGE */}
@@ -550,7 +551,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   }}>
                     <div>VIN: {vehicle.vin ? vehicle.vin.slice(-6) : '—'}</div>
                     <div>Color: {vehicle.color}</div>
-                    <div>Mileage: {vehicle.mileage.toLocaleString()}</div>
+                    <div>Mileage: {formatNumber(vehicle.mileage)}</div>
                     <div>ID: {vehicle.id.substr(0, 8)}</div>
                   </div>
                 </div>
@@ -743,7 +744,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                 { label: 'Model', value: selectedVehicle.model },
                 { label: 'Year', value: selectedVehicle.year.toString() },
                 { label: 'Color', value: selectedVehicle.color },
-                { label: 'Mileage', value: selectedVehicle.mileage.toLocaleString() + ' miles' },
+                { label: 'Mileage', value: formatNumber(selectedVehicle.mileage) + ' miles' },
                 { label: 'Status', value: selectedVehicle.status },
                 { label: 'VIN', value: selectedVehicle.vin },
                 { label: 'Vehicle ID', value: selectedVehicle.id }

@@ -6,6 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Car, MapPin, Wrench } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { formatEnum } from '@/utils/format-enum';
+import { formatNumber } from '@/utils/format-helpers';
+
 import { Dialog } from '@/components/shared/Dialog';
 import { secureFetch } from '@/hooks/use-api';
 
@@ -98,7 +101,7 @@ export const VehicleGrid: React.FC = () => {
           <div
             key={vehicle.id}
             onClick={() => setSelectedVehicle(vehicle)}
-            className="group cursor-pointer cta-card hover:border-[rgba(65,178,227,0.6)] hover:shadow-[0_12px_24px_rgba(6,12,26,0.5)] transition-all duration-200"
+            className="group cursor-pointer cta-card hover:border-[rgba(0,204,254,0.6)] hover:shadow-[0_12px_24px_rgba(6,12,26,0.5)] transition-all duration-200"
             role="button"
             tabIndex={0}
             onKeyDown={(e) => e.key === 'Enter' && setSelectedVehicle(vehicle)}
@@ -106,7 +109,7 @@ export const VehicleGrid: React.FC = () => {
             {/* Status Badge */}
             <div className="flex items-center justify-between mb-3">
               <span className={`px-2 py-1 text-xs font-medium rounded-full border ${statusColors[vehicle.status]} cta-pill`}>
-                {vehicle.status}
+                {formatEnum(vehicle.status)}
               </span>
               <Car className="w-3 h-3 cta-accent transition-colors" />
             </div>
@@ -123,7 +126,7 @@ export const VehicleGrid: React.FC = () => {
             <div className="space-y-2 mt-3 pt-3 border-t border-border">
               <div className="flex items-center gap-2 text-sm">
                 <MapPin className="w-4 h-4 text-muted-foreground" />
-                <span>{vehicle.mileage?.toLocaleString() || 0} mi</span>
+                <span>{formatNumber(vehicle.mileage) || 0} mi</span>
               </div>
             </div>
 
@@ -157,11 +160,11 @@ export const VehicleGrid: React.FC = () => {
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Status</label>
-                <p className="text-sm capitalize">{selectedVehicle.status}</p>
+                <p className="text-sm">{formatEnum(selectedVehicle.status)}</p>
               </div>
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Mileage</label>
-                <p className="text-sm">{selectedVehicle.mileage?.toLocaleString()} mi</p>
+                <p className="text-sm">{formatNumber(selectedVehicle.mileage)} mi</p>
               </div>
             </div>
 
@@ -180,7 +183,7 @@ export const VehicleGrid: React.FC = () => {
                   {maintenanceRecords.slice(0, 5).map((record: any) => (
                     <div key={record.id} className="border border-border rounded-lg p-2">
                       <div className="text-sm font-medium">{record.title || record.description || 'Work Order'}</div>
-                      <div className="text-xs text-muted-foreground">{record.status || 'unknown'}</div>
+                      <div className="text-xs text-muted-foreground">{formatEnum(record.status || 'unknown')}</div>
                     </div>
                   ))}
                 </div>

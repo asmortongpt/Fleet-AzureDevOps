@@ -3,6 +3,7 @@ import { AlertTriangle, Zap, Wrench, Info, Circle, Clock } from "lucide-react"
 import { useMemo } from "react"
 
 import { cn } from "@/lib/utils"
+import { formatDate } from "@/utils/format-helpers"
 
 interface Alert {
   id: string
@@ -67,7 +68,7 @@ export function AlertsFeed({
     if (diffMins < 60) return `${diffMins}m ago`
     if (diffHours < 24) return `${diffHours}h ago`
     if (diffDays < 7) return `${diffDays}d ago`
-    return date.toLocaleDateString()
+    return formatDate(date)
   }
 
   const stats = useMemo(() => {

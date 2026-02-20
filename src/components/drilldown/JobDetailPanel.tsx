@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { formatTime } from '@/utils/format-helpers'
 
 interface JobMatrixData {
   id: string
@@ -105,13 +106,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
     return { active, delayed, completed, pending, total: jobs?.length || 0 }
   }, [jobs])
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
+  // formatTime imported from @/utils/format-helpers
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -184,7 +179,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
       drilldown: {
         recordType: 'driver',
         getRecordId: (job) => job.driverId,
-        getRecordLabel: (job) => job.driverName || 'Unassigned'
+        getRecordLabel: (job) => job.driverName || '—'
       },
       render: (job) => (
         <div className="flex items-center gap-2">
@@ -200,7 +195,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
       drilldown: {
         recordType: 'vehicle',
         getRecordId: (job) => job.vehicleId,
-        getRecordLabel: (job) => job.vehicleName || 'Unassigned'
+        getRecordLabel: (job) => job.vehicleName || '—'
       },
       render: (job) => (
         <div className="flex items-center gap-2">

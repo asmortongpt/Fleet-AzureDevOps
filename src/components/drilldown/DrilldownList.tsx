@@ -21,6 +21,7 @@ import React, { ReactNode, KeyboardEvent } from 'react'
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
 
 export interface DrilldownListItem {
   id: string | number
@@ -289,7 +290,7 @@ export function DrilldownVehicleList({
                 vehicle.status === 'offline' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
               )}
             >
-              {vehicle.status}
+              {formatEnum(vehicle.status)}
             </span>
           )}
         </div>
@@ -357,7 +358,7 @@ export function DrilldownDriverList({
                 driver.status === 'driving' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700'
               )}
             >
-              {driver.status}
+              {formatEnum(driver.status)}
             </span>
           )}
         </div>
@@ -508,7 +509,7 @@ export function DrilldownRecordList({
           </div>
           {showStatus && record.status && (
             <span className="px-2 py-1 text-xs rounded-full bg-muted">
-              {record.status}
+              {formatEnum(record.status)}
             </span>
           )}
         </div>

@@ -27,6 +27,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
 interface PolicyDetailPanelProps {
   policyId: string
@@ -244,11 +246,11 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                 <Badge variant={getPriorityColor(policy.priority)}>
                   {policy.priority} Priority
                 </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {policy.type}
+                <Badge variant="outline">
+                  {formatEnum(policy.type)}
                 </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {policy.enforcement_level}
+                <Badge variant="outline">
+                  {formatEnum(policy.enforcement_level)}
                 </Badge>
               </div>
             </div>
@@ -357,19 +359,17 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Created By</p>
-                      <p className="font-medium">{policy.created_by || 'N/A'}</p>
+                      <p className="font-medium">{policy.created_by || '—'}</p>
                       {policy.created_date && (
                         <p className="text-xs text-muted-foreground">
-                          {new Date(policy.created_date).toLocaleDateString()}
+                          {formatDate(policy.created_date)}
                         </p>
                       )}
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Last Updated</p>
                       <p className="font-medium">
-                        {policy.last_updated
-                          ? new Date(policy.last_updated).toLocaleDateString()
-                          : 'N/A'}
+                        {formatDate(policy.last_updated)}
                       </p>
                     </div>
                   </div>
@@ -388,14 +388,14 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Effective Date</span>
                     <span className="font-medium">
-                      {new Date(policy.effective_date).toLocaleDateString()}
+                      {formatDate(policy.effective_date)}
                     </span>
                   </div>
                   {policy.expiry_date && (
                     <div className="flex items-center justify-between border-t pt-3">
                       <span className="text-sm">Expiry Date</span>
                       <span className={`font-medium ${new Date(policy.expiry_date) < new Date() ? 'text-destructive' : ''}`}>
-                        {new Date(policy.expiry_date).toLocaleDateString()}
+                        {formatDate(policy.expiry_date)}
                       </span>
                     </div>
                   )}
@@ -440,7 +440,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                             </div>
                             <div className="text-right">
                               <p className="text-xs text-muted-foreground">
-                                {new Date(execution.timestamp).toLocaleString()}
+                                {formatDateTime(execution.timestamp)}
                               </p>
                               <Badge variant={execution.result === 'passed' ? 'default' : execution.result === 'failed' ? 'destructive' : 'secondary'}>
                                 {execution.result}
@@ -520,7 +520,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                             </div>
                             <div className="text-right ml-2">
                               <p className="text-xs text-muted-foreground">
-                                {new Date(violation.date).toLocaleDateString()}
+                                {formatDate(violation.date)}
                               </p>
                             </div>
                           </div>
@@ -536,7 +536,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                             <div className="pt-2 border-t">
                               <p className="text-xs text-muted-foreground">Resolved</p>
                               <p className="text-sm">
-                                {new Date(violation.resolution_date).toLocaleDateString()}
+                                {formatDate(violation.resolution_date)}
                               </p>
                               {violation.resolution_notes && (
                                 <p className="text-xs text-muted-foreground mt-1">
@@ -664,7 +664,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                             </Badge>
                             {entity.last_check_date && (
                               <p className="text-xs text-muted-foreground mt-1">
-                                Last check: {new Date(entity.last_check_date).toLocaleDateString()}
+                                Last check: {formatDate(entity.last_check_date)}
                               </p>
                             )}
                           </div>

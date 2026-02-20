@@ -39,6 +39,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate } from '@/utils/format-helpers'
 import {
   useIncidentMutations,
   type Incident,
@@ -350,7 +352,7 @@ export function InvestigationDialog({
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">Date:</span>{' '}
-                {new Date(incident.incident_date).toLocaleDateString()}
+                {formatDate(incident.incident_date)}
               </div>
               <div>
                 <span className="text-muted-foreground">Type:</span>{' '}
@@ -359,7 +361,7 @@ export function InvestigationDialog({
               <div>
                 <span className="text-muted-foreground">Severity:</span>{' '}
                 <Badge variant={incident.severity === 'critical' ? 'destructive' : 'secondary'}>
-                  {incident.severity}
+                  {formatEnum(incident.severity)}
                 </Badge>
               </div>
               <div>

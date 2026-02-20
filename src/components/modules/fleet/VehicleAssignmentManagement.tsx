@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { usePermissions } from '@/hooks/usePermissions';
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // StatusChip Component
@@ -374,7 +375,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                           </td>
                           <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{assignment.department_name}</td>
                           <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>
-                            {new Date(assignment.start_date).toLocaleDateString()}
+                            {formatDate(assignment.start_date)}
                           </td>
                           <td style={{padding:16}}>
                             {(isAdmin || isFleetManager) && assignment.lifecycle_state === 'submitted' && (
@@ -425,7 +426,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, #94a3b8)', marginBottom:4}}>END DATE</div>
                                         <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>
-                                          {assignment.end_date ? new Date(assignment.end_date).toLocaleDateString() : 'Ongoing'}
+                                          {assignment.end_date ? formatDate(assignment.end_date) : 'Ongoing'}
                                         </div>
                                       </div>
                                     </div>

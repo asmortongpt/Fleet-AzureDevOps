@@ -7,6 +7,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
 
+import { formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 // Types
 interface OBD2Data {
@@ -590,7 +591,7 @@ const GaugeCard: React.FC<GaugeCardProps> = ({ label, value, unit, max, color })
     <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
       <div className="text-sm text-slate-700 dark:text-gray-700 mb-1">{label}</div>
       <div className="text-sm font-bold text-gray-900 dark:text-white">
-        {typeof value === 'number' ? value.toLocaleString() : value}
+        {typeof value === 'number' ? formatNumber(value) : value}
         <span className="text-sm font-normal text-gray-700 ml-1">{unit}</span>
       </div>
       <div className="mt-2 h-2 bg-gray-200 dark:bg-gray-600 rounded-full overflow-hidden">

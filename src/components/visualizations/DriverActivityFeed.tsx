@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatTime } from '@/utils/format-helpers';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
 
@@ -202,11 +203,7 @@ export function DriverActivityFeed({
                         {driver.lastUpdate ? (
                           <span>
                             Updated{' '}
-                            {driver.lastUpdate.toLocaleTimeString('en-US', {
-                              hour: 'numeric',
-                              minute: '2-digit',
-                              hour12: true
-                            })}
+                            {formatTime(driver.lastUpdate)}
                           </span>
                         ) : (
                           <span>No recent activity</span>

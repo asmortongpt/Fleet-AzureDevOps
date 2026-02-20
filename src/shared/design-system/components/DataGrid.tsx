@@ -133,7 +133,7 @@ export function DataGrid<T extends Record<string, any>>({
     const groups = new Map<string, T[]>()
 
     sortedData.forEach((row) => {
-      const groupValue = String(row[groupBy] ?? 'Unknown')
+      const groupValue = String(row[groupBy] ?? '—')
       if (!groups.has(groupValue)) {
         groups.set(groupValue, [])
       }

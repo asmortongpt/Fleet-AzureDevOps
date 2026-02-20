@@ -16,6 +16,7 @@ import {
   CreatePolicyRequest,
   NotificationSettings
 } from '@/types/trip-usage'
+import { formatCurrency, formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface PersonalUsePolicyConfigProps {
@@ -151,7 +152,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
         return 'Rate per mile is required when charging is enabled'
       }
       if (formData.personal_use_rate_per_mile > IRS_RATE_2025) {
-        return `Rate cannot exceed federal IRS rate ($${IRS_RATE_2025}/mile)`
+        return `Rate cannot exceed federal IRS rate (${formatCurrency(IRS_RATE_2025)}/mile)`
       }
     }
 
@@ -275,7 +276,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
 
     const exampleMiles = 100
     const charge = exampleMiles * formData.personal_use_rate_per_mile
-    return `$${charge.toFixed(2)} (for ${exampleMiles} miles)`
+    return `${formatCurrency(charge)} (for ${exampleMiles} miles)`
   }
 
   if (loading) return <LoadingSpinner />
@@ -316,7 +317,7 @@ export const PersonalUsePolicyConfig: React.FC<PersonalUsePolicyConfigProps> = (
           <Info className="h-4 w-4" />
           <AlertDescription>
             <strong>Current Policy:</strong> Effective since{' '}
-            {new Date(existingPolicy.effective_date).toLocaleDateString()}
+            {formatDate(existingPolicy.effective_date)}
             {hasChanges && ' • You have unsaved changes'}
           </AlertDescription>
         </Alert>

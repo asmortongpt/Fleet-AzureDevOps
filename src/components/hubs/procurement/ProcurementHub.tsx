@@ -22,6 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { formatCurrency } from "@/utils/format-helpers"
 import { usePolicies } from "@/contexts/PolicyContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import {
@@ -30,6 +31,8 @@ import {
   getApprovalRequirements
 } from "@/lib/policy-engine/policy-enforcement"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDate } from "@/utils/format-helpers"
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" }).then((res) => res.json())
@@ -52,7 +55,7 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
         <div>
           <h3 className="text-sm font-semibold">{supplier.name}</h3>
           <Badge variant={supplier.status === 'active' ? 'default' : 'secondary'}>
-            {supplier.status}
+            {formatEnum(supplier.status)}
           </Badge>
         </div>
 
@@ -64,7 +67,7 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Total Spend</div>
-            <div className="font-medium text-sm">${supplier.totalSpend.toLocaleString()}</div>
+            <div className="font-medium text-sm">{formatCurrency(supplier.totalSpend)}</div>
           </Card>
 
           <Card className="p-3">
@@ -74,7 +77,7 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Category</div>
-            <div className="font-medium">{supplier.category}</div>
+            <div className="font-medium">{formatEnum(supplier.category)}</div>
           </Card>
         </div>
 
@@ -89,11 +92,11 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Parts Cost</span>
-                <span className="font-medium">${supplier.woPartsCost.toLocaleString()}</span>
+                <span className="font-medium">{formatCurrency(supplier.woPartsCost)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Labor Cost</span>
-                <span className="font-medium">${supplier.woLaborCost.toLocaleString()}</span>
+                <span className="font-medium">{formatCurrency(supplier.woLaborCost)}</span>
               </div>
             </div>
           </Card>
@@ -152,7 +155,7 @@ const PurchaseOrdersPanel = ({ orders, onOrderSelect }: { orders: any[]; onOrder
                   <Badge variant="outline">{order.items} items</Badge>
                   <Badge variant="secondary">
                     <DollarSign className="h-3 w-3 mr-1" />
-                    ${order.value.toLocaleString()}
+                    {formatCurrency(order.value)}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">ETA: {order.eta}</p>
@@ -236,7 +239,7 @@ const DashboardPanel = ({ suppliers, orders, inventory }: { suppliers: any[]; or
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Total Spend (PO + Work Orders)</p>
-              <p className="text-sm font-bold">${totalSpend.toLocaleString()}</p>
+              <p className="text-sm font-bold">{formatCurrency(totalSpend)}</p>
             </div>
             <DollarSign className="h-8 w-8 text-muted-foreground" />
           </div>
@@ -247,10 +250,10 @@ const DashboardPanel = ({ suppliers, orders, inventory }: { suppliers: any[]; or
             <div>
               <p className="text-sm text-muted-foreground">WO Vendor Costs</p>
               <p className="text-sm font-bold">
-                ${(totalWoPartsCost + totalWoLaborCost).toLocaleString()}
+                {formatCurrency(totalWoPartsCost + totalWoLaborCost)}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Parts: ${totalWoPartsCost.toLocaleString()} / Labor: ${totalWoLaborCost.toLocaleString()}
+                Parts: {formatCurrency(totalWoPartsCost)} / Labor: {formatCurrency(totalWoLaborCost)}
               </p>
             </div>
             <Package className="h-8 w-8 text-muted-foreground" />
@@ -300,7 +303,7 @@ const DashboardPanel = ({ suppliers, orders, inventory }: { suppliers: any[]; or
             ).map(([category, spend]) => (
               <div key={category} className="flex items-center justify-between">
                 <span className="text-sm">{category}</span>
-                <span className="text-sm font-medium">${(spend as number).toLocaleString()}</span>
+                <span className="text-sm font-medium">{formatCurrency(spend as number)}</span>
               </div>
             ))}
           </CardContent>
@@ -385,7 +388,7 @@ export function ProcurementHub() {
         failed: 'processing'
       }
       const status = statusMap[po.status] || 'processing'
-      const eta = po.expectedDeliveryDate ? new Date(po.expectedDeliveryDate).toLocaleDateString() : 'TBD'
+      const eta = formatDate(po.expectedDeliveryDate)
       return {
         id: po.number || po.id,
         supplier: po.vendorName || vendor?.name || 'Vendor',
@@ -434,7 +437,7 @@ export function ProcurementHub() {
         status: supplier.status,
         make: supplier.category,
         model: `${supplier.orderCount} orders`,
-        licensePlate: `$${supplier.totalSpend.toLocaleString()}`,
+        licensePlate: formatCurrency(supplier.totalSpend),
         location: supplier.location,
         fuelLevel: supplier.rating * 20 // Convert 5-star to percentage for display
       }))

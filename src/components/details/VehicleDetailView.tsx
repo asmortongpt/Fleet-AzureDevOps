@@ -2,17 +2,19 @@ import {
   Car, FileText, Wrench, DollarSign, Calendar,
   TrendingUp, AlertTriangle, CheckCircle, XCircle, Clock,
   Gauge, Fuel, ThermometerSun, Activity, Download, ExternalLink,
-  MapPin, Tag, Settings
+  MapPin, Tag, Settings, Info, BarChart3, Users, Zap, Shield
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { secureFetch } from '@/hooks/use-api';
+import { formatEnum } from '@/utils/format-enum';
+import { formatCurrency, formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers';
 
 interface Vehicle {
   id: string;
@@ -152,7 +154,6 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const mileage = v.odometer ?? v.odometer_reading ?? v.odometerMiles ?? v.mileage ?? null;
     const costPerMile = mileage ? totalMaintenance / Number(mileage) : 0;
 
-    // Only return null if there is no data at all
     if (serviceHistory.length === 0 && vehicleFuelCost == null && vehicleRepairCost == null) return null;
 
     return {
@@ -184,8 +185,6 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
   const expectedLifeMiles = v.expected_life_miles ?? v.expectedLifeMiles ?? null;
   const expectedLifeYears = v.expected_life_years ?? v.expectedLifeYears ?? null;
   const exteriorColor = v.exterior_color ?? v.exteriorColor ?? v.color ?? null;
-  const totalFuelCost = v.total_fuel_cost ?? v.totalFuelCost ?? v.fuel_cost ?? v.fuelCost ?? null;
-  const totalRepairCost = v.total_repair_cost ?? v.totalRepairCost ?? v.repair_cost ?? v.repairCost ?? null;
 
   // Check if registration is expiring within 60 days
   const registrationExpiryWarning = useMemo(() => {
@@ -207,13 +206,13 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const lower = type.toLowerCase();
     switch (lower) {
       case 'owned':
-        return <Badge className="bg-green-600 text-white">{type}</Badge>;
+        return <Badge className="bg-emerald-600 text-white">{formatEnum(type)}</Badge>;
       case 'leased':
-        return <Badge className="bg-blue-600 text-white">{type}</Badge>;
+        return <Badge className="bg-blue-600 text-white">{formatEnum(type)}</Badge>;
       case 'rented':
-        return <Badge className="bg-amber-600 text-white">{type}</Badge>;
+        return <Badge className="bg-amber-600 text-white">{formatEnum(type)}</Badge>;
       default:
-        return <Badge variant="secondary">{type}</Badge>;
+        return <Badge variant="secondary">{formatEnum(type)}</Badge>;
     }
   };
 
@@ -223,61 +222,43 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const lower = status.toLowerCase();
     switch (lower) {
       case 'available':
-        return <Badge className="bg-green-500 text-white">{status}</Badge>;
+        return <Badge className="bg-emerald-500 text-white">{formatEnum(status)}</Badge>;
       case 'in_use':
       case 'in use':
-        return <Badge className="bg-blue-500 text-white">{status}</Badge>;
+        return <Badge className="bg-blue-500 text-white">{formatEnum(status)}</Badge>;
       case 'maintenance':
-        return <Badge className="bg-amber-500 text-white">{status}</Badge>;
+        return <Badge className="bg-amber-500 text-white">{formatEnum(status)}</Badge>;
       case 'reserved':
-        return <Badge className="bg-purple-500 text-white">{status}</Badge>;
+        return <Badge className="bg-purple-500 text-white">{formatEnum(status)}</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="secondary">{formatEnum(status)}</Badge>;
     }
   };
 
   // Health score color
   const getHealthScoreColor = (score: number) => {
-    if (score >= 80) return { ring: 'text-green-500', bg: 'stroke-green-500', label: 'Good' };
-    if (score >= 60) return { ring: 'text-yellow-500', bg: 'stroke-yellow-500', label: 'Fair' };
-    return { ring: 'text-red-500', bg: 'stroke-red-500', label: 'Poor' };
+    if (score >= 80) return { bg: 'bg-emerald-500', text: 'text-emerald-400', label: 'Good' };
+    if (score >= 60) return { bg: 'bg-amber-500', text: 'text-amber-400', label: 'Fair' };
+    return { bg: 'bg-rose-500', text: 'text-rose-400', label: 'Poor' };
   };
 
-  // Health score circular gauge component
-  const HealthScoreGauge = ({ score }: { score: number }) => {
+  // Flat horizontal health score bar
+  const HealthScoreBar = ({ score }: { score: number }) => {
     const clampedScore = Math.max(0, Math.min(100, score));
-    const { ring, bg, label } = getHealthScoreColor(clampedScore);
-    const circumference = 2 * Math.PI * 40;
-    const strokeDashoffset = circumference - (clampedScore / 100) * circumference;
+    const { bg, text, label } = getHealthScoreColor(clampedScore);
 
     return (
-      <div className="flex flex-col items-center">
-        <div className="relative w-24 h-24">
-          <svg className="w-24 h-24 -rotate-90" viewBox="0 0 100 100">
-            <circle
-              cx="50" cy="50" r="40"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="8"
-              className="text-gray-200 dark:text-gray-700"
-            />
-            <circle
-              cx="50" cy="50" r="40"
-              fill="none"
-              strokeWidth="8"
-              strokeLinecap="round"
-              className={bg}
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              style={{ transition: 'stroke-dashoffset 0.5s ease' }}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={`text-lg font-bold ${ring}`}>{clampedScore}</span>
-            <span className="text-[10px] text-muted-foreground">/100</span>
-          </div>
+      <div className="w-full">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-xs text-muted-foreground">Health Score</span>
+          <span className={`text-sm font-semibold ${text}`}>{clampedScore}/100 - {label}</span>
         </div>
-        <span className={`text-xs font-medium mt-1 ${ring}`}>{label}</span>
+        <div className="w-full h-2 rounded-full bg-white/[0.08]">
+          <div
+            className={`h-full rounded-full ${bg}`}
+            style={{ width: `${clampedScore}%` }}
+          />
+        </div>
       </div>
     );
   };
@@ -293,7 +274,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const hex = colorMap[colorName.toLowerCase()] || '#9CA3AF';
     return (
       <span
-        className="inline-block w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600 mr-2 align-middle"
+        className="inline-block w-4 h-4 rounded-full border border-white/[0.08] mr-2 align-middle"
         style={{ backgroundColor: hex }}
         title={colorName}
       />
@@ -301,55 +282,135 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
+    const lower = (status || '').toLowerCase();
+    switch (lower) {
       case 'completed':
-        return <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
+        return <Badge variant="default" className="bg-emerald-500"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>;
       case 'scheduled':
         return <Badge variant="secondary"><Clock className="w-3 h-3 mr-1" />Scheduled</Badge>;
       case 'overdue':
         return <Badge variant="destructive"><AlertTriangle className="w-3 h-3 mr-1" />Overdue</Badge>;
       case 'upcoming':
         return <Badge variant="outline"><Calendar className="w-3 h-3 mr-1" />Upcoming</Badge>;
+      case 'in_progress':
+      case 'in progress':
+        return <Badge className="bg-blue-500 text-white"><Activity className="w-3 h-3 mr-1" />In Progress</Badge>;
+      case 'pending':
+        return <Badge className="bg-amber-500 text-white"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
+      case 'cancelled':
+        return <Badge variant="secondary"><XCircle className="w-3 h-3 mr-1" />Cancelled</Badge>;
       default:
-        return <Badge variant="secondary">{status}</Badge>;
+        return <Badge variant="secondary">{formatEnum(status)}</Badge>;
+    }
+  };
+
+  // Detail row helper
+  const DetailRow = ({ label, value, mono = false }: { label: string; value: React.ReactNode; mono?: boolean }) => (
+    <div className="flex justify-between items-center py-1">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className={`text-sm font-medium text-foreground ${mono ? 'font-mono' : ''}`}>{value}</span>
+    </div>
+  );
+
+  // Telemetry gauge card
+  const TelemetryGauge = ({
+    icon: Icon,
+    label,
+    value,
+    unit,
+    max,
+    status
+  }: {
+    icon: React.ComponentType<{ className?: string }>;
+    label: string;
+    value: number | null | undefined;
+    unit: string;
+    max: number;
+    status?: 'normal' | 'warning' | 'critical';
+  }) => {
+    const statusColor = status === 'critical' ? 'text-rose-400' : status === 'warning' ? 'text-amber-400' : 'text-emerald-400';
+    const barColor = status === 'critical' ? 'bg-rose-500' : status === 'warning' ? 'bg-amber-500' : 'bg-emerald-500';
+    const pct = value != null ? Math.min(100, (Number(value) / max) * 100) : 0;
+
+    return (
+      <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <Icon className="w-4 h-4 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">{label}</span>
+        </div>
+        <div className="flex items-baseline gap-1 mb-2">
+          <span className={`text-lg font-semibold font-mono ${value != null ? statusColor : 'text-muted-foreground'}`}>
+            {value != null ? formatNumber(Number(value), label === 'Battery Voltage' ? 1 : 0) : '--'}
+          </span>
+          <span className="text-xs text-muted-foreground">{unit}</span>
+        </div>
+        <div className="w-full h-1.5 rounded-full bg-white/[0.08]">
+          <div
+            className={`h-full rounded-full ${barColor}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+      </div>
+    );
+  };
+
+  // Determine telemetry status thresholds
+  const getTelemetryStatus = (metric: string, value: number | null | undefined): 'normal' | 'warning' | 'critical' => {
+    if (value == null) return 'normal';
+    const n = Number(value);
+    switch (metric) {
+      case 'speed': return n > 85 ? 'critical' : n > 65 ? 'warning' : 'normal';
+      case 'rpm': return n > 6000 ? 'critical' : n > 4500 ? 'warning' : 'normal';
+      case 'fuel': return n < 15 ? 'critical' : n < 30 ? 'warning' : 'normal';
+      case 'engineTemp': return n > 230 ? 'critical' : n > 210 ? 'warning' : 'normal';
+      case 'oilPressure': return n < 20 ? 'critical' : n < 30 ? 'warning' : 'normal';
+      case 'battery': return n < 11.5 ? 'critical' : n < 12.2 ? 'warning' : 'normal';
+      default: return 'normal';
     }
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-gray-50 dark:bg-gray-900">
+    <div className="h-full overflow-y-auto">
       {/* Header Section */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-3">
+      <div className="bg-[#242424] text-white p-4">
         <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <Car className="w-4 h-4" />
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-white/[0.08]">
+                <Car className="w-5 h-5 text-white" />
+              </div>
               <div>
-                <h1 className="text-sm font-bold">{vehicle.make} {vehicle.model}</h1>
-                <p className="text-blue-100">VIN: {vehicle.vin || 'N/A'}</p>
+                <h1 className="text-base font-bold text-white">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
+                <p className="text-xs text-white/60 font-mono">VIN: {vehicle.vin || '--'}</p>
               </div>
             </div>
-            <div className="flex gap-2 mt-2">
+            <div className="grid grid-cols-4 gap-4">
               <div>
-                <p className="text-xs text-blue-200">Year</p>
-                <p className="text-sm font-semibold">{vehicle.year}</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">License Plate</p>
+                <p className="text-sm font-semibold text-white">{vehicle.licensePlate || vehicle.license_plate || '--'}</p>
               </div>
               <div>
-                <p className="text-xs text-blue-200">License Plate</p>
-                <p className="text-sm font-semibold">{vehicle.licensePlate || 'N/A'}</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Odometer</p>
+                <p className="text-sm font-semibold text-white">{odometer != null ? formatNumber(Number(odometer)) + ' mi' : '--'}</p>
               </div>
               <div>
-                <p className="text-xs text-blue-200">Mileage</p>
-                <p className="text-sm font-semibold">{vehicle.mileage?.toLocaleString() || 'N/A'}</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Status</p>
+                <p className="text-sm font-semibold text-white">{formatEnum(vehicle.status)}</p>
               </div>
               <div>
-                <p className="text-xs text-blue-200">Status</p>
-                <p className="text-sm font-semibold">{vehicle.status}</p>
+                <p className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Ownership</p>
+                <p className="text-sm font-semibold text-white">{ownership ? formatEnum(ownership) : '--'}</p>
               </div>
             </div>
+            {healthScore != null && (
+              <div className="mt-3">
+                <HealthScoreBar score={Number(healthScore)} />
+              </div>
+            )}
           </div>
           {onClose && (
-            <Button variant="ghost" onClick={onClose} className="text-white hover:bg-blue-700">
-              <XCircle className="w-3 h-3" />
+            <Button variant="ghost" onClick={onClose} className="text-white/60 hover:text-white hover:bg-white/[0.08]">
+              <XCircle className="w-4 h-4" />
             </Button>
           )}
         </div>
@@ -360,64 +421,51 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid grid-cols-6 w-full mb-3">
             <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="service">Service History</TabsTrigger>
+            <TabsTrigger value="service">Service</TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
-            <TabsTrigger value="telemetry">Live Telemetry</TabsTrigger>
+            <TabsTrigger value="telemetry">Telemetry</TabsTrigger>
             <TabsTrigger value="maintenance">Maintenance</TabsTrigger>
-            <TabsTrigger value="costs">Cost Analysis</TabsTrigger>
+            <TabsTrigger value="costs">Costs</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Vehicle Information</CardTitle>
+          <TabsContent value="overview" className="space-y-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {/* Vehicle Information Card */}
+              <Card className="bg-[#242424] border-white/[0.08]">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                    <Info className="w-4 h-4 text-muted-foreground" />
+                    Vehicle Information
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Make/Model:</span>
-                    <span className="font-medium">{vehicle.make} {vehicle.model}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Year:</span>
-                    <span className="font-medium">{vehicle.year}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">VIN:</span>
-                    <span className="font-mono text-xs">{vehicle.vin || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">License Plate:</span>
-                    <span className="font-medium">{vehicle.licensePlate || vehicle.license_plate || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Color:</span>
-                    <span className="font-medium">{vehicle.color || 'N/A'}</span>
-                  </div>
+                <CardContent className="space-y-1">
+                  <DetailRow label="Make / Model" value={`${vehicle.make} ${vehicle.model}`} />
+                  <DetailRow label="Year" value={vehicle.year} />
+                  <DetailRow label="VIN" value={<span className="font-mono text-xs">{vehicle.vin || '--'}</span>} />
+                  <DetailRow label="License Plate" value={vehicle.licensePlate || vehicle.license_plate || '--'} />
+                  {exteriorColor && (
+                    <DetailRow label="Color" value={
+                      <span className="flex items-center">
+                        <ColorSwatch colorName={exteriorColor} />
+                        {formatEnum(exteriorColor)}
+                      </span>
+                    } />
+                  )}
                   {engineType && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Engine Type:</span>
-                      <span className="font-medium">{engineType}</span>
-                    </div>
+                    <DetailRow label="Engine Type" value={formatEnum(engineType)} />
                   )}
                   {transmission && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Transmission:</span>
-                      <span className="font-medium">{transmission}</span>
-                    </div>
+                    <DetailRow label="Transmission" value={formatEnum(transmission)} />
                   )}
                   {registrationState && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Reg. State:</span>
-                      <span className="font-medium">{registrationState}</span>
-                    </div>
+                    <DetailRow label="Reg. State" value={registrationState} />
                   )}
                   {registrationExpiry && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Reg. Expiry:</span>
-                      <span className="flex items-center gap-1">
-                        <span className="font-medium">{new Date(registrationExpiry).toLocaleDateString()}</span>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-muted-foreground">Reg. Expiry</span>
+                      <span className="flex items-center gap-1.5">
+                        <span className="text-sm font-medium text-foreground">{formatDate(registrationExpiry)}</span>
                         {registrationExpired && (
                           <Badge variant="destructive" className="text-[10px] px-1 py-0">
                             <AlertTriangle className="w-3 h-3 mr-0.5" />Expired
@@ -432,106 +480,115 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     </div>
                   )}
                   {ownership && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Ownership:</span>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-muted-foreground">Ownership</span>
                       {getOwnershipBadge(ownership)}
                     </div>
                   )}
                   {operationalStatus && (
-                    <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Op. Status:</span>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-muted-foreground">Op. Status</span>
                       {getOperationalStatusBadge(operationalStatus)}
                     </div>
                   )}
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Usage Statistics</CardTitle>
+              {/* Usage Statistics Card */}
+              <Card className="bg-[#242424] border-white/[0.08]">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                    <BarChart3 className="w-4 h-4 text-muted-foreground" />
+                    Usage Statistics
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
+                <CardContent className="space-y-1">
                   {healthScore != null && (
-                    <div className="flex justify-center pb-2 border-b border-gray-100 dark:border-gray-800">
-                      <HealthScoreGauge score={Number(healthScore)} />
+                    <div className="pb-2 mb-2 border-b border-white/[0.08]">
+                      <HealthScoreBar score={Number(healthScore)} />
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Odometer:</span>
-                    <span className="font-medium">{odometer != null ? Number(odometer).toLocaleString() + ' mi' : 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fuel Efficiency:</span>
-                    <span className="font-medium">{fuelEfficiency != null ? `${Number(fuelEfficiency).toFixed(1)} MPG` : 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Engine Hours:</span>
-                    <span className="font-medium">{engineHours != null ? `${Number(engineHours).toLocaleString()} hrs` : 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Utilization:</span>
+                  <DetailRow
+                    label="Odometer"
+                    value={odometer != null ? `${formatNumber(Number(odometer))} mi` : '--'}
+                    mono
+                  />
+                  <DetailRow
+                    label="Fuel Efficiency"
+                    value={fuelEfficiency != null ? `${Number(fuelEfficiency).toFixed(1)} MPG` : '--'}
+                    mono
+                  />
+                  <DetailRow
+                    label="Engine Hours"
+                    value={engineHours != null ? `${formatNumber(Number(engineHours))} hrs` : '--'}
+                    mono
+                  />
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-muted-foreground">Utilization</span>
                     {uptimeValue != null ? (
                       <span className="flex items-center gap-2">
-                        <Progress value={Number(uptimeValue)} className="w-16 h-2" />
-                        <span className="font-medium">{Number(uptimeValue).toFixed(0)}%</span>
+                        <div className="w-16 h-2 rounded-full bg-white/[0.08]">
+                          <div
+                            className="h-full rounded-full bg-emerald-500"
+                            style={{ width: `${Math.min(100, Number(uptimeValue))}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium font-mono text-foreground">{Number(uptimeValue).toFixed(0)}%</span>
                       </span>
                     ) : (
-                      <span className="font-medium">N/A</span>
+                      <span className="text-sm font-medium text-muted-foreground">--</span>
                     )}
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm">Current Assignment</CardTitle>
+              {/* Current Assignment Card */}
+              <Card className="bg-[#242424] border-white/[0.08]">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                    <Users className="w-4 h-4 text-muted-foreground" />
+                    Current Assignment
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Driver:</span>
+                <CardContent className="space-y-1">
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-muted-foreground">Driver</span>
                     <Button
                       variant="link"
                       size="sm"
-                      className="h-auto p-0 text-blue-800"
+                      className="h-auto p-0 text-sm font-medium"
                       onClick={() => push({
                         id: `driver-${vehicle.id}`,
                         type: 'driver',
-                        label: vehicle.assignedDriver || vehicle.assigned_driver || 'Unassigned',
+                        label: vehicle.assignedDriver || vehicle.assigned_driver || '--',
                         data: { id: vehicle.id, name: vehicle.assignedDriver || vehicle.assigned_driver }
                       })}
                     >
-                      {vehicle.assignedDriver || vehicle.assigned_driver || 'Unassigned'}
+                      {vehicle.assignedDriver || vehicle.assigned_driver || '--'}
                     </Button>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Department:</span>
-                    <span className="font-medium">{vehicle.department || 'N/A'}</span>
-                  </div>
+                  <DetailRow label="Department" value={formatEnum(vehicle.department) || '--'} />
                   {region && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Region:</span>
-                      <span className="font-medium flex items-center gap-1">
+                    <DetailRow label="Region" value={
+                      <span className="flex items-center gap-1">
                         <MapPin className="w-3 h-3 text-muted-foreground" />
                         {region}
                       </span>
-                    </div>
+                    } />
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Location:</span>
-                    <span className="font-medium">{vehicle.location || 'N/A'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Status:</span>
+                  <DetailRow label="Location" value={vehicle.location || '--'} />
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-muted-foreground">Status</span>
                     {getStatusBadge(vehicle.status)}
                   </div>
                   {tags.length > 0 && (
-                    <div className="pt-2 border-t border-gray-100 dark:border-gray-800">
+                    <div className="pt-2 mt-1 border-t border-white/[0.08]">
                       <span className="text-muted-foreground text-xs flex items-center gap-1 mb-1.5">
                         <Tag className="w-3 h-3" /> Tags
                       </span>
                       <div className="flex flex-wrap gap-1">
                         {tags.map((tag, i) => (
-                          <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0">
+                          <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0 border-white/[0.08]">
                             {tag}
                           </Badge>
                         ))}
@@ -544,10 +601,10 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
             {/* Vehicle Specifications */}
             {(gvwr || seatingCapacity || fuelEfficiency || expectedLifeMiles || expectedLifeYears || exteriorColor) && (
-              <Card className="mt-2">
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Settings className="w-4 h-4" />
+              <Card className="bg-[#242424] border-white/[0.08]">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                    <Settings className="w-4 h-4 text-muted-foreground" />
                     Vehicle Specifications
                   </CardTitle>
                 </CardHeader>
@@ -556,40 +613,40 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                     {exteriorColor && (
                       <div>
                         <span className="text-muted-foreground text-xs block mb-1">Exterior Color</span>
-                        <span className="font-medium flex items-center">
+                        <span className="font-medium text-foreground flex items-center">
                           <ColorSwatch colorName={exteriorColor} />
-                          {exteriorColor}
+                          {formatEnum(exteriorColor)}
                         </span>
                       </div>
                     )}
                     {gvwr != null && (
                       <div>
                         <span className="text-muted-foreground text-xs block mb-1">GVWR</span>
-                        <span className="font-medium">{Number(gvwr).toLocaleString()} lbs</span>
+                        <span className="font-medium text-foreground">{formatNumber(Number(gvwr))} lbs</span>
                       </div>
                     )}
                     {seatingCapacity != null && (
                       <div>
                         <span className="text-muted-foreground text-xs block mb-1">Seating Capacity</span>
-                        <span className="font-medium">{seatingCapacity}</span>
+                        <span className="font-medium text-foreground">{seatingCapacity}</span>
                       </div>
                     )}
                     {fuelEfficiency != null && (
                       <div>
                         <span className="text-muted-foreground text-xs block mb-1">Fuel Efficiency</span>
-                        <span className="font-medium">{Number(fuelEfficiency).toFixed(1)} MPG</span>
+                        <span className="font-medium text-foreground">{Number(fuelEfficiency).toFixed(1)} MPG</span>
                       </div>
                     )}
                     {expectedLifeMiles != null && (
                       <div>
                         <span className="text-muted-foreground text-xs block mb-1">Expected Life (Miles)</span>
-                        <span className="font-medium">{Number(expectedLifeMiles).toLocaleString()} mi</span>
+                        <span className="font-medium text-foreground">{formatNumber(Number(expectedLifeMiles))} mi</span>
                       </div>
                     )}
                     {expectedLifeYears != null && (
                       <div>
                         <span className="text-muted-foreground text-xs block mb-1">Expected Life (Years)</span>
-                        <span className="font-medium">{expectedLifeYears} yrs</span>
+                        <span className="font-medium text-foreground">{expectedLifeYears} yrs</span>
                       </div>
                     )}
                   </div>
@@ -600,171 +657,195 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
           {/* Service History Tab */}
           <TabsContent value="service">
-            <Card>
-              <CardHeader>
-                <CardTitle>Complete Service History</CardTitle>
-                <CardDescription>{serviceHistory.length} service records</CardDescription>
+            <Card className="bg-[#242424] border-white/[0.08]">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                  <Wrench className="w-4 h-4 text-muted-foreground" />
+                  Service History
+                  <span className="text-xs text-muted-foreground font-normal ml-auto">{serviceHistory.length} records</span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {serviceHistory.length === 0 ? (
-                    <div className="text-sm text-muted-foreground">No service history available.</div>
-                  ) : (
-                    serviceHistory.map((service) => (
-                      <div
-                        key={service.id}
-                        className="border rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-                        onClick={() => push({
-                          id: `work-order-${service.id}`,
-                          type: 'work-order',
-                          label: service.description || service.title || 'Work Order',
-                          data: service
-                        })}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Wrench className="w-4 h-4 text-blue-800" />
-                              <h4 className="font-semibold">{service.type || service.category || 'Service'}</h4>
+                {serviceHistory.length === 0 ? (
+                  <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    No records found
+                  </div>
+                ) : (
+                  <div className="max-h-[400px] overflow-y-auto border border-white/[0.08] rounded-lg">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-[#242424] z-10">
+                        <tr className="border-b border-white/[0.08]">
+                          <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Type</th>
+                          <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Description</th>
+                          <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Date</th>
+                          <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Status</th>
+                          <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Technician</th>
+                          <th className="text-right px-3 py-2 text-xs font-medium text-muted-foreground">Cost</th>
+                          <th className="w-8 px-2 py-2"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {serviceHistory.map((service) => (
+                          <tr
+                            key={service.id}
+                            className="border-b border-white/[0.08] cursor-pointer"
+                            onClick={() => push({
+                              id: `work-order-${service.id}`,
+                              type: 'work-order',
+                              label: service.description || service.title || 'Work Order',
+                              data: service
+                            })}
+                          >
+                            <td className="px-3 py-2 font-medium text-foreground">
+                              {formatEnum(service.type || service.category || 'service')}
+                            </td>
+                            <td className="px-3 py-2 text-muted-foreground max-w-[200px] truncate">
+                              {service.description || service.summary || service.title || '--'}
+                            </td>
+                            <td className="px-3 py-2 text-foreground whitespace-nowrap">
+                              {formatDate(service.date || service.created_at)}
+                            </td>
+                            <td className="px-3 py-2">
                               {getStatusBadge(service.status || 'completed')}
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-2">{service.description || service.summary || 'Service record'}</p>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                              <div>
-                                <span className="text-muted-foreground">Date:</span>
-                                <p className="font-medium">{service.date || service.created_at || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Facility:</span>
-                                <p className="font-medium">{service.facility || service.location || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Technician:</span>
-                                <p className="font-medium">{service.technician || service.assigned_to_name || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Cost:</span>
-                                <p className="font-medium">${Number(service.cost || 0).toFixed(2)}</p>
-                              </div>
-                            </div>
-                          </div>
-                          <ExternalLink className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+                            </td>
+                            <td className="px-3 py-2 text-foreground">
+                              {service.technician || service.assigned_to_name || '--'}
+                            </td>
+                            <td className="px-3 py-2 text-right font-mono text-foreground">
+                              {formatCurrency(Number(service.cost || 0))}
+                            </td>
+                            <td className="px-2 py-2">
+                              <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Documents Tab */}
           <TabsContent value="documents">
-            <Card>
-              <CardHeader>
-                <CardTitle>Vehicle Documents</CardTitle>
-                <CardDescription>{documents.length} documents on file</CardDescription>
+            <Card className="bg-[#242424] border-white/[0.08]">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                  <FileText className="w-4 h-4 text-muted-foreground" />
+                  Vehicle Documents
+                  <span className="text-xs text-muted-foreground font-normal ml-auto">{documents.length} on file</span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {documents.length === 0 ? (
-                    <div className="text-sm text-muted-foreground">No documents available.</div>
-                  ) : (
-                    documents.map((doc) => (
+                {documents.length === 0 ? (
+                  <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    No records found
+                  </div>
+                ) : (
+                  <div className="max-h-[400px] overflow-y-auto space-y-2">
+                    {documents.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800"
+                        className="flex items-center justify-between p-3 rounded-lg border border-white/[0.08]"
                       >
                         <div className="flex items-center gap-3">
-                          <FileText className="w-3 h-3 text-blue-800" />
+                          <FileText className="w-4 h-4 text-muted-foreground" />
                           <div>
-                            <p className="font-medium text-sm">{doc.name || doc.title || 'Document'}</p>
+                            <p className="font-medium text-sm text-foreground">{doc.name || doc.title || 'Document'}</p>
                             <p className="text-xs text-muted-foreground">
-                              Uploaded: {doc.date || doc.created_at || 'Unknown'} | Expires: {doc.expires || doc.expires_at || 'N/A'}
+                              Uploaded: {formatDate(doc.date || doc.created_at)} | Expires: {formatDate(doc.expires || doc.expires_at)}
                             </p>
                           </div>
                         </div>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" className="text-muted-foreground">
                           <Download className="w-4 h-4" />
                         </Button>
                       </div>
-                    ))
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Live Telemetry Tab */}
           <TabsContent value="telemetry">
-            <Card>
-              <CardHeader>
-                <CardTitle>Live Vehicle Telemetry</CardTitle>
-                <CardDescription>Last updated: {telemetryData?.lastUpdate || telemetryData?.timestamp || 'Unavailable'}</CardDescription>
+            <Card className="bg-[#242424] border-white/[0.08]">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                  <Zap className="w-4 h-4 text-muted-foreground" />
+                  Live Vehicle Telemetry
+                  <span className="text-xs text-muted-foreground font-normal ml-auto">
+                    Last updated: {telemetryData?.lastUpdate || telemetryData?.timestamp ? formatDateTime(telemetryData.lastUpdate || telemetryData.timestamp) : '--'}
+                  </span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                {telemetryData ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Gauge className="w-3 h-3 text-blue-800" />
-                          <span>Speed</span>
-                        </div>
-                        <span className="font-mono font-medium">{telemetryData.speed ?? telemetryData?.diagnostics?.speed ?? 'N/A'} mph</span>
-                      </div>
-                      <Progress value={Number(telemetryData.speed ?? 0)} max={120} className="w-full" />
+                {telemetryData ? (() => {
+                  const speed = telemetryData.speed ?? telemetryData?.diagnostics?.speed ?? null;
+                  const rpm = telemetryData.rpm ?? telemetryData?.diagnostics?.rpm ?? null;
+                  const fuelLevel = telemetryData.fuelLevel ?? telemetryData?.fuel ?? null;
+                  const engTemp = telemetryData.engineTemp ?? telemetryData?.temperature ?? null;
+                  const oilPressure = telemetryData.oilPressure ?? telemetryData?.diagnostics?.oilPressure ?? null;
+                  const batteryVoltage = telemetryData.batteryVoltage ?? telemetryData?.diagnostics?.batteryVoltage ?? null;
 
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Activity className="w-3 h-3 text-blue-800" />
-                          <span>Engine RPM</span>
-                        </div>
-                        <span className="font-mono font-medium">{telemetryData.rpm ?? telemetryData?.diagnostics?.rpm ?? 'N/A'}</span>
-                      </div>
-                      <Progress value={Number(telemetryData.rpm ?? 0)} max={8000} className="w-full" />
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Fuel className="w-3 h-3 text-blue-800" />
-                          <span>Fuel Level</span>
-                        </div>
-                        <span className="font-mono font-medium">{telemetryData.fuelLevel ?? telemetryData?.fuel ?? 'N/A'}%</span>
-                      </div>
-                      <Progress value={Number(telemetryData.fuelLevel ?? 0)} max={100} className="w-full" />
+                  return (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      <TelemetryGauge
+                        icon={Gauge}
+                        label="Speed"
+                        value={speed}
+                        unit="mph"
+                        max={120}
+                        status={getTelemetryStatus('speed', speed)}
+                      />
+                      <TelemetryGauge
+                        icon={Activity}
+                        label="Engine RPM"
+                        value={rpm}
+                        unit="rpm"
+                        max={8000}
+                        status={getTelemetryStatus('rpm', rpm)}
+                      />
+                      <TelemetryGauge
+                        icon={Fuel}
+                        label="Fuel Level"
+                        value={fuelLevel}
+                        unit="%"
+                        max={100}
+                        status={getTelemetryStatus('fuel', fuelLevel)}
+                      />
+                      <TelemetryGauge
+                        icon={ThermometerSun}
+                        label="Engine Temp"
+                        value={engTemp}
+                        unit="F"
+                        max={300}
+                        status={getTelemetryStatus('engineTemp', engTemp)}
+                      />
+                      <TelemetryGauge
+                        icon={Gauge}
+                        label="Oil Pressure"
+                        value={oilPressure}
+                        unit="psi"
+                        max={100}
+                        status={getTelemetryStatus('oilPressure', oilPressure)}
+                      />
+                      <TelemetryGauge
+                        icon={Zap}
+                        label="Battery Voltage"
+                        value={batteryVoltage}
+                        unit="V"
+                        max={16}
+                        status={getTelemetryStatus('battery', batteryVoltage)}
+                      />
                     </div>
-
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <ThermometerSun className="w-3 h-3 text-blue-800" />
-                          <span>Engine Temperature</span>
-                        </div>
-                        <span className="font-mono font-medium">{telemetryData.engineTemp ?? telemetryData?.temperature ?? 'N/A'}°F</span>
-                      </div>
-                      <Progress value={Number(telemetryData.engineTemp ?? 0)} max={300} className="w-full" />
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Gauge className="w-3 h-3 text-blue-800" />
-                          <span>Oil Pressure</span>
-                        </div>
-                        <span className="font-mono font-medium">{telemetryData.oilPressure ?? telemetryData?.diagnostics?.oilPressure ?? 'N/A'} psi</span>
-                      </div>
-                      <Progress value={Number(telemetryData.oilPressure ?? 0)} max={100} className="w-full" />
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Activity className="w-3 h-3 text-blue-800" />
-                          <span>Battery Voltage</span>
-                        </div>
-                        <span className="font-mono font-medium">{telemetryData.batteryVoltage ?? telemetryData?.diagnostics?.batteryVoltage ?? 'N/A'}V</span>
-                      </div>
-                      <Progress value={Number(telemetryData.batteryVoltage ?? 0)} max={16} className="w-full" />
-                    </div>
+                  );
+                })() : (
+                  <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    No records found
                   </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">No telemetry data available.</div>
                 )}
               </CardContent>
             </Card>
@@ -772,98 +853,118 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
 
           {/* Maintenance Schedule Tab */}
           <TabsContent value="maintenance">
-            <Card>
-              <CardHeader>
-                <CardTitle>Maintenance Schedule</CardTitle>
-                <CardDescription>Upcoming and overdue services</CardDescription>
+            <Card className="bg-[#242424] border-white/[0.08]">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                  <Shield className="w-4 h-4 text-muted-foreground" />
+                  Maintenance Schedule
+                  <span className="text-xs text-muted-foreground font-normal ml-auto">Upcoming and overdue services</span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {maintenanceSchedule.length === 0 ? (
-                    <div className="text-sm text-muted-foreground">No maintenance schedules available.</div>
-                  ) : (
-                    maintenanceSchedule.map((item, index) => (
-                      <div
-                        key={item.id || index}
-                        className="border rounded-lg p-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <Wrench className="w-4 h-4 text-blue-800" />
-                              <h4 className="font-semibold">{item.service || item.name || 'Scheduled Service'}</h4>
+                {maintenanceSchedule.length === 0 ? (
+                  <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    No records found
+                  </div>
+                ) : (
+                  <div className="max-h-[400px] overflow-y-auto border border-white/[0.08] rounded-lg">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 bg-[#242424] z-10">
+                        <tr className="border-b border-white/[0.08]">
+                          <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Service</th>
+                          <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Status</th>
+                          <th className="text-left px-3 py-2 text-xs font-medium text-muted-foreground">Next Due</th>
+                          <th className="text-right px-3 py-2 text-xs font-medium text-muted-foreground">Miles Due</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {maintenanceSchedule.map((item, index) => (
+                          <tr key={item.id || index} className="border-b border-white/[0.08]">
+                            <td className="px-3 py-2 font-medium text-foreground">
+                              {item.service || item.name || 'Scheduled Service'}
+                            </td>
+                            <td className="px-3 py-2">
                               {getStatusBadge(item.status || 'scheduled')}
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
-                              <div>
-                                <span className="text-muted-foreground">Next Due:</span>
-                                <p className="font-medium">{item.nextDue || item.next_due || item.due_date || 'N/A'}</p>
-                              </div>
-                              <div>
-                                <span className="text-muted-foreground">Miles Due:</span>
-                                <p className="font-medium">{Number(item.milesDue || item.miles_due || 0).toLocaleString()} mi</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+                            </td>
+                            <td className="px-3 py-2 text-foreground whitespace-nowrap">
+                              {formatDate(item.nextDue || item.next_due || item.due_date)}
+                            </td>
+                            <td className="px-3 py-2 text-right font-mono text-foreground">
+                              {formatNumber(Number(item.milesDue || item.miles_due || 0))} mi
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
 
           {/* Cost Analysis Tab */}
           <TabsContent value="costs">
-            <Card>
-              <CardHeader>
-                <CardTitle>Cost Analysis</CardTitle>
-                <CardDescription>Lifetime costs and averages</CardDescription>
+            <Card className="bg-[#242424] border-white/[0.08]">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2 text-foreground">
+                  <DollarSign className="w-4 h-4 text-muted-foreground" />
+                  Cost Analysis
+                  <span className="text-xs text-muted-foreground font-normal ml-auto">Lifetime costs and averages</span>
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 {costAnalysis ? (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <DollarSign className="w-3 h-3 text-blue-800" />
-                        <h3 className="font-semibold">Total Costs</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Total Costs Section */}
+                    <div className="rounded-lg border border-white/[0.08] p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <DollarSign className="w-4 h-4 text-muted-foreground" />
+                        <h3 className="text-sm font-semibold text-foreground">Total Costs</h3>
                       </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Maintenance:</span>
-                          <span className="font-mono font-medium">${costAnalysis.totalMaintenance.toFixed(2)}</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.08]">
+                          <span className="text-sm text-muted-foreground">Maintenance</span>
+                          <span className="text-sm font-mono font-semibold text-foreground">{formatCurrency(costAnalysis.totalMaintenance)}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Fuel:</span>
-                          <span className="font-mono font-medium">{costAnalysis.totalFuel == null ? 'N/A' : `$${costAnalysis.totalFuel.toFixed(2)}`}</span>
+                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.08]">
+                          <span className="text-sm text-muted-foreground">Fuel</span>
+                          <span className="text-sm font-mono font-semibold text-foreground">
+                            {costAnalysis.totalFuel != null ? formatCurrency(costAnalysis.totalFuel) : '--'}
+                          </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Repairs:</span>
-                          <span className="font-mono font-medium">{costAnalysis.totalRepairs == null ? 'N/A' : `$${costAnalysis.totalRepairs.toFixed(2)}`}</span>
+                        <div className="flex justify-between items-center py-1.5">
+                          <span className="text-sm text-muted-foreground">Repairs</span>
+                          <span className="text-sm font-mono font-semibold text-foreground">
+                            {costAnalysis.totalRepairs != null ? formatCurrency(costAnalysis.totalRepairs) : '--'}
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="w-3 h-3 text-blue-800" />
-                        <h3 className="font-semibold">Averages</h3>
+                    {/* Averages Section */}
+                    <div className="rounded-lg border border-white/[0.08] p-4">
+                      <div className="flex items-center gap-2 mb-3">
+                        <TrendingUp className="w-4 h-4 text-muted-foreground" />
+                        <h3 className="text-sm font-semibold text-foreground">Averages</h3>
                       </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Monthly Cost:</span>
-                          <span className="font-mono font-medium">{costAnalysis.averageMonthly == null ? 'N/A' : `$${costAnalysis.averageMonthly.toFixed(2)}`}</span>
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center py-1.5 border-b border-white/[0.08]">
+                          <span className="text-sm text-muted-foreground">Monthly Cost</span>
+                          <span className="text-sm font-mono font-semibold text-foreground">
+                            {costAnalysis.averageMonthly != null ? formatCurrency(costAnalysis.averageMonthly) : '--'}
+                          </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Cost per Mile:</span>
-                          <span className="font-mono font-medium">${costAnalysis.costPerMile.toFixed(2)}</span>
+                        <div className="flex justify-between items-center py-1.5">
+                          <span className="text-sm text-muted-foreground">Cost per Mile</span>
+                          <span className="text-sm font-mono font-semibold text-foreground">{formatCurrency(costAnalysis.costPerMile)}</span>
                         </div>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="text-sm text-muted-foreground">No cost data available.</div>
+                  <div className="flex items-center justify-center py-8 text-sm text-muted-foreground">
+                    No records found
+                  </div>
                 )}
               </CardContent>
             </Card>

@@ -5,6 +5,7 @@ import { SortIcon } from "./SortIcon"
 import { FuelRecord, FuelMetrics, SortField, SortDirection } from "./types"
 
 import { MetricCard } from "@/components/MetricCard"
+import { formatCurrency, formatDate, formatNumber } from "@/utils/format-helpers"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -132,7 +133,7 @@ export function FuelTab({ fuelRecords, vehicles }: FuelTabProps) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-2">
         <MetricCard
           title="Total Fuel Cost"
-          value={`$${(fuelMetrics.totalSpent ?? 0).toLocaleString()}`}
+          value={formatCurrency(fuelMetrics.totalSpent ?? 0)}
           subtitle={`last ${dateRange} days`}
           icon={<GasPump className="w-3 h-3" />}
           status="info"
@@ -153,7 +154,7 @@ export function FuelTab({ fuelRecords, vehicles }: FuelTabProps) {
         />
         <MetricCard
           title="Cost per Mile"
-          value={`$${fuelMetrics.costPerMile.toFixed(2)}`}
+          value={formatCurrency(fuelMetrics.costPerMile)}
           subtitle="average"
           icon={<ChartLine className="w-3 h-3" />}
           status="info"
@@ -300,11 +301,11 @@ export function FuelTab({ fuelRecords, vehicles }: FuelTabProps) {
                       <p className="text-sm text-muted-foreground">{record.vehicleName}</p>
                     </td>
                     <td className="p-2">
-                      {new Date(record.date).toLocaleDateString()}
+                      {formatDate(record.date)}
                     </td>
                     <td className="p-2">{(record.gallons ?? 0).toFixed(1)}</td>
-                    <td className="p-2 font-medium">${(record.cost ?? 0).toFixed(2)}</td>
-                    <td className="p-2">{(record.odometer ?? 0).toLocaleString()} mi</td>
+                    <td className="p-2 font-medium">{formatCurrency(record.cost ?? 0)}</td>
+                    <td className="p-2">{formatNumber(record.odometer ?? 0)} mi</td>
                     <td className="p-2">
                       <Badge variant="outline" className="bg-success/10 text-success border-success/20" role="status">
                         {(record.mpg ?? 0).toFixed(1)} MPG

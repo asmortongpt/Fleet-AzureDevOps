@@ -40,6 +40,7 @@ import { API_ENDPOINT_CATEGORIES } from '@/config/endpoints'
 import { useEndpointMonitoring } from '@/hooks/useEndpointMonitoring'
 import { cn } from '@/lib/utils'
 import { EndpointStatus, SocketStatus } from '@/types/endpoint-monitor'
+import { formatTime } from '@/utils/format-helpers'
 
 interface EndpointHealthDashboardProps {
   className?: string
@@ -220,7 +221,7 @@ export function EndpointHealthDashboard({
               {lastCheck && (
                 <div className="flex items-center gap-2 text-sm text-slate-700 dark:text-gray-700">
                   <Clock className="h-4 w-4" />
-                  <span>Last check: {lastCheck.toLocaleTimeString()}</span>
+                  <span>Last check: {formatTime(lastCheck)}</span>
                 </div>
               )}
             </div>
@@ -448,7 +449,7 @@ export function EndpointHealthDashboard({
                                 )}
                                 {endpoint.lastChecked && (
                                   <span className="text-xs text-gray-700 dark:text-gray-700">
-                                    {new Date(endpoint.lastChecked).toLocaleTimeString()}
+                                    {formatTime(endpoint.lastChecked)}
                                   </span>
                                 )}
                               </div>

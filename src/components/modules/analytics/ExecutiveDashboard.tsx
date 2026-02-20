@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatTime, formatNumber } from '@/utils/format-helpers'
 
 interface KPIData {
   totalVehicles: number
@@ -254,7 +255,7 @@ export function ExecutiveDashboard() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm text-muted-foreground">
-            Last updated: {lastUpdated.toLocaleTimeString()}
+            Last updated: {formatTime(lastUpdated)}
           </span>
           <Button
             variant="outline"
@@ -391,7 +392,7 @@ export function ExecutiveDashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Monthly Mileage</p>
-                <p className="text-sm font-bold">{kpis.totalMileageThisMonth.toLocaleString()}</p>
+                <p className="text-sm font-bold">{formatNumber(kpis.totalMileageThisMonth)}</p>
                 <div className="flex items-center gap-1 mt-1">
                   {kpis.mileageChange >= 0 ? (
                     <TrendingUp className="w-4 h-4 text-success" />
@@ -493,7 +494,7 @@ export function ExecutiveDashboard() {
                   <p className="mt-2 text-sm">{insight.message}</p>
                   <div className="flex items-center justify-between mt-2">
                     <p className="text-xs text-muted-foreground">
-                      {new Date(insight.timestamp).toLocaleTimeString()}
+                      {formatTime(insight.timestamp)}
                     </p>
                     <span className="text-xs text-primary">Click to view details →</span>
                   </div>

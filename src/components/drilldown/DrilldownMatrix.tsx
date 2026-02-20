@@ -32,6 +32,7 @@ import React, { useState, useRef, useCallback, KeyboardEvent, MouseEvent } from 
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatDate, formatNumber } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -605,7 +606,7 @@ export function VehicleMatrix({ vehicles, loading, className }: VehicleMatrixPro
       header: 'Mileage',
       width: '100px',
       align: 'right',
-      render: (row) => (row.mileage ? row.mileage.toLocaleString() : '-'),
+      render: (row) => (row.mileage ? formatNumber(row.mileage) : '-'),
     },
     {
       key: 'location',
@@ -721,7 +722,7 @@ export function WorkOrderMatrix({ workOrders, loading, className }: WorkOrderMat
       width: '100px',
       align: 'center',
       render: (row) =>
-        row.dueDate ? new Date(row.dueDate).toLocaleDateString() : '-',
+        row.dueDate ? formatDate(row.dueDate) : '-',
     },
   ]
 
@@ -826,14 +827,14 @@ export function DriverMatrix({ drivers, loading, className }: DriverMatrixProps)
       header: 'Trips',
       width: '80px',
       align: 'right',
-      render: (row) => row.trips?.toLocaleString() || '-',
+      render: (row) => (row.trips != null ? formatNumber(row.trips) : '-'),
     },
     {
       key: 'miles',
       header: 'Miles',
       width: '100px',
       align: 'right',
-      render: (row) => row.miles?.toLocaleString() || '-',
+      render: (row) => (row.miles != null ? formatNumber(row.miles) : '-'),
     },
   ]
 

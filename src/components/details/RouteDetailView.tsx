@@ -72,7 +72,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
     const totalDistance = Number(routeDetails.distance ?? routeDetails.total_distance ?? 0)
     const start = routeDetails.startTime || routeDetails.start_time
     const end = routeDetails.endTime || routeDetails.end_time
-    let totalDuration = 'N/A'
+    let totalDuration = '—'
     if (start && end) {
       const startDate = new Date(start)
       const endDate = new Date(end)
@@ -86,7 +86,7 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
     const stops = Number(routeDetails.stops ?? routeDetails.stop_count ?? 0)
     const fuelUsed = Number(routeDetails.fuel_used ?? 0)
     const fuelEfficiency = Number(routeDetails.fuel_efficiency ?? 0)
-    const idleTime = routeDetails.idle_time || 'N/A'
+    const idleTime = routeDetails.idle_time || '—'
 
     return {
       totalDistance,
@@ -106,11 +106,11 @@ export function RouteDetailView({ route, onClose }: RouteDetailViewProps) {
 
   const events = useMemo(() => {
     return incidents.map((incident: any) => ({
-      time: incident.occurred_at || incident.date || incident.created_at || 'N/A',
+      time: incident.occurred_at || incident.date || incident.created_at || '—',
       type: incident.type || incident.category || 'incident',
       severity: incident.severity || incident.priority || 'info',
       description: incident.title || incident.summary || incident.description || 'Incident',
-      location: incident.location || incident.address || 'N/A'
+      location: incident.location || incident.address || '—'
     }))
   }, [incidents])
 

@@ -28,16 +28,16 @@ export const brandColors = {
   // CTA Brand (Supporting/Accents)
   cta: {
     navy: '#1A1446',     // Headers, CTA backgrounds
-    yellow: '#FFB800',   // Gradient start
-    orange: '#DD3903',   // Links, buttons, accents (NOON)
-    red: '#FF3838',      // Gradient end, warnings
+    yellow: '#e0e0e0',   // Gradient start (neutral gray)
+    orange: '#e0e0e0',   // Links, buttons, accents (neutral gray)
+    red: '#c0c0c0',      // Gradient end (medium gray)
   },
 
-  // CTA Gradient (CSS: linear-gradient(90deg, #FFB800 0%, #DD3903 50%, #FF3838 100%))
+  // CTA Gradient (CSS: linear-gradient(90deg, #ffffff 0%, #e0e0e0 50%, #c0c0c0 100%))
   gradient: {
-    start: '#FFB800',    // Yellow
-    mid: '#DD3903',      // NOON
-    end: '#FF3838',      // Red
+    start: '#ffffff',    // White
+    mid: '#e0e0e0',      // Light gray
+    end: '#c0c0c0',      // Medium gray
   },
 }
 
@@ -111,18 +111,18 @@ export const colors = {
     900: '#7F1D1D',
   },
 
-  // CTA Brand Orange (Accent Color)
+  // CTA Accent (Neutral Gray Scale)
   ctaNoon: {
-    50: '#FEF2EE',
-    100: '#FDE0D5',
-    200: '#FBBFAB',
-    300: '#F89878',
-    400: '#E85A2A',
-    500: '#DD3903', // CTA NOON - Primary accent
-    600: '#C43203',
-    700: '#A82B03',
-    800: '#8C2402',
-    900: '#701D02',
+    50: '#FAFAFA',
+    100: '#F5F5F5',
+    200: '#EEEEEE',
+    300: '#E0E0E0',
+    400: '#BDBDBD',
+    500: '#e0e0e0', // CTA Accent - Neutral gray
+    600: '#9E9E9E',
+    700: '#757575',
+    800: '#616161',
+    900: '#424242',
   },
 
   // CTA Navy (Secondary Brand Color)

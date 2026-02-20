@@ -54,6 +54,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDebounce } from '@/hooks/useDebounce'
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
 import { useBreakpoints } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
 
@@ -148,17 +149,13 @@ function formatCellValue(value: any, type?: CellType): ReactNode {
 
   switch (type) {
     case 'currency':
-      return `$${Number(value).toFixed(2)}`
+      return formatCurrency(Number(value))
     case 'percentage':
       return `${Number(value).toFixed(1)}%`
     case 'date':
-      return new Date(value).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
+      return formatDate(value)
     case 'number':
-      return Number(value).toLocaleString()
+      return formatNumber(Number(value))
     default:
       return String(value)
   }
@@ -776,9 +773,12 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                       >
                         {column.aggregate && aggregates[column.key] !== undefined ? (
                           <div className="text-primary">
-                            {column.type === 'currency' && '$'}
-                            {aggregates[column.key].toLocaleString()}
-                            {column.type === 'percentage' && '%'}
+                            {column.type === 'currency' ? formatCurrency(aggregates[column.key]) : (
+                              <>
+                                {formatNumber(aggregates[column.key])}
+                                {column.type === 'percentage' && '%'}
+                              </>
+                            )}
                           </div>
                         ) : null}
                       </td>

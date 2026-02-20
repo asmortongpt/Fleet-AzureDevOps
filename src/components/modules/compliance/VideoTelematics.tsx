@@ -44,6 +44,7 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { getCsrfToken } from "@/hooks/use-api"
+import { formatDate, formatTime } from "@/utils/format-helpers"
 import { brandColors } from "@/theme/designSystem"
 
 
@@ -471,10 +472,10 @@ export function VideoTelematics() {
                     <TableCell>
                       <div className="text-sm">
                         <div className="font-medium">
-                          {new Date(event.timestamp).toLocaleDateString()}
+                          {formatDate(event.timestamp)}
                         </div>
                         <div className="text-muted-foreground">
-                          {new Date(event.timestamp).toLocaleTimeString()}
+                          {formatTime(event.timestamp)}
                         </div>
                       </div>
                     </TableCell>

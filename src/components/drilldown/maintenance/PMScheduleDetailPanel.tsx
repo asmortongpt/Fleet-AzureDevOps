@@ -27,6 +27,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
 
 
 const fetcher = (url: string) =>
@@ -81,7 +83,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
               </p>
               <div className="flex items-center gap-2">
                 <Badge variant={getStatusVariant(schedule.status)}>
-                  {schedule.status}
+                  {formatEnum(schedule.status)}
                 </Badge>
                 <Badge variant="outline">{schedule.frequency}</Badge>
               </div>
@@ -100,14 +102,14 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
             />
             <DrilldownCard
               title="Current Mileage"
-              value={schedule.currentMileage.toLocaleString()}
+              value={formatNumber(schedule.currentMileage)}
               icon={<Car className="w-3 h-3" />}
               color="primary"
               variant="compact"
             />
             <DrilldownCard
               title="Est. Cost"
-              value={`$${schedule.estimatedCost.toFixed(0)}`}
+              value={formatCurrency(schedule.estimatedCost)}
               icon={<DollarSign className="w-3 h-3" />}
               color="success"
               variant="compact"
@@ -141,12 +143,12 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Next Due Date</p>
-                      <p className="font-medium">{new Date(schedule.nextDueDate).toLocaleDateString()}</p>
+                      <p className="font-medium">{formatDate(schedule.nextDueDate)}</p>
                     </div>
                     {schedule.nextDueMileage && (
                       <div>
                         <p className="text-sm text-muted-foreground">Next Due Mileage</p>
-                        <p className="font-medium">{schedule.nextDueMileage.toLocaleString()} mi</p>
+                        <p className="font-medium">{formatNumber(schedule.nextDueMileage)} mi</p>
                       </div>
                     )}
                   </div>
@@ -157,12 +159,12 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <p className="text-xs text-muted-foreground">Date</p>
-                          <p className="font-medium">{new Date(schedule.lastServiceDate).toLocaleDateString()}</p>
+                          <p className="font-medium">{formatDate(schedule.lastServiceDate)}</p>
                         </div>
                         {schedule.lastServiceMileage && (
                           <div>
                             <p className="text-xs text-muted-foreground">Mileage</p>
-                            <p className="font-medium">{schedule.lastServiceMileage.toLocaleString()} mi</p>
+                            <p className="font-medium">{formatNumber(schedule.lastServiceMileage)} mi</p>
                           </div>
                         )}
                       </div>
@@ -232,22 +234,22 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                                   {record.workOrderNumber}
                                 </span>
                                 <Badge variant="outline" className="text-xs">
-                                  {record.status}
+                                  {formatEnum(record.status)}
                                 </Badge>
                               </div>
                               <p className="text-sm">{record.description}</p>
                               <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
                                 <span className="flex items-center gap-1">
                                   <Calendar className="w-3 h-3" />
-                                  {new Date(record.serviceDate).toLocaleDateString()}
+                                  {formatDate(record.serviceDate)}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Car className="w-3 h-3" />
-                                  {record.mileage.toLocaleString()} mi
+                                  {formatNumber(record.mileage)} mi
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <DollarSign className="w-3 h-3" />
-                                  ${record.totalCost.toFixed(2)}
+                                  {formatCurrency(record.totalCost)}
                                 </span>
                               </div>
                             </div>
@@ -362,7 +364,7 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Current Mileage</p>
-                      <p className="font-medium">{schedule.currentMileage.toLocaleString()} mi</p>
+                      <p className="font-medium">{formatNumber(schedule.currentMileage)} mi</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Make/Model</p>

@@ -10,6 +10,8 @@ import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useMultiLevelDrilldown } from '@/hooks/useMultiLevelDrilldown';
 import { api } from '@/services/api';
 import { Vehicle } from '@/types';
+import { formatEnum } from '@/utils/format-enum';
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 /**
@@ -139,17 +141,17 @@ export function DrilldownSystem() {
                     </div>
                     <div>
                       <label className="text-sm text-slate-700">Status</label>
-                      <p className="text-sm text-white capitalize">{vehicle.status}</p>
+                      <p className="text-sm text-white">{formatEnum(vehicle.status)}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-700">Mileage</label>
-                      <p className="text-sm text-white">{vehicle.mileage?.toLocaleString()} mi</p>
+                      <p className="text-sm text-white">{formatNumber(vehicle.mileage)} mi</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-700">Driver</label>
-                      <p className="text-sm text-white">{vehicle.assignedDriver || 'Unassigned'}</p>
+                      <p className="text-sm text-white">{vehicle.assignedDriver || '—'}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-700">Facility</label>
@@ -216,7 +218,7 @@ export function DrilldownSystem() {
                   <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-700">Cost</label>
-                      <p className="text-sm text-emerald-700 font-semibold">${record.cost.toLocaleString()}</p>
+                      <p className="text-sm text-emerald-700 font-semibold">{formatCurrency(record.cost)}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-700">Technician</label>

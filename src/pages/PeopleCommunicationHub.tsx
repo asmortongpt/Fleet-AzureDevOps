@@ -37,11 +37,10 @@ import {
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 
-// motion removed - React 19 incompatible
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -51,6 +50,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   StatCard,
 } from '@/components/visualizations'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
+import { formatNumber } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 
@@ -71,26 +73,29 @@ const rawFetcher = (url: string) =>
  * People Tab - HR and team management
  */
 const PeopleTabContent = memo(function PeopleTabContent() {
-  const { data: users } = useSWR<any[]>(
+  const { push } = useDrilldown()
+  const { data: users, error: usersError } = useSWR<any[]>(
     '/api/users?limit=200',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: teams } = useSWR<any[]>(
+  const { data: teams, error: teamsError } = useSWR<any[]>(
     '/api/internal-teams',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: trainingCourses } = useSWR<any[]>(
+  const { data: trainingCourses, error: trainingCoursesError } = useSWR<any[]>(
     '/api/training/courses?limit=200',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: trainingProgress } = useSWR<any[]>(
+  const { data: trainingProgress, error: trainingProgressError } = useSWR<any[]>(
     '/api/training/progress',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const peopleError = usersError || teamsError || trainingCoursesError || trainingProgressError
 
   const userRows = Array.isArray(users) ? users : []
   const teamRows = Array.isArray(teams) ? teams : []
@@ -117,12 +122,15 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       .slice()
       .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
       .slice(0, 4)
-      .map((user: any) => ({
-        type: 'New Hire',
-        name: user.name || `${user.first_name} ${user.last_name}`.trim(),
-        department: user.role || 'Team Member',
-        date: user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'
-      }))
+      .map((user: any) => {
+        const activityType = user.status ? formatEnum(user.status) : 'Added'
+        return {
+          type: activityType,
+          name: user.name || `${user.first_name} ${user.last_name}`.trim(),
+          department: user.role ? formatEnum(user.role) : 'Team Member',
+          date: formatDate(user.created_at)
+        }
+      })
   }, [userRows])
 
   const trainingProgressData = useMemo(() => {
@@ -149,125 +157,184 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     }).filter((course: any) => course.enrolled > 0)
   }, [trainingCourses, trainingProgress])
 
+  if (peopleError) {
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        Unable to load people data. Please try again.
+      </div>
+    )
+  }
+
   return (
-    <div
-      className="space-y-6"
-    >
-      {/* People Statistics */}
-      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
         <StatCard
           title="Total Employees"
-          value={userRows.length}
+          value={formatNumber(userRows.length)}
           icon={Users}
           description="Active team members"
         />
         <StatCard
           title="On Duty"
-          value={activeUsers.length}
+          value={formatNumber(activeUsers.length)}
           icon={UserCheck}
           description="Currently working"
         />
         <StatCard
           title="On Leave"
-          value={inactiveUsers.length}
+          value={formatNumber(inactiveUsers.length)}
           icon={UserX}
-          description="PTO/vacation"
+          description="PTO / Vacation"
         />
         <StatCard
           title="Avg Tenure"
-          value={avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : "—"}
+          value={avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : '—'}
           icon={Award}
           description="Employee retention"
         />
       </div>
 
-      {/* Team Overview */}
-      <div>
+      {/* Main Content: Two columns */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Left Column: Employee List */}
         <Section
           title="Team Overview"
           description="Department breakdown and headcount"
-          icon={<Users className="h-5 w-5" />}
+          icon={<Users className="h-4 w-4" />}
         >
-          <div className="space-y-3">
+          <div className="max-h-[200px] overflow-y-auto">
             {teamRows.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No teams configured.</div>
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              teamRows.map((dept: any) => (
-                <div key={dept.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <Users className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{dept.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Lead: {dept.team_lead_name || 'Unassigned'} · {dept.member_count || 0} members
-                      </p>
+              <div className="space-y-1.5">
+                {teamRows.map((dept: any) => (
+                  <div
+                    key={dept.id}
+                    className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5 cursor-pointer hover:bg-white/[0.04]"
+                    onClick={() => push({
+                      id: dept.id,
+                      type: 'team',
+                      label: dept.name,
+                      data: { teamId: dept.id, teamLead: dept.team_lead_name, memberCount: dept.member_count, isActive: dept.is_active },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: dept.id,
+                          type: 'team',
+                          label: dept.name,
+                          data: { teamId: dept.id, teamLead: dept.team_lead_name, memberCount: dept.member_count, isActive: dept.is_active },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for team ${dept.name}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{dept.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          Lead: {dept.team_lead_name || '—'} -- {formatNumber(dept.member_count || 0)} members
+                        </p>
+                      </div>
                     </div>
+                    <Badge variant={dept.is_active ? 'default' : 'secondary'}>
+                      {dept.is_active ? 'Active' : 'Inactive'}
+                    </Badge>
                   </div>
-                  <Badge variant={dept.is_active ? 'default' : 'secondary'}>
-                    {dept.is_active ? 'Active' : 'Inactive'}
-                  </Badge>
-                </div>
-              ))
-            )}
-          </div>
-        </Section>
-      </div>
-
-      {/* Recent Activity */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section
-          title="Recent Activity"
-          description="Latest HR updates"
-          icon={<Activity className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {recentActivity.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No recent activity.</div>
-            ) : (
-              recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/60 p-3">
-                  <UserPlus className="h-5 w-5 text-green-500 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="font-medium">{activity.type}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {activity.name} · {activity.department}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{activity.date}</p>
-                  </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </Section>
 
-        <Section
-          title="Training & Development"
-          description="Ongoing training programs"
-          icon={<BookOpen className="h-5 w-5" />}
-        >
-          <div className="space-y-4">
-            {trainingProgressData.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No training data available.</div>
-            ) : (
-              trainingProgressData.map((training) => (
-                <div key={training.program} className="space-y-2 rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">{training.program}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {training.completed}/{training.enrolled} ({Math.round((training.completed / training.enrolled) * 100)}%)
-                    </p>
-                  </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
+        {/* Right Column: Recent Activity + Training */}
+        <div className="flex flex-col gap-2 min-h-0">
+          <Section
+            title="Recent Activity"
+            description="Latest HR updates"
+            icon={<Activity className="h-4 w-4" />}
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {recentActivity.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {recentActivity.map((activity, index) => (
                     <div
-                      className="bg-primary rounded-full h-2 transition-all"
-                      style={{ width: `${training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0}%` }}
-                    />
-                  </div>
+                      key={index}
+                      className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5 cursor-pointer hover:bg-white/[0.04]"
+                      onClick={() => push({
+                        id: `activity-${index}`,
+                        type: 'user',
+                        label: activity.name,
+                        data: { name: activity.name, department: activity.department, type: activity.type, date: activity.date },
+                      })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          push({
+                            id: `activity-${index}`,
+                            type: 'user',
+                            label: activity.name,
+                            data: { name: activity.name, department: activity.department, type: activity.type, date: activity.date },
+                          })
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View details for ${activity.name}`}
+                    >
+                      <UserPlus className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground">{activity.type}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {activity.name} -- {activity.department}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{activity.date}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))
-            )}
-          </div>
-        </Section>
+              )}
+            </div>
+          </Section>
+
+          <Section
+            title="Training & Development"
+            description="Ongoing training programs"
+            icon={<BookOpen className="h-4 w-4" />}
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {trainingProgressData.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {trainingProgressData.map((training) => (
+                    <div key={training.program} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-foreground">{training.program}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatNumber(training.completed)}/{formatNumber(training.enrolled)} ({training.enrolled > 0 ? Math.round((training.completed / training.enrolled) * 100) : 0}%)
+                        </p>
+                      </div>
+                      <div className="w-full bg-white/[0.06] rounded-full h-1.5 mt-1.5">
+                        <div
+                          className="bg-foreground/60 rounded-full h-1.5"
+                          style={{ width: `${training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -277,53 +344,62 @@ const PeopleTabContent = memo(function PeopleTabContent() {
  * Communication Tab - Messaging and announcements
  */
 const CommunicationTabContent = memo(function CommunicationTabContent() {
-  const { data: communicationLogs } = useSWR<any[]>(
+  const { push } = useDrilldown()
+  const { data: communicationLogs, error: communicationLogsError } = useSWR<any[]>(
     '/api/communication-logs?limit=50',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: announcements } = useSWR<any[]>(
+  const { data: announcements, error: announcementsError } = useSWR<any[]>(
     '/api/announcements?limit=20',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: notifications } = useSWR<any>(
+  const { data: notifications, error: notificationsError } = useSWR<any>(
     '/api/notifications?limit=50',
     rawFetcher,
     { shouldRetryOnError: false }
   )
-  const { data: teams } = useSWR<any[]>(
+  const { data: teams, error: commTeamsError } = useSWR<any[]>(
     '/api/internal-teams',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const communicationError = communicationLogsError || announcementsError || notificationsError || commTeamsError
 
   const messages = Array.isArray(communicationLogs) ? communicationLogs : []
   const announcementRows = Array.isArray(announcements) ? announcements : []
   const channelRows = Array.isArray(teams) ? teams : []
   const unreadCount = typeof notifications?.unread_count === 'number' ? notifications.unread_count : 0
 
+  if (communicationError) {
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        Unable to load communication data. Please try again.
+      </div>
+    )
+  }
+
   return (
-    <div
-      className="space-y-6"
-    >
-      {/* Communication Statistics */}
-      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
         <StatCard
           title="Unread Messages"
-          value={unreadCount}
+          value={formatNumber(unreadCount)}
           icon={Inbox}
           description="Team inbox"
         />
         <StatCard
           title="Active Channels"
-          value={channelRows.length}
+          value={formatNumber(channelRows.length)}
           icon={Hash}
           description="Communication channels"
         />
         <StatCard
           title="Announcements"
-          value={announcementRows.length}
+          value={formatNumber(announcementRows.length)}
           icon={Megaphone}
           description="This week"
         />
@@ -335,86 +411,139 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
         />
       </div>
 
-      {/* Recent Messages */}
-      <div className="grid gap-6 md:grid-cols-2">
+      {/* Main Content: Two columns */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Left Column: Communication Log */}
         <Section
           title="Recent Messages"
           description="Latest team communications"
-          icon={<MessageSquare className="h-5 w-5" />}
+          icon={<MessageSquare className="h-4 w-4" />}
         >
-          <div className="space-y-3">
+          <div className="max-h-[200px] overflow-y-auto">
             {messages.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No recent messages.</div>
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              messages.slice(0, 5).map((msg: any) => (
-                <div key={msg.id} className={`flex items-start gap-3 rounded-xl border border-border/60 bg-background/60 p-3 ${msg.is_read ? '' : 'bg-blue-50/60 dark:bg-blue-950/40'}`}>
-                  <User className="h-5 w-5 text-muted-foreground mt-0.5" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between">
-                      <p className="font-medium">{msg.from_address || 'System'}</p>
-                      {!msg.is_read && <Badge variant="default">New</Badge>}
+              <div className="space-y-1.5">
+                {messages.slice(0, 8).map((msg: any) => (
+                  <div
+                    key={msg.id}
+                    className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5 cursor-pointer hover:bg-white/[0.04]"
+                    onClick={() => push({
+                      id: msg.id,
+                      type: 'user',
+                      label: msg.from_address || 'System',
+                      data: { messageId: msg.id, from: msg.from_address, subject: msg.subject, sentAt: msg.sent_at },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: msg.id,
+                          type: 'user',
+                          label: msg.from_address || 'System',
+                          data: { messageId: msg.id, from: msg.from_address, subject: msg.subject, sentAt: msg.sent_at },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for message from ${msg.from_address || 'System'}`}
+                  >
+                    <User className="h-4 w-4 text-muted-foreground mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-medium text-foreground truncate">{msg.from_address || 'System'}</p>
+                        {!msg.is_read && <Badge variant="default">New</Badge>}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 truncate">{msg.subject || msg.message_body || 'Message'}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {formatDateTime(msg.sent_at)}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-1">{msg.subject || msg.message_body || 'Message'}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {msg.sent_at ? new Date(msg.sent_at).toLocaleString() : '—'}
-                    </p>
                   </div>
-                </div>
-              ))
+                ))}
+              </div>
             )}
           </div>
         </Section>
 
-        <Section
-          title="Announcements"
-          description="Company-wide notifications"
-          icon={<Megaphone className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {announcementRows.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No announcements available.</div>
-            ) : (
-              announcementRows.slice(0, 5).map((announcement: any) => (
-                <div key={announcement.id} className="rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <Badge variant="secondary">{announcement.type || 'Announcement'}</Badge>
-                    <p className="text-xs text-muted-foreground">
-                      {announcement.published_at ? new Date(announcement.published_at).toLocaleDateString() : '—'}
-                    </p>
-                  </div>
-                  <p className="font-medium">{announcement.title}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </Section>
-      </div>
-
-      {/* Communication Channels */}
-      <div>
-        <Section
-          title="Communication Channels"
-          description="Team channels and groups"
-          icon={<Hash className="h-5 w-5" />}
-        >
-          <div className="grid gap-3 md:grid-cols-2">
-            {channelRows.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No communication channels available.</div>
-            ) : (
-              channelRows.map((channel: any) => (
-                <div key={channel.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div className="flex items-center gap-2">
-                    <Hash className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">#{channel.name}</p>
-                      <p className="text-sm text-muted-foreground">{channel.member_count || 0} members</p>
+        {/* Right Column: Announcements + Channels */}
+        <div className="flex flex-col gap-2 min-h-0">
+          <Section
+            title="Announcements"
+            description="Company-wide notifications"
+            icon={<Megaphone className="h-4 w-4" />}
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {announcementRows.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {announcementRows.slice(0, 5).map((announcement: any) => (
+                    <div key={announcement.id} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div className="flex items-center justify-between mb-1">
+                        <Badge variant="secondary">{formatEnum(announcement.type) || 'Announcement'}</Badge>
+                        <p className="text-xs text-muted-foreground">
+                          {formatDate(announcement.published_at)}
+                        </p>
+                      </div>
+                      <p className="text-sm font-medium text-foreground">{announcement.title}</p>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))
-            )}
-          </div>
-        </Section>
+              )}
+            </div>
+          </Section>
+
+          <Section
+            title="Communication Channels"
+            description="Team channels and groups"
+            icon={<Hash className="h-4 w-4" />}
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {channelRows.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {channelRows.map((channel: any) => (
+                    <div
+                      key={channel.id}
+                      className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5 cursor-pointer hover:bg-white/[0.04]"
+                      onClick={() => push({
+                        id: channel.id,
+                        type: 'team',
+                        label: channel.name,
+                        data: { teamId: channel.id, memberCount: channel.member_count },
+                      })}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault()
+                          push({
+                            id: channel.id,
+                            type: 'team',
+                            label: channel.name,
+                            data: { teamId: channel.id, memberCount: channel.member_count },
+                          })
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`View details for channel ${channel.name}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Hash className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">#{channel.name}</p>
+                          <p className="text-xs text-muted-foreground">{formatNumber(channel.member_count || 0)} members</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -424,7 +553,8 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
  * Work Tab - Tasks, schedules, and collaboration
  */
 const WorkTabContent = memo(function WorkTabContent() {
-  const { data: tasks } = useSWR<any[]>(
+  const { push } = useDrilldown()
+  const { data: tasks, error: tasksError } = useSWR<any[]>(
     '/api/tasks?limit=200',
     fetcher,
     { shouldRetryOnError: false }
@@ -467,113 +597,144 @@ const WorkTabContent = memo(function WorkTabContent() {
     })
   }, [taskRows])
 
-  // Handler for joining meetings
   const handleJoinMeeting = (eventName: string) => {
-    // NOTE: Real meeting join (Teams/Outlook integration) coming in next release
     toast.error(`Meeting join functionality will be available in the next release`)
     logger.info('Join meeting clicked:', eventName)
   }
 
+  if (tasksError) {
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        Unable to load tasks data. Please try again.
+      </div>
+    )
+  }
+
   return (
-    <div
-      className="space-y-6"
-    >
-      {/* Work Statistics */}
-      <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
         <StatCard
           title="Active Tasks"
-          value={activeTasks.length}
+          value={formatNumber(activeTasks.length)}
           icon={CheckSquare}
           description="Assigned to team"
         />
         <StatCard
           title="Completed This Week"
-          value={completedThisWeek.length}
+          value={formatNumber(completedThisWeek.length)}
           icon={Target}
           description="Task completion"
         />
         <StatCard
           title="Upcoming Deadlines"
-          value={upcomingDeadlines.length}
+          value={formatNumber(upcomingDeadlines.length)}
           icon={Calendar}
           description="Next 7 days"
         />
         <StatCard
           title="Team Productivity"
-          value={productivity > 0 ? `${productivity}%` : "—"}
+          value={productivity > 0 ? `${productivity}%` : '—'}
           icon={TrendingUp}
           description="Task completion rate"
         />
       </div>
 
-      {/* Task Board */}
-      <div>
+      {/* Main Content: Two columns */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Left Column: Task Board */}
         <Section
           title="Task Board"
           description="Team tasks organized by status"
-          icon={<CheckSquare className="h-5 w-5" />}
+          icon={<CheckSquare className="h-4 w-4" />}
         >
-          <div className="grid gap-2 md:grid-cols-3">
-            {taskColumns.map((column) => (
-              <div key={column.status} className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">{column.status}</h3>
-                  <Badge variant="outline">{column.count}</Badge>
+          <div className="max-h-[200px] overflow-y-auto">
+            <div className="grid grid-cols-3 gap-2">
+              {taskColumns.map((column) => (
+                <div key={column.status}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <h3 className="text-xs font-semibold text-foreground">{column.status}</h3>
+                    <Badge variant="outline" className="text-[10px]">{formatNumber(column.count)}</Badge>
+                  </div>
+                  <div className="space-y-1">
+                    {column.tasks.length === 0 ? (
+                      <div className="text-xs text-muted-foreground">No tasks</div>
+                    ) : (
+                      column.tasks.map((task: any) => (
+                        <div
+                          key={task.id}
+                          className="rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04]"
+                          onClick={() => push({
+                            id: task.id,
+                            type: 'task',
+                            label: task.title,
+                            data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
+                          })}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              push({
+                                id: task.id,
+                                type: 'task',
+                                label: task.title,
+                                data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
+                              })
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`View details for task: ${task.title}`}
+                        >
+                          <p className="text-xs font-medium text-foreground">{task.title}</p>
+                          <div className="flex items-center justify-between mt-1">
+                            <Badge variant={
+                              task.priority === 'high' ? 'destructive' :
+                              task.priority === 'medium' ? 'secondary' : 'outline'
+                            } className="text-[10px]">
+                              {formatEnum(task.priority || 'low')}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  {column.tasks.length === 0 ? (
-                    <div className="text-xs text-muted-foreground">No tasks</div>
-                  ) : (
-                    column.tasks.map((task: any) => (
-                      <div key={task.id} className="rounded-xl border border-border/60 bg-background/60 p-3">
-                        <p className="font-medium text-sm">{task.title}</p>
-                        <div className="flex items-center justify-between mt-2">
-                          <p className="text-xs text-muted-foreground">{task.assignedToId || 'Unassigned'}</p>
-                          <Badge variant={
-                            task.priority === 'high' ? 'destructive' :
-                            task.priority === 'medium' ? 'secondary' : 'outline'
-                          } className="text-xs">
-                            {task.priority || 'low'}
-                          </Badge>
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        {/* Right Column: Task List + Schedule */}
+        <div className="flex flex-col gap-2 min-h-0">
+          <Section
+            title="This Week's Schedule"
+            description="Important meetings and deadlines"
+            icon={<Calendar className="h-4 w-4" />}
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {upcomingDeadlines.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {upcomingDeadlines.slice(0, 5).map((item: any) => (
+                    <div key={item.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{item.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            Due {formatDateTime(item.dueDate)}
+                          </p>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </Section>
-      </div>
-
-      {/* Schedule */}
-      <div>
-        <Section
-          title="This Week's Schedule"
-          description="Important meetings and deadlines"
-          icon={<Calendar className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {upcomingDeadlines.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No upcoming deadlines.</div>
-            ) : (
-              upcomingDeadlines.slice(0, 5).map((item: any) => (
-                <div key={item.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{item.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Due {item.dueDate ? new Date(item.dueDate).toLocaleString() : '—'}
-                      </p>
+                      <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(item.title)}>View</Button>
                     </div>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(item.title)}>View</Button>
+                  ))}
                 </div>
-              ))
-            )}
-          </div>
-        </Section>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -593,8 +754,8 @@ export default function PeopleCommunicationHub() {
       icon={Users}
       className="cta-hub"
     >
-      <div className="space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <div className="flex flex-col h-full gap-2 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="people" className="flex items-center gap-2" data-testid="hub-tab-people">
               <Users className="h-4 w-4" />
@@ -606,23 +767,23 @@ export default function PeopleCommunicationHub() {
             </TabsTrigger>
             <TabsTrigger value="work" className="flex items-center gap-2" data-testid="hub-tab-work">
               <Briefcase className="h-4 w-4" />
-              <span className="hidden sm:inline">Work</span>
+              <span className="hidden sm:inline">Tasks</span>
             </TabsTrigger>
           </TabsList>
 
-              <TabsContent value="people" className="mt-6">
+              <TabsContent value="people" className="flex-1 min-h-0 overflow-hidden">
                 <QueryErrorBoundary>
                   <PeopleTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="communication" className="mt-6">
+              <TabsContent value="communication" className="flex-1 min-h-0 overflow-hidden">
                 <QueryErrorBoundary>
                   <CommunicationTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="work" className="mt-6">
+              <TabsContent value="work" className="flex-1 min-h-0 overflow-hidden">
                 <QueryErrorBoundary>
                   <WorkTabContent />
                 </QueryErrorBoundary>

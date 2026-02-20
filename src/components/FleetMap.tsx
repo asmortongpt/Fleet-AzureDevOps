@@ -114,7 +114,7 @@ export function FleetMap({ vehicles = [], height = '600px' }: FleetMapProps) {
           <div style="padding: 8px; max-width: 200px;">
             <h3 style="margin: 0 0 8px 0; font-weight: bold;">${vehicle.name || vehicle.vehicleNumber}</h3>
             <p style="margin: 4px 0; font-size: 14px;">
-              <strong>Status:</strong> ${vehicle.status || 'Unknown'}
+              <strong>Status:</strong> ${vehicle.status || '—'}
             </p>
             ${vehicle.location ? `<p style="margin: 4px 0; font-size: 14px;"><strong>Location:</strong> ${vehicle.location}</p>` : ''}
             <p style="margin: 4px 0; font-size: 12px; color: #666;">

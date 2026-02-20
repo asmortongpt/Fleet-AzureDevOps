@@ -38,6 +38,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { apiClient } from '@/lib/api-client'
 import { useInspect } from '@/services/inspect/InspectContext'
 import { brandColors } from '@/theme/designSystem'
+import { formatDateTime } from '@/utils/format-helpers'
 
 interface Alert {
   id: string
@@ -175,10 +176,6 @@ export function Notifications() {
       default:
         return 'text-slate-700 bg-gray-100'
     }
-  }
-
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString()
   }
 
   const filteredAlerts = alerts.filter(alert => {

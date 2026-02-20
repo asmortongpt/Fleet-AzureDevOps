@@ -88,6 +88,7 @@ import {
 import { useDebounce } from '@/hooks/useDebounce'
 import { useBreakpoints } from '@/hooks/useMediaQuery'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -565,7 +566,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                 ? format(new Date(value as string | number | Date), 'MMM d, yyyy')
                 : String(value)
             case 'number':
-              return typeof value === 'number' ? value.toLocaleString() : String(value)
+              return typeof value === 'number' ? formatNumber(value) : String(value)
             case 'boolean':
               return value ? 'Yes' : 'No'
             default:

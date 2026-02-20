@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { damageReportsApi, DamageReport } from '@/services/damageReportsApi'
+import { formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 interface DamageReportListProps {
@@ -282,7 +283,7 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
                         <span>
-                          {new Date(report.created_at || '').toLocaleDateString()}
+                          {formatDate(report.created_at || '')}
                         </span>
                       </div>
                       {report.photos && report.photos.length > 0 && (

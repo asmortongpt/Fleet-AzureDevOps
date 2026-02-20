@@ -3,6 +3,7 @@ import { Phone, Mail, Calendar, Award, AlertCircle } from 'lucide-react';
 import React from 'react';
 
 import { ExcelDataTable } from '../shared/ExcelDataTable';
+import { formatDate, formatNumber } from '@/utils/format-helpers';
 
 
 export interface Driver {
@@ -137,7 +138,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'License Exp.',
       cell: ({ getValue }) => {
         const date = getValue<string>();
-        if (!date) return 'N/A';
+        if (!date) return '—';
         const daysUntil = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         const isExpired = daysUntil < 0;
         const isExpiringSoon = daysUntil < 30 && daysUntil >= 0;
@@ -145,7 +146,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
           <div className="flex items-center gap-2">
             {(isExpired || isExpiringSoon) && <AlertCircle className={`w-4 h-4 ${isExpired ? 'text-red-400' : 'text-amber-400'}`} />}
             <span className={isExpired ? 'text-red-400 font-semibold' : isExpiringSoon ? 'text-amber-400' : ''}>
-              {new Date(date).toLocaleDateString()}
+              {formatDate(date)}
               {isExpired && ' (EXPIRED)'}
               {isExpiringSoon && ` (${daysUntil}d)`}
             </span>
@@ -159,7 +160,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-slate-700" />
-          {new Date(getValue<string>()).toLocaleDateString()}
+          {formatDate(getValue<string>())}
         </div>
       ),
     },
@@ -205,7 +206,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Total Miles',
       cell: ({ getValue }) => {
         const miles = getValue<number>();
-        return miles ? `${miles.toLocaleString()} mi` : 'N/A';
+        return miles ? `${formatNumber(miles)} mi` : '—';
       },
     },
     {
@@ -213,7 +214,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Performance',
       cell: ({ getValue }) => {
         const score = getValue<number>();
-        if (!score) return 'N/A';
+        if (!score) return '—';
         return (
           <div className="flex items-center gap-2">
             <Award className={`w-4 h-4 ${score >= 90 ? 'text-emerald-700' : score >= 75 ? 'text-amber-400' : 'text-red-400'}`} />
@@ -229,7 +230,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
       header: 'Last Training',
       cell: ({ getValue }) => {
         const date = getValue<string>();
-        return date ? new Date(date).toLocaleDateString() : 'N/A';
+        return formatDate(date);
       },
     },
   ];

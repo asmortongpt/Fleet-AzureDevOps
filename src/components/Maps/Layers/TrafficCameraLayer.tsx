@@ -6,6 +6,7 @@ import { Marker, Popup } from 'react-leaflet';
 import { useTrafficCameras } from '../../../hooks/useTrafficCameras';
 import type { TrafficCamera } from '../../../types/traffic-cameras';
 
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface TrafficCameraLayerProps {
   /** Filter by county */
@@ -150,7 +151,7 @@ function CameraPopupContent({ camera }: { camera: TrafficCamera }) {
       </div>
 
       <div className="flex items-center justify-between text-xs text-gray-700 dark:text-gray-600">
-        <span>Updated: {new Date(camera.lastUpdated).toLocaleTimeString()}</span>
+        <span>Updated: {formatTime(camera.lastUpdated)}</span>
         <span
           className={`px-2 py-1 rounded ${
             camera.status === 'active'

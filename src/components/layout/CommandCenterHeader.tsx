@@ -43,8 +43,8 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                 isMobile ? "px-4" : "px-6"
             )}
             style={{
-                backgroundColor: '#1A1847',
-                borderColor: 'rgba(240, 160, 0, 0.2)',
+                backgroundColor: '#242424',
+                borderColor: 'rgba(255, 255, 255, 0.1)',
             }}>
                 {/* Left: CTA Branding - Approved Logo */}
                 <div className="flex items-center gap-3 shrink-0">
@@ -78,7 +78,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                                 "[&_input]:border border-white/20 [&_input]:dark:border-white/10",
                                 "[&_input]:h-11 [&_input]:text-sm [&_input]:px-4 [&_input]:text-gray-900 [&_input]:dark:text-white",
                                 "[&_input]:transition-all [&_input]:duration-300 [&_input]:ease-out",
-                                "[&_input:focus]:border-[#F0A000] [&_input:focus]:ring-2 [&_input:focus]:ring-[#F0A000]/40 [&_input:focus]:shadow-lg [&_input:focus]:shadow-[#F0A000]/20"
+                                "[&_input:focus]:border-white/60 [&_input:focus]:ring-2 [&_input:focus]:ring-white/30 [&_input:focus]:shadow-lg [&_input:focus]:shadow-white/10"
                             )}
                             onFocus={() => setIsSearchFocused(true)}
                             onBlur={() => setIsSearchFocused(false)}
@@ -88,7 +88,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                             <div
                                 className="absolute inset-0 rounded-xl pointer-events-none"
                                 style={{
-                                    boxShadow: '0 0 20px rgba(240, 160, 0, 0.3)',
+                                    boxShadow: '0 0 20px rgba(255, 255, 255, 0.15)',
                                     animation: 'fadeInScale 0.3s ease-out'
                                 }}
                             />
@@ -174,7 +174,8 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                 </div>
             </div>
             {/* Gold/Orange Accent Bar - Approved Branding */}
-            <div className="h-1 bg-gradient-to-r from-[#F0A000] via-[#FF8C00] to-[#DD3903] shadow-sm" aria-hidden="true" />
+            {/* Full Skyline Gradient Bar — ADELE Feb 2026 brand guide */}
+            <div className="h-1 shadow-sm" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)' }} aria-hidden="true" />
         </header>
     );
 }

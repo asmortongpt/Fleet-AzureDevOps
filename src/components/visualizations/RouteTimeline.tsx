@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
+import { formatTime } from '@/utils/format-helpers';
 
 /**
  * Route Timeline - Gantt-style visualization
@@ -220,7 +221,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
                       style={{
                         left: `${parseFloat(style.left) + parseFloat(style.width)}%`
                       }}
-                      title={`ETA: ${new Date(progress.eta).toLocaleTimeString()}`}
+                      title={`ETA: ${formatTime(progress.eta)}`}
                     >
                       <div className="absolute -top-1 -left-1 w-2 h-2 bg-white rounded-full" />
                     </div>
@@ -234,11 +235,7 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
                       Stops: {progress.completedStops}/{progress.totalStops}
                     </span>
                     <span>
-                      ETA: {new Date(progress.eta).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}
+                      ETA: {formatTime(progress.eta)}
                     </span>
                   </div>
                 )}

@@ -66,6 +66,8 @@ import {
   Cell
 } from 'recharts';
 
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
+
 import AdvancedAnalyticsService, {
   FleetMetrics,
   PredictiveInsight,
@@ -148,7 +150,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       setRealtimeKPIs(realtimeData);
       setCostBreakdown(costBreakdownData);
     } catch (error) {
-      console.error('Error initializing analytics data:', error);
+      if (import.meta.env.DEV) console.error('Error initializing analytics data:', error);
     } finally {
       setLoading(false);
     }
@@ -160,7 +162,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       const realtimeData = await AdvancedAnalyticsService.getRealtimeKPIs();
       setRealtimeKPIs(realtimeData);
     } catch (error) {
-      console.error('Error refreshing real-time data:', error);
+      if (import.meta.env.DEV) console.error('Error refreshing real-time data:', error);
     } finally {
       setRefreshing(false);
     }
@@ -271,7 +273,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
             </Grid>
             <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Revenue Today</Typography>
-              <Typography variant="h6">${realtimeKPIs.revenueToday.toLocaleString()}</Typography>
+              <Typography variant="h6">{formatCurrency(realtimeKPIs.revenueToday)}</Typography>
             </Grid>
             <Grid size={{ xs: 12, md: 2 }}>
               <Typography variant="body2">Fuel Today</Typography>
@@ -350,7 +352,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                       Average Across Fleet
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
-                      {fleetMetrics.totalMilesDriven.toLocaleString()} miles driven
+                      {formatNumber(fleetMetrics.totalMilesDriven)} miles driven
                     </Typography>
                   </CardContent>
                 </Card>
@@ -365,15 +367,15 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <Typography variant="h4">
                       {fleetMetrics.profitMargin !== null && fleetMetrics.profitMargin !== undefined
                         ? `${fleetMetrics.profitMargin}%`
-                        : 'N/A'}
+                        : '—'}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
                       Revenue Efficiency
                     </Typography>
                     <Typography variant="body2" sx={{ mt: 1 }}>
                       {fleetMetrics.revenuePerVehicle !== null && fleetMetrics.revenuePerVehicle !== undefined
-                        ? `$${fleetMetrics.revenuePerVehicle}/vehicle`
-                        : 'N/A'}
+                        ? `${formatCurrency(fleetMetrics.revenuePerVehicle)}/vehicle`
+                        : '—'}
                     </Typography>
                   </CardContent>
                 </Card>
@@ -489,7 +491,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
 
                     {insight.potentialSavings && (
                       <Alert severity="success" sx={{ mb: 2 }}>
-                        Potential savings: ${insight.potentialSavings.toLocaleString()}
+                        Potential savings: {formatCurrency(insight.potentialSavings)}
                       </Alert>
                     )}
 
@@ -661,7 +663,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                       </Box>
                       <Box sx={{ textAlign: 'right', minWidth: 150 }}>
                         <Typography variant="h5" color="success.main">
-                          ${opt.savings.toLocaleString()}
+                          {formatCurrency(opt.savings)}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
                           Annual Savings
@@ -675,8 +677,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 2 }}>
                       <Box>
                         <Typography variant="body2">
-                          Current: ${opt.currentCost.toLocaleString()} →
-                          Optimized: ${opt.optimizedCost.toLocaleString()}
+                          Current: {formatCurrency(opt.currentCost)} →
+                          Optimized: {formatCurrency(opt.optimizedCost)}
                         </Typography>
                       </Box>
                       <LinearProgress
@@ -701,7 +703,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 <Grid size={{ xs: 12, md: 3 }}>
                   <Typography variant="body2" color="text.secondary">Total Potential Savings</Typography>
                   <Typography variant="h4" color="success.main">
-                    ${optimizations.reduce((sum, opt) => sum + opt.savings, 0).toLocaleString()}
+                    {formatCurrency(optimizations.reduce((sum, opt) => sum + opt.savings, 0))}
                   </Typography>
                 </Grid>
                 <Grid size={{ xs: 12, md: 3 }}>
@@ -749,15 +751,15 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                       <Grid container spacing={2}>
                         <Grid size={{ xs: 6 }}>
                           <Typography variant="body2" color="text.secondary">Total Fleet Value</Typography>
-                          <Typography variant="h6">${executiveReport.summary.totalFleetValue.toLocaleString()}</Typography>
+                          <Typography variant="h6">{formatCurrency(executiveReport.summary.totalFleetValue)}</Typography>
                         </Grid>
                         <Grid size={{ xs: 6 }}>
                           <Typography variant="body2" color="text.secondary">Operational Cost</Typography>
-                          <Typography variant="h6">${executiveReport.summary.operationalCost.toLocaleString()}</Typography>
+                          <Typography variant="h6">{formatCurrency(executiveReport.summary.operationalCost)}</Typography>
                         </Grid>
                         <Grid size={{ xs: 6 }}>
                           <Typography variant="body2" color="text.secondary">Revenue</Typography>
-                          <Typography variant="h6">${executiveReport.summary.revenue.toLocaleString()}</Typography>
+                          <Typography variant="h6">{formatCurrency(executiveReport.summary.revenue)}</Typography>
                         </Grid>
                         <Grid size={{ xs: 6 }}>
                           <Typography variant="body2" color="text.secondary">Profitability</Typography>
@@ -831,20 +833,20 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                       <Box sx={{ mb: 2 }}>
                         <Typography variant="body2" color="text.secondary">Next Quarter</Typography>
                         <Typography variant="body2">
-                          Revenue: ${executiveReport.financialProjections.nextQuarter.revenue.toLocaleString()}
+                          Revenue: {formatCurrency(executiveReport.financialProjections.nextQuarter.revenue)}
                         </Typography>
                         <Typography variant="body2">
-                          Profit: ${executiveReport.financialProjections.nextQuarter.profit.toLocaleString()}
+                          Profit: {formatCurrency(executiveReport.financialProjections.nextQuarter.profit)}
                         </Typography>
                       </Box>
                       <Divider sx={{ my: 1 }} />
                       <Box>
                         <Typography variant="body2" color="text.secondary">Next Year</Typography>
                         <Typography variant="body2">
-                          Revenue: ${executiveReport.financialProjections.nextYear.revenue.toLocaleString()}
+                          Revenue: {formatCurrency(executiveReport.financialProjections.nextYear.revenue)}
                         </Typography>
                         <Typography variant="body2">
-                          Profit: ${executiveReport.financialProjections.nextYear.profit.toLocaleString()}
+                          Profit: {formatCurrency(executiveReport.financialProjections.nextYear.profit)}
                         </Typography>
                       </Box>
                     </CardContent>
@@ -865,7 +867,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                           </Typography>
                           {insight.potentialSavings && (
                             <Typography variant="body2" color="success.main">
-                              Potential savings: ${insight.potentialSavings.toLocaleString()}
+                              Potential savings: {formatCurrency(insight.potentialSavings)}
                             </Typography>
                           )}
                         </Box>
@@ -906,7 +908,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                   <Typography variant="body2">{selectedInsight.recommendedAction}</Typography>
                   {selectedInsight.potentialSavings && (
                     <Alert severity="success" sx={{ mt: 2 }}>
-                      Potential annual savings: ${selectedInsight.potentialSavings.toLocaleString()}
+                      Potential annual savings: {formatCurrency(selectedInsight.potentialSavings)}
                     </Alert>
                   )}
                 </Grid>

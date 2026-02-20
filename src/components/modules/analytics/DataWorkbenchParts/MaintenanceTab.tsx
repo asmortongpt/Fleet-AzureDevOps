@@ -11,6 +11,7 @@ import {
 } from "./types"
 
 import { MetricCard } from "@/components/MetricCard"
+import { formatCurrency, formatDate } from "@/utils/format-helpers"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -95,7 +96,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
       <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
         <MetricCard
           title="Maintenance Cost"
-          value={`$${(maintenanceMetrics.totalCost ?? 0).toLocaleString()}`}
+          value={formatCurrency(maintenanceMetrics.totalCost ?? 0)}
           subtitle="this month"
           icon={<Wrench className="w-3 h-3" />}
           status="info"
@@ -222,10 +223,10 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
                     </td>
                     <td className="p-2">{record.serviceType}</td>
                     <td className="p-2">
-                      {new Date(record.date).toLocaleDateString()}
+                      {formatDate(record.date)}
                     </td>
                     <td className="p-2 font-medium">
-                      ${(record.cost ?? 0).toLocaleString()}
+                      {formatCurrency(record.cost ?? 0)}
                     </td>
                     <td className="p-2">
                       <Badge
@@ -243,7 +244,7 @@ export function MaintenanceTab({ maintenanceRecords, onScheduleService }: Mainte
                       </Badge>
                     </td>
                     <td className="p-2 text-sm text-muted-foreground">
-                      {record.nextDue ? new Date(record.nextDue).toLocaleDateString() : "-"}
+                      {record.nextDue ? formatDate(record.nextDue) : "-"}
                     </td>
                   </tr>
                 ))}

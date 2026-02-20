@@ -7,6 +7,8 @@ import { useMemo } from "react"
 
 import { MaintenanceRecord, FuelRecord } from "./types"
 
+import { formatCurrency } from "@/utils/format-helpers"
+
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -60,7 +62,7 @@ export function AnalyticsTab({
       vehicleMPGs.set(r.vehicleNumber, mpgs)
     })
 
-    let mostEfficient = { vehicle: "N/A", mpg: 0 }
+    let mostEfficient = { vehicle: "—", mpg: 0 }
     vehicleMPGs.forEach((mpgs, vehicleNum) => {
       const avgMPG = mpgs.reduce((a, b) => a + b, 0) / mpgs.length
       if (avgMPG > mostEfficient.mpg) {
@@ -87,7 +89,7 @@ export function AnalyticsTab({
   const utilizationByDepartment = useMemo(() => {
     const grouped = new Map<string, { total: number; active: number }>()
     vehicles.forEach((vehicle) => {
-      const dept = vehicle.department || "Unassigned"
+      const dept = vehicle.department || "—"
       if (!grouped.has(dept)) grouped.set(dept, { total: 0, active: 0 })
       const entry = grouped.get(dept)!
       entry.total += 1
@@ -150,7 +152,7 @@ export function AnalyticsTab({
       costsByVehicle.set(record.vehicleNumber, entry)
     })
 
-    let lowestCost = { vehicle: "N/A", costPerMile: 0 }
+    let lowestCost = { vehicle: "—", costPerMile: 0 }
     costsByVehicle.forEach((entry, vehicleNumber) => {
       const costPerMile = entry.miles > 0 ? entry.cost / entry.miles : 0
       if (costPerMile > 0 && (lowestCost.costPerMile === 0 || costPerMile < lowestCost.costPerMile)) {
@@ -167,9 +169,9 @@ export function AnalyticsTab({
       maintenanceCounts.set(record.vehicleNumber, (maintenanceCounts.get(record.vehicleNumber) || 0) + 1)
     })
 
-    let mostReliable = { vehicle: "N/A", count: 0 }
+    let mostReliable = { vehicle: "—", count: 0 }
     maintenanceCounts.forEach((count, vehicleNumber) => {
-      if (mostReliable.vehicle === "N/A" || count < mostReliable.count) {
+      if (mostReliable.vehicle === "—" || count < mostReliable.count) {
         const vehicle = vehicles.find(v => v.number === vehicleNumber)
         mostReliable = {
           vehicle: vehicle ? `${vehicle.number} (${vehicle.make} ${vehicle.model})` : vehicleNumber,
@@ -263,11 +265,11 @@ export function AnalyticsTab({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Total Operating Cost</span>
-                <span className="font-semibold text-sm">${analyticsMetrics.totalCost}</span>
+                <span className="font-semibold text-sm">{formatCurrency(Number(analyticsMetrics.totalCost))}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Cost per Vehicle</span>
-                <span className="font-medium">${analyticsMetrics.costPerVehicle}</span>
+                <span className="font-medium">{formatCurrency(Number(analyticsMetrics.costPerVehicle))}</span>
               </div>
             </div>
 
@@ -277,7 +279,7 @@ export function AnalyticsTab({
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm">Fuel</span>
-                    <span className="text-sm font-medium">${analyticsMetrics.fuelCost}</span>
+                    <span className="text-sm font-medium">{formatCurrency(Number(analyticsMetrics.fuelCost))}</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
@@ -291,7 +293,7 @@ export function AnalyticsTab({
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-sm">Maintenance</span>
-                    <span className="text-sm font-medium">${analyticsMetrics.maintenanceCost}</span>
+                    <span className="text-sm font-medium">{formatCurrency(Number(analyticsMetrics.maintenanceCost))}</span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
@@ -357,7 +359,7 @@ export function AnalyticsTab({
                       <TrendUp className="w-3 h-3 mr-1" />
                       {topPerformers.efficiency.mpg > 0
                         ? `${topPerformers.efficiency.mpg.toFixed(1)} MPG`
-                        : "N/A"}
+                        : "—"}
                     </Badge>
                   </td>
                 </tr>
@@ -370,8 +372,8 @@ export function AnalyticsTab({
                   <td className="p-2">
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <CheckCircle className="w-3 h-3 mr-1" />
-                      {topPerformers.mostReliable.vehicle === "N/A"
-                        ? "N/A"
+                      {topPerformers.mostReliable.vehicle === "—"
+                        ? "—"
                         : `${topPerformers.mostReliable.count} events`}
                     </Badge>
                   </td>
@@ -386,8 +388,8 @@ export function AnalyticsTab({
                     <Badge variant="outline" className="bg-success/10 text-success border-success/20">
                       <TrendDown className="w-3 h-3 mr-1" />
                       {topPerformers.lowestCost.costPerMile > 0
-                        ? `$${topPerformers.lowestCost.costPerMile.toFixed(2)}/mi`
-                        : "N/A"}
+                        ? `${formatCurrency(topPerformers.lowestCost.costPerMile)}/mi`
+                        : "—"}
                     </Badge>
                   </td>
                 </tr>

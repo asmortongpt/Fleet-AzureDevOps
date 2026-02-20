@@ -28,6 +28,7 @@ import {
   type Message,
   type StreamCallback
 } from '@/services/aiService';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface AIChatPanelProps {
@@ -255,7 +256,7 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
                     <p className="text-sm whitespace-pre-line">{msg.content}</p>
                     <div className="flex items-center justify-between mt-2">
                       <p className="text-xs opacity-70">
-                        {msg.timestamp.toLocaleTimeString()}
+                        {formatTime(msg.timestamp)}
                       </p>
                       {msg.role === 'assistant' && (
                         <Button

@@ -78,6 +78,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { useInventory } from "@/hooks/useInventory"
 import { usePermissions } from "@/hooks/usePermissions"
 import { Part, InventoryTransaction } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency } from "@/utils/format-helpers"
 import { brandColors } from "@/theme/designSystem"
 
 interface InventoryFilters {
@@ -608,7 +610,7 @@ export function InventoryManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold">${metrics.totalValue.toLocaleString()}</div>
+            <div className="text-sm font-bold">{formatCurrency(metrics.totalValue)}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 mt-1">
               <TrendingUp className="w-3 h-3" />
               Asset value
@@ -792,7 +794,7 @@ export function InventoryManagement() {
                             <div className="text-xs text-muted-foreground">{part.manufacturer}</div>
                           </div>
                         </TableCell>
-                        <TableCell className="capitalize">{part.category}</TableCell>
+                        <TableCell>{formatEnum(part.category)}</TableCell>
                         <TableCell className="text-sm text-muted-foreground">{part.location || "-"}</TableCell>
                         <TableCell>
                           <div className="space-y-1">
@@ -806,9 +808,9 @@ export function InventoryManagement() {
                           <span className="font-semibold">{part.quantityOnHand}</span>
                           <span className="text-muted-foreground text-sm"> units</span>
                         </TableCell>
-                        <TableCell>${part.unitCost.toFixed(2)}</TableCell>
+                        <TableCell>{formatCurrency(part.unitCost)}</TableCell>
                         <TableCell className="font-medium">
-                          ${(part.quantityOnHand * part.unitCost).toFixed(2)}
+                          {formatCurrency(part.quantityOnHand * part.unitCost)}
                         </TableCell>
                         <TableCell>
                           <Badge className={status.color} variant="secondary">

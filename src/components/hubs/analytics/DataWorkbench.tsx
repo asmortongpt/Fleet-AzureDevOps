@@ -12,6 +12,7 @@ import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { secureFetch } from '@/hooks/use-api';
 import logger from '@/utils/logger';
+import { formatNumber } from '@/utils/format-helpers';
 
 interface RowData {
   id: string;
@@ -85,7 +86,7 @@ export const DataWorkbench: React.FC = () => {
       editable: true,
       filter: 'agNumberColumnFilter',
       sortable: true,
-      valueFormatter: (params: ValueFormatterParams<RowData>) => (params.value ?? 0).toLocaleString()
+      valueFormatter: (params: ValueFormatterParams<RowData>) => formatNumber(params.value ?? 0)
     },
     {
       field: 'status',

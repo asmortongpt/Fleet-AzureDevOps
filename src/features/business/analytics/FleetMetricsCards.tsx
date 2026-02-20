@@ -20,6 +20,8 @@ import {
 } from '@mui/material';
 import React from 'react';
 
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
+
 interface DashboardData {
   fleet: {
     totalVehicles: number;
@@ -92,7 +94,7 @@ const FleetMetricsCards: React.FC<FleetMetricsCardsProps> = ({ data, period }) =
     },
     {
       title: 'Total Miles',
-      value: totalMiles.toLocaleString(),
+      value: formatNumber(totalMiles),
       subtitle: periodLabel,
       icon: SpeedIcon,
       color: 'info.main',
@@ -104,7 +106,7 @@ const FleetMetricsCards: React.FC<FleetMetricsCardsProps> = ({ data, period }) =
     },
     {
       title: 'Cost Per Mile',
-      value: `$${costPerMile.toFixed(2)}`,
+      value: formatCurrency(costPerMile),
       subtitle: 'Average operating cost',
       icon: MoneyIcon,
       color: 'warning.main',
@@ -116,19 +118,19 @@ const FleetMetricsCards: React.FC<FleetMetricsCardsProps> = ({ data, period }) =
     },
     {
       title: 'Total Fuel Cost',
-      value: `$${totalFuelCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: formatCurrency(totalFuelCost),
       subtitle: periodLabel,
       icon: FuelIcon,
       color: 'secondary.main',
       bgColor: 'secondary.light',
       chip: {
-        label: totalMiles > 0 ? `$${(totalFuelCost / totalMiles).toFixed(2)}/mi` : 'No data',
+        label: totalMiles > 0 ? `${formatCurrency(totalFuelCost / totalMiles)}/mi` : '—',
         color: 'secondary'
       }
     },
     {
       title: 'Total Maintenance Cost',
-      value: `$${totalMaintenanceCost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: formatCurrency(totalMaintenanceCost),
       subtitle: periodLabel,
       icon: MaintenanceIcon,
       color: 'error.main',
@@ -153,13 +155,13 @@ const FleetMetricsCards: React.FC<FleetMetricsCardsProps> = ({ data, period }) =
     },
     {
       title: 'Total Operating Cost',
-      value: `$${(totalFuelCost + totalMaintenanceCost).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      value: formatCurrency(totalFuelCost + totalMaintenanceCost),
       subtitle: periodLabel,
       icon: TrendUpIcon,
       color: 'info.main',
       bgColor: 'info.light',
       chip: {
-        label: `$${((totalFuelCost + totalMaintenanceCost) / fleet.totalVehicles).toFixed(2)}/vehicle`,
+        label: `${formatCurrency((totalFuelCost + totalMaintenanceCost) / fleet.totalVehicles)}/vehicle`,
         color: 'info'
       }
     }

@@ -13,6 +13,8 @@ import { getTelemetryConfig } from '../config/telemetry';
 import { analytics } from '../services/analytics';
 import analyticsService from '../utils/analytics';
 
+import { formatTime } from '@/utils/format-helpers';
+
 import logger from '@/utils/logger';
 interface TelemetryEvent {
   name: string;
@@ -225,7 +227,7 @@ export const TelemetryDashboard: React.FC = () => {
                   <div key={idx} style={styles.errorItem}>
                     <div style={styles.errorName}>{error.name}</div>
                     <div style={styles.errorTime}>
-                      {new Date(error.timestamp).toLocaleTimeString()}
+                      {formatTime(new Date(error.timestamp))}
                     </div>
                   </div>
                 ))}
@@ -302,7 +304,7 @@ const EventItem: React.FC<{ event: TelemetryEvent }> = ({ event }) => {
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <span style={styles.eventTimestamp}>
-          {new Date(event.timestamp).toLocaleTimeString()}
+          {formatTime(new Date(event.timestamp))}
         </span>
         <span style={styles.eventNameBadge}>{event.name}</span>
         <span style={styles.expandIcon}>{isExpanded ? '▼' : '▶'}</span>

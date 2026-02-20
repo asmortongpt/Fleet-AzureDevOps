@@ -48,7 +48,7 @@ class MaintenanceService {
       const data = response.data.data || [];
       return data.map(r => ({ ...r, id: String(r.id) }));
     } catch (error) {
-      console.error('Error fetching maintenance records:', error);
+      if (import.meta.env.DEV) console.error('Error fetching maintenance records:', error);
       throw error;
     }
   }
@@ -61,7 +61,7 @@ class MaintenanceService {
       const response = await api.post<MaintenanceRecord>('/maintenance-schedules', record);
       return { ...response.data, id: String(response.data.id) };
     } catch (error) {
-      console.error('Error creating maintenance record:', error);
+      if (import.meta.env.DEV) console.error('Error creating maintenance record:', error);
       throw error;
     }
   }
@@ -74,7 +74,7 @@ class MaintenanceService {
       const response = await api.put<MaintenanceRecord>(`/maintenance-schedules/${id}`, data);
       return { ...response.data, id: String(response.data.id) };
     } catch (error) {
-      console.error(`Error updating maintenance record ${id}:`, error);
+      if (import.meta.env.DEV) console.error(`Error updating maintenance record ${id}:`, error);
       throw error;
     }
   }
@@ -86,7 +86,7 @@ class MaintenanceService {
     try {
       await api.delete(`/maintenance-schedules/${id}`);
     } catch (error) {
-      console.error(`Error deleting maintenance record ${id}:`, error);
+      if (import.meta.env.DEV) console.error(`Error deleting maintenance record ${id}:`, error);
       throw error;
     }
   }

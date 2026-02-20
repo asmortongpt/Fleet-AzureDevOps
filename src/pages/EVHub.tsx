@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Section } from '@/components/ui/section';
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface EVVehicle {
@@ -330,8 +331,8 @@ const EVHub = () => {
 
             {/* Cost Savings */}
             <Section title="Cost Savings">
-              <div className="text-2xl font-bold text-green-600" aria-label={`${sustainabilityMetrics.costSavings.toFixed(2)} dollars saved`}>
-                ${sustainabilityMetrics.costSavings.toFixed(2)}
+              <div className="text-2xl font-bold text-green-600" aria-label={`${formatCurrency(sustainabilityMetrics.costSavings)} saved`}>
+                {formatCurrency(sustainabilityMetrics.costSavings)}
               </div>
               <p className="text-xs text-muted-foreground mt-1">Fuel cost savings (fleet lifetime)</p>
             </Section>
@@ -361,7 +362,7 @@ const EVHub = () => {
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-muted-foreground">Total Miles Driven</span>
                     <span className="text-sm font-bold text-foreground">
-                      {evVehicles.reduce((sum, v) => sum + v.total_miles_driven, 0).toLocaleString()}
+                      {formatNumber(evVehicles.reduce((sum, v) => sum + v.total_miles_driven, 0))}
                     </span>
                   </div>
                 </div>

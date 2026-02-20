@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { formatEnum } from '@/utils/format-enum';
 
 interface WorkOrder {
   id: string;
@@ -181,7 +182,7 @@ export function MaintenanceHubMap({
                     <span className="font-semibold text-sm">{selectedWorkOrder.id}</span>
                   </div>
                   <Badge variant={getWorkOrderBadgeVariant(selectedWorkOrder.type)}>
-                    {selectedWorkOrder.type}
+                    {formatEnum(selectedWorkOrder.type)}
                   </Badge>
                 </div>
 
@@ -226,7 +227,7 @@ export function MaintenanceHubMap({
                 <div>
                   <h4 className="font-semibold text-sm">{selectedLocation.name}</h4>
                   <Badge variant="outline" className="mt-1 text-xs">
-                    {selectedLocation.type.replace('_', ' ')}
+                    {formatEnum(selectedLocation.type)}
                   </Badge>
                 </div>
 

@@ -4,6 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface Signal {
@@ -152,9 +153,9 @@ export function TopSignals({ className }: TopSignalsProps) {
               id: 'cost-efficiency',
               priority: 2,
               title: 'Operating below cost targets',
-              reason: `Cost per mile $${costPerMile.toFixed(2)} vs target $${targetCostPerMile.toFixed(2)}`,
+              reason: `Cost per mile ${formatCurrency(costPerMile)} vs target ${formatCurrency(targetCostPerMile)}`,
               impact: 'Exceeding financial efficiency goals',
-              metrics: `Fuel: $${costsData.fuel_cost?.toLocaleString() || 0}, Maintenance: $${costsData.maintenance_cost?.toLocaleString() || 0}`,
+              metrics: `Fuel: ${formatCurrency(costsData.fuel_cost || 0)}, Maintenance: ${formatCurrency(costsData.maintenance_cost || 0)}`,
               icon: <TrendingUp className="h-5 w-5" />,
               color: 'text-emerald-600 dark:text-emerald-700'
             });
@@ -165,7 +166,7 @@ export function TopSignals({ className }: TopSignalsProps) {
               title: 'Rising operational costs',
               reason: `Fuel ${fuelTrend > 0 ? 'up' : 'down'} ${Math.abs(fuelTrend)}%, Maintenance ${maintenanceTrend > 0 ? 'up' : 'down'} ${Math.abs(maintenanceTrend)}%`,
               impact: 'Budget pressure and margin erosion',
-              metrics: `Cost per mile: $${costPerMile.toFixed(2)}`,
+              metrics: `Cost per mile: ${formatCurrency(costPerMile)}`,
               icon: <AlertTriangle className="h-5 w-5" />,
               color: 'text-orange-600 dark:text-orange-400'
             });

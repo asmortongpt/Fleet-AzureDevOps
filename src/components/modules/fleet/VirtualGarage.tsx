@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useTenant } from "@/contexts/TenantContext"
 import { useVehicles } from "@/hooks/use-api"
 import { brandColors } from "@/theme/designSystem"
+import { formatEnum } from "@/utils/format-enum"
 
 export function VirtualGarage() {
   const { tenantId } = useTenant()
@@ -123,7 +124,7 @@ export function VirtualGarage() {
                         ? "bg-yellow-100 text-yellow-700"
                         : "bg-gray-100 text-gray-700"
                     }`}>
-                      {vehicle.status}
+                      {formatEnum(vehicle.status)}
                     </span>
                     <Button variant="outline" size="sm">
                       <Wrench className="h-4 w-4" />

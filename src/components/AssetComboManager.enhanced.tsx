@@ -26,6 +26,7 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog'
 import { Button } from '@/components/ui/button'
+import { formatDate } from '@/utils/format-helpers'
 import type {
   ActiveAssetCombination,
   RelationshipHistoryEntry,
@@ -348,7 +349,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                     <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        <span>Attached: {new Date(combo.effective_from).toLocaleDateString()}</span>
+                        <span>Attached: {formatDate(combo.effective_from)}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <span className="text-gray-700">Type:</span>

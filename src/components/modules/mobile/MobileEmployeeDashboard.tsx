@@ -25,8 +25,9 @@ import {
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
-import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
+import { formatCurrency, formatDate } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 interface Assignment {
   id: string;
   vehicle_id: string;
@@ -170,7 +171,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Callback trip logged successfully! Estimated reimbursement: $${result.estimated_reimbursement.toFixed(2)}`);
+        alert(`Callback trip logged successfully! Estimated reimbursement: ${formatCurrency(result.estimated_reimbursement)}`);
         setShowCallbackForm(false);
         fetchDashboardData();
         // Reset form
@@ -326,9 +327,9 @@ const MobileEmployeeDashboard: React.FC = () => {
                     {isActive ? '🔴 Active Now' : 'Upcoming'}
                   </h3>
                   <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
-                    {startDate.toLocaleDateString()} {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatDate(startDate)} {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     <br />
-                    to {endDate.toLocaleDateString()} {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    to {formatDate(endDate)} {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 {!period.acknowledged_by_driver ? (
@@ -392,7 +393,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                 </p>
                 <p className="text-xs text-blue-800">
                   {dashboardData.notifications.pending_reimbursements} trip(s) -
-                  ${dashboardData.notifications.pending_reimbursement_amount.toFixed(2)}
+                  {formatCurrency(dashboardData.notifications.pending_reimbursement_amount)}
                 </p>
               </div>
             </div>
@@ -411,7 +412,7 @@ const MobileEmployeeDashboard: React.FC = () => {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900">
-                  {new Date(trip.trip_date).toLocaleDateString()}
+                  {formatDate(trip.trip_date)}
                 </h3>
                 <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{trip.purpose}</p>
               </div>
@@ -437,7 +438,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               </div>
               {trip.reimbursement_amount > 0 && (
                 <span className="font-semibold text-green-600">
-                  ${trip.reimbursement_amount.toFixed(2)}
+                  {formatCurrency(trip.reimbursement_amount)}
                 </span>
               )}
             </div>

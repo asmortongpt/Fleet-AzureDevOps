@@ -6,6 +6,7 @@
 import React from 'react'
 
 import { DrilldownBreadcrumbs } from '@/components/DrilldownBreadcrumbs'
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 import { DrilldownPanel } from '@/components/DrilldownPanel'
 import {
   IncidentsDrilldown,
@@ -106,7 +107,7 @@ function MessageDetailDrilldown() {
         <p className="text-sm">{data.content || 'Message content not available'}</p>
       </div>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        {data.time && <span>Sent: {new Date(data.time).toLocaleString()}</span>}
+        {data.time && <span>Sent: {formatDateTime(data.time)}</span>}
         {data.reactions !== undefined && <span>Reactions: {data.reactions}</span>}
       </div>
       <div className="flex gap-2">
@@ -175,7 +176,7 @@ function EmailTemplateDrilldown() {
       <div className="border rounded-lg p-2">
         <div className="mb-2">
           <label className="text-sm font-medium text-muted-foreground">Subject Line</label>
-          <p className="mt-1">{data.subject || data.name || 'N/A'}</p>
+          <p className="mt-1">{data.subject || data.name || '—'}</p>
         </div>
         <div>
           <label className="text-sm font-medium text-muted-foreground">Template Body</label>
@@ -340,7 +341,7 @@ function SafetyAlertsDrilldown() {
                 </div>
               </div>
               <span className="text-xs text-muted-foreground">
-                {alert.time ? new Date(alert.time).toLocaleTimeString() : 'N/A'}
+                {alert.time ? formatTime(alert.time) : '—'}
               </span>
             </div>
           </div>

@@ -26,6 +26,8 @@ import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
 import { swrFetcher } from "@/lib/fetcher"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatNumber } from "@/utils/format-helpers"
 
 /** Safely extract an array from an API response that may be nested as { data: [...] } or { data: { data: [...] } } */
 const safeArray = <T,>(value: unknown): T[] => {
@@ -126,14 +128,14 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
           <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm">Current Mileage</span>
-              <span className="font-medium">{vehicle.mileage?.toLocaleString()} mi</span>
+              <span className="font-medium">{formatNumber(vehicle.mileage ?? 0)} mi</span>
             </div>
 
             {vehicle.nextService && (
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-sm">Next Service</span>
-                  <span className="font-medium">{vehicle.nextService.toLocaleString()} mi</span>
+                  <span className="font-medium">{formatNumber(Number(vehicle.nextService))} mi</span>
                 </div>
 
                 <div className="space-y-1">
@@ -256,7 +258,7 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
                         {order.priority}
                       </Badge>
                       <Badge variant="outline">
-                        {order.status}
+                        {formatEnum(order.status)}
                       </Badge>
                     </div>
                   </div>

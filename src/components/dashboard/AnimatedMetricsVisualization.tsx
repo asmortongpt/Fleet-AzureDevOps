@@ -6,6 +6,8 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 
+import { formatNumber } from '@/utils/format-helpers'
+
 interface MetricData {
   id: string
   label: string
@@ -41,7 +43,7 @@ export function AnimatedMetricsVisualization({ metrics }: { metrics: MetricData[
             style={{
               width: particle.size,
               height: particle.size,
-              backgroundColor: '#41B2E3',
+              backgroundColor: 'rgba(255,255,255,0.3)',
               left: `${particle.x}%`,
               top: `${particle.y}%`,
             }}
@@ -173,14 +175,14 @@ function PremiumMetricCard({ metric, index }: { metric: MetricData; index: numbe
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              {displayValue.toLocaleString()}
+              {formatNumber(displayValue)}
             </motion.span>
             <motion.span
               className="text-sm font-bold flex items-center gap-1 px-3 py-1 rounded-full"
               style={{
-                backgroundColor: `${metric.trend > 0 ? '#10B981' : '#DD3903'}20`,
-                color: metric.trend > 0 ? '#10B981' : '#DD3903',
-                border: `1px solid ${metric.trend > 0 ? '#10B981' : '#DD3903'}40`
+                backgroundColor: `${metric.trend > 0 ? '#10B981' : '#a0a0a0'}20`,
+                color: metric.trend > 0 ? '#10B981' : '#a0a0a0',
+                border: `1px solid ${metric.trend > 0 ? '#10B981' : '#a0a0a0'}40`
               }}
               animate={{
                 scale: [1, 1.08, 1],
@@ -227,7 +229,7 @@ function PremiumMetricCard({ metric, index }: { metric: MetricData; index: numbe
               {Math.round(percentage)}% Complete
             </span>
             <span style={{ color: 'rgba(255,255,255,0.5)' }}>
-              {metric.targetValue.toLocaleString()} target
+              {formatNumber(metric.targetValue)} target
             </span>
           </div>
         </div>

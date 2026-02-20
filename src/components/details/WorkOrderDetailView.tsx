@@ -23,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { swrFetcher } from '@/lib/fetcher'
+import { formatDateTime } from '@/utils/format-helpers'
 
 interface WorkOrder {
   id: string
@@ -158,11 +159,11 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
               </div>
               <div>
                 <p className="text-xs text-orange-200">Created</p>
-                <p className="text-sm font-semibold">{workOrderDetails.createdDate || workOrderDetails.created_at || 'N/A'}</p>
+                <p className="text-sm font-semibold">{workOrderDetails.createdDate || workOrderDetails.created_at || '—'}</p>
               </div>
               <div>
                 <p className="text-xs text-orange-200">Due Date</p>
-                <p className="text-sm font-semibold">{workOrderDetails.dueDate || workOrderDetails.scheduled_end || 'N/A'}</p>
+                <p className="text-sm font-semibold">{workOrderDetails.dueDate || workOrderDetails.scheduled_end || '—'}</p>
               </div>
               {workOrderDetails.category && (
                 <div>
@@ -224,13 +225,13 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Vehicle:</span>
                     <Button variant="link" size="sm" className="h-auto p-0 text-blue-800">
-                      {workOrderDetails.vehicleId || workOrderDetails.vehicle_id || 'N/A'}
+                      {workOrderDetails.vehicleId || workOrderDetails.vehicle_id || '—'}
                     </Button>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Assigned To:</span>
                     <span className="font-medium">
-                      {workOrderDetails.assignedTo || workOrderDetails.assigned_to || 'Unassigned'}
+                      {workOrderDetails.assignedTo || workOrderDetails.assigned_to || '—'}
                     </span>
                   </div>
                   {workOrderDetails.category && (
@@ -288,7 +289,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Tax:</span>
                     <span className="font-medium">
-                      {totals.taxRate > 0 ? `${(totals.taxRate * 100).toFixed(2)}%` : 'N/A'}
+                      {totals.taxRate > 0 ? `${(totals.taxRate * 100).toFixed(2)}%` : '—'}
                     </span>
                   </div>
                   <div className="flex justify-between pt-2 border-t font-bold">
@@ -333,7 +334,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                       <Progress value={progress} />
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Estimated completion: {workOrderDetails.scheduled_end || workOrderDetails.dueDate || 'N/A'}
+                      Estimated completion: {workOrderDetails.scheduled_end || workOrderDetails.dueDate || '—'}
                     </div>
                   </div>
                 </CardContent>
@@ -374,7 +375,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   {workOrderDetails.completed_at && (
                     <div className="flex justify-between text-sm pt-2 border-t">
                       <span className="text-muted-foreground">Completed At:</span>
-                      <span className="font-medium">{new Date(workOrderDetails.completed_at).toLocaleString()}</span>
+                      <span className="font-medium">{formatDateTime(workOrderDetails.completed_at)}</span>
                     </div>
                   )}
                 </CardContent>
@@ -401,7 +402,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                         <div>
                           <p className="font-medium">{part.name || part.part_name || 'Part'}</p>
                           <p className="text-xs text-muted-foreground">
-                            {part.part_number || part.partNumber || 'N/A'}
+                            {part.part_number || part.partNumber || '—'}
                           </p>
                         </div>
                         <div className="text-right text-sm">
@@ -468,7 +469,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                         <div>
                           <p className="text-sm font-medium">{event.description || event.event || 'Event'}</p>
                           <p className="text-xs text-muted-foreground">
-                            {event.timestamp || event.date || 'N/A'} {event.user_name ? `• ${event.user_name}` : ''}
+                            {event.timestamp || event.date || '—'} {event.user_name ? `• ${event.user_name}` : ''}
                           </p>
                         </div>
                       </div>

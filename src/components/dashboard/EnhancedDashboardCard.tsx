@@ -65,13 +65,13 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
         };
       case 'warning':
         return {
-          borderLeft: '4px solid #F0A000',
-          boxShadow: 'inset 0 0 0 1px rgba(240, 160, 0, 0.2), 0 4px 12px rgba(240, 160, 0, 0.1)',
+          borderLeft: '4px solid #a0a0a0',
+          boxShadow: 'inset 0 0 0 1px rgba(160, 160, 160, 0.2), 0 4px 12px rgba(160, 160, 160, 0.1)',
         };
       case 'danger':
         return {
-          borderLeft: '4px solid #DD3903',
-          boxShadow: 'inset 0 0 0 1px rgba(221, 57, 3, 0.2), 0 4px 12px rgba(221, 57, 3, 0.1)',
+          borderLeft: '4px solid #f5f5f5',
+          boxShadow: 'inset 0 0 0 1px rgba(245, 245, 245, 0.2), 0 4px 12px rgba(245, 245, 245, 0.1)',
         };
       case 'success':
         return {
@@ -179,17 +179,17 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
                 background: status === 'active'
                   ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(16, 185, 129, 0.1))'
                   : status === 'warning'
-                  ? 'linear-gradient(135deg, rgba(240, 160, 0, 0.2), rgba(240, 160, 0, 0.1))'
+                  ? 'linear-gradient(135deg, rgba(160, 160, 160, 0.2), rgba(160, 160, 160, 0.1))'
                   : status === 'danger'
-                  ? 'linear-gradient(135deg, rgba(221, 57, 3, 0.2), rgba(221, 57, 3, 0.1))'
-                  : 'linear-gradient(135deg, rgba(47, 51, 89, 0.2), rgba(47, 51, 89, 0.1))',
+                  ? 'linear-gradient(135deg, rgba(245, 245, 245, 0.2), rgba(245, 245, 245, 0.1))'
+                  : 'linear-gradient(135deg, rgba(31, 48, 118, 0.2), rgba(31, 48, 118, 0.1))',
                 boxShadow: status === 'active'
                   ? '0 4px 12px rgba(16, 185, 129, 0.2)'
                   : status === 'warning'
-                  ? '0 4px 12px rgba(240, 160, 0, 0.2)'
+                  ? '0 4px 12px rgba(160, 160, 160, 0.2)'
                   : status === 'danger'
-                  ? '0 4px 12px rgba(221, 57, 3, 0.2)'
-                  : '0 4px 12px rgba(47, 51, 89, 0.1)',
+                  ? '0 4px 12px rgba(245, 245, 245, 0.2)'
+                  : '0 4px 12px rgba(31, 48, 118, 0.1)',
                 color: status === 'active'
                   ? colors.success[500]
                   : status === 'warning'
@@ -226,7 +226,7 @@ export const EnhancedDashboardCard: React.FC<EnhancedDashboardCardProps> = ({
               e.stopPropagation()
               actionButton.onClick()
             }}
-            className="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all bg-gradient-to-r from-[#DD3903] to-[#E85A2A] hover:from-[#C43203] hover:to-[#DD3903] shadow-md shadow-[#DD3903]/30 hover:shadow-lg hover:shadow-[#DD3903]/40 hover:-translate-y-0.5"
+            className="w-full px-4 py-2 rounded-lg text-sm font-medium text-white transition-all bg-gradient-to-r from-[#333333] to-[#555555] hover:from-[#444444] hover:to-[#666666] shadow-md shadow-black/20 hover:shadow-lg hover:shadow-black/30 hover:-translate-y-0.5"
             style={{
               transition: transitions.fast,
             }}

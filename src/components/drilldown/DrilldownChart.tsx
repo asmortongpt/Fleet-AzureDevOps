@@ -15,6 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 export interface DrilldownChartProps {
     title: string
@@ -92,7 +93,7 @@ export function DrilldownChart({
                                     tick={{ fontSize: 12 }}
                                     tickLine={false}
                                     axisLine={false}
-                                    tickFormatter={(value) => `${value.toLocaleString()}${unit}`}
+                                    tickFormatter={(value) => `${formatNumber(value)}${unit}`}
                                 />
                                 <Tooltip
                                     cursor={{ fill: 'rgba(0,0,0,0.05)' }}

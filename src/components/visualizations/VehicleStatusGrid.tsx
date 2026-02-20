@@ -13,6 +13,7 @@ import { useMemo } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { formatTime } from '@/utils/format-helpers';
 import { Progress } from '@/components/ui/progress';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
 import type { Vehicle } from '@/types/Vehicle';
@@ -236,11 +237,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                   <div className="flex items-center gap-1">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                     <span>
-                      {new Date(vehicle.position.timestamp).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}
+                      {formatTime(vehicle.position.timestamp)}
                     </span>
                   </div>
                 </div>

@@ -17,6 +17,8 @@ import {
   vehicleStatsAtom,
   fleetMetricsAtom,
 } from '../../lib/reactive-state'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime, formatNumber } from '@/utils/format-helpers'
 
 /* ============================================================
    REACTIVE METRIC CARD
@@ -271,7 +273,7 @@ export function RealtimeAlertsFeed() {
                 <h4 className="font-semibold text-sm">{alert.title}</h4>
                 <p className="text-sm opacity-80 mt-1">{alert.message}</p>
                 <p className="text-xs opacity-60 mt-2">
-                  {new Date(alert.timestamp).toLocaleString()}
+                  {formatDateTime(alert.timestamp)}
                 </p>
               </div>
             </div>
@@ -412,7 +414,7 @@ export function LiveVehicleList({ onVehicleClick }: { onVehicleClick?: (vehicle:
 
         return (
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusColors[vehicle.status]}`}>
-            {vehicle.status}
+            {formatEnum(vehicle.status)}
           </span>
         )
       },
@@ -421,13 +423,13 @@ export function LiveVehicleList({ onVehicleClick }: { onVehicleClick?: (vehicle:
       key: 'mileage',
       label: 'Mileage',
       sortable: true,
-      render: (vehicle) => (vehicle.mileage ? `${vehicle.mileage.toLocaleString()} mi` : 'N/A'),
+      render: (vehicle) => (vehicle.mileage ? `${formatNumber(vehicle.mileage)} mi` : '—'),
     },
     {
       key: 'fuelLevel',
       label: 'Fuel',
       sortable: true,
-      render: (vehicle) => (vehicle.fuelLevel ? `${vehicle.fuelLevel}%` : 'N/A'),
+      render: (vehicle) => (vehicle.fuelLevel ? `${vehicle.fuelLevel}%` : '—'),
     },
   ]
 

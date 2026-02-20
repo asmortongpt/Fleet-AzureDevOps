@@ -11,6 +11,7 @@ import useSWR from "swr"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { formatCurrency } from "@/utils/format-helpers"
 
 interface PredictiveMaintenanceProps {
   data: ReturnType<typeof useFleetData>
@@ -133,7 +134,7 @@ export function PredictiveMaintenance() {
               <p className="text-sm font-medium text-muted-foreground">Potential Savings</p>
             </div>
             <p className="text-base font-semibold">
-              ${Math.round(estimatedSavings).toLocaleString()}
+              {formatCurrency(Math.round(estimatedSavings))}
             </p>
             <p className="text-sm text-muted-foreground mt-1">vs reactive maintenance</p>
           </CardContent>
@@ -186,7 +187,7 @@ export function PredictiveMaintenance() {
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {vehicle.estimatedCost ? `Est. $${vehicle.estimatedCost.toLocaleString()}` : "Est. —"}
+                        {vehicle.estimatedCost ? `Est. ${formatCurrency(vehicle.estimatedCost)}` : "Est. —"}
                       </p>
                     </div>
 
@@ -215,7 +216,7 @@ export function PredictiveMaintenance() {
               <div className="p-2 border rounded-lg bg-accent/5">
                 <h3 className="font-semibold mb-2">Proactive Scheduling</h3>
                 <p className="text-sm text-muted-foreground">
-                  Schedule maintenance for {predictiveVehicles.length} vehicles before predicted issues occur to reduce emergency repairs by approximately ${Math.round(estimatedSavings).toLocaleString()}.
+                  Schedule maintenance for {predictiveVehicles.length} vehicles before predicted issues occur to reduce emergency repairs by approximately {formatCurrency(Math.round(estimatedSavings))}.
                 </p>
               </div>
               <div className="p-2 border rounded-lg">

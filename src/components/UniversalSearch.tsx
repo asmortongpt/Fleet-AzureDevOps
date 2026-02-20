@@ -33,6 +33,7 @@ import { useFleetData } from '@/hooks/use-fleet-data'
 import { useDebounce } from '@/hooks/useDebounce'
 import { Vehicle, Driver, WorkOrder } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
 
 // ============================================================================
 // TYPES
@@ -149,7 +150,7 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
             id: vehicle.id,
             title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
             subtitle: vehicle.number,
-            description: `${vehicle.status} | ${vehicle.region}`,
+            description: `${formatEnum(vehicle.status)} | ${vehicle.region}`,
             score,
             data: vehicle,
             matches
@@ -220,7 +221,7 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
             id: wo.id,
             title: `WO-${String(wo.id).slice(-6)} - ${wo.serviceType}`,
             subtitle: wo.vehicleNumber,
-            description: `${wo.status} | ${wo.priority} priority`,
+            description: `${formatEnum(wo.status)} | ${formatEnum(wo.priority)} priority`,
             score,
             data: wo,
             matches

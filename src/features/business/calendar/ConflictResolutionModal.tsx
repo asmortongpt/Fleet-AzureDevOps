@@ -1,6 +1,8 @@
 import { AlertTriangle, Calendar, Clock, Car, Users, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { formatDate, formatDateTime, formatTime } from '@/utils/format-helpers';
+
 interface ConflictResolutionModalProps {
   currentTheme: any;
   conflicts: any[];
@@ -186,7 +188,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
           }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Calendar size={14} />
-              {originalEvent.start.toLocaleDateString()}
+              {formatDate(originalEvent.start)}
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <Clock size={14} />
@@ -234,7 +236,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                       color: currentTheme.textMuted,
                       marginTop: '4px'
                     }}>
-                      {conflict.start.toLocaleTimeString()} - {conflict.end.toLocaleTimeString([], {
+                      {formatTime(conflict.start)} - {conflict.end.toLocaleTimeString([], {
                         hour: '2-digit',
                         minute: '2-digit'
                       })}
@@ -338,7 +340,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                         color: currentTheme.text
                       }}
                     >
-                      {suggestion.time.toLocaleString()} - {suggestion.reason}
+                      {formatDateTime(suggestion.time)} - {suggestion.reason}
                     </button>
                   ))}
                 </div>
@@ -419,7 +421,7 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                     <option value="">Select event to merge with</option>
                     {conflicts.filter(c => c.type === originalEvent.type).map(conflict => (
                       <option key={conflict.id} value={conflict.id}>
-                        {conflict.title} - {conflict.start.toLocaleString()}
+                        {conflict.title} - {formatDateTime(conflict.start)}
                       </option>
                     ))}
                   </select>

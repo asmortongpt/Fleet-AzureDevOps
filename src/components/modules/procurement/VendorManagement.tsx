@@ -35,6 +35,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vendor } from "@/lib/types"
 import { brandColors } from "@/theme/designSystem"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency } from "@/utils/format-helpers"
 
 
 export function VendorManagement() {
@@ -366,7 +368,7 @@ export function VendorManagement() {
                     </TableCell>
                     <TableCell>
                       <Badge className={getTypeColor(vendor.type)} variant="secondary">
-                        {vendor.type}
+                        {formatEnum(vendor.type)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -388,11 +390,11 @@ export function VendorManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      ${vendor.totalSpend.toLocaleString()}
+                      {formatCurrency(vendor.totalSpend)}
                     </TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(vendor.status)} variant="secondary">
-                        {vendor.status}
+                        {formatEnum(vendor.status)}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -455,7 +457,7 @@ export function VendorManagement() {
                       <span className="text-muted-foreground">Type:</span>
                       <div className="mt-1">
                         <Badge className={getTypeColor(selectedVendor.type)} variant="secondary">
-                          {selectedVendor.type}
+                          {formatEnum(selectedVendor.type)}
                         </Badge>
                       </div>
                     </div>
@@ -463,7 +465,7 @@ export function VendorManagement() {
                       <span className="text-muted-foreground">Status:</span>
                       <div className="mt-1">
                         <Badge className={getStatusColor(selectedVendor.status)} variant="secondary">
-                          {selectedVendor.status}
+                          {formatEnum(selectedVendor.status)}
                         </Badge>
                       </div>
                     </div>
@@ -546,7 +548,7 @@ export function VendorManagement() {
                     </div>
                     <div>
                       <span className="text-muted-foreground">Total Spend:</span>
-                      <p className="font-medium text-sm">${selectedVendor.totalSpend.toLocaleString()}</p>
+                      <p className="font-medium text-sm">{formatCurrency(selectedVendor.totalSpend)}</p>
                     </div>
                     <div>
                       <span className="text-muted-foreground">Invoice Count:</span>

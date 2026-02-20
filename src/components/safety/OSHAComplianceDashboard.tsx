@@ -20,6 +20,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { swrFetcher } from '@/lib/fetcher'
+import { formatDate } from '@/utils/format-helpers'
 
 interface OSHA300Entry {
     id: string
@@ -80,7 +81,7 @@ export function OSHAComplianceDashboard() {
 
         return rows.map((row) => {
             const meta = row.metadata || {}
-            const employeeName = (row.employee_name || row.employee_full_name || 'Unknown').toString()
+            const employeeName = (row.employee_name || row.employee_full_name || '—').toString()
 
             return {
                 id: row.id,
@@ -323,7 +324,7 @@ export function OSHAComplianceDashboard() {
                                             {entry.job_title}
                                         </TableCell>
                                         <TableCell className="text-slate-300">
-                                            {new Date(entry.incident_date).toLocaleDateString()}
+                                            {formatDate(entry.incident_date)}
                                         </TableCell>
                                         <TableCell className="text-slate-300">
                                             {entry.location}

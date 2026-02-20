@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { formatEnum } from '@/utils/format-enum'
 
 // Define interfaces for data structures
 interface Driver {
@@ -96,15 +97,15 @@ export function DriversRosterDrilldown() {
                                         }`} weight="fill" />
                                 </div>
                                 <div>
-                                    <div className="font-medium text-white">{driver.firstName ?? 'Unknown'} {driver.lastName ?? 'Driver'}</div>
-                                    <div className="text-xs text-slate-700">{driver.licenseNumber ?? 'N/A'}</div>
+                                    <div className="font-medium text-white">{driver.firstName ?? '—'} {driver.lastName ?? ''}</div>
+                                    <div className="text-xs text-slate-700">{driver.licenseNumber ?? '—'}</div>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Badge variant="outline" className={`${driver.status === 'active' ? 'border-emerald-500 text-emerald-700' :
                                     driver.status === 'off-duty' ? 'border-amber-500 text-amber-400' : 'border-slate-500 text-slate-700'
                                     }`}>
-                                    {driver.status}
+                                    {formatEnum(driver.status)}
                                 </Badge>
                                 <ArrowRight className="w-4 h-4 text-slate-500" />
                             </div>
@@ -197,7 +198,7 @@ export function DriverPerformanceDrilldown() {
                                     {idx + 1}
                                 </div>
                                 <div>
-                                    <div className="font-medium text-white">{driver.firstName ?? 'Unknown'} {driver.lastName ?? 'Driver'}</div>
+                                    <div className="font-medium text-white">{driver.firstName ?? '—'} {driver.lastName ?? ''}</div>
                                     <div className="text-xs text-slate-700">Safety Score: {driver.safetyScore ?? 0}</div>
                                 </div>
                             </div>
@@ -340,8 +341,8 @@ export function GarageDrilldown() {
                                         }`} weight="fill" />
                                 </div>
                                 <div>
-                                    <div className="font-medium text-white">WO-{wo.workOrderNumber ?? 'N/A'}</div>
-                                    <div className="text-xs text-slate-700">{wo.status}</div>
+                                    <div className="font-medium text-white">WO-{wo.workOrderNumber ?? '—'}</div>
+                                    <div className="text-xs text-slate-700">{formatEnum(wo.status)}</div>
                                 </div>
                             </div>
                             <ArrowRight className="w-4 h-4 text-slate-500" />

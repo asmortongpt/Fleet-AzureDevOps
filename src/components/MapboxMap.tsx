@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 import logger from '@/utils/logger';
 
 let mapboxgl: any | null = null
@@ -97,25 +98,15 @@ function getVehicleColor(status: Vehicle["status"]): string {
 }
 
 function createVehiclePopupHTML(vehicle: Vehicle): string {
-  const locationText = vehicle.location?.address ||
-    (vehicle.location ? `${vehicle.location?.lat.toFixed(4)}, ${vehicle.location?.lng.toFixed(4)}` : "Unknown")
-
+  // Mapbox .mapboxgl-popup-content has white bg + padding. Override with inline style block.
   return `
-    <div style="padding: 12px; min-width: 200px; font-family: system-ui, -apple-system, sans-serif;">
-      <div style="font-weight: bold; font-size: 14px; margin-bottom: 8px;">${escapeHtml(vehicle.name)}</div>
-      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
-        <strong>Type:</strong> ${escapeHtml(vehicle.type)}
-      </div>
-      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
-        <strong>Status:</strong> <span style="color: ${getVehicleColor(vehicle.status)}">${escapeHtml(vehicle.status)}</span>
-      </div>
-      <div style="font-size: 12px; color: hsl(var(--muted-foreground)); margin-bottom: 4px;">
-        <strong>Driver:</strong> ${escapeHtml(vehicle.driver || "Unassigned")}
-      </div>
-      <div style="font-size: 12px; color: hsl(var(--muted-foreground));">
-        <strong>Location:</strong> ${escapeHtml(locationText)}
-      </div>
-    </div>
+    <style>
+      .mapboxgl-popup-content { background: #242424 !important; padding: 0 !important; border-radius: 8px !important; box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important; }
+      .mapboxgl-popup-tip { border-top-color: #242424 !important; border-bottom-color: #242424 !important; }
+      .mapboxgl-popup-close-button { color: #9ca3af !important; font-size: 18px !important; right: 4px !important; top: 4px !important; }
+      .mapboxgl-popup-close-button:hover { color: #fff !important; background: transparent !important; }
+    </style>
+    ${buildVehiclePopupHTML(vehicle, escapeHtml)}
   `
 }
 
@@ -179,7 +170,7 @@ function createCameraPopupHTML(camera: TrafficCamera): string {
   `
 }
 
-function escapeHtml(text: string | undefined): string {
+function escapeHtml(text: string | null | undefined): string {
   if (!text || typeof text !== 'string') {
     return ''
   }

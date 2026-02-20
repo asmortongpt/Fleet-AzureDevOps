@@ -21,6 +21,7 @@ import {
   HealthStatus,
   MapServiceProvider,
 } from '@/utils/mapHealthCheck'
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 
 // ============================================================================
 // Types & Interfaces
@@ -287,7 +288,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                                 )}`}
                               />
                               <span className="text-sm">
-                                {new Date(check.timestamp).toLocaleTimeString()}
+                                {formatTime(new Date(check.timestamp))}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
@@ -330,7 +331,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                         <div className="text-sm text-gray-700">Last Check</div>
                         <div className="text-sm font-medium">
                           {stats.lastCheck
-                            ? new Date(stats.lastCheck).toLocaleString()
+                            ? formatDateTime(new Date(stats.lastCheck))
                             : 'Never'}
                         </div>
                       </div>

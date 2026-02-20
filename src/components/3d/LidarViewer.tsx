@@ -25,6 +25,7 @@ import { Button } from '../ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 
+import { formatDateTime, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface LiDARPoint {
@@ -233,7 +234,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
   };
 
   const formatVolume = (volume?: number): string => {
-    if (!volume) return 'N/A';
+    if (!volume) return '—';
     if (volume < 0.001) return `${(volume * 1000000).toFixed(2)} cm³`;
     if (volume < 1) return `${(volume * 1000).toFixed(2)} L`;
     return `${volume.toFixed(4)} m³`;
@@ -270,7 +271,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
             <div>
               <CardTitle>LiDAR Scan Viewer</CardTitle>
               <CardDescription>
-                {scan && new Date(scan.scanDate).toLocaleString()} • {scan?.pointCount.toLocaleString()} points
+                {scan && formatDateTime(scan.scanDate)} • {formatNumber(scan?.pointCount ?? 0)} points
               </CardDescription>
             </div>
             <div className="flex gap-2">
@@ -343,8 +344,8 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
               <div className="absolute top-4 right-4 bg-black/50 backdrop-blur-sm rounded-lg p-3 text-white text-sm">
                 <div className="space-y-1">
                   <div>Resolution: {scan?.resolution.toFixed(3)} pts/m</div>
-                  <div>Accuracy: ±{scan?.accuracy ? (scan.accuracy * 100).toFixed(1) : 'N/A'} cm</div>
-                  <div>Points: {scan?.pointCount.toLocaleString()}</div>
+                  <div>Accuracy: ±{scan?.accuracy ? (scan.accuracy * 100).toFixed(1) : '—'} cm</div>
+                  <div>Points: {formatNumber(scan?.pointCount ?? 0)}</div>
                 </div>
               </div>
 

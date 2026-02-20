@@ -28,6 +28,8 @@ import { OperationalMetrics, CircularGauge } from '@/components/visualizations/O
 import { RouteTimeline } from '@/components/visualizations/RouteTimeline';
 import { VehicleStatusGrid } from '@/components/visualizations/VehicleStatusGrid';
 import { useDrilldown } from '@/contexts/DrilldownContext';
+import { formatEnum } from '@/utils/format-enum';
+import { formatTime } from '@/utils/format-helpers';
 import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
 import type { Vehicle as CanonicalVehicle } from '@/types/Vehicle';
@@ -141,7 +143,7 @@ export function OperationsHubEnhanced() {
   const handleAlertClick = (alert: { id: string; type: string; message: string }) => {
     push({
       type: 'alert',
-      label: `Alert: ${alert.type}`,
+      label: `Alert: ${formatEnum(alert.type)}`,
       data: { alertId: alert.id, alertType: alert.type, message: alert.message }
     });
   };
@@ -174,7 +176,7 @@ export function OperationsHubEnhanced() {
         id: alert.id,
         type: alert.type,
         message: alert.message,
-        timestamp: new Date(alert.timestamp).toLocaleTimeString(),
+        timestamp: formatTime(alert.timestamp),
         severity: alert.severity as 'critical' | 'high' | 'medium'
       });
     });
@@ -186,7 +188,7 @@ export function OperationsHubEnhanced() {
         id: `wo-${wo.id}`,
         type: wo.priority === 'critical' ? 'critical' : 'warning',
         message: `Work order ${wo.work_order_number} requires immediate attention`,
-        timestamp: new Date(Date.now() - (i + 1) * 5 * 60000).toLocaleTimeString(),
+        timestamp: formatTime(new Date(Date.now() - (i + 1) * 5 * 60000)),
         severity: wo.priority === 'critical' ? 'critical' : 'high'
       });
     });
@@ -255,7 +257,7 @@ export function OperationsHubEnhanced() {
         <p className="text-xs text-slate-500">Real-time fleet operations control center</p>
         {lastUpdate && (
           <p className="text-xs text-slate-700 mt-1">
-            Last update: {lastUpdate.toLocaleTimeString()}
+            Last update: {formatTime(lastUpdate)}
           </p>
         )}
       </div>

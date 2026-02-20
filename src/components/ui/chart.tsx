@@ -4,6 +4,7 @@ import type { LegendPayload } from "recharts/types/component/DefaultLegendConten
 import type { Payload as TooltipPayload, ValueType, NameType } from "recharts/types/component/DefaultTooltipContent"
 
 import { cn } from "@/lib/utils"
+import { formatNumber } from "@/utils/format-helpers"
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
@@ -123,7 +124,7 @@ function sanitizeColor(color: string | undefined): string | null {
   }
 
   // If none of the above, reject the color
-  console.warn(`Invalid color value rejected: ${color}`)
+  if (import.meta.env.DEV) console.warn(`Invalid color value rejected: ${color}`)
   return null
 }
 
@@ -305,7 +306,7 @@ function ChartTooltipContent({
                     </div>
                     {item.value && (
                       <span className="text-foreground font-mono font-medium tabular-nums">
-                        {item.value.toLocaleString()}
+                        {typeof item.value === 'number' ? formatNumber(item.value) : String(item.value)}
                       </span>
                     )}
                   </div>

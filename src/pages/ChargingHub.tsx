@@ -15,6 +15,7 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Zap, Battery, MapPin, Plus, RefreshCw, Car } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 
+import { formatCurrency, formatDateTime, formatTime } from '@/utils/format-helpers';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table';
@@ -213,7 +214,7 @@ const sessionColumns: ColumnDef<ChargingSession>[] = [
       const date = new Date(row.getValue('start_time'));
       return (
         <div className="text-xs text-muted-foreground">
-          {date.toLocaleString()}
+          {formatDateTime(date)}
         </div>
       );
     },
@@ -274,7 +275,7 @@ const sessionColumns: ColumnDef<ChargingSession>[] = [
         : null);
       return (
         <span className="font-medium text-emerald-400">
-          {cost != null ? `$${cost.toFixed(2)}` : '--'}
+          {formatCurrency(cost)}
         </span>
       );
     },
@@ -368,7 +369,7 @@ export default function ChargingHub() {
       totalConnectors,
       activeSessions: sessions.length,
       totalEnergy: totalEnergy.toFixed(1),
-      totalCost: totalCost.toFixed(2),
+      totalCost,
     };
   }, [stations, sessions]);
 
@@ -393,7 +394,7 @@ export default function ChargingHub() {
             Charging Hub
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Real-time EV charging infrastructure management • Last updated: {lastRefresh.toLocaleTimeString()}
+            Real-time EV charging infrastructure management • Last updated: {formatTime(lastRefresh)}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -519,7 +520,7 @@ export default function ChargingHub() {
             <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">Total Cost</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-400">${metrics.totalCost}</div>
+            <div className="text-2xl font-bold text-emerald-400">{formatCurrency(metrics.totalCost)}</div>
           </CardContent>
         </Card>
 

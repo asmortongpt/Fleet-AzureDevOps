@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from "@/lib/api-client";
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 interface TripInspectorProps {
   id: string;
   initialTab?: string;
@@ -172,11 +173,11 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
               <dl className="space-y-3">
                 <div>
                   <dt className="text-sm text-slate-700">Start Time</dt>
-                  <dd className="font-medium">{new Date(trip.startTime).toLocaleString()}</dd>
+                  <dd className="font-medium">{formatDateTime(trip.startTime)}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-slate-700">End Time</dt>
-                  <dd className="font-medium">{new Date(trip.endTime).toLocaleString()}</dd>
+                  <dd className="font-medium">{formatDateTime(trip.endTime)}</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-slate-700">Average Speed</dt>
@@ -257,7 +258,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Trip Started</p>
-                  <p className="text-sm text-slate-700">{new Date(trip.startTime).toLocaleString()}</p>
+                  <p className="text-sm text-slate-700">{formatDateTime(trip.startTime)}</p>
                   {trip.startLocation.address && (
                     <p className="text-sm text-gray-700">{trip.startLocation.address}</p>
                   )}
@@ -271,7 +272,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Rest Stop</p>
                   <p className="text-sm text-slate-700">
-                    {new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.3)).toLocaleString()}
+                    {formatDateTime(new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.3)))}
                   </p>
                   <p className="text-sm text-gray-700">Duration: 15 minutes</p>
                 </div>
@@ -284,7 +285,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Refueling Stop</p>
                   <p className="text-sm text-slate-700">
-                    {new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.6)).toLocaleString()}
+                    {formatDateTime(new Date(new Date(trip.startTime).getTime() + (trip.duration * 60000 * 0.6)))}
                   </p>
                   <p className="text-sm text-gray-700">Duration: 10 minutes</p>
                 </div>
@@ -295,7 +296,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="flex-1">
                   <p className="font-medium">Trip Ended</p>
-                  <p className="text-sm text-slate-700">{new Date(trip.endTime).toLocaleString()}</p>
+                  <p className="text-sm text-slate-700">{formatDateTime(trip.endTime)}</p>
                   {trip.endLocation.address && (
                     <p className="text-sm text-gray-700">{trip.endLocation.address}</p>
                   )}

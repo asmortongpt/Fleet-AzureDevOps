@@ -70,7 +70,7 @@ const DriverSchema = z
 
     return {
       id: row.id,
-      name: name || row.email || 'Unknown',
+      name: name || row.email || '—',
       email: row.email || '',
       phone: row.phone || '',
       licenseNumber: row.licenseNumber || row.license_number || '',

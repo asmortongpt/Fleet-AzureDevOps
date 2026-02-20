@@ -7,6 +7,7 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatCurrency, formatCurrencyCompact } from '@/utils/format-helpers'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface WaterfallDataPoint {
@@ -76,10 +77,10 @@ export function WaterfallChart({
       >
         <p className="font-semibold mb-1">{data.name}</p>
         <p className="text-sm">
-          Value: <span className="font-mono">${data.value.toLocaleString()}</span>
+          Value: <span className="font-mono">{formatCurrency(data.value)}</span>
         </p>
         <p className="text-sm">
-          Total: <span className="font-mono">${data.end.toLocaleString()}</span>
+          Total: <span className="font-mono">{formatCurrency(data.end)}</span>
         </p>
       </div>
     )
@@ -121,7 +122,7 @@ export function WaterfallChart({
               <YAxis
                 stroke={chartColors.text}
                 tick={{ fill: chartColors.text, fontSize: 12 }}
-                tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+                tickFormatter={(value) => formatCurrencyCompact(value)}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--foreground) / 0.05)' }} />
               <ReferenceLine y={0} stroke={chartColors.text} strokeDasharray="3 3" />

@@ -385,7 +385,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
       const popup = `
         <div class="p-2 min-w-[200px]">
           <p class="font-bold">${format(new Date(currentPoint.timestamp), 'h:mm:ss a')}</p>
-          <p class="text-sm">Speed: ${currentPoint.speed_mph?.toFixed(1) || 'N/A'} mph</p>
+          <p class="text-sm">Speed: ${currentPoint.speed_mph?.toFixed(1) || '—'} mph</p>
           ${currentPoint.engine_rpm ? `<p class="text-sm">RPM: ${currentPoint.engine_rpm}</p>` : ''}
           ${currentPoint.fuel_level_percent ? `<p class="text-sm">Fuel: ${currentPoint.fuel_level_percent}%</p>` : ''}
         </div>

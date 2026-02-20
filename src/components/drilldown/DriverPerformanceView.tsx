@@ -19,6 +19,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
 interface DriverPerformanceViewProps {
   driverId: string
@@ -66,7 +68,7 @@ export function DriverPerformanceView({
               Performance Metrics {driverName && `for ${driverName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              Last updated: {performance.last_updated ? new Date(performance.last_updated).toLocaleString() : 'N/A'}
+              Last updated: {formatDateTime(performance.last_updated)}
             </p>
           </div>
 
@@ -215,13 +217,13 @@ export function DriverPerformanceView({
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Avg Fuel Economy</span>
                     <span className="font-medium">
-                      {performance.avg_mpg ? `${performance.avg_mpg.toFixed(1)} mpg` : 'N/A'}
+                      {performance.avg_mpg ? `${performance.avg_mpg.toFixed(1)} mpg` : '—'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Idle Time</span>
                     <span className="font-medium">
-                      {performance.idle_time ? `${performance.idle_time} hrs` : 'N/A'}
+                      {performance.idle_time ? `${performance.idle_time} hrs` : '—'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -255,11 +257,9 @@ export function DriverPerformanceView({
                         >
                           <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
                           <div className="flex-1">
-                            <p className="text-sm font-medium">{violation.type}</p>
+                            <p className="text-sm font-medium">{formatEnum(violation.type)}</p>
                             <p className="text-xs text-muted-foreground">
-                              {violation.date
-                                ? new Date(violation.date).toLocaleDateString()
-                                : 'N/A'}
+                              {formatDate(violation.date)}
                             </p>
                             {violation.description && (
                               <p className="text-xs text-muted-foreground mt-1">

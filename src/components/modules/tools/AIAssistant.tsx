@@ -608,7 +608,7 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
                       </ListItemIcon>
                       <ListItemText
                         primary={(server as any)?.name || 'Unknown Server'}
-                        secondary={`Load: ${(server as any)?.load || 'N/A'}`}
+                        secondary={`Load: ${(server as any)?.load || '—'}`}
                       />
                       <Chip
                         label={(server as any)?.status || 'unknown'}

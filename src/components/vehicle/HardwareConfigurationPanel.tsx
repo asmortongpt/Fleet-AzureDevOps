@@ -62,6 +62,7 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
@@ -207,7 +208,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
         {/* Connection Details */}
         {provider.lastSyncTime && (
           <div className="text-sm text-muted-foreground">
-            Last sync: {new Date(provider.lastSyncTime).toLocaleString()}
+            Last sync: {formatDateTime(provider.lastSyncTime)}
           </div>
         )}
 

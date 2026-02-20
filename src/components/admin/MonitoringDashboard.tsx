@@ -4,6 +4,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import apiClient from '../../lib/api-client';
 
+import { formatTime } from '@/utils/format-helpers';
+
 import AlertsPanel from './AlertsPanel';
 import EmulatorMonitor from './EmulatorMonitor';
 import ErrorRateChart from './ErrorRateChart';
@@ -145,7 +147,7 @@ const MonitoringDashboard: React.FC = () => {
 
   const exportToCSV = () => {
     const csvContent = `Monitoring Report - ${new Date().toISOString()}\n\n` +
-      `System Health: ${data.health?.status || 'Unknown'}\n` +
+      `System Health: ${data.health?.status || '—'}\n` +
       `Uptime: ${data.health?.uptime || 0} seconds\n` +
       `API Response Time: ${data.health?.components?.api?.responseTime || 0}ms\n` +
       `Active Emulators: ${data.emulators?.instances?.filter(i => i.status === 'active')?.length || 0}\n` +
@@ -179,7 +181,7 @@ const MonitoringDashboard: React.FC = () => {
             <div>
               <Typography variant="h4">System Monitoring Dashboard</Typography>
               <Typography variant="body2" color="text.secondary">
-                Last updated: {lastRefresh.toLocaleTimeString()}
+                Last updated: {formatTime(lastRefresh)}
               </Typography>
             </div>
           </Box>

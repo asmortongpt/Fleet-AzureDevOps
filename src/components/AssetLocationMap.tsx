@@ -9,6 +9,7 @@ import 'leaflet/dist/leaflet.css';
 import { Asset, Geofence } from '@/types';
 import { getAuthHeaders } from '@/utils/auth';
 import { logger } from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 import { validateCategory, validateStatus } from '@/utils/validators';
 
 const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
@@ -84,7 +85,7 @@ const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {
           <Popup>
             <div>
               <strong>{asset.name}</strong><br />
-              Last seen: {new Date(asset.lastSeen ?? Date.now()).toLocaleString()}
+              Last seen: {formatDateTime(new Date(asset.lastSeen ?? Date.now()))}
             </div>
           </Popup>
         </Marker>

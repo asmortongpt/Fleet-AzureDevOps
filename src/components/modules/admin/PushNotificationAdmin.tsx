@@ -19,8 +19,9 @@ import {
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
-import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
+import { formatDateTime } from '@/utils/format-helpers'
+import logger from '@/utils/logger';
 
 
 interface NotificationStats {
@@ -735,7 +736,7 @@ const PushNotificationAdmin: React.FC = () => {
                               </span>
                             </td>
                             <td className="px-2 py-3 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
-                              {new Date(notification.created_at).toLocaleString()}
+                              {formatDateTime(notification.created_at)}
                             </td>
                           </tr>
                         ))}

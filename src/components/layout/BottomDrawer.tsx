@@ -62,9 +62,9 @@ export function BottomDrawer() {
                 <div className={cn(
                   'w-1.5 h-1.5 rounded-full mt-1 shrink-0',
                   item.type === 'success' ? 'bg-emerald-400' :
-                  item.type === 'warning' ? 'bg-[#F0A000]' :
-                  item.type === 'alert' ? 'bg-[#DD3903]' :
-                  'bg-[#F0A000]/50'
+                  item.type === 'warning' ? 'bg-white/80' :
+                  item.type === 'alert' ? 'bg-white/40' :
+                  'bg-white/20'
                 )} />
                 <span className="text-muted-foreground">{item.text}</span>
               </div>

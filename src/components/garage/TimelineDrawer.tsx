@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { formatCurrency, formatNumber } from '@/utils/format-helpers'
 
 // Event types
 type EventType = 'maintenance' | 'damage' | 'inspection' | 'service' | 'milestone' | 'recall'
@@ -149,12 +150,12 @@ function TimelineEventCard({
             {event.mileage && (
               <span className="text-xs text-slate-500">
                 <Car className="w-3 h-3 inline mr-1" />
-                {event.mileage.toLocaleString()} mi
+                {formatNumber(event.mileage)} mi
               </span>
             )}
             {event.cost && (
               <span className="text-xs text-slate-500">
-                ${event.cost.toLocaleString()}
+                {formatCurrency(event.cost)}
               </span>
             )}
             {event.status && (

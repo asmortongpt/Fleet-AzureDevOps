@@ -39,6 +39,7 @@ import {
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 
+import { formatDate, formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // Prefer same-origin `/api` (Vite proxies this in dev). This feature module is not used by the
@@ -450,7 +451,7 @@ export default function ReportingDashboard() {
                     </TableCell>
                     <TableCell>
                       {report.nextRun
-                        ? new Date(report.nextRun).toLocaleString()
+                        ? formatDateTime(report.nextRun)
                         : 'Not scheduled'}
                     </TableCell>
                     <TableCell>
@@ -511,17 +512,15 @@ export default function ReportingDashboard() {
                     </TableCell>
                     <TableCell>
                       {report.dateRange?.start && report.dateRange?.end
-                        ? `${new Date(report.dateRange.start).toLocaleDateString()} - ${new Date(
-                            report.dateRange.end
-                          ).toLocaleDateString()}`
-                        : 'N/A'}
+                        ? `${formatDate(report.dateRange.start)} - ${formatDate(report.dateRange.end)}`
+                        : '—'}
                     </TableCell>
                     <TableCell>
-                      {new Date(report.generatedAt).toLocaleString()}
+                      {formatDateTime(report.generatedAt)}
                     </TableCell>
                     <TableCell>{String(report.format).toUpperCase()}</TableCell>
                     <TableCell>
-                      {report.fileSize ? `${(report.fileSize / 1024).toFixed(2)} KB` : 'N/A'}
+                      {report.fileSize ? `${(report.fileSize / 1024).toFixed(2)} KB` : '—'}
                     </TableCell>
                     <TableCell>
                       <Chip

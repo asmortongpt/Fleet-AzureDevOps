@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
 
 interface TaskDetailPanelProps {
   taskId: string
@@ -190,7 +191,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   }
 
   const formatDateTime = (dateString?: string) => {
-    if (!dateString) return 'N/A'
+    if (!dateString) return '—'
     return new Date(dateString).toLocaleString('en-US', {
       month: 'short',
       day: 'numeric',
@@ -229,13 +230,13 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <Badge variant={getStatusColor(task.status)}>
-                  {task.status}
+                  {formatEnum(task.status)}
                 </Badge>
                 <Badge variant={getPriorityColor(task.priority)}>
-                  {task.priority} priority
+                  {formatEnum(task.priority)} priority
                 </Badge>
                 {task.category && (
-                  <Badge variant="outline">{task.category}</Badge>
+                  <Badge variant="outline">{formatEnum(task.category)}</Badge>
                 )}
                 {task.status === 'blocked' && (
                   <Badge variant="destructive">
@@ -336,7 +337,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-semibold text-sm">{task.assignedToName}</p>
-                      <p className="text-sm text-muted-foreground capitalize">{task.assignedToType}</p>
+                      <p className="text-sm text-muted-foreground">{formatEnum(task.assignedToType)}</p>
                     </div>
                     <Button size="sm" variant="outline" onClick={handleViewAssignee}>
                       View Details
@@ -511,7 +512,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                             <p className="text-sm font-medium">{dep.title}</p>
                             <p className="text-xs text-muted-foreground">Task {dep.id}</p>
                           </div>
-                          <Badge variant="outline" className="capitalize">{dep.status}</Badge>
+                          <Badge variant="outline">{formatEnum(dep.status)}</Badge>
                         </div>
                       ))}
                     </div>

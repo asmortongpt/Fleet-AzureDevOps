@@ -23,6 +23,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
+import { formatEnum } from '@/utils/format-enum';
+import { formatNumber, formatTime } from '@/utils/format-helpers';
 
 interface Vehicle {
   id: string;
@@ -89,7 +91,7 @@ export function OperationsHub() {
   const handleAlertClick = (alert: { id: string; type: string; message: string }) => {
     push({
       type: 'alert',
-      label: `Alert: ${alert.type}`,
+      label: `Alert: ${formatEnum(alert.type)}`,
       data: { alertId: alert.id, alertType: alert.type, message: alert.message }
     });
   };
@@ -147,7 +149,7 @@ export function OperationsHub() {
         id: `wo-${wo.id}`,
         type: wo.priority === 'critical' ? 'critical' : 'warning',
         message: `Work order ${wo.id} requires immediate attention`,
-        timestamp: new Date(Date.now() - (i + 1) * 5 * 60000).toLocaleTimeString()
+        timestamp: formatTime(new Date(Date.now() - (i + 1) * 5 * 60000))
       });
     });
 
@@ -158,7 +160,7 @@ export function OperationsHub() {
         id: `maint-${v.id}`,
         type: 'info',
         message: `${v.vehicleNumber} is in maintenance - ${v.make} ${v.model}`,
-        timestamp: new Date(Date.now() - (i + 3) * 10 * 60000).toLocaleTimeString()
+        timestamp: formatTime(new Date(Date.now() - (i + 3) * 10 * 60000))
       });
     });
 
@@ -356,7 +358,7 @@ export function OperationsHub() {
                 {selectedVehicle.vehicleNumber}
               </span>
               <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
-                {selectedVehicle.status}
+                {formatEnum(selectedVehicle.status)}
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -447,7 +449,7 @@ export function OperationsHub() {
             <div className="flex justify-between">
               <span className="text-slate-600">Status:</span>
               <Badge variant={selectedVehicle.status === 'active' ? 'default' : 'secondary'}>
-                {selectedVehicle.status}
+                {formatEnum(selectedVehicle.status)}
               </Badge>
             </div>
           </CardContent>
@@ -462,12 +464,12 @@ export function OperationsHub() {
               <>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Capacity:</span>
-                  <span className="font-medium">{capacityLbs.toLocaleString()} lbs</span>
+                  <span className="font-medium">{formatNumber(capacityLbs)} lbs</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-600">Current:</span>
                   <span className="font-medium text-green-600">
-                    {currentLoadLbs.toLocaleString()} lbs{loadPct != null ? ` (${loadPct}%)` : ''}
+                    {formatNumber(currentLoadLbs)} lbs{loadPct != null ? ` (${loadPct}%)` : ''}
                   </span>
                 </div>
                 <div className="h-2 bg-slate-200 rounded-full overflow-hidden mt-2">

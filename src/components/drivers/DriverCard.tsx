@@ -109,7 +109,7 @@ export function DriverCard({ driver, onClick, compact = false }: DriverCardProps
                                     <MapPin className="w-3 h-3" />
                                     Location
                                 </p>
-                                <p className="font-medium truncate">{driver.location || "Unknown"}</p>
+                                <p className="font-medium truncate">{driver.location || "—"}</p>
                             </div>
                         </div>
                     </div>

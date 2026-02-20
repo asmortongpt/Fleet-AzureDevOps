@@ -23,6 +23,7 @@ import {
   TableHeader,
   TableRow
 } from "@/components/ui/table"
+import { formatCurrency } from "@/utils/format-helpers"
 
 
 
@@ -181,9 +182,9 @@ export function AssetManagement() {
                       {asset.condition}
                     </Badge>
                   </TableCell>
-                  <TableCell>{asset.location || "N/A"}</TableCell>
-                  <TableCell>{asset.assigned_to_name || "Unassigned"}</TableCell>
-                  <TableCell>${asset.current_value?.toLocaleString() || "0"}</TableCell>
+                  <TableCell>{asset.location || "—"}</TableCell>
+                  <TableCell>{asset.assigned_to_name || "—"}</TableCell>
+                  <TableCell>{formatCurrency(asset.current_value ?? 0)}</TableCell>
                 </TableRow>
               ))}
               {filteredAssets.length === 0 && (

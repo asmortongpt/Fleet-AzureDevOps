@@ -3,6 +3,7 @@ import { useState } from "react"
 
 import { StatusBadge } from "@/components/shared"
 import { Badge } from "@/components/ui/badge"
+import { formatNumber } from "@/utils/format-helpers"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -149,7 +150,7 @@ export function OverviewTab({ vehicles, onAdvancedSearch }: OverviewTabProps) {
                       <StatusBadge status={vehicle.status} />
                     </td>
                     <td className="p-2">
-                      <span className="font-medium">{(vehicle.mileage ?? 0).toLocaleString()} mi</span>
+                      <span className="font-medium">{formatNumber(vehicle.mileage ?? 0)} mi</span>
                     </td>
                     <td className="p-2">
                       <div className="flex items-center gap-2">
@@ -177,7 +178,7 @@ export function OverviewTab({ vehicles, onAdvancedSearch }: OverviewTabProps) {
                     </td>
                     <td className="p-2">
                       <span className="text-sm">
-                        {vehicle.assignedDriver || "Unassigned"}
+                        {vehicle.assignedDriver || "—"}
                       </span>
                     </td>
                     <td className="p-2">

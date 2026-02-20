@@ -64,7 +64,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
 
     try {
       const vehicle = await api.post('/vehicles', formData);
-      // console.log('✅ Vehicle created in database:', vehicle);
 
       if (onSuccess) {
         onSuccess(vehicle);
@@ -87,7 +86,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create vehicle');
-      console.error('❌ Vehicle creation failed:', err);
+      if (import.meta.env.DEV) console.error('Vehicle creation failed:', err);
     } finally {
       setIsSubmitting(false);
     }

@@ -21,6 +21,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { useInspect } from "@/services/inspect/InspectContext"
+import { formatNumber } from "@/utils/format-helpers"
 
 interface DriverPerformanceProps {
   data?: ReturnType<typeof useFleetData>
@@ -225,7 +226,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
         />
         <MetricCard
           title="Total Trips"
-          value={metrics.totalTrips.toLocaleString()}
+          value={formatNumber(metrics.totalTrips)}
           subtitle="completed"
           icon={<Target className="w-3 h-3" />}
           status="info"
@@ -344,7 +345,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                             </div>
                             <div>
                               <p className="text-muted-foreground">Miles Driven</p>
-                              <p className="font-semibold text-sm">{safeNum((driver as any).miles).toLocaleString()}</p>
+                              <p className="font-semibold text-sm">{formatNumber(safeNum((driver as any).miles))}</p>
                             </div>
                             <div>
                               <p className="text-muted-foreground">Incidents</p>
@@ -417,7 +418,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                         <p className="text-sm text-muted-foreground">
                           Safety Score: <span className={`font-semibold ${getScoreColor(safeNum(driver.safetyScore))}`}>
                             {safeNum(driver.safetyScore)}
-                          </span> • {safeNum((driver as any).trips)} trips • {safeNum((driver as any).miles).toLocaleString()} miles
+                          </span> • {safeNum((driver as any).trips)} trips • {formatNumber(safeNum((driver as any).miles))} miles
                         </p>
                       </div>
                       <Trophy className="w-4 h-4 text-warning" />

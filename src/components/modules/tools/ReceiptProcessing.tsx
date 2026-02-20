@@ -35,6 +35,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { aiAssistant } from "@/lib/aiAssistant"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
+import { formatCurrency, formatDate } from "@/utils/format-helpers"
 import { Receipt as ReceiptType } from "@/lib/types"
 import { brandColors } from "@/theme/designSystem"
 
@@ -293,7 +294,7 @@ export function ReceiptProcessing() {
                           {ocrPreview.data?.items.map((item, idx) => (
                             <div key={idx} className="text-xs flex justify-between">
                               <span>{item.description}</span>
-                              <span>${item.amount.toFixed(2)}</span>
+                              <span>{formatCurrency(item.amount)}</span>
                             </div>
                           ))}
                         </div>
@@ -413,7 +414,7 @@ export function ReceiptProcessing() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Pending Approval</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-yellow-600">${totalPending.toLocaleString()}</div>
+            <div className="text-sm font-bold text-yellow-600">{formatCurrency(totalPending)}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Receipt className="w-3 h-3" />
               {(receipts || []).filter(r => r.status === "pending").length} receipts
@@ -426,7 +427,7 @@ export function ReceiptProcessing() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Approved</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-green-600">${totalApproved.toLocaleString()}</div>
+            <div className="text-sm font-bold text-green-600">{formatCurrency(totalApproved)}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <CheckCircle className="w-3 h-3" />
               {(receipts || []).filter(r => r.status === "approved").length} receipts
@@ -477,14 +478,14 @@ export function ReceiptProcessing() {
               ) : (
                 (receipts || []).map(receipt => (
                   <TableRow key={receipt.id}>
-                    <TableCell>{new Date(receipt.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{formatDate(receipt.date)}</TableCell>
                     <TableCell className="font-medium">{receipt.vendor}</TableCell>
                     <TableCell>
                       <Badge className={getCategoryColor(receipt.category)} variant="secondary">
                         {receipt.category}
                       </Badge>
                     </TableCell>
-                    <TableCell className="font-semibold">${receipt.amount.toFixed(2)}</TableCell>
+                    <TableCell className="font-semibold">{formatCurrency(receipt.amount)}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{receipt.paymentMethod}</TableCell>
                     <TableCell>{receipt.submittedBy}</TableCell>
                     <TableCell>
