@@ -15,6 +15,7 @@ import {
   Activity,
   Info,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -85,6 +86,36 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
     `/api/alerts/${alertId}`,
     fetcher
   )
+
+  const handleAcknowledge = async () => {
+    try {
+      await fetch(`/api/alerts/${alertId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'acknowledged' }),
+      })
+      toast.success('Alert acknowledged')
+      mutate()
+    } catch {
+      toast.error('Failed to acknowledge alert')
+    }
+  }
+
+  const handleResolve = async () => {
+    try {
+      await fetch(`/api/alerts/${alertId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'resolved' }),
+      })
+      toast.success('Alert resolved')
+      mutate()
+    } catch {
+      toast.error('Failed to resolve alert')
+    }
+  }
 
   const getSeverityVariant = (severity: string) => {
     switch (severity) {
@@ -400,11 +431,11 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             {/* Action Buttons */}
             {alertData.status === 'active' && (
               <div className="grid grid-cols-2 gap-3">
-                <Button variant="outline">
+                <Button variant="outline" onClick={handleAcknowledge}>
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Acknowledge
                 </Button>
-                <Button>
+                <Button onClick={handleResolve}>
                   <XCircle className="h-4 w-4 mr-2" />
                   Resolve
                 </Button>
@@ -412,7 +443,7 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
             )}
 
             {alertData.status === 'acknowledged' && (
-              <Button className="w-full">
+              <Button className="w-full" onClick={handleResolve}>
                 <CheckCircle className="h-4 w-4 mr-2" />
                 Mark as Resolved
               </Button>

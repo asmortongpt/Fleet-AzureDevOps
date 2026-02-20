@@ -12,6 +12,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -63,9 +64,43 @@ interface ScheduledItemDetailPanelProps {
 export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelProps) {
   const { push } = useDrilldown()
   const { data: item, error, isLoading, mutate } = useSWR<ScheduledItem>(
-    `/api/schedule/${itemId}`,
+    `/api/scheduling/${itemId}`,
     fetcher
   )
+
+  const handleReschedule = () => {
+    toast.info(`Rescheduling ${item?.title}...`)
+  }
+
+  const handleCancel = async () => {
+    try {
+      await fetch(`/api/scheduling/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'cancelled' }),
+      })
+      toast.success(`${item?.title} cancelled`)
+      mutate()
+    } catch {
+      toast.error('Failed to cancel item')
+    }
+  }
+
+  const handleMarkComplete = async () => {
+    try {
+      await fetch(`/api/scheduling/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'completed' }),
+      })
+      toast.success(`${item?.title} marked as complete`)
+      mutate()
+    } catch {
+      toast.error('Failed to update status')
+    }
+  }
 
   const getTypeVariant = (type: string) => {
     switch (type) {
@@ -325,11 +360,11 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
           {/* Action Buttons */}
           {item.status === 'scheduled' && (
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline">
+              <Button variant="outline" onClick={handleReschedule}>
                 <Clock className="h-4 w-4 mr-2" />
                 Reschedule
               </Button>
-              <Button variant="destructive">
+              <Button variant="destructive" onClick={handleCancel}>
                 <AlertCircle className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
@@ -337,7 +372,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
           )}
 
           {item.status === 'in-progress' && (
-            <Button className="w-full">
+            <Button className="w-full" onClick={handleMarkComplete}>
               <CheckCircle className="h-4 w-4 mr-2" />
               Mark Complete
             </Button>
@@ -363,7 +398,7 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
     const params = new URLSearchParams()
     if (timeframe) params.append('timeframe', timeframe)
     if (type && type !== 'all') params.append('type', type)
-    return `/api/schedule?${params.toString()}`
+    return `/api/scheduling?${params.toString()}`
   }
 
   const { data: rawItems, error, isLoading } = useSWR<ScheduledItem[]>(buildUrl(), fetcher)

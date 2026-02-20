@@ -99,7 +99,7 @@ export function AdminDashboard() {
 
   const { navigateTo } = useNavigation();
 
-  // Quick actions
+  // Quick actions - Navigate to specific pages
   const handleAddUser = () => {
     toast.success('Opening new user creation form...');
     navigateTo('admin-hub-consolidated');
@@ -111,8 +111,8 @@ export function AdminDashboard() {
   };
 
   const handleGenerateReport = () => {
-    toast.success('Generating executive report...');
-    navigateTo('reports');
+    toast.success('Opening reports...');
+    navigateTo('analytics');
   };
 
   const handleConfigureSettings = () => {
@@ -132,7 +132,7 @@ export function AdminDashboard() {
 
   const handleViewSecurityAlerts = () => {
     toast('Loading security alerts...');
-    navigateTo('admin-hub-consolidated');
+    navigateTo('safety-compliance-hub');
   };
 
   const getHealthStatusColor = (status: string) => {

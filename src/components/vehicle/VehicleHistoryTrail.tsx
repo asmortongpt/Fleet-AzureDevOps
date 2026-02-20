@@ -145,7 +145,7 @@ export function VehicleHistoryTrail({
     });
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
-    return `/api/v1/vehicles/${vehicleId}/location-history?${params.toString()}`;
+    return `/api/vehicle-history/${vehicleId}/location-history?${params.toString()}`;
   }, [vehicleId, startDate, endDate]);
 
   // Fetch location history data

@@ -42,7 +42,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
       // Get tenant ID from subdomain or user preference
       const tenantId = getTenantIdFromDomain();
 
-      const response = await fetch(`/api/v1/tenants/${tenantId}`, {
+      const response = await fetch(`/api/tenants/${tenantId}`, {
         headers: {
           'X-Tenant-ID': tenantId,
         },

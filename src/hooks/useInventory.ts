@@ -35,7 +35,7 @@ export interface InventoryStats {
 async function fetchParts(): Promise<Part[]> {
   try {
     // Try API first
-    const response = await apiClient.get<Part[]>("/api/v1/inventory/parts")
+    const response = await apiClient.get<Part[]>("/api/inventory/items")
     return response
   } catch (error) {
     // Fallback to emulator data
@@ -49,7 +49,7 @@ async function fetchParts(): Promise<Part[]> {
  */
 async function fetchInventoryStats(): Promise<InventoryStats> {
   try {
-    const response = await apiClient.get<InventoryStats>("/api/v1/inventory/stats")
+    const response = await apiClient.get<InventoryStats>("/api/inventory/summary")
     return response
   } catch (error) {
     logger.warn("Stats API unavailable, calculating from parts")
@@ -64,8 +64,8 @@ async function fetchInventoryStats(): Promise<InventoryStats> {
 async function fetchTransactions(partId?: string): Promise<InventoryTransaction[]> {
   try {
     const url = partId
-      ? `/api/v1/inventory/transactions?partId=${partId}`
-      : "/api/v1/inventory/transactions"
+      ? `/api/inventory/transactions?item_id=${partId}`
+      : "/api/inventory/transactions"
     const response = await apiClient.get<InventoryTransaction[]>(url)
     return response
   } catch (error) {
@@ -78,7 +78,7 @@ async function fetchTransactions(partId?: string): Promise<InventoryTransaction[
  * Create a new part
  */
 async function createPart(part: Partial<Part>): Promise<Part> {
-  const response = await apiClient.post<Part>("/api/v1/inventory/parts", part)
+  const response = await apiClient.post<Part>("/api/inventory/items", part)
   return response
 }
 
@@ -86,7 +86,7 @@ async function createPart(part: Partial<Part>): Promise<Part> {
  * Update a part
  */
 async function updatePart(partId: string, updates: Partial<Part>): Promise<Part> {
-  const response = await apiClient.put<Part>(`/api/v1/inventory/parts/${partId}`, updates)
+  const response = await apiClient.put<Part>(`/api/inventory/items/${partId}`, updates)
   return response
 }
 
@@ -94,7 +94,7 @@ async function updatePart(partId: string, updates: Partial<Part>): Promise<Part>
  * Delete a part
  */
 async function deletePart(partId: string): Promise<void> {
-  await apiClient.delete(`/api/v1/inventory/parts/${partId}`)
+  await apiClient.delete(`/api/inventory/items/${partId}`)
 }
 
 /**
@@ -102,7 +102,7 @@ async function deletePart(partId: string): Promise<void> {
  */
 async function createTransaction(transaction: Partial<InventoryTransaction>): Promise<InventoryTransaction> {
   const response = await apiClient.post<InventoryTransaction>(
-    "/api/v1/inventory/transactions",
+    "/api/inventory/transactions",
     transaction
   )
   return response
@@ -390,7 +390,7 @@ export function usePart(partId: string) {
     queryKey: ["inventory", "parts", partId],
     queryFn: async () => {
       try {
-        const response = await apiClient.get<Part>(`/api/v1/inventory/parts/${partId}`)
+        const response = await apiClient.get<Part>(`/api/inventory/items/${partId}`)
         return response
       } catch (error) {
         // Fallback to finding in emulator data

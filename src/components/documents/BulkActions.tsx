@@ -5,6 +5,7 @@
 
 import { Download, Share2, Trash2, Tag, FolderOpen, Archive, CheckSquare } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -139,7 +140,7 @@ export function BulkActions({
               Download
             </Button>
 
-            <Button variant="outline" size="sm" onClick={() => {}} disabled={isExecuting}>
+            <Button variant="outline" size="sm" onClick={() => toast.info(`Sharing ${selectedDocuments.length} document(s)...`)} disabled={isExecuting}>
               <Share2 className="mr-2 h-4 w-4" />
               Share
             </Button>
@@ -159,7 +160,7 @@ export function BulkActions({
             )}
 
             {canEdit && (
-              <Button variant="outline" size="sm" onClick={() => {}} disabled={isExecuting}>
+              <Button variant="outline" size="sm" onClick={() => toast.info(`Archiving ${selectedDocuments.length} document(s)...`)} disabled={isExecuting}>
                 <Archive className="mr-2 h-4 w-4" />
                 Archive
               </Button>

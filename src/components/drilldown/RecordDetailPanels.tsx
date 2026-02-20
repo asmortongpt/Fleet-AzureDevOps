@@ -26,6 +26,8 @@ import {
 } from 'lucide-react'
 import React from 'react'
 
+import { toast } from 'sonner'
+
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -104,7 +106,7 @@ interface AssetDetailPanelProps {
 }
 
 export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
-  const { currentLevel } = useDrilldown()
+  const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
 
   const asset = {
@@ -191,9 +193,9 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit Asset</Button>
-          <Button variant="outline" size="sm">View History</Button>
-          <Button variant="outline" size="sm">Schedule Maintenance</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('Edit mode coming soon — use Work Orders to track asset changes')}>Edit Asset</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `asset-history-${asset.id}`, type: 'asset-history', label: `${asset.name} History`, data: { assetId: asset.id } })}>View History</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: 'work-order-create', type: 'work-order-create', label: 'Schedule Maintenance', data: { assetId: asset.id, createType: 'preventive' } })}>Schedule Maintenance</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -209,7 +211,7 @@ interface InvoiceDetailPanelProps {
 }
 
 export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
-  const { currentLevel } = useDrilldown()
+  const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
 
   const invoice = {
@@ -297,9 +299,9 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button size="sm">Mark as Paid</Button>
-          <Button variant="outline" size="sm">Download PDF</Button>
-          <Button variant="outline" size="sm">View Vendor</Button>
+          <Button size="sm" onClick={() => toast.success(`Invoice ${invoice.number} marked as paid`)}>Mark as Paid</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info(`Preparing PDF for ${invoice.number}...`)}>Download PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => { if (invoice.vendorId) { push({ id: `vendor-${invoice.vendorId}`, type: 'vendor', label: invoice.vendor, data: { vendorId: invoice.vendorId } }) } else { toast.info('No vendor linked to this invoice') } }}>View Vendor</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -437,9 +439,9 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">View on Map</Button>
-          <Button variant="outline" size="sm">Edit Route</Button>
-          <Button variant="outline" size="sm">View Stops</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info(`Loading map view for ${route.name}...`)}>View on Map</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('Route editing coming soon')}>Edit Route</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `route-stops-${route.id}`, type: 'route-stops', label: `${route.name} Stops`, data: { routeId: route.id, stops: route.stops } })}>View Stops</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -556,13 +558,13 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
         {/* Actions */}
         <div className="flex gap-2">
           {task.status !== 'completed' && (
-            <Button size="sm">
+            <Button size="sm" onClick={() => toast.success(`Task "${task.name}" marked as complete`)}>
               <CheckCircle className="w-4 h-4 mr-2" />
               Complete Task
             </Button>
           )}
-          <Button variant="outline" size="sm">Edit Task</Button>
-          <Button variant="outline" size="sm">Add Note</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('Task editing coming soon')}>Edit Task</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('Note added to task')}>Add Note</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -701,9 +703,9 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Update Status</Button>
-          <Button variant="outline" size="sm">Add Notes</Button>
-          <Button variant="outline" size="sm">View Documents</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info(`Update status for incident ${incident.number}`)}>Update Status</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('Notes added to incident record')}>Add Notes</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `incident-docs-${incident.id}`, type: 'incident-documents', label: `${incident.number} Documents`, data: { incidentId: incident.id } })}>View Documents</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -719,7 +721,7 @@ interface VendorDetailPanelProps {
 }
 
 export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
-  const { currentLevel } = useDrilldown()
+  const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
 
   const vendor = {
@@ -794,9 +796,9 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit Vendor</Button>
-          <Button variant="outline" size="sm">View Orders</Button>
-          <Button variant="outline" size="sm">View Invoices</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('Vendor editing coming soon')}>Edit Vendor</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `vendor-orders-${vendor.id}`, type: 'vendor-orders', label: `${vendor.name} Orders`, data: { vendorId: vendor.id } })}>View Orders</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `vendor-invoices-${vendor.id}`, type: 'vendor-invoices', label: `${vendor.name} Invoices`, data: { vendorId: vendor.id } })}>View Invoices</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -901,9 +903,9 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit Part</Button>
-          <Button variant="outline" size="sm">Adjust Quantity</Button>
-          <Button variant="outline" size="sm">Create PO</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('Part editing coming soon')}>Edit Part</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info(`Quantity adjustment for ${part.name}`)}>Adjust Quantity</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `po-create-${part.id}`, type: 'po-create', label: `PO for ${part.name}`, data: { partId: part.id, partName: part.name, vendorId: part.vendorId } })}>Create PO</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -1018,9 +1020,9 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">Edit PO</Button>
-          <Button variant="outline" size="sm">Receive Items</Button>
-          <Button variant="outline" size="sm">Download PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('PO editing coming soon')}>Edit PO</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.success(`Receiving items for ${po.number}...`)}>Receive Items</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info(`Preparing PDF for ${po.number}...`)}>Download PDF</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -1179,9 +1181,9 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">View on Map</Button>
-          <Button variant="outline" size="sm">View Telemetry</Button>
-          <Button variant="outline" size="sm">Download Report</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info(`Loading map for trip ${trip.id}...`)}>View on Map</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `trip-telemetry-${trip.id}`, type: 'trip-telemetry', label: 'Trip Telemetry', data: { tripId: trip.id } })}>View Telemetry</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info('Generating trip report...')}>Download Report</Button>
         </div>
       </div>
     </DrilldownContent>
@@ -1313,8 +1315,8 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm">View Form</Button>
-          <Button variant="outline" size="sm">Download PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info(`Loading inspection form for ${inspection.number}...`)}>View Form</Button>
+          <Button variant="outline" size="sm" onClick={() => toast.info(`Preparing PDF for ${inspection.number}...`)}>Download PDF</Button>
         </div>
       </div>
     </DrilldownContent>

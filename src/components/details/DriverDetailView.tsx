@@ -49,11 +49,11 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
     const fetchDriverDetails = async () => {
       try {
         const [certRes, perfRes, assignRes, trainingRes, incidentRes] = await Promise.all([
-          secureFetch(`/api/v1/drivers/${driver.id}/certifications`).catch(() => null),
-          secureFetch(`/api/v1/drivers/${driver.id}/performance`).catch(() => null),
-          secureFetch(`/api/v1/drivers/${driver.id}/assignments`).catch(() => null),
-          secureFetch(`/api/v1/drivers/${driver.id}/training`).catch(() => null),
-          secureFetch(`/api/v1/drivers/${driver.id}/incidents`).catch(() => null)
+          secureFetch(`/api/certifications?driver_id=${driver.id}`).catch(() => null),
+          secureFetch(`/api/drivers/${driver.id}/performance`).catch(() => null),
+          secureFetch(`/api/vehicle-assignments?driver_id=${driver.id}`).catch(() => null),
+          secureFetch(`/api/training?driverId=${driver.id}`).catch(() => null),
+          secureFetch(`/api/safety-incidents?driver_id=${driver.id}`).catch(() => null)
         ]);
 
         if (!isMounted) return;

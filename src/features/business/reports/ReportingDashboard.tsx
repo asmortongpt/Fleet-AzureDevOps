@@ -120,7 +120,7 @@ export default function ReportingDashboard() {
 
   const fetchScheduledReports = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/scheduled-reports`, {
+      const response = await fetch(`${API_URL}/api/reports/scheduled`, {
         credentials: 'include',
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
@@ -214,7 +214,7 @@ export default function ReportingDashboard() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/scheduled-reports`, {
+      const response = await fetch(`${API_URL}/api/reports/scheduled`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -242,7 +242,7 @@ export default function ReportingDashboard() {
 
   const handleToggleScheduledReport = async (id: string, isActive: boolean) => {
     try {
-      await fetch(`${API_URL}/api/scheduled-reports/${id}`, {
+      await fetch(`${API_URL}/api/reports/scheduled/${id}`, {
         method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -258,7 +258,7 @@ export default function ReportingDashboard() {
     if (!confirm('Are you sure you want to delete this scheduled report?')) return;
 
     try {
-      await fetch(`${API_URL}/api/scheduled-reports/${id}`, { method: 'DELETE', credentials: 'include' });
+      await fetch(`${API_URL}/api/reports/scheduled/${id}`, { method: 'DELETE', credentials: 'include' });
       setSuccess('Scheduled report deleted successfully');
       fetchScheduledReports();
     } catch (error) {

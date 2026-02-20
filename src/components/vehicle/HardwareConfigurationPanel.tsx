@@ -561,7 +561,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config`, { credentials: 'include' })
+      const response = await fetch(`/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config`, { credentials: 'include' })
       if (!response.ok) {
         throw new Error(`Failed to fetch providers: ${response.statusText}`)
       }
@@ -578,7 +578,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const handleAddProvider = async (type: ProviderType, config: ProviderConfig) => {
     setIsAdding(true)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config/providers`, {
+      const response = await fetch(`/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -604,7 +604,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
   const handleRemoveProvider = async (providerId: string) => {
     try {
       const response = await fetch(
-        `/api/vehicles/${vehicleId}/hardware-config/providers/${providerId}`,
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${providerId}`,
         { method: 'DELETE' }
       )
 
@@ -626,7 +626,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setTestingConnectionId(providerId)
     try {
       const response = await fetch(
-        `/api/vehicles/${vehicleId}/hardware-config/providers/${providerId}/test`,
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${providerId}/test`,
         { method: 'POST' }
       )
 
@@ -662,7 +662,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setIsSavingConfig(true)
     try {
       const response = await fetch(
-        `/api/vehicles/${vehicleId}/hardware-config/providers/${configuringProvider.id}`,
+        `/api/vehicle-hardware-config/vehicles/${vehicleId}/hardware-config/providers/${configuringProvider.id}`,
         {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },

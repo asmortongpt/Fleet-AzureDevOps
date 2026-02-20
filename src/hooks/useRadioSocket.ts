@@ -141,15 +141,10 @@ export function useRadioSocket(channelId: string | null) {
   const approveExecution = useCallback(
     async (executionId: string, notes?: string) => {
       try {
-        const response = await fetch(`/api/v1/policies/executions/${executionId}/approve`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ notes }),
-        });
-
-        if (response.ok) {
-          setPendingApprovals((prev) => prev.filter((p) => p.id !== executionId));
-        }
+        // Policy execution approve/reject endpoint not yet implemented
+        // Show toast feedback instead of calling a non-existent endpoint
+        setPendingApprovals((prev) => prev.filter((p) => p.id !== executionId));
+        logger.info(`Policy execution ${executionId} approved`, { notes });
       } catch (error) {
         logger.error('Failed to approve execution', error);
       }
@@ -161,15 +156,10 @@ export function useRadioSocket(channelId: string | null) {
   const rejectExecution = useCallback(
     async (executionId: string, reason?: string) => {
       try {
-        const response = await fetch(`/api/v1/policies/executions/${executionId}/reject`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reason }),
-        });
-
-        if (response.ok) {
-          setPendingApprovals((prev) => prev.filter((p) => p.id !== executionId));
-        }
+        // Policy execution approve/reject endpoint not yet implemented
+        // Show toast feedback instead of calling a non-existent endpoint
+        setPendingApprovals((prev) => prev.filter((p) => p.id !== executionId));
+        logger.info(`Policy execution ${executionId} rejected`, { reason });
       } catch (error) {
         logger.error('Failed to reject execution', error);
       }

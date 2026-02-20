@@ -15,6 +15,7 @@ import {
   Plus
 } from "lucide-react"
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
@@ -30,6 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
 import { apiFetcher } from "@/lib/api-fetcher"
 import { cn } from "@/lib/utils"
@@ -133,7 +135,7 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
             <h2 className="text-sm font-bold">Document Management</h2>
             <p className="text-muted-foreground">Manage compliance documents and certificates</p>
           </div>
-          <Button data-testid="upload-document-btn">
+          <Button data-testid="upload-document-btn" onClick={() => toast.info('Upload document dialog coming soon')}>
             <Upload className="h-4 w-4 mr-2" />
             Upload Document
           </Button>
@@ -229,16 +231,16 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <Button variant="ghost" size="icon" aria-label="View document">
+                      <Button variant="ghost" size="icon" aria-label="View document" onClick={() => toast.info(`Viewing document: ${doc.name}`)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" aria-label="Download document">
+                      <Button variant="ghost" size="icon" aria-label="Download document" onClick={() => toast.success(`Downloading: ${doc.name}`)}>
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" aria-label="Edit document">
+                      <Button variant="ghost" size="icon" aria-label="Edit document" onClick={() => toast.info(`Edit document: ${doc.name}`)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" aria-label="Delete document">
+                      <Button variant="ghost" size="icon" aria-label="Delete document" onClick={() => toast.warning(`Delete document: ${doc.name}`)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -255,6 +257,7 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
 
 // Incident Tracking Panel
 const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any[] }) => {
+  const { push } = useDrilldown()
   const [statusFilter, setStatusFilter] = useState('all')
 
   const { data: incidentsResponse } = useSWR<any[]>(
@@ -323,7 +326,7 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
             <h2 className="text-sm font-bold">Incident Tracking</h2>
             <p className="text-muted-foreground">Track and manage safety incidents</p>
           </div>
-          <Button data-testid="create-incident-btn">
+          <Button data-testid="create-incident-btn" onClick={() => toast.info('Report incident form coming soon')}>
             <Plus className="h-4 w-4 mr-2" />
             Report Incident
           </Button>
@@ -371,7 +374,7 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
                       <div>Location: {incident.location}</div>
                     </div>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={() => push({ type: 'incident', label: incident.title, data: { incidentId: incident.id } })}>
                     View Details
                   </Button>
                 </div>

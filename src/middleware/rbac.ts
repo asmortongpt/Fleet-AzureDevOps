@@ -260,7 +260,7 @@ export function logPermissionCheck(audit: PermissionAudit): void {
   // In production, send to audit log service
   if (import.meta.env.PROD) {
     // Send to backend audit log
-    fetch('/api/v1/audit/permission-check', {
+    fetch('/api/audit-logs', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

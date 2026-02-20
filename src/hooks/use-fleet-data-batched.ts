@@ -159,36 +159,36 @@ export function useFleetDataBatched() {
   }, [queryClient])
 
   const addVehicle = useCallback(async (vehicle: any) => {
-    const response = await apiClient.post('/api/v1/vehicles', vehicle)
+    const response = await apiClient.post('/api/vehicles', vehicle)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const updateVehicle = useCallback(async (id: string, updates: any) => {
-    const response = await apiClient.put(`/api/v1/vehicles/${id}`, updates)
+    const response = await apiClient.put(`/api/vehicles/${id}`, updates)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const deleteVehicle = useCallback(async (id: string) => {
-    await apiClient.delete(`/api/v1/vehicles/${id}`)
+    await apiClient.delete(`/api/vehicles/${id}`)
     invalidateBatchData()
   }, [invalidateBatchData])
 
   const addDriver = useCallback(async (driver: any) => {
-    const response = await apiClient.post('/api/v1/drivers', driver)
+    const response = await apiClient.post('/api/drivers', driver)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const updateDriver = useCallback(async (id: string, updates: any) => {
-    const response = await apiClient.put(`/api/v1/drivers/${id}`, updates)
+    const response = await apiClient.put(`/api/drivers/${id}`, updates)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const deleteDriver = useCallback(async (id: string) => {
-    await apiClient.delete(`/api/v1/drivers/${id}`)
+    await apiClient.delete(`/api/drivers/${id}`)
     invalidateBatchData()
   }, [invalidateBatchData])
 
@@ -205,30 +205,30 @@ export function useFleetDataBatched() {
   }, [deleteDriver])
 
   const addWorkOrder = useCallback(async (order: any) => {
-    const response = await apiClient.post('/api/v1/work-orders', order)
+    const response = await apiClient.post('/api/work-orders', order)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const updateWorkOrder = useCallback(async (id: string, updates: any) => {
-    const response = await apiClient.put(`/api/v1/work-orders/${id}`, updates)
+    const response = await apiClient.put(`/api/work-orders/${id}`, updates)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const deleteWorkOrder = useCallback(async (id: string) => {
-    await apiClient.delete(`/api/v1/work-orders/${id}`)
+    await apiClient.delete(`/api/work-orders/${id}`)
     invalidateBatchData()
   }, [invalidateBatchData])
 
   const addFuelTransaction = useCallback(async (transaction: any) => {
-    const response = await apiClient.post('/api/v1/fuel-transactions', transaction)
+    const response = await apiClient.post('/api/fuel-transactions', transaction)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const updateServiceBay = useCallback(async (id: string, updates: any) => {
-    const response = await apiClient.put(`/api/v1/facilities/${id}`, updates)
+    const response = await apiClient.put(`/api/facilities/${id}`, updates)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
@@ -238,42 +238,42 @@ export function useFleetDataBatched() {
   }, [addFuelTransaction])
 
   const updateMileageReimbursement = useCallback(async (id: string, updates: any) => {
-    const response = await apiClient.put(`/api/v1/fuel-transactions/${id}`, updates)
+    const response = await apiClient.put(`/api/fuel-transactions/${id}`, updates)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const deleteMileageReimbursement = useCallback(async (id: string) => {
-    await apiClient.delete(`/api/v1/fuel-transactions/${id}`)
+    await apiClient.delete(`/api/fuel-transactions/${id}`)
     invalidateBatchData()
   }, [invalidateBatchData])
 
   const addMaintenanceRequest = useCallback(async (request: any) => {
-    const response = await apiClient.post('/api/v1/maintenance-schedules', request)
+    const response = await apiClient.post('/api/maintenance-schedules', request)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const updateMaintenanceRequest = useCallback(async (id: string, updates: any) => {
-    const response = await apiClient.put(`/api/v1/maintenance-schedules/${id}`, updates)
+    const response = await apiClient.put(`/api/maintenance-schedules/${id}`, updates)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const addRoute = useCallback(async (route: any) => {
-    const response = await apiClient.post('/api/v1/routes', route)
+    const response = await apiClient.post('/api/routes', route)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const updateRoute = useCallback(async (id: string, updates: any) => {
-    const response = await apiClient.put(`/api/v1/routes/${id}`, updates)
+    const response = await apiClient.put(`/api/routes/${id}`, updates)
     invalidateBatchData()
     return response
   }, [invalidateBatchData])
 
   const deleteRoute = useCallback(async (id: string) => {
-    await apiClient.delete(`/api/v1/routes/${id}`)
+    await apiClient.delete(`/api/routes/${id}`)
     invalidateBatchData()
   }, [invalidateBatchData])
 

@@ -68,36 +68,36 @@ interface AvailabilityCheck {
 }
 
 // API Functions
-const API_BASE = 'https://fleet.capitaltechalliance.com/api/v1';
-
+// Use relative paths so Vite proxy handles routing in dev and production URLs work in deployed builds.
 async function fetchReservations(): Promise<Reservation[]> {
-  const res = await fetch(`${API_BASE}/reservations`);
+  const res = await fetch('/api/reservations', { credentials: 'include' });
   if (!res.ok) throw new Error('Request failed: ' + res.status);
   const json = await res.json();
-  return json.reservations || [];
+  const data = json?.data ?? json;
+  return Array.isArray(data) ? data : data?.reservations ?? [];
 }
 
 async function fetchVehicles(): Promise<Vehicle[]> {
-  const res = await fetch(`${API_BASE}/vehicles`);
+  const res = await fetch('/api/vehicles', { credentials: 'include' });
   if (!res.ok) throw new Error('Request failed: ' + res.status);
   const json = await res.json();
-  return json.vehicles || [];
+  const data = json?.data ?? json;
+  return Array.isArray(data) ? data : data?.vehicles ?? [];
 }
 
 async function checkAvailability(vehicleId: string, startDate: string, endDate: string): Promise<AvailabilityCheck> {
-  const res = await fetch(`${API_BASE}/reservations/availability`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ vehicleId, startDate, endDate })
+  const res = await fetch(`/api/reservations/vehicles/${vehicleId}/availability?start_date=${startDate}&end_date=${endDate}`, {
+    credentials: 'include',
   });
   if (!res.ok) throw new Error('Request failed: ' + res.status);
   return res.json();
 }
 
 async function createReservation(data: Partial<Reservation>): Promise<Reservation> {
-  const res = await fetch(`${API_BASE}/reservations`, {
+  const res = await fetch('/api/reservations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify(data)
   });
   if (!res.ok) throw new Error('Request failed: ' + res.status);
@@ -105,9 +105,10 @@ async function createReservation(data: Partial<Reservation>): Promise<Reservatio
 }
 
 async function updateReservationStatus(id: string, status: Reservation['status']): Promise<Reservation> {
-  const res = await fetch(`${API_BASE}/reservations/${id}/status`, {
-    method: 'PATCH',
+  const res = await fetch(`/api/reservations/${id}`, {
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ status })
   });
   if (!res.ok) throw new Error('Request failed: ' + res.status);

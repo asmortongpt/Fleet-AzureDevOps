@@ -150,7 +150,7 @@ export function TripPlayback({ tripId, autoPlay = false }: TripPlaybackProps) {
 
   // Fetch trip breadcrumbs data
   const { data, error, isLoading } = useSWR<TripBreadcrumbsResponse>(
-    tripId ? `/api/v1/vehicles/trips/${tripId}/breadcrumbs` : null,
+    tripId ? `/api/vehicle-history/trips/${tripId}/breadcrumbs` : null,
     fetcher,
     {
       revalidateOnFocus: false,

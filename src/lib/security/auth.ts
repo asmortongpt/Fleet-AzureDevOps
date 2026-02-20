@@ -209,11 +209,13 @@ export class MFAService {
       return false
     }
 
-    // In a real implementation, you would generate the expected token from the secret
-    // and use constant-time comparison to prevent timing attacks
-    // For now, this is a placeholder that demonstrates the pattern
-    const expectedToken = "000000" // Placeholder - would be generated from secret
-    return timingSafeEqual(token, expectedToken)
+    // In a real implementation, generate the expected TOTP from the secret
+    // using a library like otplib: totp.check(token, secret)
+    // Placeholder: always reject — TOTP verification requires server-side implementation
+    logger.warn('TOTP verification not implemented — rejecting token')
+    void secret // suppress unused-var lint
+    void token
+    return false
   }
 
   static async sendSMSCode(phoneNumber: string): Promise<string> {

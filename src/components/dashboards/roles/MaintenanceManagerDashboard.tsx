@@ -128,44 +128,44 @@ export function MaintenanceManagerDashboard() {
 
   const { navigateTo } = useNavigation();
 
-  // Quick actions
+  // Quick actions - Navigate to specific pages
   const handleCreateWorkOrder = (vehicleId?: number) => {
     if (vehicleId) {
       toast.success(`Creating work order for Vehicle #${vehicleId}...`);
     } else {
       toast.success('Opening work order creation form...');
     }
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('maintenance');
   };
 
   const handleSchedulePM = () => {
     toast.success('Opening preventive maintenance scheduler...');
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('maintenance');
   };
 
   const handleSearchParts = () => {
     toast.success('Opening parts search interface...');
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('assets');
   };
 
   const handleAssignMechanic = () => {
     toast('Opening mechanic assignment dialog...');
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('maintenance');
   };
 
   const handleViewQueue = () => {
     toast('Navigating to work order queue...');
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('maintenance');
   };
 
   const handleViewCalendar = () => {
     toast('Opening maintenance calendar...');
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('maintenance');
   };
 
   const handleReorderParts = () => {
     toast.success('Opening parts reorder form...');
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('procurement');
   };
 
   return (

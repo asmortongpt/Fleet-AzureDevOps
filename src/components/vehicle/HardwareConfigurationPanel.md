@@ -117,7 +117,7 @@ function VehicleHardwareTab({ vehicleId }: { vehicleId: number }) {
 
 The component expects the following API endpoints:
 
-### GET `/api/vehicles/:id/hardware-config`
+### GET `/api/vehicle-hardware-config/vehicles/:id/hardware-config`
 Fetch all configured providers for a vehicle.
 
 **Response:**
@@ -142,7 +142,7 @@ Fetch all configured providers for a vehicle.
 }
 ```
 
-### POST `/api/vehicles/:id/hardware-config/providers`
+### POST `/api/vehicle-hardware-config/vehicles/:id/hardware-config/providers`
 Add a new provider to the vehicle.
 
 **Request:**
@@ -169,7 +169,7 @@ Add a new provider to the vehicle.
 }
 ```
 
-### DELETE `/api/vehicles/:id/hardware-config/providers/:provider`
+### DELETE `/api/vehicle-hardware-config/vehicles/:id/hardware-config/providers/:provider`
 Remove a provider from the vehicle.
 
 **Response:**
@@ -180,7 +180,7 @@ Remove a provider from the vehicle.
 }
 ```
 
-### POST `/api/vehicles/:id/hardware-config/providers/:provider/test`
+### POST `/api/vehicle-hardware-config/vehicles/:id/hardware-config/providers/:provider/test`
 Test the connection to a provider.
 
 **Response:**

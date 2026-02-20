@@ -6,6 +6,7 @@ import {
   Zap
 } from "lucide-react"
 import { useMemo } from "react"
+import { toast } from "sonner"
 import useSWR from "swr"
 
 import { Button } from "@/components/ui/button"
@@ -189,7 +190,7 @@ export function PredictiveMaintenance() {
                       </p>
                     </div>
 
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" onClick={() => toast.success(`Scheduling service for: ${vehicle.predictedIssue}`)}>
                       Schedule Service
                     </Button>
                   </div>

@@ -65,7 +65,7 @@ export function OSHAComplianceDashboard() {
     const { data: oshaPayload } = useSWR<OSHAApiRow[]>('/api/osha-compliance/300-log?limit=250', apiFetcher, {
         revalidateOnFocus: false
     })
-    const { data: kpisPayload } = useSWR<{ personnelTotal?: number }>('/api/ui/kpis', apiFetcher, {
+    const { data: driversPayload } = useSWR<any[]>('/api/drivers?limit=500', apiFetcher, {
         revalidateOnFocus: false
     })
 
@@ -100,7 +100,9 @@ export function OSHAComplianceDashboard() {
     }, [oshaPayload])
 
     const metrics = useMemo<OSHAMetrics>(() => {
-        const total_employees = kpisPayload?.personnelTotal ?? null
+        // Use drivers count as personnel total (drivers are the primary workforce)
+        const driversArr = Array.isArray(driversPayload) ? driversPayload : []
+        const total_employees = driversArr.length > 0 ? driversArr.length : null
 
         // Total hours worked is environment-specific; leave null until backed by a labor-hours source.
         const total_hours = null as number | null
@@ -127,7 +129,7 @@ export function OSHAComplianceDashboard() {
             near_misses: null,
             compliance_score: null
         }
-    }, [entries, kpisPayload?.personnelTotal])
+    }, [entries, driversPayload])
 
     const getInjuryClassification = (entry: OSHA300Entry) => {
         if (entry.death) return 'Fatality'

@@ -75,31 +75,30 @@ export function FleetManagerDashboard() {
     target_cost_per_mile: 2.10
   };
 
-  // Quick actions - Now with proper navigation
+  // Quick actions - Navigate to specific pages
   const handleAssignDriver = () => {
-    navigateTo('fleet-hub-consolidated');
     toast('Opening driver assignment...');
+    navigateTo('drivers');
   };
 
   const handleCreateWorkOrder = () => {
-    navigateTo('fleet-hub-consolidated');
     toast('Opening work order form...');
+    navigateTo('maintenance');
   };
 
   const handleExportReport = async () => {
-    toast.loading('Generating daily report...');
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    toast.success('Report generated successfully!');
+    toast.success('Opening reports...');
+    navigateTo('analytics');
   };
 
   const handleViewOverdue = () => {
-    navigateTo('fleet-hub-consolidated');
     toast('Loading overdue maintenance queue...');
+    navigateTo('maintenance');
   };
 
   const handleScheduleMaintenance = () => {
-    navigateTo('fleet-hub-consolidated');
     toast('Opening maintenance scheduler...');
+    navigateTo('maintenance');
   };
 
   // Loading state - show spinner while fetching initial data

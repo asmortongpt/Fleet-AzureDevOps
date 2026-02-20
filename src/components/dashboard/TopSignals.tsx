@@ -52,7 +52,7 @@ export function TopSignals({ className }: TopSignalsProps) {
           fetch('/api/dashboard/costs/summary?period=monthly', { credentials: 'include' })
             .then(res => res.ok ? res.json() : null)
             .catch(err => { logger.warn('Failed to fetch cost summary for signals', { error: String(err) }); return null; }),
-          fetch('/api/health/system', { credentials: 'include' })
+          fetch('/api/health', { credentials: 'include' })
             .then(res => res.ok ? res.json() : null)
             .catch(err => { logger.warn('Failed to fetch system health for signals', { error: String(err) }); return null; })
         ]);

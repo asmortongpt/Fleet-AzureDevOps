@@ -141,7 +141,7 @@ export function DispatcherDashboard() {
       });
   }, [routes, vehicles, drivers]);
 
-  // Quick actions - Navigate to relevant pages
+  // Quick actions - Navigate to specific pages
   const handleOpenRadio = () => {
     toast.success('Opening dispatch radio interface...');
     navigateTo('communication');
@@ -154,7 +154,7 @@ export function DispatcherDashboard() {
 
   const handleCreateRoute = () => {
     toast.success('Opening route creation wizard...');
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('operations');
   };
 
   const handleJoinChannel = (channelId: string) => {
@@ -164,7 +164,7 @@ export function DispatcherDashboard() {
 
   const handleContactDriver = (driverName: string) => {
     toast(`Contacting ${driverName}...`);
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('communication');
   };
 
   const handleViewOnMap = () => {
@@ -174,7 +174,7 @@ export function DispatcherDashboard() {
 
   const handleFilterTrips = (filter: string) => {
     toast(`Filtering trips by: ${filter}`);
-    navigateTo('fleet-hub-consolidated');
+    navigateTo('operations');
   };
 
   const getStatusColor = (status: string) => {

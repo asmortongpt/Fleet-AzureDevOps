@@ -175,7 +175,12 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
 
         {/* Actions */}
         <div className="space-y-2">
-          <Button className="w-full">
+          <Button className="w-full" onClick={() => {
+              toast.success('Service scheduling initiated', {
+                duration: 3000,
+                position: 'top-center'
+              } as ToastOptions)
+            }}>
             <Calendar className="h-4 w-4 mr-2" />
             Schedule Service
           </Button>
@@ -192,7 +197,12 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
             <Wrench className="h-4 w-4 mr-2" />
             Request Maintenance
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => {
+              toast.success('Loading service history...', {
+                duration: 3000,
+                position: 'top-center'
+              } as ToastOptions)
+            }}>
             View Service History
           </Button>
         </div>
@@ -272,7 +282,12 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
           </div>
         )}
 
-        <Button className="w-full mt-2">
+        <Button className="w-full mt-2" onClick={() => {
+            toast.success('Create work order form coming soon', {
+              duration: 3000,
+              position: 'top-center'
+            } as ToastOptions)
+          }}>
           <Wrench className="h-4 w-4 mr-2" />
           Create Work Order
         </Button>

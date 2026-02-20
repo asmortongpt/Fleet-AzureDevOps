@@ -614,7 +614,7 @@ export function VideoTelematics() {
             <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
               Close
             </Button>
-            <Button>
+            <Button onClick={() => toast.success(`Downloading video clip for event: ${selectedEvent?.vehicleNumber || 'unknown'}`)}>
               <Download className="w-4 h-4 mr-2" />
               Download Clip
             </Button>

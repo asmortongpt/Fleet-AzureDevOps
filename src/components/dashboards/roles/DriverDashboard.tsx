@@ -75,23 +75,20 @@ export function DriverDashboard() {
     { id: 'emergency_equipment', label: 'Emergency Equipment', completed: false }
   ]);
 
-  // Quick actions - Now with proper navigation
+  // Quick actions - Navigate to specific pages
   const handleStartTrip = (tripId: number) => {
-    // Navigate to operations hub with trip start flow
-    navigateTo('fleet-hub-consolidated');
     toast(`Starting Trip #${tripId}...`);
+    navigateTo('operations');
   };
 
   const handleLogFuel = () => {
-    // Navigate to fleet hub with fuel logging view
-    navigateTo('fleet-hub-consolidated');
     toast('Opening fuel log form...');
+    navigateTo('fleet');
   };
 
   const handleReportIssue = () => {
-    // Navigate to maintenance hub with incident report form
-    navigateTo('fleet-hub-consolidated');
     toast('Opening incident report...');
+    navigateTo('safety-compliance-hub');
   };
 
   const handleCompleteInspection = async () => {
@@ -133,9 +130,8 @@ export function DriverDashboard() {
   };
 
   const handleViewRoute = (tripId: number) => {
-    // Navigate to operations hub with route map view
-    navigateTo('fleet-hub-consolidated');
     toast(`Loading route map for Trip #${tripId}...`);
+    navigateTo('operations');
   };
 
   const toggleInspectionItem = (itemId: string) => {

@@ -84,13 +84,15 @@ export const DriverToolbox: React.FC = () => {
       // Fetch unread message count from API (falls back to 0 if offline or unavailable)
       let unreadCount = 0;
       try {
-        const msgResponse = await fetch('/api/communications/unread-count', {
+        const msgResponse = await fetch('/api/communications?status=unread&limit=1', {
           credentials: 'include',
           signal: AbortSignal.timeout(3000),
         });
         if (msgResponse.ok) {
           const msgData = await msgResponse.json();
-          unreadCount = Number(msgData.count ?? msgData.unread ?? 0);
+          // Extract count from response envelope or array length
+          const data = msgData?.data ?? msgData;
+          unreadCount = Number(msgData?.meta?.total ?? (Array.isArray(data) ? data.length : 0));
         }
       } catch {
         // Silently fall back to 0 when offline or API unavailable

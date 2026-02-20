@@ -149,7 +149,7 @@ export async function signOut(): Promise<void> {
   const apiUrl = import.meta.env.VITE_API_URL || window.location.origin
 
   try {
-    await fetch(`${apiUrl}/api/v1/auth/logout`, {
+    await fetch(`${apiUrl}/api/auth/logout`, {
       method: 'POST',
       credentials: 'include', // Send httpOnly cookie
       headers: {

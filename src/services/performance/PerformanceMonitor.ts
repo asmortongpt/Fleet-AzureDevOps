@@ -11,7 +11,7 @@ interface PerformanceMetric {
 
 export class PerformanceMonitor {
   private metrics: PerformanceMetric[] = [];
-  private reportingEndpoint = '/api/v1/metrics/performance';
+  private reportingEndpoint = '/api/telemetry';
 
   async trackWebVitals(): Promise<void> {
     if ('PerformanceObserver' in window) {

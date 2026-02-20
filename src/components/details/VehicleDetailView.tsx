@@ -102,7 +102,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
     const fetchVehicleDetails = async () => {
       try {
         const [workOrdersRes, documentsRes, scheduleRes, telemetryRes] = await Promise.all([
-          secureFetch(`/api/v1/work-orders?vehicle_id=${vehicle.id}`).catch(() => null),
+          secureFetch(`/api/work-orders?vehicle_id=${vehicle.id}`).catch(() => null),
           secureFetch(`/api/documents?vehicle_id=${vehicle.id}`).catch(() => null),
           secureFetch(`/api/maintenance-schedules?vehicle_id=${vehicle.id}`).catch(() => null),
           secureFetch(`/api/vehicles/${vehicle.id}/telemetry/unified`).catch(() => null)

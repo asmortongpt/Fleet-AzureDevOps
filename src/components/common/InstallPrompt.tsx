@@ -216,10 +216,11 @@ export function InstallPrompt({
 
     // Send to backend analytics (fire-and-forget, endpoint may not exist)
     try {
-      fetch('/api/analytics/pwa-install', {
+      fetch('/api/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          event: 'pwa-install',
           action,
           platform,
           timestamp: Date.now(),

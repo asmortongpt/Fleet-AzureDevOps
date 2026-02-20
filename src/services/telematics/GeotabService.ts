@@ -189,7 +189,7 @@ export class GeotabService {
 
       if (location) {
         // Update database with latest location
-        await fetch('/api/v1/vehicles/location', {
+        await fetch('/api/gps/location', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
