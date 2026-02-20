@@ -17,12 +17,12 @@
  */
 export const darkColors = {
   // Backgrounds
-  background: '#0A0E27',      // MIDNIGHT darkened - main app background
-  card: '#131B45',            // Lighter cards for visibility
-  cardAlt: '#1A2554',         // Alternative card background
-  cardHover: '#212D5A',       // Card hover state
-  input: '#111638',           // Input field background
-  overlay: 'rgba(10, 14, 39, 0.7)',
+  background: '#09090b',      // Near-black neutral
+  card: '#111113',            // Neutral dark gray cards
+  cardAlt: '#18181b',         // Alternative card background
+  cardHover: '#27272a',       // Card hover state
+  input: '#18181b',           // Input field background
+  overlay: 'rgba(9, 9, 11, 0.7)',
 
   // Text & Foreground
   foreground: '#FFFFFF',      // Pure white for max contrast

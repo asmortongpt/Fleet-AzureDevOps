@@ -87,7 +87,7 @@ export const LoginPage = () => {
 
   if (!msalReady) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0A0E27] text-white">
+      <div className="flex items-center justify-center min-h-screen bg-[#09090b] text-white">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl flex flex-col items-center">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white/60 mb-4"></div>
           <p className="text-white/60 text-sm tracking-wide">INITIALIZING SECURE SESSION</p>
@@ -97,16 +97,16 @@ export const LoginPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen w-full bg-[#0A0E27] relative overflow-hidden font-sans">
+    <div className="flex min-h-screen w-full bg-[#09090b] relative overflow-hidden font-sans">
       {/* Dynamic Background Elements */}
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-white/10 blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#7342F9]/10 blur-[100px]" />
+      <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-white/5 blur-[100px]" />
 
       <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
-        <div className="w-full max-w-[1000px] grid md:grid-cols-2 gap-0 overflow-hidden rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-white/10 bg-[#0F1535]/80 backdrop-blur-xl">
+        <div className="w-full max-w-[1000px] grid md:grid-cols-2 gap-0 overflow-hidden rounded-3xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] border border-white/10 bg-[#111113]/80 backdrop-blur-xl">
 
           {/* Left Side - Brand & Info */}
-          <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-[#1A1F45] to-[#0A0E27] relative overflow-hidden">
+          <div className="hidden md:flex flex-col justify-between p-10 bg-gradient-to-br from-[#1a1a2e] to-[#09090b] relative overflow-hidden">
             {/* Overlay grid pattern */}
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
@@ -116,7 +116,7 @@ export const LoginPage = () => {
             <div>
               <div className="inline-flex items-center gap-2 mb-2 p-1.5 pr-3 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
                 <div className="bg-white rounded-full p-1">
-                  <Truck className="w-3.5 h-3.5 text-[#0A0E27]" />
+                  <Truck className="w-3.5 h-3.5 text-[#09090b]" />
                 </div>
                 <span className="text-[10px] font-bold tracking-wider text-white uppercase">Fleet Command</span>
               </div>
@@ -141,7 +141,7 @@ export const LoginPage = () => {
 
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
-                  <Fingerprint className="w-5 h-5 text-[#7342F9]" />
+                  <Fingerprint className="w-5 h-5 text-white/70" />
                 </div>
                 <div>
                   <h3 className="text-white text-sm font-semibold">Biometric Ready</h3>
@@ -204,7 +204,7 @@ export const LoginPage = () => {
                   <span className="w-full border-t border-white/10" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-[#0F1535] px-2 text-white/30">Alternative Methods</span>
+                  <span className="bg-[#111113] px-2 text-white/30">Alternative Methods</span>
                 </div>
               </div>
 
