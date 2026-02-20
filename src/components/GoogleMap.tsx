@@ -468,6 +468,10 @@ export function GoogleMap({
             // Close all other info windows
             markersRef.current.forEach(({ infoWindow: iw }) => iw?.close())
             infoWindow.open(mapInstanceRef.current, marker)
+            // Notify parent of vehicle selection
+            if (onVehicleAction) {
+              onVehicleAction('select', vehicle.id)
+            }
           })
 
           newMarkers.push({ marker, infoWindow })

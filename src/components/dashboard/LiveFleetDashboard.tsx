@@ -530,6 +530,10 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             mapStyle="roadmap"
             onVehicleAction={(action, vehicleId) => {
               if (action === 'select') setSelectedVehicleId(vehicleId);
+              if (action === 'viewDetails') {
+                setSelectedVehicleId(vehicleId);
+                navigate(`/fleet-operations?tab=fleet&vehicle=${vehicleId}`);
+              }
             }}
           />
         }
