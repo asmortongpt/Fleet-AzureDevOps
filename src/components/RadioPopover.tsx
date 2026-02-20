@@ -23,6 +23,7 @@ import {
   Circle
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { useNavigation } from '@/contexts/NavigationContext'
 
@@ -178,11 +179,11 @@ export function RadioPopover({ className }: RadioPopoverProps) {
 
           {/* Quick Actions */}
           <div className="flex gap-2 pt-2 border-t">
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => toast.info('Audio settings panel coming soon')}>
               <Volume2 className="w-3 h-3 mr-1" />
               Audio
             </Button>
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button variant="outline" size="sm" className="flex-1" onClick={() => toast.info('Alert preferences coming soon')}>
               <AlertTriangle className="w-3 h-3 mr-1" />
               Alerts
             </Button>

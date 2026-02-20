@@ -73,7 +73,7 @@ export function TrainingRecordsMatrixView() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const { data: trainingRecords } = useSWR<TrainingRecord[]>(
-    '/api/training/records',
+    '/api/training/progress',
     apiFetcher,
     {
       shouldRetryOnError: false,

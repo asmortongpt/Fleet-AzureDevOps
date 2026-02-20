@@ -89,7 +89,7 @@ export function GlobalCommandPalette() {
             label: 'Drivers Hub',
             icon: <Users className="mr-2 h-4 w-4" />,
             shortcut: '⌘R',
-            action: () => navigateTo('fleet-hub-consolidated'),
+            action: () => navigateTo('communication-hub-consolidated'),
             keywords: ['drivers', 'team', 'staff', 'employees'],
         },
         {
@@ -113,7 +113,7 @@ export function GlobalCommandPalette() {
             label: 'Analytics Hub',
             icon: <BarChart3 className="mr-2 h-4 w-4" />,
             shortcut: '⌘A',
-            action: () => navigateTo('procurement-hub-consolidated'),
+            action: () => navigateTo('analytics'),
             keywords: ['analytics', 'reports', 'metrics', 'data'],
         },
         {
@@ -145,7 +145,7 @@ export function GlobalCommandPalette() {
             id: 'new-driver',
             label: 'Add New Driver',
             icon: <Users className="mr-2 h-4 w-4" />,
-            action: () => navigateTo('fleet-hub-consolidated'),
+            action: () => navigateTo('communication-hub-consolidated'),
             keywords: ['add', 'new', 'driver', 'hire'],
         },
         {
@@ -184,7 +184,7 @@ export function GlobalCommandPalette() {
             id: 'settings',
             label: 'Settings',
             icon: <Settings className="mr-2 h-4 w-4" />,
-            action: () => navigateTo('admin-hub-consolidated'),
+            action: () => navigateTo('cta-configuration-hub'),
             keywords: ['settings', 'preferences', 'config'],
         },
         {

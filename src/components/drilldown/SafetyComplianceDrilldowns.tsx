@@ -83,7 +83,7 @@ export function ViolationsMatrixView() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const { data: violations } = useSWR<ComplianceViolation[]>(
-    '/api/compliance/violations',
+    '/api/policy-violations',
     apiFetcher,
     {
       shouldRetryOnError: false,
@@ -436,7 +436,7 @@ export function IncidentsMatrixView() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const { data: incidents } = useSWR<SafetyIncident[]>(
-    '/api/safety/incidents',
+    '/api/safety-incidents',
     apiFetcher,
     {
       shouldRetryOnError: false,

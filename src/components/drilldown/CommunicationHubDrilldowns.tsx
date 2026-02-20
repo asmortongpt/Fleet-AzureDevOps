@@ -222,7 +222,7 @@ export function AiAgentDrilldown() {
 
   // Fetch AI conversations from backend API
   const { data: rawConversationsData } = useSWR<ConversationListItemProps['conversation'][]>(
-    '/api/communications/ai-conversations',
+    '/api/communications?communication_type=ai',
     apiFetcher,
     { fallbackData: [] }
   )
@@ -337,7 +337,7 @@ export function MessagesDrilldown() {
 
   // Fetch messages from backend API
   const { data: rawMessagesData } = useSWR<MessageListItemProps['message'][]>(
-    '/api/communications/messages',
+    '/api/communications?communication_type=message',
     apiFetcher,
     { fallbackData: [] }
   )
@@ -345,7 +345,7 @@ export function MessagesDrilldown() {
 
   // Fetch channel activity from backend API
   const { data: rawChannelData } = useSWR<Array<{ channel: string; messages: number; active: boolean; unread: number }>>(
-    '/api/communications/channels',
+    '/api/communications?communication_type=channel',
     apiFetcher,
     { fallbackData: [] }
   )
