@@ -207,9 +207,20 @@ function EmptyState({ icon: Icon, message }: { icon: React.ComponentType<{ class
 // ---------------------------------------------------------------------------
 
 const fetcher = (url: string) =>
-  fetch(url).then((r) => {
+  fetch(url, { credentials: 'include' }).then((r) => {
     if (!r.ok) throw new Error(`HTTP ${r.status}`)
     return r.json()
+  }).then((json) => {
+    // Unwrap standard API response envelope: { success, data, meta }
+    if (json && typeof json === 'object' && 'data' in json) {
+      const inner = json.data
+      // Handle double-nested: { data: { data: [...], total } }
+      if (inner && typeof inner === 'object' && !Array.isArray(inner) && 'data' in inner && Array.isArray(inner.data)) {
+        return inner.data
+      }
+      return inner
+    }
+    return json
   })
 
 // ---------------------------------------------------------------------------
@@ -286,10 +297,16 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
     })
   }
 
-  const totalMaintenanceCost = maintenanceHistory?.reduce((sum, record) => sum + record.cost, 0) || 0
-  const totalIncidentCost = incidents?.reduce((sum, record) => sum + (record.cost || 0), 0) || 0
-  const totalTrips = trips?.length || 0
-  const totalDistance = trips?.reduce((sum, trip) => sum + trip.distance, 0) || 0
+  const maintenanceArr = Array.isArray(maintenanceHistory) ? maintenanceHistory : []
+  const incidentsArr = Array.isArray(incidents) ? incidents : []
+  const tripsArr = Array.isArray(trips) ? trips : []
+  const inspectionsArr = Array.isArray(inspections) ? inspections : []
+  const fuelArr = Array.isArray(fuelRecords) ? fuelRecords : []
+
+  const totalMaintenanceCost = maintenanceArr.reduce((sum, record) => sum + (record.cost || 0), 0)
+  const totalIncidentCost = incidentsArr.reduce((sum, record) => sum + (record.cost || 0), 0)
+  const totalTrips = tripsArr.length
+  const totalDistance = tripsArr.reduce((sum, trip) => sum + (trip.distance || 0), 0)
 
   const healthScore = vehicle?.health_score ?? 0
   const fuelLevel = vehicle?.fuel_level ?? 0
@@ -654,7 +671,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             <TabsContent value="maintenance" className="mt-2">
               {maintenanceLoading ? (
                 <TableSkeleton />
-              ) : maintenanceHistory && maintenanceHistory.length > 0 ? (
+              ) : maintenanceArr.length > 0 ? (
                 <div className="rounded-lg border border-white/[0.08] overflow-hidden">
                   <div className="max-h-[200px] overflow-y-auto">
                     <table className="w-full text-sm">
@@ -668,7 +685,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/[0.05]">
-                        {maintenanceHistory.map((record) => (
+                        {maintenanceArr.map((record) => (
                           <tr
                             key={record.id}
                             className="cursor-pointer hover:bg-white/[0.03]"
@@ -711,7 +728,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             <TabsContent value="incidents" className="mt-2">
               {incidentsLoading ? (
                 <TableSkeleton />
-              ) : incidents && incidents.length > 0 ? (
+              ) : incidentsArr.length > 0 ? (
                 <div className="rounded-lg border border-white/[0.08] overflow-hidden">
                   <div className="max-h-[200px] overflow-y-auto">
                     <table className="w-full text-sm">
@@ -725,7 +742,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/[0.05]">
-                        {incidents.map((incident) => (
+                        {incidentsArr.map((incident) => (
                           <tr
                             key={incident.id}
                             className="cursor-pointer hover:bg-white/[0.03]"
@@ -768,7 +785,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             <TabsContent value="trips" className="space-y-2 mt-2">
               {tripsLoading ? (
                 <TableSkeleton />
-              ) : trips && trips.length > 0 ? (
+              ) : tripsArr.length > 0 ? (
                 <>
                   {/* Summary strip */}
                   <div className="grid grid-cols-2 gap-2">
@@ -796,7 +813,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-white/[0.05]">
-                          {trips.map((trip) => (
+                          {tripsArr.map((trip) => (
                             <tr key={trip.id} className="hover:bg-white/[0.03]">
                               <td className="px-3 py-2">
                                 {trip.start_location && trip.end_location ? (
@@ -840,7 +857,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             <TabsContent value="inspections" className="mt-2">
               {inspectionsLoading ? (
                 <TableSkeleton />
-              ) : inspections && inspections.length > 0 ? (
+              ) : inspectionsArr.length > 0 ? (
                 <div className="rounded-lg border border-white/[0.08] overflow-hidden">
                   <div className="max-h-[200px] overflow-y-auto">
                     <table className="w-full text-sm">
@@ -854,7 +871,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/[0.05]">
-                        {inspections.map((inspection) => (
+                        {inspectionsArr.map((inspection) => (
                           <tr key={inspection.id} className="hover:bg-white/[0.03]">
                             <td className="px-3 py-2">
                               <span className="font-medium text-white/80">#{inspection.inspection_number}</span>
@@ -891,20 +908,20 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             <TabsContent value="fuel" className="space-y-2 mt-2">
               {fuelLoading ? (
                 <TableSkeleton />
-              ) : fuelRecords && fuelRecords.length > 0 ? (
+              ) : fuelArr.length > 0 ? (
                 <>
                   {/* Fuel summary strip */}
                   <div className="grid grid-cols-2 gap-2">
                     <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
                       <p className="text-[11px] text-white/40">Total Fuel</p>
                       <p className="text-sm font-bold text-white">
-                        {formatNumber(fuelRecords.reduce((sum, r) => sum + r.gallons, 0), 1)} gal
+                        {formatNumber(fuelArr.reduce((sum, r) => sum + r.gallons, 0), 1)} gal
                       </p>
                     </div>
                     <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
                       <p className="text-[11px] text-white/40">Total Cost</p>
                       <p className="text-sm font-bold text-white">
-                        {formatCurrency(fuelRecords.reduce((sum, r) => sum + r.cost, 0))}
+                        {formatCurrency(fuelArr.reduce((sum, r) => sum + r.cost, 0))}
                       </p>
                     </div>
                   </div>
@@ -923,7 +940,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-white/[0.05]">
-                          {fuelRecords.map((record) => (
+                          {fuelArr.map((record) => (
                             <tr key={record.id} className="hover:bg-white/[0.03]">
                               <td className="px-3 py-2 text-white/80 tabular-nums">
                                 {formatNumber(record.gallons, 2)} gal
