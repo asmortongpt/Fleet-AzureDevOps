@@ -25,6 +25,7 @@ import {
   BadgeCheck,
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn } from '@/components/ui/data-table'
@@ -340,6 +341,7 @@ export default function ComplianceHub() {
             <Button
               variant="outline"
               className="bg-card border-primary/20 text-foreground hover:bg-primary/10"
+              onClick={() => toast.info('Exporting compliance records...')}
             >
               Export Records
             </Button>

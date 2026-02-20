@@ -1,5 +1,6 @@
 import { ArrowLeft, Sparkles, Send, Code, Eye, Save } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -216,7 +217,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Edit Prompt
                   </Button>
-                  <Button variant="outline">
+                  <Button variant="outline" onClick={() => toast.info('JSON schema viewer coming soon')}>
                     <Code className="h-4 w-4 mr-2" />
                     View JSON
                   </Button>
@@ -248,7 +249,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                           <div className="font-medium text-foreground">{visual.title}</div>
                           <div className="text-xs text-muted-foreground">Type: {visual.type}</div>
                         </div>
-                        <Button variant="ghost" size="sm">
+                        <Button variant="ghost" size="sm" onClick={() => toast.info('Report preview coming soon')}>
                           <Eye className="h-4 w-4 mr-1" />
                           Preview
                         </Button>

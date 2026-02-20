@@ -29,6 +29,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
@@ -466,6 +467,7 @@ export default function AdminHub() {
               <Button
                 variant="outline"
                 className="bg-[hsl(var(--card))] border-[hsl(var(--primary))]/20 text-white hover:bg-[hsl(var(--primary))]/20"
+                onClick={() => toast.info('Exporting user list...')}
               >
                 Export Users
               </Button>

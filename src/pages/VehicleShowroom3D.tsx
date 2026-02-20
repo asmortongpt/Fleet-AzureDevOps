@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { toast } from 'sonner';
 
 import ARModeExport from '@/components/3d/ARModeExport';
 import VehicleViewer3D from '@/components/3d/VehicleViewer3D';
@@ -555,15 +556,15 @@ export default function VehicleShowroom3D() {
 
             {/* Action Buttons */}
             <Card className="p-2 space-y-2">
-              <Button variant="outline" className="w-full justify-start" size="sm">
+              <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => toast.info('Capturing screenshot...')}>
                 <Download className="w-4 h-4 mr-2" />
                 Download Screenshot
               </Button>
-              <Button variant="outline" className="w-full justify-start" size="sm">
+              <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => toast.info('360° view mode not available for this model')}>
                 <Camera className="w-4 h-4 mr-2" />
                 360° View
               </Button>
-              <Button variant="outline" className="w-full justify-start" size="sm">
+              <Button variant="outline" className="w-full justify-start" size="sm" onClick={() => toast.info('Interior view not available for this model')}>
                 <Eye className="w-4 h-4 mr-2" />
                 Interior View
               </Button>

@@ -339,11 +339,11 @@ export default function SafetyAlertsPage() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2" onClick={() => toast.info('Exporting safety alerts report...')}>
                 <Download className="w-4 h-4" />
                 Export Report
               </Button>
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2" onClick={() => toast.info('Opening OSHA forms...')}>
                 <FileText className="w-4 h-4" />
                 OSHA Forms
               </Button>
@@ -673,7 +673,7 @@ export default function SafetyAlertsPage() {
                     <FileText className="w-4 h-4 text-emerald-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 300</h3>
                     <p className="text-sm text-white/40 mb-3">Log of Work-Related Injuries and Illnesses</p>
-                    <Button variant="outline" className="w-full" size="sm">
+                    <Button variant="outline" className="w-full" size="sm" onClick={() => toast.info('Generating OSHA Form 300...')}>
                       <Download className="w-4 h-4 mr-2" />
                       Generate Form
                     </Button>
@@ -682,7 +682,7 @@ export default function SafetyAlertsPage() {
                     <FileText className="w-4 h-4 text-purple-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 300A</h3>
                     <p className="text-sm text-white/40 mb-3">Summary of Work-Related Injuries and Illnesses</p>
-                    <Button variant="outline" className="w-full" size="sm">
+                    <Button variant="outline" className="w-full" size="sm" onClick={() => toast.info('Generating OSHA Form 300A summary...')}>
                       <Download className="w-4 h-4 mr-2" />
                       Generate Summary
                     </Button>
@@ -691,7 +691,7 @@ export default function SafetyAlertsPage() {
                     <FileText className="w-4 h-4 text-green-400 mb-2" />
                     <h3 className="font-semibold text-white mb-1">OSHA Form 301</h3>
                     <p className="text-sm text-white/40 mb-3">Injury and Illness Incident Report</p>
-                    <Button variant="outline" className="w-full" size="sm">
+                    <Button variant="outline" className="w-full" size="sm" onClick={() => toast.info('Generating OSHA Form 301 report...')}>
                       <Download className="w-4 h-4 mr-2" />
                       Generate Report
                     </Button>

@@ -9,6 +9,7 @@ import {
   Moon
 } from "lucide-react"
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 
 import { ProfessionalFleetMap } from "@/components/Maps/ProfessionalFleetMap"
 import { MapFirstLayout } from "@/components/layout/MapFirstLayout"
@@ -239,11 +240,11 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
             )}
 
             <div className="pt-3 space-y-2">
-              <Button className="w-full" size="sm">
+              <Button className="w-full" size="sm" onClick={() => toast.info('Opening messaging for ' + selectedDriver?.name)}>
                 <Mail className="h-4 w-4 mr-2" />
                 Message Driver
               </Button>
-              <Button variant="outline" className="w-full" size="sm">
+              <Button variant="outline" className="w-full" size="sm" onClick={() => { if (selectedDriver?.phone) window.open('tel:' + selectedDriver.phone) }}>
                 <Phone className="h-4 w-4 mr-2" />
                 Call {selectedDriver.phone}
               </Button>

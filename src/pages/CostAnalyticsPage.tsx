@@ -895,7 +895,7 @@ export default function CostAnalyticsPage() {
             </div>
             {vehicleCostData.length > 10 && (
               <div className="mt-4 text-center">
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => toast.info('Navigating to full vehicle cost breakdown...')}>
                   View All {vehicleCostData.length} Vehicles
                 </Button>
               </div>

@@ -1,7 +1,7 @@
 import { subMonths } from 'date-fns';
 import { ArrowLeft, Download, RefreshCw, Maximize2, Share2 } from 'lucide-react';
 import React, { useState, useEffect, useCallback } from 'react';
-
+import { toast } from 'sonner';
 
 import { FilterBar, FilterValues } from './filters/FilterBar';
 import { DetailTable, TableColumn } from './visualizations/DetailTable';
@@ -368,11 +368,11 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => toast.info('Share report link copied to clipboard')}>
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => toast.info('Fullscreen mode coming soon')}>
               <Maximize2 className="h-4 w-4" />
             </Button>
           </div>

@@ -12,6 +12,7 @@
 
 import { AlertCircle, Box, Plus, Upload, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 import { useNavigation } from '@/contexts/NavigationContext'
 
@@ -422,7 +423,7 @@ export function CreateDamageReport() {
 
                 {formData.photos.length >= 3 && (
                   <SmartTooltip content="Generate 3D model from uploaded photos using AI-powered TripoSR">
-                    <Button type="button" variant="secondary">
+                    <Button type="button" variant="secondary" onClick={() => toast.info('3D model generation requires vehicle scan data')}>
                       <Box className="h-4 w-4 mr-2" />
                       Generate 3D Model
                     </Button>
