@@ -40,11 +40,11 @@ export function GaugeChart({
   size = 200,
 }: GaugeChartProps) {
   const chartColors = {
-    text: 'hsl(var(--foreground))',
-    low: 'hsl(var(--chart-6))',
-    medium: 'hsl(var(--chart-3))',
-    high: 'hsl(var(--chart-2))',
-    background: 'hsl(var(--muted))',
+    text: 'var(--foreground)',
+    low: '#EF4444',
+    medium: '#F59E0B',
+    high: '#10B981',
+    background: 'var(--muted)',
   }
 
   // Calculate percentage and angle

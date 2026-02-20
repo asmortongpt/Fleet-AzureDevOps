@@ -173,16 +173,16 @@ export function useReactiveAnalyticsData() {
   // Category chart data with memoization
   const categoryChartData = useMemo<ChartDataPoint[]>(() => {
     const colorMap: Record<string, string> = {
-      operational: 'hsl(var(--primary))',
-      financial: 'hsl(var(--success))',
-      compliance: 'hsl(var(--warning))',
-      performance: 'hsl(var(--info))',
+      operational: '#3B82F6',
+      financial: '#10B981',
+      compliance: '#F59E0B',
+      performance: '#06B6D4',
     }
 
     return Object.entries(reportsByCategory).map(([name, value]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       value,
-      fill: colorMap[name] || 'hsl(var(--muted))',
+      fill: colorMap[name] || '#64748B',
     }))
   }, [reportsByCategory])
 

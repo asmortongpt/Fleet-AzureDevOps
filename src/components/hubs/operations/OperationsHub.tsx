@@ -12,6 +12,7 @@ import {
   Zap
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { OperationsHubMap } from './OperationsHubMap';
 
@@ -60,6 +61,7 @@ interface Route {
 }
 
 export function OperationsHub() {
+  const navigate = useNavigate();
   const { push } = useDrilldown();
   const { data: vehicles = [], isLoading: vehiclesLoading, error: vehiclesError } = useVehicles();
   const { data: drivers = [], isLoading: driversLoading, error: driversError } = useDrivers();
@@ -398,19 +400,19 @@ export function OperationsHub() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-slate-700">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/fleet-operations?tab=maintenance')}>
             <Package className="h-4 w-4" />
             New Job
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/fleet-operations?tab=operations')}>
             <Navigation className="h-4 w-4" />
             Optimize Routes
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/fleet-operations?tab=fleet')}>
             <MapPin className="h-4 w-4" />
             Add Geofence
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigate('/fleet-operations?tab=fleet')}>
             <Truck className="h-4 w-4" />
             Assign Vehicle
           </Button>

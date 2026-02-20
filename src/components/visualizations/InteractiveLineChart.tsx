@@ -54,7 +54,7 @@ export function InteractiveLineChart({
   height = 400,
   loading = false,
   showArea = false,
-  colors = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-4))'],
+  colors = ['#3B82F6', '#10B981', '#8B5CF6'],
   enableBrush = true,
   enableZoom = true,
 }: InteractiveLineChartProps) {
@@ -62,14 +62,14 @@ export function InteractiveLineChart({
   const [brushIndexes, setBrushIndexes] = useState<{ startIndex?: number; endIndex?: number }>({})
 
   const chartColors = {
-    text: 'hsl(var(--foreground))',
-    grid: 'hsl(var(--border))',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
-    brush: 'hsl(var(--border))',
+    brush: 'var(--border)',
   }
 
   const ChartComponent = showArea ? AreaChart : LineChart
@@ -226,7 +226,7 @@ export function InteractiveLineChart({
                   dataKey={xAxisKey}
                   height={30}
                   stroke={chartColors.brush}
-                  fill="hsl(var(--card))"
+                  fill="var(--card)"
                   onChange={(indexes: any) => setBrushIndexes(indexes)}
                   travellerWidth={10}
                 />

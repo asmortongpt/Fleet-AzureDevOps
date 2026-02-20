@@ -1,6 +1,6 @@
 import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel, Video, Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 
 import { MapFirstLayout } from '../layout/MapFirstLayout';
@@ -118,6 +118,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   // -- Data Sync --
   useEffect(() => {
@@ -285,26 +286,26 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
       id: 'dispatch',
       label: 'Dispatch',
       icon: <Truck className="h-5 w-5" />,
-      onClick: () => {}
+      onClick: () => navigate('/fleet-operations?tab=fleet')
     },
     {
       id: 'maintenance',
       label: 'Maintenance',
       icon: <Wrench className="h-5 w-5" />,
-      onClick: () => {}
+      onClick: () => navigate('/fleet-operations?tab=maintenance')
     },
     {
       id: 'alerts',
       label: 'Alerts',
       icon: <AlertCircle className="h-5 w-5" />,
-      onClick: () => {},
+      onClick: () => navigate('/compliance-safety'),
       badge: maintenanceCount
     },
     {
       id: 'fuel',
       label: 'Fuel',
       icon: <Fuel className="h-5 w-5" />,
-      onClick: () => {}
+      onClick: () => navigate('/fleet-operations?tab=operations')
     }
   ];
 
@@ -366,10 +367,10 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
                 <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-700" />
               </div>
-              <span className="font-mono text-slate-600 dark:text-slate-300">
-                {Number(selectedVehicle.location?.lat ?? selectedVehicle.latitude ?? 0).toFixed(4)},
-                {' '}
-                {Number(selectedVehicle.location?.lng ?? selectedVehicle.longitude ?? 0).toFixed(4)}
+              <span className="text-slate-600 dark:text-slate-300 truncate">
+                {selectedVehicle.location?.address || selectedVehicle.location_address || selectedVehicle.locationAddress || (
+                  `${Number(selectedVehicle.location?.lat ?? selectedVehicle.latitude ?? 0).toFixed(4)}, ${Number(selectedVehicle.location?.lng ?? selectedVehicle.longitude ?? 0).toFixed(4)}`
+                )}
               </span>
             </div>
           </CardContent>
@@ -392,6 +393,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="dispatch-action"
+            onClick={() => navigate('/fleet-operations?tab=fleet')}
           >
             <Truck className="h-4 w-4 mr-1" />
             Dispatch
@@ -401,6 +403,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="maintenance-action"
+            onClick={() => navigate('/fleet-operations?tab=maintenance')}
           >
             <Wrench className="h-4 w-4 mr-1" />
             Maintenance
@@ -410,6 +413,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="alerts-action"
+            onClick={() => navigate('/compliance-safety')}
           >
             <AlertCircle className="h-4 w-4 mr-1" />
             Alerts
@@ -419,6 +423,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             size="sm"
             className="w-full"
             data-testid="fuel-action"
+            onClick={() => navigate('/fleet-operations?tab=operations')}
           >
             <Fuel className="h-4 w-4 mr-1" />
             Fuel
@@ -513,15 +518,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     );
   }
 
-  // Map controls for mobile
-  const mapControls = (
-    <MobileMapControls
-      onZoomIn={() => {}}
-      onZoomOut={() => {}}
-      onLocate={() => {}}
-      onToggleLayers={() => {}}
-    />
-  );
+  // Native Google Maps controls handle zoom/pan - no custom overlay needed
 
   return (
     <div className="relative h-full w-full">
@@ -538,7 +535,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         }
         sidePanel={sidePanel}
         drawerContent={drawerContent}
-        mapControls={mapControls}
+        mapControls={null}
       />
 
       {/* Layer Controls - Overlay */}

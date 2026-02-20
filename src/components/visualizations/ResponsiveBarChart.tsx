@@ -33,12 +33,12 @@ export interface ResponsiveBarChartProps {
 }
 
 const GRADIENT_COLORS = [
-  { id: 'bar-gradient-1', start: 'hsl(var(--chart-1))', end: 'hsl(var(--chart-1))' },
-  { id: 'bar-gradient-2', start: 'hsl(var(--chart-2))', end: 'hsl(var(--chart-2))' },
-  { id: 'bar-gradient-3', start: 'hsl(var(--chart-3))', end: 'hsl(var(--chart-3))' },
-  { id: 'bar-gradient-4', start: 'hsl(var(--chart-6))', end: 'hsl(var(--chart-6))' },
-  { id: 'bar-gradient-5', start: 'hsl(var(--chart-4))', end: 'hsl(var(--chart-4))' },
-  { id: 'bar-gradient-6', start: 'hsl(var(--chart-5))', end: 'hsl(var(--chart-5))' },
+  { id: 'bar-gradient-1', start: '#3B82F6', end: '#3B82F6' },
+  { id: 'bar-gradient-2', start: '#10B981', end: '#10B981' },
+  { id: 'bar-gradient-3', start: '#F59E0B', end: '#F59E0B' },
+  { id: 'bar-gradient-4', start: '#EF4444', end: '#EF4444' },
+  { id: 'bar-gradient-5', start: '#8B5CF6', end: '#8B5CF6' },
+  { id: 'bar-gradient-6', start: '#F97316', end: '#F97316' },
 ]
 
 export function ResponsiveBarChart({
@@ -56,12 +56,12 @@ export function ResponsiveBarChart({
   horizontal = false,
 }: ResponsiveBarChartProps) {
   const chartColors = {
-    text: 'hsl(var(--foreground))',
-    grid: 'hsl(var(--border))',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -167,7 +167,7 @@ export function ResponsiveBarChart({
                     <YAxis stroke={chartColors.text} tick={{ fill: chartColors.text }} />
                   </>
                 )}
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--foreground) / 0.05)' }} />
+                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
                 <Legend
                   wrapperStyle={{ color: chartColors.text }}
                   iconType="square"

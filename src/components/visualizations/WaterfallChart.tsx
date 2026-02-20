@@ -34,17 +34,17 @@ export function WaterfallChart({
   data,
   height = 400,
   loading = false,
-  positiveColor = 'hsl(var(--chart-2))',
-  negativeColor = 'hsl(var(--chart-6))',
-  totalColor = 'hsl(var(--primary))',
+  positiveColor = '#10B981',
+  negativeColor = '#EF4444',
+  totalColor = 'var(--primary)',
 }: WaterfallChartProps) {
   const chartColors = {
-    text: 'hsl(var(--foreground))',
-    grid: 'hsl(var(--border))',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -124,7 +124,7 @@ export function WaterfallChart({
                 tick={{ fill: chartColors.text, fontSize: 12 }}
                 tickFormatter={(value) => formatCurrencyCompact(value)}
               />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'hsl(var(--foreground) / 0.05)' }} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
               <ReferenceLine y={0} stroke={chartColors.text} strokeDasharray="3 3" />
 
               {/* Invisible bar for positioning */}

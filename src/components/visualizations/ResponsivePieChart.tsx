@@ -29,25 +29,14 @@ interface ResponsivePieChartProps {
 }
 
 const DEFAULT_COLORS = [
-  'url(#gradient-primary)',
-  'url(#gradient-secondary)',
-  'url(#gradient-success)',
-  'url(#gradient-warning)',
-  'url(#gradient-danger)',
-  'url(#gradient-info)',
-  'url(#gradient-purple)',
-  'url(#gradient-pink)',
-]
-
-const GRADIENT_DEFINITIONS = [
-  { id: 'gradient-primary', start: 'hsl(var(--chart-1))', end: 'hsl(var(--chart-1))' },
-  { id: 'gradient-secondary', start: 'hsl(var(--chart-4))', end: 'hsl(var(--chart-4))' },
-  { id: 'gradient-success', start: 'hsl(var(--chart-2))', end: 'hsl(var(--chart-2))' },
-  { id: 'gradient-warning', start: 'hsl(var(--chart-3))', end: 'hsl(var(--chart-3))' },
-  { id: 'gradient-danger', start: 'hsl(var(--chart-6))', end: 'hsl(var(--chart-6))' },
-  { id: 'gradient-info', start: 'hsl(var(--chart-5))', end: 'hsl(var(--chart-5))' },
-  { id: 'gradient-purple', start: 'hsl(var(--chart-8))', end: 'hsl(var(--chart-8))' },
-  { id: 'gradient-pink', start: 'hsl(var(--chart-7))', end: 'hsl(var(--chart-7))' },
+  '#3B82F6', // Blue
+  '#10B981', // Green
+  '#F59E0B', // Amber
+  '#EF4444', // Red
+  '#8B5CF6', // Purple
+  '#06B6D4', // Cyan
+  '#EC4899', // Pink
+  '#94A3B8', // Slate
 ]
 
 // Active shape renderer for hover effect
@@ -125,11 +114,11 @@ export function ResponsivePieChart({
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
   const chartColors = {
-    text: 'hsl(var(--foreground))',
+    text: 'var(--foreground)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -178,14 +167,6 @@ export function ResponsivePieChart({
           ) : (
             <ResponsiveContainer width="100%" height={height}>
               <PieChart>
-                <defs>
-                  {GRADIENT_DEFINITIONS.map((gradient) => (
-                    <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={gradient.start} stopOpacity={1} />
-                      <stop offset="100%" stopColor={gradient.end} stopOpacity={0.9} />
-                    </linearGradient>
-                  ))}
-                </defs>
                 <Pie
                   data={data as any}
                   cx="50%"
@@ -209,7 +190,7 @@ export function ResponsivePieChart({
                       <text
                         x={x}
                         y={y}
-                        fill="hsl(var(--background))"
+                        fill="white"
                         textAnchor={x > cx ? 'start' : 'end'}
                         dominantBaseline="central"
                         className="text-xs font-bold drop-shadow-md"
@@ -220,7 +201,7 @@ export function ResponsivePieChart({
                   } : undefined}
                   outerRadius={innerRadius ? 100 : 110}
                   innerRadius={innerRadius}
-                  fill="hsl(var(--chart-4))"
+                  fill="#3B82F6"
                   dataKey="value"
                   animationDuration={1200}
                   animationBegin={0}
@@ -235,7 +216,7 @@ export function ResponsivePieChart({
                     <Cell
                       key={`cell-${index}`}
                       fill={entry.fill || colors[index % colors.length]}
-                      stroke="hsl(var(--background))"
+                      stroke="transparent"
                       strokeWidth={2}
                       className="transition-all duration-300 hover:opacity-90"
                     />

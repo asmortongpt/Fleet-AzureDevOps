@@ -11,6 +11,7 @@ import {
   Activity
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 
 import { OperationsHubMap } from './OperationsHubMap';
@@ -106,6 +107,7 @@ interface TimelineRoute {
 }
 
 export function OperationsHubEnhanced() {
+  const navigate = useNavigate();
   const { push } = useDrilldown();
   const { data: vehicles = [], isLoading: vehiclesLoading, error: vehiclesError } = useVehicles();
   const { data: drivers = [], error: driversError } = useDrivers();
@@ -415,19 +417,19 @@ export function OperationsHubEnhanced() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-slate-700">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigate('/fleet-operations?tab=maintenance')}>
             <Package className="h-3 w-3" />
             New Job
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigate('/fleet-operations?tab=operations')}>
             <Navigation className="h-3 w-3" />
             Optimize Routes
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigate('/fleet-operations?tab=fleet')}>
             <MapPin className="h-3 w-3" />
             Add Geofence
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs">
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigate('/fleet-operations?tab=fleet')}>
             <Truck className="h-3 w-3" />
             Assign Vehicle
           </Button>

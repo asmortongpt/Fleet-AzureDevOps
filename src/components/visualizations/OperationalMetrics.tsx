@@ -258,7 +258,7 @@ export function CircularGauge({
             cy="50"
             r="45"
             fill="none"
-            stroke="hsl(var(--border))"
+            stroke="var(--border)"
             strokeWidth="8"
           />
           {/* Progress circle */}

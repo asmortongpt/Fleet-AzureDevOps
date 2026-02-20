@@ -45,12 +45,12 @@ interface ResponsiveLineChartProps {
 }
 
 const GRADIENT_COLORS = [
-  { id: 'line-gradient-1', stroke: 'hsl(var(--chart-1))', fill: 'hsl(var(--chart-1))' },
-  { id: 'line-gradient-2', stroke: 'hsl(var(--chart-2))', fill: 'hsl(var(--chart-2))' },
-  { id: 'line-gradient-3', stroke: 'hsl(var(--chart-3))', fill: 'hsl(var(--chart-3))' },
-  { id: 'line-gradient-4', stroke: 'hsl(var(--chart-6))', fill: 'hsl(var(--chart-6))' },
-  { id: 'line-gradient-5', stroke: 'hsl(var(--chart-4))', fill: 'hsl(var(--chart-4))' },
-  { id: 'line-gradient-6', stroke: 'hsl(var(--chart-5))', fill: 'hsl(var(--chart-5))' },
+  { id: 'line-gradient-1', stroke: '#3B82F6', fill: '#3B82F6' },
+  { id: 'line-gradient-2', stroke: '#10B981', fill: '#10B981' },
+  { id: 'line-gradient-3', stroke: '#F59E0B', fill: '#F59E0B' },
+  { id: 'line-gradient-4', stroke: '#EF4444', fill: '#EF4444' },
+  { id: 'line-gradient-5', stroke: '#8B5CF6', fill: '#8B5CF6' },
+  { id: 'line-gradient-6', stroke: '#F97316', fill: '#F97316' },
 ]
 
 export function ResponsiveLineChart({
@@ -68,12 +68,12 @@ export function ResponsiveLineChart({
   highlightZones,
 }: ResponsiveLineChartProps) {
   const chartColors = {
-    text: 'hsl(var(--foreground))',
-    grid: 'hsl(var(--border))',
+    text: 'var(--foreground)',
+    grid: 'var(--border)',
     tooltip: {
-      background: 'hsl(var(--card))',
-      border: 'hsl(var(--border))',
-      text: 'hsl(var(--foreground))',
+      background: 'var(--card)',
+      border: 'var(--border)',
+      text: 'var(--foreground)',
     },
   }
 
@@ -136,7 +136,7 @@ export function ResponsiveLineChart({
           cy={cy}
           r={6}
           fill={stroke}
-          stroke="hsl(var(--background))"
+          stroke="var(--background)"
           strokeWidth={2}
           className="drop-shadow-lg"
         />
@@ -148,7 +148,7 @@ export function ResponsiveLineChart({
         cy={cy}
         r={4}
         fill={stroke}
-        stroke="hsl(var(--background))"
+        stroke="var(--background)"
         strokeWidth={1.5}
       />
     )
@@ -222,7 +222,7 @@ export function ResponsiveLineChart({
                     key={`${zone.start}-${zone.end}`}
                     x1={zone.start}
                     x2={zone.end}
-                    fill={zone.color || 'hsl(var(--chart-3))'}
+                    fill={zone.color || '#F59E0B'}
                     fillOpacity={0.1}
                   />
                 ))}

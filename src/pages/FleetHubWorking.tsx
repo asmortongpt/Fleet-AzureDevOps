@@ -16,6 +16,7 @@ import {
     Database
 } from 'lucide-react'
 import { memo, useCallback, useState, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 import { VehicleModelLibrary } from '@/components/VehicleModelLibrary'
 import { Button } from '@/components/ui/button'
@@ -205,6 +206,7 @@ const TelematicsContent = memo(function TelematicsContent({ telemetryVehicles }:
 })
 
 export default function FleetHub() {
+    const navigate = useNavigate();
     const { data: vehicles = [], error: vehiclesError } = useVehicles();
     const { data: workOrdersData = [], error: workOrdersError } = useWorkOrders();
     const { data: maintenanceSchedulesData = [], error: maintenanceError } = useMaintenanceSchedules();
@@ -343,10 +345,10 @@ export default function FleetHub() {
                             <div className="pt-6 border-t border-slate-800">
                                 <h3 className="text-sm font-semibold text-slate-100 uppercase tracking-wide mb-4">Quick Actions</h3>
                                 <div className="space-y-2">
-                                    <Button className="w-full justify-start" variant="outline"><Plus className="mr-2 h-4 w-4" /> Add Vehicle</Button>
-                                    <Button className="w-full justify-start" variant="outline"><Calendar className="mr-2 h-4 w-4" /> Schedule Maintenance</Button>
-                                    <Button className="w-full justify-start" variant="outline"><Clipboard className="mr-2 h-4 w-4" /> Work Order</Button>
-                                    <Button className="w-full justify-start" variant="outline"><Activity className="mr-2 h-4 w-4" /> View Telematics</Button>
+                                    <Button className="w-full justify-start" variant="outline" onClick={() => navigate('/fleet-operations?tab=fleet')}><Plus className="mr-2 h-4 w-4" /> Add Vehicle</Button>
+                                    <Button className="w-full justify-start" variant="outline" onClick={() => navigate('/fleet-operations?tab=maintenance')}><Calendar className="mr-2 h-4 w-4" /> Schedule Maintenance</Button>
+                                    <Button className="w-full justify-start" variant="outline" onClick={() => navigate('/fleet-operations?tab=maintenance')}><Clipboard className="mr-2 h-4 w-4" /> Work Order</Button>
+                                    <Button className="w-full justify-start" variant="outline" onClick={() => navigate('/fleet-operations?tab=operations')}><Activity className="mr-2 h-4 w-4" /> View Telematics</Button>
                                 </div>
                             </div>
                         </div>

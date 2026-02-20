@@ -254,19 +254,19 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   }))
   const woTypeChartData = Object.entries(woTypeDistribution).map(([name, value]) => ({
     name: formatEnum(name), value: value as number,
-    fill: name === 'preventive' ? 'hsl(var(--success))' : name === 'corrective' ? 'hsl(var(--primary))' : name === 'emergency' ? 'hsl(var(--destructive))' : name === 'inspection' ? 'hsl(var(--warning))' : 'hsl(var(--accent))',
+    fill: name === 'preventive' ? '#10B981' : name === 'corrective' ? '#3B82F6' : name === 'emergency' ? '#EF4444' : name === 'inspection' ? '#F59E0B' : '#8B5CF6',
   }))
   const healthDistributionData = [
-    { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: 'hsl(var(--success))' },
-    { name: 'Good (70-89)', value: fleetHealth.good, fill: 'hsl(var(--primary))' },
-    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: 'hsl(var(--warning))' },
-    { name: 'Poor (<50)', value: fleetHealth.poor, fill: 'hsl(var(--destructive))' },
+    { name: 'Excellent (90+)', value: fleetHealth.excellent, fill: '#10B981' },
+    { name: 'Good (70-89)', value: fleetHealth.good, fill: '#3B82F6' },
+    { name: 'Fair (50-69)', value: fleetHealth.fair, fill: '#F59E0B' },
+    { name: 'Poor (<50)', value: fleetHealth.poor, fill: '#EF4444' },
   ].filter(d => d.value > 0)
   const hosChartData = [
-    { name: 'Driving', value: hosCompliance.statuses.driving, fill: 'hsl(var(--success))' },
-    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: 'hsl(var(--primary))' },
-    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: 'hsl(var(--muted-foreground))' },
-    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: 'hsl(var(--accent))' },
+    { name: 'Driving', value: hosCompliance.statuses.driving, fill: '#10B981' },
+    { name: 'On Duty', value: hosCompliance.statuses.on_duty, fill: '#3B82F6' },
+    { name: 'Off Duty', value: hosCompliance.statuses.off_duty, fill: '#94A3B8' },
+    { name: 'Sleeper', value: hosCompliance.statuses.sleeper, fill: '#8B5CF6' },
   ].filter(d => d.value > 0)
 
   return (
@@ -1280,13 +1280,13 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             {overdueOrders.length > 0 ? (
               <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
                 {overdueOrders.map((overdue: any) => (
-                  <Alert key={overdue.id} variant="destructive">
-                    <AlertTriangle className="h-4 w-4" />
+                  <Alert key={overdue.id} variant="destructive" className="border-rose-800/40 bg-rose-950/30">
+                    <AlertTriangle className="h-4 w-4 text-rose-400" />
                     <AlertDescription>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-xs font-semibold">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
-                          <p className="text-[10px]">
+                          <p className="text-xs font-semibold text-rose-200">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
+                          <p className="text-[10px] text-rose-300/70">
                             {overdue.vehicleName || (overdue.vehicleId ? `...${String(overdue.vehicleId).slice(-4)}` : '—')} · Overdue by {overdue.daysOverdue} days
                           </p>
                         </div>
@@ -1372,10 +1372,10 @@ const AssetsTabContent = memo(function AssetsTabContent() {
 
 
   const utilizationData = [
-    { name: 'In Use', value: statusDistribution.active || 0, fill: 'hsl(var(--success))' },
-    { name: 'Available', value: statusDistribution.available || 0, fill: 'hsl(var(--primary))' },
-    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: 'hsl(var(--warning))' },
-    { name: 'Retired', value: statusDistribution.retired || 0, fill: 'hsl(var(--muted-foreground))' },
+    { name: 'In Use', value: statusDistribution.active || 0, fill: '#10B981' },
+    { name: 'Available', value: statusDistribution.available || 0, fill: '#3B82F6' },
+    { name: 'Maintenance', value: statusDistribution.maintenance || 0, fill: '#F59E0B' },
+    { name: 'Retired', value: statusDistribution.retired || 0, fill: '#94A3B8' },
   ].filter((entry) => entry.value > 0)
 
   if (isLoading) {

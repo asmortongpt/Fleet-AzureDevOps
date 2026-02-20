@@ -46,11 +46,11 @@ export function RadialProgressChart({
   // Determine color based on value if not provided
   const getColor = () => {
     if (color) return color
-    if (percentage >= 90) return 'hsl(var(--chart-2))' // green
-    if (percentage >= 75) return 'hsl(var(--chart-1))' // blue
-    if (percentage >= 60) return 'hsl(var(--chart-3))' // amber
-    if (percentage >= 40) return 'hsl(var(--chart-5))' // orange
-    return 'hsl(var(--chart-6))' // red
+    if (percentage >= 90) return '#10B981' // green
+    if (percentage >= 75) return '#3B82F6' // blue
+    if (percentage >= 60) return '#F59E0B' // amber
+    if (percentage >= 40) return '#F97316' // orange
+    return '#EF4444' // red
   }
 
   const progressColor = getColor()
@@ -102,7 +102,7 @@ export function RadialProgressChart({
                   </defs>
                   <PolarAngleAxis type="number" domain={[0, 100]} angleAxisId={0} tick={false} />
                   <RadialBar
-                    background={{ fill: 'hsl(var(--muted))' }}
+                    background={{ fill: 'var(--muted)' }}
                     dataKey="value"
                     cornerRadius={10}
                     animationDuration={1500}
