@@ -101,7 +101,7 @@ export function PredictiveMaintenanceWidget() {
     }
 
     return (
-        <Card className="h-full shadow-md border-slate-200 dark:border-slate-800">
+        <Card className="h-full shadow-md border-white/[0.12] dark:border-white/[0.08]">
             <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
                     <div>
@@ -120,13 +120,13 @@ export function PredictiveMaintenanceWidget() {
                 <div className="space-y-2">
                     {/* Summary Stats */}
                     <div className="grid grid-cols-2 gap-2">
-                        <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <div className="bg-white/[0.03] dark:bg-white/[0.03] p-3 rounded-lg border border-white/[0.08] dark:border-white/[0.08]">
                             <div className="text-xs text-muted-foreground">High Risk Vehicles</div>
                             <div className="text-sm font-bold text-red-600">{highRiskCount}</div>
                         </div>
-                        <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-800">
+                        <div className="bg-white/[0.03] dark:bg-white/[0.03] p-3 rounded-lg border border-white/[0.08] dark:border-white/[0.08]">
                         <div className="text-xs text-muted-foreground">Next 7 Days</div>
-                            <div className="text-sm font-bold text-blue-800">{next7Days}</div>
+                            <div className="text-sm font-bold text-emerald-400">{next7Days}</div>
                         </div>
                     </div>
 
@@ -137,14 +137,14 @@ export function PredictiveMaintenanceWidget() {
                             <div className="text-sm text-muted-foreground text-center py-2">No high risk vehicles detected</div>
                         ) : (
                             risks.map(risk => (
-                                <div key={risk.vehicleId} className="flex items-center justify-between p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors border border-transparent hover:border-slate-100 dark:hover:border-slate-800">
+                                <div key={risk.vehicleId} className="flex items-center justify-between p-2 rounded-md hover:bg-white/[0.03] dark:hover:bg-white/[0.03] transition-colors border border-transparent hover:border-white/[0.08] dark:hover:border-white/[0.08]">
                                     <div className="flex items-center gap-3">
                                         {risk.riskLevel === 'critical' ? (
                                             <AlertTriangle className="text-red-500 h-4 w-4" />
                                         ) : risk.riskLevel === 'high' ? (
                                             <AlertTriangle className="text-orange-500 h-4 w-4" />
                                         ) : (
-                                            <Wrench className="text-blue-800 h-4 w-4" />
+                                            <Wrench className="text-emerald-400 h-4 w-4" />
                                         )}
                                         <div>
                                             <div className="text-sm font-semibold">{risk.vehicleName}</div>
@@ -155,7 +155,7 @@ export function PredictiveMaintenanceWidget() {
                                     </div>
                                     <div className="text-right">
                                         <div className={`text-sm font-bold ${risk.riskLevel === 'critical' ? 'text-red-600' :
-                                            risk.riskLevel === 'high' ? 'text-orange-600' : 'text-blue-800'
+                                            risk.riskLevel === 'high' ? 'text-orange-600' : 'text-emerald-400'
                                             }`}>
                                             {risk.riskScore}%
                                         </div>

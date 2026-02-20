@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useFacilities, useWorkOrders, useMaintenanceSchedules } from "@/hooks/use-api"
 import { useVehicleTelemetry } from "@/hooks/useVehicleTelemetry"
-import { swrFetcher } from "@/lib/fetcher"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
@@ -210,7 +210,7 @@ const WorkOrdersPanel = ({ workOrders: workOrdersProp, onWorkOrderSelect }: { wo
       case 'completed':
         return <CheckCircle2 className="h-4 w-4 text-green-500" />
       case 'in_progress':
-        return <Clock className="h-4 w-4 text-blue-800" />
+        return <Clock className="h-4 w-4 text-emerald-400" />
       case 'pending':
         return <AlertCircle className="h-4 w-4 text-yellow-500" />
       default:
@@ -311,7 +311,7 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
       case 'in_stock': return 'bg-green-500'
       case 'low_stock': return 'bg-yellow-500'
       case 'out_of_stock': return 'bg-red-500'
-      case 'on_order': return 'bg-blue-500'
+      case 'on_order': return 'bg-emerald-500'
     }
   }
 
@@ -356,7 +356,7 @@ const PartsPanel = ({ parts: partsProp, technicians: techniciansProp }: { parts:
           <Card>
             <CardContent className="p-2">
               <div className="text-xs text-muted-foreground">On Order</div>
-              <div className="text-lg font-semibold text-blue-600">{partsOnOrder}</div>
+              <div className="text-lg font-semibold text-emerald-400">{partsOnOrder}</div>
             </CardContent>
           </Card>
           <Card>
@@ -443,8 +443,8 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
   const { data: facilities = [] } = useFacilities()
   const { data: workOrders = [] } = useWorkOrders()
   const { data: _maintenanceSchedule = [] } = useMaintenanceSchedules()
-  const { data: partsResponse } = useSWR<{ data: any[] }>('/api/parts?limit=200', swrFetcher)
-  const { data: usersResponse } = useSWR<{ data: any[] }>('/api/users?limit=500', swrFetcher)
+  const { data: partsResponse } = useSWR<any[]>('/api/parts?limit=200', apiFetcher)
+  const { data: usersResponse } = useSWR<any[]>('/api/users?limit=500', apiFetcher)
 
   // Real-time telemetry
   const {

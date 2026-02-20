@@ -11,38 +11,38 @@ export function SystemHealthDrilldown() {
     return (
         <div className="space-y-2">
             <div className="grid grid-cols-4 gap-2">
-                <Card className="bg-blue-900/30 border-blue-700/50">
+                <Card className="bg-white/[0.04] border-emerald-500/30">
                     <CardContent className="p-3 text-center">
-                        <Users className="w-3 h-3 text-blue-700 mx-auto mb-1" />
+                        <Users className="w-3 h-3 text-emerald-400 mx-auto mb-1" />
                         <div className="text-base font-bold text-white">42</div>
-                        <div className="text-xs text-slate-700">Sessions</div>
+                        <div className="text-xs text-white/40">Sessions</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-3 text-center">
                         <div className="text-base font-bold text-emerald-700">99.9%</div>
-                        <div className="text-xs text-slate-700">Uptime</div>
+                        <div className="text-xs text-white/40">Uptime</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-800/50 border-slate-700">
+                <Card className="bg-[#242424] border-white/[0.08]">
                     <CardContent className="p-3 text-center">
-                        <Cpu className="w-3 h-3 text-slate-700 mx-auto mb-1" />
-                        <div className="text-base font-bold text-slate-300">24%</div>
-                        <div className="text-xs text-slate-700">CPU</div>
+                        <Cpu className="w-3 h-3 text-white/40 mx-auto mb-1" />
+                        <div className="text-base font-bold text-white/80">24%</div>
+                        <div className="text-xs text-white/40">CPU</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-800/50 border-slate-700">
+                <Card className="bg-[#242424] border-white/[0.08]">
                     <CardContent className="p-3 text-center">
-                        <div className="text-base font-bold text-slate-300">68%</div>
-                        <div className="text-xs text-slate-700">Memory</div>
+                        <div className="text-base font-bold text-white/80">68%</div>
+                        <div className="text-xs text-white/40">Memory</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-[#242424] border-white/[0.08]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
-                        <Activity className="w-3 h-3 text-blue-700" />
+                        <Activity className="w-3 h-3 text-emerald-400" />
                         Service Status
                     </CardTitle>
                 </CardHeader>
@@ -54,12 +54,12 @@ export function SystemHealthDrilldown() {
                         { service: 'File Storage', status: 'operational', latency: '45ms' },
                         { service: 'Background Jobs', status: 'operational', latency: '—' },
                     ].map(svc => (
-                        <div key={svc.service} className="flex items-center justify-between p-2 bg-slate-900/50 rounded">
+                        <div key={svc.service} className="flex items-center justify-between p-2 bg-white/[0.03] rounded">
                             <div className="flex items-center gap-2">
                                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                                <span className="text-slate-300">{svc.service}</span>
+                                <span className="text-white/80">{svc.service}</span>
                             </div>
-                            <span className="text-slate-700 text-sm">{svc.latency}</span>
+                            <span className="text-white/40 text-sm">{svc.latency}</span>
                         </div>
                     ))}
                 </CardContent>
@@ -83,24 +83,24 @@ export function AlertsDrilldown() {
                     <CardContent className="p-2 text-center">
                         <CheckCircle className="w-4 h-4 text-emerald-700 mx-auto mb-2" />
                         <div className="text-sm font-bold text-emerald-700">0</div>
-                        <div className="text-xs text-slate-700">Critical</div>
+                        <div className="text-xs text-white/40">Critical</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">12</div>
-                        <div className="text-xs text-slate-700">Resolved Today</div>
+                        <div className="text-xs text-white/40">Resolved Today</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-800/50 border-slate-700">
+                <Card className="bg-[#242424] border-white/[0.08]">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-slate-300">2</div>
-                        <div className="text-xs text-slate-700">Suppressed</div>
+                        <div className="text-sm font-bold text-white/80">2</div>
+                        <div className="text-xs text-white/40">Suppressed</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-[#242424] border-white/[0.08]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm flex items-center gap-2">
                         <Bell className="w-3 h-3 text-amber-400" />
@@ -109,15 +109,15 @@ export function AlertsDrilldown() {
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {alerts.map(alert => (
-                        <div key={alert.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                        <div key={alert.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
                             <div className="flex items-center gap-3">
                                 {alert.severity === 'warning' ?
                                     <AlertTriangle className="w-3 h-3 text-amber-400" /> :
-                                    <Bell className="w-3 h-3 text-blue-700" />
+                                    <Bell className="w-3 h-3 text-emerald-400" />
                                 }
                                 <div>
                                     <div className="font-medium text-white text-sm">{alert.message}</div>
-                                    <div className="text-xs text-slate-700">{alert.time}</div>
+                                    <div className="text-xs text-white/40">{alert.time}</div>
                                 </div>
                             </div>
                             {alert.ack && <Badge variant="outline" className="border-emerald-500 text-emerald-700">Ack</Badge>}
@@ -133,44 +133,44 @@ export function FilesDrilldown() {
     return (
         <div className="space-y-2">
             <div className="grid grid-cols-3 gap-3">
-                <Card className="bg-blue-900/30 border-blue-700/50">
+                <Card className="bg-white/[0.04] border-emerald-500/30">
                     <CardContent className="p-2 text-center">
-                        <HardDrive className="w-4 h-4 text-blue-700 mx-auto mb-2" />
+                        <HardDrive className="w-4 h-4 text-emerald-400 mx-auto mb-2" />
                         <div className="text-sm font-bold text-white">2.4 TB</div>
-                        <div className="text-xs text-slate-700">Total Storage</div>
+                        <div className="text-xs text-white/40">Total Storage</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-slate-800/50 border-slate-700">
+                <Card className="bg-[#242424] border-white/[0.08]">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-slate-300">456</div>
-                        <div className="text-xs text-slate-700">Shared Files</div>
+                        <div className="text-sm font-bold text-white/80">456</div>
+                        <div className="text-xs text-white/40">Shared Files</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
                         <div className="text-sm font-bold text-emerald-700">24</div>
-                        <div className="text-xs text-slate-700">Uploaded Today</div>
+                        <div className="text-xs text-white/40">Uploaded Today</div>
                     </CardContent>
                 </Card>
             </div>
 
-            <Card className="bg-slate-800/50 border-slate-700">
+            <Card className="bg-[#242424] border-white/[0.08]">
                 <CardHeader className="pb-2">
                     <CardTitle className="text-white text-sm">Storage by Type</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2">
                     {[
-                        { type: 'Documents', size: '890 GB', percent: 37, color: 'bg-blue-500' },
+                        { type: 'Documents', size: '890 GB', percent: 37, color: 'bg-emerald-500' },
                         { type: 'Video Telematics', size: '1.2 TB', percent: 50, color: 'bg-purple-500' },
                         { type: 'Images', size: '180 GB', percent: 8, color: 'bg-emerald-500' },
                         { type: 'Other', size: '130 GB', percent: 5, color: 'bg-slate-500' },
                     ].map(item => (
                         <div key={item.type} className="space-y-2">
                             <div className="flex justify-between text-sm">
-                                <span className="text-slate-300">{item.type}</span>
+                                <span className="text-white/80">{item.type}</span>
                                 <span className="text-white font-medium">{item.size}</span>
                             </div>
-                            <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div className="h-2 bg-white/[0.1] rounded-full overflow-hidden">
                                 <div className={`h-full ${item.color}`} style={{ width: `${item.percent}%` }} />
                             </div>
                         </div>

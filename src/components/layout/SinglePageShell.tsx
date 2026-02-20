@@ -72,7 +72,7 @@ export const SinglePageShell = memo(function SinglePageShell({ moduleContent }: 
         <div className={cn("flex-1 relative overflow-hidden", !isDesktop && "pb-14")}>
           {moduleContent ? (
             // Show module content if provided
-            <div className="w-full h-full overflow-auto">
+            <div className="w-full h-full overflow-hidden">
               {moduleContent}
             </div>
           ) : (

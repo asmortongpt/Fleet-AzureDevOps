@@ -29,6 +29,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -95,12 +96,6 @@ interface MaintenanceHistoryItem {
   status: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
@@ -108,37 +103,37 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
   // Main work order data
   const { data: workOrder, error, isLoading, mutate } = useSWR(
     `/api/work-orders/${workOrderId}`,
-    fetcher
+    apiFetcher
   )
 
   // Parts data
   const { data: parts } = useSWR<Part[]>(
     workOrderId ? `/api/work-orders/${workOrderId}/parts` : null,
-    fetcher
+    apiFetcher
   )
 
   // Labor data
   const { data: labor } = useSWR<LaborEntry[]>(
     workOrderId ? `/api/work-orders/${workOrderId}/labor` : null,
-    fetcher
+    apiFetcher
   )
 
   // Timeline/audit trail
   const { data: timeline } = useSWR<TimelineEvent[]>(
     workOrderId ? `/api/work-orders/${workOrderId}/timeline` : null,
-    fetcher
+    apiFetcher
   )
 
   // Related records (inspections, incidents)
   const { data: relatedRecords } = useSWR<RelatedRecord[]>(
     workOrderId ? `/api/work-orders/${workOrderId}/related` : null,
-    fetcher
+    apiFetcher
   )
 
   // Vehicle maintenance history
   const { data: maintenanceHistory } = useSWR<MaintenanceHistoryItem[]>(
     workOrder?.vehicle_id ? `/api/vehicles/${workOrder.vehicle_id}/maintenance-history` : null,
-    fetcher
+    apiFetcher
   )
 
   const handleViewParts = () => {
@@ -146,7 +141,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
       id: `work-order-parts-${workOrderId}`,
       type: 'work-order-parts',
       label: 'Parts Breakdown',
-      data: { workOrderId, workOrderNumber: workOrder?.wo_number },
+      data: { workOrderId, workOrderNumber: workOrder?.work_order_number },
     })
   }
 
@@ -155,7 +150,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
       id: `work-order-labor-${workOrderId}`,
       type: 'work-order-labor',
       label: 'Labor Details',
-      data: { workOrderId, workOrderNumber: workOrder?.wo_number },
+      data: { workOrderId, workOrderNumber: workOrder?.work_order_number },
     })
   }
 
@@ -216,7 +211,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
         return <CheckCircle2 className="h-5 w-5 text-green-500" />
       case 'in_progress':
       case 'in progress':
-        return <Clock className="h-5 w-5 text-blue-800" />
+        return <Clock className="h-5 w-5 text-emerald-400" />
       case 'pending':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />
       case 'cancelled':
@@ -226,8 +221,14 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
     }
   }
 
-  const calculatedPartsCost = parts?.reduce((sum, part) => sum + (part.quantity * part.unit_cost || 0), 0) || 0
-  const calculatedLaborCost = labor?.reduce((sum, entry) => sum + (entry.hours * entry.rate || 0), 0) || 0
+  const partsArr = Array.isArray(parts) ? parts : []
+  const laborArr = Array.isArray(labor) ? labor : []
+  const timelineArr = Array.isArray(timeline) ? timeline : []
+  const relatedArr = Array.isArray(relatedRecords) ? relatedRecords : []
+  const historyArr = Array.isArray(maintenanceHistory) ? maintenanceHistory : []
+
+  const calculatedPartsCost = partsArr.reduce((sum, part) => sum + (part.quantity * part.unit_cost || 0), 0)
+  const calculatedLaborCost = laborArr.reduce((sum, entry) => sum + (entry.hours * entry.rate || 0), 0)
   // Prefer direct cost fields from the work order over calculated sums
   const totalPartsCost = Number(workOrder?.parts_cost) || calculatedPartsCost
   const totalLaborCost = Number(workOrder?.labor_cost) || calculatedLaborCost
@@ -241,7 +242,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold">WO #{workOrder.wo_number}</h3>
+                <h3 className="text-sm font-bold">WO #{workOrder.work_order_number}</h3>
                 {workOrder.is_emergency && (
                   <Badge variant="destructive" className="animate-pulse text-xs">
                     <ShieldAlert className="w-3 h-3 mr-1" />
@@ -257,9 +258,9 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 <Badge variant={getPriorityColor(workOrder.priority)}>
                   {workOrder.priority} Priority
                 </Badge>
-                {workOrder.work_type && (
+                {workOrder.type && (
                   <Badge variant="outline">
-                    {formatEnum(workOrder.work_type)}
+                    {formatEnum(workOrder.type)}
                   </Badge>
                 )}
                 {workOrder.category && (
@@ -289,9 +290,9 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 <div className="text-sm font-bold">
                   {formatCurrency(totalPartsCost)}
                 </div>
-                {parts && parts.length > 0 && (
+                {partsArr.length > 0 && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    {parts.length} item{parts.length !== 1 ? 's' : ''}
+                    {partsArr.length} item{partsArr.length !== 1 ? 's' : ''}
                   </p>
                 )}
               </CardContent>
@@ -308,9 +309,9 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 <div className="text-sm font-bold">
                   {formatCurrency(totalLaborCost)}
                 </div>
-                {labor && labor.length > 0 && (
+                {laborArr.length > 0 && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    {labor.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)} hrs
+                    {laborArr.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)} hrs
                   </p>
                 )}
               </CardContent>
@@ -340,8 +341,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="parts">Parts ({parts?.length || 0})</TabsTrigger>
-              <TabsTrigger value="labor">Labor ({labor?.length || 0})</TabsTrigger>
+              <TabsTrigger value="parts">Parts ({partsArr.length || 0})</TabsTrigger>
+              <TabsTrigger value="labor">Labor ({laborArr.length || 0})</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="related">Related</TabsTrigger>
             </TabsList>
@@ -374,16 +375,16 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
                       <p className="font-medium capitalize">
-                        {workOrder.work_type || '—'}
+                        {workOrder.type || '—'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Assigned To</p>
-                      <p className="font-medium">{workOrder.assigned_to || '—'}</p>
+                      <p className="font-medium">{workOrder.assigned_to_name || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Created By</p>
-                      <p className="font-medium">{workOrder.created_by || '—'}</p>
+                      <p className="font-medium">{workOrder.requested_by_name || '—'}</p>
                     </div>
                     {workOrder.category && (
                       <div>
@@ -467,19 +468,19 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Created</span>
                     <span className="font-medium">
-                      {formatDate(workOrder.created_date)}
+                      {formatDate(workOrder.created_at)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Scheduled</span>
                     <span className="font-medium">
-                      {workOrder.scheduled_date ? formatDate(workOrder.scheduled_date) : 'Not scheduled'}
+                      {workOrder.scheduled_start ? formatDate(workOrder.scheduled_start) : 'Not scheduled'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Started</span>
                     <span className="font-medium">
-                      {workOrder.start_date ? formatDate(workOrder.start_date) : 'Not started'}
+                      {workOrder.actual_start ? formatDate(workOrder.actual_start) : 'Not started'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -572,28 +573,32 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               )}
 
               {/* Issues/Notes */}
-              {workOrder.notes && workOrder.notes.length > 0 && (
+              {workOrder.notes && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <AlertCircle className="h-5 w-5" />
-                      Notes ({workOrder.notes.length})
+                      Notes
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ul className="space-y-2">
-                      {workOrder.notes.map((note: any, idx: number) => (
-                        <li key={idx} className="p-2 rounded bg-muted/50 text-sm">
-                          <p className="font-medium">{note.author}</p>
-                          <p className="text-muted-foreground">{note.text}</p>
-                          {note.timestamp && (
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {formatDateTime(note.timestamp)}
-                            </p>
-                          )}
-                        </li>
-                      ))}
-                    </ul>
+                    {typeof workOrder.notes === 'string' ? (
+                      <p className="text-sm whitespace-pre-wrap">{workOrder.notes}</p>
+                    ) : Array.isArray(workOrder.notes) ? (
+                      <ul className="space-y-2">
+                        {workOrder.notes.map((note: any, idx: number) => (
+                          <li key={idx} className="p-2 rounded bg-muted/50 text-sm">
+                            <p className="font-medium">{note.author}</p>
+                            <p className="text-muted-foreground">{note.text}</p>
+                            {note.timestamp && (
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {formatDateTime(note.timestamp)}
+                              </p>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
                   </CardContent>
                 </Card>
               )}
@@ -601,10 +606,10 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
 
             {/* Parts Tab */}
             <TabsContent value="parts" className="space-y-2">
-              {parts && parts.length > 0 ? (
+              {partsArr.length > 0 ? (
                 <>
                   <div className="space-y-3">
-                    {parts.map((part) => (
+                    {partsArr.map((part) => (
                       <Card key={part.id}>
                         <CardContent className="p-2">
                           <div className="space-y-3">
@@ -693,10 +698,10 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
 
             {/* Labor Tab */}
             <TabsContent value="labor" className="space-y-2">
-              {labor && labor.length > 0 ? (
+              {laborArr.length > 0 ? (
                 <>
                   <div className="space-y-3">
-                    {labor.map((entry) => (
+                    {laborArr.map((entry) => (
                       <Card key={entry.id}>
                         <CardContent className="p-2">
                           <div className="space-y-3">
@@ -755,7 +760,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                         <div className="flex items-center justify-between">
                           <span className="text-sm">Total Hours</span>
                           <span className="font-semibold">
-                            {labor.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)} hrs
+                            {laborArr.reduce((sum, entry) => sum + entry.hours, 0).toFixed(1)} hrs
                           </span>
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t">
@@ -780,7 +785,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
 
             {/* Timeline Tab */}
             <TabsContent value="timeline" className="space-y-2">
-              {timeline && timeline.length > 0 ? (
+              {timelineArr.length > 0 ? (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -790,13 +795,13 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {timeline.map((event, index) => (
+                      {timelineArr.map((event, index) => (
                         <div key={event.id} className="flex gap-2">
                           <div className="flex flex-col items-center">
                             <div className="rounded-full bg-primary/10 p-2">
                               {getStatusIcon(event.event_type)}
                             </div>
-                            {index < timeline.length - 1 && (
+                            {index < timelineArr.length - 1 && (
                               <div className="w-px h-full bg-border mt-2" />
                             )}
                           </div>
@@ -840,7 +845,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
             {/* Related Tab */}
             <TabsContent value="related" className="space-y-2">
               {/* Related Records */}
-              {relatedRecords && relatedRecords.length > 0 && (
+              {relatedArr.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -850,7 +855,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {relatedRecords.map((record) => (
+                      {relatedArr.map((record) => (
                         <div
                           key={record.id}
                           className="p-3 rounded border hover:bg-muted/50 cursor-pointer transition-colors"
@@ -880,7 +885,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               )}
 
               {/* Vehicle Maintenance History */}
-              {maintenanceHistory && maintenanceHistory.length > 0 && (
+              {historyArr.length > 0 && (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -890,7 +895,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {maintenanceHistory.slice(0, 5).map((item) => (
+                      {historyArr.slice(0, 5).map((item) => (
                         <div
                           key={item.id}
                           className="p-3 rounded border"
@@ -916,9 +921,9 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                           </div>
                         </div>
                       ))}
-                      {maintenanceHistory.length > 5 && (
+                      {historyArr.length > 5 && (
                         <p className="text-sm text-center text-muted-foreground pt-2">
-                          +{maintenanceHistory.length - 5} more records
+                          +{historyArr.length - 5} more records
                         </p>
                       )}
                     </div>
@@ -926,8 +931,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                 </Card>
               )}
 
-              {(!relatedRecords || relatedRecords.length === 0) &&
-                (!maintenanceHistory || maintenanceHistory.length === 0) && (
+              {relatedArr.length === 0 &&
+                historyArr.length === 0 && (
                   <Card>
                     <CardContent className="py-12 text-center">
                       <FileText className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -957,14 +962,14 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
 
 function WOCategoryBadge({ category }: { category: string }) {
   const colorMap: Record<string, string> = {
-    preventive: 'bg-blue-100 text-blue-800 border-blue-200',
+    preventive: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     corrective: 'bg-orange-100 text-orange-800 border-orange-200',
     inspection: 'bg-purple-100 text-purple-800 border-purple-200',
     body_work: 'bg-gray-100 text-gray-800 border-gray-200',
     electrical: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     tire_service: 'bg-green-100 text-green-800 border-green-200',
   }
-  const colorClass = colorMap[category.toLowerCase()] || 'bg-slate-100 text-slate-700 border-slate-200'
+  const colorClass = colorMap[category.toLowerCase()] || 'bg-neutral-100 text-neutral-700 border-neutral-200'
   const label = category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
   return (

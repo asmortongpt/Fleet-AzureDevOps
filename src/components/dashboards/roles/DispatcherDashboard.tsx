@@ -22,7 +22,8 @@ import {
 import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+
+import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -55,7 +56,7 @@ interface ActiveTrip {
 }
 
 export function DispatcherDashboard() {
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const fleetData = useFleetData();
   const vehicles = fleetData.vehicles || [];
   const drivers = fleetData.drivers || [];
@@ -143,49 +144,37 @@ export function DispatcherDashboard() {
   // Quick actions - Navigate to relevant pages
   const handleOpenRadio = () => {
     toast.success('Opening dispatch radio interface...');
-    navigate('/communication', {
-      state: { view: 'radio' }
-    });
+    navigateTo('communication');
   };
 
   const handleCreateEmergencyAlert = () => {
     toast.success('Opening emergency alert form...');
-    navigate('/safety-alerts', {
-      state: { action: 'new' }
-    });
+    navigateTo('safety-compliance-hub');
   };
 
   const handleCreateRoute = () => {
     toast.success('Opening route creation wizard...');
-    navigate('/routes', {
-      state: { action: 'new' }
-    });
+    navigateTo('fleet-hub-consolidated');
   };
 
   const handleJoinChannel = (channelId: string) => {
     toast.success(`Joining ${channelId} channel...`);
-    navigate('/communication', {
-      state: { channel: channelId }
-    });
+    navigateTo('communication');
   };
 
   const handleContactDriver = (driverName: string) => {
     toast(`Contacting ${driverName}...`);
-    navigate('/drivers-hub-consolidated', {
-      state: { action: 'contact', driverName }
-    });
+    navigateTo('fleet-hub-consolidated');
   };
 
   const handleViewOnMap = () => {
     toast('Switching to full-screen map view...');
-    navigate('/live-fleet-dashboard');
+    navigateTo('live-fleet-dashboard');
   };
 
   const handleFilterTrips = (filter: string) => {
     toast(`Filtering trips by: ${filter}`);
-    navigate('/fleet-hub-consolidated', {
-      state: { view: 'trips', filter }
-    });
+    navigateTo('fleet-hub-consolidated');
   };
 
   const getStatusColor = (status: string) => {
@@ -195,19 +184,19 @@ export function DispatcherDashboard() {
       case 'delayed':
         return 'text-red-400 bg-red-950/30 border-red-500/30';
       case 'en_route':
-        return 'text-blue-700 bg-blue-950/30 border-blue-500/30';
+        return 'text-emerald-400 bg-white/[0.04] border-white/[0.08]';
       default:
-        return 'text-slate-700 bg-slate-800 border-slate-700';
+        return 'text-white/40 bg-[#242424] border-white/[0.08]';
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 p-2">
+    <div className="min-h-screen bg-[#111] p-2">
       {/* Header */}
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h1 className="text-sm font-bold text-white mb-1">Dispatch Console</h1>
-          <p className="text-sm text-slate-700">Real-Time Operations & Coordination</p>
+          <p className="text-sm text-white/40">Real-Time Operations & Coordination</p>
         </div>
         <Button size="sm"
           onClick={handleCreateEmergencyAlert}
@@ -219,7 +208,7 @@ export function DispatcherDashboard() {
       </div>
 
       {/* Active Operations Summary */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-cyan-500/30 p-2 mb-3">
+      <Card className="bg-[#242424] backdrop-blur-xl border-cyan-500/30 p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Zap className="w-4 h-4 text-cyan-400" />
           <h2 className="text-sm font-bold text-white">Active Operations</h2>
@@ -239,13 +228,13 @@ export function DispatcherDashboard() {
 
           {/* En Route */}
           <div
-            className="bg-blue-950/30 rounded-md p-2 border border-blue-500/30 hover:border-blue-400/50 transition-all"
+            className="bg-white/[0.04] rounded-md p-2 border border-white/[0.08] hover:border-white/[0.12] transition-all"
           >
             <div className="flex items-start justify-between mb-2">
-              <MapTrifold className="w-4 h-4 text-blue-700" />
+              <MapTrifold className="w-4 h-4 text-emerald-400" />
               <span className="text-sm font-black text-white">{operationStats.en_route}</span>
             </div>
-            <p className="text-blue-300 font-semibold">En Route</p>
+            <p className="text-emerald-300 font-semibold">En Route</p>
           </div>
 
           {/* Delayed */}
@@ -299,7 +288,7 @@ export function DispatcherDashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         {/* Live Fleet Map */}
-        <Card className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="lg:col-span-2 bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <MapTrifold className="w-4 h-4 text-cyan-400" />
@@ -308,14 +297,14 @@ export function DispatcherDashboard() {
             <div className="flex gap-2">
               <Button size="sm"
                 variant="outline"
-                className="border-slate-600 text-sm text-slate-300"
+                className="border-white/[0.12] text-sm text-white/60"
                 onClick={() => handleFilterTrips('all')}
               >
                 All
               </Button>
               <Button size="sm"
                 variant="outline"
-                className="border-blue-600 text-blue-700"
+                className="border-emerald-600 text-emerald-400"
                 onClick={() => handleFilterTrips('en_route')}
               >
                 En Route
@@ -331,11 +320,11 @@ export function DispatcherDashboard() {
           </div>
 
           {/* Map Placeholder */}
-          <div className="bg-slate-900/50 rounded-md border border-slate-700 aspect-video flex items-center justify-center mb-3">
+          <div className="bg-white/[0.03] rounded-md border border-white/[0.08] aspect-video flex items-center justify-center mb-3">
             <div className="text-center">
-              <MapTrifold className="w-16 h-16 text-slate-600 mx-auto mb-3" />
-              <p className="text-slate-700 mb-2">Interactive Fleet Map</p>
-              <p className="text-sm text-slate-500">Google Maps with vehicle markers & routes</p>
+              <MapTrifold className="w-16 h-16 text-white/40 mx-auto mb-3" />
+              <p className="text-white/40 mb-2">Interactive Fleet Map</p>
+              <p className="text-sm text-white/40">Google Maps with vehicle markers & routes</p>
             </div>
           </div>
 
@@ -349,7 +338,7 @@ export function DispatcherDashboard() {
         </Card>
 
         {/* Active Trips List */}
-        <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+        <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
           <div className="flex items-center gap-2 mb-3">
             <Route className="w-4 h-4 text-violet-400" />
             <h2 className="text-sm font-bold text-white">Active Trips</h2>
@@ -367,7 +356,7 @@ export function DispatcherDashboard() {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="font-bold text-white">#{trip.id}</p>
-                    <p className="text-sm text-slate-300">{trip.vehicle_name}</p>
+                    <p className="text-sm text-white/60">{trip.vehicle_name}</p>
                   </div>
                   <div className="flex items-center gap-1 text-xs">
                     <Clock className="w-3 h-3" />
@@ -375,16 +364,16 @@ export function DispatcherDashboard() {
                   </div>
                 </div>
 
-                <p className="text-sm text-slate-300 mb-2">{trip.route}</p>
+                <p className="text-sm text-white/60 mb-2">{trip.route}</p>
 
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1 text-xs text-slate-700">
+                  <div className="flex items-center gap-1 text-xs text-white/40">
                     <Users className="w-3 h-3" />
                     <span>{trip.driver_name}</span>
                   </div>
                   <Button size="sm"
                     variant="ghost"
-                    className="h-6 px-2 text-xs hover:bg-slate-700"
+                    className="h-6 px-2 text-xs hover:bg-white/[0.06]"
                     onClick={() => handleContactDriver(trip.driver_name)}
                   >
                     <Phone className="w-3 h-3 mr-1" />
@@ -398,7 +387,7 @@ export function DispatcherDashboard() {
       </div>
 
       {/* Dispatch Channels */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mt-3">
+      <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2 mt-3">
         <div className="flex items-center gap-2 mb-3">
           <Radio className="w-4 h-4 text-violet-400" />
           <h2 className="text-sm font-bold text-white">Active Dispatch Channels</h2>
@@ -414,18 +403,18 @@ export function DispatcherDashboard() {
                   ? channel.priority === 'high'
                     ? "bg-red-950/30 border-red-500/30"
                     : "bg-green-950/30 border-green-500/30"
-                  : "bg-slate-900/50 border-slate-700"
+                  : "bg-white/[0.03] border-white/[0.08]"
               )}
             >
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className={cn(
                     "w-2.5 h-2.5 rounded-full",
-                    channel.status === 'active' ? "bg-green-500 animate-pulse" : "bg-slate-500"
+                    channel.status === 'active' ? "bg-green-500 animate-pulse" : "bg-white/40"
                   )} />
                   <span className="text-white font-bold">{channel.name}</span>
                 </div>
-                <div className="flex items-center gap-1 text-xs text-slate-700">
+                <div className="flex items-center gap-1 text-xs text-white/40">
                   <Users className="w-3 h-3" />
                   <span>{channel.listeners}</span>
                 </div>
@@ -439,7 +428,7 @@ export function DispatcherDashboard() {
                     ? channel.priority === 'high'
                       ? "bg-red-600 hover:bg-red-700 text-white"
                       : "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-slate-700 hover:bg-slate-600 text-sm text-slate-300"
+                    : "bg-white/[0.1] hover:bg-white/[0.1] text-sm text-white/60"
                 )}
               >
                 <MessageCircle className="w-4 h-4 mr-2" />

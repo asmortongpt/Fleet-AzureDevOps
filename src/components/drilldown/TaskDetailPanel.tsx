@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 
 interface TaskDetailPanelProps {
@@ -91,20 +92,12 @@ interface DependencyTask {
   status: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`)
-      return r.json()
-    })
-    .then((data) => data?.data ?? data)
-
 export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   const { push } = useDrilldown()
 
   const { data: task, error, isLoading, mutate } = useSWR<TaskData>(
     `/api/tasks/${taskId}`,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -113,7 +106,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   // Fetch dependency tasks if they exist
   const { data: dependencyTasks } = useSWR<DependencyTask[]>(
     task?.dependencies ? `/api/tasks/dependencies?ids=${task.dependencies.join(',')}` : null,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -220,7 +213,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
           <div className="flex items-start justify-between">
             <div className="space-y-2">
               <div className="flex items-center gap-3">
-                <ListChecks className="h-8 w-8 text-blue-800" />
+                <ListChecks className="h-8 w-8 text-emerald-400" />
                 <div>
                   <h3 className="text-sm font-bold">{task.title}</h3>
                   {task.number && (
@@ -257,7 +250,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             </div>
             {task.completionPercent !== undefined && task.status !== 'completed' && (
               <div className="text-right">
-                <div className="text-base font-bold text-blue-800">{task.completionPercent}%</div>
+                <div className="text-base font-bold text-emerald-400">{task.completionPercent}%</div>
                 <div className="text-sm text-muted-foreground">Complete</div>
               </div>
             )}
@@ -324,7 +317,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
           )}
 
           {/* Assignee */}
-          <Card className="border-l-4 border-l-blue-500">
+          <Card className="border-l-4 border-l-emerald-500">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 {getAssigneeIcon(task.assignedToType)}
@@ -353,7 +346,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                             <Phone className="h-4 w-4 text-muted-foreground" />
                             <a
                               href={`tel:${task.assignedToPhone}`}
-                              className="text-sm text-blue-800 hover:underline font-medium"
+                              className="text-sm text-emerald-400 hover:underline font-medium"
                               onClick={(e) => {
                                 e.preventDefault()
                                 handleCallAssignee()
@@ -371,7 +364,7 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                             <Mail className="h-4 w-4 text-muted-foreground" />
                             <a
                               href={`mailto:${task.assignedToEmail}`}
-                              className="text-sm text-blue-800 hover:underline"
+                              className="text-sm text-emerald-400 hover:underline"
                               onClick={(e) => {
                                 e.preventDefault()
                                 handleEmailAssignee()

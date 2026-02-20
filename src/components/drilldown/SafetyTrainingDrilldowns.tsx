@@ -15,6 +15,7 @@ import {
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatDate } from '@/utils/format-helpers'
 
@@ -30,14 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`)
-      return r.json()
-    })
-    .then((data) => data?.data ?? data)
 
 // ============ TYPE DEFINITIONS ============
 
@@ -81,16 +74,18 @@ export function TrainingRecordsMatrixView() {
 
   const { data: trainingRecords } = useSWR<TrainingRecord[]>(
     '/api/training/records',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
   )
 
-  const filteredData = useMemo(() => {
-    if (!trainingRecords) return []
+  const safeTrainingRecords = Array.isArray(trainingRecords) ? trainingRecords : []
 
-    return trainingRecords.filter((record) => {
+  const filteredData = useMemo(() => {
+    if (!safeTrainingRecords.length) return []
+
+    return safeTrainingRecords.filter((record) => {
       const matchesStatus = statusFilter === 'all' || record.status === statusFilter
       const matchesCategory = categoryFilter === 'all' || record.category === categoryFilter
       const matchesSearch =
@@ -101,7 +96,7 @@ export function TrainingRecordsMatrixView() {
 
       return matchesStatus && matchesCategory && matchesSearch
     })
-  }, [trainingRecords, statusFilter, categoryFilter, searchQuery])
+  }, [safeTrainingRecords, statusFilter, categoryFilter, searchQuery])
 
   const columns: ColumnDef<TrainingRecord>[] = [
     {
@@ -267,10 +262,10 @@ export function TrainingRecordsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-[#242424] border-white/[0.08]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalRecords}</div>
-            <div className="text-xs text-slate-700">Total Records</div>
+            <div className="text-xs text-white/40">Total Records</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -279,7 +274,7 @@ export function TrainingRecordsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{completedCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Completed</div>
+            <div className="text-xs text-white/40">Completed</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -288,19 +283,19 @@ export function TrainingRecordsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{expiringCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Expiring Soon</div>
+            <div className="text-xs text-white/40">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-blue-900/30 border-blue-700/50">
+        <Card className="bg-white/[0.04] border-white/[0.08]">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-blue-700">{avgScore.toFixed(1)}%</div>
-            <div className="text-xs text-slate-700">Average Score</div>
+            <div className="text-sm font-bold text-emerald-400">{avgScore.toFixed(1)}%</div>
+            <div className="text-xs text-white/40">Average Score</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -343,10 +338,10 @@ export function TrainingRecordsMatrixView() {
       </Card>
 
       {/* Excel-Style Training Records Matrix */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <GraduationCap className="w-3 h-3 text-blue-700" />
+            <GraduationCap className="w-3 h-3 text-emerald-400" />
             All Training Records - Excel View ({filteredData.length} records)
           </CardTitle>
         </CardHeader>
@@ -375,16 +370,18 @@ export function CertificationsMatrixView() {
 
   const { data: certifications } = useSWR<Certification[]>(
     '/api/certifications',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false,
     }
   )
 
-  const filteredData = useMemo(() => {
-    if (!certifications) return []
+  const safeCertifications = Array.isArray(certifications) ? certifications : []
 
-    return certifications.filter((cert) => {
+  const filteredData = useMemo(() => {
+    if (!safeCertifications.length) return []
+
+    return safeCertifications.filter((cert) => {
       const matchesStatus = statusFilter === 'all' || cert.status === statusFilter
       const matchesType = typeFilter === 'all' || cert.certification_type === typeFilter
       const matchesSearch =
@@ -395,7 +392,7 @@ export function CertificationsMatrixView() {
 
       return matchesStatus && matchesType && matchesSearch
     })
-  }, [certifications, statusFilter, typeFilter, searchQuery])
+  }, [safeCertifications, statusFilter, typeFilter, searchQuery])
 
   const columns: ColumnDef<Certification>[] = [
     {
@@ -554,10 +551,10 @@ export function CertificationsMatrixView() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-3">
-        <Card className="bg-slate-800/50 border-slate-700">
+        <Card className="bg-[#242424] border-white/[0.08]">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-white">{totalCerts}</div>
-            <div className="text-xs text-slate-700">Total Certifications</div>
+            <div className="text-xs text-white/40">Total Certifications</div>
           </CardContent>
         </Card>
         <Card className="bg-green-900/30 border-green-700/50">
@@ -566,7 +563,7 @@ export function CertificationsMatrixView() {
               <CheckCircle className="w-3 h-3 text-green-400" />
               <div className="text-sm font-bold text-green-400">{activeCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Active</div>
+            <div className="text-xs text-white/40">Active</div>
           </CardContent>
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
@@ -575,19 +572,19 @@ export function CertificationsMatrixView() {
               <AlertTriangle className="w-3 h-3 text-amber-400" />
               <div className="text-sm font-bold text-amber-400">{expiringCount}</div>
             </div>
-            <div className="text-xs text-slate-700">Expiring Soon</div>
+            <div className="text-xs text-white/40">Expiring Soon</div>
           </CardContent>
         </Card>
-        <Card className="bg-blue-900/30 border-blue-700/50">
+        <Card className="bg-white/[0.04] border-white/[0.08]">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-blue-700">{formatCurrency(renewalCost)}</div>
-            <div className="text-xs text-slate-700">Renewal Cost</div>
+            <div className="text-sm font-bold text-emerald-400">{formatCurrency(renewalCost)}</div>
+            <div className="text-xs text-white/40">Renewal Cost</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Filter and Export Controls */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardContent className="p-2">
           <div className="flex items-center gap-3">
             <div className="flex-1">
@@ -631,7 +628,7 @@ export function CertificationsMatrixView() {
       </Card>
 
       {/* Excel-Style Certifications Matrix */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <Medal className="w-3 h-3 text-amber-400" />

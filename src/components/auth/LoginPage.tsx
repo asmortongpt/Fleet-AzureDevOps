@@ -39,7 +39,7 @@ export const LoginPage = () => {
         if (isAuthenticated()) {
           const user = getUserProfile()
           logger.info('User already authenticated', { user })
-          navigate('/dashboard')
+          navigate('/')
         }
       } catch (error) {
         logger.error('Failed to initialize authentication:', { error })
@@ -76,7 +76,7 @@ export const LoginPage = () => {
       })
 
       // Navigate to dashboard after successful login
-      navigate('/dashboard')
+      navigate('/')
     } catch (error: any) {
       logger.error('Login popup failed:', { error })
       setError(error.message || 'Login failed. Please try again.')

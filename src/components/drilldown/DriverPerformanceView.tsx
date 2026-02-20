@@ -14,6 +14,7 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -27,12 +28,6 @@ interface DriverPerformanceViewProps {
   driverName?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function DriverPerformanceView({
   driverId,
   driverName,
@@ -40,7 +35,7 @@ export function DriverPerformanceView({
   const { push } = useDrilldown()
   const { data: performance, error, isLoading, mutate } = useSWR(
     `/api/drivers/${driverId}/performance`,
-    fetcher
+    apiFetcher
   )
 
   const handleViewTrips = () => {

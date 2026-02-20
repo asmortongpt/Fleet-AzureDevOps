@@ -42,6 +42,7 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { usePolicies } from "@/contexts/PolicyContext"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { formatCurrency, formatDate, formatTime } from "@/utils/format-helpers"
 import {
   enforceEVChargingPolicy,
@@ -96,13 +97,7 @@ interface ChargingSession {
   carbonOffset: number // kg CO2
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((r) => {
-      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-      return r.json()
-    })
-    .then((data) => data?.data?.data ?? data?.data ?? data)
+const fetcher = apiFetcher
 
 export function EVChargingManagement() {
   const { policies } = usePolicies()
@@ -405,7 +400,7 @@ export function EVChargingManagement() {
   const getSessionStatusColor = (status: ChargingSession["status"]) => {
     const colors = {
       active: "bg-green-100 text-green-700",
-      completed: "bg-blue-100 text-blue-700",
+      completed: "bg-emerald-100 text-emerald-700",
       interrupted: "bg-red-100 text-red-700",
       scheduled: "bg-yellow-100 text-yellow-700"
     }
@@ -624,7 +619,7 @@ export function EVChargingManagement() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{activeSessions}</div>
+            <div className="text-sm font-bold text-emerald-800">{activeSessions}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <BatteryCharging className="w-3 h-3" />
               Charging now
@@ -660,7 +655,7 @@ export function EVChargingManagement() {
                 <div key={station.id} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <Zap className="w-4 h-4 text-blue-800" />
+                      <Zap className="w-4 h-4 text-emerald-800" />
                       <span className="font-medium">{station.name}</span>
                     </div>
                     <div className="text-sm text-muted-foreground mt-1">
@@ -706,7 +701,7 @@ export function EVChargingManagement() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <BatteryCharging className="w-3 h-3 text-blue-800" />
+                  <BatteryCharging className="w-3 h-3 text-emerald-800" />
                   <span className="text-sm font-medium">Total Energy Delivered</span>
                 </div>
                 <span className="text-sm font-bold">{totalEnergy.toFixed(1)} kWh</span>
@@ -806,7 +801,7 @@ export function EVChargingManagement() {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <BatteryCharging className="w-3 h-3 text-blue-800" />
+                        <BatteryCharging className="w-3 h-3 text-emerald-800" />
                         <span className="text-sm">{session.energyDelivered.toFixed(1)} kWh</span>
                       </div>
                     </TableCell>

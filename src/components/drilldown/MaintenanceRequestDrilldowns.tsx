@@ -72,9 +72,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 
-const fetcher = swrFetcher
+const fetcher = apiFetcher
 
 // ============================================
 // Maintenance Request Detail Panel
@@ -370,10 +370,11 @@ export function MaintenanceRequestListView({
   status,
 }: MaintenanceRequestListViewProps) {
   const { push } = useDrilldown()
-  const { data: requests, error, isLoading } = useSWR<MaintenanceRequest[]>(
+  const { data: rawRequests, error, isLoading } = useSWR<MaintenanceRequest[]>(
     status ? `/api/maintenance-requests?status=${status}` : '/api/maintenance-requests',
     fetcher
   )
+  const requests = Array.isArray(rawRequests) ? rawRequests : []
 
   const statusLabels = {
     new: 'New Requests',

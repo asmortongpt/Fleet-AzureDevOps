@@ -58,9 +58,9 @@ import {
 } from 'lucide-react'
 import { useState, Suspense, lazy, memo, useMemo } from 'react'
 
-import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
+import { apiFetcher } from '@/lib/api-fetcher'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -84,7 +84,6 @@ import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers'
-import logger from '@/utils/logger';
 
 
 // ============================================================================
@@ -96,14 +95,6 @@ const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTe
 const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
 const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
 
-
-const swrFetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
 
 // ============================================================================
 // HELPER: Flat progress bar replacing SVG circular gauges
@@ -241,8 +232,8 @@ const OverviewTabContent = memo(function OverviewTabContent() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
-        <div className="grid grid-cols-4 gap-2">
+      <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+        <div className="grid grid-cols-4 gap-1.5 shrink-0">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -270,9 +261,9 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   ].filter(d => d.value > 0)
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* ROW 1: TOP-LEVEL KPI SUMMARY */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard title="Fleet Health Score" value={fleetHealth.avgScore > 0 ? fleetHealth.avgScore : '—'} icon={HeartPulse}
           description={`${fleetHealth.totalWithScores} vehicles scored`}
           trend={fleetHealth.avgScore >= 80 ? 'up' : fleetHealth.avgScore >= 60 ? 'neutral' : 'down'} />
@@ -288,7 +279,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
       </div>
 
       {/* ROW 2: FLEET HEALTH + HOS COMPLIANCE */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2 overflow-y-auto">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-3 gap-1.5 overflow-hidden">
         <Section title="Fleet Health Overview" description="Vehicle health score distribution" icon={<HeartPulse className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4">
@@ -317,7 +308,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
               ))}
             </div>
             {healthDistributionData.length > 0 && (
-              <ResponsivePieChart title="Health Distribution" data={healthDistributionData} height={140} innerRadius={35} showPercentages />
+              <ResponsivePieChart title="Health Distribution" data={healthDistributionData} height={140} innerRadius={35} showPercentages compact />
             )}
           </div>
         </Section>
@@ -350,7 +341,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
               </div>
             </div>
             {hosChartData.length > 0 && (
-              <ResponsivePieChart title="HOS Status Distribution" data={hosChartData} height={140} innerRadius={35} showPercentages />
+              <ResponsivePieChart title="HOS Status Distribution" data={hosChartData} height={140} innerRadius={35} showPercentages compact />
             )}
           </div>
         </Section>
@@ -398,7 +389,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
           <div className="flex flex-col gap-2">
             {departmentUtil.length > 0 ? (
               <>
-                <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+                <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                   {departmentUtil.slice(0, 6).map((dept) => (
                     <div key={dept.name} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
                       <div className="flex items-center gap-2">
@@ -421,7 +412,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
                   ))}
                 </div>
                 {departmentChartData.length > 0 && (
-                  <ResponsiveBarChart title="Vehicles by Department" data={departmentChartData} dataKey="count" height={140} showValues />
+                  <ResponsiveBarChart title="Vehicles by Department" data={departmentChartData} dataKey="count" height={140} showValues compact />
                 )}
               </>
             ) : (
@@ -463,7 +454,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
               ))}
             </div>
             {woTypeChartData.length > 0 && (
-              <ResponsivePieChart title="Work Orders by Category" data={woTypeChartData} height={140} innerRadius={35} showPercentages />
+              <ResponsivePieChart title="Work Orders by Category" data={woTypeChartData} height={140} innerRadius={35} showPercentages compact />
             )}
           </div>
         </Section>
@@ -553,8 +544,8 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
-        <div className="grid grid-cols-4 gap-2">
+      <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+        <div className="grid grid-cols-4 gap-1.5 shrink-0">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -563,7 +554,7 @@ const FleetTabContent = memo(function FleetTabContent() {
 
   if (error) {
     return (
-      <div className="p-2">
+      <div className="p-1.5">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -575,9 +566,9 @@ const FleetTabContent = memo(function FleetTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Fleet Statistics */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Total Vehicles"
           value={safeStats.totalVehicles}
@@ -606,7 +597,7 @@ const FleetTabContent = memo(function FleetTabContent() {
       </div>
 
       {/* Main content area */}
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1.5">
         <Section
           title="Live Fleet Tracking"
           description="Real-time vehicle locations and status"
@@ -695,8 +686,8 @@ const DriversTabContent = memo(function DriversTabContent() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
-        <div className="grid grid-cols-4 gap-2">
+      <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+        <div className="grid grid-cols-4 gap-1.5 shrink-0">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -705,7 +696,7 @@ const DriversTabContent = memo(function DriversTabContent() {
 
   if (error) {
     return (
-      <div className="p-2">
+      <div className="p-1.5">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -717,9 +708,9 @@ const DriversTabContent = memo(function DriversTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Driver Statistics */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Total Drivers"
           value={safeStats.totalDrivers}
@@ -748,7 +739,7 @@ const DriversTabContent = memo(function DriversTabContent() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2 overflow-y-auto">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         <Section
           title="Driver Performance Trends"
           description="Safety scores and compliance over time"
@@ -766,6 +757,7 @@ const DriversTabContent = memo(function DriversTabContent() {
               dataKeys={['safety_score', 'performance_rating']}
               colors={['hsl(var(--success))', 'hsl(var(--primary))']}
               height={140}
+              compact
             />
           ) : (
             <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No performance trend data available</div>
@@ -778,7 +770,7 @@ const DriversTabContent = memo(function DriversTabContent() {
           icon={<Award className="h-4 w-4" />}
         >
           {drivers.length > 0 ? (
-            <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
               {drivers.slice(0, 5).map((driver: any, index) => (
                 <div
                   key={driver.id}
@@ -884,8 +876,8 @@ const OperationsTabContent = memo(function OperationsTabContent() {
 
   if (loading) {
     return (
-      <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
-        <div className="grid grid-cols-4 gap-2">
+      <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+        <div className="grid grid-cols-4 gap-1.5 shrink-0">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -894,7 +886,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
 
   if (error) {
     return (
-      <div className="p-2">
+      <div className="p-1.5">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -906,9 +898,9 @@ const OperationsTabContent = memo(function OperationsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Operations Statistics */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Active Routes"
           value={safeStats.activeJobs}
@@ -936,14 +928,14 @@ const OperationsTabContent = memo(function OperationsTabContent() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2 overflow-y-auto">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         <Section
           title="Active Routes"
           description="Real-time route tracking"
           icon={<Map className="h-4 w-4" />}
         >
           {routes.length > 0 ? (
-            <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
               {routes.slice(0, 5).map(route => (
                 <div
                   key={route.id}
@@ -980,7 +972,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
           icon={<Fuel className="h-4 w-4" />}
         >
           {fuelTransactions.length > 0 ? (
-            <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
               {fuelTransactions.slice(0, 5).map((transaction: any) => (
                 <div key={transaction.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
                   <div>
@@ -1030,11 +1022,11 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   const { push } = useDrilldown()
   const { data: partsResponse } = useSWR<any>(
     '/api/parts?limit=6',
-    swrFetcher,
+    apiFetcher,
     { shouldRetryOnError: false }
   )
 
-  const parts = Array.isArray(partsResponse) ? partsResponse : (partsResponse?.data || [])
+  const parts = Array.isArray(partsResponse) ? partsResponse : []
 
   const safeMetrics = metrics || {
     totalWorkOrders: 0,
@@ -1092,8 +1084,8 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
-        <div className="grid grid-cols-4 gap-2">
+      <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+        <div className="grid grid-cols-4 gap-1.5 shrink-0">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -1103,7 +1095,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   const maintenanceError = errors.workOrders || errors.requests || errors.predictions
   if (maintenanceError) {
     return (
-      <div className="p-2">
+      <div className="p-1.5">
         <Alert variant="destructive">
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
@@ -1115,7 +1107,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   }
 
   const handleCreateWorkOrder = () => {
-    logger.info('Create work order clicked')
+    push({ type: 'work-order-create' as any, label: 'New Work Order', data: {} })
   }
 
   const handleViewWorkOrder = (workOrderId: string) => {
@@ -1123,13 +1115,13 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   }
 
   const handleScheduleMaintenance = (vehicleId: string) => {
-    logger.info('Schedule maintenance clicked:', vehicleId)
+    push({ id: vehicleId, type: 'vehicle', label: 'Schedule Maintenance', data: { vehicleId, action: 'schedule-maintenance' } })
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Maintenance Statistics */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Open Work Orders"
           value={openOrders.length}
@@ -1159,7 +1151,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
 
       {/* Cost Breakdown Row */}
       {(costBreakdown.partsCost > 0 || costBreakdown.laborCost > 0) && (
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 gap-1.5 shrink-0">
           <div className="rounded border border-white/[0.08] bg-[#242424] p-2">
             <p className="text-[10px] text-muted-foreground">Total Cost</p>
             <p className="text-lg font-bold text-foreground">{formatCurrency(safeMetrics.totalCost)}</p>
@@ -1176,7 +1168,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
       )}
 
       {/* Main content */}
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1.5">
         {/* Active Work Orders */}
         <Section
           title="Active Work Orders"
@@ -1190,7 +1182,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           }
         >
           {openOrders.length > 0 ? (
-            <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
               {openOrders.slice(0, 5).map((order: any) => (
                 <div key={order.id} className={`flex items-center justify-between rounded border p-2 ${
                   order.is_emergency || order.isEmergency ? 'border-rose-800/40 bg-rose-950/20' : 'border-white/[0.08] bg-[#242424]'
@@ -1245,14 +1237,14 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
         </Section>
 
         {/* Schedule + Overdue */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1.5">
           <Section
             title="Upcoming Maintenance"
             description="Scheduled preventive maintenance"
             icon={<Calendar className="h-4 w-4" />}
           >
             {upcomingOrders.length > 0 ? (
-              <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {upcomingOrders.slice(0, 4).map((maintenance) => (
                   <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
                     <div>
@@ -1261,7 +1253,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                         {maintenance.vehicleName || (maintenance.vehicleId ? `...${String(maintenance.vehicleId).slice(-4)}` : '—')} · {formatDate(maintenance.createdAt)}
                       </p>
                     </div>
-                    <Button size="sm" variant="outline" className="h-6 text-[10px] px-2">
+                    <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => handleViewWorkOrder(maintenance.id)}>
                       Edit
                     </Button>
                   </div>
@@ -1278,7 +1270,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             icon={<AlertTriangle className="h-4 w-4" />}
           >
             {overdueOrders.length > 0 ? (
-              <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {overdueOrders.map((overdue: any) => (
                   <Alert key={overdue.id} variant="destructive" className="border-rose-800/40 bg-rose-950/30">
                     <AlertTriangle className="h-4 w-4 text-rose-400" />
@@ -1311,7 +1303,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           icon={<Package className="h-4 w-4" />}
         >
           {parts.length > 0 ? (
-            <div className="grid gap-2 grid-cols-3">
+            <div className="grid gap-1.5 grid-cols-3">
               {parts.map((item: any) => {
                 const quantity = Number(item.quantityOnHand ?? item.quantity_on_hand ?? 0)
                 const reorderPoint = Number(item.reorderPoint ?? item.reorder_point ?? 0)
@@ -1344,7 +1336,6 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
  * Assets Tab - Asset tracking and lifecycle management
  */
 const AssetsTabContent = memo(function AssetsTabContent() {
-  const navigate = useNavigate()
   const { push } = useDrilldown()
   const {
     assets,
@@ -1361,13 +1352,11 @@ const AssetsTabContent = memo(function AssetsTabContent() {
   }
 
   const handleAddAsset = () => {
-    logger.info('Add asset clicked')
-    navigate('/assets/new')
+    push({ type: 'asset-create' as any, label: 'Add New Asset', data: {} })
   }
 
   const handleScheduleAssetMaintenance = (assetId: string) => {
-    logger.info('Schedule asset maintenance clicked:', assetId)
-    navigate(`/maintenance/schedule?assetId=${assetId}`)
+    push({ id: assetId, type: 'asset', label: 'Schedule Maintenance', data: { assetId, action: 'schedule-maintenance' } })
   }
 
 
@@ -1380,8 +1369,8 @@ const AssetsTabContent = memo(function AssetsTabContent() {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
-        <div className="grid grid-cols-4 gap-2">
+      <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+        <div className="grid grid-cols-4 gap-1.5 shrink-0">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
       </div>
@@ -1389,9 +1378,9 @@ const AssetsTabContent = memo(function AssetsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Asset Statistics */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Total Assets"
           value={metrics.totalAssets}
@@ -1419,7 +1408,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
       </div>
 
       {/* Main content */}
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-2">
+      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1.5">
         {/* Asset Inventory */}
         <Section
           title="Asset Inventory"
@@ -1433,7 +1422,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
           }
         >
           {assets.length > 0 ? (
-            <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
               {assets.slice(0, 6).map((asset: any) => {
                 const healthScore = asset.health_score != null ? Number(asset.health_score) : null
                 return (
@@ -1482,7 +1471,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
         </Section>
 
         {/* Utilization + Maintenance Schedule */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1.5">
           <Section
             title="Asset Utilization"
             description="Usage metrics for key assets"
@@ -1493,6 +1482,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                 title="Asset Utilization"
                 data={utilizationData}
                 height={140}
+                compact
               />
             ) : (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No utilization data available</div>
@@ -1505,7 +1495,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
             icon={<Calendar className="h-4 w-4" />}
           >
             {maintenanceRequired.length > 0 ? (
-              <div className="max-h-[200px] overflow-y-auto flex flex-col gap-1">
+              <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
                 {maintenanceRequired.slice(0, 4).map((maintenance) => (
                   <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
                     <div>
@@ -1539,7 +1529,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
           description="Breakdown by equipment type"
           icon={<Package className="h-4 w-4" />}
         >
-          <div className="grid gap-2 grid-cols-3">
+          <div className="grid gap-1.5 grid-cols-3">
             {(inventoryByCategory.length > 0 ? inventoryByCategory : Object.entries(typeDistribution).map(([key, value]) => ({
               name: key,
               count: value,
@@ -1585,7 +1575,7 @@ export default function FleetOperationsHub() {
       icon={<Car className="h-5 w-5" />}
       className="cta-hub"
     >
-      <div className="flex flex-col h-full gap-2 overflow-hidden">
+      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         {/* Tab Navigation */}
         <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-white/[0.08] cta-tabs">
           {tabs.map((tab) => {

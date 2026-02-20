@@ -22,7 +22,8 @@ import {
   Zap
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
-import { useNavigate } from "react-router-dom"
+
+import { useNavigation } from '@/contexts/NavigationContext'
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -94,7 +95,7 @@ interface ScheduledReport {
 
 const getCategoryColor = (category: ReportCategory): string => {
   switch (category) {
-    case "fleet": return "bg-blue-500/10 text-blue-800"
+    case "fleet": return "bg-emerald-500/10 text-emerald-800"
     case "maintenance": return "bg-orange-500/10 text-orange-500"
     case "safety": return "bg-red-500/10 text-red-500"
     case "compliance": return "bg-purple-500/10 text-purple-500"
@@ -107,7 +108,7 @@ const getCategoryColor = (category: ReportCategory): string => {
 const getStatusColor = (status: ReportStatus): string => {
   switch (status) {
     case "ready": return "bg-green-500/10 text-green-500"
-    case "generating": return "bg-blue-500/10 text-blue-800"
+    case "generating": return "bg-emerald-500/10 text-emerald-800"
     case "scheduled": return "bg-yellow-500/10 text-yellow-500"
     case "failed": return "bg-red-500/10 text-red-500"
     default: return "bg-gray-500/10 text-gray-700"
@@ -115,7 +116,7 @@ const getStatusColor = (status: ReportStatus): string => {
 }
 
 export function ReportsHub() {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const { user } = useAuth()
   const { vehicles, drivers, workOrders, error: fleetDataError } = useFleetData()
   const [activeTab, setActiveTab] = useState("templates")
@@ -308,11 +309,11 @@ export function ReportsHub() {
             )}
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => setActiveTab('templates')}>
               <FolderOpen className="w-4 h-4 mr-2" />
               Report Library
             </Button>
-            <Button>
+            <Button onClick={() => navigateTo('business-hub')}>
               <Plus className="w-4 h-4 mr-2" />
               Custom Report
             </Button>
@@ -325,7 +326,7 @@ export function ReportsHub() {
         <div className="flex items-center gap-6">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Fleet Summary</span>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
+            <div className="w-2 h-2 rounded-full bg-emerald-500" />
             <span className="text-sm font-medium">{fleetSummary.totalVehicles}</span>
             <span className="text-xs text-muted-foreground">Vehicles</span>
           </div>
@@ -381,7 +382,7 @@ export function ReportsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-blue-800">{stats.scheduledActive}</div>
+              <div className="text-base font-bold text-emerald-800">{stats.scheduledActive}</div>
               <p className="text-xs text-muted-foreground mt-1">
                 of {stats.scheduledTotal} scheduled
               </p>
@@ -396,7 +397,7 @@ export function ReportsHub() {
             </CardHeader>
             <CardContent>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => navigate('/fleet-operations?tab=operations')}>
+                <Button size="sm" variant="outline" onClick={() => navigateTo('fleet-hub-consolidated')}>
                   <Zap className="w-3 h-3 mr-1" />
                   Quick Report
                 </Button>

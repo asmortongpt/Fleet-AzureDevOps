@@ -22,9 +22,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 
-const fetcher = swrFetcher
+const fetcher = apiFetcher
 
 // Type definitions
 interface Asset {
@@ -630,10 +630,11 @@ interface AssetListViewProps {
 
 export function AssetListView({ filter = 'all' }: AssetListViewProps) {
   const { push } = useDrilldown()
-  const { data: assets, error, isLoading } = useSWR<Asset[]>(
+  const { data: rawAssets, error, isLoading } = useSWR<Asset[]>(
     `/api/assets?filter=${filter}`,
     fetcher
   )
+  const assets = Array.isArray(rawAssets) ? rawAssets : []
 
   const filterLabels = {
     all: 'All Assets',
@@ -703,10 +704,11 @@ interface EquipmentListViewProps {
 
 export function EquipmentListView({ category }: EquipmentListViewProps) {
   const { push } = useDrilldown()
-  const { data: equipment, error, isLoading } = useSWR<Equipment[]>(
+  const { data: rawEquipment, error, isLoading } = useSWR<Equipment[]>(
     category ? `/api/equipment?category=${category}` : '/api/equipment',
     fetcher
   )
+  const equipment = Array.isArray(rawEquipment) ? rawEquipment : []
 
   const categoryLabels = {
     heavy: 'Heavy Equipment',
@@ -774,10 +776,11 @@ interface InventoryListViewProps {
 
 export function InventoryListView({ filter = 'all' }: InventoryListViewProps) {
   const { push } = useDrilldown()
-  const { data: items, error, isLoading } = useSWR<InventoryItem[]>(
+  const { data: rawItems, error, isLoading } = useSWR<InventoryItem[]>(
     `/api/inventory?filter=${filter}`,
     fetcher
   )
+  const items = Array.isArray(rawItems) ? rawItems : []
 
   const filterLabels = {
     all: 'All Inventory Items',

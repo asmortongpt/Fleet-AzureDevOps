@@ -316,49 +316,49 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   const sidePanel = (
     <div className="space-y-2">
       <div>
-        <h1 className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">Fleet Dashboard</h1>
-        <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-700 mt-1">Real-time vehicle monitoring</p>
+        <h1 className="text-base sm:text-sm font-bold text-white/95 dark:text-white/90">Fleet Dashboard</h1>
+        <p className="text-xs sm:text-sm text-white/40 dark:text-white/40 mt-1">Real-time vehicle monitoring</p>
       </div>
 
       {/* Quick Stats - Responsive Grid */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         <Card
-          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800 cursor-pointer hover:border-emerald-400 transition-colors"
+          className="bg-white/50 dark:bg-white/[0.03] backdrop-blur-md border-white/[0.08] dark:border-white/[0.08] cursor-pointer hover:border-emerald-400 transition-colors"
           onClick={() => openDrilldown({ type: 'active-vehicles', label: 'Active Vehicles' })}
         >
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-emerald-600 dark:text-emerald-700">{activeCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Active</div>
+            <div className="text-[10px] sm:text-xs text-white/40 dark:text-white/40 font-medium uppercase tracking-wide">Active</div>
           </CardContent>
         </Card>
         <Card
-          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800 cursor-pointer hover:border-amber-400 transition-colors"
+          className="bg-white/50 dark:bg-white/[0.03] backdrop-blur-md border-white/[0.08] dark:border-white/[0.08] cursor-pointer hover:border-amber-400 transition-colors"
           onClick={() => openDrilldown({ type: 'maintenance', label: 'Maintenance' })}
         >
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
             <div className="text-base sm:text-sm font-bold text-amber-600 dark:text-amber-400">{maintenanceCount}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Maint.</div>
+            <div className="text-[10px] sm:text-xs text-white/40 dark:text-white/40 font-medium uppercase tracking-wide">Maint.</div>
           </CardContent>
         </Card>
         <Card
-          className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-slate-200 dark:border-slate-800 cursor-pointer hover:border-blue-400 transition-colors"
+          className="bg-white/50 dark:bg-white/[0.03] backdrop-blur-md border-white/[0.08] dark:border-white/[0.08] cursor-pointer hover:border-emerald-400 transition-colors"
           onClick={() => openDrilldown({ type: 'fleet-overview', label: 'Fleet Overview' })}
         >
           <CardContent className="pt-3 pb-2 px-2 sm:pt-2 sm:pb-3 sm:px-3">
-            <div className="text-base sm:text-sm font-bold text-slate-900 dark:text-slate-100">{totalVehicles}</div>
-            <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-700 font-medium uppercase tracking-wide">Total</div>
+            <div className="text-base sm:text-sm font-bold text-white/95 dark:text-white/90">{totalVehicles}</div>
+            <div className="text-[10px] sm:text-xs text-white/40 dark:text-white/40 font-medium uppercase tracking-wide">Total</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Selected Vehicle Info */}
       {selectedVehicle && (
-        <Card className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-slate-200 dark:border-slate-700 shadow-sm">
-          <CardHeader className="pb-3 border-b border-slate-100 dark:border-slate-800">
+        <Card className="bg-white/80 dark:bg-white/[0.03] backdrop-blur-lg border-white/[0.08] dark:border-white/[0.08] shadow-sm">
+          <CardHeader className="pb-3 border-b border-white/[0.08] dark:border-white/[0.08]">
             <CardTitle className="text-sm flex items-center justify-between">
-              <span className="font-mono text-slate-900 dark:text-slate-100">{selectedVehicle.vehicleNumber || selectedVehicle.number || '—'}</span>
+              <span className="font-mono text-white/95 dark:text-white/90">{selectedVehicle.vehicleNumber || selectedVehicle.number || '—'}</span>
               <Badge
-                className={selectedVehicle.status === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-500'}
+                className={selectedVehicle.status === 'active' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-white/[0.1]'}
               >
                 {selectedVehicle.status}
               </Badge>
@@ -366,20 +366,20 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           </CardHeader>
           <CardContent className="space-y-3 pt-3">
             <div className="flex items-center text-sm">
-              <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
-                <Truck className="h-4 w-4 text-slate-500 dark:text-slate-700" />
+              <div className="p-1.5 rounded-md bg-neutral-100 dark:bg-[#1a1a1a] mr-3">
+                <Truck className="h-4 w-4 text-white/40 dark:text-white/40" />
               </div>
-              <span className="font-medium text-slate-700 dark:text-slate-200">
+              <span className="font-medium text-white/40 dark:text-white/90">
                 {selectedVehicle.name ||
                   `${selectedVehicle.make || ''} ${selectedVehicle.model || ''}`.trim() ||
                   '—'}
               </span>
             </div>
             <div className="flex items-center text-sm">
-              <div className="p-1.5 rounded-md bg-slate-100 dark:bg-slate-800 mr-3">
-                <MapPin className="h-4 w-4 text-slate-500 dark:text-slate-700" />
+              <div className="p-1.5 rounded-md bg-neutral-100 dark:bg-[#1a1a1a] mr-3">
+                <MapPin className="h-4 w-4 text-white/40 dark:text-white/40" />
               </div>
-              <span className="text-slate-600 dark:text-slate-300 truncate">
+              <span className="text-white/40 dark:text-white/80 truncate">
                 {selectedVehicle.location?.address || selectedVehicle.location_address || selectedVehicle.locationAddress || (
                   `${Number(selectedVehicle.location?.lat ?? selectedVehicle.latitude ?? 0).toFixed(4)}, ${Number(selectedVehicle.location?.lng ?? selectedVehicle.longitude ?? 0).toFixed(4)}`
                 )}
@@ -391,7 +391,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
       {/* Quick Actions - Mobile Optimized */}
       <div className="space-y-2">
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Quick Actions</h3>
+        <h3 className="text-sm font-semibold text-white/40 dark:text-white/80">Quick Actions</h3>
         {/* Mobile: Horizontal scroll, Desktop: Grid */}
         <div className="md:hidden">
           <MobileQuickActions
@@ -445,9 +445,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
       {/* Vehicle List - Mobile uses MobileVehicleCard, Desktop uses custom */}
       <div>
-        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Recent Activity</h3>
+        <h3 className="text-sm font-semibold text-white/40 dark:text-white/80 mb-2">Recent Activity</h3>
         {/* Mobile: List variant */}
-        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-slate-200 dark:border-slate-700">
+        <div className="md:hidden space-y-0 max-h-64 overflow-y-auto border-t border-white/[0.08] dark:border-white/[0.08]">
           {vehicles.slice(0, 10).map((vehicle: any) => (
             <MobileVehicleCard
               key={vehicle.id}
@@ -470,8 +470,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
             <div
               key={vehicle.id}
               className={`p-3 rounded-lg border cursor-pointer transition-colors ${selectedVehicleId === vehicle.id
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-400'
-                : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 bg-card'
+                ? 'border-emerald-500 bg-emerald-50 dark:bg-white/[0.04] dark:border-emerald-400'
+                : 'border-white/[0.08] dark:border-white/[0.08] hover:border-white/[0.12] dark:hover:border-white/[0.12] bg-card'
                 }`}
               onClick={() => {
                 setSelectedVehicleId(vehicle.id);
@@ -494,7 +494,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                   {formatEnum(vehicle.status)}
                 </Badge>
               </div>
-              <div className="text-xs text-slate-500 mt-1">
+              <div className="text-xs text-white/40 mt-1">
                 {vehicle.name ||
                   `${vehicle.make || ''} ${vehicle.model || ''}`.trim() ||
                   '—'}
@@ -537,8 +537,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">
-          <Gauge className="h-9 w-12 animate-spin mx-auto text-blue-800" />
-          <p className="mt-2 text-slate-600">Loading fleet data...</p>
+          <Gauge className="h-9 w-12 animate-spin mx-auto text-emerald-400" />
+          <p className="mt-2 text-white/40">Loading fleet data...</p>
         </div>
       </div>
     );

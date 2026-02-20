@@ -23,10 +23,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatDateTime } from '@/utils/format-helpers'
 
-const fetcher = swrFetcher
+const fetcher = apiFetcher
 
 // ============================================
 // Alert Data Interface
@@ -471,7 +471,8 @@ export function AlertListView({ status, severity }: AlertListViewProps) {
     return `/api/alerts?${params.toString()}`
   }
 
-  const { data: alerts, error, isLoading } = useSWR<AlertData[]>(buildUrl(), fetcher)
+  const { data: rawAlerts, error, isLoading } = useSWR<AlertData[]>(buildUrl(), fetcher)
+  const alerts = Array.isArray(rawAlerts) ? rawAlerts : []
 
   const statusLabels = {
     active: 'Active Alerts',

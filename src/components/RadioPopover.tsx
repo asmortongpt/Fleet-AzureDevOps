@@ -23,7 +23,8 @@ import {
   Circle
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+
+import { useNavigation } from '@/contexts/NavigationContext'
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -40,7 +41,7 @@ interface RadioPopoverProps {
 }
 
 export function RadioPopover({ className }: RadioPopoverProps) {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [isTransmitting, setIsTransmitting] = useState<boolean>(false)
   const dispatch = useDispatchSocket()
 
@@ -61,7 +62,7 @@ export function RadioPopover({ className }: RadioPopoverProps) {
   }
 
   const openFullConsole = (): void => {
-    navigate('/hubs/operations?module=dispatch')
+    navigateTo('dispatch-console')
   }
 
   return (

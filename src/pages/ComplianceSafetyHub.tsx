@@ -39,9 +39,9 @@ import {
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
+import { apiFetcher } from '@/lib/api-fetcher'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
@@ -59,13 +59,7 @@ import { formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 // ============================================================================
 // SHARED COMPONENTS
@@ -285,7 +279,15 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
 
   const handleScheduleRenewal = (itemName: string) => {
     toast.success(`Scheduling renewal for: ${itemName}`)
-    logger.info('Schedule renewal clicked:', itemName)
+    const parts = itemName.split(' - ')
+    const entityName = parts[0] || itemName
+    const renewalType = parts[1] || 'Renewal'
+    push({
+      id: `renewal-${itemName}`,
+      type: 'compliance-renewal',
+      label: `Renew: ${entityName}`,
+      data: { entityName, renewalType, item: itemName },
+    })
   }
 
   if (fleetDataError) {
@@ -301,9 +303,9 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <KpiCard
           title="Compliance Rate"
           value={complianceStats.complianceRate > 0 ? `${complianceStats.complianceRate}%` : '\u2014'}
@@ -331,14 +333,14 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       </div>
 
       {/* Main Content: Categories + Renewals */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Compliance Status by Category */}
         <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Compliance by Category</h3>
           </div>
-          <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto space-y-2">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-2">
             {categoryBreakdowns.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -403,7 +405,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
             <h3 className="text-sm font-semibold text-foreground">Upcoming Renewals</h3>
             <span className="text-xs text-muted-foreground ml-auto">Within 60 days</span>
           </div>
-          <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {renewals.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -616,9 +618,9 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <KpiCard
           title="Safety Score"
           value={safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014'}
@@ -646,9 +648,9 @@ const SafetyTabContent = memo(function SafetyTabContent() {
       </div>
 
       {/* Main Content: Charts row */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Left: Score Distribution + Driver Rankings */}
-        <div className="flex flex-col gap-2 min-h-0">
+        <div className="flex flex-col gap-1.5 min-h-0">
           {/* Score Distribution Chart */}
           <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
             <div className="flex items-center gap-2 mb-1">
@@ -661,6 +663,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
               dataKeys={['drivers']}
               colors={['hsl(var(--primary))']}
               height={140}
+              compact
             />
           </div>
 
@@ -671,7 +674,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
               <h3 className="text-sm font-semibold text-foreground">Driver Rankings</h3>
               <span className="text-xs text-muted-foreground ml-auto">Lowest first</span>
             </div>
-            <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {driverRankings.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -740,7 +743,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
         </div>
 
         {/* Right: Incident Trends + Recent Incidents + Training */}
-        <div className="flex flex-col gap-2 min-h-0">
+        <div className="flex flex-col gap-1.5 min-h-0">
           {/* Incident Trends */}
           <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
             <div className="flex items-center gap-2 mb-1">
@@ -753,6 +756,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
               dataKeys={['incidents']}
               colors={['hsl(var(--destructive))']}
               height={140}
+              compact
             />
           </div>
 
@@ -762,7 +766,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
               <AlertCircle className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold text-foreground">Recent Incidents</h3>
             </div>
-            <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {recentIncidents.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -869,7 +873,6 @@ const SafetyTabContent = memo(function SafetyTabContent() {
  */
 const PoliciesTabContent = memo(function PoliciesTabContent() {
   const { push } = useDrilldown()
-  const navigate = useNavigate()
   const { data: policies } = useSWR<any[]>(
     '/api/policies?limit=200',
     fetcher,
@@ -915,13 +918,18 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
   const handleViewPolicy = (category: string) => {
     toast.success(`Opening policy details for: ${category}`)
     logger.info('View policy clicked:', category)
-    navigate(`/compliance/policies/${encodeURIComponent(category)}`)
+    push({
+      id: category,
+      type: 'policy-category',
+      label: category,
+      data: { category },
+    })
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <KpiCard
           title="Active Policies"
           value={String(activePolicies.length)}
@@ -949,14 +957,14 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
       </div>
 
       {/* Main Content: Categories + Violations */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Policy Categories */}
         <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
             <BookMarked className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Policy Categories</h3>
           </div>
-          <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {policyCategories.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -1003,7 +1011,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
             <Gavel className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Recent Violations</h3>
           </div>
-          <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {policyViolations.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -1134,13 +1142,13 @@ const ReportingTabContent = memo(function ReportingTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col flex-1 min-h-0">
         <div className="flex items-center gap-2 mb-2">
           <FileText className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-semibold text-foreground">Compliance & Safety Reports</h3>
         </div>
-        <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           {complianceTemplates.length === 0 ? (
             <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
           ) : (
@@ -1228,25 +1236,25 @@ export default function ComplianceSafetyHub() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="compliance" className="flex-1 min-h-0 overflow-auto">
+          <TabsContent value="compliance" className="flex-1 min-h-0 overflow-hidden">
             <QueryErrorBoundary>
               <ComplianceTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="safety" className="flex-1 min-h-0 overflow-auto">
+          <TabsContent value="safety" className="flex-1 min-h-0 overflow-hidden">
             <QueryErrorBoundary>
               <SafetyTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="policies" className="flex-1 min-h-0 overflow-auto">
+          <TabsContent value="policies" className="flex-1 min-h-0 overflow-hidden">
             <QueryErrorBoundary>
               <PoliciesTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="reporting" className="flex-1 min-h-0 overflow-auto">
+          <TabsContent value="reporting" className="flex-1 min-h-0 overflow-hidden">
             <QueryErrorBoundary>
               <ReportingTabContent />
             </QueryErrorBoundary>

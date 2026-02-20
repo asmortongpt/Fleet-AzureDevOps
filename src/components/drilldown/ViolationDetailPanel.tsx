@@ -38,6 +38,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { cn } from '@/lib/utils'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime, formatTime } from '@/utils/format-helpers'
@@ -129,12 +130,6 @@ interface Comment {
   is_internal: boolean
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('details')
@@ -143,32 +138,32 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
   // Fetch violation data
   const { data: violation, error, isLoading, mutate } = useSWR<ViolationData>(
     `/api/violations/${violationId}`,
-    fetcher
+    apiFetcher
   )
 
   const { data: acknowledgments } = useSWR<AcknowledgmentRecord[]>(
     violationId ? `/api/violations/${violationId}/acknowledgments` : null,
-    fetcher
+    apiFetcher
   )
 
   const { data: enforcementActions } = useSWR<EnforcementAction[]>(
     violationId ? `/api/violations/${violationId}/enforcement-actions` : null,
-    fetcher
+    apiFetcher
   )
 
   const { data: timeline } = useSWR<TimelineEvent[]>(
     violationId ? `/api/violations/${violationId}/timeline` : null,
-    fetcher
+    apiFetcher
   )
 
   const { data: correctiveActions } = useSWR<CorrectiveAction[]>(
     violationId ? `/api/violations/${violationId}/corrective-actions` : null,
-    fetcher
+    apiFetcher
   )
 
   const { data: comments } = useSWR<Comment[]>(
     violationId ? `/api/violations/${violationId}/comments` : null,
-    fetcher
+    apiFetcher
   )
 
   const handleViewPolicy = () => {

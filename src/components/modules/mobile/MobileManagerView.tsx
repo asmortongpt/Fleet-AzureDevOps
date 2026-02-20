@@ -95,7 +95,7 @@ const MobileManagerView: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-gray-100">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-600"></div>
       </div>
     );
   }
@@ -113,7 +113,7 @@ const MobileManagerView: React.FC = () => {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
-                <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
+                <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
                 <p className="text-xs text-gray-700 mt-1">{assignment.department_name}</p>
               </div>
               <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
@@ -168,7 +168,7 @@ const MobileManagerView: React.FC = () => {
           <div className="flex items-start justify-between mb-2">
             <div>
               <h3 className="font-semibold text-gray-900">{assignment.driver_name}</h3>
-              <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
+              <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{assignment.employee_number}</p>
             </div>
             <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded-full">
               Active
@@ -194,13 +194,13 @@ const MobileManagerView: React.FC = () => {
         </div>
       ) : (
         dashboardData.current_on_call.map((period: any) => (
-          <div key={period.id} className="bg-white rounded-lg shadow p-2 border-l-4 border-blue-500">
+          <div key={period.id} className="bg-white rounded-lg shadow p-2 border-l-4 border-emerald-500">
             <div className="flex items-start justify-between mb-2">
               <div>
                 <h3 className="font-semibold text-gray-900">{period.driver_name}</h3>
-                <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>{period.employee_number}</p>
+                <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>{period.employee_number}</p>
               </div>
-              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+              <span className="px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">
                 On-Call Now
               </span>
             </div>
@@ -211,7 +211,7 @@ const MobileManagerView: React.FC = () => {
               </p>
             )}
 
-            <div className="flex items-center gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+            <div className="flex items-center gap-2 text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
               <div className="flex items-center gap-1">
                 <Phone className="w-4 h-4" />
                 <span>{period.driver_phone || '—'}</span>
@@ -239,13 +239,13 @@ const MobileManagerView: React.FC = () => {
           <h2 className="text-base font-bold">Review Assignment</h2>
 
           <div className="space-y-2">
-            <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+            <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Driver:</strong> {selectedAssignment.driver_name}
             </p>
-            <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+            <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Vehicle:</strong> {selectedAssignment.unit_number} - {selectedAssignment.make} {selectedAssignment.model}
             </p>
-            <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+            <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Type:</strong> {selectedAssignment.assignment_type.replace('_', ' ')}
             </p>
           </div>
@@ -296,9 +296,9 @@ const MobileManagerView: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 pb-20">
       {/* Header */}
-      <div className="bg-blue-600 text-white p-3 pb-3">
+      <div className="bg-emerald-600 text-white p-3 pb-3">
         <h1 className="text-sm font-bold">Manager Dashboard</h1>
-        <p className="text-blue-100 mt-1">{user?.email}</p>
+        <p className="text-emerald-100 mt-1">{user?.email}</p>
 
         <div className="mt-2 flex gap-2 flex-wrap">
           <div className="bg-yellow-500 px-3 py-1 rounded-full text-sm">
@@ -307,7 +307,7 @@ const MobileManagerView: React.FC = () => {
           <div className="bg-green-500 px-3 py-1 rounded-full text-sm">
             {dashboardData.active_assignments.length} Active
           </div>
-          <div className="bg-blue-700 px-3 py-1 rounded-full text-sm">
+          <div className="bg-emerald-700 px-3 py-1 rounded-full text-sm">
             {dashboardData.notifications.active_on_call_count} On-Call
           </div>
           {dashboardData.notifications.compliance_exceptions_count > 0 && (
@@ -325,8 +325,8 @@ const MobileManagerView: React.FC = () => {
           onClick={() => setActiveTab('pending')}
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'pending'
-              ? 'text-blue-800 border-b-2 border-blue-600'
-              : 'text-slate-700'
+              ? 'text-emerald-400 border-b-2 border-emerald-600'
+              : 'text-white/40'
           }`}
         >
           Pending ({dashboardData.notifications.pending_approvals_count})
@@ -335,8 +335,8 @@ const MobileManagerView: React.FC = () => {
           onClick={() => setActiveTab('active')}
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'active'
-              ? 'text-blue-800 border-b-2 border-blue-600'
-              : 'text-slate-700'
+              ? 'text-emerald-400 border-b-2 border-emerald-600'
+              : 'text-white/40'
           }`}
         >
           Active
@@ -345,8 +345,8 @@ const MobileManagerView: React.FC = () => {
           onClick={() => setActiveTab('on-call')}
           className={`flex-1 py-2 text-center font-medium ${
             activeTab === 'on-call'
-              ? 'text-blue-800 border-b-2 border-blue-600'
-              : 'text-slate-700'
+              ? 'text-emerald-400 border-b-2 border-emerald-600'
+              : 'text-white/40'
           }`}
         >
           On-Call

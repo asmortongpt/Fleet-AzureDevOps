@@ -15,6 +15,7 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -39,18 +40,14 @@ interface Trip {
   fuel_used?: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListProps) {
   const { push } = useDrilldown()
   const { data: trips, error, isLoading, mutate } = useSWR<Trip[]>(
     `/api/vehicles/${vehicleId}/trips`,
-    fetcher
+    apiFetcher
   )
+
+  const tripsArr = Array.isArray(trips) ? trips : []
 
   const handleViewTelemetry = (trip: Trip) => {
     push({
@@ -63,7 +60,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {trips && (
+      {trips !== undefined && (
         <div className="space-y-2">
           {/* Header */}
           <div>
@@ -71,12 +68,12 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
               Trip History {vehicleName && `for ${vehicleName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {trips.length} trip{trips.length !== 1 ? 's' : ''} found
+              {tripsArr.length} trip{tripsArr.length !== 1 ? 's' : ''} found
             </p>
           </div>
 
           {/* Trip List */}
-          {trips.length === 0 ? (
+          {tripsArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Route className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -85,7 +82,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
             </Card>
           ) : (
             <div className="space-y-3">
-              {trips.map((trip) => (
+              {tripsArr.map((trip) => (
                 <Card
                   key={trip.id}
                   className="hover:shadow-md transition-shadow cursor-pointer group"
@@ -183,7 +180,7 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
           )}
 
           {/* Load More */}
-          {trips.length > 0 && trips.length % 20 === 0 && (
+          {tripsArr.length > 0 && tripsArr.length % 20 === 0 && (
             <Button variant="outline" className="w-full">
               Load More Trips
             </Button>

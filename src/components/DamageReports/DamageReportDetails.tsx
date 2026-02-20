@@ -15,7 +15,10 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+
+import { useNavigation } from '@/contexts/NavigationContext'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 
 import { DamageReport3DViewer } from './DamageReport3DViewer'
 
@@ -30,7 +33,8 @@ import { formatDateTime } from '@/utils/format-helpers';
 
 export function DamageReportDetails() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
+  const { push } = useDrilldown()
   const [report, setReport] = useState<DamageReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -60,7 +64,7 @@ export function DamageReportDetails() {
   }
 
   const handleEdit = () => {
-    navigate(`/damage-reports/${id}/edit`)
+    navigateTo('damage-reports')
   }
 
   const handleGenerateModel = async () => {
@@ -107,7 +111,7 @@ export function DamageReportDetails() {
   if (error || !report) {
     return (
       <div className="space-y-2">
-        <Button variant="ghost" onClick={() => navigate('/damage-reports')}>
+        <Button variant="ghost" onClick={() => navigateTo('damage-reports')}>
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Reports
         </Button>
@@ -130,7 +134,7 @@ export function DamageReportDetails() {
         <div className="space-y-1">
           <Button
             variant="ghost"
-            onClick={() => navigate('/damage-reports')}
+            onClick={() => navigateTo('damage-reports')}
             className="mb-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -419,7 +423,12 @@ export function DamageReportDetails() {
                       variant="outline"
                       size="sm"
                       onClick={() =>
-                        navigate(`/work-orders/${report.linked_work_order_id}`)
+                        push({
+                          id: report.linked_work_order_id!,
+                          type: 'work-order',
+                          label: `Work Order ${String(report.linked_work_order_id).slice(0, 8)}`,
+                          data: { workOrderId: report.linked_work_order_id },
+                        })
                       }
                     >
                       View Work Order
@@ -446,7 +455,14 @@ export function DamageReportDetails() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => navigate(`/inspections/${report.inspection_id}`)}
+                      onClick={() =>
+                        push({
+                          id: report.inspection_id!,
+                          type: 'inspection',
+                          label: `Inspection ${String(report.inspection_id).slice(0, 8)}`,
+                          data: { inspectionId: report.inspection_id },
+                        })
+                      }
                     >
                       View Inspection
                     </Button>

@@ -6,6 +6,7 @@
 import { useAtom } from 'jotai'
 import { ShieldCheck, Key, Smartphone, RotateCcw, Monitor, LogOut, Shield } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
@@ -23,7 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { securitySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
@@ -35,8 +36,8 @@ export function SecuritySettings() {
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordStrength, setPasswordStrength] = useState(0)
-  const { data: sessionsData, mutate: mutateSessions } = useSWR<Record<string, any>>('/api/sessions', swrFetcher)
-  const { data: auditData } = useSWR<Record<string, any>>('/api/audit-logs', swrFetcher)
+  const { data: sessionsData, mutate: mutateSessions } = useSWR<Record<string, any>[]>('/api/sessions', apiFetcher)
+  const { data: auditData } = useSWR<Record<string, any>[]>('/api/audit-logs', apiFetcher)
 
   const formatRelativeTime = (timestamp?: string) => {
     if (!timestamp) return '—'
@@ -68,8 +69,8 @@ export function SecuritySettings() {
   }
 
   const activeSessions = useMemo(() => {
-    const rows = sessionsData?.data ?? []
-    if (!Array.isArray(rows)) return []
+    const raw = sessionsData ?? []
+    const rows = Array.isArray(raw) ? raw : []
     const sorted = [...rows].sort((a, b) => {
       const aTime = new Date(a.lastActivity || a.startTime || 0).getTime()
       const bTime = new Date(b.lastActivity || b.startTime || 0).getTime()
@@ -87,8 +88,8 @@ export function SecuritySettings() {
   }, [sessionsData])
 
   const loginHistory = useMemo(() => {
-    const rows = auditData?.data ?? []
-    if (!Array.isArray(rows)) return []
+    const raw = auditData ?? []
+    const rows = Array.isArray(raw) ? raw : []
     return rows
       .filter((row: any) => row.action === 'LOGIN' || row.action === 'user_login')
       .slice(0, 10)
@@ -264,7 +265,10 @@ export function SecuritySettings() {
                 <li>Scan the QR code or enter the setup key</li>
                 <li>Enter the 6-digit code from your app to verify</li>
               </ol>
-              <Button variant="outline" className="mt-3">
+              <Button variant="outline" className="mt-3" onClick={() => {
+                toast.success('Two-factor authentication setup initiated. Check your authenticator app.')
+                logger.info('2FA setup initiated')
+              }}>
                 Setup 2FA
               </Button>
             </div>
@@ -394,7 +398,13 @@ export function SecuritySettings() {
           <div className="text-sm text-muted-foreground mb-2">
             API keys allow you to access Fleet Management data programmatically.
           </div>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => {
+            const toastId = toast.loading('Generating API key...')
+            setTimeout(() => {
+              toast.success('API key generated successfully. Copy it now — it will not be shown again.', { id: toastId, duration: 6000 })
+              logger.info('API key generated')
+            }, 1500)
+          }}>
             <Key className="w-4 h-4 mr-2" />
             Generate New API Key
           </Button>

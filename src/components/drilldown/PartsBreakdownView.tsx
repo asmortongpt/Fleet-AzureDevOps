@@ -9,24 +9,22 @@ import useSWR from 'swr'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Card, CardContent } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 
 interface PartsBreakdownViewProps {
   workOrderId: string
   workOrderNumber?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
+const fetcher = apiFetcher
 
 export function PartsBreakdownView({ workOrderId, workOrderNumber }: PartsBreakdownViewProps) {
   const { push } = useDrilldown()
-  const { data: parts, error, isLoading, mutate } = useSWR(
+  const { data: rawParts, error, isLoading, mutate } = useSWR(
     `/api/work-orders/${workOrderId}/parts`,
     fetcher
   )
+  const parts = Array.isArray(rawParts) ? rawParts : []
 
   const handleViewItemHistory = (part: any) => {
     push({

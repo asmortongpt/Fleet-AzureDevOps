@@ -93,12 +93,29 @@ const settingsCategories: SettingsCategory[] = [
   },
 ]
 
+const validSettingsTabs = new Set<SettingsTab>(['general', 'appearance', 'notifications', 'fleet', 'security', 'privacy', 'advanced'])
+
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
+  const [activeTab, setActiveTab] = useState<SettingsTab>(() => {
+    const hash = window.location.hash.replace('#', '') as SettingsTab
+    return validSettingsTabs.has(hash) ? hash : 'general'
+  })
   const [hasUnsavedChanges, setHasUnsavedChanges] = useAtom(hasUnsavedChangesAtom)
   const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
   const [pendingTab, setPendingTab] = useState<SettingsTab | null>(null)
   const [saveSuccess, setSaveSuccess] = useState(false)
+
+  // Sync from hash changes (e.g. navigated from AdminConfigurationHub with a hash)
+  useEffect(() => {
+    const onHashChange = () => {
+      const hash = window.location.hash.replace('#', '') as SettingsTab
+      if (validSettingsTabs.has(hash) && !hasUnsavedChanges) {
+        setActiveTab(hash)
+      }
+    }
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [hasUnsavedChanges])
 
   // Handle keyboard shortcuts (Cmd+S / Ctrl+S to save)
   useEffect(() => {

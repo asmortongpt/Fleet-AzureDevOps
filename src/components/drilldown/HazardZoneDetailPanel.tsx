@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
@@ -70,14 +71,6 @@ interface ZoneEvent {
   metadata?: Record<string, any>
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`)
-      return r.json()
-    })
-    .then((data) => data?.data ?? data)
-
 export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
@@ -85,7 +78,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   // Main hazard zone data
   const { data: zone, error, isLoading, mutate } = useSWR<HazardZoneData>(
     `/api/hazard-zones/${hazardZoneId}`,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -94,7 +87,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   // Affected vehicles
   const { data: affectedVehicles } = useSWR<AffectedVehicle[]>(
     hazardZoneId ? `/api/hazard-zones/${hazardZoneId}/affected-vehicles` : null,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -103,7 +96,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   // Zone events/timeline
   const { data: zoneEvents } = useSWR<ZoneEvent[]>(
     hazardZoneId ? `/api/hazard-zones/${hazardZoneId}/events` : null,
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -145,7 +138,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
       case 'chemical':
         return <AlertTriangle className="h-5 w-5 text-orange-500" />
       case 'physical':
-        return <Shield className="h-5 w-5 text-blue-800" />
+        return <Shield className="h-5 w-5 text-emerald-400" />
       case 'environmental':
         return <AlertTriangle className="h-5 w-5 text-yellow-500" />
       default:
@@ -156,7 +149,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
   const getEventIcon = (eventType: string) => {
     switch (eventType) {
       case 'entry':
-        return <Navigation className="h-4 w-4 text-blue-800" />
+        return <Navigation className="h-4 w-4 text-emerald-400" />
       case 'exit':
         return <Navigation className="h-4 w-4 text-green-500 rotate-180" />
       case 'violation':

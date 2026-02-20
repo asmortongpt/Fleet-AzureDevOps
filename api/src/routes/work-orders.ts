@@ -198,18 +198,25 @@ router.get(
 
       // RLS automatically filters - if work order doesn't exist OR is in different tenant, returns nothing
       const result = await client.query(
-        `SELECT id, tenant_id, number as work_order_number, vehicle_id, title,
-                description, type, priority, status,
-                assigned_to_id as assigned_technician_id,
-                requested_by_id, approved_by_id,
-                scheduled_start_date as scheduled_start,
-                scheduled_end_date as scheduled_end,
-                actual_start_date as actual_start,
-                actual_end_date as actual_end,
-                labor_hours, estimated_cost, actual_cost,
-                odometer_at_start as odometer_reading,
-                odometer_at_end, notes, metadata, created_at, updated_at
-         FROM work_orders WHERE id = $1`,
+        `SELECT wo.id, wo.tenant_id, wo.number as work_order_number, wo.vehicle_id, wo.title,
+                wo.description, wo.type, wo.priority, wo.status,
+                wo.assigned_to_id as assigned_technician_id,
+                wo.requested_by_id, wo.approved_by_id,
+                wo.scheduled_start_date as scheduled_start,
+                wo.scheduled_end_date as scheduled_end,
+                wo.actual_start_date as actual_start,
+                wo.actual_end_date as actual_end,
+                wo.labor_hours, wo.estimated_cost, wo.actual_cost,
+                wo.odometer_at_start as odometer_reading,
+                wo.odometer_at_end, wo.notes, wo.metadata, wo.created_at, wo.updated_at,
+                v.name as vehicle_name,
+                COALESCE(assigned_user.first_name || ' ' || assigned_user.last_name, assigned_user.email) as assigned_to_name,
+                COALESCE(requested_user.first_name || ' ' || requested_user.last_name, requested_user.email) as requested_by_name
+         FROM work_orders wo
+         LEFT JOIN vehicles v ON v.id = wo.vehicle_id
+         LEFT JOIN users assigned_user ON assigned_user.id = wo.assigned_to_id
+         LEFT JOIN users requested_user ON requested_user.id = wo.requested_by_id
+         WHERE wo.id = $1`,
         [req.params.id]
       )
 
@@ -220,7 +227,7 @@ router.get(
         })
       }
 
-      res.json({ data: result.rows[0] })
+      res.json(result.rows[0])
     } catch (error) {
       logger.error('Failed to fetch work order', {
         error,

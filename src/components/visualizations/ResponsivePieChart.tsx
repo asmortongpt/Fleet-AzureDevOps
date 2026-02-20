@@ -26,6 +26,7 @@ interface ResponsivePieChartProps {
   colors?: string[]
   showPercentages?: boolean
   enableHover?: boolean
+  compact?: boolean
 }
 
 const DEFAULT_COLORS = [
@@ -110,6 +111,7 @@ export function ResponsivePieChart({
   colors = DEFAULT_COLORS,
   showPercentages = true,
   enableHover = true,
+  compact = false,
 }: ResponsivePieChartProps) {
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined)
 
@@ -151,6 +153,87 @@ export function ResponsivePieChart({
     return null
   }
 
+  const pieChartContent = loading ? (
+    <div
+      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      style={{ height: compact ? '100%' : height }}
+    />
+  ) : (
+    <ResponsiveContainer width="100%" height={compact ? '100%' : height}>
+      <PieChart>
+        <Pie
+          data={data as any}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          label={showPercentages ? ({
+            cx,
+            cy,
+            midAngle = 0,
+            innerRadius,
+            outerRadius,
+            percent = 0,
+          }: any) => {
+            if (percent < 0.05) return null // Don't show label for small slices
+            const RADIAN = Math.PI / 180
+            const radius = innerRadius + (outerRadius - innerRadius) * 0.5
+            const x = cx + radius * Math.cos(-midAngle * RADIAN)
+            const y = cy + radius * Math.sin(-midAngle * RADIAN)
+
+            return (
+              <text
+                x={x}
+                y={y}
+                fill="white"
+                textAnchor={x > cx ? 'start' : 'end'}
+                dominantBaseline="central"
+                className="text-xs font-bold drop-shadow-md"
+              >
+                {`${((percent ?? 0) * 100).toFixed(0)}%`}
+              </text>
+            )
+          } : undefined}
+          outerRadius={innerRadius ? 100 : 110}
+          innerRadius={innerRadius}
+          fill="#3B82F6"
+          dataKey="value"
+          animationDuration={1200}
+          animationBegin={0}
+          // @ts-expect-error - activeIndex and activeShape are valid Recharts Pie props
+          // but are missing from @types/recharts type definitions (known gap)
+          activeIndex={activeIndex}
+          activeShape={enableHover ? renderActiveShape : undefined}
+          onMouseEnter={onPieEnter}
+          onMouseLeave={onPieLeave}
+        >
+          {data.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={entry.fill || colors[index % colors.length]}
+              stroke="transparent"
+              strokeWidth={2}
+              className="transition-all duration-300 hover:opacity-90"
+            />
+          ))}
+        </Pie>
+        <Tooltip content={<CustomTooltip />} />
+        <Legend
+          wrapperStyle={{ color: chartColors.text }}
+          iconType="circle"
+          formatter={(value, entry: any) => (
+            <span className="text-sm font-medium">
+              {value} ({entry.payload.value})
+            </span>
+          )}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  )
+
+  if (compact) {
+    return <div className="w-full h-full">{pieChartContent}</div>
+  }
+
   return (
     <div>
       <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -159,82 +242,7 @@ export function ResponsivePieChart({
           {description && <CardDescription className="text-sm">{description}</CardDescription>}
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div
-              className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
-              style={{ height }}
-            />
-          ) : (
-            <ResponsiveContainer width="100%" height={height}>
-              <PieChart>
-                <Pie
-                  data={data as any}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={showPercentages ? ({
-                    cx,
-                    cy,
-                    midAngle = 0,
-                    innerRadius,
-                    outerRadius,
-                    percent = 0,
-                  }: any) => {
-                    if (percent < 0.05) return null // Don't show label for small slices
-                    const RADIAN = Math.PI / 180
-                    const radius = innerRadius + (outerRadius - innerRadius) * 0.5
-                    const x = cx + radius * Math.cos(-midAngle * RADIAN)
-                    const y = cy + radius * Math.sin(-midAngle * RADIAN)
-
-                    return (
-                      <text
-                        x={x}
-                        y={y}
-                        fill="white"
-                        textAnchor={x > cx ? 'start' : 'end'}
-                        dominantBaseline="central"
-                        className="text-xs font-bold drop-shadow-md"
-                      >
-                        {`${((percent ?? 0) * 100).toFixed(0)}%`}
-                      </text>
-                    )
-                  } : undefined}
-                  outerRadius={innerRadius ? 100 : 110}
-                  innerRadius={innerRadius}
-                  fill="#3B82F6"
-                  dataKey="value"
-                  animationDuration={1200}
-                  animationBegin={0}
-                  // @ts-expect-error - activeIndex and activeShape are valid Recharts Pie props
-                  // but are missing from @types/recharts type definitions (known gap)
-                  activeIndex={activeIndex}
-                  activeShape={enableHover ? renderActiveShape : undefined}
-                  onMouseEnter={onPieEnter}
-                  onMouseLeave={onPieLeave}
-                >
-                  {data.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={entry.fill || colors[index % colors.length]}
-                      stroke="transparent"
-                      strokeWidth={2}
-                      className="transition-all duration-300 hover:opacity-90"
-                    />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  wrapperStyle={{ color: chartColors.text }}
-                  iconType="circle"
-                  formatter={(value, entry: any) => (
-                    <span className="text-sm font-medium">
-                      {value} ({entry.payload.value})
-                    </span>
-                  )}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          )}
+          {pieChartContent}
         </CardContent>
       </Card>
     </div>

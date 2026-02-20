@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatTime } from '@/utils/format-helpers'
 
 interface JobMatrixData {
@@ -48,14 +49,6 @@ interface JobMatrixData {
   delayMinutes?: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`)
-      return r.json()
-    })
-    .then((data) => data?.data ?? data)
-
 export function JobDetailPanel({ jobId }: { jobId?: string }) {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [priorityFilter, setPriorityFilter] = useState<string>('all')
@@ -63,18 +56,20 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
 
   const { data: jobs, error, isLoading, mutate } = useSWR<JobMatrixData[]>(
     '/api/jobs',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false,
       refreshInterval: 30000 // Real-time updates every 30 seconds
     }
   )
 
+  const safeJobs = Array.isArray(jobs) ? jobs : []
+
   // Filter and search
   const filteredJobs = useMemo(() => {
-    if (!jobs) return []
+    if (!safeJobs.length) return []
 
-    return jobs.filter(job => {
+    return safeJobs.filter(job => {
       // Status filter
       if (statusFilter !== 'all' && job.status !== statusFilter) return false
 
@@ -94,17 +89,17 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
 
       return true
     })
-  }, [jobs, statusFilter, priorityFilter, searchQuery])
+  }, [safeJobs, statusFilter, priorityFilter, searchQuery])
 
   // Summary metrics
   const metrics = useMemo(() => {
-    const active = jobs?.filter(j => j.status === 'active').length || 0
-    const delayed = jobs?.filter(j => j.status === 'delayed').length || 0
-    const completed = jobs?.filter(j => j.status === 'completed').length || 0
-    const pending = jobs?.filter(j => j.status === 'pending').length || 0
+    const active = safeJobs.filter(j => j.status === 'active').length
+    const delayed = safeJobs.filter(j => j.status === 'delayed').length
+    const completed = safeJobs.filter(j => j.status === 'completed').length
+    const pending = safeJobs.filter(j => j.status === 'pending').length
 
-    return { active, delayed, completed, pending, total: jobs?.length || 0 }
-  }, [jobs])
+    return { active, delayed, completed, pending, total: safeJobs.length }
+  }, [safeJobs])
 
   // formatTime imported from @/utils/format-helpers
 
@@ -282,7 +277,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <Package className="h-7 w-7 text-blue-800" />
+              <Package className="h-7 w-7 text-emerald-400" />
               Active Jobs Matrix
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -299,7 +294,7 @@ export function JobDetailPanel({ jobId }: { jobId?: string }) {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card>
             <CardContent className="p-2 text-center">
-              <div className="text-sm font-bold text-blue-800">{metrics.active}</div>
+              <div className="text-sm font-bold text-emerald-400">{metrics.active}</div>
               <div className="text-xs text-muted-foreground">Active</div>
             </CardContent>
           </Card>

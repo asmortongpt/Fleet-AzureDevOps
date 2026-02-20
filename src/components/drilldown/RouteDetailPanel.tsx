@@ -21,6 +21,7 @@ import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { DrilldownMatrix, MatrixColumn } from '@/components/drilldown/DrilldownMatrix'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -48,14 +49,6 @@ interface RouteMatrixData {
   status: 'active' | 'planned' | 'completed' | 'cancelled'
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`)
-      return r.json()
-    })
-    .then((data) => data?.data ?? data)
-
 export function RouteDetailPanel({ routeId }: { routeId?: string }) {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [driverFilter, setDriverFilter] = useState<string>('all')
@@ -63,18 +56,18 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
 
   const { data: routes, error, isLoading, mutate } = useSWR<RouteMatrixData[]>(
     '/api/routes',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false,
       refreshInterval: 30000 // Real-time updates every 30 seconds
     }
   )
 
+  const routesArr = Array.isArray(routes) ? routes : []
+
   // Filter and search
   const filteredRoutes = useMemo(() => {
-    if (!routes) return []
-
-    return routes.filter(route => {
+    return routesArr.filter(route => {
       // Status filter
       if (statusFilter !== 'all' && route.status !== statusFilter) return false
 
@@ -94,23 +87,23 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
 
       return true
     })
-  }, [routes, statusFilter, driverFilter, searchQuery])
+  }, [routesArr, statusFilter, driverFilter, searchQuery])
 
   // Summary metrics
   const metrics = useMemo(() => {
-    const active = routes?.filter(r => r.status === 'active').length || 0
-    const planned = routes?.filter(r => r.status === 'planned').length || 0
-    const completed = routes?.filter(r => r.status === 'completed').length || 0
-    const totalStops = routes?.reduce((sum, r) => sum + r.totalStops, 0) || 0
-    const completedStops = routes?.reduce((sum, r) => sum + r.completedStops, 0) || 0
+    const active = routesArr.filter(r => r.status === 'active').length
+    const planned = routesArr.filter(r => r.status === 'planned').length
+    const completed = routesArr.filter(r => r.status === 'completed').length
+    const totalStops = routesArr.reduce((sum, r) => sum + r.totalStops, 0)
+    const completedStops = routesArr.reduce((sum, r) => sum + r.completedStops, 0)
 
-    return { active, planned, completed, totalStops, completedStops, total: routes?.length || 0 }
-  }, [routes])
+    return { active, planned, completed, totalStops, completedStops, total: routesArr.length }
+  }, [routesArr])
 
   // Get unique drivers for filter
   const drivers = useMemo(() => {
     const uniqueDrivers = new Set<string>()
-    routes?.forEach(route => {
+    routesArr.forEach(route => {
       if (route.driverId && route.driverName) {
         uniqueDrivers.add(`${route.driverId}:${route.driverName}`)
       }
@@ -119,7 +112,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       const [id, name] = d.split(':')
       return { id, name }
     })
-  }, [routes])
+  }, [routesArr])
 
   // formatTime imported from @/utils/format-helpers
 
@@ -301,7 +294,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-sm font-bold flex items-center gap-2">
-              <Navigation className="h-7 w-7 text-blue-800" />
+              <Navigation className="h-7 w-7 text-emerald-400" />
               Routes Matrix
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -318,7 +311,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
           <Card>
             <CardContent className="p-2 text-center">
-              <div className="text-sm font-bold text-blue-800">{metrics.active}</div>
+              <div className="text-sm font-bold text-emerald-400">{metrics.active}</div>
               <div className="text-xs text-muted-foreground">Active</div>
             </CardContent>
           </Card>

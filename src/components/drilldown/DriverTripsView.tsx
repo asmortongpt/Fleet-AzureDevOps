@@ -16,6 +16,7 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatEnum } from '@/utils/format-enum'
@@ -46,17 +47,13 @@ interface Trip {
   highlights?: string[]
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) {
   const { data: trips, error, isLoading, mutate } = useSWR(
     `/api/drivers/${driverId}/trips`,
-    fetcher
+    apiFetcher
   )
+
+  const tripsArr = Array.isArray(trips) ? trips : []
 
   const getScoreBadge = (score: number) => {
     if (score >= 90) return { variant: 'default' as const, label: 'Excellent' }
@@ -66,7 +63,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {trips && (
+      {trips !== undefined && (
         <div className="space-y-2">
           {/* Header */}
           <div>
@@ -74,12 +71,12 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
               Trip History {driverName && `for ${driverName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {trips.length} trip{trips.length !== 1 ? 's' : ''} found
+              {tripsArr.length} trip{tripsArr.length !== 1 ? 's' : ''} found
             </p>
           </div>
 
           {/* Trip List */}
-          {trips.length === 0 ? (
+          {tripsArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Route className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -88,7 +85,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
             </Card>
           ) : (
             <div className="space-y-3">
-              {trips.map((trip: Trip) => {
+              {tripsArr.map((trip: Trip) => {
                 const scoreBadge = getScoreBadge(trip.performance_score || 0)
                 return (
                   <Card key={trip.id} className="hover:shadow-md transition-shadow">

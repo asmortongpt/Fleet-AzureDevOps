@@ -24,14 +24,14 @@ export function Section({
   return (
     <section
       className={cn(
-        'rounded-lg border border-white/[0.08] bg-[#242424] shadow-sm',
+        'flex flex-col min-h-0 overflow-hidden rounded-lg border border-white/[0.08] bg-[#242424] shadow-sm',
         className
       )}
     >
-      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-4 py-2.5">
-        <div className="flex items-center gap-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/[0.06] px-3 py-1.5">
+        <div className="flex items-center gap-2">
           {icon ? (
-            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-white/[0.06] text-white/60">
+            <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/[0.06] text-white/60">
               {icon}
             </div>
           ) : null}
@@ -44,7 +44,7 @@ export function Section({
         </div>
         {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
       </div>
-      <div className={cn('p-3', contentClassName)}>{children}</div>
+      <div className={cn('p-2 flex-1 min-h-0 overflow-y-auto', contentClassName)}>{children}</div>
     </section>
   )
 }

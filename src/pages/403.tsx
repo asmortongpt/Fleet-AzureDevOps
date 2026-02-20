@@ -9,11 +9,12 @@
 import { ShieldX, Home, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-//dwsdss
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useAuth } from '@/hooks/useAuth';
 
 export function Forbidden403Page() {
   const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const { user } = useAuth();
 
   return (
@@ -64,7 +65,7 @@ export function Forbidden403Page() {
               Go Back
             </button>
             <button
-              onClick={() => navigate('/')}
+              onClick={() => navigateTo('live-fleet-dashboard')}
               className="flex items-center justify-center gap-2 px-2 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg transition-colors"
             >
               <Home className="w-4 h-4" />

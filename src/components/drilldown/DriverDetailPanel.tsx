@@ -7,7 +7,6 @@ import {
   Phone,
   Mail,
   Calendar,
-  Award,
   TrendingUp,
   Shield,
   Activity,
@@ -17,70 +16,65 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatEnum } from '@/utils/format-enum'
-import { formatDate, formatNumber } from '@/utils/format-helpers'
+import { formatDate } from '@/utils/format-helpers'
 
 interface DriverDetailPanelProps {
   driverId: string
 }
 
 interface DriverData {
-  avatar_url?: string
-  name: string
-  employee_id?: string
+  first_name?: string
+  last_name?: string
   status: string
-  verified?: boolean
   email?: string
   phone?: string
   hire_date?: string
-  safety_score?: number
-  performance_score?: number
-  total_miles?: number
-  total_trips?: number
-  total_hours?: number
-  incident_count?: number
-  certifications?: Array<{
-    name: string
-    number?: string
-    expiry_date?: string
-  }>
-  violations?: Array<{
-    type: string
-    date?: string
-  }>
+  safety_score?: number | string
+  performance_score?: number | string
+  license_number?: string
+  license_state?: string
+  license_expiry_date?: string
+  cdl?: boolean
+  cdl_class?: string | null
+  role?: string
+  department?: string
+  emergency_contact_name?: string | null
+  emergency_contact_phone?: string | null
 }
-
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
 
 export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
   const { push } = useDrilldown()
   const { data: driver, error, isLoading, mutate } = useSWR<DriverData>(
     `/api/drivers/${driverId}`,
-    fetcher
+    apiFetcher
   )
+
+  const driverName = driver
+    ? `${driver.first_name || ''} ${driver.last_name || ''}`.trim() || 'Unknown'
+    : 'Unknown'
 
   const handleViewPerformance = () => {
     push({
       id: `driver-performance-${driverId}`,
       type: 'driver-performance',
       label: 'Performance Metrics',
-      data: { driverId, driverName: driver?.name },
+      data: { driverId, driverName },
     })
   }
 
   const getInitials = (name: string) => {
+    if (!name) return '??'
     return name
       .split(' ')
+      .filter(Boolean)
       .map((n) => n[0])
       .join('')
       .toUpperCase()
@@ -93,22 +87,21 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
           {/* Driver Header */}
           <div className="flex items-start gap-2">
             <Avatar className="h-20 w-20">
-              <AvatarImage src={driver.avatar_url} alt={driver.name} />
-              <AvatarFallback>{getInitials(driver.name)}</AvatarFallback>
+              <AvatarFallback>{getInitials(driverName)}</AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-1">
-              <h3 className="text-sm font-bold">{driver.name}</h3>
+              <h3 className="text-sm font-bold">{driverName}</h3>
               <p className="text-sm text-muted-foreground">
-                Employee ID: {driver.employee_id || '—'}
+                {driver.role || 'Driver'} · {driver.department || '—'}
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
                   {formatEnum(driver.status)}
                 </Badge>
-                {driver.verified && (
+                {driver.cdl && (
                   <Badge variant="outline" className="gap-1">
                     <Shield className="h-3 w-3" />
-                    Verified
+                    CDL {driver.cdl_class || ''}
                   </Badge>
                 )}
               </div>
@@ -135,6 +128,15 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                   Joined {formatDate(driver.hire_date)}
                 </span>
               </div>
+              {driver.license_number && (
+                <div className="flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm">
+                    License: {driver.license_number} ({driver.license_state})
+                    {driver.license_expiry_date && ` · Exp: ${formatDate(driver.license_expiry_date)}`}
+                  </span>
+                </div>
+              )}
             </CardContent>
           </Card>
 
@@ -148,8 +150,8 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm font-bold">{driver.safety_score || 0}%</div>
-                <Progress value={driver.safety_score || 0} className="mt-2" />
+                <div className="text-sm font-bold">{Number(driver.safety_score) || 0}%</div>
+                <Progress value={Number(driver.safety_score) || 0} className="mt-2" />
               </CardContent>
             </Card>
 
@@ -162,115 +164,30 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  {driver.performance_score || 0}%
+                  {Number(driver.performance_score) || 0}%
                 </div>
-                <Progress value={driver.performance_score || 0} className="mt-2" />
+                <Progress value={Number(driver.performance_score) || 0} className="mt-2" />
               </CardContent>
             </Card>
           </div>
 
-          {/* Statistics */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Driver Statistics</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Miles</p>
-                  <p className="text-base font-bold">
-                    {formatNumber(driver.total_miles ?? 0)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Trips</p>
-                  <p className="text-base font-bold">
-                    {formatNumber(driver.total_trips ?? 0)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Hours Driven</p>
-                  <p className="text-base font-bold">
-                    {formatNumber(driver.total_hours ?? 0)}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Incidents</p>
-                  <p className="text-base font-bold">{driver.incident_count || 0}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Certifications */}
-          {driver.certifications && driver.certifications.length > 0 && (
+          {/* Emergency Contact */}
+          {driver.emergency_contact_name && (
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Certifications & Licenses
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ul className="space-y-3">
-                  {driver.certifications.map((cert, idx) => (
-                    <li key={idx} className="flex items-center justify-between p-2 rounded bg-muted/50">
-                      <div className="flex items-center gap-2">
-                        <Award className="h-4 w-4 text-primary" />
-                        <div>
-                          <p className="text-sm font-medium">{cert.name}</p>
-                          {cert.number && (
-                            <p className="text-xs text-muted-foreground">
-                              #{cert.number}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">
-                          Expires:{' '}
-                          {formatDate(cert.expiry_date)}
-                        </p>
-                        {cert.expiry_date &&
-                          new Date(cert.expiry_date) < new Date() && (
-                            <Badge variant="destructive" className="mt-1">
-                              Expired
-                            </Badge>
-                          )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Recent Violations */}
-          {driver.violations && driver.violations.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive">
                   <AlertTriangle className="h-5 w-5" />
-                  Recent Violations ({driver.violations.length})
+                  Emergency Contact
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-2">
-                  {driver.violations.map((violation, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-start gap-2 p-2 rounded bg-destructive/10"
-                    >
-                      <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium">{formatEnum(violation.type)}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatDate(violation.date)}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+              <CardContent className="space-y-2">
+                <p className="text-sm font-medium">{driver.emergency_contact_name}</p>
+                {driver.emergency_contact_phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{driver.emergency_contact_phone}</span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -287,7 +204,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                   id: `driver-trips-${driverId}`,
                   type: 'driver-trips',
                   label: 'Trip History',
-                  data: { driverId, driverName: driver.name },
+                  data: { driverId, driverName },
                 })
               }
               variant="outline"

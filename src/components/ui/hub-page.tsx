@@ -99,7 +99,7 @@ export function HubPage({
         >
             {/* Hub Header */}
             <header
-                className="relative flex items-center justify-between px-4 py-2 border-b bg-card/70 backdrop-blur-xl animate-fade-in"
+                className="relative flex items-center justify-between px-3 py-1.5 border-b bg-card/70 backdrop-blur-xl animate-fade-in"
                 data-testid="hub-header"
                 style={{
                     borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
@@ -111,7 +111,7 @@ export function HubPage({
                 <div className="flex items-center gap-2 min-w-0">
                     {icon && (
                         <div
-                            className="flex items-center justify-center w-7 h-7 rounded-lg text-white shadow-sm"
+                            className="flex items-center justify-center w-6 h-6 rounded-lg text-white shadow-sm"
                             style={{ background: '#333' }}
                         >
                             {React.isValidElement(icon) ? icon : React.createElement(icon as React.ComponentType<{ className: string }>, { className: 'h-4 w-4' })}

@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 
 interface Facility {
@@ -50,20 +50,20 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
 
   const { data: facilityResponse } = useSWR<any>(
     facilityId ? `/api/facilities/${facilityId}` : null,
-    swrFetcher
+    apiFetcher
   )
   const { data: vehiclesResponse } = useSWR<any[]>(
     facilityId ? `/api/facilities/${facilityId}/vehicles` : null,
-    swrFetcher
+    apiFetcher
   )
-  const { data: usersResponse } = useSWR<{ data: any[] }>(
+  const { data: usersResponse } = useSWR<any[]>(
     facilityId ? `/api/users?limit=500&facility_id=${facilityId}` : null,
-    swrFetcher
+    apiFetcher
   )
 
-  const facilityDetails = (facilityResponse?.data || facilityResponse || facility) as Facility
-  const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : (vehiclesResponse as any)?.data || []
-  const users = usersResponse?.data || []
+  const facilityDetails = (facilityResponse || facility) as Facility
+  const vehicles = Array.isArray(vehiclesResponse) ? vehiclesResponse : []
+  const users = Array.isArray(usersResponse) ? usersResponse : []
 
   const capacityMetrics = useMemo(() => {
     const vehicleCapacity = Number(facilityDetails.capacity ?? 0)

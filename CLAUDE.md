@@ -176,3 +176,42 @@ git push origin main
 ```
 
 Push to both remotes: `git push origin main && git push azure main`
+
+## Agent Team Coordination Rules
+
+When working as part of an agent team, follow these rules strictly:
+
+### File Ownership
+- **fleet-ops**: owns `src/pages/FleetOperationsHub.tsx`, `src/components/hubs/operations/`, `src/components/hubs/assets/`, `src/components/fleet/`, and fleet-related drilldowns (VehicleDetailPanel, DriverDetailPanel, WorkOrderDetailPanel, RouteDetailPanel, etc.)
+- **compliance-safety**: owns `src/pages/ComplianceSafetyHub.tsx`, `src/components/compliance/`, `src/components/safety/`, and safety/compliance drilldowns (SafetyHubDrilldowns, PolicyDetailPanel, ViolationDetailPanel, etc.)
+- **business-mgmt**: owns `src/pages/BusinessManagementHub.tsx`, `src/components/hubs/procurement/`, `src/components/hubs/reports/`, and business-related modules
+- **people-comms**: owns `src/pages/PeopleCommunicationHub.tsx`, `src/components/hubs/communication/`, `src/components/modules/communication/`, `src/components/modules/integrations/EmailCenter.tsx`
+- **admin-config**: owns `src/pages/AdminConfigurationHub.tsx`, `src/components/settings/`, and admin-related modules
+- **NEVER edit files outside your domain without lead approval**
+- **server.ts edits require lead coordination** (one teammate at a time)
+
+### Styling Rules (mandatory)
+- Use `bg-[#242424]`, `bg-white/[0.03-0.1]`, `bg-[#111]`, `bg-[#1a1a1a]` for backgrounds
+- Use `border-white/[0.08]` for borders
+- Use `text-white/60`, `text-white/80`, `text-white/40` for text colors
+- **NEVER use slate-* classes** (they have blue undertones)
+- **NEVER use blue-* background/border classes** — use emerald-* for accent colors
+- Use `formatNumber()`, `formatCurrency()`, `formatDate()` from `@/utils/format-helpers` — never raw `.toLocaleString()`
+
+### Quality Bar
+- Every button must have a working onClick handler (no empty handlers, no toast-only stubs)
+- Every API call must hit a real backend endpoint (no mock data)
+- Zero console errors on every tab in your hub
+- Every drilldown must open and show real data when clicked
+- Self-audit: grep your files for `console.log`, `TODO`, `FIXME`, `toast(` before declaring done
+
+### Task List Location
+- Full audit of all broken elements: `.claude/team-audit.md`
+- Each team member's tasks are prefixed: F- (fleet), C- (compliance), B- (business), P- (people), A- (admin), API- (backend)
+
+### Dev Environment
+- Frontend: `npm run dev` on port 5173/5174
+- Backend: `cd api && npm run dev` on port 3001
+- Database: PostgreSQL with dev tenant `12345678-1234-1234-1234-123456789012`
+- Auth bypass: `SKIP_AUTH=true` in `.env`
+- Always `SET app.current_tenant_id` for direct SQL queries

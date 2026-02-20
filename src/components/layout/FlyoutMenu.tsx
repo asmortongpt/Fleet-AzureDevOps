@@ -7,6 +7,7 @@
 import { useCallback } from 'react'
 
 import { getModulesByCategory, getModule, type ModuleCategory } from '@/config/module-registry'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { usePanel } from '@/contexts/PanelContext'
 import { cn } from '@/lib/utils'
 
@@ -20,23 +21,18 @@ const categoryLabels: Record<ModuleCategory, string> = {
 }
 
 export function FlyoutMenu() {
-  const { state, setFlyout, openPanel } = usePanel()
+  const { state, setFlyout } = usePanel()
+  const { navigateTo } = useNavigation()
   const { flyoutCategory } = state
 
   const handleSelectModule = useCallback(
     (moduleId: string) => {
       const mod = getModule(moduleId)
       if (!mod) return
-      openPanel({
-        id: `panel-${mod.id}-${Date.now()}`,
-        moduleId: mod.id,
-        title: mod.label,
-        width: mod.panelWidth,
-        category: mod.category,
-      })
+      navigateTo(mod.id)
       setFlyout(null)
     },
-    [openPanel, setFlyout]
+    [navigateTo, setFlyout]
   )
 
   if (!flyoutCategory) return null

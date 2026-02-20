@@ -12,7 +12,8 @@
 
 import { AlertCircle, Box, Plus, Upload, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+
+import { useNavigation } from '@/contexts/NavigationContext'
 
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
@@ -56,7 +57,7 @@ interface FormErrors {
 }
 
 export function CreateDamageReport() {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [vehicles, setVehicles] = useState<{ id: string; make: string; model: string; vin?: string; name?: string }[]>([])
   const [vehiclesLoading, setVehiclesLoading] = useState(true)
@@ -188,7 +189,7 @@ export function CreateDamageReport() {
         throw new Error('Failed to submit damage report')
       }
 
-      navigate('/fleet')
+      navigateTo('fleet-hub-consolidated')
     } catch (error) {
       logger.error('Failed to submit damage report:', error)
     } finally {
@@ -234,7 +235,7 @@ export function CreateDamageReport() {
             <SmartTooltip content="Cancel and return to fleet" shortcut="Esc">
               <Button
                 variant="ghost"
-                onClick={() => navigate('/fleet')}
+                onClick={() => navigateTo('fleet-hub-consolidated')}
                 type="button"
               >
                 <X className="h-4 w-4 mr-2" />
@@ -483,10 +484,10 @@ export function CreateDamageReport() {
 
             {/* Helpful Notice */}
             {formData.photos.length > 0 && formData.photos.length < 3 && (
-              <div className="flex items-start gap-2 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                <AlertCircle className="h-5 w-5 text-blue-800 shrink-0 mt-0.5" />
+              <div className="flex items-start gap-2 p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                <AlertCircle className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-blue-800">
+                  <p className="font-medium text-emerald-400">
                     Upload more photos for 3D model generation
                   </p>
                   <p className="text-muted-foreground mt-1">

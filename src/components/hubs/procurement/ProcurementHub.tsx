@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { formatCurrency } from "@/utils/format-helpers"
 import { usePolicies } from "@/contexts/PolicyContext"
@@ -34,14 +35,10 @@ import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
 import { formatDate } from "@/utils/format-helpers"
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" }).then((res) => {
-    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-    return res.json()
-  })
+const fetcher = apiFetcher
 
 // Supplier Panel Component
-const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; _onClose: () => void; onCreatePO: (supplier: any) => void; isCreatingPO: boolean }) => {
+const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO, onViewHistory, onContactSupplier }: { supplier: any; _onClose: () => void; onCreatePO: (supplier: any) => void; isCreatingPO: boolean; onViewHistory?: (supplier: any) => void; onContactSupplier?: (supplier: any) => void }) => {
   useDrilldown()
 
   if (!supplier) {
@@ -114,10 +111,10 @@ const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; 
             <Package className="h-4 w-4 mr-2" />
             {isCreatingPO ? "Checking Policy..." : "Create Purchase Order"}
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => onViewHistory?.(supplier)}>
             View Order History
           </Button>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full" onClick={() => onContactSupplier?.(supplier)}>
             Contact Supplier
           </Button>
         </div>
@@ -131,7 +128,7 @@ const PurchaseOrdersPanel = ({ orders, onOrderSelect }: { orders: any[]; onOrder
   const getStatusIcon = (status: string) => {
     switch(status) {
       case 'delivered': return <CheckCircle2 className="h-4 w-4 text-green-500" />
-      case 'in_transit': return <Truck className="h-4 w-4 text-blue-800" />
+      case 'in_transit': return <Truck className="h-4 w-4 text-emerald-400" />
       case 'processing': return <Clock className="h-4 w-4 text-yellow-500" />
       default: return <AlertCircle className="h-4 w-4 text-gray-700" />
     }
@@ -332,9 +329,9 @@ export function ProcurementHub() {
   const { data: partsResponse, error: partsError } = useSWR('/api/parts', fetcher)
   const hasError = vendorsError || ordersError || partsError
 
-  const vendors = vendorsResponse?.data || []
-  const purchaseOrdersRaw = ordersResponse?.data || []
-  const parts = partsResponse?.data || []
+  const vendors = Array.isArray(vendorsResponse) ? vendorsResponse : []
+  const purchaseOrdersRaw = Array.isArray(ordersResponse) ? ordersResponse : []
+  const parts = Array.isArray(partsResponse) ? partsResponse : []
 
   // Cross-reference vendor_id from work orders to compute total spend by vendor
   const workOrderVendorSpend = useMemo(() => {
@@ -467,6 +464,15 @@ export function ProcurementHub() {
     }
   }, [suppliers])
 
+  const handleViewOrderHistory = useCallback((supplier: any) => {
+    setActivePanel('orders')
+    toast.success(`Showing orders for ${supplier.name}`)
+  }, [])
+
+  const handleContactSupplier = useCallback((supplier: any) => {
+    toast.success(`Opening contact for ${supplier.name}`)
+  }, [])
+
   // Handler for creating purchase orders with policy enforcement
   const handleCreatePurchaseOrder = async (supplier: any) => {
     setIsCreatingPO(true)
@@ -594,6 +600,8 @@ export function ProcurementHub() {
               _onClose={() => {}}
               onCreatePO={handleCreatePurchaseOrder}
               isCreatingPO={isCreatingPO}
+              onViewHistory={handleViewOrderHistory}
+              onContactSupplier={handleContactSupplier}
             />
           </TabsContent>
           <TabsContent value="orders" className="h-[calc(100vh-48px)] mt-0">

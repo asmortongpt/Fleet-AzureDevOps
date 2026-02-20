@@ -36,7 +36,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       accessorKey: 'unit_number',
       header: 'Unit #',
       cell: ({ getValue }) => (
-        <span className="font-semibold text-blue-300">{getValue<string>()}</span>
+        <span className="font-semibold text-emerald-300">{getValue<string>()}</span>
       ),
     },
     {
@@ -44,7 +44,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       header: 'Service Date',
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-slate-700" />
+          <Calendar className="w-4 h-4 text-white/40" />
           {formatDate(getValue<string>())}
         </div>
       ),
@@ -55,7 +55,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       cell: ({ getValue }) => {
         const type = getValue<string>();
         const typeColors: Record<string, string> = {
-          'oil change': 'bg-blue-500/20 text-blue-700',
+          'oil change': 'bg-emerald-500/20 text-emerald-400',
           'tire rotation': 'bg-purple-500/20 text-purple-400',
           'brake service': 'bg-red-500/20 text-red-400',
           'engine repair': 'bg-orange-500/20 text-orange-400',
@@ -63,7 +63,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
           'inspection': 'bg-green-500/20 text-green-400',
         };
         return (
-          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[type?.toLowerCase()] || 'bg-slate-500/20 text-slate-700'}`}>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[type?.toLowerCase()] || 'bg-slate-500/20 text-white/40'}`}>
             {type}
           </span>
         );
@@ -86,7 +86,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
         const statusConfig: Record<string, { icon: React.ReactNode; class: string }> = {
           scheduled: {
             icon: <Clock className="w-4 h-4" />,
-            class: 'bg-blue-500/20 text-blue-700 border-blue-500/30'
+            class: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
           },
           'in-progress': {
             icon: <Wrench className="w-4 h-4" />,
@@ -169,12 +169,12 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
         return parts && parts.length > 0 ? (
           <div className="flex flex-wrap gap-1">
             {parts.slice(0, 3).map((part) => (
-              <span key={part} className="px-2 py-0.5 bg-slate-700/50 text-slate-300 rounded text-xs">
+              <span key={part} className="px-2 py-0.5 bg-white/[0.08] text-white/80 rounded text-xs">
                 {part}
               </span>
             ))}
             {parts.length > 3 && (
-              <span className="px-2 py-0.5 bg-slate-600/50 text-slate-700 rounded text-xs">
+              <span className="px-2 py-0.5 bg-white/[0.08] text-white/40 rounded text-xs">
                 +{parts.length - 3}
               </span>
             )}

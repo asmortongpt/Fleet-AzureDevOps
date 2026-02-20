@@ -21,6 +21,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -99,12 +100,6 @@ interface AffectedEntity {
   last_check_date?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
@@ -112,32 +107,37 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
   // Main policy data
   const { data: policy, error, isLoading, mutate } = useSWR<PolicyData>(
     `/api/policies/${policyId}`,
-    fetcher
+    apiFetcher
   )
 
   // Execution history
   const { data: executionHistory } = useSWR<ExecutionHistory[]>(
     policyId ? `/api/policies/${policyId}/executions` : null,
-    fetcher
+    apiFetcher
   )
 
   // Violations
   const { data: violations } = useSWR<Violation[]>(
     policyId ? `/api/policies/${policyId}/violations` : null,
-    fetcher
+    apiFetcher
   )
 
   // Compliance metrics
   const { data: complianceMetrics } = useSWR<ComplianceMetric[]>(
     policyId ? `/api/policies/${policyId}/compliance-metrics` : null,
-    fetcher
+    apiFetcher
   )
 
   // Affected entities
   const { data: affectedEntities } = useSWR<AffectedEntity[]>(
     policyId ? `/api/policies/${policyId}/affected-entities` : null,
-    fetcher
+    apiFetcher
   )
+
+  const executionsArr = Array.isArray(executionHistory) ? executionHistory : []
+  const violationsArr = Array.isArray(violations) ? violations : []
+  const metricsArr = Array.isArray(complianceMetrics) ? complianceMetrics : []
+  const entitiesArr = Array.isArray(affectedEntities) ? affectedEntities : []
 
   const handleViewEntity = (entityType: string, entityId: string, entityName: string) => {
     push({
@@ -227,8 +227,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
     }
   }
 
-  const openViolations = violations?.filter(v => v.status === 'open').length || 0
-  const resolvedViolations = violations?.filter(v => v.status === 'resolved').length || 0
+  const openViolations = violationsArr.filter(v => v.status === 'open').length
+  const resolvedViolations = violationsArr.filter(v => v.status === 'resolved').length
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
@@ -314,7 +314,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
               <CardContent>
                 <div className="text-sm font-bold capitalize">{policy.applies_to}</div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {affectedEntities?.length || 0} entities
+                  {entitiesArr.length} entities
                 </p>
               </CardContent>
             </Card>
@@ -325,9 +325,9 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="executions">Executions</TabsTrigger>
-              <TabsTrigger value="violations">Violations ({violations?.length || 0})</TabsTrigger>
+              <TabsTrigger value="violations">Violations ({violationsArr.length})</TabsTrigger>
               <TabsTrigger value="compliance">Compliance</TabsTrigger>
-              <TabsTrigger value="affected">Affected ({affectedEntities?.length || 0})</TabsTrigger>
+              <TabsTrigger value="affected">Affected ({entitiesArr.length})</TabsTrigger>
             </TabsList>
 
             {/* Overview Tab */}
@@ -420,9 +420,9 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
             {/* Executions Tab */}
             <TabsContent value="executions" className="space-y-2">
-              {executionHistory && executionHistory.length > 0 ? (
+              {executionsArr.length > 0 ? (
                 <div className="space-y-3">
-                  {executionHistory.slice(0, 20).map((execution) => (
+                  {executionsArr.slice(0, 20).map((execution) => (
                     <Card key={execution.id}>
                       <CardContent className="p-2">
                         <div className="space-y-3">
@@ -473,9 +473,9 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                       </CardContent>
                     </Card>
                   ))}
-                  {executionHistory.length > 20 && (
+                  {executionsArr.length > 20 && (
                     <p className="text-sm text-center text-muted-foreground">
-                      +{executionHistory.length - 20} more executions
+                      +{executionsArr.length - 20} more executions
                     </p>
                   )}
                 </div>
@@ -491,9 +491,9 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
             {/* Violations Tab */}
             <TabsContent value="violations" className="space-y-2">
-              {violations && violations.length > 0 ? (
+              {violationsArr.length > 0 ? (
                 <div className="space-y-3">
-                  {violations.map((violation) => (
+                  {violationsArr.map((violation) => (
                     <Card
                       key={violation.id}
                       className="cursor-pointer hover:shadow-md transition-shadow"
@@ -562,7 +562,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
             {/* Compliance Tab */}
             <TabsContent value="compliance" className="space-y-2">
-              {complianceMetrics && complianceMetrics.length > 0 ? (
+              {metricsArr.length > 0 ? (
                 <>
                   <Card>
                     <CardHeader>
@@ -573,7 +573,7 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {complianceMetrics.map((metric, index) => (
+                        {metricsArr.map((metric, index) => (
                           <div key={index} className="space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-sm font-medium">{metric.period}</span>
@@ -640,9 +640,9 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
 
             {/* Affected Entities Tab */}
             <TabsContent value="affected" className="space-y-2">
-              {affectedEntities && affectedEntities.length > 0 ? (
+              {entitiesArr.length > 0 ? (
                 <div className="space-y-3">
-                  {affectedEntities.map((entity) => (
+                  {entitiesArr.map((entity) => (
                     <Card
                       key={entity.id}
                       className="cursor-pointer hover:shadow-md transition-shadow"

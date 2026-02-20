@@ -6,15 +6,10 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { formatTime } from "@/utils/format-helpers"
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 interface TelemetryRecord {
   gps?: {

@@ -42,6 +42,7 @@ interface ResponsiveLineChartProps {
   showTrend?: boolean
   showAverage?: boolean
   highlightZones?: { start: number; end: number; color?: string }[]
+  compact?: boolean
 }
 
 const GRADIENT_COLORS = [
@@ -66,6 +67,7 @@ export function ResponsiveLineChart({
   showTrend = true,
   showAverage = false,
   highlightZones,
+  compact = false,
 }: ResponsiveLineChartProps) {
   const chartColors = {
     text: 'var(--foreground)',
@@ -154,6 +156,100 @@ export function ResponsiveLineChart({
     )
   }
 
+  const lineChartContent = loading ? (
+    <div
+      className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
+      style={{ height: compact ? '100%' : height }}
+    />
+  ) : (
+    <ResponsiveContainer width="100%" height={compact ? '100%' : height}>
+      <ChartComponent data={data} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
+        <defs>
+          {GRADIENT_COLORS.map((gradient) => (
+            <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={gradient.fill} stopOpacity={0.8} />
+              <stop offset="95%" stopColor={gradient.fill} stopOpacity={0.1} />
+            </linearGradient>
+          ))}
+        </defs>
+        <CartesianGrid
+          strokeDasharray="3 3"
+          stroke={chartColors.grid}
+          strokeOpacity={0.3}
+        />
+        <XAxis
+          dataKey={xAxisKey}
+          stroke={chartColors.text}
+          tick={{ fill: chartColors.text }}
+        />
+        <YAxis stroke={chartColors.text} tick={{ fill: chartColors.text }} />
+        <Tooltip content={<CustomTooltip />} />
+        <Legend
+          wrapperStyle={{ color: chartColors.text }}
+          iconType="line"
+          formatter={(value) => <span className="text-sm font-medium capitalize">{value.replace('_', ' ')}</span>}
+        />
+        {highlightZones?.map((zone) => (
+          <ReferenceArea
+            key={`${zone.start}-${zone.end}`}
+            x1={zone.start}
+            x2={zone.end}
+            fill={zone.color || '#F59E0B'}
+            fillOpacity={0.1}
+          />
+        ))}
+        {showAverage && average !== null && (
+          <ReferenceLine
+            y={average}
+            stroke={chartColors.text}
+            strokeDasharray="5 5"
+            strokeOpacity={0.5}
+            label={{
+              value: `Avg: ${average.toFixed(1)}`,
+              fill: chartColors.text,
+              fontSize: 12,
+              position: 'right'
+            }}
+          />
+        )}
+        {dataKeys.map((key, index) => {
+          const colorIndex = index % GRADIENT_COLORS.length
+          const gradientColor = GRADIENT_COLORS[colorIndex]
+          return showArea ? (
+            <Area
+              key={key}
+              type="monotone"
+              dataKey={key}
+              stroke={gradientColor.stroke}
+              fill={colors[index % colors.length]}
+              strokeWidth={3}
+              animationDuration={1500}
+              animationBegin={index * 200}
+              dot={<CustomDot />}
+              activeDot={{ r: 8, strokeWidth: 2 }}
+            />
+          ) : (
+            <Line
+              key={key}
+              type="monotone"
+              dataKey={key}
+              stroke={gradientColor.stroke}
+              strokeWidth={3}
+              dot={<CustomDot />}
+              activeDot={{ r: 8, strokeWidth: 2 }}
+              animationDuration={1500}
+              animationBegin={index * 200}
+            />
+          )
+        })}
+      </ChartComponent>
+    </ResponsiveContainer>
+  )
+
+  if (compact) {
+    return <div className="w-full h-full">{lineChartContent}</div>
+  }
+
   return (
     <div>
       <Card className="border-2 shadow-lg hover:shadow-xl transition-shadow duration-300">
@@ -170,7 +266,7 @@ export function ResponsiveLineChart({
                     ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300'
                     : trend === 'down'
                     ? 'bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300'
-                    : 'bg-slate-100 dark:bg-slate-900/50 text-slate-700 dark:text-slate-300'
+                    : 'bg-neutral-100 dark:bg-[#111]/50 text-white/40 dark:text-white/80'
                 }`}
               >
                 {trend === 'up' ? (
@@ -184,95 +280,7 @@ export function ResponsiveLineChart({
           </div>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <div
-              className="w-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 animate-pulse rounded-lg"
-              style={{ height }}
-            />
-          ) : (
-            <ResponsiveContainer width="100%" height={height}>
-              <ChartComponent data={data} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
-                <defs>
-                  {GRADIENT_COLORS.map((gradient) => (
-                    <linearGradient key={gradient.id} id={gradient.id} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor={gradient.fill} stopOpacity={0.8} />
-                      <stop offset="95%" stopColor={gradient.fill} stopOpacity={0.1} />
-                    </linearGradient>
-                  ))}
-                </defs>
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={chartColors.grid}
-                  strokeOpacity={0.3}
-                />
-                <XAxis
-                  dataKey={xAxisKey}
-                  stroke={chartColors.text}
-                  tick={{ fill: chartColors.text }}
-                />
-                <YAxis stroke={chartColors.text} tick={{ fill: chartColors.text }} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend
-                  wrapperStyle={{ color: chartColors.text }}
-                  iconType="line"
-                  formatter={(value) => <span className="text-sm font-medium capitalize">{value.replace('_', ' ')}</span>}
-                />
-                {highlightZones?.map((zone) => (
-                  <ReferenceArea
-                    key={`${zone.start}-${zone.end}`}
-                    x1={zone.start}
-                    x2={zone.end}
-                    fill={zone.color || '#F59E0B'}
-                    fillOpacity={0.1}
-                  />
-                ))}
-                {showAverage && average !== null && (
-                  <ReferenceLine
-                    y={average}
-                    stroke={chartColors.text}
-                    strokeDasharray="5 5"
-                    strokeOpacity={0.5}
-                    label={{
-                      value: `Avg: ${average.toFixed(1)}`,
-                      fill: chartColors.text,
-                      fontSize: 12,
-                      position: 'right'
-                    }}
-                  />
-                )}
-                {dataKeys.map((key, index) => {
-                  const colorIndex = index % GRADIENT_COLORS.length
-                  const gradientColor = GRADIENT_COLORS[colorIndex]
-                  return showArea ? (
-                    <Area
-                      key={key}
-                      type="monotone"
-                      dataKey={key}
-                      stroke={gradientColor.stroke}
-                      fill={colors[index % colors.length]}
-                      strokeWidth={3}
-                      animationDuration={1500}
-                      animationBegin={index * 200}
-                      dot={<CustomDot />}
-                      activeDot={{ r: 8, strokeWidth: 2 }}
-                    />
-                  ) : (
-                    <Line
-                      key={key}
-                      type="monotone"
-                      dataKey={key}
-                      stroke={gradientColor.stroke}
-                      strokeWidth={3}
-                      dot={<CustomDot />}
-                      activeDot={{ r: 8, strokeWidth: 2 }}
-                      animationDuration={1500}
-                      animationBegin={index * 200}
-                    />
-                  )
-                })}
-              </ChartComponent>
-            </ResponsiveContainer>
-          )}
+          {lineChartContent}
         </CardContent>
       </Card>
     </div>

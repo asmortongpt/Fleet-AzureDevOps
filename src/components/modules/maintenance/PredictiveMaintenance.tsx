@@ -11,6 +11,7 @@ import useSWR from "swr"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { formatCurrency } from "@/utils/format-helpers"
 
 interface PredictiveMaintenanceProps {
@@ -32,13 +33,7 @@ interface PredictiveRecord {
   status?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 export function PredictiveMaintenance() {
   const data = useFleetData()

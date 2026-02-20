@@ -416,18 +416,18 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
       {/* Map Controls Overlay */}
       <div className="absolute top-4 left-4 bg-white/90 backdrop-blur rounded-lg shadow-sm p-3 space-y-2">
         <div className="flex items-center gap-2">
-          <Navigation className="w-4 h-4 text-blue-800" />
+          <Navigation className="w-4 h-4 text-emerald-400" />
           <span className="text-sm font-medium text-gray-900">
             {vehicles.length} Vehicle{vehicles.length !== 1 ? 's' : ''}
           </span>
         </div>
-        <div className="space-y-1 text-xs text-slate-700">
+        <div className="space-y-1 text-xs text-white/40">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500" />
             <span>Active ({vehicles.filter(v => v.status === 'active').length})</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-blue-500" />
+            <div className="w-3 h-3 rounded-full bg-emerald-500" />
             <span>Idle ({vehicles.filter(v => v.status === 'idle').length})</span>
           </div>
           <div className="flex items-center gap-2">

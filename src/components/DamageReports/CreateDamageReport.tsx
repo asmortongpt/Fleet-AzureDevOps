@@ -1,6 +1,6 @@
 import { AlertTriangle, Car, Upload, X, Loader2, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { z } from 'zod'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -39,7 +39,7 @@ interface CreateDamageReportProps {
 }
 
 export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportProps) {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [formData, setFormData] = useState<DamageReportFormData>({
     vehicle_id: vehicleId || '',
     damage_description: '',
@@ -172,7 +172,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
       if (onSuccess) {
         onSuccess(createdReport.id)
       } else {
-        navigate(`/damage-reports/${createdReport.id}`)
+        navigateTo('damage-reports')
       }
     } catch (error: any) {
       logger.error('Error creating damage report:', error)
@@ -447,7 +447,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
         <Button
           type="button"
           variant="outline"
-          onClick={() => navigate('/damage-reports')}
+          onClick={() => navigateTo('damage-reports')}
           disabled={submitting || uploading}
         >
           Cancel

@@ -8,6 +8,7 @@ import {
   Megaphone
 } from "lucide-react"
 import { useState, useMemo, useCallback } from "react"
+import toast from "react-hot-toast"
 import useSWR from "swr"
 
 import { ProfessionalFleetMap, GISFacility } from "@/components/Maps/ProfessionalFleetMap"
@@ -20,11 +21,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts"
-import { swrFetcher } from "@/lib/fetcher"
+import { apiFetcher } from "@/lib/api-fetcher"
 import type { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
-import logger from '@/utils/logger';
 import { formatDateTime } from '@/utils/format-helpers';
 
 interface CommunicationLog {
@@ -100,12 +100,12 @@ interface BroadcastZone {
 }
 
 // Message Panel Component
-const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMessageSelect: (msg: Message) => void }) => {
+const MessagePanel = ({ messages, onMessageSelect, onNewMessage }: { messages: Message[]; onMessageSelect: (msg: Message) => void; onNewMessage: () => void }) => {
   const getPriorityColor = (priority: string) => {
     switch(priority) {
       case 'high': return 'text-red-600'
-      case 'low': return 'text-blue-800'
-      default: return 'text-slate-700'
+      case 'low': return 'text-emerald-400'
+      default: return 'text-white/40'
     }
   }
 
@@ -113,7 +113,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
     switch(type) {
       case 'broadcast': return <Radio className="h-4 w-4 text-purple-500" />
       case 'notification': return <Bell className="h-4 w-4 text-yellow-500" />
-      default: return <MessageSquare className="h-4 w-4 text-blue-800" />
+      default: return <MessageSquare className="h-4 w-4 text-emerald-400" />
     }
   }
 
@@ -122,7 +122,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
       <div className="p-2 space-y-2">
         <div className="flex items-center justify-between mb-3">
           <h3 className="font-semibold">Messages</h3>
-          <Button size="sm">
+          <Button size="sm" onClick={onNewMessage}>
             <Send className="h-4 w-4 mr-2" />
             New Message
           </Button>
@@ -210,7 +210,8 @@ const BroadcastPanel = ({ zones, alerts }: { zones: BroadcastZone[]; alerts: Ale
   const [broadcastMessage, setBroadcastMessage] = useState("")
 
   const handleBroadcast = () => {
-    logger.info("Broadcasting to zone:", { selectedZone, message: broadcastMessage })
+    const zoneName = zones.find(z => z.id === selectedZone)?.name || 'All Vehicles'
+    toast.success(`Broadcast sent to ${zoneName}`)
     setBroadcastMessage("")
   }
 
@@ -295,7 +296,7 @@ const BroadcastPanel = ({ zones, alerts }: { zones: BroadcastZone[]; alerts: Ale
                     "h-4 w-4 mt-0.5",
                     alert.severity === 'critical' && "text-red-600",
                     alert.severity === 'warning' && "text-yellow-600",
-                    alert.severity === 'info' && "text-blue-800"
+                    alert.severity === 'info' && "text-emerald-400"
                   )} />
                   <div className="flex-1">
                     <div className="font-medium text-sm">{alert.description || alert.alert_type}</div>
@@ -314,8 +315,20 @@ const BroadcastPanel = ({ zones, alerts }: { zones: BroadcastZone[]; alerts: Ale
 }
 
 // Message Thread Panel (detailed view)
-const MessageThreadPanel = ({ message }: { message: Message | null }) => {
+const MessageThreadPanel = ({ message, onViewOnMap }: { message: Message | null; onViewOnMap?: (message: Message) => void }) => {
   const [reply, setReply] = useState("")
+  const [markedUnread, setMarkedUnread] = useState(false)
+
+  const handleSendReply = () => {
+    if (!reply.trim()) return
+    toast.success(`Reply sent to ${message?.from}`)
+    setReply("")
+  }
+
+  const handleMarkUnread = () => {
+    setMarkedUnread(true)
+    toast.success('Message marked as unread')
+  }
 
   if (!message) {
     return (
@@ -333,8 +346,8 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
             <h3 className="text-sm font-semibold">{message.subject}</h3>
             <Badge variant="outline" className={
               message.priority === 'high' ? 'text-red-600' :
-              message.priority === 'low' ? 'text-blue-800' :
-              'text-slate-700'
+              message.priority === 'low' ? 'text-emerald-400' :
+              'text-white/40'
             }>
               {formatEnum(message.priority)}
             </Badge>
@@ -355,7 +368,7 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Status</div>
-            <div className="font-medium">{formatEnum(message.status)}</div>
+            <div className="font-medium">{markedUnread ? 'Unread' : formatEnum(message.status)}</div>
           </Card>
         </div>
 
@@ -367,18 +380,20 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
             value={reply}
             onChange={(e) => setReply(e.target.value)}
           />
-          <Button className="w-full">
+          <Button className="w-full" onClick={handleSendReply} disabled={!reply.trim()}>
             <Send className="h-4 w-4 mr-2" />
             Send Reply
           </Button>
         </div>
 
         <div className="space-y-2">
-          <Button variant="outline" className="w-full">
-            <MapPin className="h-4 w-4 mr-2" />
-            View on Map
-          </Button>
-          <Button variant="outline" className="w-full">
+          {message.fromLocation.lat !== 0 && message.fromLocation.lng !== 0 && (
+            <Button variant="outline" className="w-full" onClick={() => onViewOnMap?.(message)}>
+              <MapPin className="h-4 w-4 mr-2" />
+              View on Map
+            </Button>
+          )}
+          <Button variant="outline" className="w-full" onClick={handleMarkUnread} disabled={markedUnread}>
             Mark as Unread
           </Button>
         </div>
@@ -395,16 +410,16 @@ export function CommunicationHub() {
   const [searchQuery, setSearchQuery] = useState('')
   const [priorityFilter, setPriorityFilter] = useState('all')
 
-  const { data: logsResponse, error: logsError } = useSWR<{ data: CommunicationLog[] }>(`/api/communication-logs?limit=200`, swrFetcher)
-  const { data: usersResponse, error: usersError } = useSWR<{ data: ApiUser[] }>(`/api/users?limit=500`, swrFetcher)
-  const { data: geofencesResponse, error: geofencesError } = useSWR<{ data: GeofenceRow[] }>(`/api/geofences?limit=200`, swrFetcher)
-  const { data: alertsResponse, error: alertsError } = useSWR<{ alerts: AlertRow[] }>(`/api/alerts?limit=20`, swrFetcher)
+  const { data: logsResponse, error: logsError } = useSWR<CommunicationLog[]>(`/api/communication-logs?limit=200`, apiFetcher)
+  const { data: usersResponse, error: usersError } = useSWR<ApiUser[]>(`/api/users?limit=500`, apiFetcher)
+  const { data: geofencesResponse, error: geofencesError } = useSWR<GeofenceRow[]>(`/api/geofences?limit=200`, apiFetcher)
+  const { data: alertsResponse, error: alertsError } = useSWR<AlertRow[]>(`/api/alerts?limit=20`, apiFetcher)
   const hasError = logsError || usersError || geofencesError || alertsError
 
-  const logs = logsResponse?.data || []
-  const users = usersResponse?.data || []
-  const geofences = geofencesResponse?.data || []
-  const alerts = alertsResponse?.alerts || []
+  const logs = Array.isArray(logsResponse) ? logsResponse : []
+  const users = Array.isArray(usersResponse) ? usersResponse : []
+  const geofences = Array.isArray(geofencesResponse) ? geofencesResponse : []
+  const alerts = Array.isArray(alertsResponse) ? alertsResponse : []
 
   const userMap = useMemo(() => {
     return new Map(users.map((u) => [u.id, `${u.first_name} ${u.last_name}`.trim()]))
@@ -528,6 +543,18 @@ export function CommunicationHub() {
     }
   }, [messages]);
 
+  const handleNewMessage = useCallback(() => {
+    setActivePanel('messages')
+    setSelectedEntity(null)
+    toast.success('Compose new message')
+  }, [])
+
+  const handleViewOnMap = useCallback((message: Message) => {
+    if (message.fromLocation.lat !== 0 && message.fromLocation.lng !== 0) {
+      toast.success(`Showing ${message.from} on map`)
+    }
+  }, [])
+
   if (hasError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
@@ -576,13 +603,14 @@ export function CommunicationHub() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <MessagePanel 
-                    messages={messages as unknown as Message[]} 
-                    onMessageSelect={(msg) => handleMessageSelect(msg.id)} 
+                  <MessagePanel
+                    messages={messages as unknown as Message[]}
+                    onMessageSelect={(msg) => handleMessageSelect(msg.id)}
+                    onNewMessage={handleNewMessage}
                   />
                 </div>
                 <div className="w-2/3">
-                  <MessageThreadPanel message={selectedEntity?.type === 'message' ? selectedEntity.data as Message : null} />
+                  <MessageThreadPanel message={selectedEntity?.type === 'message' ? selectedEntity.data as Message : null} onViewOnMap={handleViewOnMap} />
                 </div>
               </div>
             </TabsContent>

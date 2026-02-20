@@ -211,7 +211,7 @@ export function CostAnalysisCenter() {
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
-      'Fuel': 'bg-blue-500',
+      'Fuel': 'bg-emerald-500',
       'Maintenance': 'bg-orange-500',
       'Insurance': 'bg-purple-500',
       'Depreciation': 'bg-gray-500',
@@ -241,7 +241,7 @@ export function CostAnalysisCenter() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
           <p className="text-muted-foreground">Loading cost analysis...</p>
         </div>
       </div>
@@ -256,7 +256,7 @@ export function CostAnalysisCenter() {
             <DollarSign className="h-8 w-8 text-green-600" />
             Cost Analysis Command Center
           </h1>
-          <p className="text-slate-700 mt-2">
+          <p className="text-white/40 mt-2">
             Real-time cost tracking, forecasting, and anomaly detection
           </p>
         </div>
@@ -324,7 +324,7 @@ export function CostAnalysisCenter() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-bold text-blue-800">
+              <div className="text-sm font-bold text-emerald-400">
                 {budgetStatus.filter(b => !b.isOverBudget).length}/{budgetStatus.length}
               </div>
               <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>On track</div>
@@ -363,7 +363,7 @@ export function CostAnalysisCenter() {
                           </div>
                           <div className="text-right">
                             <div className="font-bold">{formatCurrency(category.amount)}</div>
-                            <div className="text-sm text-slate-700">{category.percentage.toFixed(1)}%</div>
+                            <div className="text-sm text-white/40">{category.percentage.toFixed(1)}%</div>
                           </div>
                         </div>
                         <div className="w-full bg-gray-200 rounded-full h-2">
@@ -504,7 +504,7 @@ export function CostAnalysisCenter() {
                       <TableCell>
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div
-                            className={`h-2 rounded-full ${status.isOverBudget ? 'bg-red-500' : 'bg-blue-500'}`}
+                            className={`h-2 rounded-full ${status.isOverBudget ? 'bg-red-500' : 'bg-emerald-500'}`}
                             style={{ width: `${Math.min(status.percentageUsed, 100)}%` }}
                           />
                         </div>

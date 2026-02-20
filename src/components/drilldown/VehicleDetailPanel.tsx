@@ -26,6 +26,7 @@ import useSWR from 'swr'
 import { MetricCard } from './MetricCard'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -203,27 +204,6 @@ function EmptyState({ icon: Icon, message }: { icon: React.ComponentType<{ class
 }
 
 // ---------------------------------------------------------------------------
-// Fetcher
-// ---------------------------------------------------------------------------
-
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  }).then((json) => {
-    // Unwrap standard API response envelope: { success, data, meta }
-    if (json && typeof json === 'object' && 'data' in json) {
-      const inner = json.data
-      // Handle double-nested: { data: { data: [...], total } }
-      if (inner && typeof inner === 'object' && !Array.isArray(inner) && 'data' in inner && Array.isArray(inner.data)) {
-        return inner.data
-      }
-      return inner
-    }
-    return json
-  })
-
-// ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
@@ -233,32 +213,32 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
 
   const { data: vehicle, error, isLoading, mutate } = useSWR(
     `/api/vehicles/${vehicleId}`,
-    fetcher
+    apiFetcher
   )
 
   const { data: maintenanceHistory, isLoading: maintenanceLoading } = useSWR<MaintenanceRecord[]>(
     vehicleId ? `/api/vehicles/${vehicleId}/maintenance` : null,
-    fetcher
+    apiFetcher
   )
 
   const { data: incidents, isLoading: incidentsLoading } = useSWR<IncidentRecord[]>(
     vehicleId ? `/api/vehicles/${vehicleId}/incidents` : null,
-    fetcher
+    apiFetcher
   )
 
   const { data: trips, isLoading: tripsLoading } = useSWR<TripRecord[]>(
     vehicleId ? `/api/vehicles/${vehicleId}/trips` : null,
-    fetcher
+    apiFetcher
   )
 
   const { data: inspections, isLoading: inspectionsLoading } = useSWR<InspectionRecord[]>(
     vehicleId ? `/api/vehicles/${vehicleId}/inspections` : null,
-    fetcher
+    apiFetcher
   )
 
   const { data: fuelRecords, isLoading: fuelLoading } = useSWR<FuelRecord[]>(
     vehicleId ? `/api/vehicles/${vehicleId}/fuel` : null,
-    fetcher
+    apiFetcher
   )
 
   const handleViewTrips = () => {

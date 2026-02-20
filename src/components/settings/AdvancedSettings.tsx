@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { advancedSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
 
 // Available feature flags
@@ -57,25 +57,25 @@ export function AdvancedSettings() {
   const [, setHasUnsavedChanges] = useAtom(hasUnsavedChangesAtom)
   const { data: metricsData } = useSWR<Record<string, any>>(
     settings.performanceMetrics ? '/api/system/metrics' : null,
-    swrFetcher
+    apiFetcher
   )
-  const metrics = (metricsData as any)?.data ?? metricsData ?? {}
+  const metrics = metricsData ?? {}
 
   // Database stats - always fetch for the Database Stats card
   const { data: dbStatsData } = useSWR<Record<string, any>>(
     '/api/system/db-stats',
-    swrFetcher,
+    apiFetcher,
     { refreshInterval: 30000, revalidateOnFocus: false }
   )
-  const dbStats = (dbStatsData as any)?.data ?? dbStatsData ?? {}
+  const dbStats = dbStatsData ?? {}
 
   // Connection pool status
   const { data: poolData } = useSWR<Record<string, any>>(
     '/api/system/pool-status',
-    swrFetcher,
+    apiFetcher,
     { refreshInterval: 15000, revalidateOnFocus: false }
   )
-  const poolStatus = (poolData as any)?.data ?? poolData ?? {}
+  const poolStatus = poolData ?? {}
 
   const formatMetric = (value: number | null | undefined, unit?: string) => {
     if (value === null || value === undefined) return '—'
@@ -340,7 +340,7 @@ export function AdvancedSettings() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Active</p>
-                  <p className="text-lg font-semibold text-blue-500">{poolStatus.activeConnections ?? poolStatus.active ?? poolStatus.busy ?? '--'}</p>
+                  <p className="text-lg font-semibold text-emerald-500">{poolStatus.activeConnections ?? poolStatus.active ?? poolStatus.busy ?? '--'}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Idle</p>

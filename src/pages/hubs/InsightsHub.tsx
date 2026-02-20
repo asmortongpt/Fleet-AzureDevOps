@@ -10,6 +10,7 @@ import {
 import React, { Suspense, useMemo, useState } from "react";
 import useSWR from "swr";
 
+import { apiFetcher } from '@/lib/api-fetcher'
 import ErrorBoundary from "../../components/common/ErrorBoundary";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { CostAnalysisCenter } from "../../components/modules/analytics/CostAnalysisCenter";
@@ -42,13 +43,7 @@ interface FleetSummaryResponse {
   };
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data);
+const fetcher = apiFetcher;
 
 const ModuleLoader = () => (
   <div className="flex items-center justify-center h-64 text-sm text-muted-foreground">

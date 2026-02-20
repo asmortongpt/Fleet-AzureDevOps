@@ -34,6 +34,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -134,23 +135,15 @@ interface GarageBay {
   equipment: string[]
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
 
   // Fetch garage bay data
-  const { data: bayData, error, isLoading, mutate } = useSWR<{ data: GarageBay }>(
+  const { data: bay, error, isLoading, mutate } = useSWR<GarageBay>(
     `/api/garage-bays/${bayId}`,
-    fetcher
+    apiFetcher
   )
-
-  const bay = bayData?.data
   const currentWorkOrder = bay?.work_orders?.[0] // Primary active work order
 
   const handleViewWorkOrder = (workOrder: WorkOrder) => {
@@ -224,7 +217,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
       case 'completed':
         return <CheckCircle2 className="h-5 w-5 text-green-500" />
       case 'in_progress':
-        return <Clock className="h-5 w-5 text-blue-800" />
+        return <Clock className="h-5 w-5 text-emerald-400" />
       case 'pending':
       case 'on_hold':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />

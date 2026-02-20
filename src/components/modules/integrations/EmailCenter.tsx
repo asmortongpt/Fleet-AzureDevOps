@@ -20,7 +20,7 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
-import { swrFetcher } from "@/lib/fetcher"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { MSOutlookEmail } from "@/lib/types"
 import { brandColors } from '@/theme/designSystem'
@@ -38,22 +38,16 @@ type OutlookMessageRow = {
   metadata?: any
 }
 
-type OutlookMessagesPayload = {
-  success?: boolean
-  data?: OutlookMessageRow[]
-}
-
-
-
 export function EmailCenter() {
-  const { data: messagesPayload, isLoading: isLoadingInbox } = useSWR<OutlookMessagesPayload>(
+  const { data: messagesPayload, isLoading: isLoadingInbox } = useSWR<OutlookMessageRow[]>(
     '/api/outlook/messages?source=local&top=100',
-    swrFetcher,
+    apiFetcher,
     { revalidateOnFocus: false }
   )
 
   const inboxEmails = useMemo<MSOutlookEmail[]>(() => {
-    const rows = messagesPayload?.data ?? []
+    const raw = messagesPayload ?? []
+    const rows = Array.isArray(raw) ? raw : []
     return rows.map((row) => {
       const meta = row.metadata || {}
       return {
@@ -68,7 +62,7 @@ export function EmailCenter() {
         relatedVendorId: meta.related_vendor_id || meta.relatedVendorId,
       }
     })
-  }, [messagesPayload?.data])
+  }, [messagesPayload])
 
   const [emails, setEmails] = useState<MSOutlookEmail[]>([])
 
@@ -260,7 +254,7 @@ export function EmailCenter() {
                   {filteredEmails.map(email => (
                     <div
                       key={email.id}
-                      className={`p-2 cursor-pointer hover:bg-muted/50 transition-colors ${!email.isRead ? "bg-blue-50/50" : ""
+                      className={`p-2 cursor-pointer hover:bg-muted/50 transition-colors ${!email.isRead ? "bg-emerald-50/50" : ""
                         } ${selectedEmail?.id === email.id ? "bg-muted" : ""}`}
                       onClick={() => {
                         setSelectedEmail(email)
@@ -378,7 +372,17 @@ export function EmailCenter() {
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Reply
                     </Button>
-                    <Button variant="outline">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setEmails(current =>
+                          current.map(e =>
+                            e.id === selectedEmail.id ? { ...e, starred: !('starred' in e && e.starred) } : e
+                          )
+                        )
+                        toast.success('Email starred')
+                      }}
+                    >
                       <Star className="w-4 h-4 mr-2" />
                       Star
                     </Button>

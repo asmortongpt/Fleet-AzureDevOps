@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { useInspect } from "@/services/inspect/InspectContext"
 import { formatNumber } from "@/utils/format-helpers"
 
@@ -56,13 +57,7 @@ interface LeaderboardEntry {
   achievementCount: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 const parseMetadata = (value: any) => {
   if (!value) return {}

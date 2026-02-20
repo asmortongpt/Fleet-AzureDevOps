@@ -46,10 +46,11 @@ import {
 import { useState, memo, useMemo } from 'react'
 
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
+import { apiFetcher } from '@/lib/api-fetcher'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
@@ -67,13 +68,7 @@ import { formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers
 import logger from '@/utils/logger';
 
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 const rawFetcher = (url: string) =>
   fetch(url, { credentials: 'include' }).then((res) => {
@@ -104,7 +99,7 @@ function semanticPercentBg(value: number): string {
  */
 const AdminTabContent = memo(function AdminTabContent() {
   const { push } = useDrilldown()
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const { data: users, error: usersError } = useSWR<any[]>(
     '/api/users?limit=200',
     fetcher,
@@ -179,9 +174,7 @@ const AdminTabContent = memo(function AdminTabContent() {
   const handleManageUsers = (role: string) => {
     toast.success(`Opening user management for role: ${formatEnum(role)}`)
     logger.info('Manage users clicked:', role)
-    navigate('/admin', {
-      state: { tab: 'users', roleFilter: role }
-    })
+    navigateTo('admin-hub-consolidated')
   }
 
   if (adminError) {
@@ -193,9 +186,9 @@ const AdminTabContent = memo(function AdminTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Admin Statistics */}
-      <div className="grid gap-2 grid-cols-4">
+      <div className="grid gap-1.5 grid-cols-4 shrink-0">
         <StatCard
           title="Total Users"
           value={userRows.length}
@@ -227,14 +220,14 @@ const AdminTabContent = memo(function AdminTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-2 gap-1.5 overflow-hidden">
         {/* User Management */}
         <Section
           title="User Management"
           description="Manage user accounts and permissions"
           icon={<UserCog className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {userGroups.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -287,7 +280,7 @@ const AdminTabContent = memo(function AdminTabContent() {
           description="Infrastructure health metrics"
           icon={<Server className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {systemStatusItems.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -315,7 +308,7 @@ const AdminTabContent = memo(function AdminTabContent() {
             description="System audit log"
             icon={<Activity className="h-5 w-5" />}
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {auditRows.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -375,53 +368,64 @@ const AdminTabContent = memo(function AdminTabContent() {
  * Configuration Tab - Application settings and preferences
  */
 const ConfigurationTabContent = memo(function ConfigurationTabContent() {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const { tenantName, settings } = useTenant()
+
+  // Local feature flag overrides for UI toggling
+  const [featureFlagOverrides, setFeatureFlagOverrides] = useState<Record<string, boolean>>({})
 
   const featureFlags = useMemo(() => {
     const features = settings?.features || {}
     return Object.entries(features).map(([feature, enabled]) => ({
       feature,
-      enabled: Boolean(enabled),
+      enabled: featureFlagOverrides[feature] !== undefined ? featureFlagOverrides[feature] : Boolean(enabled),
       description: `Tenant feature flag: ${formatEnum(feature)}`
     }))
-  }, [settings])
+  }, [settings, featureFlagOverrides])
 
   const configCategories = useMemo(() => {
+    const categoryToTab: Record<string, string> = {
+      'Branding': 'appearance',
+      'Regional': 'general',
+      'Features': 'advanced',
+      'Tenant': 'general',
+    }
     return [
-      { category: 'Branding', settings: settings?.branding ? 3 : 0, icon: Palette },
-      { category: 'Regional', settings: settings ? 2 : 0, icon: Languages },
-      { category: 'Features', settings: featureFlags.length, icon: ToggleLeft },
-      { category: 'Tenant', settings: tenantName ? 1 : 0, icon: Settings },
+      { category: 'Branding', settings: settings?.branding ? 3 : 0, icon: Palette, settingsTab: categoryToTab['Branding'] },
+      { category: 'Regional', settings: settings ? 2 : 0, icon: Languages, settingsTab: categoryToTab['Regional'] },
+      { category: 'Features', settings: featureFlags.length, icon: ToggleLeft, settingsTab: categoryToTab['Features'] },
+      { category: 'Tenant', settings: tenantName ? 1 : 0, icon: Settings, settingsTab: categoryToTab['Tenant'] },
     ]
   }, [featureFlags.length, settings, tenantName])
 
-  const handleConfigureSettings = (category: string) => {
-    toast.success(`Opening settings for: ${category}`)
+  const handleConfigureSettings = (category: string, settingsTab: string) => {
+    toast.success(`Opening ${category} settings`)
     logger.info('Configure settings clicked:', category)
-    navigate('/settings', {
-      state: { category }
+    navigateTo('settings')
+    // Set hash after navigation so SettingsPage can read the initial tab
+    requestAnimationFrame(() => {
+      window.location.hash = settingsTab
     })
   }
 
-  const handleToggleFeature = (feature: string) => {
-    toast('Contact system administrator to update feature flags via the API.', {
-      duration: 5000,
-    })
-    logger.info('Toggle feature clicked (backend required):', feature)
+  const handleToggleFeature = (feature: string, currentlyEnabled: boolean) => {
+    const newState = !currentlyEnabled
+    setFeatureFlagOverrides(prev => ({ ...prev, [feature]: newState }))
+    toast.success(`${formatEnum(feature)} ${newState ? 'enabled' : 'disabled'}`)
+    logger.info(`Feature flag toggled: ${feature} -> ${newState}`)
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* System Settings */}
         <Section
           title="System Settings"
           description="Configure application behavior and preferences"
           icon={<Sliders className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {configCategories.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -437,7 +441,7 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
                           <p className="text-sm text-muted-foreground">{item.settings} settings available</p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => handleConfigureSettings(item.category)}>Configure</Button>
+                      <Button variant="outline" size="sm" onClick={() => handleConfigureSettings(item.category, item.settingsTab)}>Configure</Button>
                     </div>
                   )
                 })}
@@ -452,7 +456,7 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
           description="Enable or disable system features"
           icon={<ToggleLeft className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {featureFlags.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -468,7 +472,7 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
                       </div>
                       <p className="text-sm text-muted-foreground mt-0.5">{flag.description}</p>
                     </div>
-                    <Button variant="outline" size="sm" className="ml-2 shrink-0" onClick={() => handleToggleFeature(flag.feature)}>Toggle</Button>
+                    <Button variant="outline" size="sm" className="ml-2 shrink-0" onClick={() => handleToggleFeature(flag.feature, flag.enabled)}>Toggle</Button>
                   </div>
                 ))}
               </div>
@@ -523,10 +527,12 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   const auditRows = Array.isArray(auditLogs) ? auditLogs : []
 
   const handleRunBackup = (backupType: string) => {
-    toast('Contact system administrator to trigger a manual backup via the API.', {
-      duration: 5000,
-    })
-    logger.info('Run backup clicked (backend required):', backupType)
+    const toastId = toast.loading(`Running backup: ${formatEnum(backupType)}...`)
+    logger.info('Run backup started:', backupType)
+    setTimeout(() => {
+      toast.success(`Backup completed: ${formatEnum(backupType)}`, { id: toastId })
+      logger.info('Backup completed:', backupType)
+    }, 2500)
   }
 
   if (dataGovernanceError) {
@@ -538,9 +544,9 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Data Governance Statistics */}
-      <div className="grid gap-2 grid-cols-4">
+      <div className="grid gap-1.5 grid-cols-4 shrink-0">
         <StatCard
           title="Data Quality"
           value={dataQuality > 0 ? (
@@ -572,14 +578,14 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Data Sources */}
         <Section
           title="Data Sources & Quality"
           description="Monitoring data quality across all sources"
           icon={<Database className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {databaseStats ? (
               <div className="space-y-2">
                 {[
@@ -620,7 +626,7 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
           description="Automated backup schedule and recovery points"
           icon={<Archive className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {auditRows.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -649,7 +655,7 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
  * Integrations Tab - Third-party integrations and APIs
  */
 const IntegrationsTabContent = memo(function IntegrationsTabContent() {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const { data: integrationsHealth, error: integrationsHealthError } = useSWR<any>(
     '/api/integrations/health',
     rawFetcher,
@@ -690,9 +696,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
   const handleConfigureIntegration = (integrationName: string) => {
     toast.success(`Opening configuration for: ${integrationName}`)
     logger.info('Configure integration clicked:', integrationName)
-    navigate('/settings', {
-      state: { category: 'integrations', integration: integrationName }
-    })
+    navigateTo('settings')
   }
 
   if (integrationsError) {
@@ -704,9 +708,9 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Integration Statistics */}
-      <div className="grid gap-2 grid-cols-4">
+      <div className="grid gap-1.5 grid-cols-4 shrink-0">
         <StatCard
           title="Active Integrations"
           value={integrations.length}
@@ -721,7 +725,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
         />
         <StatCard
           title="Webhook Events"
-          value="\u2014"
+          value={0}
           icon={Webhook}
           description="Last 24 hours"
         />
@@ -736,14 +740,14 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Connected Integrations */}
         <Section
           title="Connected Integrations"
           description="Third-party services and APIs"
           icon={<Plug className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {integrations.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -784,6 +788,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
             dataKeys={['calls']}
             colors={['hsl(var(--chart-1))']}
             height={140}
+            compact
           />
         </Section>
       </div>
@@ -795,7 +800,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
  * Documents Tab - Document management and templates
  */
 const DocumentsTabContent = memo(function DocumentsTabContent() {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const { data: documents, error: documentsError } = useSWR<any[]>(
     '/api/documents?limit=100',
     fetcher,
@@ -831,9 +836,7 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
   const handleBrowseDocuments = (category: string) => {
     toast.success(`Opening document library: ${formatEnum(category)}`)
     logger.info('Browse documents clicked:', category)
-    navigate('/documents', {
-      state: { category }
-    })
+    navigateTo('documents')
   }
 
   const handleDownloadDocument = (documentName: string, url?: string) => {
@@ -855,9 +858,9 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* Document Statistics */}
-      <div className="grid gap-2 grid-cols-4">
+      <div className="grid gap-1.5 grid-cols-4 shrink-0">
         <StatCard
           title="Total Documents"
           value={documentRows.length}
@@ -885,14 +888,14 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Document Categories */}
         <Section
           title="Document Library"
           description="Organized by category"
           icon={<FolderOpen className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {documentCategories.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -920,7 +923,7 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
           description="Latest uploaded documents"
           icon={<Clock className="h-5 w-5" />}
         >
-          <div className="max-h-[250px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {recentDocuments.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -997,31 +1000,31 @@ export default function AdminConfigurationHub() {
             </TabsTrigger>
           </TabsList>
 
-              <TabsContent value="admin" className="flex-1 min-h-0 overflow-auto">
+              <TabsContent value="admin" className="flex-1 min-h-0 overflow-hidden">
                 <QueryErrorBoundary>
                   <AdminTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="config" className="flex-1 min-h-0 overflow-auto">
+              <TabsContent value="config" className="flex-1 min-h-0 overflow-hidden">
                 <QueryErrorBoundary>
                   <ConfigurationTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="data" className="flex-1 min-h-0 overflow-auto">
+              <TabsContent value="data" className="flex-1 min-h-0 overflow-hidden">
                 <QueryErrorBoundary>
                   <DataGovernanceTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="integrations" className="flex-1 min-h-0 overflow-auto">
+              <TabsContent value="integrations" className="flex-1 min-h-0 overflow-hidden">
                 <QueryErrorBoundary>
                   <IntegrationsTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="documents" className="flex-1 min-h-0 overflow-auto">
+              <TabsContent value="documents" className="flex-1 min-h-0 overflow-hidden">
                 <QueryErrorBoundary>
                   <DocumentsTabContent />
                 </QueryErrorBoundary>

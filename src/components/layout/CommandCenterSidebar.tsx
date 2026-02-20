@@ -5,7 +5,6 @@ import {
     ChevronRight
 } from 'lucide-react';
 import { useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { ArchonYLogo } from '@/components/branding/ArchonYLogo';
@@ -21,7 +20,6 @@ interface CommandCenterSidebarProps {
 }
 
 export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNavigate }: CommandCenterSidebarProps) {
-    const navigate = useNavigate();
     const { activeModule, navigateTo, visibleNavItems } = useNavigation();
 
     // Group items by section for better organization
@@ -166,7 +164,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                                 <Button
                                     variant="ghost"
                                     onClick={() => {
-                                        navigate('/settings');
+                                        navigateTo('settings');
                                         onNavigate?.();
                                     }}
                                     className="w-full justify-center h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -183,7 +181,7 @@ export function CommandCenterSidebar({ isSidebarOpen, setIsSidebarOpen, onNaviga
                         <Button
                             variant="ghost"
                             onClick={() => {
-                                navigate('/settings');
+                                navigateTo('settings');
                                 onNavigate?.();
                             }}
                             className="w-full justify-start h-10 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/60 px-3 gap-3"

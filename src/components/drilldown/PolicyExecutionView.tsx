@@ -25,6 +25,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -84,12 +85,6 @@ interface ExecutionStatistics {
   avg_confidence: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function PolicyExecutionView({
   policyId,
   entityType,
@@ -113,17 +108,19 @@ export function PolicyExecutionView({
   // Fetch executions
   const { data: executions, error, isLoading, mutate } = useSWR<PolicyExecution[]>(
     `/api/policy-executions?${queryParams.toString()}`,
-    fetcher
+    apiFetcher
   )
 
   // Fetch statistics
   const { data: stats } = useSWR<ExecutionStatistics>(
     `/api/policy-executions/statistics?${queryParams.toString()}`,
-    fetcher
+    apiFetcher
   )
 
+  const executionsArr = Array.isArray(executions) ? executions : []
+
   // Filter by search term
-  const filteredExecutions = executions?.filter((exec) => {
+  const filteredExecutions = executionsArr.filter((exec) => {
     if (!searchTerm) return true
     const searchLower = searchTerm.toLowerCase()
     return (
@@ -493,12 +490,12 @@ export function PolicyExecutionView({
         <Card>
           <CardHeader>
             <CardTitle>
-              Executions ({filteredExecutions?.length || 0})
+              Executions ({filteredExecutions.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             <DrilldownDataTable
-              data={filteredExecutions || []}
+              data={filteredExecutions}
               columns={columns}
               recordType="execution-detail"
               getRecordId={(exec) => exec.id}

@@ -7,6 +7,7 @@ import { Car, Gauge, Fuel, Activity } from 'lucide-react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatEnum } from '@/utils/format-enum'
@@ -30,32 +31,28 @@ interface Vehicle {
   assigned_to?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehiclesViewProps) {
   const { data: vehicles, error, isLoading, mutate } = useSWR<Vehicle[]>(
     `/api/facilities/${facilityId}/vehicles`,
-    fetcher
+    apiFetcher
   )
+
+  const vehiclesArr = Array.isArray(vehicles) ? vehicles : []
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {vehicles && (
+      {vehicles !== undefined && (
         <div className="space-y-2">
           <div>
             <h3 className="text-sm font-semibold">
               Vehicles {facilityName && `at ${facilityName}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {vehicles.length} vehicle{vehicles.length !== 1 ? 's' : ''}
+              {vehiclesArr.length} vehicle{vehiclesArr.length !== 1 ? 's' : ''}
             </p>
           </div>
 
-          {vehicles.length === 0 ? (
+          {vehiclesArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Car className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -64,7 +61,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
             </Card>
           ) : (
             <div className="space-y-3">
-              {vehicles.map((vehicle) => (
+              {vehiclesArr.map((vehicle) => (
                 <Card key={vehicle.id}>
                   <CardContent className="p-2">
                     <div className="space-y-3">

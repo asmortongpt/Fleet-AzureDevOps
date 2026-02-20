@@ -104,7 +104,7 @@ export function PremiumFleetDashboard() {
       color: colors.blue,
       trend: 'up' as const,
       subtext: 'Online & tracking',
-      bgGradient: 'from-blue-500/5 via-blue-500/2 to-transparent'
+      bgGradient: 'from-emerald-500/5 via-emerald-500/2 to-transparent'
     },
     {
       label: 'Total Vehicles',
@@ -159,12 +159,12 @@ export function PremiumFleetDashboard() {
   }, [vehicles])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-[#111] via-[#1a1a1a] to-[#111] text-white overflow-hidden relative">
       {/* Premium Animated Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Multiple layered glows for depth */}
         <motion.div
-          className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/15 rounded-full blur-3xl"
+          className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-600/15 rounded-full blur-3xl"
           animate={{ opacity: [0.4, 0.7, 0.4], scale: [1, 1.1, 1] }}
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         />
@@ -182,7 +182,7 @@ export function PremiumFleetDashboard() {
 
       {/* Premium Header */}
       <motion.header
-        className="relative z-50 border-b border-white/10 backdrop-blur-2xl bg-gradient-to-r from-slate-950/90 via-slate-900/90 to-slate-900/90"
+        className="relative z-50 border-b border-white/10 backdrop-blur-2xl bg-gradient-to-r from-[#111]/90 via-[#1a1a1a]/90 to-[#1a1a1a]/90"
         style={{
           boxShadow: '0 8px 32px rgba(0, 204, 254, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
         }}
@@ -411,7 +411,7 @@ export function PremiumFleetDashboard() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ delay: 0.35, duration: 0.6, ease: 'easeOut' }}
           >
-            <div className="bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60 p-6 border-b border-blue-500/10 backdrop-blur-sm">
+            <div className="bg-gradient-to-br from-[#111]/60 via-[#1a1a1a]/40 to-[#111]/60 p-6 border-b border-emerald-500/10 backdrop-blur-sm">
               <div className="flex items-center gap-3">
                 <motion.div
                   animate={{ scale: [1, 1.1, 1] }}
@@ -426,7 +426,7 @@ export function PremiumFleetDashboard() {
             </div>
 
             {/* Live Fleet Map */}
-            <div className="relative w-full h-96 bg-gradient-to-br from-slate-800 to-slate-900 overflow-hidden">
+            <div className="relative w-full h-96 bg-gradient-to-br from-[#1a1a1a] to-[#111] overflow-hidden">
               <LiveFleetMap className="w-full h-full" />
               <AdvancedMapController />
             </div>
@@ -452,7 +452,7 @@ export function PremiumFleetDashboard() {
                 borderColor: `rgba(16, 185, 129, 0.4)`
               }}
             >
-              <div className="bg-gradient-to-br from-slate-900/60 via-slate-800/40 to-slate-900/60 p-6 border-b border-green-500/10 backdrop-blur-sm">
+              <div className="bg-gradient-to-br from-[#111]/60 via-[#1a1a1a]/40 to-[#111]/60 p-6 border-b border-green-500/10 backdrop-blur-sm">
                 <motion.h3
                   className="text-lg font-bold flex items-center gap-2"
                   animate={{ letterSpacing: '0.02em' }}

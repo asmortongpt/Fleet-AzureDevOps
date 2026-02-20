@@ -14,7 +14,8 @@ import { Car, MapPin, Fuel, AlertTriangle, CheckCircle, PlayCircle, Clipboard, C
 import React, { useState } from 'react';
 // motion removed - React 19 incompatible
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+
+import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -34,7 +35,7 @@ interface InspectionItem {
 }
 
 export function DriverDashboard() {
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const { user } = useAuth();
   const driverName = (user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : null) || user?.email || 'Driver';
 
@@ -77,25 +78,19 @@ export function DriverDashboard() {
   // Quick actions - Now with proper navigation
   const handleStartTrip = (tripId: number) => {
     // Navigate to operations hub with trip start flow
-    navigate('/operations-hub-consolidated', {
-      state: { action: 'start-trip', tripId }
-    });
+    navigateTo('fleet-hub-consolidated');
     toast(`Starting Trip #${tripId}...`);
   };
 
   const handleLogFuel = () => {
     // Navigate to fleet hub with fuel logging view
-    navigate('/fleet-hub-consolidated', {
-      state: { action: 'log-fuel', vehicleId: assignedVehicle.id }
-    });
+    navigateTo('fleet-hub-consolidated');
     toast('Opening fuel log form...');
   };
 
   const handleReportIssue = () => {
     // Navigate to maintenance hub with incident report form
-    navigate('/maintenance-hub-consolidated', {
-      state: { action: 'report-issue', vehicleId: assignedVehicle.id }
-    });
+    navigateTo('fleet-hub-consolidated');
     toast('Opening incident report...');
   };
 
@@ -139,9 +134,7 @@ export function DriverDashboard() {
 
   const handleViewRoute = (tripId: number) => {
     // Navigate to operations hub with route map view
-    navigate('/operations-hub-consolidated', {
-      state: { action: 'view-route', tripId }
-    });
+    navigateTo('fleet-hub-consolidated');
     toast(`Loading route map for Trip #${tripId}...`);
   };
 
@@ -172,10 +165,10 @@ export function DriverDashboard() {
   // Loading state - show spinner while fetching initial data
   if (vehicleLoading || tripsLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 p-2 flex items-center justify-center">
+      <div className="min-h-screen bg-[#111] p-2 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto mb-2"></div>
-          <p className="text-sm text-slate-300">Loading your dashboard...</p>
+          <p className="text-sm text-white/60">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -184,7 +177,7 @@ export function DriverDashboard() {
   // Error state - show error if vehicle data fails to load
   if (vehicleError) {
     return (
-      <div className="min-h-screen bg-slate-900 p-2">
+      <div className="min-h-screen bg-[#111] p-2">
         <Alert variant="destructive" className="bg-red-950/50 border-red-500/50">
           <AlertCircle className="h-4 w-4 text-red-400" />
           <AlertTitle className="text-red-400">Error Loading Data</AlertTitle>
@@ -197,27 +190,27 @@ export function DriverDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-2">
+    <div className="min-h-screen bg-[#111] p-2">
       {/* Header */}
       <div className="mb-2">
         <h1 className="text-sm font-bold text-white mb-1">My Dashboard</h1>
-        <p className="text-sm text-slate-700">Driver: {driverName}</p>
+        <p className="text-sm text-white/40">Driver: {driverName}</p>
       </div>
 
       {/* Assigned Vehicle */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
+      <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Car className="w-4 h-4 text-cyan-400" />
           <h2 className="text-sm font-bold text-white">My Assigned Vehicle</h2>
         </div>
 
-        <div className="bg-slate-900/50 rounded-md p-2 border border-slate-700">
+        <div className="bg-white/[0.03] rounded-md p-2 border border-white/[0.08]">
           <div className="flex items-start justify-between mb-3">
             <div>
               <h3 className="text-sm font-bold text-white mb-1">
                 {assignedVehicle.name}
               </h3>
-              <p className="text-sm text-slate-300">
+              <p className="text-sm text-white/60">
                 {assignedVehicle.year} {assignedVehicle.make} {assignedVehicle.model}
               </p>
             </div>
@@ -235,11 +228,11 @@ export function DriverDashboard() {
             {/* Fuel Level */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Fuel className="w-4 h-4 text-slate-700" />
-                <span className="text-sm text-slate-300 text-sm">Fuel</span>
+                <Fuel className="w-4 h-4 text-white/40" />
+                <span className="text-sm text-white/60 text-sm">Fuel</span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex-1 h-2 bg-slate-700 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-white/[0.1] rounded-full overflow-hidden">
                   <div
                     className="h-full bg-green-500 rounded-full"
                     style={{ width: `${assignedVehicle.fuel_level}%` }}
@@ -252,8 +245,8 @@ export function DriverDashboard() {
             {/* Mileage */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Gauge className="w-4 h-4 text-slate-700" />
-                <span className="text-sm text-slate-300 text-sm">Mileage</span>
+                <Gauge className="w-4 h-4 text-white/40" />
+                <span className="text-sm text-white/60 text-sm">Mileage</span>
               </div>
               <p className="text-sm font-bold text-white">
                 {formatNumber(assignedVehicle.mileage)} mi
@@ -263,8 +256,8 @@ export function DriverDashboard() {
             {/* Last Inspection */}
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-slate-700" />
-                <span className="text-sm text-slate-300 text-sm">Last Inspection</span>
+                <Calendar className="w-4 h-4 text-white/40" />
+                <span className="text-sm text-white/60 text-sm">Last Inspection</span>
               </div>
               <p className="text-sm font-bold text-white flex items-center gap-2">
                 {assignedVehicle.last_inspection}
@@ -276,7 +269,7 @@ export function DriverDashboard() {
       </Card>
 
       {/* Today's Trips */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2 mb-3">
+      <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2 mb-3">
         <div className="flex items-center gap-2 mb-3">
           <Route className="w-4 h-4 text-violet-400" />
           <h2 className="text-sm font-bold text-white">Today's Trips</h2>
@@ -286,14 +279,14 @@ export function DriverDashboard() {
           {todaysTrips.map((trip) => (
             <div
               key={trip.id}
-              className="bg-slate-900/50 rounded-md p-2 border border-slate-700 hover:border-violet-500/50 transition-all"
+              className="bg-white/[0.03] rounded-md p-2 border border-white/[0.08] hover:border-violet-500/50 transition-all"
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <h3 className="text-sm font-bold text-white mb-1">
                     Trip #{trip.id} - {trip.route_name}
                   </h3>
-                  <div className="flex items-center gap-2 text-sm text-slate-300">
+                  <div className="flex items-center gap-2 text-sm text-white/60">
                     <MapPin className="w-4 h-4" />
                     <span className="text-sm">
                       {trip.origin} → {trip.destination}
@@ -304,13 +297,13 @@ export function DriverDashboard() {
                   "px-3 py-1 rounded-full text-xs font-semibold",
                   trip.status === 'pending'
                     ? "bg-green-950/50 text-green-400 border border-green-500/30"
-                    : "bg-slate-700 text-sm text-slate-300"
+                    : "bg-white/[0.1] text-sm text-white/60"
                 )}>
                   {trip.status === 'pending' ? 'Ready to Start' : 'Scheduled'}
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 text-slate-700 text-sm mb-3">
+              <div className="flex items-center gap-2 text-white/40 text-sm mb-3">
                 <Clock className="w-4 h-4" />
                 <span>
                   Scheduled: {formatTime(trip.scheduled_start)} - {formatTime(trip.scheduled_end)}
@@ -360,7 +353,7 @@ export function DriverDashboard() {
       </div>
 
       {/* Pre-Trip Inspection Checklist */}
-      <Card className="bg-slate-800/50 backdrop-blur-xl border-slate-700 p-2">
+      <Card className="bg-[#242424] backdrop-blur-xl border-white/[0.08] p-2">
         <div className="flex items-center gap-2 mb-3">
           <Clipboard className="w-4 h-4 text-amber-400" />
           <h2 className="text-sm font-bold text-white">Pre-Trip Inspection Checklist</h2>
@@ -375,14 +368,14 @@ export function DriverDashboard() {
                 "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
                 item.completed
                   ? "bg-green-950/30 border border-green-500/30"
-                  : "bg-slate-900/50 border border-slate-700 hover:border-slate-600"
+                  : "bg-white/[0.03] border border-white/[0.08] hover:border-white/[0.12]"
               )}
             >
               <div className={cn(
                 "w-4 h-4 rounded border-2 flex items-center justify-center",
                 item.completed
                   ? "bg-green-500 border-green-500"
-                  : "border-slate-600"
+                  : "border-white/[0.12]"
               )}>
                 {item.completed && <CheckCircle className="w-4 h-4 text-white" />}
               </div>
@@ -403,7 +396,7 @@ export function DriverDashboard() {
             "w-full",
             allInspectionsDone
               ? "bg-green-600 hover:bg-green-700 text-white"
-              : "bg-slate-700 text-slate-700 cursor-not-allowed"
+              : "bg-white/[0.1] text-white/40 cursor-not-allowed"
           )}
         >
           <CheckCircle className="w-4 h-4 mr-2" />

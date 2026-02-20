@@ -50,13 +50,8 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatEnum } from '@/utils/format-enum'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
-
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
 
 // ============================================
 // TYPE DEFINITIONS
@@ -234,12 +229,12 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
 
   const { data: schedule, error, isLoading } = useSWR<PreventiveMaintenanceSchedule>(
     `/api/maintenance/drilldowns/pm-schedules/${scheduleId}`,
-    fetcher
+    apiFetcher
   )
 
   const { data: serviceHistory } = useSWR<ServiceHistoryRecord[]>(
     schedule?.vehicleId ? `/api/maintenance/drilldowns/vehicles/${schedule.vehicleId}/service-history?serviceType=${schedule.serviceType}` : null,
-    fetcher
+    apiFetcher
   )
 
   const getStatusVariant = (status: string) => {
@@ -621,7 +616,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
 
   const { data: repair, error, isLoading } = useSWR<RepairRecord>(
     `/api/maintenance/drilldowns/repairs/${repairId}`,
-    fetcher
+    apiFetcher
   )
 
   const getPriorityVariant = (priority: string) => {
@@ -772,7 +767,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                     {repair.technicianPhone && (
                       <a
                         href={`tel:${repair.technicianPhone}`}
-                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                       >
                         <Phone className="w-4 h-4" />
                         {repair.technicianPhone}
@@ -781,7 +776,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                     {repair.technicianEmail && (
                       <a
                         href={`mailto:${repair.technicianEmail}`}
-                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                       >
                         <Mail className="w-4 h-4" />
                         {repair.technicianEmail}
@@ -927,14 +922,14 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       <p className="font-medium">{repair.reportedBy}</p>
                       <a
                         href={`tel:${repair.reportedByPhone}`}
-                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                       >
                         <Phone className="w-4 h-4" />
                         {repair.reportedByPhone}
                       </a>
                       <a
                         href={`mailto:${repair.reportedByEmail}`}
-                        className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                       >
                         <Mail className="w-4 h-4" />
                         {repair.reportedByEmail}
@@ -950,7 +945,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                         {repair.technicianPhone && (
                           <a
                             href={`tel:${repair.technicianPhone}`}
-                            className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                            className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                           >
                             <Phone className="w-4 h-4" />
                             {repair.technicianPhone}
@@ -959,7 +954,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                         {repair.technicianEmail && (
                           <a
                             href={`mailto:${repair.technicianEmail}`}
-                            className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                            className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                           >
                             <Mail className="w-4 h-4" />
                             {repair.technicianEmail}
@@ -1039,7 +1034,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
   const { data: inspection, error, isLoading } = useSWR<InspectionRecord>(
     `/api/maintenance/drilldowns/inspections/${inspectionId}`,
-    fetcher
+    apiFetcher
   )
 
   const getResultVariant = (result: string) => {
@@ -1411,7 +1406,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                   <p className="text-sm text-muted-foreground">{inspection.location.address}</p>
                   <a
                     href={`tel:${inspection.location.phone}`}
-                    className="flex items-center gap-2 text-sm text-blue-800 hover:underline"
+                    className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
                   >
                     <Phone className="w-4 h-4" />
                     {inspection.location.phone}
@@ -1475,7 +1470,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
 
   const { data: record, error, isLoading } = useSWR<ServiceHistoryRecord>(
     `/api/maintenance/drilldowns/service-records/${serviceRecordId}`,
-    fetcher
+    apiFetcher
   )
 
   return (
@@ -1687,7 +1682,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
 
   const { data: vendor, error, isLoading } = useSWR<ServiceVendor>(
     `/api/maintenance/drilldowns/vendors/${vendorId}`,
-    fetcher
+    apiFetcher
   )
 
   return (
@@ -1838,7 +1833,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                         href={vendor.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-blue-800 hover:underline"
+                        className="text-sm text-emerald-400 hover:underline"
                       >
                         {vendor.website}
                       </a>
@@ -1934,9 +1929,9 @@ interface GarageBayMatrixRow {
 }
 
 export function GarageBaysMatrixPanel() {
-  const { data: baysData, error, isLoading } = useSWR<{ data: GarageBayMatrixRow[] }>(
+  const { data: baysData, error, isLoading } = useSWR<GarageBayMatrixRow[]>(
     '/api/maintenance/drilldowns/garage-bays/matrix',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<GarageBayMatrixRow>[] = [
@@ -1961,7 +1956,7 @@ export function GarageBaysMatrixPanel() {
         { label: 'Reserved', value: 'reserved' },
       ],
       colorRules: [
-        { condition: (v) => v === 'occupied', className: 'bg-blue-50 dark:bg-blue-950' },
+        { condition: (v) => v === 'occupied', className: 'bg-white/[0.04] dark:bg-white/[0.04]' },
         { condition: (v) => v === 'available', className: 'bg-green-50 dark:bg-green-950' },
         { condition: (v) => v === 'maintenance', className: 'bg-orange-50 dark:bg-orange-950' },
         { condition: (v) => v === 'reserved', className: 'bg-yellow-50 dark:bg-yellow-950' },
@@ -2024,7 +2019,7 @@ export function GarageBaysMatrixPanel() {
       cellClassName: 'font-semibold',
       colorRules: [
         { condition: (v) => v >= 75, className: 'text-green-600 dark:text-green-400' },
-        { condition: (v) => v >= 50 && v < 75, className: 'text-blue-800 dark:text-blue-700' },
+        { condition: (v) => v >= 50 && v < 75, className: 'text-emerald-400 dark:text-emerald-400' },
         { condition: (v) => v >= 25 && v < 50, className: 'text-yellow-600 dark:text-yellow-400' },
         { condition: (v) => v < 25, className: 'text-orange-600 dark:text-orange-400' },
       ],
@@ -2059,7 +2054,7 @@ export function GarageBaysMatrixPanel() {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={baysData?.data || []}
+        data={Array.isArray(baysData) ? baysData : []}
         columns={columns}
         title="Garage Bays - Full Matrix View"
         subtitle="All garage bays with current work orders and status"
@@ -2098,9 +2093,9 @@ interface WorkOrderListRow {
 }
 
 export function WorkOrdersListPanel() {
-  const { data: workOrdersData, error, isLoading } = useSWR<{ data: WorkOrderListRow[] }>(
+  const { data: workOrdersData, error, isLoading } = useSWR<WorkOrderListRow[]>(
     '/api/maintenance/drilldowns/work-orders/list',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<WorkOrderListRow>[] = [
@@ -2166,7 +2161,7 @@ export function WorkOrdersListPanel() {
       ],
       colorRules: [
         { condition: (v) => v === 'completed', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
-        { condition: (v) => v === 'in-progress', className: 'bg-blue-100 dark:bg-blue-950', textClassName: 'text-blue-800 dark:text-blue-200' },
+        { condition: (v) => v === 'in-progress', className: 'bg-white/[0.04] dark:bg-white/[0.04]', textClassName: 'text-emerald-400 dark:text-emerald-300' },
         { condition: (v) => v === 'on-hold', className: 'bg-yellow-100 dark:bg-yellow-950', textClassName: 'text-yellow-800 dark:text-yellow-200' },
         { condition: (v) => v === 'cancelled', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200' },
       ],
@@ -2248,7 +2243,7 @@ export function WorkOrdersListPanel() {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={workOrdersData?.data || []}
+        data={Array.isArray(workOrdersData) ? workOrdersData : []}
         columns={columns}
         title="Work Orders - Complete List"
         subtitle="All maintenance work orders with full details"
@@ -2289,9 +2284,9 @@ interface PMScheduleMatrixRow {
 }
 
 export function PMSchedulesMatrixPanel() {
-  const { data: pmData, error, isLoading } = useSWR<{ data: PMScheduleMatrixRow[] }>(
+  const { data: pmData, error, isLoading } = useSWR<PMScheduleMatrixRow[]>(
     '/api/maintenance/drilldowns/pm-schedules/matrix',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<PMScheduleMatrixRow>[] = [
@@ -2372,7 +2367,7 @@ export function PMSchedulesMatrixPanel() {
         { condition: (v) => v === 'overdue', className: 'bg-red-100 dark:bg-red-950', textClassName: 'text-red-800 dark:text-red-200 font-bold' },
         { condition: (v) => v === 'due-soon', className: 'bg-orange-100 dark:bg-orange-950', textClassName: 'text-orange-800 dark:text-orange-200 font-semibold' },
         { condition: (v) => v === 'upcoming', className: 'bg-green-100 dark:bg-green-950', textClassName: 'text-green-800 dark:text-green-200' },
-        { condition: (v) => v === 'completed', className: 'bg-blue-100 dark:bg-blue-950', textClassName: 'text-blue-800 dark:text-blue-200' },
+        { condition: (v) => v === 'completed', className: 'bg-white/[0.04] dark:bg-white/[0.04]', textClassName: 'text-emerald-400 dark:text-emerald-300' },
       ],
     },
     {
@@ -2386,7 +2381,7 @@ export function PMSchedulesMatrixPanel() {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={pmData?.data || []}
+        data={Array.isArray(pmData) ? pmData : []}
         columns={columns}
         title="PM Schedules - Full Matrix"
         subtitle="All preventive maintenance schedules with due dates and status"
@@ -2425,9 +2420,9 @@ interface PartsInventoryRow {
 }
 
 export function PartsInventoryPanel() {
-  const { data: partsData, error, isLoading } = useSWR<{ data: PartsInventoryRow[] }>(
+  const { data: partsData, error, isLoading } = useSWR<PartsInventoryRow[]>(
     '/api/maintenance/drilldowns/parts/inventory',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<PartsInventoryRow>[] = [
@@ -2516,7 +2511,7 @@ export function PartsInventoryPanel() {
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={partsData?.data || []}
+        data={Array.isArray(partsData) ? partsData : []}
         columns={columns}
         title="Parts Inventory - Full Database"
         subtitle="Complete parts inventory with stock levels and values"
@@ -2558,9 +2553,9 @@ interface ServiceHistoryRow {
 }
 
 export function ServiceHistoryPanel() {
-  const { data: historyData, error, isLoading } = useSWR<{ data: ServiceHistoryRow[] }>(
+  const { data: historyData, error, isLoading } = useSWR<ServiceHistoryRow[]>(
     '/api/maintenance/drilldowns/service-history',
-    fetcher
+    apiFetcher
   )
 
   const columns: ExcelColumn<ServiceHistoryRow>[] = [
@@ -2644,14 +2639,14 @@ export function ServiceHistoryPanel() {
       type: 'currency',
       width: '120px',
       aggregate: 'sum',
-      className: 'font-semibold bg-blue-50 dark:bg-blue-950',
+      className: 'font-semibold bg-white/[0.04] dark:bg-white/[0.04]',
     },
   ]
 
   return (
     <DrilldownContent loading={isLoading} error={error}>
       <ExcelStyleTable
-        data={historyData?.data || []}
+        data={Array.isArray(historyData) ? historyData : []}
         columns={columns}
         title="Service History - Complete Records"
         subtitle="Full maintenance history with costs and details"

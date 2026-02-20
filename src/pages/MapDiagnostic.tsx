@@ -2,6 +2,7 @@ import { MapPin, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 
+import { apiFetcher } from '@/lib/api-fetcher';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { FleetMap } from '@/components/FleetMap';
 import { Badge } from '@/components/ui/badge';
@@ -24,13 +25,7 @@ interface GpsRecord {
   location?: string;
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data);
+const fetcher = apiFetcher;
 
 export default function MapDiagnostic() {
   const { data, error, isLoading, mutate } = useSWR<GpsRecord[]>(

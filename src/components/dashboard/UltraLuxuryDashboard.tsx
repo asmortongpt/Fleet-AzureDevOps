@@ -75,7 +75,7 @@ export function UltraLuxuryDashboard() {
   }))
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-[#111] via-[#1a1a1a] to-[#111] text-white overflow-hidden relative">
       {/* Ultra-premium ambient background with multi-layered particles and glows */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         {/* Dynamic gradient glows */}

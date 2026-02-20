@@ -138,8 +138,8 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
   if (loading) {
     return (
       <div className="flex items-center justify-center p-3">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-800" />
-        <span className="ml-2 text-slate-700">Loading task data...</span>
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+        <span className="ml-2 text-white/40">Loading task data...</span>
       </div>
     );
   }
@@ -174,7 +174,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
             <h2 className="text-sm font-bold text-gray-900 dark:text-white">
               {task.title}
             </h2>
-            <p className="text-sm text-slate-700 dark:text-gray-700 mt-1">
+            <p className="text-sm text-white/40 dark:text-gray-700 mt-1">
               {task.type}
             </p>
           </div>
@@ -207,24 +207,24 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               <h3 className="text-sm font-semibold mb-2">Task Information</h3>
               <div className="space-y-3">
                 <div>
-                  <p className="text-sm text-slate-700">Description</p>
+                  <p className="text-sm text-white/40">Description</p>
                   <p className="text-gray-800 dark:text-gray-200 mt-1">{task.description}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2 pt-2">
                   <div>
-                    <p className="text-sm text-slate-700">Priority</p>
+                    <p className="text-sm text-white/40">Priority</p>
                     <p className="font-medium capitalize">{task.priority}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-700">Status</p>
+                    <p className="text-sm text-white/40">Status</p>
                     <p className="font-medium">{formatEnum(task.status)}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-700">Type</p>
+                    <p className="text-sm text-white/40">Type</p>
                     <p className="font-medium">{task.type}</p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-700">Progress</p>
+                    <p className="text-sm text-white/40">Progress</p>
                     <p className="font-medium">{task.progress}%</p>
                   </div>
                 </div>
@@ -235,18 +235,18 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               <h3 className="text-sm font-semibold mb-2">Timeline</h3>
               <dl className="space-y-3">
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">Created</dt>
+                  <dt className="text-white/40">Created</dt>
                   <dd className="font-medium">{formatDateTime(task.createdAt)}</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-slate-700">Due Date</dt>
+                  <dt className="text-white/40">Due Date</dt>
                   <dd className={`font-medium ${isOverdue ? 'text-red-600' : ''}`}>
                     {formatDateTime(task.dueDate)}
                   </dd>
                 </div>
                 {task.completedAt && (
                   <div className="flex justify-between">
-                    <dt className="text-slate-700">Completed</dt>
+                    <dt className="text-white/40">Completed</dt>
                     <dd className="font-medium text-green-600">{formatDateTime(task.completedAt)}</dd>
                   </div>
                 )}
@@ -259,7 +259,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{task.assignedTo.name}</p>
-                    <p className="text-sm text-slate-700 capitalize">{task.assignedTo.type}</p>
+                    <p className="text-sm text-white/40 capitalize">{task.assignedTo.type}</p>
                   </div>
                   <Button variant="outline" size="sm">View Profile</Button>
                 </div>
@@ -272,7 +272,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                 <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div>
                     <p className="font-medium">{task.relatedVehicle.name}</p>
-                    <p className="text-sm text-slate-700">Vehicle ID: {task.relatedVehicle.id}</p>
+                    <p className="text-sm text-white/40">Vehicle ID: {task.relatedVehicle.id}</p>
                   </div>
                   <Button variant="outline" size="sm">View Vehicle</Button>
                 </div>
@@ -289,18 +289,18 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               <div className="space-y-3">
                 <div>
                   <div className="flex justify-between mb-2">
-                    <span className="text-sm text-slate-700">Completion</span>
+                    <span className="text-sm text-white/40">Completion</span>
                     <span className="text-sm font-medium">{task.progress}%</span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-3">
                     <div
-                      className="bg-blue-600 h-3 rounded-full transition-all"
+                      className="bg-emerald-600 h-3 rounded-full transition-all"
                       style={{ width: `${task.progress}%` }}
                     ></div>
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm text-slate-700">
+                  <span className="text-sm text-white/40">
                     {task.checklist.filter(item => item.completed).length} of {task.checklist.length} items completed
                   </span>
                   {task.status === 'pending' && (
@@ -366,12 +366,12 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
             <div className="space-y-2">
               <div className="flex gap-2">
                 <div className="flex flex-col items-center">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-emerald-500 rounded-full"></div>
                   <div className="w-px h-full bg-gray-300"></div>
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Task Created</p>
-                  <p className="text-sm text-slate-700">{formatDateTime(task.createdAt)}</p>
+                  <p className="text-sm text-white/40">{formatDateTime(task.createdAt)}</p>
                   <p className="text-sm text-gray-700">Priority set to {task.priority}</p>
                 </div>
               </div>
@@ -384,7 +384,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1 pb-2">
                     <p className="font-medium">Task Assigned</p>
-                    <p className="text-sm text-slate-700">{formatDateTime(task.createdAt)}</p>
+                    <p className="text-sm text-white/40">{formatDateTime(task.createdAt)}</p>
                     <p className="text-sm text-gray-700">Assigned to {task.assignedTo.name}</p>
                   </div>
                 </div>
@@ -398,7 +398,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1 pb-2">
                     <p className="font-medium">Status Updated</p>
-                    <p className="text-sm text-slate-700">Status changed to {formatEnum(task.status)}</p>
+                    <p className="text-sm text-white/40">Status changed to {formatEnum(task.status)}</p>
                   </div>
                 </div>
               )}
@@ -410,7 +410,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-green-600">Task Completed</p>
-                    <p className="text-sm text-slate-700">{formatDateTime(task.completedAt)}</p>
+                    <p className="text-sm text-white/40">{formatDateTime(task.completedAt)}</p>
                     <p className="text-sm text-gray-700">All checklist items completed</p>
                   </div>
                 </div>

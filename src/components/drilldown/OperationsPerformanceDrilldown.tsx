@@ -20,16 +20,9 @@ import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/Dril
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatNumber } from '@/utils/format-helpers'
-
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => {
-      if (!r.ok) throw new Error(`HTTP ${r.status}`)
-      return r.json()
-    })
-    .then((data) => data?.data ?? data)
 
 interface PerformanceMetric {
   id: string
@@ -74,7 +67,7 @@ interface RouteEfficiency {
 export function OperationsPerformanceDrilldown() {
   const { data: metrics } = useSWR<PerformanceMetric[]>(
     '/api/operations/metrics',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -82,7 +75,7 @@ export function OperationsPerformanceDrilldown() {
 
   const { data: vehiclePerformance } = useSWR<VehiclePerformance[]>(
     '/api/vehicles/performance',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
@@ -90,28 +83,32 @@ export function OperationsPerformanceDrilldown() {
 
   const { data: routeEfficiency } = useSWR<RouteEfficiency[]>(
     '/api/routes/efficiency',
-    fetcher,
+    apiFetcher,
     {
       shouldRetryOnError: false
     }
   )
 
+  const safeVehiclePerformance = Array.isArray(vehiclePerformance) ? vehiclePerformance : []
+  const safeMetrics = Array.isArray(metrics) ? metrics : []
+  const safeRouteEfficiency = Array.isArray(routeEfficiency) ? routeEfficiency : []
+
   const summary = useMemo(() => {
-    const avgEfficiency = vehiclePerformance
-      ? Math.round(vehiclePerformance.reduce((sum, v) => sum + v.efficiency, 0) / vehiclePerformance.length)
+    const avgEfficiency = safeVehiclePerformance.length > 0
+      ? Math.round(safeVehiclePerformance.reduce((sum, v) => sum + v.efficiency, 0) / safeVehiclePerformance.length)
       : 0
-    const avgFuelEconomy = vehiclePerformance
-      ? (vehiclePerformance.reduce((sum, v) => sum + v.fuelEconomy, 0) / vehiclePerformance.length).toFixed(1)
+    const avgFuelEconomy = safeVehiclePerformance.length > 0
+      ? (safeVehiclePerformance.reduce((sum, v) => sum + v.fuelEconomy, 0) / safeVehiclePerformance.length).toFixed(1)
       : '0.0'
-    const totalMiles = vehiclePerformance
-      ? vehiclePerformance.reduce((sum, v) => sum + v.totalMiles, 0).toFixed(1)
+    const totalMiles = safeVehiclePerformance.length > 0
+      ? safeVehiclePerformance.reduce((sum, v) => sum + v.totalMiles, 0).toFixed(1)
       : '0.0'
-    const totalCost = vehiclePerformance
-      ? vehiclePerformance.reduce((sum, v) => sum + v.totalCost, 0).toFixed(2)
+    const totalCost = safeVehiclePerformance.length > 0
+      ? safeVehiclePerformance.reduce((sum, v) => sum + v.totalCost, 0).toFixed(2)
       : '0.00'
 
     return { avgEfficiency, avgFuelEconomy, totalMiles, totalCost }
-  }, [vehiclePerformance])
+  }, [safeVehiclePerformance])
 
   const vehicleColumns: DrilldownColumn<VehiclePerformance>[] = [
     {
@@ -255,11 +252,11 @@ export function OperationsPerformanceDrilldown() {
     <div className="space-y-2">
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Card className="bg-blue-900/30 border-blue-700/50">
+        <Card className="bg-white/[0.04] border-emerald-700/50">
           <CardContent className="p-2 text-center">
-            <Zap className="w-4 h-4 text-blue-700 mx-auto mb-1" />
-            <div className="text-sm font-bold text-blue-700">{summary.avgEfficiency}%</div>
-            <div className="text-xs text-slate-700">Avg Efficiency</div>
+            <Zap className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+            <div className="text-sm font-bold text-emerald-400">{summary.avgEfficiency}%</div>
+            <div className="text-xs text-white/40">Avg Efficiency</div>
           </CardContent>
         </Card>
 
@@ -267,7 +264,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <Fuel className="w-4 h-4 text-green-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-green-400">{summary.avgFuelEconomy}</div>
-            <div className="text-xs text-slate-700">Avg MPG</div>
+            <div className="text-xs text-white/40">Avg MPG</div>
           </CardContent>
         </Card>
 
@@ -275,7 +272,7 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <Navigation className="w-4 h-4 text-purple-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-purple-400">{summary.totalMiles}</div>
-            <div className="text-xs text-slate-700">Total Miles</div>
+            <div className="text-xs text-white/40">Total Miles</div>
           </CardContent>
         </Card>
 
@@ -283,22 +280,22 @@ export function OperationsPerformanceDrilldown() {
           <CardContent className="p-2 text-center">
             <DollarSign className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">${summary.totalCost}</div>
-            <div className="text-xs text-slate-700">Total Cost</div>
+            <div className="text-xs text-white/40">Total Cost</div>
           </CardContent>
         </Card>
       </div>
 
       {/* Key Performance Metrics */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
-            <Target className="w-3 h-3 text-blue-700" />
+            <Target className="w-3 h-3 text-emerald-400" />
             Key Performance Metrics
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-            {metrics?.map(metric => (
+            {safeMetrics.map(metric => (
               <Card key={metric.id}>
                 <CardContent className="pt-3 space-y-3">
                   <div className="flex items-start justify-between">
@@ -332,16 +329,16 @@ export function OperationsPerformanceDrilldown() {
       </Card>
 
       {/* Vehicle Performance */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <TrendingUp className="w-3 h-3 text-green-400" />
-            Vehicle Performance ({vehiclePerformance?.length || 0})
+            Vehicle Performance ({safeVehiclePerformance.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           <DrilldownDataTable
-            data={vehiclePerformance || []}
+            data={safeVehiclePerformance}
             columns={vehicleColumns}
             recordType="vehicle"
             getRecordId={(v) => v.vehicleId}
@@ -354,16 +351,16 @@ export function OperationsPerformanceDrilldown() {
       </Card>
 
       {/* Route Efficiency */}
-      <Card className="bg-slate-800/50 border-slate-700">
+      <Card className="bg-[#242424] border-white/[0.08]">
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center gap-2">
             <RouteIcon className="w-3 h-3 text-purple-400" />
-            Route Efficiency ({routeEfficiency?.length || 0})
+            Route Efficiency ({safeRouteEfficiency.length})
           </CardTitle>
         </CardHeader>
         <CardContent>
           <DrilldownDataTable
-            data={routeEfficiency || []}
+            data={safeRouteEfficiency}
             columns={routeColumns}
             recordType="route"
             getRecordId={(r) => r.routeId}

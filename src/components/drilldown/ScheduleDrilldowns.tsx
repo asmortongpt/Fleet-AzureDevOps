@@ -49,9 +49,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 
-const fetcher = swrFetcher
+const fetcher = apiFetcher
 
 // ============================================
 // Scheduled Item Detail Panel
@@ -366,7 +366,8 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
     return `/api/schedule?${params.toString()}`
   }
 
-  const { data: items, error, isLoading } = useSWR<ScheduledItem[]>(buildUrl(), fetcher)
+  const { data: rawItems, error, isLoading } = useSWR<ScheduledItem[]>(buildUrl(), fetcher)
+  const items = Array.isArray(rawItems) ? rawItems : []
 
   const timeframeLabels = {
     today: "Today's Schedule",

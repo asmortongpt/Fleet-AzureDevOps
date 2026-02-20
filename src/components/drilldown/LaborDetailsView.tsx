@@ -9,6 +9,7 @@ import useSWR from 'swr'
 import { formatCurrency, formatDate } from '@/utils/format-helpers'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -30,20 +31,15 @@ interface LaborEntry {
   date?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsViewProps) {
   const { data: labor, error, isLoading, mutate } = useSWR<LaborEntry[]>(
     `/api/work-orders/${workOrderId}/labor`,
-    fetcher
+    apiFetcher
   )
 
-  const totalHours = labor?.reduce((sum: number, entry: LaborEntry) => sum + (entry.hours || 0), 0) || 0
-  const totalCost = labor?.reduce((sum: number, entry: LaborEntry) => sum + ((entry.hours * entry.rate) || 0), 0) || 0
+  const laborArr = Array.isArray(labor) ? labor : []
+  const totalHours = laborArr.reduce((sum: number, entry: LaborEntry) => sum + (entry.hours || 0), 0)
+  const totalCost = laborArr.reduce((sum: number, entry: LaborEntry) => sum + ((entry.hours * entry.rate) || 0), 0)
 
   const getInitials = (name: string): string => {
     return name.split(' ').map((n) => n[0]).join('').toUpperCase()
@@ -51,18 +47,18 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
-      {labor && (
+      {labor !== undefined && (
         <div className="space-y-2">
           <div>
             <h3 className="text-sm font-semibold">
               Labor Details {workOrderNumber && `for WO #${workOrderNumber}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {labor.length} technician{labor.length !== 1 ? 's' : ''} • {totalHours.toFixed(1)} hrs • {formatCurrency(totalCost)}
+              {laborArr.length} technician{laborArr.length !== 1 ? 's' : ''} • {totalHours.toFixed(1)} hrs • {formatCurrency(totalCost)}
             </p>
           </div>
 
-          {labor.length === 0 ? (
+          {laborArr.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center">
                 <Users className="h-9 w-12 mx-auto text-muted-foreground mb-2" />
@@ -71,7 +67,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
             </Card>
           ) : (
             <div className="space-y-3">
-              {labor.map((entry: LaborEntry) => (
+              {laborArr.map((entry: LaborEntry) => (
                 <Card key={entry.id}>
                   <CardContent className="p-2">
                     <div className="space-y-3">

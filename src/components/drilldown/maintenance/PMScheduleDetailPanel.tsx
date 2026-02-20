@@ -27,15 +27,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
-
-
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
 
 export interface PMScheduleDetailPanelProps {
   scheduleId: string
@@ -47,12 +41,12 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
 
   const { data: schedule, error, isLoading } = useSWR<PreventiveMaintenanceSchedule>(
     `/api/maintenance/drilldowns/pm-schedules/${scheduleId}`,
-    fetcher
+    apiFetcher
   )
 
   const { data: serviceHistory } = useSWR<ServiceHistoryRecord[]>(
     schedule?.vehicleId ? `/api/maintenance/drilldowns/vehicles/${schedule.vehicleId}/service-history?serviceType=${schedule.serviceType}` : null,
-    fetcher
+    apiFetcher
   )
 
   const getStatusVariant = (status: string) => {

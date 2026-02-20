@@ -21,7 +21,8 @@ import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
 import React from 'react';
 import { toast } from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+
+import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -32,7 +33,7 @@ import type { FleetStats, CostSummary } from '@/services/dashboardApi';
 import { formatCurrency } from '@/utils/format-helpers';
 
 export function FleetManagerDashboard() {
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
 
   // React Query hooks for real-time data fetching
   const { data: maintenanceData, isLoading: maintenanceLoading, error: maintenanceError } = useQuery({
@@ -76,16 +77,12 @@ export function FleetManagerDashboard() {
 
   // Quick actions - Now with proper navigation
   const handleAssignDriver = () => {
-    navigate('/drivers-hub-consolidated', {
-      state: { action: 'assign-driver' }
-    });
+    navigateTo('fleet-hub-consolidated');
     toast('Opening driver assignment...');
   };
 
   const handleCreateWorkOrder = () => {
-    navigate('/maintenance-hub-consolidated', {
-      state: { action: 'create-work-order' }
-    });
+    navigateTo('fleet-hub-consolidated');
     toast('Opening work order form...');
   };
 
@@ -96,16 +93,12 @@ export function FleetManagerDashboard() {
   };
 
   const handleViewOverdue = () => {
-    navigate('/maintenance-hub-consolidated', {
-      state: { filter: 'overdue' }
-    });
+    navigateTo('fleet-hub-consolidated');
     toast('Loading overdue maintenance queue...');
   };
 
   const handleScheduleMaintenance = () => {
-    navigate('/maintenance-hub-consolidated', {
-      state: { view: 'schedule', filter: 'upcoming' }
-    });
+    navigateTo('fleet-hub-consolidated');
     toast('Opening maintenance scheduler...');
   };
 
@@ -114,7 +107,7 @@ export function FleetManagerDashboard() {
     return (
       <div className="min-h-screen bg-background p-2 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500 mx-auto mb-2"></div>
           <p className="text-sm text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
@@ -224,13 +217,13 @@ export function FleetManagerDashboard() {
           <div
             className={cn(
               "bg-muted rounded-lg p-3",
-              "border border-blue-500/20 hover:border-blue-500/40",
+              "border border-emerald-500/20 hover:border-emerald-500/40",
               "transition-colors cursor-pointer"
             )}
             onClick={handleCreateWorkOrder}
           >
             <div className="flex items-start justify-between mb-2">
-              <Wrench className="w-3 h-3 text-blue-700" />
+              <Wrench className="w-3 h-3 text-emerald-400" />
               <span className="text-sm font-semibold text-foreground">
                 {openWorkOrders}
               </span>
@@ -241,7 +234,7 @@ export function FleetManagerDashboard() {
             <Button
               size="sm"
               variant="outline"
-              className="w-full text-blue-700 border-blue-400/30 hover:bg-blue-500/10"
+              className="w-full text-emerald-400 border-white/[0.08] hover:bg-emerald-500/10"
               onClick={(e) => {
                 e.stopPropagation();
                 handleCreateWorkOrder();
@@ -258,7 +251,7 @@ export function FleetManagerDashboard() {
         <Button
           size="sm"
           onClick={handleAssignDriver}
-          className="bg-primary hover:bg-blue-600"
+          className="bg-primary hover:bg-emerald-600"
         >
           <Users className="w-4 h-4" />
           Assign Driver

@@ -204,6 +204,9 @@ import { initializeBudgetRoutes } from './routes/budgets'
 import reportsRouter from './routes/reports.routes'
 import reservationsRouter from './routes/reservations.routes'
 import policyTemplatesRouter from './routes/policy-templates'
+import policyViolationsRouter from './routes/policy-violations'
+import licensesRouter from './routes/licenses'
+import attachmentsRouter from './routes/attachments.routes'
 import presenceRouter from './routes/presence.routes'
 import purchaseOrdersRouter from './routes/purchase-orders'
 import pushNotificationsRouter from './routes/push-notifications.routes'
@@ -492,6 +495,7 @@ app.use('/api/charging-stations', chargingStationsRouter)
 app.use('/api/predictive-maintenance', predictiveMaintenanceRouter)
 
 // Document Management Routes
+app.use('/api/attachments', attachmentsRouter)
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
 app.use('/api/fleet', fleetRouter)
@@ -576,7 +580,9 @@ app.use('/api/hos', hosRouter) // PHASE 3: Hours of Service (DOT compliance) - P
 // Policy & Permission Routes
 app.use('/api/policies', policiesRouter)
 app.use('/api/policy-templates', policyTemplatesRouter)
+app.use('/api/policy-violations', policyViolationsRouter)
 app.use('/api/permissions', permissionsRouter)
+app.use('/api/licenses', licensesRouter)
 
 // Reporting
 app.use('/api/reports', reportsRouter)

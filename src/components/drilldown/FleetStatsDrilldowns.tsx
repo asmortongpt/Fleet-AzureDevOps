@@ -27,7 +27,7 @@ function StatRow({ label, value, trend, icon: Icon }: {
     icon?: any;
 }) {
     return (
-        <div className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+        <div className="flex items-center justify-between py-2 border-b border-white/[0.08] last:border-0">
             <div className="flex items-center gap-2">
                 {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
                 <span className="text-sm text-muted-foreground">{label}</span>
@@ -66,10 +66,10 @@ export function FleetOverviewDrilldown() {
     return (
         <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
-                <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
+                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
                     <CardContent className="pt-2">
-                        <div className="text-base font-bold text-blue-800">{vehicles.length}</div>
-                        <div className="text-sm text-blue-700">Total Fleet Size</div>
+                        <div className="text-base font-bold text-emerald-400">{vehicles.length}</div>
+                        <div className="text-sm text-emerald-400">Total Fleet Size</div>
                     </CardContent>
                 </Card>
                 <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
@@ -177,7 +177,7 @@ export function ActiveVehiclesDrilldown() {
                 {vehicles.slice(0, 20).map(vehicle => (
                     <Card
                         key={vehicle.id}
-                        className="cursor-pointer bg-slate-800/40 hover:bg-slate-700/60 border-slate-700/50 transition-colors"
+                        className="cursor-pointer bg-[#242424] hover:bg-white/[0.08] border-white/[0.08] transition-colors"
                         onClick={() => push({
                             id: vehicle.id,
                             type: 'vehicle',
@@ -269,13 +269,13 @@ export function MaintenanceDrilldown() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className="border-blue-500/30 bg-blue-500/10">
+                <Card className="border-emerald-500/30 bg-emerald-500/10">
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
-                            <Calendar className="h-5 w-5 text-blue-800" />
+                            <Calendar className="h-5 w-5 text-emerald-400" />
                             <div>
-                                <div className="text-sm font-bold text-blue-700">{byStatus.scheduled.length}</div>
-                                <div className="text-xs text-blue-800">Scheduled</div>
+                                <div className="text-sm font-bold text-emerald-400">{byStatus.scheduled.length}</div>
+                                <div className="text-xs text-emerald-400">Scheduled</div>
                             </div>
                         </div>
                     </CardContent>
@@ -358,13 +358,13 @@ export function FuelManagementDrilldown() {
         <div className="space-y-2">
             {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-3">
-                <Card className="bg-gradient-to-br from-blue-900/20 to-blue-800/10 border-blue-800/50 backdrop-blur-sm">
+                <Card className="bg-gradient-to-br from-emerald-900/20 to-emerald-800/10 border-emerald-800/50 backdrop-blur-sm">
                     <CardContent className="pt-2 pb-3">
                         <div className="flex items-center gap-2">
-                            <Fuel className="h-5 w-5 text-blue-800" />
+                            <Fuel className="h-5 w-5 text-emerald-400" />
                             <div>
-                                <div className="text-sm font-bold text-blue-800">{transactions.length}</div>
-                                <div className="text-xs text-blue-700">Total Transactions</div>
+                                <div className="text-sm font-bold text-emerald-400">{transactions.length}</div>
+                                <div className="text-xs text-emerald-400">Total Transactions</div>
                             </div>
                         </div>
                     </CardContent>
@@ -589,7 +589,7 @@ export function VehicleListDrilldown() {
             sortable: true,
             render: (vehicle: any) => (
                 <div className="flex items-center gap-2">
-                    <div className="w-16 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className="w-16 h-2 bg-white/[0.1] dark:bg-white/[0.1] rounded-full overflow-hidden">
                         <div
                             className={`h-full transition-all ${vehicle.fuelLevel > 50 ? 'bg-emerald-500' :
                                 vehicle.fuelLevel > 25 ? 'bg-amber-500' :
@@ -700,11 +700,11 @@ export function VehicleListDrilldown() {
                                     <div className="flex items-center gap-3 flex-1">
                                         <div className={`w-10 h-8 rounded-full flex items-center justify-center ${vehicle.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
                                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-100 dark:bg-amber-900/30' :
-                                                'bg-slate-100 dark:bg-slate-800'
+                                                'bg-white/[0.06] dark:bg-[#1a1a1a]'
                                             }`}>
                                             <Truck className={`h-5 w-5 ${vehicle.status === 'active' ? 'text-emerald-600 dark:text-emerald-700' :
                                                 vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-600 dark:text-amber-400' :
-                                                    'text-slate-500'
+                                                    'text-white/40'
                                                 }`} />
                                         </div>
                                         <div className="flex-1 min-w-0">

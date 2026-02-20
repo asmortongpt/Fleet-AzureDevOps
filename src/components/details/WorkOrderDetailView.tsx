@@ -22,7 +22,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { swrFetcher } from '@/lib/fetcher'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatDateTime } from '@/utils/format-helpers'
 
 interface WorkOrder {
@@ -49,30 +49,30 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
 
   const { data: workOrderResponse } = useSWR<any>(
     workOrderId ? `/api/work-orders/${workOrderId}` : null,
-    swrFetcher
+    apiFetcher
   )
   const { data: partsResponse } = useSWR<any[]>(
     workOrderId ? `/api/work-orders/${workOrderId}/parts` : null,
-    swrFetcher
+    apiFetcher
   )
   const { data: laborResponse } = useSWR<any[]>(
     workOrderId ? `/api/work-orders/${workOrderId}/labor` : null,
-    swrFetcher
+    apiFetcher
   )
   const { data: timelineResponse } = useSWR<any[]>(
     workOrderId ? `/api/work-orders/${workOrderId}/timeline` : null,
-    swrFetcher
+    apiFetcher
   )
-  const { data: documentsResponse } = useSWR<{ data: any[] }>(
+  const { data: documentsResponse } = useSWR<any[]>(
     workOrderId ? `/api/documents?work_order_id=${workOrderId}` : null,
-    swrFetcher
+    apiFetcher
   )
 
-  const workOrderDetails = (workOrderResponse?.data || workOrderResponse || workOrder) as WorkOrder
-  const parts = Array.isArray(partsResponse) ? partsResponse : (partsResponse as any)?.data || []
-  const labor = Array.isArray(laborResponse) ? laborResponse : (laborResponse as any)?.data || []
-  const timeline = Array.isArray(timelineResponse) ? timelineResponse : (timelineResponse as any)?.data || []
-  const documents = documentsResponse?.data || []
+  const workOrderDetails = (workOrderResponse || workOrder) as WorkOrder
+  const parts = Array.isArray(partsResponse) ? partsResponse : []
+  const labor = Array.isArray(laborResponse) ? laborResponse : []
+  const timeline = Array.isArray(timelineResponse) ? timelineResponse : []
+  const documents = Array.isArray(documentsResponse) ? documentsResponse : []
 
   const totals = useMemo(() => {
     const partsCost = parts.reduce((sum: number, p: any) => {
@@ -113,7 +113,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
         return <Badge variant="default" className="bg-green-500"><CheckCircle className="w-3 h-3 mr-1" />Completed</Badge>
       case 'in-progress':
       case 'in_progress':
-        return <Badge variant="default" className="bg-blue-500"><Clock className="w-3 h-3 mr-1" />In Progress</Badge>
+        return <Badge variant="default" className="bg-emerald-500"><Clock className="w-3 h-3 mr-1" />In Progress</Badge>
       case 'ordered':
         return <Badge variant="secondary"><Package className="w-3 h-3 mr-1" />Ordered</Badge>
       case 'pending':
@@ -224,7 +224,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Vehicle:</span>
-                    <Button variant="link" size="sm" className="h-auto p-0 text-blue-800">
+                    <Button variant="link" size="sm" className="h-auto p-0 text-emerald-400">
                       {workOrderDetails.vehicleId || workOrderDetails.vehicle_id || '—'}
                     </Button>
                   </div>
@@ -301,7 +301,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                     <div className="pt-2">
                       <div className="h-2 bg-muted rounded-full overflow-hidden flex">
                         <div
-                          className="h-full bg-blue-500"
+                          className="h-full bg-emerald-500"
                           style={{ width: `${(Number(workOrderDetails.total_cost) || totals.totalCost) > 0 ? ((Number(workOrderDetails.parts_cost) || totals.partsCost) / (Number(workOrderDetails.total_cost) || totals.totalCost) * 100) : 50}%` }}
                           title="Parts cost"
                         />
@@ -312,7 +312,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
                         />
                       </div>
                       <div className="flex justify-between mt-1 text-[10px] text-muted-foreground">
-                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />Parts</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />Parts</span>
                         <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />Labor</span>
                       </div>
                     </div>
@@ -520,14 +520,14 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
 
 function CategoryBadge({ category }: { category: string }) {
   const colorMap: Record<string, string> = {
-    preventive: 'bg-blue-100 text-blue-800 border-blue-200',
+    preventive: 'bg-emerald-100 text-emerald-800 border-emerald-200',
     corrective: 'bg-orange-100 text-orange-800 border-orange-200',
     inspection: 'bg-purple-100 text-purple-800 border-purple-200',
     body_work: 'bg-gray-100 text-gray-800 border-gray-200',
     electrical: 'bg-yellow-100 text-yellow-800 border-yellow-200',
     tire_service: 'bg-green-100 text-green-800 border-green-200',
   }
-  const colorClass = colorMap[category.toLowerCase()] || 'bg-slate-100 text-slate-700 border-slate-200'
+  const colorClass = colorMap[category.toLowerCase()] || 'bg-neutral-100 text-neutral-700 border-neutral-200'
   const label = category.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
 
   return (

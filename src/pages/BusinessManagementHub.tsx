@@ -42,6 +42,7 @@ import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
+import { apiFetcher } from '@/lib/api-fetcher'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
@@ -67,13 +68,7 @@ import { formatDate, formatDateTime, formatCurrency } from '@/utils/format-helpe
 import logger from '@/utils/logger';
 
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 // ============================================================================
 // TAB CONTENT COMPONENTS
@@ -228,9 +223,9 @@ const FinancialTabContent = memo(function FinancialTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Monthly Budget"
           value={budgetTotal > 0 ? formatCurrency(budgetTotal) : '—'}
@@ -261,9 +256,9 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       </div>
 
       {/* Main Content: Charts + Transactions */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Left Column: Cost Trend + Cost Breakdown */}
-        <div className="flex flex-col gap-2 min-h-0">
+        <div className="flex flex-col gap-1.5 min-h-0">
           <Section
             title="Cost Trend"
             description="Monthly actual costs"
@@ -277,6 +272,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
                 dataKeys={['actual']}
                 colors={['hsl(var(--chart-2))']}
                 height={140}
+                compact
               />
             ) : (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
@@ -293,6 +289,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
                 title="Cost Breakdown by Category"
                 data={breakdownData}
                 height={140}
+                compact
               />
             ) : (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
@@ -301,14 +298,14 @@ const FinancialTabContent = memo(function FinancialTabContent() {
         </div>
 
         {/* Right Column: Recent Transactions + WO Costs + Dept Costs */}
-        <div className="flex flex-col gap-2 min-h-0">
+        <div className="flex flex-col gap-1.5 min-h-0">
           <Section
             title="Recent Transactions"
             description="Latest fleet expenses"
             icon={<Receipt className="h-4 w-4" />}
             className="flex-1 min-h-0"
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {recentTransactions.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -335,7 +332,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             icon={<Tag className="h-4 w-4" />}
             className="flex-none"
           >
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-3 gap-1.5">
               <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
                 <p className="text-xs text-muted-foreground">Parts</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
@@ -357,7 +354,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             icon={<Building className="h-4 w-4" />}
             className="flex-1 min-h-0"
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {departmentCosts.length > 0 ? (
                 <div className="flex flex-col gap-1">
                   {departmentCosts.map((dept) => (
@@ -482,9 +479,9 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Active Vendors"
           value={activeVendors.length}
@@ -516,7 +513,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       </div>
 
       {/* Main Content: Vendors + Purchase Orders */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Left: Top Vendors */}
         <Section
           title="Top Vendors"
@@ -524,7 +521,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           icon={<Building className="h-4 w-4" />}
           className="min-h-0"
         >
-          <div className="max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {topVendors.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {topVendors.map((vendor) => (
@@ -587,7 +584,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           icon={<ShoppingCart className="h-4 w-4" />}
           className="min-h-0"
         >
-          <div className="max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {recentPurchaseOrders.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {recentPurchaseOrders.map((order) => (
@@ -656,7 +653,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-2 grid-cols-4 p-2">
+      <div className="grid gap-1.5 grid-cols-4 p-1.5">
         {[...Array(4)].map((_, i) => (
           <Skeleton key={i} className="h-24" />
         ))}
@@ -673,9 +670,9 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Active Reports"
           value={metrics.activeReports}
@@ -703,7 +700,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
       </div>
 
       {/* Main Content: Chart + Lists */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-2 gap-1.5 overflow-hidden">
         {/* Left: Report Generation Trend */}
         <Section
           title="Report Generation Trend"
@@ -718,6 +715,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               dataKeys={['value']}
               colors={['hsl(var(--chart-1))']}
               height={140}
+              compact
             />
           ) : (
             <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
@@ -725,14 +723,14 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
         </Section>
 
         {/* Right: Upcoming + Recent Reports */}
-        <div className="flex flex-col gap-2 min-h-0">
+        <div className="flex flex-col gap-1.5 min-h-0">
           <Section
             title="Upcoming Reports"
             description="Scheduled report executions"
             icon={<Target className="h-4 w-4" />}
             className="flex-1 min-h-0"
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {upcomingReports.length > 0 ? (
                 <div className="flex flex-col gap-1">
                   {upcomingReports.map((report) => (
@@ -759,7 +757,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
             icon={<Clock className="h-4 w-4" />}
             className="flex-1 min-h-0"
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {recentReports.length > 0 ? (
                 <div className="flex flex-col gap-1">
                   {recentReports.map((report) => (
@@ -881,9 +879,9 @@ const ReportsTabContent = memo(function ReportsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Available Reports"
           value={templates.length}
@@ -911,7 +909,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
       </div>
 
       {/* Main Content: Report Library + Recent Reports */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Left: Report Library */}
         <Section
           title="Report Library"
@@ -919,7 +917,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
           icon={<FileText className="h-4 w-4" />}
           className="min-h-0"
         >
-          <div className="max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {templates.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -957,7 +955,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
           icon={<Clock className="h-4 w-4" />}
           className="min-h-0"
         >
-          <div className="max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {history.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -1004,7 +1002,7 @@ export default function BusinessManagementHub() {
       description="Financial oversight, procurement, analytics, and comprehensive reporting"
       icon={<BarChart className="h-5 w-5" />}
     >
-      <div className="flex flex-col h-full gap-2 overflow-hidden">
+      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="cta-tabs grid w-full grid-cols-4 rounded-xl p-1">
             <TabsTrigger value="financial" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-financial" aria-label="Financial">
@@ -1025,25 +1023,25 @@ export default function BusinessManagementHub() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="financial" className="flex-1 min-h-0 overflow-auto">
+          <TabsContent value="financial" className="flex-1 min-h-0 overflow-hidden">
             <QueryErrorBoundary>
               <FinancialTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="procurement" className="flex-1 min-h-0 overflow-auto">
+          <TabsContent value="procurement" className="flex-1 min-h-0 overflow-hidden">
             <QueryErrorBoundary>
               <ProcurementTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="analytics" className="flex-1 min-h-0 overflow-auto">
+          <TabsContent value="analytics" className="flex-1 min-h-0 overflow-hidden">
             <QueryErrorBoundary>
               <AnalyticsTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="reports" className="flex-1 min-h-0 overflow-auto">
+          <TabsContent value="reports" className="flex-1 min-h-0 overflow-hidden">
             <QueryErrorBoundary>
               <ReportsTabContent />
             </QueryErrorBoundary>

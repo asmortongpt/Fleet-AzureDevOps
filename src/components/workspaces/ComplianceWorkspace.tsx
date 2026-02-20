@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
-import { swrFetcher } from "@/lib/fetcher"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
 import { formatDate } from "@/utils/format-helpers"
@@ -42,17 +42,12 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
   const [documentType, setDocumentType] = useState('all')
   const [sortBy, setSortBy] = useState('date')
 
-  const { data: documentsResponse } = useSWR<{ data: any[] }>(
+  const { data: documentsResponse } = useSWR<any[]>(
     '/api/documents?limit=200',
-    swrFetcher
+    apiFetcher
   )
 
-  const rawDocuments = documentsResponse?.data
-  const documents: any[] = Array.isArray(rawDocuments)
-    ? rawDocuments
-    : Array.isArray((rawDocuments as any)?.data)
-      ? (rawDocuments as any).data
-      : []
+  const documents: any[] = Array.isArray(documentsResponse) ? documentsResponse : []
 
   const vehicleMap = useMemo(() => {
     const safeVehicles = Array.isArray(vehicles) ? vehicles : []
@@ -262,9 +257,9 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
 const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any[] }) => {
   const [statusFilter, setStatusFilter] = useState('all')
 
-  const { data: incidentsResponse } = useSWR<{ data: any[] }>(
+  const { data: incidentsResponse } = useSWR<any[]>(
     '/api/safety-incidents?limit=200',
-    swrFetcher
+    apiFetcher
   )
 
   const vehicleMap = useMemo(() => {
@@ -288,12 +283,7 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
   }, [drivers])
 
   const incidents = useMemo(() => {
-    const rawIncidents = incidentsResponse?.data
-    const safeIncidents: any[] = Array.isArray(rawIncidents)
-      ? rawIncidents
-      : Array.isArray((rawIncidents as any)?.data)
-        ? (rawIncidents as any).data
-        : []
+    const safeIncidents: any[] = Array.isArray(incidentsResponse) ? incidentsResponse : []
     return safeIncidents.map((incident: any) => {
       const occurredAt = incident.occurred_at || incident.date || incident.created_at
       return {
@@ -321,7 +311,7 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
       case 'minor': return 'text-yellow-600'
       case 'moderate': return 'text-orange-600'
       case 'major': return 'text-red-600'
-      default: return 'text-slate-700'
+      default: return 'text-white/40'
     }
   }
 
@@ -400,7 +390,7 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
   const _totalVehicles = vehicles?.length || 0
   const _totalDrivers = drivers?.length || 0
 
-  const { data: analytics } = useSWR<any>('/api/analytics', swrFetcher)
+  const { data: analytics } = useSWR<any>('/api/analytics', apiFetcher)
 
   const complianceMetrics = useMemo(() => {
     const fleet = analytics?.fleet
@@ -450,7 +440,7 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
 
   const getStatusColor = (percentage: number) => {
     if (percentage >= 90) return 'text-green-600'
-    if (percentage >= 75) return 'text-blue-800'
+    if (percentage >= 75) return 'text-emerald-400'
     if (percentage >= 60) return 'text-yellow-600'
     return 'text-red-600'
   }
@@ -488,7 +478,7 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
                       className={cn(
                         "h-2 rounded-full transition-all",
                         metric.percentage >= 90 && "bg-green-500",
-                        metric.percentage >= 75 && metric.percentage < 90 && "bg-blue-500",
+                        metric.percentage >= 75 && metric.percentage < 90 && "bg-emerald-500",
                         metric.percentage >= 60 && metric.percentage < 75 && "bg-yellow-500",
                         metric.percentage < 60 && "bg-red-500"
                       )}

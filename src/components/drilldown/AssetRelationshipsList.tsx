@@ -9,6 +9,7 @@ import useSWR from 'swr'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatDate } from '@/utils/format-helpers'
 
 export interface AssetRelationshipsListProps {
@@ -29,12 +30,6 @@ interface AssetRelationship {
   notes?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 /**
  * AssetRelationshipsList Component
  *
@@ -50,7 +45,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
     relationships: AssetRelationship[]
   }>(
     `/api/asset-relationships/active?parent_asset_id=${vehicleId}`,
-    fetcher,
+    apiFetcher,
     {
       // Don't retry if endpoint doesn't exist yet
       shouldRetryOnError: false,

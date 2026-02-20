@@ -30,7 +30,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useState, useCallback, useEffect, useMemo } from 'react';
-import { useSearchParams , useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 
 import ARModeExport from '@/components/3d/ARModeExport';
 import VehicleViewer3D from '@/components/3d/VehicleViewer3D';
@@ -42,6 +42,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { useVehicles } from '@/hooks/use-api';
 import { VEHICLE_COLORS, type MaterialQuality, type PaintType } from '@/lib/3d/pbr-materials';
@@ -61,7 +62,7 @@ interface Vehicle {
 }
 
 export default function VehicleShowroom3D() {
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { tenantId } = useTenant();
 
@@ -222,7 +223,7 @@ export default function VehicleShowroom3D() {
         <div className="text-center space-y-2">
           <Car className="w-16 h-16 text-muted-foreground mx-auto" />
           <p className="text-muted-foreground">No vehicles available</p>
-          <Button variant="outline" onClick={() => navigate('/virtual-garage')}>
+          <Button variant="outline" onClick={() => navigateTo('virtual-garage')}>
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Garage
           </Button>
@@ -242,7 +243,7 @@ export default function VehicleShowroom3D() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate('/virtual-garage')}
+                onClick={() => navigateTo('virtual-garage')}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Garage

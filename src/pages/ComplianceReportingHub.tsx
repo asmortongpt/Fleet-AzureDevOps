@@ -265,7 +265,7 @@ const AuditRow = React.memo<AuditRowProps>(({ audit }) => {
       </td>
       <td className="px-3 py-2">
         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-          audit.status === 'SCHEDULED' ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700' :
+          audit.status === 'SCHEDULED' ? 'bg-emerald-100 text-emerald-400 dark:bg-white/[0.04] dark:text-emerald-400' :
           audit.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' :
           audit.status === 'COMPLETED' ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' :
           'bg-muted/40 text-muted-foreground'
@@ -513,7 +513,7 @@ const ViolationsTab = React.memo<{
 
       {/* Violations Table */}
       <div className="bg-[#242424] text-card-foreground rounded-lg border border-white/[0.08] overflow-hidden flex-1">
-        <div className="max-h-[200px] overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full" role="table">
             <thead className="bg-muted/40 sticky top-0">
               <tr>
@@ -608,7 +608,7 @@ const AuditsTab = React.memo<{
 
       {/* Audits Table */}
       <div className="bg-[#242424] text-card-foreground rounded-lg border border-white/[0.08] overflow-hidden flex-1">
-        <div className="max-h-[200px] overflow-y-auto">
+        <div className="flex-1 min-h-0 overflow-y-auto">
           <table className="w-full" role="table">
             <thead className="bg-muted/40 sticky top-0">
               <tr>

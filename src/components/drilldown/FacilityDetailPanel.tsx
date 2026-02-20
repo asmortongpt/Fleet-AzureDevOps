@@ -15,6 +15,7 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -43,17 +44,11 @@ interface FacilityData {
   }
 }
 
-const fetcher = (url: string): Promise<FacilityData> =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
   const { push } = useDrilldown()
-  const { data: facility, error, isLoading, mutate } = useSWR(
+  const { data: facility, error, isLoading, mutate } = useSWR<FacilityData>(
     `/api/facilities/${facilityId}`,
-    fetcher
+    apiFetcher
   )
 
   const handleViewVehicles = () => {

@@ -1,6 +1,6 @@
 import { Filter, Search, AlertTriangle, Calendar, Car, Eye, Plus } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigation } from '@/contexts/NavigationContext'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,7 +23,7 @@ interface DamageReportListProps {
 }
 
 export function DamageReportList({ vehicleId }: DamageReportListProps) {
-  const navigate = useNavigate()
+  const { navigateTo } = useNavigation()
   const [damageReports, setDamageReports] = useState<DamageReport[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -62,11 +62,11 @@ export function DamageReportList({ vehicleId }: DamageReportListProps) {
   }
 
   const handleViewDetails = (reportId: string) => {
-    navigate(`/damage-reports/${reportId}`)
+    navigateTo('damage-reports')
   }
 
   const handleCreateNew = () => {
-    navigate('/damage-reports/create')
+    navigateTo('damage-reports')
   }
 
   const getSeverityVariant = (

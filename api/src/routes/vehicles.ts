@@ -249,6 +249,258 @@ router.get("/:id/trips",
   })
 )
 
+// GET vehicle maintenance (work orders) - Requires authentication + tenant isolation
+router.get("/:id/maintenance",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.VEHICLE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validateParams(vehicleIdSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    const vehicleId = req.params.id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const cacheKey = `vehicle:${tenantId}:${vehicleId}:maintenance`
+    const cached = await cacheService.get<any[]>(cacheKey)
+
+    if (cached) {
+      logger.debug('Vehicle maintenance cache hit', { vehicleId, tenantId })
+      return res.json({ data: cached })
+    }
+
+    const result = await pool.query(
+      `SELECT
+        id,
+        number,
+        scheduled_start_date,
+        type,
+        work_type,
+        description,
+        total_cost,
+        actual_cost,
+        status,
+        odometer_at_start
+      FROM work_orders
+      WHERE vehicle_id = $1 AND tenant_id = $2
+      ORDER BY scheduled_start_date DESC NULLS LAST
+      LIMIT 200`,
+      [vehicleId, tenantId]
+    )
+
+    const records = result.rows.map((row: Record<string, unknown>) => ({
+      id: row.id,
+      work_order_number: row.number || '',
+      date: row.scheduled_start_date || row.created_at || '',
+      type: row.work_type || row.type || 'general',
+      description: row.description || '',
+      cost: row.total_cost != null ? Number(row.total_cost) : (row.actual_cost != null ? Number(row.actual_cost) : 0),
+      status: row.status || 'unknown',
+      mileage: row.odometer_at_start != null ? Number(row.odometer_at_start) : undefined,
+    }))
+
+    await cacheService.set(cacheKey, records, 300)
+
+    logger.info('Fetched vehicle maintenance', { vehicleId, tenantId, count: records.length })
+    res.json({ data: records })
+  })
+)
+
+// GET vehicle incidents - Requires authentication + tenant isolation
+router.get("/:id/incidents",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.VEHICLE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validateParams(vehicleIdSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    const vehicleId = req.params.id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const cacheKey = `vehicle:${tenantId}:${vehicleId}:incidents`
+    const cached = await cacheService.get<any[]>(cacheKey)
+
+    if (cached) {
+      logger.debug('Vehicle incidents cache hit', { vehicleId, tenantId })
+      return res.json({ data: cached })
+    }
+
+    const result = await pool.query(
+      `SELECT
+        id,
+        number,
+        incident_date,
+        type,
+        severity,
+        description,
+        estimated_cost,
+        actual_cost,
+        status
+      FROM incidents
+      WHERE vehicle_id = $1 AND tenant_id = $2
+      ORDER BY incident_date DESC NULLS LAST
+      LIMIT 200`,
+      [vehicleId, tenantId]
+    )
+
+    const records = result.rows.map((row: Record<string, unknown>) => ({
+      id: row.id,
+      incident_number: row.number || '',
+      date: row.incident_date || '',
+      type: row.type || 'unknown',
+      severity: row.severity || 'unknown',
+      description: row.description || '',
+      cost: row.actual_cost != null ? Number(row.actual_cost) : (row.estimated_cost != null ? Number(row.estimated_cost) : undefined),
+      status: row.status || 'unknown',
+    }))
+
+    await cacheService.set(cacheKey, records, 300)
+
+    logger.info('Fetched vehicle incidents', { vehicleId, tenantId, count: records.length })
+    res.json({ data: records })
+  })
+)
+
+// GET vehicle inspections - Requires authentication + tenant isolation
+router.get("/:id/inspections",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.VEHICLE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validateParams(vehicleIdSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    const vehicleId = req.params.id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const cacheKey = `vehicle:${tenantId}:${vehicleId}:inspections`
+    const cached = await cacheService.get<any[]>(cacheKey)
+
+    if (cached) {
+      logger.debug('Vehicle inspections cache hit', { vehicleId, tenantId })
+      return res.json({ data: cached })
+    }
+
+    const result = await pool.query(
+      `SELECT
+        id,
+        type,
+        status,
+        started_at,
+        completed_at,
+        inspector_name,
+        passed_inspection,
+        defects_found,
+        notes,
+        created_at
+      FROM inspections
+      WHERE vehicle_id = $1 AND tenant_id = $2
+      ORDER BY started_at DESC NULLS LAST
+      LIMIT 200`,
+      [vehicleId, tenantId]
+    )
+
+    const records = result.rows.map((row: Record<string, unknown>) => {
+      // Derive result from passed_inspection boolean and defects_found count
+      let inspectionResult: 'passed' | 'failed' | 'warning' = 'passed'
+      if (row.passed_inspection === false) {
+        inspectionResult = 'failed'
+      } else if (row.defects_found != null && Number(row.defects_found) > 0) {
+        inspectionResult = 'warning'
+      }
+
+      return {
+        id: row.id,
+        inspection_number: `INS-${String(row.id).slice(0, 8).toUpperCase()}`,
+        date: row.started_at || row.created_at || '',
+        type: row.type || 'general',
+        result: inspectionResult,
+        inspector_name: row.inspector_name || undefined,
+        notes: row.notes || undefined,
+      }
+    })
+
+    await cacheService.set(cacheKey, records, 300)
+
+    logger.info('Fetched vehicle inspections', { vehicleId, tenantId, count: records.length })
+    res.json({ data: records })
+  })
+)
+
+// GET vehicle fuel records - Requires authentication + tenant isolation
+router.get("/:id/fuel",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
+    permissions: [PERMISSIONS.VEHICLE_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validateParams(vehicleIdSchema),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    const vehicleId = req.params.id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    const cacheKey = `vehicle:${tenantId}:${vehicleId}:fuel`
+    const cached = await cacheService.get<any[]>(cacheKey)
+
+    if (cached) {
+      logger.debug('Vehicle fuel cache hit', { vehicleId, tenantId })
+      return res.json({ data: cached })
+    }
+
+    const result = await pool.query(
+      `SELECT
+        id,
+        transaction_date,
+        gallons,
+        quantity_gallons,
+        total_cost,
+        location,
+        location_name,
+        odometer
+      FROM fuel_transactions
+      WHERE vehicle_id = $1 AND tenant_id = $2
+      ORDER BY transaction_date DESC NULLS LAST
+      LIMIT 200`,
+      [vehicleId, tenantId]
+    )
+
+    const records = result.rows.map((row: Record<string, unknown>) => ({
+      id: row.id,
+      date: row.transaction_date || '',
+      gallons: row.gallons != null ? Number(row.gallons) : (row.quantity_gallons != null ? Number(row.quantity_gallons) : 0),
+      cost: row.total_cost != null ? Number(row.total_cost) : 0,
+      location: row.location_name || row.location || undefined,
+      odometer: row.odometer != null ? Number(row.odometer) : undefined,
+    }))
+
+    await cacheService.set(cacheKey, records, 300)
+
+    logger.info('Fetched vehicle fuel records', { vehicleId, tenantId, count: records.length })
+    res.json({ data: records })
+  })
+)
+
 // POST create vehicle - Requires admin or manager role
 // CRIT-B-003: Comprehensive input validation with sanitization
 router.post("/",

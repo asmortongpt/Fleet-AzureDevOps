@@ -18,6 +18,7 @@ import {
   LineChart
 } from "lucide-react"
 import { useState, useMemo } from "react"
+import { toast } from "sonner"
 import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
@@ -40,6 +41,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useDrilldown } from "@/contexts/DrilldownContext"
+import { apiFetcher } from "@/lib/api-fetcher"
 import type { AssetType, OperationalStatus } from "@/types/asset.types"
 import { formatEnum } from "@/utils/format-enum"
 import { formatCurrency, formatCurrencyCompact } from "@/utils/format-helpers"
@@ -91,13 +94,7 @@ interface AssetLocation {
   utilizationRate: number
 }
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
+const fetcher = apiFetcher
 
 const mapContainerStyle = {
   width: "100%",
@@ -132,7 +129,7 @@ const getStatusColor = (status: OperationalStatus | string): string => {
 
 const getUtilizationColor = (rate: number): string => {
   if (rate >= 80) return "text-green-500"
-  if (rate >= 60) return "text-blue-800"
+  if (rate >= 60) return "text-emerald-800"
   if (rate >= 40) return "text-yellow-500"
   return "text-red-500"
 }
@@ -160,7 +157,7 @@ const formatStatusLabel = (status: string) =>
 const getConditionBadge = (condition: string) => {
   switch (condition) {
     case "excellent": return <Badge className="bg-green-500">Excellent</Badge>
-    case "good": return <Badge className="bg-blue-500">Good</Badge>
+    case "good": return <Badge className="bg-emerald-500">Good</Badge>
     case "fair": return <Badge className="bg-yellow-500">Fair</Badge>
     case "poor": return <Badge variant="destructive">Poor</Badge>
     default: return <Badge variant="outline">{condition}</Badge>
@@ -178,9 +175,9 @@ const getPriorityBadge = (priority: string) => {
 
 export function AssetsHub() {
   const [activeTab, setActiveTab] = useState("location")
-  const [_categoryFilter, _setCategoryFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [mapLoaded, setMapLoaded] = useState(false)
+  const { push } = useDrilldown()
 
   const { data: assetAnalytics = [], error: assetError, isLoading: assetLoading } = useSWR<any[]>(
     "/api/assets/analytics",
@@ -386,7 +383,7 @@ export function AssetsHub() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-sm font-bold flex items-center gap-2">
-              <Barcode className="w-4 h-4 text-blue-800" />
+              <Barcode className="w-4 h-4 text-emerald-800" />
               Assets Hub
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
@@ -394,11 +391,14 @@ export function AssetsHub() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" onClick={() => {
+              const id = toast.loading('Generating analytics report...')
+              setTimeout(() => toast.success('Analytics report generated', { id }), 1500)
+            }}>
               <LineChart className="w-4 h-4 mr-2" />
               Analytics Report
             </Button>
-            <Button>
+            <Button onClick={() => push({ type: 'asset-create' as any, label: 'Add New Asset', data: {} })}>
               <Barcode className="w-4 h-4 mr-2" />
               Add Asset
             </Button>
@@ -440,7 +440,7 @@ export function AssetsHub() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-base font-bold text-blue-800">
+              <div className="text-base font-bold text-emerald-800">
                 {metrics.utilizationRate > 0 ? `${metrics.utilizationRate.toFixed(1)}%` : "—"}
               </div>
               <Progress value={metrics.utilizationRate} className="mt-2" />

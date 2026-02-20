@@ -15,6 +15,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatCurrency, formatDateTime, formatTime } from '@/utils/format-helpers'
@@ -42,17 +43,11 @@ interface TelemetryData {
   events?: Array<{ type?: string; timestamp?: string }>
 }
 
-const fetcher = (url: string): Promise<TelemetryData> =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
   const [activeTab, setActiveTab] = useState('overview')
-  const { data: telemetry, error, isLoading, mutate } = useSWR(
+  const { data: telemetry, error, isLoading, mutate } = useSWR<TelemetryData>(
     `/api/trips/${tripId}/telemetry`,
-    fetcher
+    apiFetcher
   )
 
   return (

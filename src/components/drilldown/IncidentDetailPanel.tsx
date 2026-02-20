@@ -26,6 +26,7 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -110,12 +111,6 @@ interface RelatedRecord {
   status?: string
 }
 
-const fetcher = (url: string) =>
-  fetch(url).then((r) => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`)
-    return r.json()
-  })
-
 export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
@@ -123,32 +118,37 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
   // Main incident data
   const { data: incident, error, isLoading, mutate } = useSWR<IncidentData>(
     `/api/incidents/${incidentId}`,
-    fetcher
+    apiFetcher
   )
 
   // Evidence (photos, videos, documents)
   const { data: evidence } = useSWR<Evidence[]>(
     incidentId ? `/api/incidents/${incidentId}/evidence` : null,
-    fetcher
+    apiFetcher
   )
 
   // Involved parties
   const { data: involvedParties } = useSWR<InvolvedParty[]>(
     incidentId ? `/api/incidents/${incidentId}/involved-parties` : null,
-    fetcher
+    apiFetcher
   )
 
   // Timeline/audit trail
   const { data: timeline } = useSWR<TimelineEvent[]>(
     incidentId ? `/api/incidents/${incidentId}/timeline` : null,
-    fetcher
+    apiFetcher
   )
 
   // Related records
   const { data: relatedRecords } = useSWR<RelatedRecord[]>(
     incidentId ? `/api/incidents/${incidentId}/related` : null,
-    fetcher
+    apiFetcher
   )
+
+  const evidenceArr = Array.isArray(evidence) ? evidence : []
+  const partiesArr = Array.isArray(involvedParties) ? involvedParties : []
+  const timelineArr = Array.isArray(timeline) ? timeline : []
+  const relatedArr = Array.isArray(relatedRecords) ? relatedRecords : []
 
   const handleViewVehicle = () => {
     if (incident?.vehicle_id) {
@@ -227,7 +227,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
         return <CheckCircle2 className="h-5 w-5 text-green-500" />
       case 'investigating':
       case 'under_review':
-        return <Clock className="h-5 w-5 text-blue-800" />
+        return <Clock className="h-5 w-5 text-emerald-400" />
       case 'reported':
         return <AlertCircle className="h-5 w-5 text-yellow-500" />
       default:
@@ -323,7 +323,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm font-bold">{evidence?.length || 0}</div>
+                <div className="text-sm font-bold">{evidenceArr.length}</div>
                 <p className="text-xs text-muted-foreground mt-1">files attached</p>
               </CardContent>
             </Card>
@@ -336,7 +336,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-sm font-bold">{involvedParties?.length || 0}</div>
+                <div className="text-sm font-bold">{partiesArr.length}</div>
                 <p className="text-xs text-muted-foreground mt-1">parties</p>
               </CardContent>
             </Card>
@@ -346,8 +346,8 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="evidence">Evidence ({evidence?.length || 0})</TabsTrigger>
-              <TabsTrigger value="parties">Parties ({involvedParties?.length || 0})</TabsTrigger>
+              <TabsTrigger value="evidence">Evidence ({evidenceArr.length})</TabsTrigger>
+              <TabsTrigger value="parties">Parties ({partiesArr.length})</TabsTrigger>
               <TabsTrigger value="timeline">Timeline</TabsTrigger>
               <TabsTrigger value="related">Related</TabsTrigger>
             </TabsList>
@@ -531,9 +531,9 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
             {/* Evidence Tab */}
             <TabsContent value="evidence" className="space-y-2">
-              {evidence && evidence.length > 0 ? (
+              {evidenceArr.length > 0 ? (
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {evidence.map((item) => (
+                  {evidenceArr.map((item) => (
                     <Card key={item.id} className="overflow-hidden">
                       <CardContent className="p-0">
                         {item.type === 'photo' && item.thumbnail_url && (
@@ -578,9 +578,9 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
             {/* Parties Tab */}
             <TabsContent value="parties" className="space-y-2">
-              {involvedParties && involvedParties.length > 0 ? (
+              {partiesArr.length > 0 ? (
                 <div className="space-y-3">
-                  {involvedParties.map((party) => (
+                  {partiesArr.map((party) => (
                     <Card key={party.id}>
                       <CardContent className="p-2">
                         <div className="space-y-3">
@@ -645,7 +645,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
             {/* Timeline Tab */}
             <TabsContent value="timeline" className="space-y-2">
-              {timeline && timeline.length > 0 ? (
+              {timelineArr.length > 0 ? (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -655,13 +655,13 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {timeline.map((event, index) => (
+                      {timelineArr.map((event, index) => (
                         <div key={event.id} className="flex gap-2">
                           <div className="flex flex-col items-center">
                             <div className="rounded-full bg-primary/10 p-2">
                               {getStatusIcon(event.event_type)}
                             </div>
-                            {index < timeline.length - 1 && (
+                            {index < timelineArr.length - 1 && (
                               <div className="w-px h-full bg-border mt-2" />
                             )}
                           </div>
@@ -704,7 +704,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
             {/* Related Tab */}
             <TabsContent value="related" className="space-y-2">
-              {relatedRecords && relatedRecords.length > 0 ? (
+              {relatedArr.length > 0 ? (
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -714,7 +714,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
-                      {relatedRecords.map((record) => (
+                      {relatedArr.map((record) => (
                         <div
                           key={record.id}
                           className="p-3 rounded border hover:bg-muted/50 cursor-pointer transition-colors"

@@ -32,6 +32,7 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { secureFetch } from '@/hooks/use-api';
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
@@ -109,23 +110,15 @@ export function PolicyTemplateDetailPanel({
   const [activeTab, setActiveTab] = useState('overview')
   const [isLoading, setIsLoading] = useState(false)
 
-  const fetcher = (url: string) =>
-    fetch(url, { credentials: 'include' })
-      .then(res => {
-        if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-        return res.json()
-      })
-      .then(data => data?.data ?? data)
-
   const { data: apiTemplate } = useSWR<any>(
     template ? null : `/api/policy-templates/${templateId}`,
-    fetcher,
+    apiFetcher,
     { shouldRetryOnError: false }
   )
 
   const { data: apiViolations } = useSWR<any>(
     `/api/policy-templates/${templateId}/violations?limit=10`,
-    fetcher,
+    apiFetcher,
     { shouldRetryOnError: false }
   )
 
@@ -147,8 +140,8 @@ export function PolicyTemplateDetailPanel({
       fleet_size_max: source.fleet_size_max ?? source.fleetSizeMax,
       conditions: Array.isArray(source.conditions) ? source.conditions : [],
       actions: Array.isArray(source.actions) ? source.actions : [],
-      sample_violations: Array.isArray(apiViolations?.data)
-        ? apiViolations.data.map((violation: any) => ({
+      sample_violations: Array.isArray(apiViolations)
+        ? apiViolations.map((violation: any) => ({
             id: String(violation.id),
             scenario: String(violation.policy_name ?? violation.violation_type ?? 'Violation'),
             description: String(violation.description ?? ''),
@@ -309,7 +302,7 @@ export function PolicyTemplateDetailPanel({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-sm font-bold text-blue-800">
+              <div className="text-sm font-bold text-emerald-400">
                 +{templateData.estimated_impact.safety_improvement || 0}%
               </div>
               <p className="text-xs text-muted-foreground">Reduction in incidents</p>

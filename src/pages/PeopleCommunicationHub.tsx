@@ -37,9 +37,9 @@ import {
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 
-import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
+import { apiFetcher } from '@/lib/api-fetcher'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
@@ -53,16 +53,10 @@ import {
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime } from '@/utils/format-helpers'
 import { formatNumber } from '@/utils/format-helpers'
-import logger from '@/utils/logger';
 
 
-const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' })
-    .then((res) => {
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
-      return res.json()
-    })
-    .then((data) => data?.data ?? data)
+
+const fetcher = apiFetcher
 
 const rawFetcher = (url: string) =>
   fetch(url, { credentials: 'include' })
@@ -172,9 +166,9 @@ const PeopleTabContent = memo(function PeopleTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Total Employees"
           value={formatNumber(userRows.length)}
@@ -202,14 +196,14 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Left Column: Employee List */}
         <Section
           title="Team Overview"
           description="Department breakdown and headcount"
           icon={<Users className="h-4 w-4" />}
         >
-          <div className="max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {teamRows.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -259,13 +253,13 @@ const PeopleTabContent = memo(function PeopleTabContent() {
         </Section>
 
         {/* Right Column: Recent Activity + Training */}
-        <div className="flex flex-col gap-2 min-h-0">
+        <div className="flex flex-col gap-1.5 min-h-0">
           <Section
             title="Recent Activity"
             description="Latest HR updates"
             icon={<Activity className="h-4 w-4" />}
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {recentActivity.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -315,7 +309,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
             description="Ongoing training programs"
             icon={<BookOpen className="h-4 w-4" />}
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {trainingProgressData.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -388,9 +382,9 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Unread Messages"
           value={formatNumber(unreadCount)}
@@ -418,14 +412,14 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Left Column: Communication Log */}
         <Section
           title="Recent Messages"
           description="Latest team communications"
           icon={<MessageSquare className="h-4 w-4" />}
         >
-          <div className="max-h-[200px] overflow-y-auto">
+          <div className="flex-1 min-h-0 overflow-y-auto">
             {messages.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -474,13 +468,13 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
         </Section>
 
         {/* Right Column: Announcements + Channels */}
-        <div className="flex flex-col gap-2 min-h-0">
+        <div className="flex flex-col gap-1.5 min-h-0">
           <Section
             title="Announcements"
             description="Company-wide notifications"
             icon={<Megaphone className="h-4 w-4" />}
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {announcementRows.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -506,7 +500,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
             description="Team channels and groups"
             icon={<Hash className="h-4 w-4" />}
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {channelRows.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -603,9 +597,13 @@ const WorkTabContent = memo(function WorkTabContent() {
     })
   }, [taskRows])
 
-  const handleJoinMeeting = (eventName: string) => {
-    toast.error(`Meeting join functionality will be available in the next release`)
-    logger.info('Join meeting clicked:', eventName)
+  const handleViewTask = (task: any) => {
+    push({
+      id: task.id,
+      type: 'task',
+      label: task.title,
+      data: { taskId: task.id, status: task.status, priority: task.priority, dueDate: task.dueDate },
+    })
   }
 
   if (tasksError) {
@@ -617,9 +615,9 @@ const WorkTabContent = memo(function WorkTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5 shrink-0">
         <StatCard
           title="Active Tasks"
           value={formatNumber(activeTasks.length)}
@@ -647,15 +645,15 @@ const WorkTabContent = memo(function WorkTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
         {/* Left Column: Task Board */}
         <Section
           title="Task Board"
           description="Team tasks organized by status"
           icon={<CheckSquare className="h-4 w-4" />}
         >
-          <div className="max-h-[200px] overflow-y-auto">
-            <div className="grid grid-cols-3 gap-2">
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="grid grid-cols-3 gap-1.5">
               {taskColumns.map((column) => (
                 <div key={column.status}>
                   <div className="flex items-center justify-between mb-1.5">
@@ -711,13 +709,13 @@ const WorkTabContent = memo(function WorkTabContent() {
         </Section>
 
         {/* Right Column: Task List + Schedule */}
-        <div className="flex flex-col gap-2 min-h-0">
+        <div className="flex flex-col gap-1.5 min-h-0">
           <Section
             title="This Week's Schedule"
             description="Important meetings and deadlines"
             icon={<Calendar className="h-4 w-4" />}
           >
-            <div className="max-h-[200px] overflow-y-auto">
+            <div className="flex-1 min-h-0 overflow-y-auto">
               {upcomingDeadlines.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -733,7 +731,7 @@ const WorkTabContent = memo(function WorkTabContent() {
                           </p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(item.title)}>View</Button>
+                      <Button variant="outline" size="sm" onClick={() => handleViewTask(item)}>View</Button>
                     </div>
                   ))}
                 </div>
@@ -760,7 +758,7 @@ export default function PeopleCommunicationHub() {
       icon={Users}
       className="cta-hub"
     >
-      <div className="flex flex-col h-full gap-2 overflow-hidden">
+      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="people" className="flex items-center gap-2" data-testid="hub-tab-people">
