@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+import logger from '@/utils/logger';
+
 // Export type for GlobalStateContextType for barrel export compatibility
 export interface GlobalStateContextType {
   currentTenant: Tenant | null;
@@ -38,7 +40,8 @@ export function TenantProvider({ children }: { children: ReactNode }) {
           setCurrentTenant(tenant);
         }
       } catch (error) {
-        // Silent failure for tenant loading - will retry on next mount
+        // Tenant loading failed - will retry on next mount
+        logger.warn('Failed to load tenant', { error: String(error) })
       } finally {
         setIsLoading(false);
       }
@@ -128,7 +131,8 @@ export function FeatureFlagsProvider({ children }: { children: ReactNode }) {
         const flags = await res.json();
         setFeatureFlags(flags);
       } catch (error) {
-        // Silent failure for feature flags loading - will use defaults
+        // Feature flags loading failed - will use defaults
+        logger.warn('Failed to load feature flags, using defaults', { error: String(error) })
       }
     };
 

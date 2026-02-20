@@ -32,7 +32,10 @@ import { cn } from '@/lib/utils'
 import logger from '@/utils/logger';
 
 const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((res) => res.json())
+  fetch(url, { credentials: 'include' }).then((res) => {
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+    return res.json()
+  })
 
 /**
  * Compliance Map View - Map-First Architecture

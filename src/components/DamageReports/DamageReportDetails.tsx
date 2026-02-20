@@ -278,7 +278,7 @@ export function DamageReportDetails() {
                     <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
                       {report.photos.map((photo, index) => (
                         <button
-                          key={index}
+                          key={photo}
                           onClick={() => setSelectedPhotoIndex(index)}
                           className={`aspect-square overflow-hidden rounded-md border-2 transition-all ${
                             index === selectedPhotoIndex
@@ -313,7 +313,7 @@ export function DamageReportDetails() {
               <CardContent>
                 <div className="space-y-2">
                   {report.videos.map((video, index) => (
-                    <div key={index} className="space-y-2">
+                    <div key={video} className="space-y-2">
                       <video
                         controls
                         className="w-full rounded-lg"

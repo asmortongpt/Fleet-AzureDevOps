@@ -298,7 +298,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                         {witnesses.length > 0 && (
                             <div className="flex flex-wrap gap-2">
                                 {witnesses.map((witness, index) => (
-                                    <Badge key={index} variant="secondary" className="gap-2">
+                                    <Badge key={witness} variant="secondary" className="gap-2">
                                         {witness}
                                         <button
                                             type="button"
@@ -329,7 +329,7 @@ export function IncidentReportingForm({ onSubmit, onCancel }: IncidentReportingF
                         {photos.length > 0 && (
                             <div className="grid grid-cols-4 gap-2">
                                 {photos.map((photo, index) => (
-                                    <div key={index} className="relative group">
+                                    <div key={photo.name} className="relative group">
                                         <img
                                             src={URL.createObjectURL(photo)}
                                             alt={`Evidence ${index + 1}`}

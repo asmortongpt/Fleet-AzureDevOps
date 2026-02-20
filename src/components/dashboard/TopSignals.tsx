@@ -43,17 +43,17 @@ export function TopSignals({ className }: TopSignalsProps) {
       try {
         const [dashboardStats, maintenanceAlerts, costsData, healthData] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for signals', { error: String(err) }); return null; }),
           fetch('/api/dashboard/maintenance/alerts', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch maintenance alerts for signals', { error: String(err) }); return null; }),
           fetch('/api/dashboard/costs/summary?period=monthly', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch cost summary for signals', { error: String(err) }); return null; }),
           fetch('/api/health/system', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null)
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch system health for signals', { error: String(err) }); return null; })
         ]);
 
         const detectedSignals: Signal[] = [];

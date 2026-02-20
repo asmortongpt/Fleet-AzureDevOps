@@ -242,8 +242,8 @@ export function MaintenanceHubMap({
                 <div className="mt-2">
                   <p className="text-xs font-medium mb-1">Services:</p>
                   <div className="flex flex-wrap gap-1">
-                    {selectedLocation.services.map((service, idx) => (
-                      <Badge key={idx} variant="secondary" className="text-xs">
+                    {selectedLocation.services.map((service) => (
+                      <Badge key={service} variant="secondary" className="text-xs">
                         {service}
                       </Badge>
                     ))}

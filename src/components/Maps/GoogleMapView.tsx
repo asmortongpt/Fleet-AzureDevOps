@@ -367,7 +367,7 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
   routes = [],
   className = ''
 }) => {
-  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+  const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
 
   // Calculate center from vehicles if not provided
   const mapCenter = center || (vehicles.length > 0 ? {
@@ -404,7 +404,7 @@ export const GoogleMapView: React.FC<GoogleMapViewProps> = ({
           )}
           {showRoutes && routes.map((route, index) => (
             <RoutePolyline
-              key={index}
+              key={`route-${route[0]?.lat}-${route[0]?.lng}-${route.length}`}
               path={route}
               color={index % 2 === 0 ? 'hsl(var(--chart-1))' : 'hsl(var(--chart-4))'}
             />

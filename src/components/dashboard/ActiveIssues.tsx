@@ -42,11 +42,11 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
         // Fetch dashboard stats to detect issues
         const [dashboardStats, maintenanceAlerts] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for active issues', { error: String(err) }); return null; }),
           fetch('/api/dashboard/maintenance/alerts', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null)
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch maintenance alerts for active issues', { error: String(err) }); return null; })
         ]);
 
         const detectedIssues: Issue[] = [];

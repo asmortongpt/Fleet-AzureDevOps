@@ -613,8 +613,8 @@ You can chat with me naturally, or run structured workflows for complex tasks. H
                 <CircularProgress size={24} />
               ) : (
                 <List dense>
-                  {mcpServers.map((server: unknown, idx: number) => (
-                    <ListItem key={idx} disablePadding sx={{ py: 0.5 }}>
+                  {mcpServers.map((server: unknown) => (
+                    <ListItem key={(server as any)?.name} disablePadding sx={{ py: 0.5 }}>
                       <ListItemIcon sx={{ minWidth: 36 }}>
                         <SpeedIcon />
                       </ListItemIcon>

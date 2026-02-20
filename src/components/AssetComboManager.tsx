@@ -400,8 +400,8 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                 No relationship history found
               </div>
             ) : (
-              relationshipHistory.map((entry, index) => (
-                <div key={index} className="p-3">
+              relationshipHistory.map((entry) => (
+                <div key={`${entry.relationship_type}-${entry.effective_from}`} className="p-3">
                   <div className="flex items-start gap-3">
                     <Clock className="w-3 h-3 text-gray-700 mt-0.5" />
                     <div className="flex-1">

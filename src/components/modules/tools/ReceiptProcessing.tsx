@@ -290,8 +290,8 @@ export function ReceiptProcessing() {
                       {ocrPreview.data?.items && ocrPreview.data?.items.length > 0 && (
                         <div className="p-2 bg-muted rounded">
                           <div className="text-muted-foreground mb-1">Items:</div>
-                          {ocrPreview.data?.items.map((item, idx) => (
-                            <div key={idx} className="text-xs flex justify-between">
+                          {ocrPreview.data?.items.map((item) => (
+                            <div key={item.description} className="text-xs flex justify-between">
                               <span>{item.description}</span>
                               <span>${item.amount.toFixed(2)}</span>
                             </div>

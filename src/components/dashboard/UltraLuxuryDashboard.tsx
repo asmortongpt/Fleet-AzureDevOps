@@ -351,7 +351,7 @@ function PremiumInfoCard({
         <div className="space-y-4">
           {stats.map((stat, index) => (
             <motion.div
-              key={index}
+              key={stat.label}
               onMouseEnter={() => setHoveredStat(index)}
               onMouseLeave={() => setHoveredStat(null)}
               className="space-y-2"

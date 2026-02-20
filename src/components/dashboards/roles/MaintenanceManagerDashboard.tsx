@@ -334,9 +334,9 @@ export function MaintenanceManagerDashboard() {
             </div>
 
             <div className="space-y-3">
-              {upcomingSchedule.map((schedule, idx) => (
+              {upcomingSchedule.map((schedule) => (
                 <div
-                  key={idx}
+                  key={schedule.date}
                   className="flex items-center justify-between bg-slate-900/50 rounded-lg p-3 border border-slate-700"
                 >
                   <div className="flex items-center gap-3">

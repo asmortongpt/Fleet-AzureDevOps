@@ -29,11 +29,11 @@ export function PageHeader({ title, description, actions = [] }: PageHeaderProps
       </div>
       {actions.length > 0 && (
         <div className="flex gap-2">
-          {actions.map((action, idx) => {
+          {actions.map((action) => {
             const Icon = action.icon ? iconMap[action.icon] : null;
             return (
               <Button
-                key={idx}
+                key={action.label}
                 onClick={action.onClick}
                 variant={action.variant || 'default'}
               >

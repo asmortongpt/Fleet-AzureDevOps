@@ -157,9 +157,9 @@ export function VehicleConditionPanel({
         {/* Critical Alerts */}
         {criticalAlerts.length > 0 && (
           <div className="mt-2 space-y-2">
-            {criticalAlerts.map((alert, index) => (
+            {criticalAlerts.map((alert) => (
               <div
-                key={index}
+                key={alert.message}
                 className={`flex items-center gap-3 p-3 rounded-lg ${
                   alert.severity === 'critical'
                     ? 'bg-red-900/30 border border-red-700'
@@ -387,9 +387,9 @@ function DetailsTab({ condition }: DetailsTabProps) {
       {/* Diagnostic Codes */}
       {condition.diagnostics.diagnosticCodes.length > 0 && (
         <DetailSection title="Diagnostic Codes">
-          {condition.diagnostics.diagnosticCodes.map((code, index) => (
+          {condition.diagnostics.diagnosticCodes.map((code) => (
             <div
-              key={index}
+              key={code.code}
               className="flex items-start gap-3 p-3 bg-slate-900/50 rounded-lg"
             >
               <div
@@ -542,8 +542,8 @@ function HistoryTab({ serviceHistory }: HistoryTabProps) {
                   <div className="mt-3 pt-3 border-t border-slate-700">
                     <p className="text-slate-700 text-sm mb-2">Parts Used:</p>
                     <ul className="space-y-1">
-                      {record.parts.map((part, idx) => (
-                        <li key={idx} className="text-sm text-slate-300 flex justify-between">
+                      {record.parts.map((part) => (
+                        <li key={part.name} className="text-sm text-slate-300 flex justify-between">
                           <span>
                             {part.name} (x{part.quantity})
                           </span>

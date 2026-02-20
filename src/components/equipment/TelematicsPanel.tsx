@@ -266,8 +266,8 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  {telematicsData.diagnostic_codes.map((code, index) => (
-                    <div key={index} className="flex items-center gap-2 p-2 bg-yellow-50 rounded">
+                  {telematicsData.diagnostic_codes.map((code) => (
+                    <div key={code} className="flex items-center gap-2 p-2 bg-yellow-50 rounded">
                       <Badge variant="secondary">{code}</Badge>
                       <span className="text-sm">Active diagnostic code</span>
                     </div>

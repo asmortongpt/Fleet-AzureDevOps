@@ -221,8 +221,8 @@ export const TelemetryDashboard: React.FC = () => {
             <div style={styles.errorsSection}>
               <h3 style={styles.sectionTitle}>Recent Errors</h3>
               <div style={styles.errorsList}>
-                {metrics.recentErrors.map((error, idx) => (
-                  <div key={idx} style={styles.errorItem}>
+                {metrics.recentErrors.map((error) => (
+                  <div key={`${error.name}-${error.timestamp}`} style={styles.errorItem}>
                     <div style={styles.errorName}>{error.name}</div>
                     <div style={styles.errorTime}>
                       {new Date(error.timestamp).toLocaleTimeString()}
@@ -264,8 +264,8 @@ export const TelemetryDashboard: React.FC = () => {
               Recent Events ({filteredEvents.length})
             </h3>
             <div style={styles.eventsList}>
-              {filteredEvents.slice(-50).reverse().map((event, idx) => (
-                <EventItem key={idx} event={event} />
+              {filteredEvents.slice(-50).reverse().map((event) => (
+                <EventItem key={`${event.name}-${event.timestamp}`} event={event} />
               ))}
             </div>
           </div>

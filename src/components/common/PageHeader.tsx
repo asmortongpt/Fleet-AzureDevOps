@@ -112,8 +112,8 @@ export function PageHeader({
           stats.length === 5 ? "grid-cols-5" :
           "grid-cols-6"
         }`}>
-          {stats.map((stat, index) => (
-            <StatCardComponent key={index} {...stat} />
+          {stats.map((stat) => (
+            <StatCardComponent key={stat.label} {...stat} />
           ))}
         </div>
       )}

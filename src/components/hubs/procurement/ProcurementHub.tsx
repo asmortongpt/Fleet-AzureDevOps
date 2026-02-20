@@ -32,7 +32,10 @@ import {
 import { cn } from "@/lib/utils"
 
 const fetcher = (url: string) =>
-  fetch(url, { credentials: "include" }).then((res) => res.json())
+  fetch(url, { credentials: "include" }).then((res) => {
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+    return res.json()
+  })
 
 // Supplier Panel Component
 const SupplierPanel = ({ supplier, onCreatePO, isCreatingPO }: { supplier: any; _onClose: () => void; onCreatePO: (supplier: any) => void; isCreatingPO: boolean }) => {

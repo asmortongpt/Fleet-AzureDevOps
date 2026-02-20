@@ -536,8 +536,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
           </Typography>
 
           <Grid container spacing={3}>
-            {kpiTrends.map((kpi, index) => (
-              <Grid size={{ xs: 12, md: 6 }} key={index}>
+            {kpiTrends.map((kpi) => (
+              <Grid size={{ xs: 12, md: 6 }} key={kpi.metric}>
                 <Card>
                   <CardContent>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -605,8 +605,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {benchmarks.map((benchmark, index) => (
-                  <TableRow key={index}>
+                {benchmarks.map((benchmark) => (
+                  <TableRow key={benchmark.metric}>
                     <TableCell>{benchmark.metric}</TableCell>
                     <TableCell>
                       <Typography variant="body2" fontWeight="bold">
@@ -775,8 +775,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <List>
-                        {executiveReport.summary.keyAchievements.map((achievement, index) => (
-                          <ListItem key={index}>
+                        {executiveReport.summary.keyAchievements.map((achievement) => (
+                          <ListItem key={achievement}>
                             <ListItemIcon>
                               <CheckCircleIcon color="success" />
                             </ListItemIcon>
@@ -793,8 +793,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <List>
-                        {executiveReport.summary.majorConcerns.map((concern, index) => (
-                          <ListItem key={index}>
+                        {executiveReport.summary.majorConcerns.map((concern) => (
+                          <ListItem key={concern}>
                             <ListItemIcon>
                               <WarningIcon color="warning" />
                             </ListItemIcon>
@@ -811,8 +811,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     </AccordionSummary>
                     <AccordionDetails>
                       <List>
-                        {executiveReport.recommendations.map((recommendation, index) => (
-                          <ListItem key={index}>
+                        {executiveReport.recommendations.map((recommendation) => (
+                          <ListItem key={recommendation}>
                             <ListItemIcon>
                               <LightbulbIcon color="primary" />
                             </ListItemIcon>
@@ -857,8 +857,8 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                       <Typography variant="h6" gutterBottom>
                         High-Impact Insights
                       </Typography>
-                      {executiveReport.insights.map((insight, index) => (
-                        <Box key={index} sx={{ mb: 2 }}>
+                      {executiveReport.insights.map((insight) => (
+                        <Box key={insight.title} sx={{ mb: 2 }}>
                           <Typography variant="body2" fontWeight="bold">
                             {insight.title}
                           </Typography>

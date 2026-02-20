@@ -195,8 +195,8 @@ export function SmartForm({
             <TrendingUp className="h-4 w-4 text-orange-600" />
             <AlertDescription>
               <p className="font-semibold text-orange-900 mb-2">Anomalies Detected:</p>
-              {validation.anomalies.map((anomaly, index) => (
-                <div key={index} className="text-sm text-orange-800 mb-1">
+              {validation.anomalies.map((anomaly) => (
+                <div key={anomaly.type} className="text-sm text-orange-800 mb-1">
                   <strong>{anomaly.type}:</strong> {anomaly.description}
                   {anomaly.expectedRange && (
                     <span className="text-orange-600 ml-2">
@@ -299,8 +299,8 @@ export function SmartForm({
           })}
 
           {/* General Warnings */}
-          {validation && validation.warnings.filter(w => !w.field).map((warning, index) => (
-            <Alert key={index} className={getSeverityBgColor(warning.severity)}>
+          {validation && validation.warnings.filter(w => !w.field).map((warning) => (
+            <Alert key={warning.message} className={getSeverityBgColor(warning.severity)}>
               <AlertCircle className={`h-4 w-4 ${getSeverityColor(warning.severity)}`} />
               <AlertDescription className={getSeverityColor(warning.severity)}>
                 {warning.message}

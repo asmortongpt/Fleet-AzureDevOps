@@ -70,7 +70,10 @@ interface ZoneEvent {
 
 const fetcher = (url: string) =>
   fetch(url)
-    .then((r) => r.json())
+    .then((r) => {
+      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      return r.json()
+    })
     .then((data) => data?.data ?? data)
 
 export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelProps) {
@@ -346,7 +349,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                 <CardContent>
                   <ul className="space-y-3">
                     {zone.restrictions.map((restriction, index) => (
-                      <li key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                      <li key={restriction} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                         <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 text-primary font-medium text-sm mt-0.5">
                           {index + 1}
                         </div>

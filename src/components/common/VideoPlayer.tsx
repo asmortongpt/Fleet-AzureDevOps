@@ -7,6 +7,8 @@ import Hls from 'hls.js'
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Circle, Camera, AlertTriangle } from 'lucide-react'
 import { useRef, useState, useEffect, useCallback } from 'react'
 
+import logger from '@/utils/logger'
+
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
@@ -97,7 +99,8 @@ export function VideoPlayer({
         setIsLoading(false)
         if (autoPlay) {
           video.play().catch(() => {
-            // Autoplay blocked, user needs to interact
+            // Browser autoplay policy blocked playback - user must interact first
+            logger.warn('Video autoplay blocked by browser policy')
             setIsPlaying(false)
           })
         }
@@ -124,7 +127,10 @@ export function VideoPlayer({
       const handleCanPlay = () => {
         setIsLoading(false)
         if (autoPlay) {
-          video.play().catch(() => setIsPlaying(false))
+          video.play().catch(() => {
+            logger.warn('Native video autoplay blocked by browser policy')
+            setIsPlaying(false)
+          })
         }
       }
 

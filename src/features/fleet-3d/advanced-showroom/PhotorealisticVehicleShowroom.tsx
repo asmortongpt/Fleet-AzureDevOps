@@ -748,9 +748,9 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                 { label: 'Status', value: selectedVehicle.status },
                 { label: 'VIN', value: selectedVehicle.vin },
                 { label: 'Vehicle ID', value: selectedVehicle.id }
-              ].map((item, index) => (
+              ].map((item) => (
                 <div
-                  key={index}
+                  key={item.label}
                   style={{
                     display: 'flex',
                     justifyContent: 'space-between',

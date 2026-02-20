@@ -211,9 +211,9 @@ function VehicleModel({
       <primitive object={scene} scale={1} position={[0, 0, 0]} />
 
       {/* Damage markers */}
-      {showDamage && damageMarkers.map((marker, index) => (
+      {showDamage && damageMarkers.map((marker) => (
         <DamageMarker
-          key={index}
+          key={`${marker.location?.x ?? 0}-${marker.location?.y ?? 0}-${marker.location?.z ?? 0}-${marker.severity}`}
           position={[marker.location?.x ?? 0, marker.location?.y ?? 0, marker.location?.z ?? 0]}
           severity={marker.severity}
           type={marker.type}

@@ -257,7 +257,7 @@ function safeSetLocalStorage(key: string, value: string): boolean {
  */
 function hasGoogleMapsApiKey(): boolean {
   try {
-    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
     return typeof key === "string" && key.length > 0
   } catch (error) {
     logger.warn("Failed to check Google Maps API key:", { error: error instanceof Error ? error.message : String(error) })

@@ -54,7 +54,10 @@ interface DriverData {
   }>
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
   const { push } = useDrilldown()
@@ -207,8 +210,8 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {driver.certifications.map((cert, idx) => (
-                    <li key={idx} className="flex items-center justify-between p-2 rounded bg-muted/50">
+                  {driver.certifications.map((cert) => (
+                    <li key={cert.name} className="flex items-center justify-between p-2 rounded bg-muted/50">
                       <div className="flex items-center gap-2">
                         <Award className="h-4 w-4 text-primary" />
                         <div>
@@ -252,9 +255,9 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {driver.violations.map((violation, idx) => (
+                  {driver.violations.map((violation) => (
                     <li
-                      key={idx}
+                      key={`${violation.type}-${violation.date}`}
                       className="flex items-start gap-2 p-2 rounded bg-destructive/10"
                     >
                       <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />

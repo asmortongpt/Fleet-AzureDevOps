@@ -228,9 +228,9 @@ export function AIChatPanel({ hubType = 'general', onClose }: AIChatPanelProps) 
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mt-2">
-            {currentQuickActions.map((action, idx) => (
+            {currentQuickActions.map((action) => (
               <QuickAction
-                key={idx}
+                key={action.label}
                 label={action.label}
                 onClick={() => setInput(action.prompt)}
               />

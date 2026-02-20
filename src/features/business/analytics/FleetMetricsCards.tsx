@@ -166,10 +166,10 @@ const FleetMetricsCards: React.FC<FleetMetricsCardsProps> = ({ data, period }) =
   ];
 
   return (<Grid container spacing={3}>
-      {metrics.map((metric, index) => {
+      {metrics.map((metric) => {
         const IconComponent = metric.icon;
         return (
-          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={index}>
+          <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={metric.title}>
             <Card
               sx={{
                 height: '100%',

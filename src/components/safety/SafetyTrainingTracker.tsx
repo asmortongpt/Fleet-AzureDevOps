@@ -392,8 +392,8 @@ export function SafetyTrainingTracker() {
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
-                        {OSHA_REQUIRED_TRAINING.map((training, index) => (
-                            <div key={index} className="text-xs text-slate-300 bg-slate-800/30 rounded px-2 py-1">
+                        {OSHA_REQUIRED_TRAINING.map((training) => (
+                            <div key={training} className="text-xs text-slate-300 bg-slate-800/30 rounded px-2 py-1">
                                 {training}
                             </div>
                         ))}

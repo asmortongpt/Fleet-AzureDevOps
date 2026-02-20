@@ -373,9 +373,9 @@ export function DocumentQA() {
               {messages.length === 1 && (
                 <div className="flex flex-wrap gap-2">
                   <p className="w-full text-sm text-muted-foreground mb-1">Suggested questions:</p>
-                  {suggestedQuestions.map((question, idx) => (
+                  {suggestedQuestions.map((question) => (
                     <Button
-                      key={idx}
+                      key={question}
                       variant="outline"
                       size="sm"
                       onClick={() => setInputValue(question)}

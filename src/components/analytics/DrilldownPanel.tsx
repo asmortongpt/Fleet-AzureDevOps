@@ -260,7 +260,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                         {breadcrumbs.length > 0 && (
                             <div className="flex items-center gap-2 text-sm overflow-x-auto pb-2">
                                 {breadcrumbs.map((crumb, index) => (
-                                    <div key={index} className="flex items-center gap-2 flex-shrink-0">
+                                    <div key={crumb.title} className="flex items-center gap-2 flex-shrink-0">
                                         <button
                                             onClick={() => handleDrillUp(index)}
                                             className={`px-3 py-1 rounded-lg transition-colors ${

@@ -515,8 +515,8 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   AI Coaching Recommendations
                 </h4>
                 <div className="space-y-1">
-                  {analysis.coaching.improvements.slice(0, 2).map((improvement, index) => (
-                    <div key={index} className="text-xs text-gray-700 bg-green-50 p-2 rounded">
+                  {analysis.coaching.improvements.slice(0, 2).map((improvement) => (
+                    <div key={improvement} className="text-xs text-gray-700 bg-green-50 p-2 rounded">
                       • {improvement}
                     </div>
                   ))}
@@ -738,9 +738,9 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   <div className="pt-2 border-t">
                     <h4 className="font-medium text-sm mb-2">Recommended Training</h4>
                     <div className="space-y-1">
-                      {analysis.coaching.trainingRecommendations.map((training, index) => (
+                      {analysis.coaching.trainingRecommendations.map((training) => (
                         <div
-                          key={index}
+                          key={training}
                           className="flex items-center justify-between p-2 bg-white rounded"
                         >
                           <span className="text-sm">{training}</span>

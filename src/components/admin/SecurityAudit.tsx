@@ -418,9 +418,9 @@ export function SecurityAudit() {
               <p>No audit results yet. Click "Run Audit" to get started.</p>
             </div>
           ) : (
-            checks.map((check, index) => (
+            checks.map((check) => (
               <div
-                key={index}
+                key={check.name}
                 className="flex items-start justify-between p-2 border rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex-1">
@@ -492,8 +492,8 @@ export function SecurityAudit() {
           <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
             {checks
               .filter((c) => c.status === 'fail')
-              .map((check, index) => (
-                <li key={index}>{check.name}</li>
+              .map((check) => (
+                <li key={check.name}>{check.name}</li>
               ))}
           </ul>
         </Card>

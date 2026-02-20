@@ -42,7 +42,10 @@ interface TelemetryData {
 }
 
 const fetcher = (url: string): Promise<TelemetryData> =>
-  fetch(url).then((r) => r.json())
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+    return r.json()
+  })
 
 export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
   const [activeTab, setActiveTab] = useState('overview')
@@ -184,9 +187,9 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                 <CardContent>
                   {telemetry.gps_points && telemetry.gps_points.length > 0 ? (
                     <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {telemetry.gps_points.map((point, idx) => (
+                      {telemetry.gps_points.map((point) => (
                         <div
-                          key={idx}
+                          key={`${point.lat}-${point.lng}-${point.timestamp}`}
                           className="flex items-center justify-between p-2 rounded bg-muted/50 text-sm"
                         >
                           <div className="flex items-center gap-2">
@@ -255,9 +258,9 @@ export function TripTelemetryView({ tripId, trip }: TripTelemetryViewProps) {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {telemetry.events && telemetry.events.length > 0 ? (
-                    telemetry.events.map((event, idx) => (
+                    telemetry.events.map((event) => (
                       <div
-                        key={idx}
+                        key={`${event.type}-${event.timestamp}`}
                         className="flex items-start gap-2 p-2 rounded bg-muted/50"
                       >
                         <Activity className="h-4 w-4 text-muted-foreground mt-0.5" />

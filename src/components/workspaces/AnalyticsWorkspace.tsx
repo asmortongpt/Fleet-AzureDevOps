@@ -120,8 +120,8 @@ const ExecutiveDashboard = ({ vehicles, workOrders, _drivers }: { vehicles: Vehi
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2" data-testid="analytics-kpi-grid">
-          {kpis.map((kpi, index) => (
-            <Card key={index} data-testid={`analytics-kpi-${index}`} className={`bg-gradient-to-br ${kpi.bg} border-white/5 backdrop-blur-sm`}>
+          {kpis.map((kpi) => (
+            <Card key={kpi.title} data-testid={`analytics-kpi-${kpi.title}`} className={`bg-gradient-to-br ${kpi.bg} border-white/5 backdrop-blur-sm`}>
               <CardContent className="p-3">
                 <div className="flex items-center justify-between mb-2">
                   <div className={`p-2 rounded-lg bg-white/5 border ${kpi.border || 'border-white/10'}`}>

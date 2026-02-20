@@ -119,9 +119,9 @@ export function RouteTimeline({ routes, startTime, endTime }: RouteTimelineProps
       <CardContent>
         {/* Time axis */}
         <div className="relative mb-4 h-8 border-b border-slate-200">
-          {hourMarkers.map((marker, i) => (
+          {hourMarkers.map((marker) => (
             <div
-              key={i}
+              key={marker.time}
               className="absolute top-0 h-full border-l border-slate-200"
               style={{ left: `${marker.position}%` }}
             >

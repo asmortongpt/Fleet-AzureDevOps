@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useDriverMutations } from "@/hooks/use-api"
 import { Driver } from "@/lib/types"
+import logger from "@/utils/logger"
 
 interface DriverControlPanelProps {
     isVisible: boolean
@@ -133,6 +134,7 @@ export function DriverControlPanel({
             setIsCreateDialogOpen(false)
         } catch (error) {
             // Mutation handles error reporting; keep dialog open for correction
+            logger.warn('Driver creation failed, dialog kept open for correction', { error: String(error) })
         }
     }
 

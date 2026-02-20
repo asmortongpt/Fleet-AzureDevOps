@@ -66,11 +66,17 @@ import logger from '@/utils/logger';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      return res.json()
+    })
     .then((data) => data?.data ?? data)
 
 const rawFetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((res) => res.json())
+  fetch(url, { credentials: 'include' }).then((res) => {
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+    return res.json()
+  })
 
 // ============================================================================
 // TAB CONTENT COMPONENTS

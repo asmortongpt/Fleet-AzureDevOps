@@ -191,9 +191,9 @@ export function InteractiveTooltip({
                 {/* Alerts */}
                 {data.alerts && data.alerts.length > 0 && (
                   <div className="space-y-1">
-                    {data.alerts.map((alert, i) => (
+                    {data.alerts.map((alert) => (
                       <div
-                        key={i}
+                        key={alert.message}
                         className={cn(
                           "text-xs p-2 rounded flex items-start gap-2",
                           alert.type === "error" && "bg-red-50 text-red-700",

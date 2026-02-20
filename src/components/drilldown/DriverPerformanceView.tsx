@@ -25,7 +25,10 @@ interface DriverPerformanceViewProps {
   driverName?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 export function DriverPerformanceView({
   driverId,
@@ -244,9 +247,9 @@ export function DriverPerformanceView({
                 <CardContent>
                   {performance.violations && performance.violations.length > 0 ? (
                     <ul className="space-y-2">
-                      {performance.violations.map((violation: any, idx: number) => (
+                      {performance.violations.map((violation: any) => (
                         <li
-                          key={idx}
+                          key={`${violation.type}-${violation.date}`}
                           className="flex items-start gap-2 p-2 rounded bg-destructive/10"
                         >
                           <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />

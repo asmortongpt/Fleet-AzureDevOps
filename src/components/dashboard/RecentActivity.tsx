@@ -55,11 +55,11 @@ export function RecentActivity({ className }: RecentActivityProps) {
       try {
         const [dashboardStats, maintenanceAlerts] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null),
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for recent activity', { error: String(err) }); return null; }),
           fetch('/api/dashboard/maintenance/alerts', { credentials: 'include' })
-            .then(res => res.json())
-            .catch(() => null)
+            .then(res => res.ok ? res.json() : null)
+            .catch(err => { logger.warn('Failed to fetch maintenance alerts for recent activity', { error: String(err) }); return null; })
         ]);
 
         const now = new Date();

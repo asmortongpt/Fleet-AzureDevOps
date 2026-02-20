@@ -99,8 +99,8 @@ export function InteractiveLineChart({
         }}
       >
         <p className="font-semibold mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
+        {payload.map((entry: any) => (
+          <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
             <span>{entry.name}: </span>
             <span className="font-mono font-semibold">{entry.value.toLocaleString()}</span>

@@ -167,7 +167,7 @@ export const authOptions: AuthOptions = {
     maxAge: 60 * 60, // 1 hour
   },
 
-  secret: import.meta.env.VITE_AUTH_SECRET,
+  secret: import.meta.env.VITE_AUTH_SECRET || '',
 
   // Cookie configuration for basePath support
   cookies: {

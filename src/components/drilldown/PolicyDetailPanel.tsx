@@ -97,7 +97,10 @@ interface AffectedEntity {
   last_check_date?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
   const { push } = useDrilldown()
@@ -569,8 +572,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {complianceMetrics.map((metric, index) => (
-                          <div key={index} className="space-y-2">
+                        {complianceMetrics.map((metric) => (
+                          <div key={metric.period} className="space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-sm font-medium">{metric.period}</span>
                               <span className="text-sm font-bold">{metric.compliance_rate.toFixed(1)}%</span>

@@ -18,7 +18,7 @@ export const RowExpandPanel: React.FC<{
         <div style={{border:'1px solid hsl(var(--border) / 0.2)', borderRadius:16, padding:12, background:'hsl(var(--muted) / 0.2)'}}>
           <div style={{fontSize:12, color:'var(--muted)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Telemetry Drilldown</div>
           <div style={{display:'flex', gap:8, flexWrap:'wrap', marginBottom:10}}>
-            {anomalies.map((a,i)=><StatusChip key={i} status={a.status} label={a.label}/>)}
+            {anomalies.map((a)=><StatusChip key={a.label} status={a.status} label={a.label}/>)}
           </div>
           <div style={{height:54, borderRadius:16, border:'1px dashed hsl(var(--border) / 0.18)', background:'linear-gradient(180deg, hsl(var(--primary) / 0.1), hsl(var(--muted) / 0.2))'}}/>
           <div style={{marginTop:10, color:'var(--muted)', fontSize:12}}>Click points to open sub-records (wire later).</div>

@@ -16,7 +16,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className = '' })
     <nav className={`flex ${className}`} aria-label="Breadcrumb">
       <ol className="inline-flex items-center space-x-1 md:space-x-3">
         {items.map((item, index) => (
-          <li key={index} className="inline-flex items-center">
+          <li key={item.label} className="inline-flex items-center">
             {index > 0 && (
               <svg
                 className="w-4 h-4 text-gray-700"

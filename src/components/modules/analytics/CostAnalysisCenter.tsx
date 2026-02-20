@@ -396,8 +396,8 @@ export function CostAnalysisCenter() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {costSummary.topExpenses.map((expense, idx) => (
-                        <TableRow key={idx}>
+                      {costSummary.topExpenses.map((expense) => (
+                        <TableRow key={`${expense.description}-${expense.date}`}>
                           <TableCell className="font-medium">{expense.description}</TableCell>
                           <TableCell>
                             <Badge variant="secondary">{expense.category}</Badge>
@@ -537,8 +537,8 @@ export function CostAnalysisCenter() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {forecasts.map((forecast, idx) => (
-                    <TableRow key={idx}>
+                  {forecasts.map((forecast) => (
+                    <TableRow key={forecast.period}>
                       <TableCell className="font-medium">{forecast.period}</TableCell>
                       <TableCell className="font-bold">${forecast.predictedAmount.toLocaleString()}</TableCell>
                       <TableCell>

@@ -55,12 +55,18 @@ import logger from '@/utils/logger';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      return res.json()
+    })
     .then((data) => data?.data ?? data)
 
 const rawFetcher = (url: string) =>
   fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      return res.json()
+    })
 
 // ============================================================================
 // TAB CONTENT COMPONENTS
@@ -223,8 +229,8 @@ const PeopleTabContent = memo(function PeopleTabContent() {
             {recentActivity.length === 0 ? (
               <div className="text-sm text-muted-foreground">No recent activity.</div>
             ) : (
-              recentActivity.map((activity, index) => (
-                <div key={index} className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/60 p-3">
+              recentActivity.map((activity) => (
+                <div key={`${activity.type}-${activity.name}`} className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/60 p-3">
                   <UserPlus className="h-5 w-5 text-green-500 mt-0.5" />
                   <div className="flex-1">
                     <p className="font-medium">{activity.type}</p>

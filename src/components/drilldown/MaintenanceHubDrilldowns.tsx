@@ -50,7 +50,10 @@ import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 // ============================================
 // TYPE DEFINITIONS
@@ -798,8 +801,8 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                 <CardContent>
                   {repair.partsUsed.length > 0 ? (
                     <div className="space-y-3">
-                      {repair.partsUsed.map((part, idx) => (
-                        <div key={idx} className="p-3 border rounded-lg">
+                      {repair.partsUsed.map((part) => (
+                        <div key={part.partNumber} className="p-3 border rounded-lg">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <p className="font-medium">{part.partName}</p>
@@ -854,8 +857,8 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                 <CardContent>
                   {repair.laborEntries.length > 0 ? (
                     <div className="space-y-3">
-                      {repair.laborEntries.map((entry, idx) => (
-                        <div key={idx} className="p-3 border rounded-lg">
+                      {repair.laborEntries.map((entry) => (
+                        <div key={`${entry.technicianName}-${entry.description}`} className="p-3 border rounded-lg">
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
@@ -1250,9 +1253,9 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
-                    {inspection.inspectionItems.map((item, idx) => (
+                    {inspection.inspectionItems.map((item) => (
                       <div
-                        key={idx}
+                        key={item.item}
                         className="p-3 border rounded-lg flex items-start justify-between"
                       >
                         <div className="flex-1">
@@ -1300,8 +1303,8 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                 <CardContent>
                   {inspection.failedItems.length > 0 ? (
                     <div className="space-y-3">
-                      {inspection.failedItems.map((item, idx) => (
-                        <div key={idx} className="p-3 border rounded-lg border-red-200 bg-red-50">
+                      {inspection.failedItems.map((item) => (
+                        <div key={item.item} className="p-3 border rounded-lg border-red-200 bg-red-50">
                           <div className="flex items-start justify-between mb-2">
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
@@ -1744,8 +1747,8 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {vendor.specialties.map((specialty, idx) => (
-                      <Badge key={idx} variant="secondary">
+                    {vendor.specialties.map((specialty) => (
+                      <Badge key={specialty} variant="secondary">
                         {specialty}
                       </Badge>
                     ))}
@@ -1759,8 +1762,8 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {vendor.certifications.map((cert, idx) => (
-                      <Badge key={idx} variant="outline">
+                    {vendor.certifications.map((cert) => (
+                      <Badge key={cert} variant="outline">
                         <Shield className="w-3 h-3 mr-1" />
                         {cert}
                       </Badge>

@@ -61,7 +61,10 @@ import logger from '@/utils/logger';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      return res.json()
+    })
     .then((data) => data?.data ?? data)
 
 // ============================================================================
@@ -405,8 +408,8 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
             {renewals.length === 0 ? (
               <div className="text-sm text-muted-foreground">No upcoming renewals within 60 days.</div>
             ) : (
-              renewals.map((renewal, index) => (
-                <div key={index} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
+              renewals.map((renewal) => (
+                <div key={`${renewal.type}-${renewal.item}`} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
                   <div className="flex items-center gap-3">
                     {renewal.type === 'driver' ? (
                       <Users className={`h-5 w-5 ${renewal.daysLeft <= 14 ? 'text-red-500' : renewal.daysLeft <= 30 ? 'text-yellow-500' : 'text-blue-500'}`} />

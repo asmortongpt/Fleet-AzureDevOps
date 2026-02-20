@@ -659,8 +659,8 @@ export function PolicyOnboarding() {
               </TabsList>
 
               <TabsContent value="gaps" className="space-y-2 mt-3">
-                {gaps.map((gap, idx) => (
-                  <Card key={idx} className={cn("border-2", getSeverityColor(gap.severity))}>
+                {gaps.map((gap) => (
+                  <Card key={gap.category} className={cn("border-2", getSeverityColor(gap.severity))}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -703,8 +703,8 @@ export function PolicyOnboarding() {
               </TabsContent>
 
               <TabsContent value="bottlenecks" className="space-y-2 mt-3">
-                {bottlenecks.map((bottleneck, idx) => (
-                  <Card key={idx} className="border-2 border-red-200 bg-red-50">
+                {bottlenecks.map((bottleneck) => (
+                  <Card key={bottleneck.process} className="border-2 border-red-200 bg-red-50">
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -787,7 +787,7 @@ export function PolicyOnboarding() {
             <div className="grid grid-cols-1 gap-2">
               {recommendations.map((rec, idx) => (
                 <Card
-                  key={idx}
+                  key={rec.policy.name}
                   className={cn(
                     "border-2 transition-all cursor-pointer hover:shadow-sm",
                     selectedRecommendations.has(idx)

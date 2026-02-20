@@ -44,7 +44,10 @@ interface Trip {
   highlights?: string[]
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) {
   const { data: trips, error, isLoading, mutate } = useSWR(
@@ -175,9 +178,9 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                               </span>
                             </div>
                             <ul className="space-y-2">
-                              {trip.incidents.map((incident, idx) => (
+                              {trip.incidents.map((incident) => (
                                 <li
-                                  key={idx}
+                                  key={`${incident.type}-${incident.timestamp}`}
                                   className="text-xs p-2 rounded bg-destructive/10 flex items-start gap-2"
                                 >
                                   <AlertTriangle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
@@ -208,9 +211,9 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                               <span className="text-sm font-medium">Highlights</span>
                             </div>
                             <ul className="space-y-1">
-                              {trip.highlights.map((highlight, idx) => (
+                              {trip.highlights.map((highlight) => (
                                 <li
-                                  key={idx}
+                                  key={highlight}
                                   className="text-xs flex items-center gap-2 text-green-600"
                                 >
                                   <TrendingUp className="h-3 w-3 flex-shrink-0" />

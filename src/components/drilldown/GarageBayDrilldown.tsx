@@ -132,7 +132,10 @@ interface GarageBay {
   equipment: string[]
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps) {
   const { push } = useDrilldown()
@@ -394,8 +397,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                       </div>
                       {currentWorkOrder.primary_technician.certifications && currentWorkOrder.primary_technician.certifications.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1">
-                          {currentWorkOrder.primary_technician.certifications.map((cert, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs">
+                          {currentWorkOrder.primary_technician.certifications.map((cert) => (
+                            <Badge key={cert} variant="secondary" className="text-xs">
                               {cert}
                             </Badge>
                           ))}
@@ -540,8 +543,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             Notes ({currentWorkOrder.notes.length})
                           </h5>
                           <ul className="space-y-2">
-                            {currentWorkOrder.notes.map((note, idx) => (
-                              <li key={idx} className="text-sm p-2 rounded bg-muted/50">
+                            {currentWorkOrder.notes.map((note) => (
+                              <li key={note} className="text-sm p-2 rounded bg-muted/50">
                                 {note}
                               </li>
                             ))}
@@ -735,8 +738,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     <CardContent>
                       {bay.equipment && bay.equipment.length > 0 ? (
                         <div className="grid grid-cols-2 gap-3">
-                          {bay.equipment.map((item, idx) => (
-                            <div key={idx} className="flex items-center gap-2 p-3 rounded border">
+                          {bay.equipment.map((item) => (
+                            <div key={item} className="flex items-center gap-2 p-3 rounded border">
                               <CheckCircle2 className="h-4 w-4 text-green-500" />
                               <span className="text-sm font-medium">{item}</span>
                             </div>

@@ -166,8 +166,8 @@ export function AnalyticsDashboard() {
 
           {/* KPI Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2" data-testid="analytics-kpi-cards">
-            {kpis.map((kpi, index) => (
-              <Card key={index} data-testid={`analytics-kpi-${index}`}>
+            {kpis.map((kpi) => (
+              <Card key={kpi.title} data-testid={`analytics-kpi-${kpi.title}`}>
                 <CardContent className="p-2">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-muted-foreground">{kpi.title}</span>

@@ -348,9 +348,9 @@ export function RelatedRecordsInline({
               <TooltipContent>
                 <div className="text-xs space-y-1">
                   <p className="font-medium">{config.label}</p>
-                  {displayItems.map((item, i) => (
+                  {displayItems.map((item) => (
                     <div
-                      key={i}
+                      key={`${item.type}-${item.id}`}
                       onClick={() => navigateToEntity(item)}
                       onKeyDown={(e) => e.key === 'Enter' && navigateToEntity(item)}
                       role="button"

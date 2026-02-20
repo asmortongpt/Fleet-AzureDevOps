@@ -247,8 +247,8 @@ export function TeamsIntegration() {
                         <div className="text-sm whitespace-pre-wrap">{message.content}</div>
                         {message.reactions && message.reactions.length > 0 && (
                           <div className="flex gap-2 mt-2">
-                            {message.reactions.map((reaction, idx) => (
-                              <Badge key={idx} variant="outline" className="text-xs">
+                            {message.reactions.map((reaction) => (
+                              <Badge key={reaction.emoji} variant="outline" className="text-xs">
                                 {reaction.emoji} {reaction.count}
                               </Badge>
                             ))}

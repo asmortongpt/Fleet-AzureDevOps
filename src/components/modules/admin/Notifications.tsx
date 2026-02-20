@@ -38,6 +38,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { apiClient } from '@/lib/api-client'
 import { useInspect } from '@/services/inspect/InspectContext'
 import { brandColors } from '@/theme/designSystem'
+import logger from '@/utils/logger'
 
 interface Alert {
   id: string
@@ -89,7 +90,8 @@ export function Notifications() {
       const response: AxiosResponse<AlertsResponse> = await apiClient.get('/api/alerts', { params })
       setAlerts(response.data?.alerts || [])
     } catch (_error) {
-      // Silent failure - alerts data will retry on next fetch
+      // Alerts data will retry on next fetch
+      logger.warn('Failed to fetch alerts', { error: String(_error) })
     } finally {
       setIsLoading(false)
     }
@@ -100,7 +102,8 @@ export function Notifications() {
       const response: AxiosResponse<AlertStats> = await apiClient.get('/api/alerts/stats')
       setStats(response.data)
     } catch (_error) {
-      // Silent failure - stats data is optional
+      // Stats data is optional - log and continue
+      logger.warn('Failed to fetch alert stats', { error: String(_error) })
     }
   }
 
@@ -115,7 +118,8 @@ export function Notifications() {
       fetchAlerts()
       fetchStats()
     } catch (_error) {
-      // Silent failure - user will retry if needed
+      // User can retry if needed
+      logger.warn('Failed to acknowledge alert', { alertId, error: String(_error) })
     }
   }
 
@@ -132,7 +136,8 @@ export function Notifications() {
       fetchAlerts()
       fetchStats()
     } catch (_error) {
-      // Silent failure - user will retry if needed
+      // User can retry if needed
+      logger.warn('Failed to resolve alert', { alertId: selectedAlert.id, error: String(_error) })
     }
   }
 

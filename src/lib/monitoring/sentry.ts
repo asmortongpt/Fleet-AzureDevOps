@@ -35,7 +35,7 @@ export interface SentryConfig {
  * Default Sentry Configuration
  */
 const DEFAULT_SENTRY_CONFIG: SentryConfig = {
-  dsn: import.meta.env.VITE_SENTRY_DSN,
+  dsn: import.meta.env.VITE_SENTRY_DSN || '',
   environment: import.meta.env.MODE,
   release: import.meta.env.VITE_APP_VERSION || '1.0.0',
   tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0, // 10% in prod, 100% in dev

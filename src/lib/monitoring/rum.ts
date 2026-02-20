@@ -388,7 +388,8 @@ class RUMService {
         return userData.id;
       }
     } catch (error) {
-      // Ignore
+      // localStorage may be unavailable (e.g., private browsing)
+      logger.warn('[RUM] Failed to read user from localStorage', { error: String(error) });
     }
     return undefined;
   }
@@ -479,7 +480,8 @@ class RUMService {
     try {
       sessionStorage.removeItem('rum_session');
     } catch (error) {
-      // Ignore
+      // sessionStorage may be unavailable
+      logger.warn('[RUM] Failed to clear session from sessionStorage', { error: String(error) });
     }
   }
 
@@ -532,7 +534,8 @@ class RUMService {
     try {
       localStorage.setItem('rum_opt_out', 'true');
     } catch (error) {
-      // Ignore
+      // localStorage may be unavailable (e.g., private browsing)
+      logger.warn('[RUM] Failed to persist opt-out preference', { error: String(error) });
     }
   }
 
@@ -545,7 +548,8 @@ class RUMService {
     try {
       localStorage.removeItem('rum_opt_out');
     } catch (error) {
-      // Ignore
+      // localStorage may be unavailable (e.g., private browsing)
+      logger.warn('[RUM] Failed to remove opt-out preference', { error: String(error) });
     }
   }
 

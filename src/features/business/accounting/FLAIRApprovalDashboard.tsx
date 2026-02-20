@@ -166,8 +166,8 @@ const ExpenseEntryCard: React.FC<{
         <div className="bg-gray-50 rounded-lg p-3 mb-2">
           <h4 className="text-sm font-medium text-gray-900 mb-2">Approval History</h4>
           <div className="space-y-1">
-            {entry.approvalHistory.map((approval: ApprovalRecord, index: number) => (
-              <div key={index} className="text-xs text-slate-700">
+            {entry.approvalHistory.map((approval: ApprovalRecord) => (
+              <div key={`${approval.approverName}-${approval.approvedAt}`} className="text-xs text-slate-700">
                 <strong>{approval.approverName}</strong> ({approval.approvalLevel}) approved on{' '}
                 {new Date(approval.approvedAt).toLocaleString()}
                 {approval.comments && <div className="italic ml-2">"{approval.comments}"</div>}

@@ -106,7 +106,10 @@ interface OSHAMetrics {
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      return res.json()
+    })
     .then((data) => data?.data ?? data)
 
 export default function SafetyAlertsPage() {
@@ -810,8 +813,8 @@ export default function SafetyAlertsPage() {
                 <div>
                   <p className="text-sm font-medium text-slate-500">Witnesses</p>
                   <ul className="mt-1 list-disc list-inside text-sm">
-                    {selectedAlert.witnesses.map((witness, i) => (
-                      <li key={i}>{witness}</li>
+                    {selectedAlert.witnesses.map((witness) => (
+                      <li key={witness}>{witness}</li>
                     ))}
                   </ul>
                 </div>
@@ -821,8 +824,8 @@ export default function SafetyAlertsPage() {
                 <div>
                   <p className="text-sm font-medium text-slate-500">Corrective Actions</p>
                   <ul className="mt-1 list-disc list-inside text-sm">
-                    {selectedAlert.correctiveActions.map((action, i) => (
-                      <li key={i}>{action}</li>
+                    {selectedAlert.correctiveActions.map((action) => (
+                      <li key={action}>{action}</li>
                     ))}
                   </ul>
                 </div>
@@ -832,8 +835,8 @@ export default function SafetyAlertsPage() {
                 <div>
                   <p className="text-sm font-medium text-slate-500">Preventive Measures</p>
                   <ul className="mt-1 list-disc list-inside text-sm">
-                    {selectedAlert.preventiveMeasures.map((measure, i) => (
-                      <li key={i}>{measure}</li>
+                    {selectedAlert.preventiveMeasures.map((measure) => (
+                      <li key={measure}>{measure}</li>
                     ))}
                   </ul>
                 </div>

@@ -82,7 +82,10 @@ interface ExecutionStatistics {
   avg_confidence: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 export function PolicyExecutionView({
   policyId,

@@ -219,9 +219,9 @@ export function AIChatbot() {
         <div className="px-2 py-2 bg-card/90 border-t border-border/50">
           <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
           <div className="space-y-1">
-            {exampleQueries.slice(0, 3).map((query, index) => (
+            {exampleQueries.slice(0, 3).map((query) => (
               <button
-                key={index}
+                key={query}
                 onClick={() => handleExampleClick(query)}
                 className="w-full text-left text-xs px-2 py-1 bg-muted/40 hover:bg-muted/60 rounded transition-colors text-muted-foreground"
               >

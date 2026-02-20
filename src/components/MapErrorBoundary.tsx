@@ -578,7 +578,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
               <div className="flex flex-wrap gap-2 w-full">
                 {errorDetails.actions.map((action, index) => (
                   <Button
-                    key={index}
+                    key={action.action}
                     onClick={() => this.handleAction(action.action)}
                     variant={index === 0 ? 'default' : 'outline'}
                     disabled={isRetrying}

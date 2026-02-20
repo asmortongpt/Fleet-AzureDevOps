@@ -422,7 +422,7 @@ export function RecurringScheduleDialog({
               {formData.parts && formData.parts.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
                   {formData.parts.map((part, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1">
+                    <Badge key={part} variant="secondary" className="gap-1">
                       {part}
                       <X
                         className="w-3 h-3 cursor-pointer"

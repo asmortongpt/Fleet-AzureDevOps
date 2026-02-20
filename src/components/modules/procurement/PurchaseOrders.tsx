@@ -446,8 +446,8 @@ export function PurchaseOrders() {
                       </tr>
                     </thead>
                     <tbody>
-                      {selectedOrder.items.map((item, index) => (
-                        <tr key={index} className="border-t">
+                      {selectedOrder.items.map((item) => (
+                        <tr key={`${item.description}-${item.partNumber}`} className="border-t">
                           <td className="p-2">{item.description}</td>
                           <td className="p-2 text-muted-foreground">{item.partNumber || '-'}</td>
                           <td className="p-2 text-right">{item.quantity}</td>

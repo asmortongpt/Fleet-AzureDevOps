@@ -433,7 +433,7 @@ export function CreateDamageReport() {
               {formData.photos.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {formData.photos.map((photo, index) => (
-                    <div key={index} className="relative group">
+                    <div key={photo.name} className="relative group">
                       <img
                         src={URL.createObjectURL(photo)}
                         alt={`Upload ${index + 1}`}

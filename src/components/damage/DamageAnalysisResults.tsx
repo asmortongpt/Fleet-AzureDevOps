@@ -242,7 +242,7 @@ export function DamageAnalysisResults({
 
           return (
             <Card
-              key={index}
+              key={`${damage.type}-${damage.part}`}
               className={`cursor-pointer transition-all ${
                 isSelected
                   ? 'border-2 border-blue-500 shadow-md'

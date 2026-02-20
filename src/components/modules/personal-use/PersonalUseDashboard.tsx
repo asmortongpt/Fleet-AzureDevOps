@@ -477,8 +477,8 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Usage Alerts</AlertTitle>
                   <AlertDescription className="space-y-2">
-                    {usageLimits.warnings.map((warning: string, idx: number) => (
-                      <div key={idx}>- {warning}</div>
+                    {usageLimits.warnings.map((warning: string) => (
+                      <div key={warning}>- {warning}</div>
                     ))}
                   </AlertDescription>
                 </Alert>

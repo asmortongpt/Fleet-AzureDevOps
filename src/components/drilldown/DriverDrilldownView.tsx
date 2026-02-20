@@ -170,8 +170,8 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
         const certs = getValue<string[]>();
         return certs && certs.length > 0 ? (
           <div className="flex flex-wrap gap-1">
-            {certs.slice(0, 2).map((cert, idx) => (
-              <span key={idx} className="px-2 py-0.5 bg-blue-600/20 text-blue-700 rounded text-xs border border-blue-500/30">
+            {certs.slice(0, 2).map((cert) => (
+              <span key={cert} className="px-2 py-0.5 bg-blue-600/20 text-blue-700 rounded text-xs border border-blue-500/30">
                 {cert}
               </span>
             ))}

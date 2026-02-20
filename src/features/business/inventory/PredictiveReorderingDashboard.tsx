@@ -718,8 +718,8 @@ const PredictiveReorderingDashboard: React.FC = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <Typography variant="h6" gutterBottom>Recommended Suppliers</Typography>
                 <List>
-                  {selectedRecommendation.recommendedSuppliers.map((supplier: SupplierRecommendation, index: number) => (
-                    <ListItem key={index}>
+                  {selectedRecommendation.recommendedSuppliers.map((supplier: SupplierRecommendation) => (
+                    <ListItem key={supplier.name}>
                       <ListItemText
                         primary={supplier.name}
                         secondary={

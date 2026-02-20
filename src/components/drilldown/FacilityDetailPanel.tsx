@@ -42,7 +42,10 @@ interface FacilityData {
   }
 }
 
-const fetcher = (url: string): Promise<FacilityData> => fetch(url).then((r) => r.json())
+const fetcher = (url: string): Promise<FacilityData> => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 export function FacilityDetailPanel({ facilityId }: FacilityDetailPanelProps) {
   const { push } = useDrilldown()

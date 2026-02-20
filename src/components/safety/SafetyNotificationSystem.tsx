@@ -8,6 +8,7 @@ import { useMemo, useRef, useState, useEffect } from 'react'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
+import logger from '@/utils/logger'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -90,7 +91,8 @@ export function SafetyNotificationSystem() {
         if (soundEnabled && unreadCount > lastUnreadCount.current) {
             const audio = new Audio('/notification-sound.mp3')
             audio.play().catch(() => {
-                // Autoplay restrictions
+                // Browser autoplay restrictions may block notification sounds
+                logger.warn('Safety notification sound blocked by autoplay restrictions')
             })
         }
         lastUnreadCount.current = unreadCount

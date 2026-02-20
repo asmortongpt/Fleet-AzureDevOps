@@ -245,9 +245,9 @@ export default function VideoPlayerEnhanced({
           <div className="absolute bottom-24 left-4 right-4 space-y-2">
             {annotations
               .filter(a => Math.abs(a.timestamp - currentTime) < 2)
-              .map((annotation, idx) => (
+              .map((annotation) => (
                 <div
-                  key={idx}
+                  key={`${annotation.timestamp}-${annotation.text}`}
                   className={cn(
                     'px-2 py-2 rounded-lg text-white text-sm font-medium shadow-sm',
                     annotation.color

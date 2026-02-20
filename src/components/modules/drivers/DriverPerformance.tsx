@@ -57,7 +57,10 @@ interface LeaderboardEntry {
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      return res.json()
+    })
     .then((data) => data?.data ?? data)
 
 const parseMetadata = (value: any) => {

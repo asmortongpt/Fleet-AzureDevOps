@@ -319,8 +319,8 @@ export function MaintenanceRequestDetailPanel({
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {request.activity_log?.map((activity, idx) => (
-                      <div key={idx} className="flex items-start gap-2 p-2 rounded bg-muted/50">
+                    {request.activity_log?.map((activity) => (
+                      <div key={`${activity.action}-${activity.timestamp}`} className="flex items-start gap-2 p-2 rounded bg-muted/50">
                         <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
                         <div className="flex-1">
                           <p className="text-sm font-medium">{activity.action}</p>

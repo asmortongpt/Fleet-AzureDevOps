@@ -71,8 +71,8 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {(keyPointsInsight.metadata?.points as string[] || []).map((point, i) => (
-                  <li key={i} className="flex items-start gap-2 text-sm">
+                {(keyPointsInsight.metadata?.points as string[] || []).map((point) => (
+                  <li key={point} className="flex items-start gap-2 text-sm">
                     <span className="text-primary mt-1">•</span>
                     <span className="text-muted-foreground">{point}</span>
                   </li>
@@ -117,8 +117,8 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
                     <span className="text-xs font-semibold text-muted-foreground">Dates</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {(entitiesInsight.metadata.dates as string[]).map((date, i) => (
-                      <Badge key={i} variant="outline">
+                    {(entitiesInsight.metadata.dates as string[]).map((date) => (
+                      <Badge key={date} variant="outline">
                         {date}
                       </Badge>
                     ))}

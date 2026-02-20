@@ -180,9 +180,9 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
                 Vehicle Status
               </div>
               <div className="space-y-1.5">
-                {activeLegendItems.map((item, index) => (
+                {activeLegendItems.map((item) => (
                   <div
-                    key={index}
+                    key={item.label}
                     className={`flex items-center justify-between gap-3 px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors cursor-default`}
                   >
                     <div className="flex items-center gap-2">
@@ -262,9 +262,9 @@ export const ProfessionalFleetMap: React.FC<ProfessionalFleetMapProps> = ({
                 Vehicle Status
               </div>
               <div className="space-y-1.5">
-                {activeLegendItems.map((item, index) => (
+                {activeLegendItems.map((item) => (
                   <div
-                    key={index}
+                    key={item.label}
                     className={`flex items-center justify-between gap-3 px-2 py-1.5 rounded-md ${item.bgColor} transition-colors hover:opacity-80`}
                   >
                     <div className="flex items-center gap-2">

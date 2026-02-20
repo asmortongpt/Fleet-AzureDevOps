@@ -698,8 +698,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Approval Rate by Step</Typography>
-                    {analytics.approvalRateByStep.map((step: ApprovalRateStep, index: number) => (
-                      <Box key={index} sx={{ mb: 2 }}>
+                    {analytics.approvalRateByStep.map((step: ApprovalRateStep) => (
+                      <Box key={step.step} sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                           <Typography variant="body2">{step.step}</Typography>
                           <Typography variant="body2">{step.rate.toFixed(1)}%</Typography>
@@ -723,8 +723,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>Workflow Bottlenecks</Typography>
-                    {analytics.bottlenecks.map((bottleneck: Bottleneck, index: number) => (
-                      <Box key={index} sx={{ mb: 2 }}>
+                    {analytics.bottlenecks.map((bottleneck: Bottleneck) => (
+                      <Box key={bottleneck.step} sx={{ mb: 2 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Typography variant="body2">{bottleneck.step}</Typography>
                           <Chip
@@ -758,8 +758,8 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {analytics.budgetUtilization.map((dept: BudgetUtilization, index: number) => (
-                            <TableRow key={index}>
+                          {analytics.budgetUtilization.map((dept: BudgetUtilization) => (
+                            <TableRow key={dept.department}>
                               <TableCell>{dept.department}</TableCell>
                               <TableCell>${dept.budgetAllocated.toLocaleString()}</TableCell>
                               <TableCell>${dept.budgetUsed.toLocaleString()}</TableCell>

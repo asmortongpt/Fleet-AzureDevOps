@@ -302,7 +302,7 @@ export function CommunicationLog() {
                 {(newLog.participants || []).length > 0 && (
                   <div className="flex flex-wrap gap-2 mt-2">
                     {(newLog.participants || []).map((participant, idx) => (
-                      <Badge key={idx} variant="secondary" className="gap-1">
+                      <Badge key={participant} variant="secondary" className="gap-1">
                         {participant}
                         <button
                           onClick={() => handleRemoveParticipant(idx)}
@@ -518,8 +518,8 @@ export function CommunicationLog() {
                     <TableCell className="font-medium">{log.subject}</TableCell>
                     <TableCell>
                       <div className="flex flex-wrap gap-1">
-                        {log.participants.slice(0, 2).map((p, idx) => (
-                          <Badge key={idx} variant="outline" className="text-xs">
+                        {log.participants.slice(0, 2).map((p) => (
+                          <Badge key={p} variant="outline" className="text-xs">
                             {p}
                           </Badge>
                         ))}

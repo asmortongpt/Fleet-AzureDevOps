@@ -10,6 +10,7 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
+import logger from "@/utils/logger"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -139,7 +140,8 @@ export function FuelPurchasing() {
       )
       setForecasts(data as PriceForecast[])
     } catch (error) {
-      // Silent failure - forecast data is optional
+      // Forecast data is optional - log and continue
+      logger.warn('Failed to load fuel price forecasts', { error: String(error) })
     }
   }
 
@@ -150,7 +152,8 @@ export function FuelPurchasing() {
       )
       setPurchaseRecommendation(data as PurchaseRecommendation)
     } catch (error) {
-      // Silent failure - recommendation data is optional
+      // Recommendation data is optional - log and continue
+      logger.warn('Failed to load purchase recommendation', { error: String(error) })
     }
   }
 
@@ -159,7 +162,8 @@ export function FuelPurchasing() {
       const data = await apiClient.get("/fuel-purchasing/contracts?status=active")
       setContracts(data as FuelContract[])
     } catch (error) {
-      // Silent failure - contracts data is optional
+      // Contracts data is optional - log and continue
+      logger.warn('Failed to load fuel contracts', { error: String(error) })
     }
   }
 
@@ -172,7 +176,8 @@ export function FuelPurchasing() {
       )
       setSavings(data as SavingsData)
     } catch (error) {
-      // Silent failure - savings data is optional
+      // Savings data is optional - log and continue
+      logger.warn('Failed to load fuel savings data', { error: String(error) })
     }
   }
 

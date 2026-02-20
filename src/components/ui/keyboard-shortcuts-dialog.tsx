@@ -118,9 +118,9 @@ export function KeyboardShortcutsDialog() {
                 {group.category}
               </h3>
               <div className="space-y-2">
-                {group.shortcuts.map((shortcut, index) => (
+                {group.shortcuts.map((shortcut) => (
                   <div
-                    key={index}
+                    key={shortcut.description}
                     className="flex items-center justify-between py-2 px-3 rounded-md hover:bg-muted/50 transition-colors"
                   >
                     <span className="text-sm">{shortcut.description}</span>

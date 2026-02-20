@@ -327,8 +327,8 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                                   <div>
                                     <h4 className="font-semibold mb-3">Checklist Items</h4>
                                     <div className="space-y-2">
-                                      {selectedInspection.responses?.map((response, idx) => (
-                                        <Card key={idx}>
+                                      {selectedInspection.responses?.map((response) => (
+                                        <Card key={response.id}>
                                           <CardContent className="p-2">
                                             <div className="flex items-start justify-between">
                                               <div className="flex-1">
@@ -399,8 +399,8 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                   <div className="text-center text-muted-foreground py-2">
                     Last 5 inspections:
                     <div className="flex justify-center gap-2 mt-2">
-                      {inspections.slice(0, 5).map((insp, idx) => (
-                        <div key={idx} title={new Date(insp.completed_date).toLocaleDateString()}>
+                      {inspections.slice(0, 5).map((insp) => (
+                        <div key={insp.id} title={new Date(insp.completed_date).toLocaleDateString()}>
                           {getStatusIcon(insp.overall_status)}
                         </div>
                       ))}

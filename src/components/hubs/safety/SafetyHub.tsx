@@ -718,8 +718,8 @@ export function SafetyHub() {
                                 <div className="mt-2">
                                   <p className="text-sm font-medium mb-1">Restrictions:</p>
                                   <ul className="text-sm text-muted-foreground space-y-1">
-                                    {zone.restrictions.map((restriction, idx) => (
-                                      <li key={idx} className="flex items-start gap-2">
+                                    {zone.restrictions.map((restriction) => (
+                                      <li key={restriction} className="flex items-start gap-2">
                                         <span className="text-primary">•</span>
                                         <span>{restriction}</span>
                                       </li>

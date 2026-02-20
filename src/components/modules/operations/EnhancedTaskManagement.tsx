@@ -442,8 +442,8 @@ export function EnhancedTaskManagement() {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="text-sm space-y-2">
-                      {aiSuggestions.recommendations?.map((rec: string, idx: number) => (
-                        <div key={idx} className="flex items-start gap-2">
+                      {aiSuggestions.recommendations?.map((rec: string) => (
+                        <div key={rec} className="flex items-start gap-2">
                           <CheckCircle className="w-4 h-4 mt-0.5 text-blue-800" />
                           <span>{rec}</span>
                         </div>

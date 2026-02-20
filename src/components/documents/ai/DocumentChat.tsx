@@ -62,9 +62,9 @@ export function DocumentChat({ document, messages, onSendMessage, isLoading = fa
                 Start a conversation about this document
               </p>
               <div className="grid grid-cols-1 gap-2 max-w-sm mx-auto">
-                {suggestedQuestions.map((question, i) => (
+                {suggestedQuestions.map((question) => (
                   <Button
-                    key={i}
+                    key={question}
                     variant="outline"
                     size="sm"
                     className="text-left justify-start"
@@ -154,9 +154,9 @@ function MessageBubble({ message, document }: { message: ChatMessage; document: 
             <Separator />
             <div className="space-y-2">
               <div className="text-xs font-semibold text-muted-foreground">Sources</div>
-              {message.citations.map((citation, i) => (
+              {message.citations.map((citation) => (
                 <div
-                  key={i}
+                  key={citation.text}
                   className="flex items-start gap-2 p-2 bg-background rounded text-xs"
                 >
                   <FileText className="h-3 w-3 mt-0.5 text-muted-foreground" />

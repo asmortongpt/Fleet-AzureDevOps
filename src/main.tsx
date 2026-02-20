@@ -156,7 +156,7 @@ async function validateStartupConfiguration(): Promise<void> {
   // Environment is valid, proceed with health check
   let apiUrl = '';
   try {
-    apiUrl = import.meta.env.VITE_API_URL!;
+    apiUrl = import.meta.env.VITE_API_URL || '';
   } catch (e) {
     // Should not happen due to validation above
     throw new Error('VITE_API_URL is not accessible');

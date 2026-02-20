@@ -66,7 +66,10 @@ import logger from '@/utils/logger';
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: 'include' })
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+      return res.json()
+    })
     .then((data) => data?.data ?? data)
 
 // ============================================================================
@@ -293,8 +296,8 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             {recentTransactions.length === 0 ? (
               <div className="text-sm text-muted-foreground">No recent transactions available.</div>
             ) : (
-              recentTransactions.map((transaction, index) => (
-                <div key={index} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
+              recentTransactions.map((transaction) => (
+                <div key={`${transaction.description}-${transaction.date}`} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
                   <div>
                     <p className="font-medium">{transaction.description}</p>
                     <p className="text-sm text-muted-foreground">

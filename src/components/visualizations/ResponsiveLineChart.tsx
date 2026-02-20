@@ -106,8 +106,8 @@ export function ResponsiveLineChart({
           className="bg-background border-2 border-border rounded-xl shadow-xl p-4"
         >
           <p className="font-semibold text-sm mb-2">{label}</p>
-          {payload.map((entry: any, index: number) => (
-            <div key={index} className="flex items-center justify-between gap-4 mb-1">
+          {payload.map((entry: any) => (
+            <div key={entry.name} className="flex items-center justify-between gap-4 mb-1">
               <div className="flex items-center gap-2">
                 <div
                   className="w-3 h-3 rounded-full"
@@ -217,9 +217,9 @@ export function ResponsiveLineChart({
                   iconType="line"
                   formatter={(value) => <span className="text-sm font-medium capitalize">{value.replace('_', ' ')}</span>}
                 />
-                {highlightZones?.map((zone, index) => (
+                {highlightZones?.map((zone) => (
                   <ReferenceArea
-                    key={index}
+                    key={`${zone.start}-${zone.end}`}
                     x1={zone.start}
                     x2={zone.end}
                     fill={zone.color || 'hsl(var(--chart-3))'}

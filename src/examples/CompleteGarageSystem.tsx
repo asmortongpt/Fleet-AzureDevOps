@@ -43,8 +43,8 @@ export function CompleteGarageSystem() {
   // Initialize AI service
   useEffect(() => {
     initializeDamageDetection({
-      endpoint: import.meta.env.VITE_AI_API_ENDPOINT,
-      apiKey: import.meta.env.VITE_AI_API_KEY,
+      endpoint: import.meta.env.VITE_AI_API_ENDPOINT || '',
+      apiKey: import.meta.env.VITE_AI_API_KEY || '',
       modelVersion: 'v1.0',
       confidenceThreshold: 0.7,
     });

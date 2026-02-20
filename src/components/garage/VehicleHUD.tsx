@@ -262,8 +262,8 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
           </div>
           {stats.dtcCodes && stats.dtcCodes.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {stats.dtcCodes.map((code, i) => (
-                <Badge key={i} variant="destructive" className="text-xs font-mono">
+              {stats.dtcCodes.map((code) => (
+                <Badge key={code} variant="destructive" className="text-xs font-mono">
                   {code}
                 </Badge>
               ))}

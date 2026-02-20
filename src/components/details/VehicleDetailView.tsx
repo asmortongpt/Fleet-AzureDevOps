@@ -530,8 +530,8 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                         <Tag className="w-3 h-3" /> Tags
                       </span>
                       <div className="flex flex-wrap gap-1">
-                        {tags.map((tag, i) => (
-                          <Badge key={i} variant="outline" className="text-[10px] px-1.5 py-0">
+                        {tags.map((tag) => (
+                          <Badge key={tag} variant="outline" className="text-[10px] px-1.5 py-0">
                             {tag}
                           </Badge>
                         ))}

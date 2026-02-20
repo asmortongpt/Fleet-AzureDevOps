@@ -100,7 +100,7 @@ export const azureAdScopes = {
     scopes: ['openid', 'profile', 'email', 'User.Read']
   },
   apiRequest: {
-    scopes: [`api://${import.meta.env.VITE_AZURE_AD_CLIENT_ID}/Fleet.All`]
+    scopes: [`api://${import.meta.env.VITE_AZURE_AD_CLIENT_ID || ''}/Fleet.All`]
   }
 };
 
@@ -167,10 +167,10 @@ export const jwtConfig = {
   /** Issuer validation */
   issuer: import.meta.env.VITE_AUTH0_DOMAIN
     ? `https://${import.meta.env.VITE_AUTH0_DOMAIN}/`
-    : `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_AD_TENANT_ID}/v2.0`,
+    : `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_AD_TENANT_ID || 'common'}/v2.0`,
 
   /** Audience validation */
-  audience: import.meta.env.VITE_AUTH0_AUDIENCE || `api://${import.meta.env.VITE_AZURE_AD_CLIENT_ID}`,
+  audience: import.meta.env.VITE_AUTH0_AUDIENCE || `api://${import.meta.env.VITE_AZURE_AD_CLIENT_ID || ''}`,
 
   /** Clock tolerance (5 seconds) */
   clockTolerance: 5

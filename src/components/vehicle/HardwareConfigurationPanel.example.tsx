@@ -84,8 +84,8 @@ export function WithEventHandlersExample() {
               <p className="text-sm text-muted-foreground">No activity yet</p>
             ) : (
               <ul className="space-y-2">
-                {activityLog.map((log, index) => (
-                  <li key={index} className="text-sm border-l-2 border-primary pl-3 py-1">
+                {activityLog.map((log) => (
+                  <li key={log} className="text-sm border-l-2 border-primary pl-3 py-1">
                     {log}
                   </li>
                 ))}

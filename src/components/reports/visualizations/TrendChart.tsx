@@ -76,8 +76,8 @@ export function TrendChart({
     return (
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-3">
         <p className="font-medium text-gray-900 mb-2">{label}</p>
-        {payload.map((entry: any, index: number) => (
-          <div key={index} className="flex items-center gap-2 text-sm">
+        {payload.map((entry: any) => (
+          <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div
               className="w-3 h-3 rounded-full"
               style={{ backgroundColor: entry.color }}

@@ -573,8 +573,8 @@ export function VendorManagement() {
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Services Provided</h3>
                   <div className="flex flex-wrap gap-2">
-                    {selectedVendor.services.map((service, index) => (
-                      <Badge key={index} variant="outline">{service}</Badge>
+                    {selectedVendor.services.map((service) => (
+                      <Badge key={service} variant="outline">{service}</Badge>
                     ))}
                   </div>
                 </div>
@@ -584,8 +584,8 @@ export function VendorManagement() {
                 <div>
                   <h3 className="text-sm font-semibold mb-3">Certifications</h3>
                   <div className="flex flex-wrap gap-2">
-                    {selectedVendor.certifications.map((cert, index) => (
-                      <Badge key={index} variant="secondary">{cert}</Badge>
+                    {selectedVendor.certifications.map((cert) => (
+                      <Badge key={cert} variant="secondary">{cert}</Badge>
                     ))}
                   </div>
                 </div>

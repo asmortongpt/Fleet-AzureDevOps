@@ -323,7 +323,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
               <div className="space-y-2">
                 <div className="grid grid-cols-3 gap-2">
                   {capturedFiles.map((file, index) => (
-                    <div key={index} className="relative aspect-video rounded-md overflow-hidden">
+                    <div key={file.name} className="relative aspect-video rounded-md overflow-hidden">
                       <img
                         src={URL.createObjectURL(file)}
                         alt={`Captured ${index + 1}`}

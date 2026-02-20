@@ -467,7 +467,7 @@ export function InvestigationDialog({
               <div className="space-y-2 rounded-lg border p-3">
                 {values.contributing_factors.map((factor, index) => (
                   <div
-                    key={index}
+                    key={factor}
                     className="flex items-center justify-between rounded bg-muted p-2 text-sm"
                   >
                     <span>{factor}</span>
@@ -521,7 +521,7 @@ export function InvestigationDialog({
               <div className="space-y-2 rounded-lg border p-3">
                 {values.corrective_actions.map((action, index) => (
                   <div
-                    key={index}
+                    key={action}
                     className="flex items-center justify-between rounded bg-muted p-2 text-sm"
                   >
                     <div className="flex items-center gap-2">
@@ -581,7 +581,7 @@ export function InvestigationDialog({
               <div className="space-y-2 rounded-lg border p-3">
                 {values.preventive_measures.map((measure, index) => (
                   <div
-                    key={index}
+                    key={measure}
                     className="flex items-center justify-between rounded bg-muted p-2 text-sm"
                   >
                     <div className="flex items-center gap-2">
@@ -647,7 +647,7 @@ export function InvestigationDialog({
               <div className="space-y-2 rounded-lg border p-3">
                 {values.training_recommendations.map((recommendation, index) => (
                   <div
-                    key={index}
+                    key={recommendation}
                     className="flex items-center justify-between rounded bg-muted p-2 text-sm"
                   >
                     <span>{recommendation}</span>

@@ -43,10 +43,10 @@ export function SystemHealth({ className }: SystemHealthProps) {
         const [dashboardStats, systemHealth] = await Promise.all([
           fetch('/api/dashboard/stats', { credentials: 'include' })
             .then(res => res.ok ? res.json() : null)
-            .catch(() => null),
+            .catch(err => { logger.warn('Failed to fetch dashboard stats for health check', { error: String(err) }); return null; }),
           fetch('/api/health', { credentials: 'include' })
             .then(res => res.ok ? res.json() : null)
-            .catch(() => null)
+            .catch(err => { logger.warn('Failed to fetch system health endpoint', { error: String(err) }); return null; })
         ]);
         const apiResponseTime = Date.now() - apiStart;
 

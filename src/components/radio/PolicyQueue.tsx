@@ -115,8 +115,8 @@ export function PolicyQueue({ pendingApprovals }: PolicyQueueProps) {
                     <div>
                       <h4 className="text-sm font-medium mb-2">Actions to Execute</h4>
                       <ul className="list-disc list-inside space-y-1 text-sm">
-                        {approval.actions_executed.map((action: any, idx: number) => (
-                          <li key={idx}>
+                        {approval.actions_executed.map((action: any) => (
+                          <li key={`${action.action}-${action.title || ''}`}>
                             {action.action === 'create_incident' && 'Create incident'}
                             {action.action === 'create_task' && `Create task: ${action.title || 'Untitled'}`}
                             {action.action === 'notify' && 'Send notification'}

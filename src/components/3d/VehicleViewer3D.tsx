@@ -239,9 +239,9 @@ function VehicleModel({
     <group ref={groupRef}>
       {model && <primitive object={model} scale={1} position={[0, 0, 0]} />}
 
-      {showDamage && damageMarkers.map((marker, index) => (
+      {showDamage && damageMarkers.map((marker) => (
         <DamageMarker3D
-          key={index}
+          key={`${marker.location?.x ?? 0}-${marker.location?.y ?? 0}-${marker.location?.z ?? 0}-${marker.severity}`}
           position={[
             marker.location?.x ?? 0,
             marker.location?.y ?? 0,

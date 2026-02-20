@@ -319,9 +319,9 @@ const ConflictResolutionModal: React.FC<ConflictResolutionModalProps> = ({
                 </div>
                 <div style={{ fontSize: '13px', color: currentTheme.textMuted }}>
                   <strong>Suggested times:</strong>
-                  {suggestAlternativeTimes().map((suggestion, idx) => (
+                  {suggestAlternativeTimes().map((suggestion) => (
                     <button
-                      key={idx}
+                      key={suggestion.reason}
                       onClick={() => {
                         setNewDate(suggestion.time.toISOString().split('T')[0]);
                         setNewTime(suggestion.time.toTimeString().slice(0, 5));

@@ -31,7 +31,10 @@ import {
 import { cn } from '@/lib/utils'
 
 const fetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((res) => res.json())
+  fetch(url, { credentials: 'include' }).then((res) => {
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+    return res.json()
+  })
 
 /**
  * Compliance Dashboard Component

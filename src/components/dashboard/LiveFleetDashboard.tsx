@@ -35,7 +35,10 @@ interface LiveFleetDashboardProps {
 // ... existing imports
 
 const geofenceFetcher = (url: string) =>
-  fetch(url, { credentials: 'include' }).then((res) => res.json());
+  fetch(url, { credentials: 'include' }).then((res) => {
+    if (!res.ok) throw new Error(`Request failed: ${res.status}`)
+    return res.json()
+  });
 
 const normalizeGeofence = (row: any): Geofence => {
   const metadata = row?.metadata && typeof row.metadata === 'object'
@@ -94,13 +97,19 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   // Fetch from real /api/vehicles endpoint (max limit is 200)
   const { data: vehiclesData, isLoading: apiLoading, error: apiError } = useSWR(
     '/api/vehicles?limit=200',
-    (url) => fetch(url, { credentials: 'include' }).then(r => r.json()),
+    (url) => fetch(url, { credentials: 'include' }).then(r => {
+      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      return r.json()
+    }),
     { revalidateOnFocus: false, dedupingInterval: 5000 }
   );
   // Also fetch dashboard stats for accurate counts (DB-aggregated)
   const { data: dashboardStats } = useSWR(
     '/api/dashboard/stats',
-    (url) => fetch(url, { credentials: 'include' }).then(r => r.json()),
+    (url) => fetch(url, { credentials: 'include' }).then(r => {
+      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      return r.json()
+    }),
     { revalidateOnFocus: false, dedupingInterval: 10000 }
   );
   const { data: driversData } = useDrivers();

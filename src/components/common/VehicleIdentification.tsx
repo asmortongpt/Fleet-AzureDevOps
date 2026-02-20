@@ -90,8 +90,9 @@ function QRScannerView({
 
     return () => {
       if (scannerRef.current) {
-        scannerRef.current.clear().catch(() => {
-          // Ignore cleanup errors
+        scannerRef.current.clear().catch(err => {
+          // Scanner cleanup may fail if DOM element is already removed
+          logger.warn('QR scanner cleanup failed', { error: String(err) })
         })
       }
     }

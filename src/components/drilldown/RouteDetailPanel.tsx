@@ -49,7 +49,10 @@ interface RouteMatrixData {
 
 const fetcher = (url: string) =>
   fetch(url)
-    .then((r) => r.json())
+    .then((r) => {
+      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      return r.json()
+    })
     .then((data) => data?.data ?? data)
 
 export function RouteDetailPanel({ routeId }: { routeId?: string }) {

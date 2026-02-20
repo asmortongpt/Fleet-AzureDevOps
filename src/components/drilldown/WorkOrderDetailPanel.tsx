@@ -93,7 +93,10 @@ interface MaintenanceHistoryItem {
   status: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+  return r.json()
+})
 
 export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps) {
   const { push } = useDrilldown()
@@ -582,8 +585,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {workOrder.notes.map((note: any, idx: number) => (
-                        <li key={idx} className="p-2 rounded bg-muted/50 text-sm">
+                      {workOrder.notes.map((note: any) => (
+                        <li key={`${note.author}-${note.timestamp}`} className="p-2 rounded bg-muted/50 text-sm">
                           <p className="font-medium">{note.author}</p>
                           <p className="text-muted-foreground">{note.text}</p>
                           {note.timestamp && (

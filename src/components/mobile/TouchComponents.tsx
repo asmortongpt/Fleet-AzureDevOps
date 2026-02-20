@@ -366,9 +366,9 @@ export function ActionSheet({
         )}
 
         <div className="space-y-2">
-          {options.map((option, index) => (
+          {options.map((option) => (
             <button
-              key={index}
+              key={option.label}
               onClick={() => {
                 option.onPress()
                 onClose()

@@ -395,8 +395,8 @@ export function SystemConfiguration() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {systemHealth.map((component, idx) => (
-                  <TableRow key={idx}>
+                {systemHealth.map((component) => (
+                  <TableRow key={component.component}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         {getStatusIcon(component.status)}

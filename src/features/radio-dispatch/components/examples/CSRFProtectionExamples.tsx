@@ -68,6 +68,7 @@ export function CreateIncidentExample() {
       });
     } catch (error) {
       // Error already handled by onError callback
+      logger.warn('Create incident mutation threw unexpectedly', { error: String(error) })
     }
   };
 
@@ -223,6 +224,7 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
         await deleteIncident.mutate(incidentId);
       } catch (error) {
         // Error already handled by onError callback
+        logger.warn('Delete incident mutation threw unexpectedly', { error: String(error) })
       }
     }
   };

@@ -14,8 +14,8 @@ export const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                     No photos available. (Placeholder Gallery)
                 </div>
             ) : (
-                photos.map((photo, i) => (
-                    <div key={i} className="bg-slate-800 p-2 rounded">
+                photos.map((photo) => (
+                    <div key={photo.url || photo.id} className="bg-slate-800 p-2 rounded">
                         <img src={photo.url || 'https://placehold.co/600x400'} alt="Captured" className="w-full h-48 object-cover rounded" />
                     </div>
                 ))

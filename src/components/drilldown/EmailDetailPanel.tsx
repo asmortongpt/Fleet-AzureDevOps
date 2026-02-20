@@ -135,8 +135,8 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
           <div className="flex-1 min-w-0">
             <div className="text-xs text-muted-foreground uppercase">To</div>
             <div className="space-y-1">
-              {email.to.map((recipient, i) => (
-                <div key={i} className="text-sm truncate">{recipient}</div>
+              {email.to.map((recipient) => (
+                <div key={recipient} className="text-sm truncate">{recipient}</div>
               ))}
             </div>
           </div>
@@ -148,8 +148,8 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
             <div className="flex-1 min-w-0">
               <div className="text-xs text-muted-foreground uppercase">CC</div>
               <div className="space-y-1">
-                {email.cc.map((recipient, i) => (
-                  <div key={i} className="text-sm truncate">{recipient}</div>
+                {email.cc.map((recipient) => (
+                  <div key={recipient} className="text-sm truncate">{recipient}</div>
                 ))}
               </div>
             </div>
@@ -364,8 +364,8 @@ function EmailLabels({ email }: { email: EmailRecord }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
       <Tag className="w-4 h-4 text-muted-foreground" />
-      {email.labels.map((label, i) => (
-        <Badge key={i} variant="secondary" className="text-xs">
+      {email.labels.map((label) => (
+        <Badge key={label} variant="secondary" className="text-xs">
           {label}
         </Badge>
       ))}

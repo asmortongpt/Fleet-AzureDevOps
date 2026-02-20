@@ -463,8 +463,8 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
 
         {/* Compliance Overview */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2" data-testid="compliance-metrics">
-          {complianceMetrics.map((metric, index) => (
-            <Card key={index}>
+          {complianceMetrics.map((metric) => (
+            <Card key={metric.title}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>{metric.title}</span>

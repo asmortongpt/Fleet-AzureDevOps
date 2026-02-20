@@ -89,9 +89,9 @@ export function SemanticSearch({ onSearch }: SemanticSearchProps) {
                 <TrendingUp className="h-4 w-4" />
                 Example Queries
               </h4>
-              {exampleQueries.map((example, i) => (
+              {exampleQueries.map((example) => (
                 <button
-                  key={i}
+                  key={example}
                   onClick={() => setQuery(example)}
                   className="w-full text-left p-3 rounded-lg border hover:bg-accent transition-colors"
                 >

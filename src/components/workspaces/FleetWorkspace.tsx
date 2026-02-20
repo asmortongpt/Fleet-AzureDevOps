@@ -207,8 +207,8 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
               <div className="space-y-2">
                 <Separator />
                 <div className="space-y-1">
-                  {vehicle.maintenanceAlerts.map((alert: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 text-sm">
+                  {vehicle.maintenanceAlerts.map((alert: string) => (
+                    <div key={alert} className="flex items-center gap-2 text-sm">
                       <AlertCircle className="h-3 w-3 text-yellow-500" />
                       <span>{alert}</span>
                     </div>

@@ -316,8 +316,8 @@ export function DocumentScanner({
                         <AlertCircle className="h-4 w-4 text-yellow-600" />
                         <AlertDescription>
                           <p className="font-semibold text-yellow-900 mb-1">Issues Found:</p>
-                          {analysis.validationIssues.map((issue, index) => (
-                            <p key={index} className="text-sm text-yellow-800">• {issue}</p>
+                          {analysis.validationIssues.map((issue) => (
+                            <p key={issue} className="text-sm text-yellow-800">• {issue}</p>
                           ))}
                         </AlertDescription>
                       </Alert>

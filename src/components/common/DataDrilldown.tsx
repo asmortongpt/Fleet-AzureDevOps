@@ -357,9 +357,9 @@ export function DataDrilldown({
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                {currentRecord.relatedEntities.map((entity, idx) => (
+                {currentRecord.relatedEntities.map((entity) => (
                   <Button
-                    key={idx}
+                    key={`${entity.type}-${entity.id}`}
                     variant="outline"
                     className="w-full justify-start"
                     onClick={() => onNavigate?.(entity.type, entity.id)}
@@ -384,8 +384,8 @@ export function DataDrilldown({
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {currentRecord.auditTrail.map((entry, idx) => (
-                  <div key={idx} className="flex gap-2 text-sm border-b pb-3">
+                {currentRecord.auditTrail.map((entry) => (
+                  <div key={`${entry.action}-${entry.timestamp.toISOString()}`} className="flex gap-2 text-sm border-b pb-3">
                     <div className="text-muted-foreground w-32">
                       {entry.timestamp.toLocaleString()}
                     </div>

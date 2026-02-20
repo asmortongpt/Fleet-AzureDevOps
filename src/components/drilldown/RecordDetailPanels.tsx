@@ -993,8 +993,8 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
         <DetailSection title={`Items (${po.items?.length || 0})`}>
           {po.items && po.items.length > 0 ? (
             <div className="space-y-2">
-              {po.items.map((item: any, index: number) => (
-                <div key={index} className="flex justify-between p-2 bg-muted/30 rounded">
+              {po.items.map((item: any) => (
+                <div key={item.name || item.partName} className="flex justify-between p-2 bg-muted/30 rounded">
                   <span>{item.name || item.partName}</span>
                   <span className="text-muted-foreground">
                     {item.quantity} x ${item.unitPrice?.toLocaleString() || '0'}
@@ -1292,8 +1292,8 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
         {inspection.defects && inspection.defects.length > 0 && (
           <DetailSection title={`Defects Found (${inspection.defects.length})`}>
             <div className="space-y-2">
-              {inspection.defects.map((defect: any, index: number) => (
-                <div key={index} className="flex items-start gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
+              {inspection.defects.map((defect: any) => (
+                <div key={defect.description || defect} className="flex items-start gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded">
                   <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" />
                   <span className="text-sm">{defect.description || defect}</span>
                 </div>

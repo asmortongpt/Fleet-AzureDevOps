@@ -273,8 +273,8 @@ export function TCOAnalysis({
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="space-y-2">
-                  {costBreakdown.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between">
+                  {costBreakdown.map((item) => (
+                    <div key={item.label} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className={`w-3 h-3 rounded ${item.color}`}></div>
                         <span className="text-sm">{item.label}</span>

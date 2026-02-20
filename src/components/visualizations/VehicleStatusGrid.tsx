@@ -220,8 +220,8 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
               {/* Health issues */}
               {health.issues.length > 0 && (
                 <div className="mt-3 pt-3 border-t border-slate-200">
-                  {health.issues.map((issue, i) => (
-                    <div key={i} className="flex items-center gap-1 text-xs text-amber-700">
+                  {health.issues.map((issue) => (
+                    <div key={issue} className="flex items-center gap-1 text-xs text-amber-700">
                       <AlertTriangle className="h-3 w-3" />
                       <span>{issue}</span>
                     </div>

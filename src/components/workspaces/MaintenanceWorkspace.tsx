@@ -160,8 +160,8 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
                   <AlertTriangle className="h-4 w-4 text-yellow-500" />
                   Active Alerts
                 </h4>
-                {(Array.isArray(vehicle.alerts) ? vehicle.alerts : []).map((alert: string, i: number) => (
-                  <div key={i} className="flex items-start gap-2 text-sm">
+                {(Array.isArray(vehicle.alerts) ? vehicle.alerts : []).map((alert: string) => (
+                  <div key={alert} className="flex items-start gap-2 text-sm">
                     <AlertCircle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                     <span>{alert}</span>
                   </div>
@@ -430,7 +430,7 @@ export function MaintenanceWorkspace({ _data }: { _data?: unknown }) {
 
   // Check for API key to set initial view mode
   const hasApiKey = useMemo(() => {
-    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
+    const key = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || ''
     return key && key.length > 10 && !key.includes('YOUR_KEY')
   }, [])
 

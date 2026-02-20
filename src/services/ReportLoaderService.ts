@@ -286,7 +286,9 @@ class ReportLoaderService {
    * Preload multiple reports (useful for performance)
    */
   public async preloadReports(reportIds: string[]): Promise<void> {
-    const promises = reportIds.map(id => this.loadReport(id).catch(() => {}));
+    const promises = reportIds.map(id => this.loadReport(id).catch(err => {
+      logger.warn('Failed to preload report', { reportId: id, error: String(err) });
+    }));
 
     await Promise.all(promises);
   }

@@ -275,9 +275,9 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
                     <div>
                       <h4 className="font-semibold mb-2">Recent Health Checks</h4>
                       <div className="space-y-2">
-                        {stats.history.slice(-5).reverse().map((check, index) => (
+                        {stats.history.slice(-5).reverse().map((check) => (
                           <div
-                            key={index}
+                            key={check.timestamp}
                             className="flex items-center justify-between p-2 bg-white dark:bg-gray-800 rounded"
                           >
                             <div className="flex items-center gap-2">

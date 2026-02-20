@@ -164,8 +164,8 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
         const parts = getValue<string[]>();
         return parts && parts.length > 0 ? (
           <div className="flex flex-wrap gap-1">
-            {parts.slice(0, 3).map((part, idx) => (
-              <span key={idx} className="px-2 py-0.5 bg-slate-700/50 text-slate-300 rounded text-xs">
+            {parts.slice(0, 3).map((part) => (
+              <span key={part} className="px-2 py-0.5 bg-slate-700/50 text-slate-300 rounded text-xs">
                 {part}
               </span>
             ))}

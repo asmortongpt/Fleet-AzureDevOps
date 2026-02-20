@@ -258,8 +258,8 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {slowestEndpoints.map((endpoint, idx) => (
-                  <TableRow key={idx}>
+                {slowestEndpoints.map((endpoint) => (
+                  <TableRow key={`${endpoint.method}-${endpoint.path}`}>
                     <TableCell>
                       <Typography variant="caption">
                         <Chip
@@ -306,9 +306,9 @@ const PerformanceMetrics: React.FC<Props> = ({ metrics, loading }) => {
           <Typography variant="subtitle2" gutterBottom color="error">
             Endpoints with Errors
           </Typography>
-          {errorProneEndpoints.map((endpoint, idx) => (
+          {errorProneEndpoints.map((endpoint) => (
             <Box
-              key={idx}
+              key={`${endpoint.method}-${endpoint.path}`}
               sx={{ p: 1, mb: 1, bgcolor: 'rgba(255,0,0,0.1)', borderRadius: 1 }}
             >
               <Typography variant="caption">

@@ -227,9 +227,9 @@ export function FleetHubProMax() {
                 { type: 'info', icon: Truck, text: 'FL-3156 departed warehouse', time: '8m ago', color: 'blue' },
                 { type: 'success', icon: Shield, text: 'Safety inspection passed: FL-2001', time: '12m ago', color: 'emerald' },
                 { type: 'info', icon: Calendar, text: 'Maintenance scheduled: 3 vehicles', time: '15m ago', color: 'violet' }
-              ].map((activity, index) => (
+              ].map((activity) => (
                 <div
-                  key={index}
+                  key={activity.text}
                   className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors duration-200 cursor-pointer group"
                 >
                   <div className={`p-2 rounded-lg bg-${activity.color}-100 text-${activity.color}-600 group-hover:scale-110 transition-transform duration-200`}>
@@ -304,9 +304,9 @@ export function FleetHubProMax() {
                 { name: 'Sarah Johnson', score: 98.5, deliveries: 127, badge: '🏆' },
                 { name: 'Mike Chen', score: 96.8, deliveries: 115, badge: '🥈' },
                 { name: 'Alex Rivera', score: 95.2, deliveries: 103, badge: '🥉' }
-              ].map((driver, index) => (
+              ].map((driver) => (
                 <div
-                  key={index}
+                  key={driver.name}
                   className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-slate-50 to-blue-50 hover:from-slate-100 hover:to-blue-100 transition-all duration-200 cursor-pointer group"
                 >
                   <div className="flex items-center gap-3">

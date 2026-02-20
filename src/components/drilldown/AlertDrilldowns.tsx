@@ -382,8 +382,8 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
                       <p className="text-sm font-medium">Notifications Sent</p>
                     </div>
                     <ul className="text-xs space-y-1 mt-2">
-                      {alertData.notifications_sent.map((notification, idx) => (
-                        <li key={idx}>
+                      {alertData.notifications_sent.map((notification) => (
+                        <li key={`${notification.recipient}-${notification.sent_at}`}>
                           {notification.recipient} via {notification.method} at{' '}
                           {new Date(notification.sent_at).toLocaleString()}
                         </li>
@@ -429,8 +429,8 @@ export function AlertDetailPanel({ alertId }: AlertDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {alertData.activity_log?.map((activity, idx) => (
-                    <div key={idx} className="flex items-start gap-2 p-2 rounded bg-muted/50">
+                  {alertData.activity_log?.map((activity) => (
+                    <div key={`${activity.action}-${activity.timestamp}`} className="flex items-start gap-2 p-2 rounded bg-muted/50">
                       <Clock className="h-4 w-4 text-muted-foreground mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-medium">{activity.action}</p>

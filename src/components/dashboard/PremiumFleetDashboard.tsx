@@ -220,7 +220,7 @@ export function PremiumFleetDashboard() {
             const Icon = metric.icon
             return (
               <motion.div
-                key={i}
+                key={metric.label}
                 custom={i}
                 variants={statVariants}
                 onMouseEnter={() => setHoveredMetric(i)}

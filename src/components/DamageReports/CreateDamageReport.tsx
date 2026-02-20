@@ -364,7 +364,7 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
               <div className="space-y-2">
                 {selectedFiles.map((file, index) => (
                   <div
-                    key={index}
+                    key={file.name}
                     className="flex items-center justify-between p-3 bg-muted rounded-lg"
                   >
                     <div className="flex items-center gap-3 flex-1">

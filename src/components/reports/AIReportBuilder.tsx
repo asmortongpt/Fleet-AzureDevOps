@@ -161,9 +161,9 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                   Example Prompts
                 </h3>
                 <div className="space-y-2">
-                  {examplePrompts.map((example, index) => (
+                  {examplePrompts.map((example) => (
                     <button
-                      key={index}
+                      key={example}
                       onClick={() => setPrompt(example)}
                       className="w-full text-left px-2 py-3 bg-muted/40 hover:bg-muted/60 rounded-lg transition-colors text-sm text-muted-foreground"
                     >
@@ -238,9 +238,9 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
                 </div>
 
                 <div className="space-y-2">
-                  {generatedReport.visuals?.map((visual: any, index: number) => (
+                  {generatedReport.visuals?.map((visual: any) => (
                     <div
-                      key={index}
+                      key={visual.title}
                       className="p-2 bg-muted/40 rounded-lg border-2 border-dashed border-border/50"
                     >
                       <div className="flex items-center justify-between mb-2">

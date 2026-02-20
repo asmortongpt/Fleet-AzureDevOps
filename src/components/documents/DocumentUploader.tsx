@@ -231,8 +231,8 @@ export function DocumentUploader({
                   Failed to upload {rejectedFiles.length} file(s)
                 </h4>
                 <div className="space-y-1">
-                  {rejectedFiles.map((item, index) => (
-                    <div key={index} className="text-xs text-muted-foreground flex items-center gap-2">
+                  {rejectedFiles.map((item) => (
+                    <div key={item.file.name} className="text-xs text-muted-foreground flex items-center gap-2">
                       <AlertCircle className="h-3 w-3 text-destructive" />
                       <span className="font-medium">{item.file.name}</span>
                       <span>-</span>

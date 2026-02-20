@@ -197,7 +197,7 @@ export function DrillDownChart({ title, subtitle, className }: DrillDownChartPro
       {/* Breadcrumb Navigation */}
       <div className="flex items-center gap-2 mb-3 p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg">
         {breadcrumbs.map((crumb, index) => (
-          <div key={index} className="flex items-center gap-2">
+          <div key={crumb.label} className="flex items-center gap-2">
             <button
               onClick={() => handleBreadcrumbClick(index)}
               className={cn(

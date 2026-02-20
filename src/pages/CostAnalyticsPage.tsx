@@ -597,8 +597,8 @@ export default function CostAnalyticsPage() {
       <div className="space-y-4">
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {costMetrics.map((metric, index) => (
-            <Section key={index} title={metric.label} className={`border-2 ${getVariantColor(metric.variant)}`} contentClassName="p-3">
+          {costMetrics.map((metric) => (
+            <Section key={metric.label} title={metric.label} className={`border-2 ${getVariantColor(metric.variant)}`} contentClassName="p-3">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <p className="text-sm font-bold">{metric.value}</p>
@@ -628,8 +628,8 @@ export default function CostAnalyticsPage() {
             icon={<PieChart className="w-3 h-3" />}
           >
               <div className="space-y-4">
-                {costBreakdown.map((item, index) => (
-                  <div key={index} className="space-y-2">
+                {costBreakdown.map((item) => (
+                  <div key={item.category} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {getTrendIcon(item.trend)}

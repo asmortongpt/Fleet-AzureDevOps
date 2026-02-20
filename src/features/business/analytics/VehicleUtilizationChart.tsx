@@ -164,7 +164,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                   const percentage = totalVehicles > 0 ? (item.count / totalVehicles) * 100 : 0;
 
                   return (
-                    <Box key={index} sx={{ mb: 2 }}>
+                    <Box key={item.status} sx={{ mb: 2 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <IconComponent sx={{ fontSize: 18, color: item.color }} />
@@ -328,8 +328,8 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
                     Top Departments by Fleet Size
                   </Typography>
                   <Grid container spacing={1}>
-                    {departmentData.slice(0, 4).map((dept, index) => (
-                      <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+                    {departmentData.slice(0, 4).map((dept) => (
+                      <Grid size={{ xs: 12, sm: 6, md: 3 }} key={dept.department}>
                         <Box sx={{ p: 1.5, bgcolor: 'hsl(var(--muted))', borderRadius: 1 }}>
                           <Typography variant="caption" color="text.secondary" noWrap>
                             {dept.department}
