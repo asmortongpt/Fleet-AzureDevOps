@@ -4,7 +4,8 @@
  */
 
 import { Bell, AlertTriangle, Info, CheckCircle, X, Eye, Clock, Siren } from 'lucide-react'
-import { useMemo, useRef, useState, useEffect } from 'react'
+import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
@@ -38,6 +39,7 @@ interface SafetyNotification {
 const fetcher = apiFetcher
 
 export function SafetyNotificationSystem() {
+    const navigate = useNavigate()
     const [filter, setFilter] = useState<'all' | 'unread'>('all')
     const [categoryFilter, setCategoryFilter] = useState<string>('all')
     const [soundEnabled, setSoundEnabled] = useState(true)
@@ -329,7 +331,7 @@ export function SafetyNotificationSystem() {
                                                                 onClick={() => {
                                                                     if (notification.action_url) {
                                                                         if (notification.action_url.startsWith('/')) {
-                                                                            window.location.href = notification.action_url
+                                                                            navigate(notification.action_url)
                                                                         } else {
                                                                             window.open(notification.action_url, '_blank', 'noopener,noreferrer')
                                                                         }

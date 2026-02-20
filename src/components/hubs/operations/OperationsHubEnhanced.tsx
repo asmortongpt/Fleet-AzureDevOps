@@ -418,7 +418,7 @@ export function OperationsHubEnhanced() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-white/70">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => push({ type: 'work-order-create' as any, label: 'New Job', data: {} })}>
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => push({ type: 'work-order-create', label: 'New Job', data: {} })}>
             <Package className="h-3 w-3" />
             New Job
           </Button>
@@ -426,7 +426,7 @@ export function OperationsHubEnhanced() {
             <Navigation className="h-3 w-3" />
             Optimize Routes
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigateTo('fleet-hub-consolidated')}>
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigateTo('geofences')}>
             <MapPin className="h-3 w-3" />
             Add Geofence
           </Button>

@@ -401,7 +401,7 @@ export function OperationsHub() {
       <div className="space-y-2">
         <h3 className="text-sm font-semibold text-white/70">Quick Actions</h3>
         <div className="grid grid-cols-2 gap-2">
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => push({ type: 'work-order-create' as any, label: 'New Job', data: {} })}>
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => push({ type: 'work-order-create', label: 'New Job', data: {} })}>
             <Package className="h-4 w-4" />
             New Job
           </Button>
@@ -409,7 +409,7 @@ export function OperationsHub() {
             <Navigation className="h-4 w-4" />
             Optimize Routes
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigateTo('fleet-hub-consolidated')}>
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2" onClick={() => navigateTo('geofences')}>
             <MapPin className="h-4 w-4" />
             Add Geofence
           </Button>

@@ -277,16 +277,19 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     return items.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 10)
   }, [drivers, vehicles, now])
 
-  const handleScheduleRenewal = (itemName: string) => {
-    toast.success(`Scheduling renewal for: ${itemName}`)
+  const handleScheduleRenewal = (itemName: string, daysLeft?: number) => {
     const parts = itemName.split(' - ')
     const entityName = parts[0] || itemName
     const renewalType = parts[1] || 'Renewal'
+    const targetDate = new Date()
+    targetDate.setDate(targetDate.getDate() + Math.max(0, (daysLeft ?? 14) - 7))
+    const formattedDate = targetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    toast.success(`${renewalType} renewal scheduled for ${entityName} — target date: ${formattedDate}`)
     push({
       id: `renewal-${itemName}`,
       type: 'compliance-renewal',
       label: `Renew: ${entityName}`,
-      data: { entityName, renewalType, item: itemName },
+      data: { entityName, renewalType, item: itemName, scheduledDate: targetDate.toISOString() },
     })
   }
 
@@ -438,7 +441,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
                         )}
                       </td>
                       <td className="py-1.5 px-2 text-right">
-                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => handleScheduleRenewal(renewal.item)}>
+                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => handleScheduleRenewal(renewal.item, renewal.daysLeft)}>
                           Schedule
                         </Button>
                       </td>

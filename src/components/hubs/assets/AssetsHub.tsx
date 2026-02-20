@@ -398,7 +398,7 @@ export function AssetsHub() {
               <LineChart className="w-4 h-4 mr-2" />
               Analytics Report
             </Button>
-            <Button onClick={() => push({ type: 'asset-create' as any, label: 'Add New Asset', data: {} })}>
+            <Button onClick={() => push({ type: 'asset-create', label: 'Add New Asset', data: {} })}>
               <Barcode className="w-4 h-4 mr-2" />
               Add Asset
             </Button>

@@ -445,6 +445,98 @@ function DriverShiftsDrilldown() {
 }
 
 // ============================================================================
+// WORK ORDER CREATE DRILLDOWN
+// ============================================================================
+function WorkOrderCreateDrilldown() {
+  const { currentLevel, push } = useDrilldown()
+  const data = currentLevel?.data || {}
+
+  const quickTypes = [
+    { type: 'preventive', label: 'Preventive Maintenance', desc: 'Scheduled service based on mileage or time interval' },
+    { type: 'corrective', label: 'Corrective Repair', desc: 'Fix a reported issue or breakdown' },
+    { type: 'inspection', label: 'Inspection', desc: 'DOT, safety, or pre-trip inspection' },
+    { type: 'emergency', label: 'Emergency Repair', desc: 'Urgent breakdown requiring immediate attention' },
+  ]
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-base font-bold">New Work Order</h2>
+        <p className="text-sm text-muted-foreground">Select a work order type to get started</p>
+      </div>
+      <div className="space-y-2">
+        {quickTypes.map(qt => (
+          <div
+            key={qt.type}
+            className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={() => push({
+              id: `new-wo-${qt.type}`,
+              type: 'work-orders',
+              label: qt.label,
+              data: { createType: qt.type, ...data }
+            })}
+          >
+            <p className="font-medium">{qt.label}</p>
+            <p className="text-sm text-muted-foreground">{qt.desc}</p>
+          </div>
+        ))}
+      </div>
+      {data.vehicleId && (
+        <div className="bg-muted/30 rounded-lg p-2">
+          <p className="text-sm text-muted-foreground">Vehicle: {data.vehicleName || data.vehicleId}</p>
+        </div>
+      )}
+      {data.requestId && (
+        <div className="bg-muted/30 rounded-lg p-2">
+          <p className="text-sm text-muted-foreground">From maintenance request #{data.requestId}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================================
+// ASSET CREATE DRILLDOWN
+// ============================================================================
+function AssetCreateDrilldown() {
+  const { currentLevel, push } = useDrilldown()
+  const data = currentLevel?.data || {}
+
+  const assetTypes = [
+    { type: 'vehicle', label: 'Vehicle', desc: 'Trucks, vans, cars, and other road vehicles' },
+    { type: 'trailer', label: 'Trailer', desc: 'Flatbed, dry van, reefer, and specialty trailers' },
+    { type: 'heavy_equipment', label: 'Heavy Equipment', desc: 'Excavators, loaders, forklifts, and cranes' },
+    { type: 'tools', label: 'Tools & Equipment', desc: 'Power tools, diagnostic tools, and shop equipment' },
+  ]
+
+  return (
+    <div className="space-y-2">
+      <div>
+        <h2 className="text-base font-bold">Add New Asset</h2>
+        <p className="text-sm text-muted-foreground">Select an asset category to register</p>
+      </div>
+      <div className="space-y-2">
+        {assetTypes.map(at => (
+          <div
+            key={at.type}
+            className="p-3 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+            onClick={() => push({
+              id: `new-asset-${at.type}`,
+              type: 'asset-value',
+              label: at.label,
+              data: { createType: at.type, category: at.label, ...data }
+            })}
+          >
+            <p className="font-medium">{at.label}</p>
+            <p className="text-sm text-muted-foreground">{at.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
 // ASSET VALUE DRILLDOWN
 // ============================================================================
 function AssetValueDrilldown() {
@@ -630,6 +722,9 @@ function DrilldownContent() {
         />
       )
 
+    case 'work-order-create':
+    case 'create-work-order':
+      return <WorkOrderCreateDrilldown />
 
     // ============================================
     // Drivers Hub Drilldowns
@@ -869,6 +964,9 @@ function DrilldownContent() {
     case 'asset-detail':
     case 'equipment':
       return <AssetDetailPanel assetId={currentLevel.data?.assetId || currentLevel.data?.id} />
+
+    case 'asset-create':
+      return <AssetCreateDrilldown />
 
     case 'asset-value':
       return <AssetValueDrilldown />

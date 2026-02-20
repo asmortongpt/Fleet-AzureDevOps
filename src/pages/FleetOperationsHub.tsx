@@ -1107,7 +1107,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   }
 
   const handleCreateWorkOrder = () => {
-    push({ type: 'work-order-create' as any, label: 'New Work Order', data: {} })
+    push({ type: 'work-order-create', label: 'New Work Order', data: {} })
   }
 
   const handleViewWorkOrder = (workOrderId: string) => {
@@ -1115,7 +1115,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
   }
 
   const handleScheduleMaintenance = (vehicleId: string) => {
-    push({ id: vehicleId, type: 'vehicle', label: 'Schedule Maintenance', data: { vehicleId, action: 'schedule-maintenance' } })
+    push({ type: 'work-order-create', label: 'Schedule Maintenance', data: { vehicleId, createType: 'preventive' } })
   }
 
   return (
@@ -1352,11 +1352,11 @@ const AssetsTabContent = memo(function AssetsTabContent() {
   }
 
   const handleAddAsset = () => {
-    push({ type: 'asset-create' as any, label: 'Add New Asset', data: {} })
+    push({ type: 'asset-create', label: 'Add New Asset', data: {} })
   }
 
   const handleScheduleAssetMaintenance = (assetId: string) => {
-    push({ id: assetId, type: 'asset', label: 'Schedule Maintenance', data: { assetId, action: 'schedule-maintenance' } })
+    push({ type: 'work-order-create', label: 'Schedule Asset Maintenance', data: { assetId, createType: 'preventive' } })
   }
 
 
