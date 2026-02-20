@@ -10,6 +10,8 @@ import { memo, useState, useCallback } from 'react'
 import { CostAnalyticsChart } from './CostAnalyticsChart'
 import { EfficiencyMetricsChart } from './EfficiencyMetricsChart'
 
+import { formatCurrency, formatNumber as formatNum } from '@/utils/format-helpers'
+
 export type DrilldownLevel = 'overview' | 'category' | 'vehicle' | 'detail'
 
 export interface DrilldownData {
@@ -36,11 +38,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
     )
 
     const currentData = breadcrumbs[breadcrumbs.length - 1]
-    const formatCurrency = (value?: number | string) => {
-        if (value === null || value === undefined || value === '') return '—'
-        if (typeof value === 'string') return value
-        return `$${value.toLocaleString()}`
-    }
+    // formatCurrency imported from @/utils/format-helpers
     const formatPercent = (value?: number | string) => {
         if (value === null || value === undefined || value === '') return '—'
         if (typeof value === 'string') return value
@@ -49,7 +47,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
     const formatNumber = (value?: number | string) => {
         if (value === null || value === undefined || value === '') return '—'
         if (typeof value === 'string') return value
-        return value.toLocaleString()
+        return formatNum(value)
     }
 
     const handleDrillDown = useCallback((newData: DrilldownData) => {

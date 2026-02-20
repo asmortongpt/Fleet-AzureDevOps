@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Vehicle } from '@/lib/types';
 import { cn } from '@/lib/utils';
+import { formatNumber } from '@/utils/format-helpers';
 
 interface MobileVehicleCardProps {
   vehicle: Vehicle;
@@ -149,7 +150,7 @@ export function MobileVehicleCard({
               <div className="flex items-center gap-1.5">
                 <Gauge className="h-3.5 w-3.5 text-muted-foreground" />
                 <span className="text-muted-foreground">Miles:</span>
-                <span className="font-medium">{vehicle.odometer.toLocaleString()}</span>
+                <span className="font-medium">{formatNumber(vehicle.odometer)}</span>
               </div>
             )}
           </div>
@@ -242,7 +243,7 @@ export function MobileVehicleCard({
                 <Gauge className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <div>
                   <div className="text-xs text-muted-foreground">Odometer</div>
-                  <div className="font-semibold">{vehicle.odometer.toLocaleString()}</div>
+                  <div className="font-semibold">{formatNumber(vehicle.odometer)}</div>
                 </div>
               </div>
             )}

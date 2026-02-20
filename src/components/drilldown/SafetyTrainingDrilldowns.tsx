@@ -15,6 +15,9 @@ import {
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
+
 import { DataGrid } from '@/components/common/DataGrid'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -31,7 +34,7 @@ import {
 const fetcher = (url: string) =>
   fetch(url)
     .then((r) => {
-      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
       return r.json()
     })
     .then((data) => data?.data ?? data)
@@ -119,7 +122,7 @@ export function TrainingRecordsMatrixView() {
     {
       accessorKey: 'date_completed',
       header: 'Date Completed',
-      cell: ({ row }) => new Date(row.original.date_completed).toLocaleDateString(),
+      cell: ({ row }) => formatDate(row.original.date_completed),
     },
     {
       accessorKey: 'score',
@@ -163,7 +166,7 @@ export function TrainingRecordsMatrixView() {
 
         return (
           <div>
-            <div>{expiryDate.toLocaleDateString()}</div>
+            <div>{formatDate(expiryDate)}</div>
             {daysUntil <= 30 && daysUntil > 0 && (
               <div className="text-xs text-amber-500 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
@@ -192,8 +195,8 @@ export function TrainingRecordsMatrixView() {
             ? 'destructive'
             : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {status}
+          <Badge variant={variant}>
+            {formatEnum(status)}
           </Badge>
         )
       },
@@ -223,11 +226,11 @@ export function TrainingRecordsMatrixView() {
       record.employee_name,
       record.course_name,
       record.course_code,
-      new Date(record.date_completed).toLocaleDateString(),
+      formatDate(record.date_completed),
       record.score !== undefined ? `${record.score}%` : '',
       record.instructor_name || '',
       record.certification_number || '',
-      record.date_expires ? new Date(record.date_expires).toLocaleDateString() : '',
+      record.date_expires ? formatDate(record.date_expires) : '',
       record.status,
       record.hours.toString(),
     ])
@@ -413,7 +416,7 @@ export function CertificationsMatrixView() {
     {
       accessorKey: 'issue_date',
       header: 'Issue Date',
-      cell: ({ row }) => new Date(row.original.issue_date).toLocaleDateString(),
+      cell: ({ row }) => formatDate(row.original.issue_date),
     },
     {
       accessorKey: 'expiry_date',
@@ -426,7 +429,7 @@ export function CertificationsMatrixView() {
 
         return (
           <div>
-            <div className="font-medium">{expiryDate.toLocaleDateString()}</div>
+            <div className="font-medium">{formatDate(expiryDate)}</div>
             {daysUntil <= 60 && daysUntil > 0 && (
               <div className="text-xs text-amber-500 flex items-center gap-1">
                 <AlertTriangle className="w-3 h-3" />
@@ -484,8 +487,8 @@ export function CertificationsMatrixView() {
             {status === 'active' && <CheckCircle className="w-4 h-4 text-green-500" />}
             {status === 'expiring-soon' && <AlertTriangle className="w-4 h-4 text-amber-500" />}
             {status === 'expired' && <XCircle className="w-4 h-4 text-red-500" />}
-            <Badge variant={variant} className="capitalize">
-              {status.replace('-', ' ')}
+            <Badge variant={variant}>
+              {formatEnum(status)}
             </Badge>
           </div>
         )
@@ -496,7 +499,7 @@ export function CertificationsMatrixView() {
       header: 'Renewal Cost',
       cell: ({ row }) =>
         row.original.renewal_cost ? (
-          <div className="text-right font-medium">${row.original.renewal_cost.toFixed(2)}</div>
+          <div className="text-right font-medium">{formatCurrency(row.original.renewal_cost)}</div>
         ) : (
           <div className="text-center text-muted-foreground">-</div>
         ),
@@ -519,13 +522,13 @@ export function CertificationsMatrixView() {
     const csvData = filteredData.map((cert) => [
       cert.employee_name,
       cert.certification_name,
-      new Date(cert.issue_date).toLocaleDateString(),
-      new Date(cert.expiry_date).toLocaleDateString(),
+      formatDate(cert.issue_date),
+      formatDate(cert.expiry_date),
       (cert.days_until_expiry || 0).toString(),
       cert.issuing_authority,
       cert.certification_number,
       cert.status,
-      cert.renewal_cost ? `$${cert.renewal_cost.toFixed(2)}` : '',
+      cert.renewal_cost ? formatCurrency(cert.renewal_cost) : '',
     ])
 
     const csv = [headers, ...csvData].map((row) => row.join(',')).join('\n')
@@ -577,7 +580,7 @@ export function CertificationsMatrixView() {
         </Card>
         <Card className="bg-blue-900/30 border-blue-700/50">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-blue-700">${renewalCost.toFixed(0)}</div>
+            <div className="text-sm font-bold text-blue-700">{formatCurrency(renewalCost)}</div>
             <div className="text-xs text-slate-700">Renewal Cost</div>
           </CardContent>
         </Card>

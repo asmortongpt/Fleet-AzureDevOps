@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
 
+import logger from '../../config/logger';
 import { getPoolStats } from '../../config/database';
 import { getDatabaseStats } from '../../utils/database';
 import { queryMonitor } from '../../utils/query-monitor';
@@ -30,7 +31,7 @@ router.get('/stats', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching query performance stats:', error);
+    logger.error('Error fetching query performance stats:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch query performance statistics',
@@ -58,7 +59,7 @@ router.get('/slow-queries', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching slow queries:', error);
+    logger.error('Error fetching slow queries:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch slow queries',
@@ -86,7 +87,7 @@ router.get('/top-slow', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching top slow queries:', error);
+    logger.error('Error fetching top slow queries:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch top slow queries',
@@ -114,7 +115,7 @@ router.get('/frequency', async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error('Error fetching query frequency:', error);
+    logger.error('Error fetching query frequency:', error);
     res.status(500).json({
       success: false,
       error: 'Failed to fetch query frequency',

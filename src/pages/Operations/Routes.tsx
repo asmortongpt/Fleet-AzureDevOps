@@ -18,7 +18,7 @@
  * - Actions: optimize, view stops, track metrics
  */
 
-import { MapPin, Plus, MagnifyingGlass, Lightning, Briefcase, CheckCircle, Warning, Spinner } from '@phosphor-icons/react';
+import { MapPin, Plus, Search, Zap, Briefcase, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 // motion removed - React 19 incompatible
 import React, { useState, useMemo } from 'react';
@@ -30,6 +30,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { getCsrfToken } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
+import { formatEnum } from '@/utils/format-enum';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 /**
@@ -131,7 +133,7 @@ function formatDistance(stops: RouteStop[]): string {
  * Format duration from minutes to readable string
  */
 function formatDuration(minutes: number): string {
-  if (minutes === 0) return 'N/A';
+  if (minutes === 0) return '—';
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
@@ -168,7 +170,7 @@ export function RoutesOperations() {
     try {
       const token = await getCsrfToken();
 
-      const response = await fetch('/api/routes/optimize', {
+      const response = await fetch('/api/route-optimization/optimize', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -184,7 +186,7 @@ export function RoutesOperations() {
 
       toast.success('Route optimized successfully!', {
         duration: 3000,
-        icon: <Lightning className="w-5 h-5" weight="bold" />,
+        icon: <Zap className="w-5 h-5" />,
       });
 
       // Refetch routes to get updated data
@@ -212,15 +214,15 @@ export function RoutesOperations() {
           setIsCreating(false);
         }}
         className={cn(
-          'p-4 border-b border-slate-700/50 cursor-pointer transition-colors',
-          'hover:bg-cyan-400/5',
-          isSelected && 'bg-cyan-400/10 border-l-4 border-l-cyan-400'
+          'p-4 border-b border-white/[0.08] cursor-pointer transition-colors',
+          'hover:bg-muted',
+          isSelected && 'bg-muted border-l-4 border-l-foreground'
         )}
       >
         <div className="flex items-start justify-between gap-3">
           {/* Route Icon */}
-          <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gradient-to-br from-violet-400/20 to-pink-500/20 flex items-center justify-center border border-violet-400/30">
-            <MapPin className="w-6 h-6 text-violet-400" weight="bold" />
+          <div className="w-12 h-12 flex-shrink-0 rounded-lg bg-gradient-to-br from-violet-400/20 to-pink-500/20 flex items-center justify-center border border-white/[0.08]">
+            <MapPin className="w-6 h-6 text-violet-400" />
           </div>
 
           {/* Route Info */}
@@ -274,7 +276,7 @@ export function RoutesOperations() {
   const detailContent = () => {
     if (isCreating) {
       return (
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
           <h4 className="text-sm font-bold text-white mb-4">New Route</h4>
           <div className="space-y-3">
             <Input
@@ -307,7 +309,7 @@ export function RoutesOperations() {
     return (
       <div className="space-y-4">
         {/* Route Summary */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-cyan-400/30 p-4">
+        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
           <h4 className="text-sm font-bold text-white mb-4">Route Details</h4>
           <div className="space-y-3 text-sm">
             <div className="flex justify-between">
@@ -328,13 +330,13 @@ export function RoutesOperations() {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-700">Route Type:</span>
-              <span className="text-white font-semibold capitalize">{selectedRoute.type}</span>
+              <span className="text-white font-semibold">{formatEnum(selectedRoute.type)}</span>
             </div>
           </div>
         </div>
 
         {/* Optimization Score */}
-        <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-violet-400/30 p-4">
+        <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
           <h4 className="text-sm font-bold text-white mb-3">Efficiency Score</h4>
           <div className="mb-3">
             <div className="flex justify-between items-center mb-2">
@@ -360,14 +362,14 @@ export function RoutesOperations() {
             size="sm"
             className="bg-violet-500 hover:bg-violet-400 text-white w-full"
           >
-            <Lightning className="w-4 h-4" weight="bold" />
+            <Zap className="w-4 h-4" />
             <span className="ml-2">Optimize Route</span>
           </Button>
         </div>
 
         {/* Route Stops */}
         {selectedRoute.stops.length > 0 && (
-          <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-slate-600/30 p-4">
+          <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
             <h4 className="text-sm font-bold text-white mb-3">Stops ({selectedRoute.stops.length})</h4>
             <div className="space-y-2 max-h-48 overflow-y-auto">
               {selectedRoute.stops.map((stop) => (
@@ -376,7 +378,7 @@ export function RoutesOperations() {
                   <div className="flex-1 min-w-0">
                     <p className="text-white truncate">{stop.address}</p>
                     <p className="text-slate-700 text-xs">
-                      {new Date(stop.estimatedArrival).toLocaleTimeString()}
+                      {formatTime(stop.estimatedArrival)}
                     </p>
                   </div>
                   <div className={cn(
@@ -393,7 +395,7 @@ export function RoutesOperations() {
 
         {/* Notes */}
         {selectedRoute.notes && (
-          <div className="bg-slate-800/30 backdrop-blur-xl rounded-lg border border-slate-600/30 p-4">
+          <div className="bg-[#242424] rounded-lg border border-white/[0.08] p-4">
             <h4 className="text-sm font-bold text-white mb-2">Notes</h4>
             <p className="text-xs text-slate-300">{selectedRoute.notes}</p>
           </div>
@@ -408,12 +410,11 @@ export function RoutesOperations() {
   const listPanel = (
     <div className="flex flex-col h-full">
       {/* Search Bar */}
-      <div className="p-4 border-b border-slate-700/50">
+      <div className="p-4 border-b border-white/[0.08]">
         <div className="relative">
-          <MagnifyingGlass
+          <Search
             className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-700"
-            weight="bold"
-          />
+                     />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -427,14 +428,14 @@ export function RoutesOperations() {
       <div className="flex-1 overflow-y-auto">
         {isLoading && (
           <div className="flex flex-col items-center justify-center h-full text-slate-700">
-            <Spinner className="w-8 h-8 animate-spin mb-2" />
+            <Loader2 className="w-8 h-8 animate-spin mb-2" />
             <p className="text-sm">Loading routes...</p>
           </div>
         )}
 
         {error && (
           <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-            <Warning className="w-8 h-8 text-red-400 mb-2" />
+            <AlertTriangle className="w-8 h-8 text-red-400 mb-2" />
             <p className="text-sm text-red-400 mb-2">Failed to load routes</p>
             <Button
               onClick={() => refetch()}
@@ -483,7 +484,7 @@ export function RoutesOperations() {
             size="sm"
             className="bg-violet-500 hover:bg-violet-400 text-white"
           >
-            <Plus className="w-4 h-4" weight="bold" />
+            <Plus className="w-4 h-4" />
             <span className="ml-2">New Route</span>
           </Button>
         ),

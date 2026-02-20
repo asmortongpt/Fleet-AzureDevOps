@@ -32,6 +32,8 @@ import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { secureFetch } from '@/hooks/use-api';
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 interface PolicyTemplateDetailPanelProps {
@@ -261,14 +263,14 @@ export function PolicyTemplateDetailPanel({
             <h3 className="text-sm font-bold">{templateData.name}</h3>
             <p className="text-sm text-muted-foreground">{templateData.category}</p>
             <div className="flex items-center gap-2 mt-2 flex-wrap">
-              <Badge variant="outline" className="capitalize">
-                {templateData.type}
+              <Badge variant="outline">
+                {formatEnum(templateData.type)}
               </Badge>
               <Badge variant={getSeverityColor(templateData.priority)}>
-                {templateData.priority} Priority
+                {formatEnum(templateData.priority)} Priority
               </Badge>
-              <Badge variant="outline" className="capitalize">
-                {templateData.enforcement_level}
+              <Badge variant="outline">
+                {formatEnum(templateData.enforcement_level)}
               </Badge>
               <Badge variant="secondary">Applies to: {templateData.applies_to}</Badge>
             </div>
@@ -293,7 +295,7 @@ export function PolicyTemplateDetailPanel({
             </CardHeader>
             <CardContent>
               <div className="text-sm font-bold text-green-600">
-                ${templateData.estimated_impact.cost_savings?.toLocaleString() || 0}
+                {formatCurrency(templateData.estimated_impact.cost_savings)}
               </div>
               <p className="text-xs text-muted-foreground">Estimated annually</p>
             </CardContent>
@@ -459,8 +461,8 @@ export function PolicyTemplateDetailPanel({
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="capitalize">
-                          {condition.condition_type.replace('_', ' ')}
+                        <Badge variant="outline">
+                          {formatEnum(condition.condition_type)}
                         </Badge>
                         {condition.is_required && (
                           <Badge variant="destructive">Required</Badge>
@@ -485,8 +487,8 @@ export function PolicyTemplateDetailPanel({
                         <div className="grid grid-cols-2 gap-3">
                           {Object.entries(condition.parameters).map(([key, value]) => (
                             <div key={key}>
-                              <p className="text-xs text-muted-foreground capitalize">
-                                {key.replace('_', ' ')}
+                              <p className="text-xs text-muted-foreground">
+                                {formatEnum(key)}
                               </p>
                               <p className="text-sm font-medium">
                                 {Array.isArray(value) ? value.join(', ') : String(value)}
@@ -510,11 +512,11 @@ export function PolicyTemplateDetailPanel({
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="capitalize">
-                          {action.action_type.replace('_', ' ')}
+                        <Badge variant="outline">
+                          {formatEnum(action.action_type)}
                         </Badge>
                         <Badge variant={getSeverityColor(action.severity)}>
-                          {action.severity}
+                          {formatEnum(action.severity)}
                         </Badge>
                         {action.automated && (
                           <Badge variant="secondary" className="gap-1">
@@ -537,8 +539,8 @@ export function PolicyTemplateDetailPanel({
                         <div className="grid grid-cols-2 gap-3">
                           {Object.entries(action.parameters).map(([key, value]) => (
                             <div key={key}>
-                              <p className="text-xs text-muted-foreground capitalize">
-                                {key.replace('_', ' ')}
+                              <p className="text-xs text-muted-foreground">
+                                {formatEnum(key)}
                               </p>
                               <p className="text-sm font-medium">
                                 {Array.isArray(value) ? value.join(', ') : String(value)}
@@ -572,7 +574,7 @@ export function PolicyTemplateDetailPanel({
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
                         <Badge variant={getSeverityColor(violation.severity)}>
-                          {violation.severity}
+                          {formatEnum(violation.severity)}
                         </Badge>
                     {violation.frequency ? (
                       <span className={`text-xs px-2 py-1 rounded-full ${getFrequencyColor(violation.frequency)}`}>
@@ -615,11 +617,11 @@ export function PolicyTemplateDetailPanel({
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="outline" className="capitalize">
-                          {req.requirement_type}
+                        <Badge variant="outline">
+                          {formatEnum(req.requirement_type)}
                         </Badge>
                         <Badge variant={getPriorityColor(req.priority)}>
-                          {req.priority}
+                          {formatEnum(req.priority)}
                         </Badge>
                         {req.estimated_time && (
                           <span className="text-xs text-muted-foreground">

@@ -178,7 +178,7 @@ router.post(
         new Date(periodEnd)
       )
 
-      res.json({ message: 'Analysis started for all vehicles' })
+      res.json({ success: true, message: 'Analysis started for all vehicles' })
     } catch (error) {
       logger.error('Analyze all vehicles error:', error) // Wave 30: Winston logger
       res.status(500).json({ error: 'Internal server error' })

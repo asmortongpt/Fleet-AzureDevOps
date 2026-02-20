@@ -12,9 +12,9 @@ import { logger } from '@/utils/logger';
 // MSAL Configuration
 export const msalConfig: Configuration = {
   auth: {
-    clientId: process.env.REACT_APP_AZURE_AD_CLIENT_ID || '4c8641fa-3a56-448f-985a-e763017d70d7',
-    authority: process.env.REACT_APP_AZURE_AD_AUTHORITY || 'https://login.microsoftonline.com/0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
-    redirectUri: process.env.REACT_APP_AZURE_AD_REDIRECT_URI || window.location.origin + '/auth/callback',
+    clientId: import.meta.env.VITE_AZURE_AD_CLIENT_ID || '4c8641fa-3a56-448f-985a-e763017d70d7',
+    authority: import.meta.env.VITE_AZURE_AD_AUTHORITY || `https://login.microsoftonline.com/${import.meta.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347'}`,
+    redirectUri: import.meta.env.VITE_AZURE_AD_REDIRECT_URI || window.location.origin + '/auth/callback',
     postLogoutRedirectUri: window.location.origin
   },
   cache: {

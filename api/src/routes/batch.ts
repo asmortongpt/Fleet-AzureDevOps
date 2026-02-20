@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import logger from '../config/logger';
 import { authenticateJWT } from '../middleware/auth';
+import { csrfProtection } from '../middleware/csrf';
 import { asyncHandler } from '../middleware/errorHandler';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody } from '../middleware/validate';
@@ -179,17 +180,16 @@ async function executeInternalRequest(
       data
     };
   } catch (error: unknown) {
-    const errMsg = error instanceof Error ? error.message : 'An unexpected error occurred';
     logger.error('[Batch] Internal request failed:', {
       url: batchReq.url,
-      error: errMsg,
+      error: error instanceof Error ? error.message : 'An unexpected error occurred',
       stack: error instanceof Error ? error.stack : undefined
     });
 
     return {
       success: false,
       status: 500,
-      error: errMsg
+      error: 'An internal error occurred'
     };
   }
 }
@@ -219,6 +219,7 @@ async function executeInternalRequest(
 router.post(
   '/',
   authenticateJWT,
+  csrfProtection,
   requireRBAC({
     roles: [Role.ADMIN, Role.MANAGER, Role.USER, Role.GUEST],
     permissions: [PERMISSIONS.VEHICLE_READ], // Base permission, each sub-request validates further

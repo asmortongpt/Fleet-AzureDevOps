@@ -29,6 +29,7 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { FleetStats, CostSummary } from '@/services/dashboardApi';
+import { formatCurrency } from '@/utils/format-helpers';
 
 export function FleetManagerDashboard() {
   const navigate = useNavigate();
@@ -341,7 +342,7 @@ export function FleetManagerDashboard() {
                 <span className="text-sm text-muted-foreground">Fuel</span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-foreground">
-                    ${costSummary.fuel_cost.toLocaleString()}
+                    {formatCurrency(costSummary.fuel_cost)}
                   </span>
                   <div className={cn(
                     "flex items-center gap-1 text-xs",
@@ -357,7 +358,7 @@ export function FleetManagerDashboard() {
                 <span className="text-sm text-muted-foreground">Maintenance</span>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-semibold text-foreground">
-                    ${costSummary.maintenance_cost.toLocaleString()}
+                    {formatCurrency(costSummary.maintenance_cost)}
                   </span>
                   <div className={cn(
                     "flex items-center gap-1 text-xs",

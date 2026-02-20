@@ -352,7 +352,7 @@ router.post(
       logger.error('Failed to create Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to create subscription',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred'
+        details: 'An internal error occurred'
       })
     }
   }
@@ -403,7 +403,7 @@ router.delete(
       logger.error('Failed to delete Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to delete subscription',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred'
+        details: 'An internal error occurred'
       })
     }
   }
@@ -454,7 +454,7 @@ router.post(
       logger.error('Failed to renew Outlook subscription:', error)
       res.status(500).json({
         error: 'Failed to renew subscription',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred'
+        details: 'An internal error occurred'
       })
     }
   }
@@ -572,6 +572,13 @@ router.post(
       const communication = result.rows[0]
 
       // Re-categorize using AI
+      if (!process.env.OPENAI_API_KEY) {
+        return res.status(503).json({
+          error: 'AI categorization unavailable',
+          message: 'OpenAI API key not configured'
+        })
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-require-imports
       const OpenAI = require('openai')
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
@@ -611,7 +618,7 @@ router.post(
       logger.error('Failed to categorize email:', error)
       res.status(500).json({
         error: 'Failed to categorize',
-        details: error instanceof Error ? error.message : 'An unexpected error occurred'
+        details: 'An internal error occurred'
       })
     }
   }

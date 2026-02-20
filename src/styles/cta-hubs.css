@@ -1,45 +1,68 @@
 .cta-hub {
-  --background: 227 44% 8%;
-  --foreground: 210 40% 98%;
-  --card: 227 44% 12%;
-  --card-foreground: 210 40% 98%;
-  --popover: 227 44% 12%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 199 78% 56%;
-  --primary-foreground: 220 30% 10%;
-  --secondary: 225 35% 18%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 224 30% 16%;
-  --muted-foreground: 215 20% 75%;
-  --accent: 36 92% 58%;
-  --accent-foreground: 220 30% 12%;
-  --destructive: 0 75% 60%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 220 28% 28%;
-  --input: 220 28% 28%;
-  --ring: 199 78% 56%;
-  --cta-bg: radial-gradient(120% 120% at 10% 0%, rgba(64, 204, 255, 0.08), transparent 55%),
-    radial-gradient(120% 120% at 90% 0%, rgba(255, 186, 77, 0.08), transparent 50%),
-    linear-gradient(180deg, #0e1322 0%, #0b1020 100%);
-  --cta-surface: rgba(16, 23, 43, 0.72);
-  --cta-surface-strong: rgba(17, 26, 51, 0.92);
-  --cta-border: rgba(97, 156, 255, 0.2);
-  --cta-text: #ecf1ff;
-  --cta-muted: rgba(236, 241, 255, 0.58);
-  --cta-accent: #f0a000;
-  --cta-accent-2: #f0a000;
+  /* Base variables — Charcoal/White ArchonY brand */
+  --background: #1a1a1a;
+  --foreground: #f5f5f5;
+  --card: #242424;
+  --card-foreground: #f5f5f5;
+  --popover: #242424;
+  --popover-foreground: #f5f5f5;
+  --primary: #ffffff;
+  --primary-foreground: #1a1a1a;
+  --secondary: #3a3a3a;
+  --secondary-foreground: #f5f5f5;
+  --muted: #2a2a2a;
+  --muted-foreground: #a0a0a0;
+  --accent: #e0e0e0;
+  --accent-foreground: #1a1a1a;
+  --destructive: #dc3545;
+  --destructive-foreground: #f5f5f5;
+  --border: rgba(255,255,255,0.12);
+  --input: #2a2a2a;
+  --ring: rgba(255,255,255,0.3);
+
+  /* Tailwind v4 --color-* overrides (required for text-foreground etc.) */
+  --color-background: #1a1a1a;
+  --color-foreground: #f5f5f5;
+  --color-card: #242424;
+  --color-card-foreground: #f5f5f5;
+  --color-popover: #242424;
+  --color-popover-foreground: #f5f5f5;
+  --color-primary: #ffffff;
+  --color-primary-foreground: #1a1a1a;
+  --color-secondary: #3a3a3a;
+  --color-secondary-foreground: #f5f5f5;
+  --color-muted: #2a2a2a;
+  --color-muted-foreground: #a0a0a0;
+  --color-accent: #e0e0e0;
+  --color-accent-foreground: #1a1a1a;
+  --color-destructive: #dc3545;
+  --color-destructive-foreground: #f5f5f5;
+  --color-border: rgba(255,255,255,0.12);
+  --color-input: #2a2a2a;
+  --color-ring: rgba(255,255,255,0.3);
+
+  /* CTA custom vars — simplified charcoal palette */
+  --cta-bg: linear-gradient(180deg, #1a1a1a 0%, #151515 100%);
+  --cta-surface: rgba(36, 36, 36, 0.85);
+  --cta-surface-strong: rgba(42, 42, 42, 0.95);
+  --cta-border: rgba(255, 255, 255, 0.1);
+  --cta-text: #f5f5f5;
+  --cta-muted: rgba(245, 245, 245, 0.55);
+  --cta-accent: #ffffff;
+  --cta-accent-2: #e0e0e0;
   --cta-success: #27d17f;
   --cta-danger: #ff6b6b;
-  --cta-shadow: 0 18px 40px rgba(6, 12, 26, 0.55);
-  font-family: "Sora", "SF Pro Display", "Segoe UI", sans-serif;
+  --cta-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+
+  font-family: "Montserrat", "SF Pro Display", "Segoe UI", sans-serif;
   color: var(--cta-text);
   background: var(--cta-bg);
   min-height: 100%;
 }
 
 .cta-hub [data-testid="hub-header"] {
-  background: linear-gradient(120deg, rgba(34, 45, 84, 0.94) 0%, rgba(23, 32, 61, 0.92) 70%);
-  border-bottom: 1px solid rgba(81, 132, 255, 0.35);
+  background: linear-gradient(120deg, rgba(36, 36, 36, 0.94) 0%, rgba(26, 26, 26, 0.92) 70%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: var(--cta-shadow);
 }
 
@@ -56,13 +79,13 @@
   border: 1px solid var(--cta-border);
   border-radius: 14px;
   padding: 14px;
-  box-shadow: 0 16px 32px rgba(6, 12, 26, 0.35);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.25);
   backdrop-filter: blur(14px);
 }
 
 .cta-hub .cta-stat {
-  background: rgba(18, 30, 56, 0.75);
-  border: 1px solid rgba(90, 147, 255, 0.2);
+  background: rgba(36, 36, 36, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 12px 14px;
 }
@@ -73,14 +96,14 @@
 }
 
 .cta-hub [data-slot="tabs-list"] {
-  background: rgba(11, 17, 34, 0.7);
-  border-color: rgba(90, 147, 255, 0.2);
-  box-shadow: inset 0 0 0 1px rgba(90, 147, 255, 0.08);
+  background: rgba(26, 26, 26, 0.7);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 .cta-hub .cta-tabs {
-  border: 1px solid rgba(90, 147, 255, 0.2);
-  background: rgba(11, 17, 34, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(26, 26, 26, 0.7);
 }
 
 .cta-hub .cta-tab {
@@ -93,28 +116,28 @@
 }
 
 .cta-hub .cta-tab--active {
-  border-color: rgba(240, 160, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.4);
   color: var(--cta-text);
 }
 
 .cta-hub [data-slot="tabs-trigger"][data-state="active"] {
-  background: rgba(240, 160, 0, 0.15);
-  border-color: rgba(240, 160, 0, 0.4);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
   color: var(--cta-text);
-  box-shadow: 0 8px 18px rgba(240, 160, 0, 0.2);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
 }
 
 .cta-hub .cta-map-shell {
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(240, 160, 0, 0.25);
-  box-shadow: 0 20px 36px rgba(6, 12, 26, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 20px 36px rgba(0, 0, 0, 0.3);
 }
 
 .cta-hub .cta-pill {
-  background: rgba(240, 160, 0, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   color: var(--cta-text);
-  border: 1px solid rgba(240, 160, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .cta-hub .cta-danger {
@@ -134,31 +157,22 @@
 }
 
 /* ========================================================================
-   STAGGER ANIMATIONS - Stat cards animate in sequence
+   CONTENT DISPLAY - No stagger animations, immediate display
    ======================================================================== */
-.cta-hub .grid > .animate-fade-in-up:nth-child(1) { animation-delay: 0s; }
-.cta-hub .grid > .animate-fade-in-up:nth-child(2) { animation-delay: 0.05s; }
-.cta-hub .grid > .animate-fade-in-up:nth-child(3) { animation-delay: 0.1s; }
-.cta-hub .grid > .animate-fade-in-up:nth-child(4) { animation-delay: 0.15s; }
-.cta-hub .grid > .animate-fade-in-up:nth-child(5) { animation-delay: 0.2s; }
-.cta-hub .grid > .animate-fade-in-up:nth-child(6) { animation-delay: 0.25s; }
-.cta-hub .grid > .animate-fade-in-up:nth-child(7) { animation-delay: 0.3s; }
-.cta-hub .grid > .animate-fade-in-up:nth-child(8) { animation-delay: 0.35s; }
 .cta-hub .grid > .animate-fade-in-up {
-  opacity: 0;
-  animation-fill-mode: forwards;
+  opacity: 1;
+  animation: none;
 }
 
 /* ========================================================================
-   STAT CARD HOVER - Gold border glow on hover
+   STAT CARD - Clean, professional styling
    ======================================================================== */
 .cta-hub .cta-stat {
-  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  transition: border-color 0.15s ease;
 }
 
 .cta-hub .cta-stat:hover {
-  border-color: rgba(240, 160, 0, 0.4) !important;
-  box-shadow: 0 8px 24px rgba(240, 160, 0, 0.15), 0 20px 40px rgba(6, 12, 26, 0.45), inset 0 1px 0 rgba(240, 160, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* SVG ring gauge glow animation */
@@ -171,18 +185,18 @@
 }
 
 /* ========================================================================
-   GOLD TAB INDICATORS - Radix tabs and custom pill tabs
+   TAB INDICATORS - White on charcoal
    ======================================================================== */
 .cta-hub [data-slot="tabs-trigger"]:hover {
-  color: rgba(240, 160, 0, 0.8);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .cta-hub .cta-tab:hover {
-  background: rgba(240, 160, 0, 0.06);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* ========================================================================
-   EMPTY STATE - Dashed gold border, centered content
+   EMPTY STATE - Dashed white border, centered content
    ======================================================================== */
 .cta-empty-state {
   display: flex;
@@ -190,7 +204,7 @@
   align-items: center;
   justify-content: center;
   padding: 2.5rem 1.5rem;
-  border: 2px dashed rgba(240, 160, 0, 0.25);
+  border: 2px dashed rgba(255, 255, 255, 0.2);
   border-radius: 1rem;
   color: var(--cta-muted);
   text-align: center;
@@ -202,23 +216,21 @@
 }
 
 /* ========================================================================
-   HUB HEADER GLASSMORPHISM
+   HUB HEADER
    ======================================================================== */
 .cta-hub [data-testid="hub-header"] {
-  background: linear-gradient(135deg, rgba(34, 45, 84, 0.92) 0%, rgba(18, 26, 52, 0.95) 100%);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: #242424;
 }
 
 /* ========================================================================
-   SECTION CARD ENHANCEMENTS
+   SECTION CARD - Clean borders
    ======================================================================== */
 .cta-hub .cta-card {
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.15s ease;
 }
 
 .cta-hub .cta-card:hover {
-  border-color: rgba(240, 160, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ========================================================================

@@ -8,7 +8,7 @@ const Card = forwardRef<HTMLDivElement, ComponentProps<"div">>(({ className, ...
       ref={ref}
       data-slot="card"
       className={cn(
-        "bg-card text-card-foreground border border-border/60 rounded-xl flex flex-col gap-2 py-3 px-3 transition-all duration-300 hover:border-border/80 hover:shadow-lg hover:-translate-y-0.5 shadow-md hover:shadow-primary/10",
+        "bg-card text-card-foreground border border-white/[0.08] rounded-lg flex flex-col gap-2 py-3 px-3 shadow-sm",
         className
       )}
       {...props}
@@ -118,9 +118,9 @@ function CardPremium({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="card-premium"
       className={cn(
-        "bg-gradient-to-br from-card via-card to-card/95 text-card-foreground flex flex-col gap-3 rounded-xl border border-border/60",
-        "transition-all duration-300 ease-out relative overflow-hidden",
-        "shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-[#F0A000]/10 hover:border-[#F0A000]/40 hover:-translate-y-0.5 p-4",
+        "bg-card text-card-foreground flex flex-col gap-3 rounded-lg border border-white/[0.08]",
+        "relative overflow-hidden",
+        "shadow-sm p-4",
         className
       )}
       {...props}
@@ -133,8 +133,8 @@ function CardOrangeAccent({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="card-orange-accent"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-3 rounded-xl border-l-4 border-l-[#FF6B35] border border-border/60 p-4",
-        "shadow-md shadow-[#FF6B35]/10 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
+        "bg-card text-card-foreground flex flex-col gap-3 rounded-lg border-l-4 border-l-white/20 border border-white/[0.08] p-4",
+        "shadow-sm",
         className
       )}
       {...props}
@@ -147,8 +147,8 @@ function CardGoldAccent({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="card-gold-accent"
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-3 rounded-xl border-l-4 border-l-[#F0A000] border border-border/60 p-4",
-        "shadow-md shadow-[#F0A000]/10 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
+        "bg-card text-card-foreground flex flex-col gap-3 rounded-lg border-l-4 border-l-white/15 border border-white/[0.08] p-4",
+        "shadow-sm",
         className
       )}
       {...props}

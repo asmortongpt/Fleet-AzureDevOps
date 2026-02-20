@@ -17,6 +17,7 @@ import {
 
 import { useFleetData } from "@/hooks/use-fleet-data";
 import { brandColors } from "@/theme/designSystem"
+import { formatCurrency, formatNumber } from "@/utils/format-helpers"
 
 interface FuelPanelProps {
     open: boolean;
@@ -59,7 +60,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                                 <DollarSign className="w-4 h-4" /> Total Spend
                             </div>
                             <div className="text-sm font-bold font-mono">
-                                ${totalCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                                {formatCurrency(Math.round(totalCost))}
                             </div>
                             <div className="text-xs text-green-500 flex items-center mt-1">
                                 <TrendingUp className="w-3 h-3 mr-1" /> +2.4% vs last week
@@ -71,7 +72,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                                 <Droplet className="w-4 h-4" /> Volume (Gal)
                             </div>
                             <div className="text-sm font-bold font-mono">
-                                {Math.round(totalVolume).toLocaleString()}
+                                {formatNumber(Math.round(totalVolume))}
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
                                 Avg ${avgPrice.toFixed(2)} / gal
@@ -89,7 +90,7 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
                                     No fuel transactions available
                                 </div>
                             ) : transactions.map((tx: any) => {
-                                const stationDisplay = tx.station_name ?? tx.stationName ?? tx.station ?? 'Unknown'
+                                const stationDisplay = tx.station_name ?? tx.stationName ?? tx.station ?? '—'
                                 const brand = tx.station_brand ?? tx.stationBrand ?? null
                                 const isFullFill = tx.is_full_fill ?? tx.isFullFill ?? null
                                 const calcMpg = tx.mpg_calculated ?? tx.mpgCalculated ?? null

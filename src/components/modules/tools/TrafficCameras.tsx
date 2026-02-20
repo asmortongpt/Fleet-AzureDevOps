@@ -46,6 +46,7 @@ import { useInterval } from "@/hooks"
 import { apiClient } from "@/lib/api-client"
 import { TrafficCamera, CameraDataSource } from "@/lib/types"
 import { brandColors } from "@/theme/designSystem"
+import { formatDateTime } from "@/utils/format-helpers"
 
 // ============================================================================
 // Types & Interfaces
@@ -359,7 +360,7 @@ export function TrafficCameras(): React.ReactElement {
     if (hours === 1) return "1 hour ago"
     if (hours < 24) return `${hours} hours ago`
 
-    return date.toLocaleString()
+    return formatDateTime(date)
   }, [])
 
   // ========== Data Loading Handler ==========
@@ -576,7 +577,7 @@ export function TrafficCameras(): React.ReactElement {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <div>
                   <p className="text-sm text-muted-foreground">Location</p>
-                  <p className="font-medium">{state.selectedCamera.address || 'N/A'}</p>
+                  <p className="font-medium">{state.selectedCamera.address || '—'}</p>
                   {state.selectedCamera.crossStreets && (
                     <p className="text-sm text-muted-foreground">{state.selectedCamera.crossStreets}</p>
                   )}
@@ -603,7 +604,7 @@ export function TrafficCameras(): React.ReactElement {
                 <div>
                   <p className="text-sm text-muted-foreground">Data Source</p>
                   <p className="font-medium">
-                    {state.sources.find(s => s.id === state.selectedCamera?.sourceId)?.name || 'Unknown'}
+                    {state.sources.find(s => s.id === state.selectedCamera?.sourceId)?.name || '—'}
                   </p>
                 </div>
               )}

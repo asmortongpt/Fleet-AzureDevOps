@@ -6,6 +6,7 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { formatNumber } from '@/utils/format-helpers';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -48,32 +49,32 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
     const fetchDriverDetails = async () => {
       try {
         const [certRes, perfRes, assignRes, trainingRes, incidentRes] = await Promise.all([
-          secureFetch(`/api/v1/drivers/${driver.id}/certifications`),
-          secureFetch(`/api/v1/drivers/${driver.id}/performance`),
-          secureFetch(`/api/v1/drivers/${driver.id}/assignments`),
-          secureFetch(`/api/v1/drivers/${driver.id}/training`),
-          secureFetch(`/api/v1/drivers/${driver.id}/incidents`)
+          secureFetch(`/api/v1/drivers/${driver.id}/certifications`).catch(() => null),
+          secureFetch(`/api/v1/drivers/${driver.id}/performance`).catch(() => null),
+          secureFetch(`/api/v1/drivers/${driver.id}/assignments`).catch(() => null),
+          secureFetch(`/api/v1/drivers/${driver.id}/training`).catch(() => null),
+          secureFetch(`/api/v1/drivers/${driver.id}/incidents`).catch(() => null)
         ]);
 
         if (!isMounted) return;
 
-        if (certRes.ok) {
+        if (certRes?.ok) {
           const payload = await certRes.json();
           setCertifications(payload.data || payload || []);
         }
-        if (perfRes.ok) {
+        if (perfRes?.ok) {
           const payload = await perfRes.json();
           setPerformanceMetrics(payload.data || payload || null);
         }
-        if (assignRes.ok) {
+        if (assignRes?.ok) {
           const payload = await assignRes.json();
           setAssignments(payload.data || payload || []);
         }
-        if (trainingRes.ok) {
+        if (trainingRes?.ok) {
           const payload = await trainingRes.json();
           setTrainingRecords(payload.data || payload || []);
         }
-        if (incidentRes.ok) {
+        if (incidentRes?.ok) {
           const payload = await incidentRes.json();
           setIncidents(payload.data || payload || []);
         }
@@ -125,17 +126,17 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
   };
 
   const licenseStatus = useMemo(() => {
-    if (!driver.licenseExpiry) return 'Unknown';
+    if (!driver.licenseExpiry) return '—';
     const expiry = new Date(driver.licenseExpiry);
-    if (Number.isNaN(expiry.getTime())) return 'Unknown';
+    if (Number.isNaN(expiry.getTime())) return '—';
     return expiry < new Date() ? 'Expired' : 'Valid';
   }, [driver.licenseExpiry]);
 
   const yearsOfService = useMemo(() => {
     const start = driver.hireDate || driver.startDate || driver.createdAt;
-    if (!start) return 'N/A';
+    if (!start) return '—';
     const startDate = new Date(start);
-    if (Number.isNaN(startDate.getTime())) return 'N/A';
+    if (Number.isNaN(startDate.getTime())) return '—';
     const years = (Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24 * 365);
     return years.toFixed(1);
   }, [driver.hireDate, driver.startDate, driver.createdAt]);
@@ -158,11 +159,11 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
               <div className="flex gap-2 text-sm">
                 <div className="flex items-center gap-1">
                   <Mail className="w-4 h-4" />
-                  {driver.email || 'N/A'}
+                  {driver.email || '—'}
                 </div>
                 <div className="flex items-center gap-1">
                   <Phone className="w-4 h-4" />
-                  {driver.phone || 'N/A'}
+                  {driver.phone || '—'}
                 </div>
               </div>
             </div>
@@ -178,13 +179,13 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <p className="text-xs text-indigo-200">Safety Score</p>
-            <p className="text-sm font-bold">{performance.safetyScore || 'N/A'}%</p>
+            <p className="text-sm font-bold">{performance.safetyScore || '—'}%</p>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
             <p className="text-xs text-indigo-200">Overall Rating</p>
             <div className="flex items-center gap-1">
               <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              <p className="text-sm font-bold">{performance.overallRating || 'N/A'}</p>
+              <p className="text-sm font-bold">{performance.overallRating || '—'}</p>
             </div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
@@ -230,15 +231,15 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Email:</span>
-                    <span className="font-medium text-blue-800">{driver.email || 'N/A'}</span>
+                    <span className="font-medium text-blue-800">{driver.email || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Phone:</span>
-                    <span className="font-medium">{driver.phone || 'N/A'}</span>
+                    <span className="font-medium">{driver.phone || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Department:</span>
-                    <span className="font-medium">{driver.department || 'N/A'}</span>
+                    <span className="font-medium">{driver.department || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status:</span>
@@ -257,19 +258,19 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                 <CardContent className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">License Number:</span>
-                    <span className="font-mono">{driver.licenseNumber || 'N/A'}</span>
+                    <span className="font-mono">{driver.licenseNumber || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Class:</span>
-                    <span className="font-medium">{driver.licenseClass || driver.license_type || 'N/A'}</span>
+                    <span className="font-medium">{driver.licenseClass || driver.license_type || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Issued:</span>
-                    <span className="font-medium">{driver.licenseIssued || driver.license_issued || 'N/A'}</span>
+                    <span className="font-medium">{driver.licenseIssued || driver.license_issued || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Expires:</span>
-                    <span className="font-medium">{driver.licenseExpiry || 'N/A'}</span>
+                    <span className="font-medium">{driver.licenseExpiry || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Endorsements:</span>
@@ -315,7 +316,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                               </Badge>
                             </div>
                             <p className="text-xs text-muted-foreground mb-1">{incident.description || incident.summary || 'Incident details not available'}</p>
-                            <p className="text-xs text-muted-foreground">Date: {incident.date || incident.created_at || 'N/A'}</p>
+                            <p className="text-xs text-muted-foreground">Date: {incident.date || incident.created_at || '—'}</p>
                           </div>
                           {incident.resolved && (
                             <CheckCircle className="w-3 h-3 text-green-500" />
@@ -358,11 +359,11 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                         <div className="grid grid-cols-2 gap-2 text-xs mt-3 pt-3 border-t">
                           <div>
                             <span className="text-muted-foreground">Issued:</span>
-                            <p className="font-medium">{cert.issued || cert.issued_at || 'N/A'}</p>
+                            <p className="font-medium">{cert.issued || cert.issued_at || '—'}</p>
                           </div>
                           <div>
                             <span className="text-muted-foreground">Expires:</span>
-                            <p className="font-medium">{cert.expires || cert.expires_at || 'N/A'}</p>
+                            <p className="font-medium">{cert.expires || cert.expires_at || '—'}</p>
                           </div>
                         </div>
                       </div>
@@ -454,12 +455,12 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                             </div>
                             <p className="text-sm text-muted-foreground">ID: {assignment.vehicleId || assignment.vehicle_id || assignment.id}</p>
                           </div>
-                          <p className="text-sm font-medium">{Number(assignment.milesDriven || assignment.miles_driven || 0).toLocaleString()} mi</p>
+                          <p className="text-sm font-medium">{formatNumber(Number(assignment.milesDriven || assignment.miles_driven || 0))} mi</p>
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-xs mt-3 pt-3 border-t">
                           <div>
                             <span className="text-muted-foreground">Assigned:</span>
-                            <p className="font-medium">{assignment.assignedDate || assignment.assigned_date || 'N/A'}</p>
+                            <p className="font-medium">{assignment.assignedDate || assignment.assigned_date || '—'}</p>
                           </div>
                           <div>
                             <span className="text-muted-foreground">End Date:</span>
@@ -497,7 +498,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                               <h4 className="font-semibold">{record.course || record.title || 'Training'}</h4>
                               {getStatusBadge(record.status || 'completed')}
                             </div>
-                            <p className="text-sm text-muted-foreground">Instructor: {record.instructor || record.trainer || 'N/A'}</p>
+                            <p className="text-sm text-muted-foreground">Instructor: {record.instructor || record.trainer || '—'}</p>
                           </div>
                           {record.score && (
                             <div className={`font-bold text-sm ${getScoreColor(record.score)}`}>
@@ -507,7 +508,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                         </div>
                         <div className="text-xs mt-3 pt-3 border-t">
                           <span className="text-muted-foreground">Date:</span>
-                          <span className="font-medium ml-1">{record.date || record.completed_at || 'N/A'}</span>
+                          <span className="font-medium ml-1">{record.date || record.completed_at || '—'}</span>
                         </div>
                       </div>
                     ))

@@ -9,6 +9,8 @@ import { EventEmitter } from 'events'
 
 import { faker } from '@faker-js/faker'
 
+import logger from '../../config/logger'
+
 import { EmulatorConfig, EmulatorStatus } from '../types'
 
 /**
@@ -277,11 +279,11 @@ export class VehicleInventoryEmulator extends EventEmitter {
    */
   async start(): Promise<void> {
     if (this.status === 'running') {
-      console.warn('VehicleInventoryEmulator is already running')
+      logger.warn('VehicleInventoryEmulator is already running')
       return
     }
 
-    console.log('Starting VehicleInventoryEmulator...')
+    logger.info('Starting VehicleInventoryEmulator...')
     this.status = 'running'
     this.startTime = new Date()
 
@@ -292,7 +294,7 @@ export class VehicleInventoryEmulator extends EventEmitter {
     }, checkInterval)
 
     this.emit('started', { timestamp: new Date() })
-    console.log('VehicleInventoryEmulator started successfully')
+    logger.info('VehicleInventoryEmulator started successfully')
   }
 
   /**
@@ -300,11 +302,11 @@ export class VehicleInventoryEmulator extends EventEmitter {
    */
   async stop(): Promise<void> {
     if (this.status !== 'running') {
-      console.warn('VehicleInventoryEmulator is not running')
+      logger.warn('VehicleInventoryEmulator is not running')
       return
     }
 
-    console.log('Stopping VehicleInventoryEmulator...')
+    logger.info('Stopping VehicleInventoryEmulator...')
 
     if (this.updateInterval) {
       clearInterval(this.updateInterval)
@@ -313,7 +315,7 @@ export class VehicleInventoryEmulator extends EventEmitter {
 
     this.status = 'idle'
     this.emit('stopped', { timestamp: new Date(), eventsGenerated: this.eventsGenerated })
-    console.log('VehicleInventoryEmulator stopped')
+    logger.info('VehicleInventoryEmulator stopped')
   }
 
   /**
@@ -321,7 +323,7 @@ export class VehicleInventoryEmulator extends EventEmitter {
    */
   async pause(): Promise<void> {
     if (this.status !== 'running') {
-      console.warn('Cannot pause: VehicleInventoryEmulator is not running')
+      logger.warn('Cannot pause: VehicleInventoryEmulator is not running')
       return
     }
 
@@ -339,7 +341,7 @@ export class VehicleInventoryEmulator extends EventEmitter {
    */
   async resume(): Promise<void> {
     if (this.status !== 'paused') {
-      console.warn('Cannot resume: VehicleInventoryEmulator is not paused')
+      logger.warn('Cannot resume: VehicleInventoryEmulator is not paused')
       return
     }
 
@@ -704,7 +706,7 @@ export class VehicleInventoryEmulator extends EventEmitter {
    * Perform compliance check across all vehicles
    */
   private performComplianceCheck(): void {
-    console.log('Performing compliance check across all vehicles...')
+    logger.info('Performing compliance check across all vehicles...')
 
     this.inventory.forEach((items, vehicleId) => {
       this.generateComplianceAlerts(vehicleId)

@@ -21,6 +21,7 @@ import {
 import { useDrilldown } from "@/contexts/DrilldownContext";
 import { useFleetData } from "@/hooks/use-fleet-data";
 import { brandColors } from "@/theme/designSystem"
+import { formatEnum } from "@/utils/format-enum"
 
 interface DriverRosterProps {
     open: boolean;
@@ -127,11 +128,11 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                             <h4 className="font-medium text-sm">{driver.name}</h4>
                                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                                 <Badge variant="outline" className="h-5 px-1.5">
-                                                    {driver.licenseType || 'N/A'}
+                                                    {driver.licenseType || '—'}
                                                 </Badge>
                                                 <span className={`flex items-center gap-1 ${driver.status === 'active' ? 'text-green-500' : 'text-gray-700'
                                                     }`}>
-                                                    • {driver.status}
+                                                    • {formatEnum(driver.status)}
                                                 </span>
                                             </div>
                                         </div>

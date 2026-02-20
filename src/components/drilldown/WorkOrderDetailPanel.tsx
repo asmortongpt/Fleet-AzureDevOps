@@ -36,6 +36,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatDateTime } from '@/utils/format-helpers'
 
 interface WorkOrderDetailPanelProps {
   workOrderId: string
@@ -93,10 +95,11 @@ interface MaintenanceHistoryItem {
   status: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps) {
   const { push } = useDrilldown()
@@ -255,8 +258,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   {workOrder.priority} Priority
                 </Badge>
                 {workOrder.work_type && (
-                  <Badge variant="outline" className="capitalize">
-                    {workOrder.work_type}
+                  <Badge variant="outline">
+                    {formatEnum(workOrder.work_type)}
                   </Badge>
                 )}
                 {workOrder.category && (
@@ -284,7 +287,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  ${totalPartsCost.toFixed(2)}
+                  {formatCurrency(totalPartsCost)}
                 </div>
                 {parts && parts.length > 0 && (
                   <p className="text-xs text-muted-foreground mt-1">
@@ -303,7 +306,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  ${totalLaborCost.toFixed(2)}
+                  {formatCurrency(totalLaborCost)}
                 </div>
                 {labor && labor.length > 0 && (
                   <p className="text-xs text-muted-foreground mt-1">
@@ -322,11 +325,11 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold text-primary">
-                  ${totalCost.toFixed(2)}
+                  {formatCurrency(totalCost)}
                 </div>
                 {workOrder.estimated_cost && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Est: ${workOrder.estimated_cost.toFixed(2)}
+                    Est: {formatCurrency(workOrder.estimated_cost)}
                   </p>
                 )}
               </CardContent>
@@ -355,7 +358,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                     <div>
                       <p className="text-sm text-muted-foreground">Vehicle</p>
                       <div className="flex items-center gap-2">
-                        <p className="font-medium">{workOrder.vehicle_name || 'N/A'}</p>
+                        <p className="font-medium">{workOrder.vehicle_name || '—'}</p>
                         {workOrder.vehicle_id && (
                           <Button
                             variant="ghost"
@@ -371,16 +374,16 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
                       <p className="font-medium capitalize">
-                        {workOrder.work_type || 'N/A'}
+                        {workOrder.work_type || '—'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Assigned To</p>
-                      <p className="font-medium">{workOrder.assigned_to || 'Unassigned'}</p>
+                      <p className="font-medium">{workOrder.assigned_to || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Created By</p>
-                      <p className="font-medium">{workOrder.created_by || 'N/A'}</p>
+                      <p className="font-medium">{workOrder.created_by || '—'}</p>
                     </div>
                     {workOrder.category && (
                       <div>
@@ -464,34 +467,28 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Created</span>
                     <span className="font-medium">
-                      {workOrder.created_date
-                        ? new Date(workOrder.created_date).toLocaleDateString()
-                        : 'N/A'}
+                      {formatDate(workOrder.created_date)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Scheduled</span>
                     <span className="font-medium">
-                      {workOrder.scheduled_date
-                        ? new Date(workOrder.scheduled_date).toLocaleDateString()
-                        : 'Not scheduled'}
+                      {workOrder.scheduled_date ? formatDate(workOrder.scheduled_date) : 'Not scheduled'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Started</span>
                     <span className="font-medium">
-                      {workOrder.start_date
-                        ? new Date(workOrder.start_date).toLocaleDateString()
-                        : 'Not started'}
+                      {workOrder.start_date ? formatDate(workOrder.start_date) : 'Not started'}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm">Completed</span>
                     <span className="font-medium">
                       {workOrder.completed_at
-                        ? new Date(workOrder.completed_at).toLocaleDateString()
+                        ? formatDate(workOrder.completed_at)
                         : workOrder.completed_date
-                          ? new Date(workOrder.completed_date).toLocaleDateString()
+                          ? formatDate(workOrder.completed_date)
                           : 'Not completed'}
                     </span>
                   </div>
@@ -499,7 +496,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                     <div className="flex items-center justify-between border-t pt-3">
                       <span className="text-sm font-medium">Due Date</span>
                       <span className={`font-medium ${new Date(workOrder.due_date) < new Date() && workOrder.status !== 'completed' ? 'text-destructive' : ''}`}>
-                        {new Date(workOrder.due_date).toLocaleDateString()}
+                        {formatDate(workOrder.due_date)}
                       </span>
                     </div>
                   )}
@@ -525,7 +522,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                       {workOrder.estimated_completion && (
                         <p className="text-xs text-muted-foreground mt-2">
                           Estimated completion:{' '}
-                          {new Date(workOrder.estimated_completion).toLocaleDateString()}
+                          {formatDate(workOrder.estimated_completion)}
                         </p>
                       )}
                     </div>
@@ -585,13 +582,13 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                   </CardHeader>
                   <CardContent>
                     <ul className="space-y-2">
-                      {workOrder.notes.map((note: any) => (
-                        <li key={`${note.author}-${note.timestamp}`} className="p-2 rounded bg-muted/50 text-sm">
+                      {workOrder.notes.map((note: any, idx: number) => (
+                        <li key={idx} className="p-2 rounded bg-muted/50 text-sm">
                           <p className="font-medium">{note.author}</p>
                           <p className="text-muted-foreground">{note.text}</p>
                           {note.timestamp && (
                             <p className="text-xs text-muted-foreground mt-1">
-                              {new Date(note.timestamp).toLocaleString()}
+                              {formatDateTime(note.timestamp)}
                             </p>
                           )}
                         </li>
@@ -618,7 +615,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               </div>
                               {part.status && (
                                 <Badge variant={part.status === 'delivered' ? 'default' : 'secondary'}>
-                                  {part.status}
+                                  {formatEnum(part.status)}
                                 </Badge>
                               )}
                             </div>
@@ -636,12 +633,12 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               </div>
                               <div>
                                 <p className="text-xs text-muted-foreground">Unit Cost</p>
-                                <p className="font-medium">${part.unit_cost?.toFixed(2) || '0.00'}</p>
+                                <p className="font-medium">{formatCurrency(part.unit_cost)}</p>
                               </div>
                               <div>
                                 <p className="text-xs text-muted-foreground">Total</p>
                                 <p className="font-medium text-primary">
-                                  ${((part.quantity * part.unit_cost) || 0).toFixed(2)}
+                                  {formatCurrency((part.quantity * part.unit_cost) || 0)}
                                 </p>
                               </div>
                             </div>
@@ -661,7 +658,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                                   <div>
                                     <p className="text-muted-foreground">Delivery Date</p>
                                     <p className="font-medium">
-                                      {new Date(part.delivery_date).toLocaleDateString()}
+                                      {formatDate(part.delivery_date)}
                                     </p>
                                   </div>
                                 )}
@@ -678,7 +675,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                       <div className="flex items-center justify-between">
                         <span className="font-semibold">Total Parts Cost</span>
                         <span className="text-sm font-bold text-primary">
-                          ${totalPartsCost.toFixed(2)}
+                          {formatCurrency(totalPartsCost)}
                         </span>
                       </div>
                     </CardContent>
@@ -731,19 +728,19 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               </div>
                               <div>
                                 <p className="text-xs text-muted-foreground">Rate</p>
-                                <p className="font-medium">${entry.rate?.toFixed(2) || '0.00'}/hr</p>
+                                <p className="font-medium">{formatCurrency(entry.rate)}/hr</p>
                               </div>
                               <div>
                                 <p className="text-xs text-muted-foreground">Total</p>
                                 <p className="font-medium text-primary">
-                                  ${((entry.hours * entry.rate) || 0).toFixed(2)}
+                                  {formatCurrency((entry.hours * entry.rate) || 0)}
                                 </p>
                               </div>
                             </div>
 
                             {entry.date && (
                               <p className="text-xs text-muted-foreground pt-2 border-t">
-                                {new Date(entry.date).toLocaleDateString()}
+                                {formatDate(entry.date)}
                               </p>
                             )}
                           </div>
@@ -764,7 +761,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                         <div className="flex items-center justify-between pt-2 border-t">
                           <span className="font-semibold">Total Labor Cost</span>
                           <span className="text-sm font-bold text-primary">
-                            ${totalLaborCost.toFixed(2)}
+                            {formatCurrency(totalLaborCost)}
                           </span>
                         </div>
                       </div>
@@ -812,7 +809,7 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                                 )}
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {new Date(event.timestamp).toLocaleString()}
+                                {formatDateTime(event.timestamp)}
                               </span>
                             </div>
                             {event.metadata && Object.keys(event.metadata).length > 0 && (
@@ -861,16 +858,16 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                         >
                           <div className="flex items-center justify-between">
                             <div>
-                              <p className="font-medium capitalize">{record.type}</p>
+                              <p className="font-medium">{formatEnum(record.type)}</p>
                               <p className="text-sm text-muted-foreground">{record.title}</p>
                             </div>
                             <div className="text-right">
                               <p className="text-xs text-muted-foreground">
-                                {new Date(record.date).toLocaleDateString()}
+                                {formatDate(record.date)}
                               </p>
                               {record.status && (
                                 <Badge variant="outline" className="mt-1">
-                                  {record.status}
+                                  {formatEnum(record.status)}
                                 </Badge>
                               )}
                             </div>
@@ -902,8 +899,8 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
                                 <p className="font-medium">WO #{item.work_order_number}</p>
-                                <Badge variant="outline" className="capitalize">
-                                  {item.type}
+                                <Badge variant="outline">
+                                  {formatEnum(item.type)}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground mt-1">
@@ -911,9 +908,9 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
                               </p>
                             </div>
                             <div className="text-right ml-2">
-                              <p className="text-sm font-medium">${item.cost.toFixed(2)}</p>
+                              <p className="text-sm font-medium">{formatCurrency(item.cost)}</p>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(item.date).toLocaleDateString()}
+                                {formatDate(item.date)}
                               </p>
                             </div>
                           </div>

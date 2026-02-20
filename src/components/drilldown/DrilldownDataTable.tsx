@@ -45,6 +45,7 @@ import {
 } from '@/components/ui/table'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatDate } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -513,7 +514,7 @@ export function DrilldownVehicleTable({
             row.status === 'offline' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
           )}
         >
-          {row.status || 'Unknown'}
+          {row.status || '—'}
         </span>
       ),
     },
@@ -612,7 +613,7 @@ export function DrilldownWorkOrderTable({
             row.status === 'completed' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
           )}
         >
-          {row.status || 'Unknown'}
+          {row.status || '—'}
         </span>
       ),
     },
@@ -653,7 +654,7 @@ export function DrilldownWorkOrderTable({
     header: 'Due Date',
     sortable: true,
     render: (row) =>
-      row.dueDate ? new Date(row.dueDate).toLocaleDateString() : '-',
+      row.dueDate ? formatDate(row.dueDate) : '-',
   })
 
   return (
@@ -728,7 +729,7 @@ export function DrilldownDriverTable({
             row.status === 'off-duty' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'
           )}
         >
-          {row.status || 'Unknown'}
+          {row.status || '—'}
         </span>
       ),
     },

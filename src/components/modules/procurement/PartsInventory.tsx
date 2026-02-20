@@ -35,6 +35,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Part } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatCurrency } from "@/utils/format-helpers"
 import { brandColors } from "@/theme/designSystem"
 
 
@@ -319,7 +321,7 @@ export function PartsInventory() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Inventory Value</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold">${totalInventoryValue.toLocaleString()}</div>
+            <div className="text-sm font-bold">{formatCurrency(totalInventoryValue)}</div>
             <div className="flex items-center gap-1 text-xs text-green-600 mt-1">
               <TrendingUp className="w-3 h-3" />
               Total assets
@@ -429,7 +431,7 @@ export function PartsInventory() {
                           <div className="text-xs text-muted-foreground">{part.manufacturer}</div>
                         </div>
                       </TableCell>
-                      <TableCell className="capitalize">{part.category}</TableCell>
+                      <TableCell>{formatEnum(part.category)}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{part.location || "-"}</TableCell>
                       <TableCell>
                         <div className="space-y-1">
@@ -443,7 +445,7 @@ export function PartsInventory() {
                         <span className="font-semibold">{part.quantityOnHand}</span>
                         <span className="text-muted-foreground text-sm"> units</span>
                       </TableCell>
-                      <TableCell>${part.unitCost.toFixed(2)}</TableCell>
+                      <TableCell>{formatCurrency(part.unitCost)}</TableCell>
                       <TableCell>
                         <Badge className={status.color} variant="secondary">
                           {status.label}

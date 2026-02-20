@@ -11,6 +11,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { DocumentInsight, DocumentMetadata } from '@/lib/documents/types';
+import { formatEnum } from '@/utils/format-enum';
 
 interface DocumentInsightsProps {
   document: DocumentMetadata;
@@ -158,8 +159,8 @@ export function DocumentInsights({ document, insights }: DocumentInsightsProps) 
               <div className="space-y-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Overall Sentiment</span>
-                  <Badge variant="outline" className="capitalize">
-                    {sentimentInsight.metadata?.sentiment || 'Neutral'}
+                  <Badge variant="outline">
+                    {formatEnum(sentimentInsight.metadata?.sentiment || 'Neutral')}
                   </Badge>
                 </div>
 

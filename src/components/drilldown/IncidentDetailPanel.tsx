@@ -32,6 +32,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatDateTime } from '@/utils/format-helpers'
 
 interface IncidentDetailPanelProps {
   incidentId: string
@@ -108,10 +110,11 @@ interface RelatedRecord {
   status?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
   const { push } = useDrilldown()
@@ -256,13 +259,13 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               <p className="text-sm text-muted-foreground">{incident.title}</p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getSeverityColor(incident.severity)}>
-                  {incident.severity} Severity
+                  {formatEnum(incident.severity)} Severity
                 </Badge>
                 <Badge variant={getStatusColor(incident.status)}>
-                  {incident.status.replace('_', ' ')}
+                  {formatEnum(incident.status)}
                 </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {incident.type}
+                <Badge variant="outline">
+                  {formatEnum(incident.type)}
                 </Badge>
                 {(incident.injuries || 0) > 0 && (
                   <Badge variant="destructive">
@@ -285,7 +288,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  {new Date(incident.date).toLocaleDateString()}
+                  {formatDate(incident.date)}
                 </div>
                 {incident.time && (
                   <p className="text-xs text-muted-foreground mt-1">{incident.time}</p>
@@ -302,11 +305,11 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  ${incident.actual_cost?.toFixed(2) || incident.estimated_cost?.toFixed(2) || '0.00'}
+                  {formatCurrency(incident.actual_cost ?? incident.estimated_cost ?? 0)}
                 </div>
                 {incident.estimated_cost && incident.actual_cost && incident.actual_cost !== incident.estimated_cost && (
                   <p className="text-xs text-muted-foreground mt-1">
-                    Est: ${incident.estimated_cost.toFixed(2)}
+                    Est: {formatCurrency(incident.estimated_cost)}
                   </p>
                 )}
               </CardContent>
@@ -360,26 +363,26 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
-                      <p className="font-medium capitalize">{incident.type}</p>
+                      <p className="font-medium">{formatEnum(incident.type)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Severity</p>
                       <Badge variant={getSeverityColor(incident.severity)}>
-                        {incident.severity}
+                        {formatEnum(incident.severity)}
                       </Badge>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Status</p>
                       <Badge variant={getStatusColor(incident.status)}>
-                        {incident.status.replace('_', ' ')}
+                        {formatEnum(incident.status)}
                       </Badge>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Reported By</p>
-                      <p className="font-medium">{incident.reported_by || 'N/A'}</p>
+                      <p className="font-medium">{incident.reported_by || '—'}</p>
                       {incident.reported_date && (
                         <p className="text-xs text-muted-foreground">
-                          {new Date(incident.reported_date).toLocaleDateString()}
+                          {formatDate(incident.reported_date)}
                         </p>
                       )}
                     </div>
@@ -439,7 +442,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="font-medium">{incident.vehicle_name || 'Unknown'}</p>
+                      <p className="font-medium">{incident.vehicle_name || '—'}</p>
                       <Button variant="link" className="p-0 h-auto text-sm mt-1">
                         View Details
                       </Button>
@@ -466,7 +469,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                           </Avatar>
                         )}
                         <div>
-                          <p className="font-medium">{incident.driver_name || 'Unknown'}</p>
+                          <p className="font-medium">{incident.driver_name || '—'}</p>
                           <Button variant="link" className="p-0 h-auto text-sm">
                             View Profile
                           </Button>
@@ -552,7 +555,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                           )}
                           <div className="flex items-center justify-between pt-2 border-t">
                             <div className="text-xs text-muted-foreground">
-                              {new Date(item.uploaded_date).toLocaleDateString()}
+                              {formatDate(item.uploaded_date)}
                             </div>
                             <Button variant="ghost" size="sm" className="h-6 px-2">
                               <Download className="h-3 w-3" />
@@ -585,8 +588,8 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                             <div>
                               <div className="flex items-center gap-2">
                                 <p className="font-medium">{party.name}</p>
-                                <Badge variant="outline" className="capitalize">
-                                  {party.type.replace('_', ' ')}
+                                <Badge variant="outline">
+                                  {formatEnum(party.type)}
                                 </Badge>
                               </div>
                               {party.role && (
@@ -671,7 +674,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                                 )}
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {new Date(event.timestamp).toLocaleString()}
+                                {formatDateTime(event.timestamp)}
                               </span>
                             </div>
                             {event.metadata && Object.keys(event.metadata).length > 0 && (
@@ -724,11 +727,11 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
                             </div>
                             <div className="text-right">
                               <p className="text-xs text-muted-foreground">
-                                {new Date(record.date).toLocaleDateString()}
+                                {formatDate(record.date)}
                               </p>
                               {record.status && (
                                 <Badge variant="outline" className="mt-1">
-                                  {record.status}
+                                  {formatEnum(record.status)}
                                 </Badge>
                               )}
                             </div>

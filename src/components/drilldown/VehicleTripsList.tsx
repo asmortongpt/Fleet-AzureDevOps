@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatDate } from '@/utils/format-helpers'
 
 interface VehicleTripsListProps {
   vehicleId: string
@@ -38,10 +39,11 @@ interface Trip {
   fuel_used?: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListProps) {
   const { push } = useDrilldown()
@@ -117,12 +119,10 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                         <div className="flex items-center gap-2 text-sm">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
                           <span>
-                            {trip.start_time
-                              ? new Date(trip.start_time).toLocaleDateString()
-                              : 'N/A'}
+                            {formatDate(trip.start_time)}
                           </span>
                           <Clock className="h-4 w-4 text-muted-foreground ml-2" />
-                          <span>{trip.duration || 'N/A'}</span>
+                          <span>{trip.duration || '—'}</span>
                         </div>
 
                         {/* Route */}
@@ -132,13 +132,13 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                             <div className="flex items-center gap-2">
                               <span className="font-medium">From:</span>
                               <span className="text-muted-foreground truncate">
-                                {trip.start_location || 'Unknown'}
+                                {trip.start_location || '—'}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="font-medium">To:</span>
                               <span className="text-muted-foreground truncate">
-                                {trip.end_location || 'Unknown'}
+                                {trip.end_location || '—'}
                               </span>
                             </div>
                           </div>
@@ -149,19 +149,19 @@ export function VehicleTripsList({ vehicleId, vehicleName }: VehicleTripsListPro
                           <div>
                             <p className="text-xs text-muted-foreground">Distance</p>
                             <p className="font-medium">
-                              {trip.distance ? `${trip.distance.toFixed(1)} mi` : 'N/A'}
+                              {trip.distance ? `${trip.distance.toFixed(1)} mi` : '—'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Avg Speed</p>
                             <p className="font-medium">
-                              {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : 'N/A'}
+                              {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : '—'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Fuel Used</p>
                             <p className="font-medium">
-                              {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : 'N/A'}
+                              {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : '—'}
                             </p>
                           </div>
                         </div>

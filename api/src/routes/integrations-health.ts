@@ -68,7 +68,7 @@ router.get('/health',
           configured: false,
           lastCheck: new Date().toISOString(),
           errorMessage: 'Health check failed',
-          technicalDetails: result.reason?.message,
+          technicalDetails: 'Check failed - see server logs',
           requiredConfig: [],
           optionalConfig: []
         };
@@ -231,7 +231,7 @@ async function checkGoogleMaps(): Promise<IntegrationHealth> {
   } catch (error: unknown) {
     health.status = 'down';
     health.errorMessage = 'Unable to connect to Google Maps API';
-    health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
+    health.technicalDetails = 'Check failed - see server logs';
   }
 
   return health;
@@ -296,7 +296,7 @@ async function checkOpenAI(): Promise<IntegrationHealth> {
       health.technicalDetails = 'Network connectivity issue or API endpoint unavailable';
     } else {
       health.errorMessage = 'OpenAI API check failed';
-      health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
+      health.technicalDetails = 'Check failed - see server logs';
     }
   }
 
@@ -353,7 +353,7 @@ async function checkAzureAD(): Promise<IntegrationHealth> {
       health.technicalDetails = 'The configured tenant ID does not exist';
     } else {
       health.errorMessage = 'Unable to connect to Azure AD';
-      health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
+      health.technicalDetails = 'Check failed - see server logs';
     }
   }
 
@@ -422,7 +422,7 @@ async function checkSmartCar(): Promise<IntegrationHealth> {
     } else {
       health.status = 'down';
       health.errorMessage = 'Unable to connect to SmartCar API';
-      health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
+      health.technicalDetails = 'Check failed - see server logs';
     }
   }
 
@@ -459,7 +459,7 @@ async function checkRedis(): Promise<IntegrationHealth> {
   } catch (error: unknown) {
     health.status = 'down';
     health.errorMessage = 'Redis connection failed';
-    health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
+    health.technicalDetails = 'Check failed - see server logs';
   }
 
   return health;
@@ -489,7 +489,7 @@ async function checkDatabase(): Promise<IntegrationHealth> {
   } catch (error: unknown) {
     health.status = 'down';
     health.errorMessage = 'Database connection failed';
-    health.technicalDetails = error instanceof Error ? error.message : 'An unexpected error occurred';
+    health.technicalDetails = 'Check failed - see server logs';
   }
 
   return health;

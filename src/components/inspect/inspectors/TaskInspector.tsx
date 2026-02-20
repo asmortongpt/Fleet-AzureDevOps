@@ -15,6 +15,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from "@/lib/api-client";
+import { formatEnum } from '@/utils/format-enum';
+import { formatDate, formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface TaskInspectorProps {
   id: string;
@@ -181,7 +183,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               {task.priority.toUpperCase()}
             </Badge>
             <Badge variant={statusConfig[task.status].badge}>
-              {task.status}
+              {formatEnum(task.status)}
             </Badge>
             {isOverdue && (
               <Badge variant="destructive">OVERDUE</Badge>
@@ -215,7 +217,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div>
                     <p className="text-sm text-slate-700">Status</p>
-                    <p className="font-medium capitalize">{task.status}</p>
+                    <p className="font-medium">{formatEnum(task.status)}</p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-700">Type</p>
@@ -234,18 +236,18 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
               <dl className="space-y-3">
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Created</dt>
-                  <dd className="font-medium">{new Date(task.createdAt).toLocaleString()}</dd>
+                  <dd className="font-medium">{formatDateTime(task.createdAt)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Due Date</dt>
                   <dd className={`font-medium ${isOverdue ? 'text-red-600' : ''}`}>
-                    {new Date(task.dueDate).toLocaleString()}
+                    {formatDateTime(task.dueDate)}
                   </dd>
                 </div>
                 {task.completedAt && (
                   <div className="flex justify-between">
                     <dt className="text-slate-700">Completed</dt>
-                    <dd className="font-medium text-green-600">{new Date(task.completedAt).toLocaleString()}</dd>
+                    <dd className="font-medium text-green-600">{formatDateTime(task.completedAt)}</dd>
                   </div>
                 )}
               </dl>
@@ -349,7 +351,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   <Clock className="h-5 w-5" />
                   <div>
                     <p className="font-medium">Task Overdue</p>
-                    <p className="text-sm">This task was due {new Date(task.dueDate).toLocaleDateString()}</p>
+                    <p className="text-sm">This task was due {formatDate(task.dueDate)}</p>
                   </div>
                 </div>
               </Card>
@@ -369,7 +371,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="flex-1 pb-2">
                   <p className="font-medium">Task Created</p>
-                  <p className="text-sm text-slate-700">{new Date(task.createdAt).toLocaleString()}</p>
+                  <p className="text-sm text-slate-700">{formatDateTime(task.createdAt)}</p>
                   <p className="text-sm text-gray-700">Priority set to {task.priority}</p>
                 </div>
               </div>
@@ -382,7 +384,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1 pb-2">
                     <p className="font-medium">Task Assigned</p>
-                    <p className="text-sm text-slate-700">{new Date(task.createdAt).toLocaleString()}</p>
+                    <p className="text-sm text-slate-700">{formatDateTime(task.createdAt)}</p>
                     <p className="text-sm text-gray-700">Assigned to {task.assignedTo.name}</p>
                   </div>
                 </div>
@@ -396,7 +398,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1 pb-2">
                     <p className="font-medium">Status Updated</p>
-                    <p className="text-sm text-slate-700">Status changed to {task.status}</p>
+                    <p className="text-sm text-slate-700">Status changed to {formatEnum(task.status)}</p>
                   </div>
                 </div>
               )}
@@ -408,7 +410,7 @@ export const TaskInspector: React.FC<TaskInspectorProps> = ({ id, initialTab = '
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-green-600">Task Completed</p>
-                    <p className="text-sm text-slate-700">{new Date(task.completedAt).toLocaleString()}</p>
+                    <p className="text-sm text-slate-700">{formatDateTime(task.completedAt)}</p>
                     <p className="text-sm text-gray-700">All checklist items completed</p>
                   </div>
                 </div>

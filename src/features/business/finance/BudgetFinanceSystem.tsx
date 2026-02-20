@@ -19,6 +19,8 @@ import {
 import React, { useState } from 'react';
 import { LineChart, Line, PieChart as RePieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+import { formatCurrency } from '@/utils/format-helpers';
+
 
 const BudgetFinanceSystem: React.FC = () => {
   const [tabValue, setTabValue] = useState(0);
@@ -75,7 +77,7 @@ const BudgetFinanceSystem: React.FC = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>Monthly Budget</Typography>
-                <Typography variant="h4">${monthlyBudget.total.toLocaleString()}</Typography>
+                <Typography variant="h4">{formatCurrency(monthlyBudget.total)}</Typography>
                 <LinearProgress variant="determinate" value={(monthlyBudget.spent/monthlyBudget.total)*100} />
                 <Typography variant="body2">{((monthlyBudget.spent/monthlyBudget.total)*100).toFixed(1)}% Used</Typography>
               </CardContent>
@@ -86,7 +88,7 @@ const BudgetFinanceSystem: React.FC = () => {
             <Card>
               <CardContent>
                 <Typography color="textSecondary" gutterBottom>Total Spent</Typography>
-                <Typography variant="h4">${monthlyBudget.spent.toLocaleString()}</Typography>
+                <Typography variant="h4">{formatCurrency(monthlyBudget.spent)}</Typography>
                 <Typography variant="body2" color="success.main">Under budget by $36,500</Typography>
               </CardContent>
             </Card>
@@ -121,7 +123,7 @@ const BudgetFinanceSystem: React.FC = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
                     <YAxis />
-                    <Tooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
                     <Legend />
                     <Line type="monotone" dataKey="budget" stroke="hsl(var(--chart-4))" name="Budget" />
                     <Line type="monotone" dataKey="actual" stroke="hsl(var(--chart-2))" name="Actual" />
@@ -151,7 +153,7 @@ const BudgetFinanceSystem: React.FC = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
+                    <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
                   </RePieChart>
                 </ResponsiveContainer>
               </CardContent>

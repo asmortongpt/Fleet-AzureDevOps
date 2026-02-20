@@ -50,7 +50,7 @@ export function TenantSwitcher() {
 
   const loadTenants = async () => {
     try {
-      const response = await fetch('/api/v1/tenants', {
+      const response = await fetch('/api/tenants', {
         method: 'GET',
         credentials: 'include',
         headers: {
@@ -223,7 +223,7 @@ export function InlineTenantSwitcher() {
 
   const loadTenants = async () => {
     try {
-      const response = await fetch('/api/v1/tenants', {
+      const response = await fetch('/api/tenants', {
         method: 'GET',
         credentials: 'include',
       });

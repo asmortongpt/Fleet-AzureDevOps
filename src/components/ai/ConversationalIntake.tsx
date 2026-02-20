@@ -7,6 +7,8 @@
 import { Send, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 import React, { useState, useRef, useEffect } from 'react'
 
+import { formatTime } from '@/utils/format-helpers'
+
 import { apiClient } from '../../lib/api'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
@@ -175,7 +177,7 @@ export function ConversationalIntake({
             >
               <p className="text-sm whitespace-pre-wrap">{message.content}</p>
               <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString()}
+                {formatTime(message.timestamp)}
               </p>
             </div>
           </div>

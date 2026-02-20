@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { commonSchemas } from '../middleware/validation'
+import { commonSchemas, flexUuid } from '../middleware/validation'
 
 /**
  * Fuel Transactions Validation Schemas
@@ -70,9 +70,9 @@ const transactionStatusEnum = z.enum([
  */
 export const createFuelTransactionSchema = z.object({
   // Vehicle and driver (REQUIRED)
-  vehicle_id: z.string().uuid('Invalid vehicle ID format'),
+  vehicle_id: flexUuid,
 
-  driver_id: z.string().uuid('Invalid driver ID format').optional(),
+  driver_id: flexUuid.optional(),
 
   // Transaction timestamp (REQUIRED)
   transaction_date: z.coerce.date(),
@@ -118,7 +118,7 @@ export const createFuelTransactionSchema = z.object({
     .trim()
     .optional(),
 
-  vendor_id: z.string().uuid().optional(),
+  vendor_id: flexUuid.optional(),
 
   station_name: z.string()
     .max(200, 'Station name too long')
@@ -201,7 +201,7 @@ export const createFuelTransactionSchema = z.object({
  * PUT /fuel-transactions/:id
  */
 export const updateFuelTransactionSchema = z.object({
-  driver_id: z.string().uuid().optional(),
+  driver_id: flexUuid.optional(),
 
   fuel_type: fuelTypeEnum.optional(),
 
@@ -245,9 +245,9 @@ export const getFuelTransactionsQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(500).default(50),
 
   // Filtering
-  vehicle_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid().optional(),
-  vendor_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
+  vendor_id: flexUuid.optional(),
 
   fuel_type: fuelTypeEnum.optional(),
   payment_method: paymentMethodEnum.optional(),

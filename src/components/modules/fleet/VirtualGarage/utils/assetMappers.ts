@@ -61,8 +61,8 @@ export function mapVehicleTypeToAssetType(vehicleType?: string): AssetType | und
 export function normalizeEmulatorVehicles(vehicles: any[]): any[] {
   return vehicles.map((v: any) => ({
     id: v.id,
-    make: v.make || "Unknown",
-    model: v.model || "Unknown",
+    make: v.make || "—",
+    model: v.model || "—",
     year: v.year || new Date().getFullYear(),
     vin: v.vin,
     license_plate: v.licensePlate || v.license_plate,

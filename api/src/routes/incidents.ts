@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -7,6 +8,52 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createIncidentSchema = z.object({
+  number: z.string().max(50).optional(),
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string().max(100).optional(),
+  severity: z.string().max(50).optional(),
+  status: z.string().max(50).optional(),
+  description: z.string().max(5000).optional(),
+  location: z.string().max(500).optional(),
+  incident_date: z.string().optional(),
+  resolution: z.string().max(5000).optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().max(5000).optional(),
+  cost: z.union([z.string(), z.number()]).optional(),
+  insurance_claim_number: z.string().max(100).optional(),
+  police_report_number: z.string().max(100).optional(),
+  weather_conditions: z.string().max(200).optional(),
+  road_conditions: z.string().max(200).optional(),
+  injuries: z.union([z.boolean(), z.number()]).optional(),
+  fatalities: z.union([z.boolean(), z.number()]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
+const incidentUpdateSchema = z.object({
+  number: z.string().optional(),
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string().optional(),
+  severity: z.string().optional(),
+  status: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  incident_date: z.string().optional(),
+  resolution: z.string().optional(),
+  resolution_date: z.string().optional(),
+  notes: z.string().optional(),
+  cost: z.union([z.string(), z.number()]).optional(),
+  insurance_claim_number: z.string().optional(),
+  police_report_number: z.string().optional(),
+  weather_conditions: z.string().optional(),
+  road_conditions: z.string().optional(),
+  injuries: z.union([z.boolean(), z.number()]).optional(),
+  fatalities: z.union([z.boolean(), z.number()]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -138,7 +185,11 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createIncidentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
 
       let number = data.number
       if (!number) {
@@ -177,7 +228,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { fields, values } = buildUpdateClause(req.body, 3)
+      const parsed = incidentUpdateSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+      const data = parsed.data
+      const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
         `UPDATE incidents SET ${fields}, updated_at = NOW()
@@ -214,7 +270,7 @@ router.delete(
         return res.status(404).json({ error: 'Incident not found' })
       }
 
-      res.json({ message: 'Incident deleted successfully' })
+      res.json({ success: true, message: 'Incident deleted successfully' })
     } catch (error) {
       logger.error('Delete incident error:', error)
       res.status(500).json({ error: 'Internal server error' })

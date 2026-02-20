@@ -20,6 +20,7 @@ import { offlineSyncService } from '../../services/offline-sync.service';
 import { pushNotificationService } from '../../services/push-notifications.service';
 
 import logger from '@/utils/logger';
+import { formatNumber, formatTime } from '@/utils/format-helpers';
 
 interface Vehicle {
   id: string;
@@ -265,7 +266,7 @@ export const DriverToolbox: React.FC = () => {
               </div>
               <div className="text-right">
                 {activeVehicle.mileage && (
-                  <p className="text-sm">{activeVehicle.mileage.toLocaleString()} mi</p>
+                  <p className="text-sm">{formatNumber(activeVehicle.mileage)} mi</p>
                 )}
                 {activeVehicle.fuelLevel && (
                   <p className="text-sm">{activeVehicle.fuelLevel}% Fuel</p>
@@ -338,7 +339,7 @@ export const DriverToolbox: React.FC = () => {
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center">
             <CheckCircle className="text-green-600 mr-2" size={20} />
             <p className="text-sm text-green-800">
-              Last synced: {lastSyncTime.toLocaleTimeString()}
+              Last synced: {formatTime(lastSyncTime)}
             </p>
           </div>
         </div>

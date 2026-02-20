@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { AIInsight } from '@/hooks/useSystemStatus'
+import { formatTime } from '@/utils/format-helpers'
 
 interface AIInsightsPanelProps {
   insights: AIInsight[]
@@ -155,7 +156,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
                       {(insight.confidence * 100).toFixed(0)}% confidence
                     </Badge>
                     <span className="text-[9px] text-muted-foreground">
-                      {insight.timestamp.toLocaleTimeString()}
+                      {formatTime(insight.timestamp)}
                     </span>
                   </div>
                   {insight.actionable && (

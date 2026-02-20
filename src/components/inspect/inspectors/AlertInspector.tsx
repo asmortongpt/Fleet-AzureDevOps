@@ -16,6 +16,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from "@/lib/api-client";
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 interface AlertInspectorProps {
   id: string;
   initialTab?: string;
@@ -160,7 +161,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                 {alert.type}
               </h2>
               <p className="text-sm text-slate-700 dark:text-gray-700">
-                {new Date(alert.timestamp).toLocaleString()}
+                {formatDateTime(alert.timestamp)}
               </p>
             </div>
           </div>
@@ -212,7 +213,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                   </div>
                   <div>
                     <p className="text-sm text-slate-700">Time</p>
-                    <p className="font-medium">{new Date(alert.timestamp).toLocaleString()}</p>
+                    <p className="font-medium">{formatDateTime(alert.timestamp)}</p>
                   </div>
                 </div>
               </div>
@@ -346,7 +347,7 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                   </div>
                   <div className="flex-1 pb-2">
                     <p className="font-medium">Alert Created</p>
-                    <p className="text-sm text-slate-700">{new Date(alert.timestamp).toLocaleString()}</p>
+                    <p className="text-sm text-slate-700">{formatDateTime(alert.timestamp)}</p>
                     <p className="text-sm text-gray-700">System detected {alert.type.toLowerCase()}</p>
                   </div>
                 </div>

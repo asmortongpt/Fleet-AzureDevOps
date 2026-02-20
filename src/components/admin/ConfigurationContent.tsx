@@ -18,6 +18,7 @@ import {
   ResponsivePieChart,
 } from '@/components/visualizations'
 import { useReactiveConfigurationData } from '@/hooks/use-reactive-configuration-data'
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 
 // ============================================================================
 // SUB-COMPONENTS - System Resource Gauge
@@ -106,7 +107,7 @@ const IntegrationHealthCard = memo<IntegrationHealthCardProps>(({ integration, i
           </div>
           {integration.lastSync && (
             <p className="text-xs text-muted-foreground">
-              Last sync: {new Date(integration.lastSync).toLocaleString()}
+              Last sync: {formatDateTime(integration.lastSync)}
             </p>
           )}
         </div>
@@ -231,7 +232,7 @@ export const ConfigurationContent = memo(() => {
           </p>
         </div>
         <Badge variant="outline" className="w-fit" aria-live="polite">
-          Last updated: <time dateTime={lastUpdate.toISOString()}>{lastUpdate.toLocaleTimeString()}</time>
+          Last updated: <time dateTime={lastUpdate.toISOString()}>{formatTime(lastUpdate)}</time>
         </Badge>
       </header>
 
@@ -470,7 +471,7 @@ export const ConfigurationContent = memo(() => {
                       <p className="text-sm font-medium mb-1">{event.message}</p>
                       <p className="text-xs text-muted-foreground">
                         <Clock className="inline h-3 w-3 mr-1" aria-hidden="true" />
-                        {new Date(event.timestamp).toLocaleString()}
+                        {formatDateTime(event.timestamp)}
                         {event.userId && ` • ${event.userId}`}
                       </p>
                     </div>

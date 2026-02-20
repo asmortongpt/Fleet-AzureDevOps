@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/table'
 import { swrFetcher } from '@/lib/fetcher'
 import { securitySettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
+import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 export function SecuritySettings() {
@@ -52,18 +53,18 @@ export function SecuritySettings() {
   }
 
   const parseDevice = (userAgent: string) => {
-    if (!userAgent) return 'Unknown'
+    if (!userAgent) return '—'
     if (/mobile|android|iphone|ipad/i.test(userAgent)) return 'Mobile'
     return 'Desktop'
   }
 
   const parseBrowser = (userAgent: string) => {
-    if (!userAgent) return 'Unknown'
+    if (!userAgent) return '—'
     if (userAgent.includes('Edg/')) return 'Edge'
     if (userAgent.includes('Chrome/')) return 'Chrome'
     if (userAgent.includes('Firefox/')) return 'Firefox'
     if (userAgent.includes('Safari/')) return 'Safari'
-    return 'Unknown'
+    return '—'
   }
 
   const activeSessions = useMemo(() => {
@@ -93,9 +94,9 @@ export function SecuritySettings() {
       .slice(0, 10)
       .map((row: any) => ({
         id: row.id,
-        timestamp: new Date(row.timestamp).toLocaleString(),
+        timestamp: formatDateTime(row.timestamp),
         device: row.metadata?.userAgent ? `${parseDevice(row.metadata.userAgent)} - ${parseBrowser(row.metadata.userAgent)}` : 'Unknown',
-        location: row.metadata?.location || 'Unknown',
+        location: row.metadata?.location || '—',
         ip: row.ipAddress || row.metadata?.ipAddress || '—'
       }))
   }, [auditData])

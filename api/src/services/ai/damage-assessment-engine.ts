@@ -94,8 +94,8 @@ interface ModelPrediction {
 // AI Assessment Engine
 export class DamageAssessmentEngine extends EventEmitter {
   private models: Map<string, tf.LayersModel> = new Map()
-  private openai: OpenAI
-  private azureCV: ComputerVisionClient
+  private openai: OpenAI | null
+  private azureCV: ComputerVisionClient | null
   private concurrencyLimit: ReturnType<typeof pLimit>
   private modelVersions: Map<string, string> = new Map()
   private cache: Map<string, DamageAssessmentResult> = new Map()
@@ -104,18 +104,27 @@ export class DamageAssessmentEngine extends EventEmitter {
     super()
     this.concurrencyLimit = pLimit(5)
 
-    // Initialize OpenAI
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    })
+    // Initialize OpenAI (guarded)
+    this.openai = process.env.OPENAI_API_KEY
+      ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+      : null
 
-    // Initialize Azure Computer Vision
-    this.azureCV = new ComputerVisionClient(
-      new ApiKeyCredentials({
-        inHeader: { 'Ocp-Apim-Subscription-Key': process.env.AZURE_CV_KEY! },
-      }),
-      process.env.AZURE_CV_ENDPOINT!
-    )
+    if (!this.openai) {
+      console.warn('[DamageAssessmentEngine] OpenAI API key not configured - GPT-based recommendations disabled')
+    }
+
+    // Initialize Azure Computer Vision (guarded)
+    if (process.env.AZURE_CV_KEY && process.env.AZURE_CV_ENDPOINT) {
+      this.azureCV = new ComputerVisionClient(
+        new ApiKeyCredentials({
+          inHeader: { 'Ocp-Apim-Subscription-Key': process.env.AZURE_CV_KEY },
+        }),
+        process.env.AZURE_CV_ENDPOINT
+      )
+    } else {
+      this.azureCV = null
+      console.warn('[DamageAssessmentEngine] Azure CV not configured - computer vision analysis disabled')
+    }
 
     // Load models on initialization
     this.loadModels().catch(err => {
@@ -266,6 +275,10 @@ export class DamageAssessmentEngine extends EventEmitter {
 
   // Azure Computer Vision analysis
   private async analyzeWithAzureCV(imageBuffer: Buffer): Promise<any> {
+    if (!this.azureCV) {
+      return null
+    }
+
     try {
       const stream = require('stream')
       const readableStream = new stream.Readable()
@@ -533,6 +546,10 @@ continue
 
     Format as JSON array.
     `
+
+    if (!this.openai) {
+      return this.generateFallbackRecommendations(detections, severity)
+    }
 
     try {
       const response = await this.openai.chat.completions.create({

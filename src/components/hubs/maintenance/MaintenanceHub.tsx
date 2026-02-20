@@ -11,6 +11,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useFleetData } from '@/hooks/use-fleet-data';
+import { formatEnum } from '@/utils/format-enum';
+import { formatCurrency } from '@/utils/format-helpers';
 
 interface WorkOrderItem {
   id: string;
@@ -346,7 +348,7 @@ export function MaintenanceHub() {
               <DollarSign className="w-3 h-3 text-green-500" />
               <div>
                 <p className="text-xs text-muted-foreground">Total Cost</p>
-                <p className="text-sm font-bold">${metrics.totalCost.toFixed(0)}</p>
+                <p className="text-sm font-bold">{formatCurrency(metrics.totalCost)}</p>
               </div>
             </div>
           </CardContent>
@@ -402,7 +404,7 @@ export function MaintenanceHub() {
                       <div className="flex items-center gap-1.5 mb-1 flex-wrap">
                         <span className="text-xs font-mono font-medium">{wo.id}</span>
                         <Badge variant={getWorkOrderBadgeVariant(wo.type)} className="text-xs">
-                          {wo.type || 'unknown'}
+                          {formatEnum(wo.type || 'unknown')}
                         </Badge>
                         {wo.category && (
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-medium ${getCategoryBadgeColor(wo.category)}`}>
@@ -425,7 +427,7 @@ export function MaintenanceHub() {
                         </span>
                         <span className="flex items-center gap-1">
                           <DollarSign className="w-3 h-3" />
-                          {wo.total_cost != null ? `$${wo.total_cost.toFixed(0)}` : wo.estimatedCost != null ? `$${wo.estimatedCost.toFixed(0)}` : '—'}
+                          {wo.total_cost != null ? formatCurrency(wo.total_cost) : wo.estimatedCost != null ? formatCurrency(wo.estimatedCost) : '—'}
                         </span>
                         {wo.downtime_hours != null && wo.downtime_hours > 0 && (
                           <span className="flex items-center gap-1">
@@ -477,10 +479,10 @@ export function MaintenanceHub() {
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <span className="text-sm font-mono font-semibold">{wo.id}</span>
                           <Badge variant={getWorkOrderBadgeVariant(wo.type)}>
-                            {wo.type || 'unknown'}
+                            {formatEnum(wo.type || 'unknown')}
                           </Badge>
                           <Badge variant={getPriorityBadgeVariant(wo.priority)}>
-                            {wo.priority || '—'}
+                            {formatEnum(wo.priority)}
                           </Badge>
                           {wo.category && (
                             <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-medium ${getCategoryBadgeColor(wo.category)}`}>
@@ -522,7 +524,7 @@ export function MaintenanceHub() {
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">Assigned To</p>
-                        <p className="font-medium">{wo.assignedTo || 'Unassigned'}</p>
+                        <p className="font-medium">{wo.assignedTo || '—'}</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">Est. Time</p>
@@ -531,7 +533,7 @@ export function MaintenanceHub() {
                       <div>
                         <p className="text-xs text-muted-foreground mb-1">Cost</p>
                         <p className="font-medium">
-                          {wo.total_cost != null ? `$${wo.total_cost.toFixed(2)}` : wo.estimatedCost != null ? `$${wo.estimatedCost.toFixed(2)}` : '—'}
+                          {wo.total_cost != null ? formatCurrency(wo.total_cost) : wo.estimatedCost != null ? formatCurrency(wo.estimatedCost) : '—'}
                         </p>
                       </div>
                     </div>
@@ -544,7 +546,7 @@ export function MaintenanceHub() {
                           <div className="flex-1">
                             <div className="flex justify-between mb-1">
                               <span className="text-muted-foreground">Parts</span>
-                              <span className="font-medium">${(wo.parts_cost || 0).toFixed(2)}</span>
+                              <span className="font-medium">{formatCurrency(wo.parts_cost || 0)}</span>
                             </div>
                             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                               <div
@@ -556,7 +558,7 @@ export function MaintenanceHub() {
                           <div className="flex-1">
                             <div className="flex justify-between mb-1">
                               <span className="text-muted-foreground">Labor</span>
-                              <span className="font-medium">${(wo.labor_cost || 0).toFixed(2)}</span>
+                              <span className="font-medium">{formatCurrency(wo.labor_cost || 0)}</span>
                             </div>
                             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                               <div
@@ -647,7 +649,7 @@ export function MaintenanceHub() {
                           )}
                         </div>
                         <span className="font-bold text-sm">
-                          ${(wo.total_cost || wo.estimatedCost || 0).toFixed(0)}
+                          {formatCurrency(wo.total_cost || wo.estimatedCost || 0)}
                         </span>
                       </div>
                       {(wo.parts_cost != null || wo.labor_cost != null) && (
@@ -656,17 +658,17 @@ export function MaintenanceHub() {
                             <div
                               className="h-full bg-blue-500"
                               style={{ width: `${wo.total_cost ? ((wo.parts_cost || 0) / wo.total_cost * 100) : 50}%` }}
-                              title={`Parts: $${(wo.parts_cost || 0).toFixed(2)}`}
+                              title={`Parts: ${formatCurrency(wo.parts_cost || 0)}`}
                             />
                             <div
                               className="h-full bg-amber-500"
                               style={{ width: `${wo.total_cost ? ((wo.labor_cost || 0) / wo.total_cost * 100) : 50}%` }}
-                              title={`Labor: $${(wo.labor_cost || 0).toFixed(2)}`}
+                              title={`Labor: ${formatCurrency(wo.labor_cost || 0)}`}
                             />
                           </div>
                           <div className="flex items-center gap-2 text-[10px] text-muted-foreground ml-2 whitespace-nowrap">
-                            <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />P: ${(wo.parts_cost || 0).toFixed(0)}</span>
-                            <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />L: ${(wo.labor_cost || 0).toFixed(0)}</span>
+                            <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-blue-500 inline-block" />P: {formatCurrency(wo.parts_cost || 0)}</span>
+                            <span className="flex items-center gap-0.5"><span className="w-2 h-2 rounded-full bg-amber-500 inline-block" />L: {formatCurrency(wo.labor_cost || 0)}</span>
                           </div>
                         </div>
                       )}
@@ -703,7 +705,7 @@ export function MaintenanceHub() {
                       </div>
                     </div>
                     <Badge variant={getStatusBadgeVariant(vh.status)}>
-                      {vh.status}
+                      {formatEnum(vh.status)}
                     </Badge>
                   </div>
 
@@ -718,7 +720,7 @@ export function MaintenanceHub() {
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Cost YTD</p>
-                      <p className="font-bold">${vh.totalCostYTD.toLocaleString()}</p>
+                      <p className="font-bold">{formatCurrency(vh.totalCostYTD)}</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Last Service</p>

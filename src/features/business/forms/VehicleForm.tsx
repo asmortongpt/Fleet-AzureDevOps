@@ -83,7 +83,6 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
 
     try {
       const vehicle = await api.post('/vehicles', formData);
-      // console.log('✅ Vehicle created in database:', vehicle);
 
       if (onSuccess) {
         onSuccess(vehicle);

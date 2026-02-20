@@ -100,7 +100,7 @@ router.get('/health',
         timestamp: new Date().toISOString(),
         database: {
           connected: false,
-          error: error instanceof Error ? error.message : 'Database connection failed'
+          error: 'Database connection failed'
         }
       });
     }
@@ -137,7 +137,7 @@ router.get('/ping',
       return res.status(503).json({
         status: 'error',
         timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'An unexpected error occurred'
+        error: 'An unexpected error occurred'
       });
     }
   })

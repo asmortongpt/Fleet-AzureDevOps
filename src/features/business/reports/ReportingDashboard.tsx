@@ -39,6 +39,7 @@ import {
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
 
+import { formatDate, formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // Prefer same-origin `/api` (Vite proxies this in dev). This feature module is not used by the
@@ -106,7 +107,9 @@ export default function ReportingDashboard() {
 
   const fetchReports = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/reports`);
+      const response = await fetch(`${API_URL}/api/reports`, {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setReports(data);
@@ -117,7 +120,9 @@ export default function ReportingDashboard() {
 
   const fetchScheduledReports = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/scheduled-reports`);
+      const response = await fetch(`${API_URL}/api/scheduled-reports`, {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setScheduledReports(data);
@@ -139,6 +144,7 @@ export default function ReportingDashboard() {
     try {
       const response = await fetch(`${API_URL}/api/reports/generate`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           reportType,
@@ -170,7 +176,9 @@ export default function ReportingDashboard() {
 
   const handleDownloadReport = async (reportId: string, reportName: string, format: string) => {
     try {
-      const response = await fetch(`${API_URL}/api/reports/${reportId}/download`);
+      const response = await fetch(`${API_URL}/api/reports/${reportId}/download`, {
+        credentials: 'include',
+      });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -190,7 +198,7 @@ export default function ReportingDashboard() {
     if (!confirm('Are you sure you want to delete this report?')) return;
 
     try {
-      const deleteResponse = await fetch(`${API_URL}/api/reports/${reportId}`, { method: 'DELETE' });
+      const deleteResponse = await fetch(`${API_URL}/api/reports/${reportId}`, { method: 'DELETE', credentials: 'include' });
       if (!deleteResponse.ok) throw new Error('Request failed: ' + deleteResponse.status);
       setSuccess('Report deleted successfully');
       fetchReports();
@@ -208,6 +216,7 @@ export default function ReportingDashboard() {
     try {
       const response = await fetch(`${API_URL}/api/scheduled-reports`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(scheduledReportData),
       });
@@ -235,6 +244,7 @@ export default function ReportingDashboard() {
     try {
       await fetch(`${API_URL}/api/scheduled-reports/${id}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ isActive: !isActive }),
       });
@@ -248,7 +258,7 @@ export default function ReportingDashboard() {
     if (!confirm('Are you sure you want to delete this scheduled report?')) return;
 
     try {
-      await fetch(`${API_URL}/api/scheduled-reports/${id}`, { method: 'DELETE' });
+      await fetch(`${API_URL}/api/scheduled-reports/${id}`, { method: 'DELETE', credentials: 'include' });
       setSuccess('Scheduled report deleted successfully');
       fetchScheduledReports();
     } catch (error) {
@@ -446,7 +456,7 @@ export default function ReportingDashboard() {
                     </TableCell>
                     <TableCell>
                       {report.nextRun
-                        ? new Date(report.nextRun).toLocaleString()
+                        ? formatDateTime(report.nextRun)
                         : 'Not scheduled'}
                     </TableCell>
                     <TableCell>
@@ -507,17 +517,15 @@ export default function ReportingDashboard() {
                     </TableCell>
                     <TableCell>
                       {report.dateRange?.start && report.dateRange?.end
-                        ? `${new Date(report.dateRange.start).toLocaleDateString()} - ${new Date(
-                            report.dateRange.end
-                          ).toLocaleDateString()}`
-                        : 'N/A'}
+                        ? `${formatDate(report.dateRange.start)} - ${formatDate(report.dateRange.end)}`
+                        : '—'}
                     </TableCell>
                     <TableCell>
-                      {new Date(report.generatedAt).toLocaleString()}
+                      {formatDateTime(report.generatedAt)}
                     </TableCell>
                     <TableCell>{String(report.format).toUpperCase()}</TableCell>
                     <TableCell>
-                      {report.fileSize ? `${(report.fileSize / 1024).toFixed(2)} KB` : 'N/A'}
+                      {report.fileSize ? `${(report.fileSize / 1024).toFixed(2)} KB` : '—'}
                     </TableCell>
                     <TableCell>
                       <Chip

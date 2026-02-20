@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { formatTime } from "@/utils/format-helpers"
 
 const fetcher = (url: string) =>
   fetch(url, { credentials: "include" })
@@ -122,7 +123,7 @@ export function VehicleTelemetry() {
             <Thermometer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{engineTemp ? `${engineTemp}°F` : "—"}</div>
+            <div className="text-2xl font-bold">{engineTemp ? `${Math.round(engineTemp)}°F` : "—"}</div>
             <p className="text-xs text-muted-foreground">Current reading</p>
           </CardContent>
         </Card>
@@ -167,7 +168,7 @@ export function VehicleTelemetry() {
           </CardHeader>
           <CardContent>
             <div className="text-lg font-semibold">
-              {telemetry.timestamp ? new Date(telemetry.timestamp).toLocaleTimeString() : "—"}
+              {formatTime(telemetry.timestamp)}
             </div>
             <p className="text-xs text-muted-foreground">Telemetry timestamp</p>
           </CardContent>

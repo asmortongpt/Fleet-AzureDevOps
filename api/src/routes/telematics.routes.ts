@@ -514,7 +514,7 @@ csrfProtection,  csrfProtection, async (req: express.Request, res: Response) => 
       // - hos: Update driver_hos_logs
       // - diagnostic: Insert into vehicle_diagnostic_codes
 
-      res.json({ message: 'Webhook received' })
+      res.json({ success: true, message: 'Webhook received' })
     } catch (error) {
       logger.error('Webhook error:', error) // Wave 23: Winston logger
       res.status(500).json({ error: 'Internal server error' })

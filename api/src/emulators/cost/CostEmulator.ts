@@ -4,6 +4,8 @@
 
 import { EventEmitter } from 'events'
 
+import logger from '../../config/logger'
+
 // Enhanced interfaces for cost tracking
 export interface CostEntry {
   id: number
@@ -126,7 +128,7 @@ export class CostEmulator extends EventEmitter {
       }, 30000) // Every 30 seconds
     }
 
-    console.log('Cost Emulator started')
+    logger.info('Cost Emulator started')
   }
 
   public async stop(): Promise<void> {
@@ -135,7 +137,7 @@ export class CostEmulator extends EventEmitter {
       this.updateInterval = null
     }
     this.isRunning = false
-    console.log('Cost Emulator stopped')
+    logger.info('Cost Emulator stopped')
   }
 
   private initializeHistoricalData(): void {
@@ -154,7 +156,7 @@ export class CostEmulator extends EventEmitter {
       }
     }
 
-    console.log(`Generated ${this.costEntries.length} historical cost entries`)
+    logger.info(`Generated ${this.costEntries.length} historical cost entries`)
   }
 
   private initializeBudgets(): void {

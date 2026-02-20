@@ -1,5 +1,5 @@
 /* Google Fonts - must be first */
-@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Montserrat:wght@300;400;500;600;700&display=swap");
 
 /* ============================================================================
  * PERFORMANCE OPTIMIZATION - Phase 1: CSS Consolidation
@@ -76,6 +76,32 @@
   --transition-slow: 350ms;
 }
 
+/* Skip Navigation - WCAG AAA keyboard accessibility */
+.skip-navigation {
+  position: relative;
+}
+
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #242424;
+  color: #fff;
+  padding: 8px 16px;
+  text-decoration: none;
+  border-radius: 0 0 4px 0;
+  z-index: 100;
+  transition: top 0.2s;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 2px;
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -89,7 +115,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     font-feature-settings: 'tnum' 1, 'cv11' 1;
     text-rendering: optimizeLegibility;
     font-size: 14px; /* Minimum readable size */
@@ -127,51 +153,51 @@
 
 /*
   CAPITAL TECHNOLOGY ALLIANCE (CTA) BRAND THEME - VIBRANT PALETTE
-  Fleet Management Platform - ArchonY: Intelligent Performance
+  Fleet Management Platform - ArchonY Fleet Command: Intelligent Performance
   Professional, modern, and highly accessible
   WCAG AAA Compliant (7:1 contrast ratio minimum)
 
-  Brand Colors (Vibrant Palette) - EXACT from ADELE Branding Second Look 012626:
-  - DAYTIME: #2F3359 (Navy Blue - Headers, primary text, fonts)
-  - BLUE SKIES: #41B2E3 (Bright Cyan - Interactive, links, highlights)
-  - MIDNIGHT: #1A0B2E (Deep Purple - Backgrounds, dark sections)
-  - NOON: #DD3903 (Deep Orange-Red - CTAs, alerts, important highlights)
-  - GOLDEN HOUR: #F0A000 (Golden Yellow-Orange - Accents, secondary highlights, badges)
-  - Gradient Bar: linear-gradient(90deg, #F0A000 0%, #DD3903 100%) - Skyline Gradient
+  Brand Colors (Neutral Palette):
+  - DAYTIME: #1F3076 (Navy Blue - Headers, primary text, fonts)
+  - Accents: white/gray neutrals for clean, professional look
+  - Legacy vibrant colors (BLUE SKIES #00CCFE, MIDNIGHT #1A0648, NOON #FF4300, GOLDEN HOUR #FDC016) replaced
+
+  Typography:
+  - Headings: Cinzel (Google Font, serif)
+  - Body: Montserrat (Google Font, sans-serif)
 
   Taglines:
   - "Intelligent Technology. Integrated Partnership."
   - "Intelligent Performance"
 */
 :root {
-  /* CTA DARK THEME - ArchonY Enterprise (Default)
-   * All brand colors sourced from ADELE branding document (Jan 26, 2026)
-   * MIDNIGHT adjusted darker per client request (#0A0E27 instead of #1A0B2E)
+  /* CTA DARK THEME - ArchonY Fleet Command (Default)
+   * All brand colors sourced from ADELE branding document (Feb 2026)
    * Updated for better readability with higher contrast
    */
-  --background: #0A0E27; /* MIDNIGHT (darker) - App background */
+  --background: #0D0826; /* MIDNIGHT-derived - App background */
   --foreground: #FFFFFF; /* Pure white text for maximum contrast */
 
-  --card: #131B45; /* Lighter cards for better visibility */
+  --card: #141040; /* Cards derived from MIDNIGHT */
   --card-foreground: #FFFFFF; /* Pure white text */
 
-  --popover: #111638;
+  --popover: #120E38;
   --popover-foreground: #F8FAFC;
 
   /* CTA Primary Brand Color - DAYTIME Navy */
-  --primary: #2F3359; /* DAYTIME - Navy for primary elements (EXACT from PDF) */
+  --primary: #1F3076; /* DAYTIME - Navy for primary elements (EXACT from ADELE Feb 2026) */
   --primary-foreground: #ffffff;
 
   /* CTA Secondary - GOLDEN HOUR Gold (Primary accent color) */
-  --secondary: #F0A000; /* GOLDEN HOUR - Gold for interactive elements */
-  --secondary-foreground: #0A0E1A;
+  --secondary: #3a3a3a; /* Charcoal neutral (was GOLDEN HOUR #FDC016) */
+  --secondary-foreground: #f5f5f5;
 
-  --muted: #1E2654; /* Lighter muted background for better contrast */
+  --muted: #1C1654; /* Muted background */
   --muted-foreground: #D1D5DB; /* Much lighter gray for better readability */
 
-  /* CTA Accent - NOON Orange-Red */
-  --accent: #DD3903; /* NOON - Deep Orange-Red for CTAs (EXACT from PDF) */
-  --accent-foreground: #ffffff;
+  /* CTA Accent - NOON Orange */
+  --accent: #e0e0e0; /* Light gray neutral (was NOON #FF4300) */
+  --accent-foreground: #1a1a1a;
 
   --destructive: #DC2626;
   --destructive-foreground: #FECACA;
@@ -179,36 +205,35 @@
   /* CTA Success - Emerald Green */
   --success: #10B981;
   /* CTA Warning - GOLDEN HOUR Golden */
-  --warning: #F0A000; /* GOLDEN HOUR - Golden Yellow-Orange (EXACT from PDF) */
+  --warning: #f59e0b; /* Amber for semantic warning (was GOLDEN HOUR #FDC016) */
 
-  --border: rgba(240, 160, 0, 0.12); /* GOLDEN HOUR with transparency */
-  --input: #111638;
-  --ring: #F0A000; /* GOLDEN HOUR for focus rings */
+  --border: rgba(255, 255, 255, 0.12); /* White with transparency (was GOLDEN HOUR) */
+  --input: #120E38;
+  --ring: rgba(255, 255, 255, 0.3); /* White for focus rings (was GOLDEN HOUR #FDC016) */
 
   --radius: 0.5rem;
 
   /* ==========================================================================
    * CTA Brand Colors - Direct Variables
-   * Source: ADELE Branding Document, Jan 26 2026, Vibrant Palette (page 4)
-   * MIDNIGHT darkened per client request
+   * Source: ADELE Branding Document, Feb 2026, Vibrant Palette
    * ========================================================================== */
-  --cta-daytime: #2F3359;      /* DAYTIME - Navy Blue (EXACT from PDF) */
-  --cta-blue-skies: #41B2E3;   /* BLUE SKIES - Bright Cyan (EXACT from PDF) */
-  --cta-midnight: #1A0B2E;     /* MIDNIGHT - Deep Purple (EXACT from PDF) */
-  --cta-noon: #DD3903;         /* NOON - Deep Orange-Red (EXACT from PDF) */
-  --cta-golden-hour: #F0A000;  /* GOLDEN HOUR - Golden Yellow-Orange (EXACT from PDF) */
+  --cta-daytime: #1F3076;      /* DAYTIME - Navy Blue (EXACT from ADELE Feb 2026) */
+  --cta-blue-skies: #60a5fa;   /* Blue-400 neutral (was BLUE SKIES #00CCFE) */
+  --cta-midnight: #242424;     /* Charcoal neutral (was MIDNIGHT #1A0648) */
+  --cta-noon: #e0e0e0;         /* Neutral light gray (was NOON #FF4300 from ADELE Feb 2026) */
+  --cta-golden-hour: #ffffff;  /* White neutral (was GOLDEN HOUR #FDC016 from ADELE Feb 2026) */
 
-  /* CTA Brand Gradients (EXACT from PDF Skyline) */
-  --cta-gradient-primary: linear-gradient(90deg, #F0A000 0%, #DD3903 100%);        /* Golden Hour → Noon */
-  --cta-gradient-secondary: linear-gradient(135deg, #41B2E3 0%, #2F3359 100%);     /* Blue Skies → Daytime */
-  --cta-gradient-accent: linear-gradient(135deg, #2F3359 0%, #1A0B2E 100%);        /* Daytime → Midnight */
-  --cta-gradient-skyline: linear-gradient(90deg, #0080F0 0%, #41B2E3 25%, #F0A000 75%, #DD3903 100%); /* Full skyline */
+  /* CTA Brand Gradients (Full Skyline from ADELE Feb 2026) */
+  --cta-gradient-primary: linear-gradient(90deg, #ffffff 0%, #a0a0a0 100%);        /* White → Gray (was Golden Hour → Noon) */
+  --cta-gradient-secondary: linear-gradient(135deg, #a0a0a0 0%, #666666 100%);     /* Neutral gradient */
+  --cta-gradient-accent: linear-gradient(135deg, #666666 0%, #333333 100%);        /* Neutral gradient */
+  --cta-gradient-skyline: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 100%); /* Neutral skyline */
 
-  /* WCAG AAA Compliant Colors (EXACT from PDF) */
-  --blue-badge-bg: #2F3359;  /* DAYTIME Navy */
-  --blue-badge-text: #2F3359;
+  /* WCAG AAA Compliant Colors */
+  --blue-badge-bg: #1F3076;  /* DAYTIME Navy */
+  --blue-badge-text: #1F3076;
   --gray-text: #334155;      /* Slate 700 */
-  --link-color: #F0A000;     /* GOLDEN HOUR */
+  --link-color: #ffffff;     /* White (was GOLDEN HOUR #FDC016) */
 }
 
 /**
@@ -257,14 +282,14 @@
   --cta-daytime: #1E40AF;
   --cta-blue-skies: #0284C7;
   --cta-midnight: #0F172A;
-  --cta-noon: #DC2626;
-  --cta-golden-hour: #FBBF24;
+  --cta-noon: #4a4a4a;
+  --cta-golden-hour: #1a1a1a;
 
   /* Light theme gradients */
-  --cta-gradient-primary: linear-gradient(90deg, #FBBF24 0%, #DC2626 100%);
+  --cta-gradient-primary: linear-gradient(90deg, #1a1a1a 0%, #6a6a6a 100%);
   --cta-gradient-secondary: linear-gradient(135deg, #0284C7 0%, #1E40AF 100%);
   --cta-gradient-accent: linear-gradient(135deg, #1E40AF 0%, #0F172A 100%);
-  --cta-gradient-skyline: linear-gradient(90deg, #3B82F6 0%, #06B6D4 25%, #FBBF24 75%, #DC2626 100%);
+  --cta-gradient-skyline: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 100%);
 }
 
 /**
@@ -272,49 +297,49 @@
  * Enhanced brand color integration matching ADELE branding
  */
 .dark {
-  --background: #0A0E27;
+  --background: #0D0826;
   --foreground: #FFFFFF;
 
-  --card: #131B45;
+  --card: #141040;
   --card-foreground: #FFFFFF;
 
-  --popover: #111638;
+  --popover: #120E38;
   --popover-foreground: #F8FAFC;
 
-  --primary: #2F3359;
+  --primary: #1F3076;
   --primary-foreground: #FFFFFF;
 
-  --secondary: #F0A000;
-  --secondary-foreground: #0A0E1A;
+  --secondary: #3a3a3a;
+  --secondary-foreground: #f5f5f5;
 
-  --muted: #1E2654;
+  --muted: #1C1654;
   --muted-foreground: #D1D5DB;
 
-  --accent: #DD3903;
-  --accent-foreground: #FFFFFF;
+  --accent: #e0e0e0;
+  --accent-foreground: #1a1a1a;
 
   --destructive: #EF4444;
   --destructive-foreground: #FECACA;
 
   --success: #10B981;
-  --warning: #F0A000;
+  --warning: #f59e0b;
 
-  --border: rgba(240, 160, 0, 0.12);
-  --input: #111638;
-  --ring: #F0A000;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: #120E38;
+  --ring: rgba(255, 255, 255, 0.3);
 
   /* CTA Dark Brand Colors */
-  --cta-daytime: #2F3359;
-  --cta-blue-skies: #41B2E3;
-  --cta-midnight: #1A0B2E;
-  --cta-noon: #DD3903;
-  --cta-golden-hour: #F0A000;
+  --cta-daytime: #1F3076;
+  --cta-blue-skies: #60a5fa;
+  --cta-midnight: #242424;
+  --cta-noon: #e0e0e0;
+  --cta-golden-hour: #ffffff;
 
   /* Dark theme gradients */
-  --cta-gradient-primary: linear-gradient(90deg, #F0A000 0%, #DD3903 100%);
-  --cta-gradient-secondary: linear-gradient(135deg, #41B2E3 0%, #2F3359 100%);
-  --cta-gradient-accent: linear-gradient(135deg, #2F3359 0%, #1A0B2E 100%);
-  --cta-gradient-skyline: linear-gradient(90deg, #0080F0 0%, #41B2E3 25%, #F0A000 75%, #DD3903 100%);
+  --cta-gradient-primary: linear-gradient(90deg, #ffffff 0%, #a0a0a0 100%);
+  --cta-gradient-secondary: linear-gradient(135deg, #a0a0a0 0%, #666666 100%);
+  --cta-gradient-accent: linear-gradient(135deg, #666666 0%, #333333 100%);
+  --cta-gradient-skyline: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 100%);
 }
 
 @theme {
@@ -393,21 +418,25 @@
     @apply p-6 space-y-5 rounded-xl;
   }
 
-  /* Better text hierarchy */
+  /* Better text hierarchy — Cinzel for headings */
   .heading-1 {
     @apply text-3xl md:text-4xl font-bold leading-tight;
+    font-family: 'Cinzel', Georgia, serif;
   }
 
   .heading-2 {
     @apply text-2xl md:text-3xl font-semibold leading-tight;
+    font-family: 'Cinzel', Georgia, serif;
   }
 
   .heading-3 {
     @apply text-xl md:text-2xl font-semibold leading-snug;
+    font-family: 'Cinzel', Georgia, serif;
   }
 
   .heading-4 {
     @apply text-lg md:text-xl font-semibold leading-snug;
+    font-family: 'Cinzel', Georgia, serif;
   }
 
   .body-text {
@@ -585,7 +614,7 @@
   }
 
   .animate-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(240, 160, 0, 0.06), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
     background-size: 200% 100%;
     animation: shimmer 2s ease-in-out infinite;
   }
@@ -631,7 +660,7 @@
   .hover-glow {
     transition-property: all;
     transition-duration: 300ms;
-    box-shadow: 0 0 20px rgba(240, 160, 0, 0.15);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.08);
   }
 
   .hover-scale {
@@ -874,15 +903,15 @@
   }
 
   .shadow-glow-sm {
-    box-shadow: 0 0 10px rgba(240, 160, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
 
   .shadow-glow-md {
-    box-shadow: 0 0 20px rgba(240, 160, 0, 0.15);
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
   }
 
   .shadow-glow-lg {
-    box-shadow: 0 0 30px rgba(240, 160, 0, 0.2);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.2);
   }
 
   /* Depth shadows for elevated components */
@@ -1078,12 +1107,12 @@
   }
 
   .card-premium:hover {
-    @apply shadow-xl shadow-[#F0A000]/10 border-[#F0A000]/40 -translate-y-0.5;
+    @apply shadow-xl shadow-black/10 border-white/15 -translate-y-0.5;
   }
 
   .card-premium::before {
     content: '';
-    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#F0A000]/30 to-transparent opacity-0 transition-opacity duration-300;
+    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 transition-opacity duration-300;
   }
 
   .card-premium:hover::before {
@@ -1105,19 +1134,19 @@
 
   .hover-lift-glow:hover {
     @apply -translate-y-1;
-    filter: drop-shadow(0 8px 16px rgba(240, 160, 0, 0.2));
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
   }
 
   .hover-glow-orange:hover {
-    box-shadow: 0 0 20px rgba(255, 107, 53, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .hover-glow-blue:hover {
-    box-shadow: 0 0 20px rgba(65, 178, 227, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(0, 204, 254, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   .hover-glow-golden:hover {
-    box-shadow: 0 0 20px rgba(240, 160, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 
   /* STATUS INDICATOR DOTS */
@@ -1132,13 +1161,13 @@
   }
 
   .status-dot-warning {
-    @apply w-3 h-3 rounded-full bg-[#F0A000];
-    box-shadow: 0 0 8px rgba(240, 160, 0, 0.6), 0 0 16px rgba(240, 160, 0, 0.3);
+    @apply w-3 h-3 rounded-full bg-amber-500;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.6), 0 0 16px rgba(245, 158, 11, 0.3);
   }
 
   .status-dot-critical {
-    @apply w-3 h-3 rounded-full bg-[#DD3903];
-    box-shadow: 0 0 8px rgba(221, 57, 3, 0.6), 0 0 16px rgba(221, 57, 3, 0.3);
+    @apply w-3 h-3 rounded-full bg-red-500;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.6), 0 0 16px rgba(239, 68, 68, 0.3);
     animation: pulse 1.5s infinite;
   }
 
@@ -1147,29 +1176,29 @@
     box-shadow: 0 0 8px rgba(148, 163, 184, 0.4);
   }
 
-  /* NAVIGATION ACTIVE STATE - Golden Hour Accent */
+  /* NAVIGATION ACTIVE STATE - White Accent */
   .nav-item-active {
-    @apply bg-gradient-to-r from-[#F0A000]/15 to-transparent;
-    @apply border-l-4 border-l-[#F0A000];
-    @apply text-[#F0A000];
-    @apply shadow-md shadow-[#F0A000]/10;
+    @apply bg-gradient-to-r from-white/10 to-transparent;
+    @apply border-l-4 border-l-white;
+    @apply text-white;
+    @apply shadow-md shadow-black/10;
     font-weight: 600;
     transition: all 0.3s ease-out;
   }
 
   .nav-item-active:hover {
-    @apply shadow-lg shadow-[#F0A000]/15;
+    @apply shadow-lg shadow-black/15;
   }
 
   .nav-item-active .nav-icon {
-    @apply text-[#F0A000];
-    filter: drop-shadow(0 0 8px rgba(240, 160, 0, 0.4));
+    @apply text-white;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.2));
   }
 
   /* GRADIENT TEXT UTILITIES */
   .heading-gradient-blue {
     @apply text-4xl md:text-5xl font-bold leading-tight;
-    background: linear-gradient(135deg, #FFFFFF 0%, #41B2E3 100%);
+    background: linear-gradient(135deg, #FFFFFF 0%, #a0a0a0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1177,53 +1206,53 @@
 
   .heading-gradient-orange {
     @apply text-3xl md:text-4xl font-bold;
-    background: linear-gradient(135deg, #FFFFFF 0%, #FF6B35 100%);
+    background: linear-gradient(135deg, #FFFFFF 0%, #a0a0a0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .subtitle-branded {
-    @apply text-base md:text-lg text-[#F0A000] font-medium;
-    text-shadow: 0 1px 4px rgba(240, 160, 0, 0.2);
+    @apply text-base md:text-lg text-white font-medium;
+    text-shadow: 0 1px 4px rgba(255, 255, 255, 0.1);
   }
 
   /* ENHANCED BUTTON STATES */
   .btn-gradient-orange {
-    @apply bg-gradient-to-r from-[#FF6B35] to-[#FF8855] text-white font-semibold;
-    @apply shadow-md shadow-[#FF6B35]/30;
+    @apply bg-gradient-to-r from-[#333] to-[#555] text-white font-semibold;
+    @apply shadow-md shadow-black/20;
     @apply transition-all duration-200 hover:-translate-y-0.5;
-    @apply hover:shadow-lg hover:shadow-[#FF6B35]/40;
+    @apply hover:shadow-lg hover:shadow-black/25;
   }
 
   .btn-gradient-blue {
-    @apply bg-gradient-to-r from-[#41B2E3] to-[#5BC0EB] text-white font-semibold;
-    @apply shadow-md shadow-[#41B2E3]/30;
+    @apply bg-gradient-to-r from-[#60a5fa] to-[#93c5fd] text-white font-semibold;
+    @apply shadow-md shadow-[#60a5fa]/30;
     @apply transition-all duration-200 hover:-translate-y-0.5;
-    @apply hover:shadow-lg hover:shadow-[#41B2E3]/40;
+    @apply hover:shadow-lg hover:shadow-[#60a5fa]/40;
   }
 
   .btn-gradient-golden {
-    @apply bg-gradient-to-r from-[#F0A000] to-[#FFB800] text-white font-semibold;
-    @apply shadow-md shadow-[#F0A000]/30;
+    @apply bg-gradient-to-r from-white/80 to-white/60 text-[#1a1a1a] font-semibold;
+    @apply shadow-md shadow-black/15;
     @apply transition-all duration-200 hover:-translate-y-0.5;
-    @apply hover:shadow-lg hover:shadow-[#F0A000]/40;
+    @apply hover:shadow-lg hover:shadow-black/20;
   }
 
   /* SEARCH INPUT ENHANCEMENT */
   .search-input-enhanced {
     @apply rounded-xl;
     @apply bg-gradient-to-r from-muted/40 via-muted/30 to-muted/40;
-    @apply border border-[#F0A000]/20;
+    @apply border border-white/10;
     @apply transition-all duration-300;
-    @apply focus-within:border-[#F0A000];
-    @apply focus-within:ring-2 focus-within:ring-[#F0A000]/20;
-    @apply focus-within:shadow-md focus-within:shadow-[#F0A000]/10;
+    @apply focus-within:border-white/60;
+    @apply focus-within:ring-2 focus-within:ring-white/20;
+    @apply focus-within:shadow-md focus-within:shadow-black/10;
   }
 
   .search-input-enhanced:hover {
-    @apply border-[#F0A000]/40;
-    @apply shadow-md shadow-[#F0A000]/10;
+    @apply border-white/15;
+    @apply shadow-md shadow-black/10;
   }
 
   /* METRIC CARDS WITH STATUS COLORS */
@@ -1233,13 +1262,13 @@
   }
 
   .metric-card-warning {
-    @apply border-l-4 border-l-[#F0A000];
-    @apply shadow-[#F0A000]/10;
+    @apply border-l-4 border-l-amber-500;
+    @apply shadow-black/10;
   }
 
   .metric-card-error {
-    @apply border-l-4 border-l-[#DD3903];
-    @apply shadow-[#DD3903]/10;
+    @apply border-l-4 border-l-red-500;
+    @apply shadow-black/10;
   }
 
   /* ICON INDICATORS WITH COLORED BACKGROUNDS */
@@ -1251,50 +1280,50 @@
 
   .icon-badge-warning {
     @apply w-12 h-12 rounded-xl flex items-center justify-center;
-    @apply bg-gradient-to-br from-[#F0A000]/20 to-[#FFB800]/20;
-    @apply shadow-lg shadow-[#F0A000]/30;
+    @apply bg-gradient-to-br from-white/10 to-white/5;
+    @apply shadow-lg shadow-black/15;
   }
 
   .icon-badge-error {
     @apply w-12 h-12 rounded-xl flex items-center justify-center;
-    @apply bg-gradient-to-br from-[#DD3903]/20 to-[#FF3838]/20;
-    @apply shadow-lg shadow-[#DD3903]/30;
+    @apply bg-gradient-to-br from-white/5 to-white/3;
+    @apply shadow-lg shadow-black/15;
   }
 
   .icon-badge-info {
     @apply w-12 h-12 rounded-xl flex items-center justify-center;
-    @apply bg-gradient-to-br from-[#41B2E3]/20 to-[#5BC0EB]/20;
-    @apply shadow-lg shadow-[#41B2E3]/30;
+    @apply bg-gradient-to-br from-[#60a5fa]/20 to-[#93c5fd]/20;
+    @apply shadow-lg shadow-[#60a5fa]/30;
   }
 
   /* BADGE PILL STYLES */
   .badge-pill-orange {
     @apply inline-flex items-center justify-center px-4 py-1 rounded-full;
-    @apply bg-gradient-to-r from-[#FF6B35] to-[#FF8855] text-white font-bold text-xs;
-    @apply shadow-md shadow-[#FF6B35]/40;
+    @apply bg-gradient-to-r from-[#333] to-[#555] text-white font-bold text-xs;
+    @apply shadow-md shadow-black/25;
   }
 
   .badge-pill-blue {
     @apply inline-flex items-center justify-center px-4 py-1 rounded-full;
-    @apply bg-gradient-to-r from-[#41B2E3] to-[#5BC0EB] text-white font-bold text-xs;
-    @apply shadow-md shadow-[#41B2E3]/40;
+    @apply bg-gradient-to-r from-[#60a5fa] to-[#93c5fd] text-white font-bold text-xs;
+    @apply shadow-md shadow-[#60a5fa]/40;
   }
 
   .badge-pill-golden {
     @apply inline-flex items-center justify-center px-4 py-1 rounded-full;
-    @apply bg-gradient-to-r from-[#F0A000] to-[#FFB800] text-white font-bold text-xs;
-    @apply shadow-md shadow-[#F0A000]/40;
+    @apply bg-gradient-to-r from-white/80 to-white/60 text-[#1a1a1a] font-bold text-xs;
+    @apply shadow-md shadow-black/20;
   }
 
   /* PREMIUM PANEL BORDERS */
   .panel-border-blue {
-    @apply border border-[#41B2E3]/20 rounded-xl;
-    @apply transition-all duration-300 hover:border-[#41B2E3]/40;
+    @apply border border-[#60a5fa]/20 rounded-xl;
+    @apply transition-all duration-300 hover:border-[#60a5fa]/40;
   }
 
   .panel-border-blue::before {
     content: '';
-    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#41B2E3]/50 to-transparent opacity-0 transition-opacity duration-300;
+    @apply absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#60a5fa]/50 to-transparent opacity-0 transition-opacity duration-300;
   }
 
   .panel-border-blue:hover::before {
@@ -1326,7 +1355,7 @@
       box-shadow: 0 0 0 0 currentColor;
     }
     50% {
-      box-shadow: 0 0 0 8px rgba(240, 160, 0, 0.1);
+      box-shadow: 0 0 0 8px rgba(255, 255, 255, 0.1);
     }
   }
 
@@ -1407,10 +1436,10 @@
 
   @keyframes glow {
     0%, 100% {
-      box-shadow: 0 0 5px rgba(240, 160, 0, 0.5);
+      box-shadow: 0 0 5px rgba(255, 255, 255, 0.2);
     }
     50% {
-      box-shadow: 0 0 15px rgba(240, 160, 0, 0.8);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
     }
   }
 
@@ -1469,15 +1498,15 @@
 
   /* ENHANCED FOCUS STATES */
   .focus-ring {
-    @apply outline-none ring-2 ring-offset-2 ring-[#F0A000]/50 transition-all duration-200;
+    @apply outline-none ring-2 ring-offset-2 ring-white/30 transition-all duration-200;
   }
 
   .focus-ring-orange {
-    @apply outline-none ring-2 ring-offset-2 ring-[#FF6B35]/50 transition-all duration-200;
+    @apply outline-none ring-2 ring-offset-2 ring-white/30 transition-all duration-200;
   }
 
   .focus-ring-gold {
-    @apply outline-none ring-2 ring-offset-2 ring-[#F0A000]/50 transition-all duration-200;
+    @apply outline-none ring-2 ring-offset-2 ring-white/30 transition-all duration-200;
   }
 
   /* SMOOTH ENTRANCE ANIMATIONS */
@@ -1541,7 +1570,7 @@
 
   .gradient-overlay-blue::after {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-[#41B2E3]/5 to-[#41B2E3]/0 opacity-0 transition-opacity duration-300;
+    @apply absolute inset-0 bg-gradient-to-br from-[#60a5fa]/5 to-[#60a5fa]/0 opacity-0 transition-opacity duration-300;
   }
 
   .gradient-overlay-blue:hover::after {
@@ -1554,7 +1583,7 @@
 
   .gradient-overlay-orange::after {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-br from-[#FF6B35]/5 to-[#FF6B35]/0 opacity-0 transition-opacity duration-300;
+    @apply absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 opacity-0 transition-opacity duration-300;
   }
 
   .gradient-overlay-orange:hover::after {
@@ -1566,7 +1595,7 @@
     @apply rounded-xl border border-gray-300 dark:border-gray-600;
     @apply bg-gradient-to-b from-white/50 to-white/30 dark:from-gray-800/50 dark:to-gray-800/30;
     @apply transition-all duration-200;
-    @apply focus:outline-none focus:ring-2 focus:ring-[#F0A000]/50 focus:border-[#F0A000];
+    @apply focus:outline-none focus:ring-2 focus:ring-white/30 focus:border-white/60;
   }
 
   .input-premium::placeholder {
@@ -1648,12 +1677,12 @@
   /* ADVANCED NAVIGATION EFFECTS */
   .nav-link-active {
     @apply relative transition-all duration-300;
-    @apply text-[#F0A000] font-semibold;
+    @apply text-white font-semibold;
   }
 
   .nav-link-active::after {
     content: '';
-    @apply absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-[#F0A000] to-[#FFB800];
+    @apply absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-white/80 to-white/60;
     animation: slideInRight 0.3s ease-out;
   }
 
@@ -1662,19 +1691,19 @@
   }
 
   .nav-link:hover {
-    @apply bg-[#F0A000]/10 text-[#F0A000];
+    @apply bg-white/10 text-white;
   }
 
   /* PREMIUM TEXT EFFECTS */
   .text-gradient-blue {
-    background: linear-gradient(135deg, #41B2E3 0%, #5BC0EB 100%);
+    background: linear-gradient(135deg, #60a5fa 0%, #93c5fd 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .text-gradient-orange {
-    background: linear-gradient(135deg, #FF6B35 0%, #FF8855 100%);
+    background: linear-gradient(135deg, #e0e0e0 0%, #a0a0a0 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -1698,16 +1727,16 @@
   }
 
   .card-hover-glow:hover {
-    @apply shadow-2xl shadow-[#F0A000]/30;
+    @apply shadow-2xl shadow-black/15;
   }
 
   /* PREMIUM DIVIDERS */
   .divider-gradient {
-    @apply h-[1px] bg-gradient-to-r from-transparent via-[#F0A000]/50 to-transparent;
+    @apply h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent;
   }
 
   .divider-dashed {
-    @apply h-px border-t border-dashed border-[#F0A000]/30;
+    @apply h-px border-t border-dashed border-white/15;
   }
 
   /* ENHANCED STATUS INDICATORS */
@@ -1734,9 +1763,9 @@
 
   .status-badge-warning {
     @apply relative inline-flex items-center px-3 py-1 rounded-full;
-    @apply bg-gradient-to-r from-[#F0A000]/20 to-[#FFB800]/20;
-    @apply border border-[#F0A000]/50;
-    @apply text-[#D97706] dark:text-[#FCD34D] text-xs font-semibold;
+    @apply bg-gradient-to-r from-amber-500/20 to-amber-400/20;
+    @apply border border-amber-500/50;
+    @apply text-amber-700 dark:text-amber-300 text-xs font-semibold;
   }
 
   .status-badge-error {
@@ -1767,7 +1796,7 @@
 
   /* ENHANCED ACCESSIBILITY */
   .focus-visible {
-    @apply outline-none ring-2 ring-[#F0A000] ring-offset-2;
+    @apply outline-none ring-2 ring-white/50 ring-offset-2;
   }
 
   .sr-only {
@@ -1810,15 +1839,15 @@
   }
 
   .shadow-colored-blue {
-    box-shadow: 0 10px 25px rgba(65, 178, 227, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 204, 254, 0.1);
   }
 
   .shadow-colored-orange {
-    box-shadow: 0 10px 25px rgba(255, 107, 53, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
 
   .shadow-colored-gold {
-    box-shadow: 0 10px 25px rgba(240, 160, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
 
   /* INTERACTIVE FEEDBACK */

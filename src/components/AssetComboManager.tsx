@@ -8,6 +8,7 @@ import type {
   CreateAssetRelationshipRequest
 } from '../../api/src/types/asset.types'
 
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface AssetComboManagerProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -88,9 +89,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
     setLoading(true)
     try {
       const response = await fetch('/api/asset-relationships/active', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) throw new Error('Failed to fetch active combinations')
@@ -112,9 +111,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       }
 
       const response = await fetch('/api/vehicles?limit=1000', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) throw new Error('Failed to fetch vehicles')
@@ -132,9 +129,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
   const fetchRelationshipHistory = async (assetId: string) => {
     try {
       const response = await fetch(`/api/asset-relationships/history/${assetId}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) throw new Error('Failed to fetch relationship history')
@@ -169,9 +164,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       const response = await fetch('/api/asset-relationships', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(payload)
       })
 
@@ -208,9 +203,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
     try {
       const response = await fetch(`/api/asset-relationships/${relationshipId}/deactivate`, {
         method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       })
 
       if (!response.ok) throw new Error('Failed to deactivate relationship')
@@ -360,7 +353,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                     <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
-                        <span>Effective from: {new Date(combo.effective_from).toLocaleDateString()}</span>
+                        <span>Effective from: {formatDate(combo.effective_from)}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <span className="text-gray-700">Parent:</span>
@@ -419,9 +412,9 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                         <strong>{entry.parent_asset_name}</strong> → <strong>{entry.child_asset_name}</strong>
                       </div>
                       <div className="flex items-center gap-2 text-xs text-slate-700">
-                        <span>From: {new Date(entry.effective_from).toLocaleDateString()}</span>
+                        <span>From: {formatDate(entry.effective_from)}</span>
                         {entry.effective_to && (
-                          <span>To: {new Date(entry.effective_to).toLocaleDateString()}</span>
+                          <span>To: {formatDate(entry.effective_to)}</span>
                         )}
                         <div className="flex items-center gap-1">
                           <User className="w-3 h-3" />

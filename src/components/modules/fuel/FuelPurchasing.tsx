@@ -33,6 +33,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
 import { brandColors } from '@/theme/designSystem'
+import { formatCurrency } from "@/utils/format-helpers"
 
 interface FuelStation {
   id: string
@@ -204,7 +205,7 @@ export function FuelPurchasing() {
   }
 
   const formatPrice = (price: number) => {
-    return `$${price.toFixed(3)}`
+    return formatCurrency(price)
   }
 
   return (
@@ -227,7 +228,7 @@ export function FuelPurchasing() {
           </CardHeader>
           <CardContent>
             <div className="text-sm font-bold text-green-600">
-              ${savings?.totalSavings.toFixed(0) || '0'}
+              {formatCurrency(savings?.totalSavings ?? 0)}
             </div>
             <div className="text-xs  mt-1" style={{ color: brandColors.archon.mediumGray }}>
               {savings?.totalGallons.toFixed(0) || '0'} gallons purchased
@@ -308,7 +309,7 @@ export function FuelPurchasing() {
                   <div>
                     <div className="text-xs text-gray-700">Expected Savings</div>
                     <div className="font-semibold text-green-600">
-                      ${purchaseRecommendation.expectedSavings.toFixed(2)}
+                      {formatCurrency(purchaseRecommendation.expectedSavings)}
                     </div>
                   </div>
                   <div>

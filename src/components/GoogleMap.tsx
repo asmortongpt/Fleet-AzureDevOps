@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 
 import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/components/UniversalMap/utils/coordinates"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 import logger from '@/utils/logger';
 /**
  * Props for the GoogleMap component
@@ -690,7 +691,7 @@ export function GoogleMap({
                   <div className="text-emerald-700 font-bold">{v.name}</div>
                   <div className="text-slate-700">{v.status.toUpperCase()}</div>
                   <div className="text-[9px] text-gray-800 mt-1">
-                    LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : 'N/A'}
+                    LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : '—'}
                   </div>
                 </div>
               </div>
@@ -786,48 +787,15 @@ function getVehicleColor(status: Vehicle["status"]): string {
  * @returns HTML string for info window
  */
 function createVehicleInfoHTML(vehicle: Vehicle): string {
-  const coords = getVehicleLatLng(vehicle as any)
-  const location =
-    (vehicle as any)?.location?.address ||
-    (vehicle as any)?.location_address ||
-    (vehicle as any)?.locationAddress ||
-    (coords ? `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` : "Unknown")
-
+  // Google Maps InfoWindow has a white container — override it to match charcoal theme
   return `
-    <div data-testid="marker-popup" style="padding: 14px; min-width: 220px; max-width: 320px; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;">
-      <div data-testid="popup-vehicle-id" style="font-weight: 600; font-size: 15px; margin-bottom: 10px; color: #1f2937; border-bottom: 2px solid #e5e7eb; padding-bottom: 6px;">
-        ${escapeHTML(vehicle.name || "Unknown Vehicle")}
-      </div>
-      <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
-        <strong style="color: #6b7280;">Type:</strong>
-        <span style="text-transform: capitalize;">${escapeHTML(vehicle.type || "Unknown")}</span>
-      </div>
-      <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
-        <strong style="color: #6b7280;">Status:</strong>
-        <span data-testid="popup-vehicle-status" style="color: ${getVehicleColor(vehicle.status)}; font-weight: 600; text-transform: uppercase; font-size: 12px;">
-          ${escapeHTML(vehicle.status)}
-        </span>
-      </div>
-      <div style="font-size: 13px; color: #4b5563; margin-bottom: 6px; display: flex; justify-content: space-between;">
-        <strong style="color: #6b7280;">Driver:</strong>
-        <span>${escapeHTML(vehicle.driver || "Unassigned")}</span>
-      </div>
-      <div style="font-size: 13px; color: #4b5563; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb;">
-        <strong style="color: #6b7280; display: block; margin-bottom: 4px;">Location:</strong>
-        <span style="font-size: 12px; color: #6b7280;">${escapeHTML(location)}</span>
-      </div>
-      
-      <div style="margin-top: 12px; display: flex; gap: 8px;">
-        <button 
-          onclick="(function(){ window.dispatchEvent(new CustomEvent('vehicle-action', { detail: { action: 'maintenance', vehicleId: '${escapeHTML(vehicle.id)}' } })); })()"
-          style="flex: 1; border: 1px solid #e5e7eb; background: #f9fafb; color: #374151; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;"
-          onmouseover="this.style.background='#f3f4f6'"
-          onmouseout="this.style.background='#f9fafb'"
-        >
-          Report Issue
-        </button>
-      </div>
-    </div>
+    <style>
+      .gm-style-iw-d { overflow: hidden !important; padding: 0 !important; }
+      .gm-style-iw-c { padding: 0 !important; background: #242424 !important; border-radius: 8px !important; box-shadow: 0 4px 24px rgba(0,0,0,0.5) !important; }
+      .gm-style-iw-tc::after { background: #242424 !important; }
+      .gm-ui-hover-effect > span { background-color: #fff !important; }
+    </style>
+    <div data-testid="marker-popup">${buildVehiclePopupHTML(vehicle, escapeHTML)}</div>
   `
 }
 
@@ -946,7 +914,8 @@ function createCameraInfoHTML(camera: TrafficCamera): string {
  * @param unsafe - Unsafe string
  * @returns HTML-safe string
  */
-function escapeHTML(unsafe: string): string {
+function escapeHTML(unsafe: string | null | undefined): string {
+  if (!unsafe) return ''
   return unsafe
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")

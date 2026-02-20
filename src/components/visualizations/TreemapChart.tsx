@@ -7,6 +7,7 @@
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatNumber } from '@/utils/format-helpers'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface TreemapDataPoint {
@@ -87,7 +88,7 @@ export function TreemapChart({
           fontSize={width > 100 ? 12 : 10}
           opacity={0.9}
         >
-          {size.toLocaleString()}
+          {formatNumber(size)}
         </text>
       </g>
     )
@@ -108,7 +109,7 @@ export function TreemapChart({
       >
         <p className="font-semibold mb-1">{data.name}</p>
         <p className="text-sm">
-          Value: <span className="font-mono">{data.size?.toLocaleString()}</span>
+          Value: <span className="font-mono">{formatNumber(data.size)}</span>
         </p>
       </div>
     )

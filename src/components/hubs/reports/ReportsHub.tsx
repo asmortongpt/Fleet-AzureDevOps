@@ -48,6 +48,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/contexts"
 import { secureFetch } from "@/hooks/use-api"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDate, formatDateTime } from "@/utils/format-helpers"
 
 // Report types and status
 type ReportCategory = "fleet" | "maintenance" | "safety" | "compliance" | "financial" | "operations"
@@ -144,9 +146,9 @@ export function ReportsHub() {
     setError(null)
     try {
       const [templatesResponse, historyResponse, scheduledResponse] = await Promise.all([
-        fetchJson("/api/reports/templates"),
-        fetchJson("/api/reports/history"),
-        fetchJson("/api/reports/scheduled")
+        fetchJson("/api/reports/templates").catch(() => ({ data: [] })),
+        fetchJson("/api/reports/history").catch(() => ({ data: [] })),
+        fetchJson("/api/reports/scheduled").catch(() => ({ data: [] }))
       ])
 
       const mappedTemplates: ReportTemplate[] = (templatesResponse.data || []).map((template: any) => ({
@@ -464,7 +466,7 @@ export function ReportsHub() {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <Badge className={getCategoryColor(template.category)}>
-                          {template.category}
+                          {formatEnum(template.category)}
                         </Badge>
                         {template.frequency && (
                           <Badge variant="outline">
@@ -495,7 +497,7 @@ export function ReportsHub() {
 
                       {template.lastGenerated && (
                         <p className="text-xs text-muted-foreground">
-                          Last generated: {new Date(template.lastGenerated).toLocaleDateString()}
+                          Last generated: {formatDate(template.lastGenerated)}
                         </p>
                       )}
 
@@ -543,7 +545,7 @@ export function ReportsHub() {
                       <TableRow key={report.id}>
                         <TableCell className="font-medium">{report.name}</TableCell>
                         <TableCell>
-                          {new Date(report.generatedAt).toLocaleString()}
+                          {formatDateTime(report.generatedAt)}
                         </TableCell>
                         <TableCell>{report.generatedBy}</TableCell>
                         <TableCell>
@@ -552,7 +554,7 @@ export function ReportsHub() {
                         <TableCell>{report.size}</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(report.status)}>
-                            {report.status}
+                            {formatEnum(report.status)}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right">
@@ -606,12 +608,10 @@ export function ReportsHub() {
                         <TableCell className="font-medium">{schedule.name}</TableCell>
                         <TableCell>{schedule.frequency}</TableCell>
                         <TableCell>
-                          {new Date(schedule.nextRun).toLocaleDateString()}
+                          {formatDate(schedule.nextRun)}
                         </TableCell>
                         <TableCell>
-                          {schedule.lastRun
-                            ? new Date(schedule.lastRun).toLocaleDateString()
-                            : "-"}
+                          {formatDate(schedule.lastRun)}
                         </TableCell>
                         <TableCell>
                           <span className="text-sm text-muted-foreground">

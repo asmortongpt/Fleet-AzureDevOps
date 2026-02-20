@@ -9,11 +9,13 @@ import useSWR from 'swr'
 import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate } from '@/utils/format-helpers'
 
 const fetcher = (url: string) =>
   fetch(url)
     .then((r) => {
-      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
       return r.json()
     })
     .then((data) => data?.data ?? data)
@@ -72,7 +74,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
       key: 'date',
       header: 'Date',
       sortable: true,
-      render: (incident) => new Date(incident.date).toLocaleDateString(),
+      render: (incident) => formatDate(incident.date),
     },
     {
       key: 'type',
@@ -85,7 +87,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
       sortable: true,
       render: (incident) => (
         <Badge variant={getSeverityColor(incident.severity)}>
-          {incident.severity}
+          {formatEnum(incident.severity)}
         </Badge>
       ),
     },
@@ -95,7 +97,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
       sortable: true,
       render: (incident) => (
         <Badge variant="outline">
-          {incident.status}
+          {formatEnum(incident.status)}
         </Badge>
       ),
     },
@@ -170,7 +172,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
             columns={columns}
             recordType="incident"
             getRecordId={(incident) => incident.id}
-            getRecordLabel={(incident) => `${incident.type} - ${new Date(incident.date).toLocaleDateString()}`}
+            getRecordLabel={(incident) => `${incident.type} - ${formatDate(incident.date)}`}
             getRecordData={(incident) => ({ incidentId: incident.id })}
             emptyMessage="No incidents found"
             compact
@@ -209,7 +211,7 @@ export function LostTimeIncidentsView() {
       key: 'date',
       header: 'Date',
       sortable: true,
-      render: (incident) => new Date(incident.date).toLocaleDateString(),
+      render: (incident) => formatDate(incident.date),
     },
     {
       key: 'type',
@@ -222,7 +224,7 @@ export function LostTimeIncidentsView() {
       sortable: true,
       render: (incident) => (
         <Badge variant={getSeverityColor(incident.severity)}>
-          {incident.severity}
+          {formatEnum(incident.severity)}
         </Badge>
       ),
     },
@@ -272,7 +274,7 @@ export function LostTimeIncidentsView() {
             columns={columns}
             recordType="incident"
             getRecordId={(incident) => incident.id}
-            getRecordLabel={(incident) => `${incident.type} - ${new Date(incident.date).toLocaleDateString()}`}
+            getRecordLabel={(incident) => `${incident.type} - ${formatDate(incident.date)}`}
             getRecordData={(incident) => ({ incidentId: incident.id })}
             emptyMessage="No lost time incidents"
             compact
@@ -310,8 +312,8 @@ export function OSHAComplianceView() {
             { label: 'Personal Protective Equipment', score: 85, color: 'bg-amber-500' },
             { label: 'Emergency Procedures', score: 90, color: 'bg-emerald-500' },
             { label: 'Incident Reporting', score: 80, color: 'bg-orange-500' },
-          ].map((item) => (
-            <div key={item.label}>
+          ].map((item, index) => (
+            <div key={index}>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm text-slate-300">{item.label}</span>
                 <span className="text-sm font-semibold text-white">{item.score}%</span>
@@ -338,14 +340,14 @@ export function OSHAComplianceView() {
             { date: '2025-12-10', action: 'Safety Training Completed', status: 'completed' },
             { date: '2025-12-05', action: 'Hazard Assessment Conducted', status: 'completed' },
             { date: '2025-12-01', action: 'PPE Inspection Due', status: 'pending' },
-          ].map((item) => (
-            <div key={item.action} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+          ].map((item, index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.action}</div>
-                <div className="text-xs text-slate-700">{new Date(item.date).toLocaleDateString()}</div>
+                <div className="text-xs text-slate-700">{formatDate(item.date)}</div>
               </div>
               <Badge variant={item.status === 'completed' ? 'outline' : 'default'}>
-                {item.status}
+                {formatEnum(item.status)}
               </Badge>
             </div>
           ))}
@@ -404,8 +406,8 @@ export function DaysIncidentFreeView() {
             { period: 'Jul - Aug 2025', days: 32, status: 'past' },
             { period: 'Apr - May 2025', days: 28, status: 'past' },
             { period: 'Jan - Feb 2025', days: 21, status: 'past' },
-          ].map((item) => (
-            <div key={item.period} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+          ].map((item, index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
               <div>
                 <div className="font-medium text-white">{item.period}</div>
                 <div className="text-xs text-slate-700">{item.days} days</div>

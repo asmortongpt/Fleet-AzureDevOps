@@ -42,20 +42,20 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
-import { Section } from '@/components/ui/section'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
-  RadialProgressChart,
 } from '@/components/visualizations'
 import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 
@@ -68,6 +68,28 @@ const fetcher = (url: string) =>
     .then((data) => data?.data ?? data)
 
 // ============================================================================
+// SHARED COMPONENTS
+// ============================================================================
+
+function KpiCard({ title, value, icon: Icon, description }: {
+  title: string
+  value: string | number
+  icon: React.ComponentType<{ className?: string }>
+  description: string
+}) {
+  return (
+    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+      <div className="flex items-center gap-2 mb-1">
+        <Icon className="h-4 w-4 text-muted-foreground" />
+        <span className="text-xs text-muted-foreground">{title}</span>
+      </div>
+      <div className="text-xl font-bold text-foreground">{value}</div>
+      <div className="text-xs text-muted-foreground mt-0.5">{description}</div>
+    </div>
+  )
+}
+
+// ============================================================================
 // TAB CONTENT COMPONENTS
 // ============================================================================
 
@@ -75,12 +97,12 @@ const fetcher = (url: string) =>
  * Compliance Tab - Regulatory compliance and certifications
  */
 const ComplianceTabContent = memo(function ComplianceTabContent() {
+  const { push } = useDrilldown()
   const { drivers, vehicles, error: fleetDataError } = useFleetData()
 
   const now = useMemo(() => new Date(), [])
   const msPerDay = 86400000
 
-  // Helper: check if a date string is within N months ago (i.e. not overdue)
   const isWithinMonths = (dateStr: string | undefined, months: number): boolean => {
     if (!dateStr) return false
     const date = new Date(dateStr)
@@ -115,8 +137,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
     const totalDrivers = activeDrivers.length
 
-    // A driver is fully compliant when: drug test < 12 months, background check cleared,
-    // MVR check current, and medical card not expired
     const compliantDrivers = activeDrivers.filter((d: any) => {
       const drugTestCurrent = isWithinMonths(d.drug_test_date, 12)
       const bgCheckCleared = (d.background_check_status || '').toLowerCase() === 'cleared'
@@ -129,10 +149,8 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       ? Math.round((compliantDrivers.length / totalDrivers) * 100)
       : 0
 
-    // Active certifications: drivers with valid medical card
     const activeCerts = activeDrivers.filter((d: any) => !isExpired(d.medical_card_expiry)).length
 
-    // Expiring soon: medical cards within 30 days + vehicle registrations within 30 days
     const driverExpiring = activeDrivers.filter((d: any) =>
       isExpiringSoon(d.medical_card_expiry, 30)
     ).length
@@ -141,7 +159,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     ).length
     const expiringSoon = driverExpiring + vehicleExpiring
 
-    // Non-compliant: drivers with expired medical card or drug test overdue (> 12 months)
     const nonCompliant = activeDrivers.filter((d: any) => {
       const medExpired = isExpired(d.medical_card_expiry)
       const drugOverdue = !isWithinMonths(d.drug_test_date, 12)
@@ -155,7 +172,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
   const categoryBreakdowns = useMemo(() => {
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
 
-    // Medical Cards
     const medValid = activeDrivers.filter((d: any) =>
       d.medical_card_expiry && !isExpired(d.medical_card_expiry) && !isExpiringSoon(d.medical_card_expiry, 30)
     ).length
@@ -166,13 +182,11 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       isExpired(d.medical_card_expiry)
     ).length
 
-    // Drug Testing
     const drugCurrent = activeDrivers.filter((d: any) =>
       isWithinMonths(d.drug_test_date, 12)
     ).length
     const drugOverdue = activeDrivers.length - drugCurrent
 
-    // Background Checks
     const bgCleared = activeDrivers.filter((d: any) =>
       (d.background_check_status || '').toLowerCase() === 'cleared'
     ).length
@@ -183,7 +197,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       (d.background_check_status || '').toLowerCase() === 'failed'
     ).length
 
-    // MVR Checks
     const mvrSatisfactory = activeDrivers.filter((d: any) =>
       (d.mvr_check_status || '').toLowerCase() === 'satisfactory'
     ).length
@@ -192,7 +205,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       return status && status !== 'satisfactory'
     }).length
 
-    // Vehicle Registration
     const regValid = vehicles.filter((v: any) =>
       (v as any).registration_expiry && !isExpired((v as any).registration_expiry) && !isExpiringSoon((v as any).registration_expiry, 30)
     ).length
@@ -247,7 +259,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     const items: { item: string; type: string; daysLeft: number }[] = []
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
 
-    // Drivers with medical_card_expiry within 60 days
     activeDrivers.forEach((d: any) => {
       if (d.medical_card_expiry && isExpiringSoon(d.medical_card_expiry, 60)) {
         items.push({
@@ -258,7 +269,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       }
     })
 
-    // Vehicles with registration_expiry within 60 days
     vehicles.forEach((v: any) => {
       if ((v as any).registration_expiry && isExpiringSoon((v as any).registration_expiry, 60)) {
         const vName = v.name || `${v.year} ${v.make} ${v.model}` || `Vehicle #${String(v.id).slice(0, 8)}`
@@ -273,7 +283,6 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     return items.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 10)
   }, [drivers, vehicles, now])
 
-  // Handler for scheduling renewals
   const handleScheduleRenewal = (itemName: string) => {
     toast.success(`Scheduling renewal for: ${itemName}`)
     logger.info('Schedule renewal clicked:', itemName)
@@ -292,146 +301,152 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Compliance Statistics + optional Radial Chart */}
-      {complianceStats.complianceRate > 0 ? (
-        <div className="grid gap-4 lg:grid-cols-[1fr_auto]">
-          <div className="grid gap-3 md:grid-cols-2">
-            <StatCard
-              title="Compliance Rate"
-              value={`${complianceStats.complianceRate}%`}
-              icon={CheckCircle}
-              description="Drivers with all checks current"
-              trend={complianceStats.complianceRate >= 90 ? 'up' : complianceStats.complianceRate >= 70 ? 'neutral' : 'down'}
-            />
-            <StatCard
-              title="Active Certifications"
-              value={complianceStats.activeCerts || "—"}
-              icon={Award}
-              description="Valid medical cards"
-            />
-            <StatCard
-              title="Expiring Soon"
-              value={complianceStats.expiringSoon || "—"}
-              icon={Clock}
-              description="Within 30 days"
-              trend={complianceStats.expiringSoon > 5 ? 'down' : 'neutral'}
-            />
-            <StatCard
-              title="Non-Compliant"
-              value={complianceStats.nonCompliant || "—"}
-              icon={XCircle}
-              description="Expired or overdue"
-              trend={complianceStats.nonCompliant > 0 ? 'down' : 'up'}
-            />
-          </div>
-          <RadialProgressChart
-            title="Compliance Rate"
-            description="Overall fleet compliance"
-            value={complianceStats.complianceRate}
-            height={220}
-            size="sm"
-            color="#F0A000"
-          />
-        </div>
-      ) : (
-        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            title="Compliance Rate"
-            value="—"
-            icon={CheckCircle}
-            description="Drivers with all checks current"
-          />
-          <StatCard
-            title="Active Certifications"
-            value={complianceStats.activeCerts || "—"}
-            icon={Award}
-            description="Valid medical cards"
-          />
-          <StatCard
-            title="Expiring Soon"
-            value={complianceStats.expiringSoon || "—"}
-            icon={Clock}
-            description="Within 30 days"
-          />
-          <StatCard
-            title="Non-Compliant"
-            value={complianceStats.nonCompliant || "—"}
-            icon={XCircle}
-            description="Expired or overdue"
-          />
-        </div>
-      )}
-
-      {/* Compliance Status by Category */}
-      <div>
-        <Section
-          title="Compliance Status by Category"
-          description="Breakdown of compliance across driver and vehicle areas"
-          icon={<ClipboardCheck className="h-5 w-5" />}
-        >
-          <div className="space-y-4">
-            {categoryBreakdowns.map((item) => {
-              const IconComponent = item.icon
-              return (
-                <div key={item.category} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <IconComponent className={`h-5 w-5 ${
-                      item.status === 'good' ? 'text-green-500' : 'text-yellow-500'
-                    }`} />
-                    <div>
-                      <p className="font-semibold">{item.category}</p>
-                      <p className="text-sm text-muted-foreground">{item.details}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium">{item.rate}%</span>
-                    <Badge variant={item.status === 'good' ? 'default' : 'secondary'}>
-                      {item.status === 'good' ? 'Compliant' : 'Review Needed'}
-                    </Badge>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </Section>
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
+        <KpiCard
+          title="Compliance Rate"
+          value={complianceStats.complianceRate > 0 ? `${complianceStats.complianceRate}%` : '\u2014'}
+          icon={CheckCircle}
+          description="All checks current"
+        />
+        <KpiCard
+          title="Active Certifications"
+          value={complianceStats.activeCerts || '\u2014'}
+          icon={Award}
+          description="Valid medical cards"
+        />
+        <KpiCard
+          title="Expiring Soon"
+          value={complianceStats.expiringSoon || '\u2014'}
+          icon={Clock}
+          description="Within 30 days"
+        />
+        <KpiCard
+          title="Non-Compliant"
+          value={complianceStats.nonCompliant || '\u2014'}
+          icon={XCircle}
+          description="Expired or overdue"
+        />
       </div>
 
-      {/* Upcoming Renewals */}
-      <div>
-        <Section
-          title="Upcoming Renewals"
-          description="Medical cards and vehicle registrations expiring within 60 days"
-          icon={<Clock className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {renewals.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No upcoming renewals within 60 days.</div>
+      {/* Main Content: Categories + Renewals */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Compliance Status by Category */}
+        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Compliance by Category</h3>
+          </div>
+          <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto space-y-2">
+            {categoryBreakdowns.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              renewals.map((renewal) => (
-                <div key={`${renewal.type}-${renewal.item}`} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    {renewal.type === 'driver' ? (
-                      <Users className={`h-5 w-5 ${renewal.daysLeft <= 14 ? 'text-red-500' : renewal.daysLeft <= 30 ? 'text-yellow-500' : 'text-blue-500'}`} />
-                    ) : (
-                      <Car className={`h-5 w-5 ${renewal.daysLeft <= 14 ? 'text-red-500' : renewal.daysLeft <= 30 ? 'text-yellow-500' : 'text-blue-500'}`} />
-                    )}
-                    <div>
-                      <p className="font-semibold">{renewal.item}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Expires in {renewal.daysLeft} day{renewal.daysLeft !== 1 ? 's' : ''}
-                        {renewal.daysLeft <= 14 && <span className="ml-2 text-red-500 font-medium">URGENT</span>}
-                      </p>
+              categoryBreakdowns.map((item) => {
+                const IconComponent = item.icon
+                return (
+                  <div
+                    key={item.category}
+                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04]"
+                    onClick={() => push({
+                      id: item.category,
+                      type: 'compliance-item',
+                      label: item.category,
+                      data: { category: item.category, rate: item.rate, status: item.status, details: item.details },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: item.category,
+                          type: 'compliance-item',
+                          label: item.category,
+                          data: { category: item.category, rate: item.rate, status: item.status, details: item.details },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for ${item.category}`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <IconComponent className={`h-4 w-4 shrink-0 ${
+                        item.status === 'good' ? 'text-emerald-500' : 'text-yellow-500'
+                      }`} />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground">{item.category}</p>
+                        <p className="text-xs text-muted-foreground truncate">{item.details}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="w-16">
+                        <div className="h-2 bg-white/10 rounded-full">
+                          <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${item.rate}%` }} />
+                        </div>
+                      </div>
+                      <span className="text-xs font-medium text-foreground w-8 text-right">{item.rate}%</span>
+                      <Badge variant={item.status === 'good' ? 'default' : 'secondary'}>
+                        {item.status === 'good' ? 'Compliant' : 'Review'}
+                      </Badge>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" onClick={() => handleScheduleRenewal(renewal.item)}>
-                    Schedule
-                  </Button>
-                </div>
-              ))
+                )
+              })
             )}
           </div>
-        </Section>
+        </div>
+
+        {/* Upcoming Renewals */}
+        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Upcoming Renewals</h3>
+            <span className="text-xs text-muted-foreground ml-auto">Within 60 days</span>
+          </div>
+          <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+            {renewals.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-[#242424]">
+                  <tr className="border-b border-white/[0.08]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Item</th>
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Type</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Days Left</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {renewals.map((renewal, index) => (
+                    <tr key={index} className="border-b border-white/[0.06]">
+                      <td className="py-1.5 px-2 text-foreground text-xs">{renewal.item}</td>
+                      <td className="py-1.5 px-2">
+                        <Badge variant="outline">{formatEnum(renewal.type)}</Badge>
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <span className={`text-xs font-medium ${
+                          renewal.daysLeft <= 14 ? 'text-red-400' : renewal.daysLeft <= 30 ? 'text-yellow-400' : 'text-foreground'
+                        }`}>
+                          {renewal.daysLeft}d
+                        </span>
+                        {renewal.daysLeft <= 14 && (
+                          <Badge variant="destructive" className="ml-1.5 text-[10px] px-1 py-0">
+                            {formatEnum('urgent')}
+                          </Badge>
+                        )}
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => handleScheduleRenewal(renewal.item)}>
+                          Schedule
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -441,6 +456,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
  * Safety Tab - Safety metrics and incident management
  */
 const SafetyTabContent = memo(function SafetyTabContent() {
+  const { push } = useDrilldown()
   const { drivers, incidents: fleetIncidents, error: fleetDataError } = useFleetData()
   const { data: safetyIncidents } = useSWR<any[]>(
     '/api/safety-incidents?limit=200',
@@ -463,14 +479,12 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     { shouldRetryOnError: false }
   )
 
-  // Merge incident sources - prefer API safety incidents, supplement with fleet data
   const incidents = useMemo(() => {
     const apiIncidents = Array.isArray(safetyIncidents) ? safetyIncidents : []
     if (apiIncidents.length > 0) return apiIncidents
     return Array.isArray(fleetIncidents) ? fleetIncidents : []
   }, [safetyIncidents, fleetIncidents])
 
-  // Compute safety score from real driver safety_score fields
   const safetyScoreStats = useMemo(() => {
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
     const driversWithScores = activeDrivers.filter((d: any) =>
@@ -489,7 +503,6 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     }
   }, [drivers])
 
-  // Safety score distribution for bar chart
   const scoreDistribution = useMemo(() => {
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
     const buckets = [
@@ -497,7 +510,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
       { name: '80-89', range: [80, 89], count: 0 },
       { name: '70-79', range: [70, 79], count: 0 },
       { name: '60-69', range: [60, 69], count: 0 },
-      { name: 'Below 60', range: [0, 59], count: 0 }
+      { name: '<60', range: [0, 59], count: 0 }
     ]
     activeDrivers.forEach((d: any) => {
       const score = Number(d.safety_score ?? d.safetyScore ?? 0)
@@ -512,16 +525,15 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     return buckets.map((b) => ({ name: b.name, drivers: b.count }))
   }, [drivers])
 
-  // Driver Safety Rankings - sorted by safety score ascending (worst first for visibility)
   const driverRankings = useMemo(() => {
     const activeDrivers = drivers.filter((d: any) => d.status === 'active')
     return activeDrivers
       .filter((d: any) => (d.safety_score ?? d.safetyScore) != null)
       .map((d: any) => ({
         id: d.id,
-        name: d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || 'Unknown',
+        name: d.name || `${d.first_name || ''} ${d.last_name || ''}`.trim() || '\u2014',
         safetyScore: Number(d.safety_score ?? d.safetyScore ?? 0),
-        hosStatus: d.hos_status || 'Unknown',
+        hosStatus: d.hos_status || '\u2014',
         incidents: Number(d.total_incidents ?? d.incidents ?? 0)
       }))
       .sort((a: any, b: any) => a.safetyScore - b.safetyScore)
@@ -545,10 +557,10 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   const trainingCompletion = Number(trainingStats?.compliance_rate || 0)
 
   const incidentTrendData = useMemo(() => {
-    const now = new Date()
+    const nowDate = new Date()
     const months: { label: string; month: number; year: number }[] = []
     for (let i = 5; i >= 0; i -= 1) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+      const date = new Date(nowDate.getFullYear(), nowDate.getMonth() - i, 1)
       months.push({ label: date.toLocaleString('default', { month: 'short' }), month: date.getMonth(), year: date.getFullYear() })
     }
     return months.map((item) => {
@@ -565,7 +577,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   const recentIncidents = incidents
     .slice()
     .sort((a: any, b: any) => new Date(b.incident_date || b.created_at).getTime() - new Date(a.incident_date || a.created_at).getTime())
-    .slice(0, 5)
+    .slice(0, 8)
 
   const trainingProgressData = useMemo(() => {
     const courses = Array.isArray(trainingCourses) ? trainingCourses : []
@@ -604,194 +616,249 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Safety Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
+        <KpiCard
           title="Safety Score"
-          value={safetyScoreStats.average > 0 ? `${safetyScoreStats.average}` : "—"}
+          value={safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014'}
           icon={Shield}
-          description={`Average across ${safetyScoreStats.count} drivers`}
+          description={`Avg across ${safetyScoreStats.count} drivers`}
         />
-        <StatCard
+        <KpiCard
           title="Days Since Incident"
-          value={daysSinceIncident !== null ? daysSinceIncident : "—"}
+          value={daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014'}
           icon={Award}
           description="Accident-free streak"
         />
-        <StatCard
+        <KpiCard
           title="Open Incidents"
-          value={openIncidents}
+          value={String(openIncidents)}
           icon={AlertTriangle}
           description="Under investigation"
         />
-        <StatCard
+        <KpiCard
           title="Training Completion"
-          value={trainingCompletion > 0 ? `${trainingCompletion}%` : "—"}
+          value={trainingCompletion > 0 ? `${trainingCompletion}%` : '\u2014'}
           icon={BookOpen}
           description="Safety training"
         />
       </div>
 
-      {/* Driver Safety Score Distribution */}
-      <div>
-        <Section
-          title="Driver Safety Score Distribution"
-          description="Distribution of safety scores across active drivers"
-          icon={<TrendingUp className="h-5 w-5" />}
-        >
-          <ResponsiveBarChart
-            title="Safety Score Distribution"
-            data={scoreDistribution}
-            dataKeys={['drivers']}
-            colors={['hsl(var(--primary))']}
-            height={250}
-          />
-        </Section>
-      </div>
-
-      {/* Driver Safety Rankings */}
-      <div>
-        <Section
-          title="Driver Safety Rankings"
-          description="All drivers ranked by safety score (lowest first)"
-          icon={<Users className="h-5 w-5" />}
-        >
-          {driverRankings.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No driver safety data available.</div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border/60">
-                    <th className="py-3 px-4 text-left font-semibold">Driver</th>
-                    <th className="py-3 px-4 text-left font-semibold">Safety Score</th>
-                    <th className="py-3 px-4 text-left font-semibold">HOS Status</th>
-                    <th className="py-3 px-4 text-left font-semibold">Incidents</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {driverRankings.map((driver: any) => (
-                    <tr key={driver.id} className={`border-b border-border/30 ${driver.safetyScore < 70 ? 'bg-red-50 dark:bg-red-950/20' : ''}`}>
-                      <td className="py-3 px-4 font-medium">{driver.name}</td>
-                      <td className="py-3 px-4">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                          driver.safetyScore >= 90 ? 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300' :
-                          driver.safetyScore >= 70 ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300' :
-                          'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300'
-                        }`}>
-                          {driver.safetyScore}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4">
-                        <Badge variant={
-                          (driver.hosStatus || '').toLowerCase() === 'driving' ? 'default' :
-                          (driver.hosStatus || '').toLowerCase() === 'off_duty' || (driver.hosStatus || '').toLowerCase() === 'off-duty' ? 'secondary' :
-                          'outline'
-                        }>
-                          {driver.hosStatus}
-                        </Badge>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={driver.incidents > 0 ? 'text-red-600 dark:text-red-400 font-medium' : ''}>
-                          {driver.incidents}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+      {/* Main Content: Charts row */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Left: Score Distribution + Driver Rankings */}
+        <div className="flex flex-col gap-2 min-h-0">
+          {/* Score Distribution Chart */}
+          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Score Distribution</h3>
             </div>
-          )}
-        </Section>
-      </div>
+            <ResponsiveBarChart
+              title=""
+              data={scoreDistribution}
+              dataKeys={['drivers']}
+              colors={['hsl(var(--primary))']}
+              height={140}
+            />
+          </div>
 
-      {/* Incident Trends */}
-      <div>
-        <Section
-          title="Incident Trends"
-          description="Safety incidents over time (trending down is good)"
-          icon={<TrendingDown className="h-5 w-5" />}
-        >
-          <ResponsiveLineChart
-            title="Incident Trends"
-            data={incidentTrendData}
-            dataKeys={['incidents']}
-            colors={['hsl(var(--destructive))']}
-            height={300}
-          />
-        </Section>
-      </div>
+          {/* Driver Safety Rankings */}
+          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex-1 flex flex-col min-h-0">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Driver Rankings</h3>
+              <span className="text-xs text-muted-foreground ml-auto">Lowest first</span>
+            </div>
+            <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+              {driverRankings.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-[#242424]">
+                    <tr className="border-b border-white/[0.08]">
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Driver</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Score</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">HOS</th>
+                      <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Incidents</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {driverRankings.map((driver: any) => (
+                      <tr
+                        key={driver.id}
+                        className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                        onClick={() => push({
+                          id: driver.id,
+                          type: 'driver',
+                          label: driver.name,
+                          data: { driverId: driver.id, safetyScore: driver.safetyScore, hosStatus: driver.hosStatus, incidents: driver.incidents },
+                        })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            push({
+                              id: driver.id,
+                              type: 'driver',
+                              label: driver.name,
+                              data: { driverId: driver.id, safetyScore: driver.safetyScore, hosStatus: driver.hosStatus, incidents: driver.incidents },
+                            })
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View details for driver ${driver.name}`}
+                      >
+                        <td className="py-1.5 px-2 text-xs text-foreground">{driver.name}</td>
+                        <td className="py-1.5 px-2">
+                          <span className={`text-xs font-medium ${
+                            driver.safetyScore >= 90 ? 'text-emerald-400' :
+                            driver.safetyScore >= 70 ? 'text-yellow-400' :
+                            'text-red-400'
+                          }`}>
+                            {driver.safetyScore}
+                          </span>
+                        </td>
+                        <td className="py-1.5 px-2">
+                          <Badge variant="outline" className="text-[10px] px-1 py-0">
+                            {formatEnum(driver.hosStatus)}
+                          </Badge>
+                        </td>
+                        <td className="py-1.5 px-2 text-right">
+                          <span className={`text-xs ${driver.incidents > 0 ? 'text-red-400 font-medium' : 'text-foreground'}`}>
+                            {driver.incidents}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
 
-      {/* Recent Incidents */}
-      <div>
-        <Section
-          title="Recent Incidents"
-          description="Latest safety incidents and their status"
-          icon={<AlertCircle className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {recentIncidents.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No recent incidents.</div>
-            ) : (
-              recentIncidents.map((incident: any) => {
-                const severity = (incident.severity || '').toString().toLowerCase()
-                const status = incident.status || 'Open'
-                return (
-                  <div key={incident.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                    <div className="flex items-center gap-3">
-                      <AlertTriangle className={`h-5 w-5 ${
-                        severity === 'minor' || severity === 'low' ? 'text-yellow-500' :
-                        severity === 'moderate' || severity === 'medium' ? 'text-orange-500' : 'text-red-500'
-                      }`} />
-                      <div>
-                        <p className="font-semibold">{incident.incident_type || 'Incident'}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {incident.vehicle_id ? `Vehicle ${String(incident.vehicle_id).slice(0, 8)}` : 'Vehicle'}
-                        </p>
+        {/* Right: Incident Trends + Recent Incidents + Training */}
+        <div className="flex flex-col gap-2 min-h-0">
+          {/* Incident Trends */}
+          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <TrendingDown className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Incident Trends</h3>
+            </div>
+            <ResponsiveLineChart
+              title=""
+              data={incidentTrendData}
+              dataKeys={['incidents']}
+              colors={['hsl(var(--destructive))']}
+              height={140}
+            />
+          </div>
+
+          {/* Recent Incidents */}
+          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex-1 flex flex-col min-h-0">
+            <div className="flex items-center gap-2 mb-2">
+              <AlertCircle className="h-4 w-4 text-muted-foreground" />
+              <h3 className="text-sm font-semibold text-foreground">Recent Incidents</h3>
+            </div>
+            <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
+              {recentIncidents.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead className="sticky top-0 bg-[#242424]">
+                    <tr className="border-b border-white/[0.08]">
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Type</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Severity</th>
+                      <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Date</th>
+                      <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentIncidents.map((incident: any) => {
+                      const severity = (incident.severity || '').toString().toLowerCase()
+                      const status = incident.status || 'open'
+                      const incidentLabel = incident.incident_type || 'Incident'
+                      return (
+                        <tr
+                          key={incident.id}
+                          className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                          onClick={() => push({
+                            id: incident.id,
+                            type: 'incident',
+                            label: incidentLabel,
+                            data: { incidentId: incident.id, severity, status, vehicleId: incident.vehicle_id },
+                          })}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault()
+                              push({
+                                id: incident.id,
+                                type: 'incident',
+                                label: incidentLabel,
+                                data: { incidentId: incident.id, severity, status, vehicleId: incident.vehicle_id },
+                              })
+                            }
+                          }}
+                          role="button"
+                          tabIndex={0}
+                          aria-label={`View details for incident: ${incidentLabel}`}
+                        >
+                          <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(incidentLabel)}</td>
+                          <td className="py-1.5 px-2">
+                            <Badge variant={
+                              severity === 'minor' || severity === 'low' ? 'secondary' :
+                              severity === 'moderate' || severity === 'medium' ? 'outline' : 'destructive'
+                            }>
+                              {formatEnum(severity)}
+                            </Badge>
+                          </td>
+                          <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                            {formatDate(incident.incident_date || incident.created_at)}
+                          </td>
+                          <td className="py-1.5 px-2 text-right">
+                            <Badge variant={['resolved', 'closed'].includes(status.toLowerCase()) ? 'default' : 'secondary'}>
+                              {formatEnum(status)}
+                            </Badge>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+
+          {/* Training Progress */}
+          {trainingProgressData.length > 0 && (
+            <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold text-foreground">Training Progress</h3>
+              </div>
+              <div className="space-y-2">
+                {trainingProgressData.slice(0, 4).map((training: any) => {
+                  const pct = training.total > 0 ? Math.round((training.completed / training.total) * 100) : 0
+                  return (
+                    <div key={training.course}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs text-foreground truncate mr-2">{training.course}</span>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {training.completed}/{training.total} ({pct}%)
+                        </span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full">
+                        <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }} />
                       </div>
                     </div>
-                    <Badge variant={status === 'Resolved' || status === 'Closed' ? 'default' : 'secondary'}>
-                      {status}
-                    </Badge>
-                  </div>
-                )
-              })
-            )}
-          </div>
-        </Section>
-      </div>
-
-      {/* Safety Training Progress */}
-      <div>
-        <Section
-          title="Safety Training Progress"
-          description="Driver safety training completion status"
-          icon={<BookOpen className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {trainingProgressData.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No training progress available.</div>
-            ) : (
-              trainingProgressData.map((training: any) => (
-                <div key={training.course} className="space-y-2 rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium">{training.course}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {training.completed}/{training.total} ({Math.round((training.completed / training.total) * 100)}%)
-                    </p>
-                  </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
-                    <div
-                      className="bg-primary rounded-full h-2 transition-all"
-                      style={{ width: `${training.total > 0 ? (training.completed / training.total) * 100 : 0}%` }}
-                    />
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </Section>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -801,6 +868,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
  * Policies Tab - Policy management and enforcement
  */
 const PoliciesTabContent = memo(function PoliciesTabContent() {
+  const { push } = useDrilldown()
   const navigate = useNavigate()
   const { data: policies } = useSWR<any[]>(
     '/api/policies?limit=200',
@@ -844,7 +912,6 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     }))
   }, [policyRows, complianceScore])
 
-  // Handler for viewing policy categories
   const handleViewPolicy = (category: string) => {
     toast.success(`Opening policy details for: ${category}`)
     logger.info('View policy clicked:', category)
@@ -852,93 +919,145 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Policy Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
+        <KpiCard
           title="Active Policies"
-          value={activePolicies.length}
+          value={String(activePolicies.length)}
           icon={FileText}
           description="Currently enforced"
         />
-        <StatCard
+        <KpiCard
           title="Policy Adherence"
-          value={complianceScore > 0 ? `${complianceScore}%` : "—"}
+          value={complianceScore > 0 ? `${complianceScore}%` : '\u2014'}
           icon={CheckCircle}
           description="Compliance rate"
         />
-        <StatCard
+        <KpiCard
           title="Under Review"
-          value={underReview.length}
+          value={String(underReview.length)}
           icon={ScrollText}
           description="Pending approval"
         />
-        <StatCard
+        <KpiCard
           title="Violations"
-          value={policyViolations.length}
+          value={String(policyViolations.length)}
           icon={Gavel}
           description="This month"
         />
       </div>
 
-      {/* Policy Categories */}
-      <div>
-        <Section
-          title="Policy Categories"
-          description="Fleet policies organized by category"
-          icon={<BookMarked className="h-5 w-5" />}
-        >
-          <div className="space-y-4">
+      {/* Main Content: Categories + Violations */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Policy Categories */}
+        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <BookMarked className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Policy Categories</h3>
+          </div>
+          <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
             {policyCategories.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No policy categories available.</div>
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              policyCategories.map((item) => (
-                <div key={item.category} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{item.category}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {item.policies} policies · {item.adherence}% adherence
-                      </p>
-                    </div>
-                  </div>
-                  <Button size="sm" variant="outline" onClick={() => handleViewPolicy(item.category)}>
-                    View
-                  </Button>
-                </div>
-              ))
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-[#242424]">
+                  <tr className="border-b border-white/[0.08]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Policies</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Adherence</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {policyCategories.map((item) => (
+                    <tr key={item.category} className="border-b border-white/[0.06]">
+                      <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(item.category)}</td>
+                      <td className="py-1.5 px-2 text-right text-xs text-foreground">{item.policies}</td>
+                      <td className="py-1.5 px-2 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <div className="w-12">
+                            <div className="h-2 bg-white/10 rounded-full">
+                              <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${item.adherence}%` }} />
+                            </div>
+                          </div>
+                          <span className="text-xs text-foreground">{item.adherence}%</span>
+                        </div>
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <Button size="sm" variant="outline" className="h-6 text-xs px-2" onClick={() => handleViewPolicy(item.category)}>
+                          View
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
-        </Section>
-      </div>
+        </div>
 
-      {/* Recent Policy Violations */}
-      <div>
-        <Section
-          title="Recent Policy Violations"
-          description="Latest policy violations and corrective actions"
-          icon={<Gavel className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
+        {/* Recent Policy Violations */}
+        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <Gavel className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Recent Violations</h3>
+          </div>
+          <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
             {policyViolations.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No recent policy violations.</div>
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              policyViolations.slice(0, 5).map((violation: any) => (
-                <div key={violation.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <XCircle className="h-5 w-5 text-red-500" />
-                    <div>
-                      <p className="font-semibold">{violation.event_type || 'Policy Violation'}</p>
-                      <p className="text-sm text-muted-foreground">{violation.message || 'Violation recorded'}</p>
-                    </div>
-                  </div>
-                  <Badge variant="destructive">Review</Badge>
-                </div>
-              ))
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-[#242424]">
+                  <tr className="border-b border-white/[0.08]">
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Violation</th>
+                    <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Details</th>
+                    <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {policyViolations.slice(0, 8).map((violation: any) => {
+                    const violationLabel = violation.event_type || 'Policy Violation'
+                    return (
+                      <tr
+                        key={violation.id}
+                        className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                        onClick={() => push({
+                          id: violation.id,
+                          type: 'violation',
+                          label: violationLabel,
+                          data: { violationId: violation.id, eventType: violation.event_type, message: violation.message },
+                        })}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault()
+                            push({
+                              id: violation.id,
+                              type: 'violation',
+                              label: violationLabel,
+                              data: { violationId: violation.id, eventType: violation.event_type, message: violation.message },
+                            })
+                          }
+                        }}
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View details for violation: ${violationLabel}`}
+                      >
+                        <td className="py-1.5 px-2 text-xs text-foreground">{formatEnum(violationLabel)}</td>
+                        <td className="py-1.5 px-2 text-xs text-muted-foreground truncate max-w-[200px]">
+                          {violation.message || '\u2014'}
+                        </td>
+                        <td className="py-1.5 px-2 text-right">
+                          <Badge variant="destructive">Review</Badge>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
             )}
           </div>
-        </Section>
+        </div>
       </div>
     </div>
   )
@@ -978,7 +1097,6 @@ const ReportingTabContent = memo(function ReportingTabContent() {
     return map
   }, [history])
 
-  // Handler for viewing reports
   const handleViewReport = (reportName: string, downloadUrl?: string) => {
     if (!downloadUrl) {
       toast.error('No download link available for this report')
@@ -989,7 +1107,6 @@ const ReportingTabContent = memo(function ReportingTabContent() {
     logger.info('View report clicked:', reportName)
   }
 
-  // Handler for generating reports
   const handleGenerateReport = async (reportId: string, reportName: string) => {
     try {
       const csrfToken = await getCsrfToken()
@@ -1017,49 +1134,61 @@ const ReportingTabContent = memo(function ReportingTabContent() {
   }
 
   return (
-    <div className="space-y-6">
-      <Section
-        title="Compliance & Safety Reports"
-        description="Generate and view compliance and safety reports"
-        icon={<FileText className="h-5 w-5" />}
-      >
-        <div className="space-y-4">
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col flex-1 min-h-0">
+        <div className="flex items-center gap-2 mb-2">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold text-foreground">Compliance & Safety Reports</h3>
+        </div>
+        <div className="flex-1 min-h-0 max-h-[200px] overflow-y-auto">
           {complianceTemplates.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No compliance report templates available.</div>
+            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
           ) : (
-            complianceTemplates.map((report: any) => {
-              const lastGenerated = lastGeneratedMap.get(report.id)
-              return (
-                <div key={report.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-blue-500" />
-                    <div>
-                      <p className="font-semibold">{report.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {report.category || report.domain || 'Compliance'} · Last generated:{' '}
-                        {lastGenerated?.generatedAt ? new Date(lastGenerated.generatedAt).toLocaleDateString() : '—'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleViewReport(report.title, lastGenerated?.downloadUrl)}
-                      disabled={!lastGenerated?.downloadUrl}
-                    >
-                      View
-                    </Button>
-                    <Button size="sm" onClick={() => handleGenerateReport(report.id, report.title)}>
-                      Generate
-                    </Button>
-                  </div>
-                </div>
-              )
-            })
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-[#242424]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Report</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Last Generated</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {complianceTemplates.map((report: any) => {
+                  const lastGenerated = lastGeneratedMap.get(report.id)
+                  return (
+                    <tr key={report.id} className="border-b border-white/[0.06]">
+                      <td className="py-1.5 px-2 text-xs text-foreground font-medium">{report.title}</td>
+                      <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                        {formatEnum(report.category || report.domain || 'compliance')}
+                      </td>
+                      <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                        {formatDate(lastGenerated?.generatedAt)}
+                      </td>
+                      <td className="py-1.5 px-2 text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-6 text-xs px-2"
+                            onClick={() => handleViewReport(report.title, lastGenerated?.downloadUrl)}
+                            disabled={!lastGenerated?.downloadUrl}
+                          >
+                            View
+                          </Button>
+                          <Button size="sm" className="h-6 text-xs px-2" onClick={() => handleGenerateReport(report.id, report.title)}>
+                            Generate
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
           )}
         </div>
-      </Section>
+      </div>
     </div>
   )
 })
@@ -1078,8 +1207,8 @@ export default function ComplianceSafetyHub() {
       icon={<Shield className="h-6 w-6" />}
       className="cta-hub"
     >
-      <div className="space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <div className="flex flex-col h-full gap-2 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="compliance" className="flex items-center gap-2" data-testid="hub-tab-compliance">
               <ClipboardCheck className="h-4 w-4" />
@@ -1099,28 +1228,28 @@ export default function ComplianceSafetyHub() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="compliance" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="compliance" className="flex-1 min-h-0 overflow-auto">
+            <QueryErrorBoundary>
               <ComplianceTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="safety" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="safety" className="flex-1 min-h-0 overflow-auto">
+            <QueryErrorBoundary>
               <SafetyTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="policies" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="policies" className="flex-1 min-h-0 overflow-auto">
+            <QueryErrorBoundary>
               <PoliciesTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="reporting" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="reporting" className="flex-1 min-h-0 overflow-auto">
+            <QueryErrorBoundary>
               <ReportingTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
         </Tabs>
       </div>

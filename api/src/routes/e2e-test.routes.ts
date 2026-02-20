@@ -16,6 +16,8 @@ import { validateBody } from '../middleware/validate'
 import logger from '../utils/logger'
 import { authenticateJWT } from '../middleware/auth'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router()
 
 // Apply authentication to all routes
@@ -32,7 +34,7 @@ const createUserSchema = z.object({
 
 // Schema for creating maintenance schedule
 const createMaintenanceSchema = z.object({
-  vehicleId: z.string().uuid(),
+  vehicleId: flexUuid,
   name: z.string().min(1),
   description: z.string().optional(),
   type: z.enum(['preventive', 'repair', 'inspection', 'other']).default('preventive'),

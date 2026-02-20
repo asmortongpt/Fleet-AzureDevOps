@@ -43,6 +43,8 @@ import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -55,12 +57,13 @@ import {
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
-  AnimatedCurrency,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
 import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime, formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 
@@ -94,9 +97,8 @@ const FinancialTabContent = memo(function FinancialTabContent() {
   const departmentCosts = useMemo(() => {
     const deptMap = new Map<string, number>()
     fleetWorkOrders.forEach((wo: any) => {
-      // Match work order to vehicle to get department
       const vehicle = vehicles.find((v: any) => v.id === (wo.vehicleId || wo.vehicle_id))
-      const dept = vehicle?.department || wo.department || 'Unassigned'
+      const dept = vehicle?.department || wo.department || '—'
       const cost = Number(wo.total_cost || wo.cost || 0)
       deptMap.set(dept, (deptMap.get(dept) || 0) + cost)
     })
@@ -117,41 +119,43 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     return `startDate=${encodeURIComponent(dateRange.start.toISOString())}&endDate=${encodeURIComponent(dateRange.end.toISOString())}`
   }, [dateRange])
 
-  const { data: summary } = useSWR<any>(
+  const { data: summary, error: summaryError } = useSWR<any>(
     `/api/cost-analysis/summary?${dateParams}`,
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: costSummary } = useSWR<any>(
+  const { data: costSummary, error: costSummaryError } = useSWR<any>(
     '/api/dashboard/costs/summary?period=monthly',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: fleetMetrics } = useSWR<any>(
+  const { data: fleetMetrics, error: fleetMetricsError } = useSWR<any>(
     '/api/fleet/metrics',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: trends } = useSWR<any[]>(
+  const { data: trends, error: trendsError } = useSWR<any[]>(
     "/api/cost-analysis/trends?months=6",
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: budgets } = useSWR<any[]>(
+  const { data: budgets, error: budgetsError } = useSWR<any[]>(
     "/api/cost-analysis/budget-status",
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: invoices } = useSWR<any>(
+  const { data: invoices, error: invoicesError } = useSWR<any>(
     "/api/invoices?limit=5",
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const financialError = summaryError || costSummaryError || fleetMetricsError || trendsError || budgetsError || invoicesError
 
   const budgetTotal = useMemo(() => {
     if (!Array.isArray(budgets)) return 0
@@ -211,11 +215,11 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     }))
   }, [summary, invoices])
 
-  if (fleetDataError) {
+  if (financialError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load data</p>
-        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <p className="text-destructive font-medium">Failed to load financial data</p>
+        <p className="text-sm text-muted-foreground">{financialError instanceof Error ? financialError.message : 'Unable to load financial data. Please try again.'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -224,145 +228,154 @@ const FinancialTabContent = memo(function FinancialTabContent() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Financial Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
         <StatCard
           title="Monthly Budget"
-          value={budgetTotal > 0 ? <AnimatedCurrency value={budgetTotal} /> : "—"}
+          value={budgetTotal > 0 ? formatCurrency(budgetTotal) : '—'}
           icon={Wallet}
           description="Current fiscal quarter"
         />
         <StatCard
           title="Actual Spend"
-          value={spentTotal > 0 ? <AnimatedCurrency value={spentTotal} /> : "—"}
+          value={spentTotal > 0 ? formatCurrency(spentTotal) : '—'}
           icon={DollarSign}
           description="Last 6 months"
         />
         <StatCard
           title="Cost Per Mile"
-          value={costPerMile > 0 ? `$${costPerMile.toFixed(2)}` : "$0.00"}
+          value={costPerMile > 0 ? formatCurrency(costPerMile) : 'No data'}
           icon={TrendingDown}
           description={costSummary?.target_cost_per_mile
-            ? `Target $${Number(costSummary.target_cost_per_mile).toFixed(2)}`
+            ? `Target ${formatCurrency(Number(costSummary.target_cost_per_mile))}`
             : "Computed from fleet totals"
           }
         />
         <StatCard
           title="Savings YTD"
-          value={savingsYtd > 0 ? <AnimatedCurrency value={savingsYtd} /> : "$0"}
+          value={savingsYtd > 0 ? formatCurrency(savingsYtd) : '$0'}
           icon={Target}
           description={budgetTotal > 0 ? "Budget vs spend" : "No budget allocations"}
         />
       </div>
 
-      {/* Cost Trend */}
-      <div>
-        <Section
-          title="Cost Trend"
-          description="Monthly actual costs"
-          icon={<BarChart className="h-5 w-5" />}
-        >
-          <ResponsiveBarChart
-            title="Actual Costs"
-            data={costTrendData}
-            dataKeys={['actual']}
-            colors={['hsl(var(--chart-2))']}
-            height={300}
-          />
-        </Section>
-      </div>
-
-      {/* Cost Breakdown */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section
-          title="Cost Breakdown by Category"
-          description="Distribution of fleet expenses"
-          icon={<PieChart className="h-5 w-5" />}
-        >
-          <ResponsivePieChart
-            title="Cost Breakdown by Category"
-            data={breakdownData}
-            height={300}
-          />
-        </Section>
-
-        <Section
-          title="Recent Transactions"
-          description="Latest fleet expenses"
-          icon={<Receipt className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {recentTransactions.length === 0 ? (
-              <div className="text-sm text-muted-foreground">No recent transactions available.</div>
+      {/* Main Content: Charts + Transactions */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Left Column: Cost Trend + Cost Breakdown */}
+        <div className="flex flex-col gap-2 min-h-0">
+          <Section
+            title="Cost Trend"
+            description="Monthly actual costs"
+            icon={<BarChart className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            {costTrendData.length > 0 ? (
+              <ResponsiveBarChart
+                title="Actual Costs"
+                data={costTrendData}
+                dataKeys={['actual']}
+                colors={['hsl(var(--chart-2))']}
+                height={140}
+              />
             ) : (
-              recentTransactions.map((transaction) => (
-                <div key={`${transaction.description}-${transaction.date}`} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                  <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {transaction.category} · {transaction.date ? new Date(transaction.date).toLocaleDateString() : "—"}
-                    </p>
-                  </div>
-                  <p className="font-semibold">${transaction.amount.toFixed(2)}</p>
-                </div>
-              ))
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             )}
-          </div>
-        </Section>
-      </div>
+          </Section>
+          <Section
+            title="Cost Breakdown"
+            description="Distribution of fleet expenses"
+            icon={<PieChart className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            {breakdownData.length > 0 ? (
+              <ResponsivePieChart
+                title="Cost Breakdown by Category"
+                data={breakdownData}
+                height={140}
+              />
+            ) : (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            )}
+          </Section>
+        </div>
 
-      {/* Work Order Cost Breakdown */}
-      <div>
-        <Section
-          title="Work Order Cost Breakdown"
-          description="Parts and labor costs from maintenance work orders"
-          icon={<Tag className="h-5 w-5" />}
-        >
-          <div className="grid gap-4 md:grid-cols-3 mb-4">
-            <div className="rounded-xl border border-border/60 bg-background/60 p-4 text-center">
-              <p className="text-sm text-muted-foreground">Total Parts Cost</p>
-              <p className="text-xl font-bold text-blue-500">
-                {workOrderCosts.totalPartsCost > 0 ? `$${workOrderCosts.totalPartsCost.toLocaleString()}` : '$0'}
-              </p>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/60 p-4 text-center">
-              <p className="text-sm text-muted-foreground">Total Labor Cost</p>
-              <p className="text-xl font-bold text-orange-500">
-                {workOrderCosts.totalLaborCost > 0 ? `$${workOrderCosts.totalLaborCost.toLocaleString()}` : '$0'}
-              </p>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/60 p-4 text-center">
-              <p className="text-sm text-muted-foreground">Total Work Order Cost</p>
-              <p className="text-xl font-bold">
-                {workOrderCosts.totalWoCost > 0 ? `$${workOrderCosts.totalWoCost.toLocaleString()}` : '$0'}
-              </p>
-            </div>
-          </div>
-        </Section>
-      </div>
-
-      {/* Department-Level Cost Breakdown */}
-      <div>
-        <Section
-          title="Cost by Department"
-          description="Work order costs grouped by vehicle department"
-          icon={<Building className="h-5 w-5" />}
-        >
-          <div className="space-y-2">
-            {departmentCosts.length > 0 ? departmentCosts.map((dept) => (
-              <div key={dept.department} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-3">
-                <div className="flex items-center gap-2">
-                  <Building className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">{dept.department}</span>
+        {/* Right Column: Recent Transactions + WO Costs + Dept Costs */}
+        <div className="flex flex-col gap-2 min-h-0">
+          <Section
+            title="Recent Transactions"
+            description="Latest fleet expenses"
+            icon={<Receipt className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {recentTransactions.length === 0 ? (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {recentTransactions.map((transaction, index) => (
+                    <div key={index} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{transaction.description}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatEnum(transaction.category)} · {formatDate(transaction.date)}
+                        </p>
+                      </div>
+                      <p className="text-sm font-semibold text-foreground">{formatCurrency(transaction.amount)}</p>
+                    </div>
+                  ))}
                 </div>
-                <span className="font-semibold">${dept.cost.toLocaleString()}</span>
+              )}
+            </div>
+          </Section>
+
+          <Section
+            title="Work Order Costs"
+            description="Parts and labor costs"
+            icon={<Tag className="h-4 w-4" />}
+            className="flex-none"
+          >
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+                <p className="text-xs text-muted-foreground">Parts</p>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
               </div>
-            )) : (
-              <div className="text-sm text-muted-foreground">No department cost data available.</div>
-            )}
-          </div>
-        </Section>
+              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+                <p className="text-xs text-muted-foreground">Labor</p>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
+              </div>
+              <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
+                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalWoCost)}</p>
+              </div>
+            </div>
+          </Section>
+
+          <Section
+            title="Cost by Department"
+            description="Work order costs by department"
+            icon={<Building className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {departmentCosts.length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  {departmentCosts.map((dept) => (
+                    <div key={dept.department} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                      <div className="flex items-center gap-2">
+                        <Building className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm font-medium text-foreground">{dept.department}</span>
+                      </div>
+                      <span className="text-sm font-semibold text-foreground">{formatCurrency(dept.cost)}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -372,18 +385,21 @@ const FinancialTabContent = memo(function FinancialTabContent() {
  * Procurement Tab - Vendor management and purchasing
  */
 const ProcurementTabContent = memo(function ProcurementTabContent() {
+  const { push } = useDrilldown()
   const { workOrders: fleetWorkOrders, error: fleetDataError } = useFleetData()
 
-  const { data: vendorsResponse } = useSWR<any>(
+  const { data: vendorsResponse, error: vendorsError } = useSWR<any>(
     '/api/vendors',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: purchaseOrdersResponse } = useSWR<any>(
+  const { data: purchaseOrdersResponse, error: purchaseOrdersError } = useSWR<any>(
     '/api/purchase-orders?limit=50',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const procurementError = vendorsError || purchaseOrdersError
 
   const vendors = Array.isArray(vendorsResponse) ? vendorsResponse : (vendorsResponse?.data || [])
   const purchaseOrders = Array.isArray(purchaseOrdersResponse)
@@ -444,7 +460,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
   }, [vendors, ordersByVendor, vendorWoCosts])
 
   const recentPurchaseOrders = useMemo((): { id: string; number: string; vendor: string; status: string; amount: number }[] => {
-    return purchaseOrders.slice(0, 5).map((po: any) => ({
+    return purchaseOrders.slice(0, 10).map((po: any) => ({
       id: po.id,
       number: po.number,
       vendor: po.vendorName || po.vendor_name || 'Vendor',
@@ -453,11 +469,11 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
     }))
   }, [purchaseOrders])
 
-  if (fleetDataError) {
+  if (procurementError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
-        <p className="text-destructive font-medium">Failed to load data</p>
-        <p className="text-sm text-muted-foreground">{fleetDataError instanceof Error ? fleetDataError.message : 'An unexpected error occurred'}</p>
+        <p className="text-destructive font-medium">Failed to load procurement data</p>
+        <p className="text-sm text-muted-foreground">{procurementError instanceof Error ? procurementError.message : 'Unable to load procurement data. Please try again.'}</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
@@ -466,9 +482,9 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Procurement Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
         <StatCard
           title="Active Vendors"
           value={activeVendors.length}
@@ -485,86 +501,138 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           title="Avg Vendor Rating"
           value={avgVendorRating ? `${avgVendorRating}/5` : '—'}
           icon={Award}
-          description="Supplier quality"
+          description="Based on delivery performance"
         />
         <StatCard
           title="WO Vendor Spend"
           value={(() => {
             let total = 0
             vendorWoCosts.forEach((v) => { total += v.totalCost })
-            return total > 0 ? `$${total.toLocaleString()}` : '$0'
+            return formatCurrency(total)
           })()}
           icon={CreditCard}
           description="Work order vendor costs"
         />
       </div>
 
-      {/* Active Vendors */}
-      <div>
+      {/* Main Content: Vendors + Purchase Orders */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Left: Top Vendors */}
         <Section
           title="Top Vendors"
           description="Most frequently used suppliers"
-          icon={<Building className="h-5 w-5" />}
+          icon={<Building className="h-4 w-4" />}
+          className="min-h-0"
         >
-          <div className="space-y-3">
-            {topVendors.length > 0 ? topVendors.map((vendor) => (
-              <div key={vendor.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                <div className="flex items-center gap-3">
-                  <Building className="h-5 w-5 text-blue-400" />
-                  <div>
-                    <p className="font-semibold">{vendor.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {vendor.category} · {vendor.orders} orders
-                      {vendor.woCost > 0 && (
-                        <span className="ml-2 text-orange-500">· WO spend: ${vendor.woCost.toLocaleString()}</span>
-                      )}
-                    </p>
+          <div className="max-h-[200px] overflow-y-auto">
+            {topVendors.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {topVendors.map((vendor) => (
+                  <div
+                    key={vendor.id}
+                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
+                    onClick={() => push({
+                      id: vendor.id,
+                      type: 'vendor',
+                      label: vendor.name,
+                      data: { vendorId: vendor.id, category: vendor.category, orders: vendor.orders, rating: vendor.rating, woCost: vendor.woCost },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: vendor.id,
+                          type: 'vendor',
+                          label: vendor.name,
+                          data: { vendorId: vendor.id, category: vendor.category, orders: vendor.orders, rating: vendor.rating, woCost: vendor.woCost },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for vendor ${vendor.name}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Building className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{vendor.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatEnum(vendor.category)} · {vendor.orders} {vendor.orders === 1 ? 'order' : 'orders'}
+                          {vendor.woCost > 0 && (
+                            <span className="ml-1">· WO: {formatCurrency(vendor.woCost)}</span>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <div
+                      className="flex items-center gap-1"
+                      title="Based on delivery performance"
+                    >
+                      <Award className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium text-foreground">{vendor.rating ? `${vendor.rating}/5` : '—'}</span>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Award className="h-4 w-4 text-amber-500" />
-                  <span className="font-medium">{vendor.rating ? `${vendor.rating}/5` : '—'}</span>
-                </div>
+                ))}
               </div>
-            )) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No vendor activity available
-              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             )}
           </div>
         </Section>
-      </div>
 
-      {/* Purchase Orders */}
-      <div>
+        {/* Right: Purchase Orders */}
         <Section
           title="Recent Purchase Orders"
           description="Latest procurement requests"
-          icon={<ShoppingCart className="h-5 w-5" />}
+          icon={<ShoppingCart className="h-4 w-4" />}
+          className="min-h-0"
         >
-          <div className="space-y-3">
-            {recentPurchaseOrders.length > 0 ? recentPurchaseOrders.map((order) => (
-              <div key={order.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                <div>
-                  <p className="font-semibold">{order.number || order.id}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {order.vendor}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Badge variant={
-                    order.status === 'delivered' ? 'default' :
-                    order.status === 'in_transit' ? 'secondary' : 'outline'
-                  }>
-                    {order.status || 'unknown'}
-                  </Badge>
-                  <p className="font-semibold">${order.amount.toFixed(2)}</p>
-                </div>
+          <div className="max-h-[200px] overflow-y-auto">
+            {recentPurchaseOrders.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {recentPurchaseOrders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
+                    onClick={() => push({
+                      id: order.id,
+                      type: 'purchase-order',
+                      label: order.number || `PO ${String(order.id).slice(0, 8)}`,
+                      data: { purchaseOrderId: order.id, vendor: order.vendor, status: order.status, amount: order.amount },
+                    })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        push({
+                          id: order.id,
+                          type: 'purchase-order',
+                          label: order.number || `PO ${String(order.id).slice(0, 8)}`,
+                          data: { purchaseOrderId: order.id, vendor: order.vendor, status: order.status, amount: order.amount },
+                        })
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View details for purchase order ${order.number || order.id}`}
+                  >
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{order.number || String(order.id).slice(0, 8)}</p>
+                      <p className="text-xs text-muted-foreground">{order.vendor}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={
+                        order.status === 'delivered' ? 'default' :
+                        order.status === 'in_transit' ? 'secondary' : 'outline'
+                      }>
+                        {formatEnum(order.status) || '—'}
+                      </Badge>
+                      <p className="text-sm font-semibold text-foreground">{formatCurrency(order.amount)}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            )) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No purchase orders available
-              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             )}
           </div>
         </Section>
@@ -588,9 +656,9 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
 
   if (isLoading) {
     return (
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-2 grid-cols-4 p-2">
         {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-32" />
+          <Skeleton key={i} className="h-24" />
         ))}
       </div>
     )
@@ -598,19 +666,16 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          {error instanceof Error ? error.message : 'Failed to load analytics data.'}
-        </AlertDescription>
-      </Alert>
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        {error instanceof Error ? error.message : 'Failed to load analytics data.'}
+      </div>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Analytics Statistics */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
         <StatCard
           title="Active Reports"
           value={metrics.activeReports}
@@ -637,12 +702,14 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
         />
       </div>
 
-      {/* Performance Trends */}
-      <div>
+      {/* Main Content: Chart + Lists */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Left: Report Generation Trend */}
         <Section
           title="Report Generation Trend"
           description="Reports executed over time"
-          icon={<LineChart className="h-5 w-5" />}
+          icon={<LineChart className="h-4 w-4" />}
+          className="min-h-0"
         >
           {reportGenerationTrend.length > 0 ? (
             <ResponsiveLineChart
@@ -650,61 +717,69 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
               data={reportGenerationTrend}
               dataKeys={['value']}
               colors={['hsl(var(--chart-1))']}
-              height={300}
+              height={140}
             />
           ) : (
-            <div className="text-center py-12 text-muted-foreground">
-              No report activity available
-            </div>
+            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
           )}
         </Section>
-      </div>
 
-      {/* Analytics Insights */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Section
-          title="Upcoming Reports"
-          description="Scheduled report executions"
-          icon={<Target className="h-5 w-5" />}
-        >
-          <div className="space-y-4">
-            {upcomingReports.length > 0 ? upcomingReports.map((report) => (
-              <div key={report.id} className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <p className="font-medium">{report.name}</p>
-                  <Badge variant="outline">{report.frequency.replace('_', ' ')}</Badge>
+        {/* Right: Upcoming + Recent Reports */}
+        <div className="flex flex-col gap-2 min-h-0">
+          <Section
+            title="Upcoming Reports"
+            description="Scheduled report executions"
+            icon={<Target className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {upcomingReports.length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  {upcomingReports.map((report) => (
+                    <div key={report.id} className="rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-sm font-medium text-foreground">{report.name}</p>
+                        <Badge variant="outline">{formatEnum(report.frequency)}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Next run: {formatDateTime(report.nextRun)}
+                      </p>
+                    </div>
+                  ))}
                 </div>
-                <p className="text-sm text-muted-foreground">
-                  Next run: {report.nextRun ? new Date(report.nextRun).toLocaleString() : '—'}
-                </p>
-              </div>
-            )) : (
-              <div className="text-sm text-muted-foreground">No upcoming reports.</div>
-            )}
-          </div>
-        </Section>
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              )}
+            </div>
+          </Section>
 
-        <Section
-          title="Recent Reports"
-          description="Most recent analytics runs"
-          icon={<AlertCircle className="h-5 w-5" />}
-        >
-          <div className="space-y-3">
-            {recentReports.length > 0 ? recentReports.map((report) => (
-              <div key={report.id} className="flex items-start gap-3 rounded-xl border border-border/60 bg-background/60 p-3">
-                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">{report.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {report.category} · Last run {report.lastRun ? new Date(report.lastRun).toLocaleString() : '—'}
-                  </p>
+          <Section
+            title="Recent Reports"
+            description="Most recent analytics runs"
+            icon={<Clock className="h-4 w-4" />}
+            className="flex-1 min-h-0"
+          >
+            <div className="max-h-[200px] overflow-y-auto">
+              {recentReports.length > 0 ? (
+                <div className="flex flex-col gap-1">
+                  {recentReports.map((report) => (
+                    <div key={report.id} className="flex items-start gap-2 rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                      <CheckCircle className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{report.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatEnum(report.category)} · Last run {formatDateTime(report.lastRun)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )) : (
-              <div className="text-sm text-muted-foreground">No recent reports.</div>
-            )}
-          </div>
-        </Section>
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )
@@ -714,29 +789,31 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
  * Reports Tab - Report generation and dashboards
  */
 const ReportsTabContent = memo(function ReportsTabContent() {
-  const { data: reportTemplates } = useSWR<any[]>(
+  const { data: reportTemplates, error: reportTemplatesError } = useSWR<any[]>(
     '/api/reports/templates',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: scheduledReports } = useSWR<any[]>(
+  const { data: scheduledReports, error: scheduledReportsError } = useSWR<any[]>(
     '/api/reports/scheduled',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: reportHistory } = useSWR<any[]>(
+  const { data: reportHistory, error: reportHistoryError } = useSWR<any[]>(
     '/api/reports/history',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const { data: customReports } = useSWR<any[]>(
+  const { data: customReports, error: customReportsError } = useSWR<any[]>(
     '/api/custom-reports',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  const reportsError = reportTemplatesError || scheduledReportsError || reportHistoryError || customReportsError
 
   const templates = Array.isArray(reportTemplates) ? reportTemplates : []
   const history = Array.isArray(reportHistory) ? reportHistory : []
@@ -795,10 +872,18 @@ const ReportsTabContent = memo(function ReportsTabContent() {
     logger.info('Download report:', reportName)
   }
 
+  if (reportsError) {
+    return (
+      <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
+        Unable to load reports data. Please try again.
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      {/* Report Categories */}
-      <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col h-full gap-2 p-2 overflow-hidden">
+      {/* KPI Row */}
+      <div className="grid grid-cols-4 gap-2">
         <StatCard
           title="Available Reports"
           value={templates.length}
@@ -825,76 +910,79 @@ const ReportsTabContent = memo(function ReportsTabContent() {
         />
       </div>
 
-      {/* Report Library */}
-      <div>
+      {/* Main Content: Report Library + Recent Reports */}
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-2">
+        {/* Left: Report Library */}
         <Section
           title="Report Library"
           description="Available reports and templates"
-          icon={<FileText className="h-5 w-5" />}
+          icon={<FileText className="h-4 w-4" />}
+          className="min-h-0"
         >
-          {templates.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No report templates available.</div>
-          ) : (
-            <div className="space-y-3">
-              {templates.map((report: any) => (
-                <div key={report.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-blue-400" />
-                    <div>
-                      <p className="font-semibold">{report.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {report.category || report.domain || 'General'} · {report.isCore ? 'Core' : 'Custom'}
-                      </p>
+          <div className="max-h-[200px] overflow-y-auto">
+            {templates.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {templates.map((report: any) => (
+                  <div key={report.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                    <div className="flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{report.title}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatEnum(report.category || report.domain) || 'General'} · {report.isCore ? 'Core' : 'Custom'}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleGenerateReport(report.id, report.title)}
                     >
-                      <Download className="h-4 w-4 mr-1" />
+                      <Download className="h-3 w-3 mr-1" />
                       Generate
                     </Button>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </Section>
-      </div>
 
-      {/* Recent Reports */}
-      <div>
+        {/* Right: Recently Generated */}
         <Section
           title="Recently Generated"
           description="Latest report outputs"
-          icon={<Clock className="h-5 w-5" />}
+          icon={<Clock className="h-4 w-4" />}
+          className="min-h-0"
         >
-          {history.length === 0 ? (
-            <div className="text-sm text-muted-foreground">No report history yet.</div>
-          ) : (
-            <div className="space-y-3">
-              {history.map((item: any) => (
-                <div key={item.id} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/60 p-4">
-                  <div>
-                    <p className="font-semibold">{item.title}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Generated by {item.generatedBy || 'System'} · {item.generatedAt ? new Date(item.generatedAt).toLocaleDateString() : '—'}
-                    </p>
+          <div className="max-h-[200px] overflow-y-auto">
+            {history.length === 0 ? (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {history.map((item: any) => (
+                  <div key={item.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Generated by {item.generatedBy || 'System'} · {formatDate(item.generatedAt)}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownloadReport(item.title, item.downloadUrl)}
+                      disabled={!item.downloadUrl}
+                    >
+                      <Download className="h-3 w-3" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDownloadReport(item.title, item.downloadUrl)}
-                    disabled={!item.downloadUrl}
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </Section>
       </div>
     </div>
@@ -916,8 +1004,8 @@ export default function BusinessManagementHub() {
       description="Financial oversight, procurement, analytics, and comprehensive reporting"
       icon={<BarChart className="h-5 w-5" />}
     >
-      <div className="space-y-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <div className="flex flex-col h-full gap-2 overflow-hidden">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="cta-tabs grid w-full grid-cols-4 rounded-xl p-1">
             <TabsTrigger value="financial" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-financial" aria-label="Financial">
               <DollarSign className="h-4 w-4" />
@@ -937,28 +1025,28 @@ export default function BusinessManagementHub() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="financial" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="financial" className="flex-1 min-h-0 overflow-auto">
+            <QueryErrorBoundary>
               <FinancialTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="procurement" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="procurement" className="flex-1 min-h-0 overflow-auto">
+            <QueryErrorBoundary>
               <ProcurementTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="analytics" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="analytics" className="flex-1 min-h-0 overflow-auto">
+            <QueryErrorBoundary>
               <AnalyticsTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="reports" className="mt-6">
-            <ErrorBoundary>
+          <TabsContent value="reports" className="flex-1 min-h-0 overflow-auto">
+            <QueryErrorBoundary>
               <ReportsTabContent />
-            </ErrorBoundary>
+            </QueryErrorBoundary>
           </TabsContent>
         </Tabs>
       </div>

@@ -45,8 +45,9 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
-import logger from '@/utils/logger'
 import { brandColors } from "@/theme/designSystem"
+import { formatDateTime } from "@/utils/format-helpers"
+import logger from '@/utils/logger'
 
 interface Document {
   id: string
@@ -153,9 +154,7 @@ export function DocumentManagement() {
 
       const response = await fetch(`${import.meta.env.VITE_API_URL || ''}/documents/upload`, {
         method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
+        credentials: 'include',
         body: formData
       })
 
@@ -531,7 +530,7 @@ export function DocumentManagement() {
                 </div>
                 <div className="space-y-2">
                   <Label>Uploaded At</Label>
-                  <div className="text-sm">{new Date(selectedDocument.created_at).toLocaleString()}</div>
+                  <div className="text-sm">{formatDateTime(selectedDocument.created_at)}</div>
                 </div>
                 <div className="space-y-2">
                   <Label>Version</Label>

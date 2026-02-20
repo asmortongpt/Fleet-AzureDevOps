@@ -23,6 +23,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatNumber } from '@/utils/format-helpers'
 
 interface DriverDetailPanelProps {
   driverId: string
@@ -54,10 +56,11 @@ interface DriverData {
   }>
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
   const { push } = useDrilldown()
@@ -96,11 +99,11 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
             <div className="flex-1 space-y-1">
               <h3 className="text-sm font-bold">{driver.name}</h3>
               <p className="text-sm text-muted-foreground">
-                Employee ID: {driver.employee_id || 'N/A'}
+                Employee ID: {driver.employee_id || '—'}
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant={driver.status === 'active' ? 'default' : 'secondary'}>
-                  {driver.status}
+                  {formatEnum(driver.status)}
                 </Badge>
                 {driver.verified && (
                   <Badge variant="outline" className="gap-1">
@@ -120,16 +123,16 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
             <CardContent className="space-y-3">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{driver.email || 'N/A'}</span>
+                <span className="text-sm">{driver.email || '—'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm">{driver.phone || 'N/A'}</span>
+                <span className="text-sm">{driver.phone || '—'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">
-                  Joined {driver.hire_date ? new Date(driver.hire_date).toLocaleDateString() : 'N/A'}
+                  Joined {formatDate(driver.hire_date)}
                 </span>
               </div>
             </CardContent>
@@ -176,19 +179,19 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                 <div>
                   <p className="text-sm text-muted-foreground">Total Miles</p>
                   <p className="text-base font-bold">
-                    {driver.total_miles?.toLocaleString() || '0'}
+                    {formatNumber(driver.total_miles ?? 0)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Trips</p>
                   <p className="text-base font-bold">
-                    {driver.total_trips?.toLocaleString() || '0'}
+                    {formatNumber(driver.total_trips ?? 0)}
                   </p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Hours Driven</p>
                   <p className="text-base font-bold">
-                    {driver.total_hours?.toLocaleString() || '0'}
+                    {formatNumber(driver.total_hours ?? 0)}
                   </p>
                 </div>
                 <div>
@@ -210,8 +213,8 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {driver.certifications.map((cert) => (
-                    <li key={cert.name} className="flex items-center justify-between p-2 rounded bg-muted/50">
+                  {driver.certifications.map((cert, idx) => (
+                    <li key={idx} className="flex items-center justify-between p-2 rounded bg-muted/50">
                       <div className="flex items-center gap-2">
                         <Award className="h-4 w-4 text-primary" />
                         <div>
@@ -226,9 +229,7 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
                       <div className="text-right">
                         <p className="text-xs text-muted-foreground">
                           Expires:{' '}
-                          {cert.expiry_date
-                            ? new Date(cert.expiry_date).toLocaleDateString()
-                            : 'N/A'}
+                          {formatDate(cert.expiry_date)}
                         </p>
                         {cert.expiry_date &&
                           new Date(cert.expiry_date) < new Date() && (
@@ -255,18 +256,16 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-2">
-                  {driver.violations.map((violation) => (
+                  {driver.violations.map((violation, idx) => (
                     <li
-                      key={`${violation.type}-${violation.date}`}
+                      key={idx}
                       className="flex items-start gap-2 p-2 rounded bg-destructive/10"
                     >
                       <AlertTriangle className="h-4 w-4 text-destructive mt-0.5" />
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{violation.type}</p>
+                        <p className="text-sm font-medium">{formatEnum(violation.type)}</p>
                         <p className="text-xs text-muted-foreground">
-                          {violation.date
-                            ? new Date(violation.date).toLocaleDateString()
-                            : 'N/A'}
+                          {formatDate(violation.date)}
                         </p>
                       </div>
                     </li>

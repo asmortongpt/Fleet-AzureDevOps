@@ -29,6 +29,8 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFleetData } from '@/hooks/use-fleet-data';
 import { cn } from '@/lib/utils';
+import { formatEnum } from '@/utils/format-enum';
+import { formatTime } from '@/utils/format-helpers';
 
 export function OperationsWorkspace() {
   const { vehicles, routes } = useFleetData();
@@ -42,13 +44,13 @@ export function OperationsWorkspace() {
 
     return sourceData.map((item: any, i) => {
       const timeValue = item.startTime || item.start_time || item.updatedAt || item.updated_at
-      const formattedTime = timeValue ? new Date(timeValue).toLocaleTimeString() : 'N/A'
+      const formattedTime = formatTime(timeValue)
 
       return ({
         id: item.id || `task-${i}`,
         title: item.name || item.route_name || 'Route',
-        vehicle: item.vehicleNumber || item.number || item.vehicle_id || 'Unassigned',
-        driver: item.driverName || item.driver_name || item.driver_id || 'Unassigned',
+        vehicle: item.vehicleNumber || item.number || item.vehicle_id || '—',
+        driver: item.driverName || item.driver_name || item.driver_id || '—',
         status: item.status || 'active',
         time: formattedTime,
         type: item.type || 'delivery'
@@ -225,7 +227,7 @@ function TaskCard({ task }: { task: any }) {
       <div className="p-3 pl-2">
         <div className="flex justify-between items-start mb-2">
           <Badge variant="outline" className={cn("text-[10px] h-5 border px-2 uppercase tracking-wider font-bold rounded-md", statusConfig.color, statusConfig.bg, statusConfig.border)}>
-            {task.status}
+            {formatEnum(task.status)}
           </Badge>
           <span className="text-[10px] text-gray-800 font-mono flex items-center gap-1.5 bg-black/20 px-1.5 py-0.5 rounded">
             <Clock className="h-3 w-3" /> {task.time}

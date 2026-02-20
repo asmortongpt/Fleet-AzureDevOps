@@ -28,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { formatTime } from '@/utils/format-helpers'
 
 interface RouteMatrixData {
   id: string
@@ -50,7 +51,7 @@ interface RouteMatrixData {
 const fetcher = (url: string) =>
   fetch(url)
     .then((r) => {
-      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
       return r.json()
     })
     .then((data) => data?.data ?? data)
@@ -120,13 +121,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
     })
   }, [routes])
 
-  const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
-  }
+  // formatTime imported from @/utils/format-helpers
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -167,7 +162,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       drilldown: {
         recordType: 'driver',
         getRecordId: (route) => route.driverId,
-        getRecordLabel: (route) => route.driverName || 'Unassigned'
+        getRecordLabel: (route) => route.driverName || '—'
       },
       render: (route) => (
         <div className="flex items-center gap-2">
@@ -183,7 +178,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
       drilldown: {
         recordType: 'vehicle',
         getRecordId: (route) => route.vehicleId,
-        getRecordLabel: (route) => route.vehicleName || 'Unassigned'
+        getRecordLabel: (route) => route.vehicleName || '—'
       },
       render: (route) => (
         <div className="flex items-center gap-2">

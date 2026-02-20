@@ -24,6 +24,8 @@ import { setTenantContext } from '../middleware/tenant-context'
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 
 // Apply authentication to all routes
@@ -622,7 +624,7 @@ router.get('/vehicles/details', requirePermission('vehicle:view:fleet'), async (
  */
 const BeaconRegistrationSchema = z.object({
   vehicleId: z.string().min(1),
-  uuid: z.string().uuid(),
+  uuid: flexUuid,
   major: z.number().int().min(0).max(65535),
   minor: z.number().int().min(0).max(65535),
   registeredAt: z.string().datetime()

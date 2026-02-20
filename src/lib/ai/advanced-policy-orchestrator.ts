@@ -93,7 +93,7 @@ export class AdvancedPolicyOrchestrator {
       apiKey: import.meta.env.VITE_OPENAI_API_KEY || process.env.OPENAI_API_KEY || '',
     })
     this.gemini = new GoogleGenerativeAI(
-      import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || ''
+      import.meta.env.VITE_GEMINI_API_KEY || ''
     )
   }
 

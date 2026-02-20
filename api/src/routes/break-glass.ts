@@ -11,6 +11,8 @@ import { BreakGlassRepository } from '../repositories/BreakGlassRepository';
 import { TYPES } from '../types';
 import { logger } from '../utils/logger';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 router.use(authenticateJWT);
 
@@ -23,7 +25,7 @@ router.use(authenticateJWT);
  */
 
 const elevationRequestSchema = z.object({
-  role_id: z.string().uuid(),
+  role_id: flexUuid,
   reason: z.string().min(20).max(500),
   ticket_reference: z.string().min(1).max(100),
   duration_minutes: z.number().int().min(1).max(30).default(30)
@@ -221,7 +223,7 @@ router.post(
           priority: 'high'
         });
 
-        res.json({ message: 'Elevation request denied' });
+        res.json({ success: true, message: 'Elevation request denied' });
       }
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -274,7 +276,7 @@ router.post(
         session.elevated_role_id
       );
 
-      res.json({ message: 'Elevation revoked successfully' });
+      res.json({ success: true, message: 'Elevation revoked successfully' });
     } catch (error) {
       logger.error('Revoke elevation error:', error);
       res.status(500).json({ error: 'Internal server error' });

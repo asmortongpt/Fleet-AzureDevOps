@@ -16,6 +16,8 @@
 
 import { Router, Request, Response } from 'express'
 
+import logger from '../../config/logger'
+
 // ==================== TYPE DEFINITIONS ====================
 
 export interface FuelSite {
@@ -179,13 +181,13 @@ export class FuelMasterEmulator {
       this.transactions.set(tx.transaction_id, tx)
     })
 
-    console.log(`[FuelMaster Emulator] Loaded City of Tallahassee data:`)
-    console.log(`  - ${this.sites.size} fuel sites`)
-    console.log(`  - ${this.products.size} fuel products`)
-    console.log(`  - ${this.tanks.size} storage tanks`)
-    console.log(`  - ${this.hoses.size} fuel hoses`)
-    console.log(`  - ${this.vehicles.size} fleet vehicles`)
-    console.log(`  - ${this.transactions.size} historical transactions`)
+    logger.info(`[FuelMaster Emulator] Loaded City of Tallahassee data:`)
+    logger.info(`  - ${this.sites.size} fuel sites`)
+    logger.info(`  - ${this.products.size} fuel products`)
+    logger.info(`  - ${this.tanks.size} storage tanks`)
+    logger.info(`  - ${this.hoses.size} fuel hoses`)
+    logger.info(`  - ${this.vehicles.size} fleet vehicles`)
+    logger.info(`  - ${this.transactions.size} historical transactions`)
   }
 
   private createSampleTransaction(

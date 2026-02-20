@@ -17,9 +17,11 @@ import {
   Eye
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
-import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
+import { formatDateTime } from '@/utils/format-helpers'
+import logger from '@/utils/logger';
 
 
 interface NotificationStats {
@@ -78,9 +80,7 @@ const PushNotificationAdmin: React.FC = () => {
   // Fetch functions for queries
   const fetchStats = async (): Promise<NotificationStats> => {
     const response = await fetch('/api/push-notifications/stats', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
@@ -90,9 +90,7 @@ const PushNotificationAdmin: React.FC = () => {
 
   const fetchHistory = async (): Promise<NotificationHistory[]> => {
     const response = await fetch('/api/push-notifications/history?limit=50', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
@@ -102,9 +100,7 @@ const PushNotificationAdmin: React.FC = () => {
 
   const fetchTemplates = async (): Promise<NotificationTemplate[]> => {
     const response = await fetch('/api/push-notifications/templates', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
@@ -114,9 +110,7 @@ const PushNotificationAdmin: React.FC = () => {
 
   const fetchUsers = async () => {
     const response = await fetch('/api/users', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
+      credentials: 'include'
     });
     if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
@@ -151,9 +145,9 @@ const PushNotificationAdmin: React.FC = () => {
       const response = await fetch(body.endpoint, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(body.payload)
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
@@ -162,7 +156,7 @@ const PushNotificationAdmin: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Notification sent successfully!');
+      toast.success('Notification sent successfully!');
       setNotificationForm({
         title: '',
         message: '',
@@ -179,7 +173,7 @@ const PushNotificationAdmin: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['pushNotificationStats'] });
     },
     onError: (error: any) => {
-      alert('Failed to send notification: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to send notification: ' + (error.message || 'Unknown error'));
     }
   });
 
@@ -188,9 +182,9 @@ const PushNotificationAdmin: React.FC = () => {
       const response = await fetch('/api/push-notifications/schedule', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(body)
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
@@ -199,7 +193,7 @@ const PushNotificationAdmin: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Notification scheduled successfully!');
+      toast.success('Notification scheduled successfully!');
       setNotificationForm({
         title: '',
         message: '',
@@ -216,7 +210,7 @@ const PushNotificationAdmin: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['pushNotificationStats'] });
     },
     onError: (error: any) => {
-      alert('Failed to schedule notification: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to schedule notification: ' + (error.message || 'Unknown error'));
     }
   });
 
@@ -225,9 +219,9 @@ const PushNotificationAdmin: React.FC = () => {
       const response = await fetch('/api/push-notifications/send-from-template', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`
+          'Content-Type': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(body)
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
@@ -236,7 +230,7 @@ const PushNotificationAdmin: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Notification sent from template successfully!');
+      toast.success('Notification sent from template successfully!');
       setNotificationForm({
         title: '',
         message: '',
@@ -253,7 +247,7 @@ const PushNotificationAdmin: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['pushNotificationStats'] });
     },
     onError: (error: any) => {
-      alert('Failed to send notification: ' + (error.message || 'Unknown error'));
+      toast.error('Failed to send notification: ' + (error.message || 'Unknown error'));
     }
   });
 
@@ -261,9 +255,7 @@ const PushNotificationAdmin: React.FC = () => {
     mutationFn: async () => {
       const response = await fetch('/api/push-notifications/test', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
+        credentials: 'include'
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
@@ -271,10 +263,10 @@ const PushNotificationAdmin: React.FC = () => {
       return data;
     },
     onSuccess: () => {
-      alert('Test notification sent! Check your mobile device.');
+      toast.success('Test notification sent! Check your mobile device.');
     },
     onError: () => {
-      alert('Failed to send test notification');
+      toast.error('Failed to send test notification');
     }
   });
 
@@ -325,7 +317,7 @@ const PushNotificationAdmin: React.FC = () => {
       }
     } catch (error) {
       logger.error('Error sending notification:', error);
-      alert('Failed to send notification');
+      toast.error('Failed to send notification');
     }
   };
 
@@ -341,7 +333,7 @@ const PushNotificationAdmin: React.FC = () => {
       });
     } catch (error) {
       logger.error('Error sending from template:', error);
-      alert('Failed to send notification');
+      toast.error('Failed to send notification');
     }
   };
 
@@ -752,7 +744,7 @@ const PushNotificationAdmin: React.FC = () => {
                               </span>
                             </td>
                             <td className="px-2 py-3 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
-                              {new Date(notification.created_at).toLocaleString()}
+                              {formatDateTime(notification.created_at)}
                             </td>
                           </tr>
                         ))}

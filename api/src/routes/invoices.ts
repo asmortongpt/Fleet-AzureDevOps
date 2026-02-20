@@ -1,4 +1,5 @@
 import { Router, Response } from "express"
+import { z } from 'zod'
 
 import { pool } from '../config/database'
 import { csrfProtection } from '../middleware/csrf'
@@ -6,6 +7,25 @@ import { asyncHandler } from '../middleware/errorHandler'
 import { authenticateJWT, AuthRequest } from '../middleware/auth'
 import { setTenantContext } from '../middleware/tenant-context'
 import logger from '../config/logger'
+
+import { flexUuid } from '../middleware/validation'
+
+const createInvoiceSchema = z.object({
+  number: z.string().min(1).max(100),
+  type: z.enum(['standard', 'credit', 'debit', 'proforma', 'recurring']),
+  vendorId: flexUuid.optional(),
+  purchaseOrderId: flexUuid.optional(),
+  invoiceDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/),
+  subtotal: z.number().min(0),
+  taxAmount: z.number().min(0).optional(),
+  discountAmount: z.number().min(0).optional(),
+  totalAmount: z.number().min(0),
+  balanceDue: z.number().min(0),
+  notes: z.string().max(2000).optional(),
+  lineItems: z.array(z.record(z.string(), z.unknown())).optional(),
+  documentUrl: z.string().url().max(500).optional()
+})
 
 const router = Router()
 
@@ -110,11 +130,11 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { number, type, vendorId, purchaseOrderId, invoiceDate, dueDate, subtotal, taxAmount, discountAmount, totalAmount, balanceDue, notes, lineItems, documentUrl } = req.body
-
-  if (!number || !type || !invoiceDate || !dueDate || !subtotal || !totalAmount || !balanceDue) {
-    return res.status(400).json({ error: 'Required fields: number, type, invoiceDate, dueDate, subtotal, totalAmount, balanceDue' })
+  const parsed = createInvoiceSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
   }
+  const { number, type, vendorId, purchaseOrderId, invoiceDate, dueDate, subtotal, taxAmount, discountAmount, totalAmount, balanceDue, notes, lineItems, documentUrl } = parsed.data
 
   const result = await client.query(
     `INSERT INTO invoices (
@@ -132,6 +152,15 @@ router.post("/", csrfProtection, asyncHandler(async (req: AuthRequest, res: Resp
   res.status(201).json({ data: result.rows[0] })
 }))
 
+const updateInvoiceSchema = z.object({
+  status: z.enum(['draft', 'sent', 'paid', 'partial', 'overdue', 'cancelled', 'void']).optional(),
+  paidDate: z.string().regex(/^\d{4}-\d{2}-\d{2}/).optional(),
+  paidAmount: z.number().min(0).optional(),
+  paymentMethod: z.string().max(100).optional(),
+  paymentReference: z.string().max(200).optional(),
+  notes: z.string().max(2000).optional(),
+})
+
 router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Response) => {
   const tenantId = req.user?.tenant_id
   const client = req.dbClient
@@ -140,7 +169,11 @@ router.put("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res: Re
     return res.status(500).json({ error: 'Internal server error', code: 'MISSING_DB_CLIENT' })
   }
 
-  const { status, paidDate, paidAmount, paymentMethod, paymentReference, notes } = req.body
+  const parsed = updateInvoiceSchema.safeParse(req.body)
+  if (!parsed.success) {
+    return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+  }
+  const { status, paidDate, paidAmount, paymentMethod, paymentReference, notes } = parsed.data
 
   // Calculate balance_due if paid_amount is provided
   let updateBalanceDue = ''
@@ -188,7 +221,7 @@ router.delete("/:id", csrfProtection, asyncHandler(async (req: AuthRequest, res:
   }
 
   logger.info('Invoice deleted', { invoiceId: req.params.id, tenantId })
-  res.json({ message: "Invoice deleted successfully" })
+  res.json({ success: true, message: "Invoice deleted successfully" })
 }))
 
 export default router

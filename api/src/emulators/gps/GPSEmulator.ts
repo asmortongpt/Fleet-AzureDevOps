@@ -19,6 +19,7 @@ import {
   Geofence,
   Waypoint
 } from '../types'
+import logger from '../../config/logger'
 
 export class GPSEmulator extends EventEmitter {
   private vehicle: Vehicle
@@ -71,7 +72,7 @@ export class GPSEmulator extends EventEmitter {
       }
     }, updateFrequency)
 
-    console.log(`GPS Emulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`GPS Emulator started for vehicle ${this.vehicle.id}`)
   }
 
   /**
@@ -90,7 +91,7 @@ export class GPSEmulator extends EventEmitter {
     this.isRunning = false
     this.isPaused = false
 
-    console.log(`GPS Emulator stopped for vehicle ${this.vehicle.id}`)
+    logger.info(`GPS Emulator stopped for vehicle ${this.vehicle.id}`)
   }
 
   /**

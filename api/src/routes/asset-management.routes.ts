@@ -13,6 +13,7 @@
  */
 
 import { Router } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 28: Add Winston logger
 import { pool } from '../db/connection';
@@ -22,6 +23,8 @@ import { authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 
+
+import { flexUuid } from '../middleware/validation'
 
 const router = Router()
 
@@ -416,6 +419,33 @@ router.post('/',csrfProtection, requirePermission('vehicle:create:fleet'), async
  *     summary: Update asset
  *     tags: [Assets]
  */
+const updateAssetSchema = z.object({
+  asset_name: z.string().max(200).optional(),
+  asset_type: z.string().max(100).optional(),
+  asset_tag: z.string().max(100).optional(),
+  asset_number: z.string().max(100).optional(),
+  category: z.string().max(100).optional(),
+  description: z.string().max(2000).optional(),
+  manufacturer: z.string().max(200).optional(),
+  model: z.string().max(200).optional(),
+  serial_number: z.string().max(200).optional(),
+  purchase_date: z.string().optional(),
+  purchase_price: z.number().min(0).optional(),
+  current_value: z.number().min(0).optional(),
+  status: z.string().max(50).optional(),
+  condition: z.string().max(50).optional(),
+  notes: z.string().max(2000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  assigned_to: z.string().optional(),
+  assigned_to_id: flexUuid.optional(),
+  assigned_facility_id: flexUuid.optional(),
+  warranty_expiration: z.string().optional(),
+  warranty_expiry_date: z.string().optional(),
+  last_maintenance: z.string().optional(),
+  next_maintenance: z.string().optional(),
+  location: z.string().max(500).optional(),
+}).partial()
+
 router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), async (req: AuthRequest, res) => {
   const client = await pool.connect()
 
@@ -423,7 +453,12 @@ router.put('/:id',csrfProtection, requirePermission('vehicle:update:fleet'), asy
     await client.query('BEGIN')
 
     const { id } = req.params
-    const updates = req.body || {}
+    const parsed = updateAssetSchema.safeParse(req.body)
+    if (!parsed.success) {
+      client.release()
+      return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+    }
+    const updates = parsed.data as Record<string, unknown>
     const tenantId = req.user?.tenant_id
 
     const fieldMap: Record<string, string> = {

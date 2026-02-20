@@ -28,6 +28,8 @@ import {
 
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -37,9 +39,9 @@ const inspectionRepo = new InspectionRepository()
 
 // Validation schemas
 const inspectionCreateSchema = z.object({
-  vehicle_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid().optional(),
-  inspector_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
+  inspector_id: flexUuid.optional(),
   inspection_type: z.string().min(1),
   scheduled_date: z.string().datetime().optional(),
   odometer: z.number().optional(),
@@ -424,7 +426,7 @@ router.delete(
         throw new NotFoundError('Inspection not found')
       }
 
-      res.json({ message: 'Inspection deleted successfully' })
+      res.json({ success: true, message: 'Inspection deleted successfully' })
     } catch (error) {
       const { statusCode, error: message, code } = handleDatabaseError(error)
       res.status(statusCode).json({ error: message, code })

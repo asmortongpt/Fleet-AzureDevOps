@@ -16,6 +16,9 @@ import {
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
+
 import { DataGrid } from '@/components/common/DataGrid'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,7 +36,7 @@ import {
 const fetcher = (url: string) =>
   fetch(url)
     .then((r) => {
-      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
       return r.json()
     })
     .then((data) => data?.data ?? data)
@@ -123,7 +126,7 @@ export function ViolationsMatrixView() {
     {
       accessorKey: 'date',
       header: 'Date',
-      cell: ({ row }) => new Date(row.original.date).toLocaleDateString(),
+      cell: ({ row }) => formatDate(row.original.date),
     },
     {
       accessorKey: 'type',
@@ -142,8 +145,8 @@ export function ViolationsMatrixView() {
         const variant =
           severity === 'critical' ? 'destructive' : severity === 'major' ? 'default' : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {severity}
+          <Badge variant={variant}>
+            {formatEnum(severity)}
           </Badge>
         )
       },
@@ -175,7 +178,7 @@ export function ViolationsMatrixView() {
       header: 'Fine Amount',
       cell: ({ row }) =>
         row.original.fine_amount ? (
-          <div className="text-right font-medium">${row.original.fine_amount.toFixed(2)}</div>
+          <div className="text-right font-medium">{formatCurrency(row.original.fine_amount)}</div>
         ) : (
           '-'
         ),
@@ -209,7 +212,7 @@ export function ViolationsMatrixView() {
 
         return (
           <div>
-            <div>{dueDate.toLocaleDateString()}</div>
+            <div>{formatDate(dueDate)}</div>
             {isOverdue && (
               <div className="text-xs text-red-500 flex items-center gap-1">
                 <XCircle className="w-3 h-3" />
@@ -232,8 +235,8 @@ export function ViolationsMatrixView() {
             ? 'destructive'
             : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {status.replace('-', ' ')}
+          <Badge variant={variant}>
+            {formatEnum(status)}
           </Badge>
         )
       },
@@ -264,16 +267,16 @@ export function ViolationsMatrixView() {
 
     const csvData = filteredData.map((violation) => [
       violation.violation_number,
-      new Date(violation.date).toLocaleDateString(),
+      formatDate(violation.date),
       violation.type,
       violation.severity,
       violation.category,
       violation.vehicle_name || '',
       violation.driver_name || '',
       violation.citation_number || '',
-      violation.fine_amount ? `$${violation.fine_amount.toFixed(2)}` : '',
+      violation.fine_amount ? formatCurrency(violation.fine_amount) : '',
       violation.paid ? 'Yes' : 'No',
-      violation.due_date ? new Date(violation.due_date).toLocaleDateString() : '',
+      violation.due_date ? formatDate(violation.due_date) : '',
       violation.status,
       violation.responsible_person || '',
     ])
@@ -329,7 +332,7 @@ export function ViolationsMatrixView() {
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-amber-400">${unpaidFines.toFixed(0)}</div>
+            <div className="text-sm font-bold text-amber-400">{formatCurrency(unpaidFines)}</div>
             <div className="text-xs text-slate-700">Unpaid Fines</div>
           </CardContent>
         </Card>
@@ -340,13 +343,13 @@ export function ViolationsMatrixView() {
         <CardHeader className="pb-2">
           <CardTitle className="text-white text-sm flex items-center justify-between">
             <span>Total Fines Assessment</span>
-            <span className="text-sm font-bold text-red-400">${totalFines.toFixed(2)}</span>
+            <span className="text-sm font-bold text-red-400">{formatCurrency(totalFines)}</span>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex justify-between text-xs text-slate-700 mb-2">
-            <span>Paid: ${(totalFines - unpaidFines).toFixed(2)}</span>
-            <span>Unpaid: ${unpaidFines.toFixed(2)}</span>
+            <span>Paid: {formatCurrency(totalFines - unpaidFines)}</span>
+            <span>Unpaid: {formatCurrency(unpaidFines)}</span>
           </div>
           <Progress value={((totalFines - unpaidFines) / totalFines) * 100} className="h-3" />
         </CardContent>
@@ -473,7 +476,7 @@ export function IncidentsMatrixView() {
       header: 'Date',
       cell: ({ row }) => (
         <div>
-          <div>{new Date(row.original.date).toLocaleDateString()}</div>
+          <div>{formatDate(row.original.date)}</div>
           <div className="text-xs text-muted-foreground">{row.original.time}</div>
         </div>
       ),
@@ -487,8 +490,8 @@ export function IncidentsMatrixView() {
       accessorKey: 'type',
       header: 'Type',
       cell: ({ row }) => (
-        <Badge variant="outline" className="capitalize">
-          {row.original.type.replace('-', ' ')}
+        <Badge variant="outline">
+          {formatEnum(row.original.type)}
         </Badge>
       ),
     },
@@ -500,8 +503,8 @@ export function IncidentsMatrixView() {
         const variant =
           severity === 'critical' ? 'destructive' : severity === 'major' ? 'default' : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {severity}
+          <Badge variant={variant}>
+            {formatEnum(severity)}
           </Badge>
         )
       },
@@ -546,8 +549,8 @@ export function IncidentsMatrixView() {
             ? 'destructive'
             : 'secondary'
         return (
-          <Badge variant={variant} className="capitalize">
-            {status}
+          <Badge variant={variant}>
+            {formatEnum(status)}
           </Badge>
         )
       },
@@ -557,7 +560,7 @@ export function IncidentsMatrixView() {
       header: 'Cost',
       cell: ({ row }) => (
         <div className="text-right font-medium">
-          ${row.original.cost.toFixed(2)}
+          {formatCurrency(row.original.cost)}
         </div>
       ),
     },
@@ -591,7 +594,7 @@ export function IncidentsMatrixView() {
 
     const csvData = filteredData.map((incident) => [
       incident.incident_number,
-      new Date(incident.date).toLocaleDateString(),
+      formatDate(incident.date),
       incident.time,
       incident.location,
       incident.type,
@@ -601,7 +604,7 @@ export function IncidentsMatrixView() {
       incident.driver_name || '',
       incident.description.replace(/,/g, ';'),
       incident.status,
-      `$${incident.cost.toFixed(2)}`,
+      formatCurrency(incident.cost),
       incident.root_cause?.replace(/,/g, ';') || '',
     ])
 
@@ -652,7 +655,7 @@ export function IncidentsMatrixView() {
         </Card>
         <Card className="bg-amber-900/30 border-amber-700/50">
           <CardContent className="p-2 text-center">
-            <div className="text-sm font-bold text-amber-400">${totalCost.toFixed(0)}</div>
+            <div className="text-sm font-bold text-amber-400">{formatCurrency(totalCost)}</div>
             <div className="text-xs text-slate-700">Total Cost</div>
           </CardContent>
         </Card>

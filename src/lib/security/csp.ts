@@ -229,7 +229,8 @@ export function handleCSPViolation(event: SecurityPolicyViolationEvent): void {
  */
 async function sendCSPViolationReport(report: CSPViolationReport): Promise<void> {
   try {
-    await fetch('/api/v1/security/csp-violations', {
+    // Fire-and-forget security logging - endpoint may not exist
+    await fetch('/api/security/csp-violations', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -240,8 +241,9 @@ async function sendCSPViolationReport(report: CSPViolationReport): Promise<void>
         userAgent: navigator.userAgent,
       }),
     });
-  } catch (error) {
-    logger.error('Failed to send CSP violation report:', error);
+  } catch {
+    // Silently ignore - CSP violation reporting is non-critical
+    // The violation is already logged to the console via handleCSPViolation
   }
 }
 

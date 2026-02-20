@@ -26,6 +26,7 @@ import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
 import logger from '@/utils/logger'
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 
 interface TelematicsData {
   equipment_id: string
@@ -125,7 +126,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 Live Telematics
               </CardTitle>
               <CardDescription>
-                Last updated: {lastUpdate.toLocaleTimeString()}
+                Last updated: {formatTime(lastUpdate)}
               </CardDescription>
             </div>
             <Badge variant={health.color === 'green' ? 'default' : health.color === 'yellow' ? 'secondary' : 'destructive'}>
@@ -335,7 +336,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                         <div>
                           <p className="font-medium">{alert.message}</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {new Date(alert.timestamp).toLocaleString()}
+                            {formatDateTime(alert.timestamp)}
                           </p>
                         </div>
                       </div>

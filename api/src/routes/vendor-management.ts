@@ -5,6 +5,7 @@
  */
 
 import { Router, Response } from 'express';
+import { z } from 'zod';
 import { pool } from '../config/database';
 import { csrfProtection } from '../middleware/csrf';
 import { asyncHandler } from '../middleware/errorHandler';
@@ -13,6 +14,58 @@ import { setTenantContext } from '../middleware/tenant-context';
 import { VendorScoringService } from '../services/vendor-scoring';
 import { VendorContractService } from '../services/vendor-contracts';
 import logger from '../config/logger';
+
+// ============================================================================
+// ZOD VALIDATION SCHEMAS
+// ============================================================================
+
+const performanceEvalSchema = z.object({
+  start_date: z.string().min(1, 'start_date is required'),
+  end_date: z.string().min(1, 'end_date is required'),
+});
+
+const batchCalculateSchema = z.object({
+  start_date: z.string().min(1, 'start_date is required'),
+  end_date: z.string().min(1, 'end_date is required'),
+});
+
+const createContractSchema = z.object({
+  vendor_id: z.string().min(1),
+  contract_type: z.string().max(100),
+  contract_number: z.string().max(100).optional(),
+  start_date: z.string().min(1),
+  end_date: z.string().min(1),
+  total_value: z.number().nonnegative().optional(),
+  payment_terms: z.string().max(200).optional(),
+  auto_renew: z.boolean().optional(),
+  renewal_notice_days: z.number().int().min(0).max(365).optional(),
+  sla_terms: z.record(z.string(), z.unknown()).optional(),
+  notes: z.string().max(5000).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+const updateContractSchema = createContractSchema.partial().extend({
+  status: z.enum(['active', 'expired', 'terminated', 'suspended', 'pending']).optional(),
+});
+
+const terminateContractSchema = z.object({
+  reason: z.string().min(1, 'Termination reason is required').max(2000),
+});
+
+const renewContractSchema = z.object({
+  new_end_date: z.string().min(1, 'new_end_date is required'),
+});
+
+const createContactSchema = z.object({
+  name: z.string().min(1).max(200),
+  email: z.string().email().max(254).optional(),
+  phone: z.string().max(50).optional(),
+  role: z.string().max(100).optional(),
+  is_primary: z.boolean().optional(),
+  notes: z.string().max(2000).optional(),
+});
+
+const updateContactSchema = createContactSchema.partial();
 
 const router = Router();
 
@@ -94,13 +147,12 @@ router.post(
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { start_date, end_date, ...metrics } = req.body;
-
-    if (!start_date || !end_date) {
-      return res.status(400).json({
-        error: 'start_date and end_date are required',
-      });
+    const parsed = performanceEvalSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
     }
+
+    const { start_date, end_date } = parsed.data;
 
     const performance = await scoringService.calculateVendorScore(
       {
@@ -199,16 +251,13 @@ router.post(
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const { start_date, end_date } = req.body;
-
-    if (!start_date || !end_date) {
-      return res.status(400).json({
-        error: 'start_date and end_date are required',
-      });
+    const parsed = batchCalculateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
     }
 
-    const startDate = new Date(start_date);
-    const endDate = new Date(end_date);
+    const startDate = new Date(parsed.data.start_date);
+    const endDate = new Date(parsed.data.end_date);
 
     const results = await scoringService.batchCalculateVendorScores(
       startDate,
@@ -250,8 +299,13 @@ router.post(
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    const parsed = createContractSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+
     const contract = await contractService.createContract(
-      req.body,
+      parsed.data as unknown as Parameters<typeof contractService.createContract>[0],
       tenantId,
       userId
     );
@@ -397,9 +451,14 @@ router.put(
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    const parsed = updateContractSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+
     const contract = await contractService.updateContract(
       contractId,
-      req.body,
+      parsed.data as unknown as Parameters<typeof contractService.updateContract>[1],
       tenantId
     );
 
@@ -423,19 +482,18 @@ router.post(
     const tenantId = req.user?.tenant_id;
     const userId = req.user?.id;
     const contractId = req.params.id;
-    const { reason } = req.body;
-
     if (!tenantId || !userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    if (!reason) {
-      return res.status(400).json({ error: 'Termination reason is required' });
+    const parsed = terminateContractSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
     }
 
     const contract = await contractService.terminateContract(
       contractId,
-      reason,
+      parsed.data.reason,
       userId,
       tenantId
     );
@@ -444,7 +502,7 @@ router.post(
       contractId,
       tenantId,
       userId,
-      reason,
+      reason: parsed.data.reason,
     });
 
     res.json({ data: contract });
@@ -462,19 +520,18 @@ router.post(
     const tenantId = req.user?.tenant_id;
     const userId = req.user?.id;
     const contractId = req.params.id;
-    const { new_end_date } = req.body;
-
     if (!tenantId || !userId) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    if (!new_end_date) {
-      return res.status(400).json({ error: 'new_end_date is required' });
+    const parsed = renewContractSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
     }
 
     const newContract = await contractService.renewContract(
       contractId,
-      new Date(new_end_date),
+      new Date(parsed.data.new_end_date),
       userId,
       tenantId
     );
@@ -509,11 +566,16 @@ router.post(
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    const parsed = createContactSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+
     const contact = await contractService.createContact(
       {
-        ...req.body,
+        ...parsed.data,
         vendor_id: vendorId,
-      },
+      } as unknown as Parameters<typeof contractService.createContact>[0],
       tenantId
     );
 
@@ -565,9 +627,14 @@ router.put(
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
+    const parsed = updateContactSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: 'Validation failed', details: parsed.error.flatten() });
+    }
+
     const contact = await contractService.updateContact(
       contactId,
-      req.body,
+      parsed.data as unknown as Parameters<typeof contractService.updateContact>[1],
       tenantId
     );
 

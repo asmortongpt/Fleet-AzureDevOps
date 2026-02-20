@@ -9,6 +9,8 @@ import { z } from 'zod'
 import { logger } from '../utils/logger'
 import { authenticateJWT } from '../middleware/auth'
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router()
 
 // Apply authentication to all routes
@@ -16,15 +18,30 @@ router.use(authenticateJWT)
 
 // Validation schemas
 const createReservationSchema = z.object({
-  vehicle_id: z.string().uuid().optional(),
-  asset_id: z.string().uuid().optional(),
-  user_id: z.string().uuid(),
-  driver_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  asset_id: flexUuid.optional(),
+  user_id: flexUuid,
+  driver_id: flexUuid.optional(),
   start_time: z.string().datetime(),
   end_time: z.string().datetime(),
   purpose: z.string().min(1).max(500),
   destination: z.string().max(500).optional(),
   notes: z.string().optional(),
+})
+
+const approveReservationSchema = z.object({
+  approved_by: flexUuid,
+  notes: z.string().max(2000).optional(),
+})
+
+const rejectReservationSchema = z.object({
+  rejected_by: flexUuid,
+  reason: z.string().min(1).max(2000),
+})
+
+const cancelReservationSchema = z.object({
+  cancelled_by: flexUuid,
+  reason: z.string().min(1).max(2000),
 })
 
 const updateReservationSchema = z.object({
@@ -331,7 +348,17 @@ router.post('/:id/approve', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
-    const { approved_by, notes } = req.body
+
+    // Validate request body
+    const parsed = approveReservationSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
+    const { approved_by, notes } = parsed.data
 
     const result = await pool.query(
       `UPDATE reservations
@@ -375,7 +402,17 @@ router.post('/:id/reject', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
-    const { rejected_by, reason } = req.body
+
+    // Validate request body
+    const parsed = rejectReservationSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
+    const { rejected_by, reason } = parsed.data
 
     const result = await pool.query(
       `UPDATE reservations
@@ -418,7 +455,17 @@ router.post('/:id/cancel', async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const tenant_id = req.query.tenant_id || req.headers['x-tenant-id']
-    const { cancelled_by, reason } = req.body
+
+    // Validate request body
+    const parsed = cancelReservationSchema.safeParse(req.body)
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      })
+    }
+
+    const { cancelled_by, reason } = parsed.data
 
     const result = await pool.query(
       `UPDATE reservations

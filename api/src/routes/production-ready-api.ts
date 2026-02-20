@@ -13,6 +13,8 @@ import { schema } from '../schemas/production.schema';
 import { logger } from '../utils/logger';
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router();
 
 // Apply authentication to all routes
@@ -23,7 +25,7 @@ router.use(authenticateJWT);
 // ============================================================================
 
 const createVehicleSchema = z.object({
-  tenantId: z.string().uuid().optional(),
+  tenantId: flexUuid.optional(),
   vin: z.string().length(17),
   name: z.string().min(1).max(255),
   number: z.string().min(1).max(50),
@@ -44,7 +46,7 @@ const createVehicleSchema = z.object({
 const updateVehicleSchema = createVehicleSchema.partial().omit({ tenantId: true });
 
 const createDriverSchema = z.object({
-  tenantId: z.string().uuid().optional(),
+  tenantId: flexUuid.optional(),
   firstName: z.string().min(1).max(100),
   lastName: z.string().min(1).max(100),
   email: z.string().email().max(255),
@@ -61,8 +63,8 @@ const createDriverSchema = z.object({
 const updateDriverSchema = createDriverSchema.partial().omit({ tenantId: true });
 
 const createWorkOrderSchema = z.object({
-  tenantId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid(),
+  tenantId: flexUuid.optional(),
+  vehicleId: flexUuid,
   title: z.string().min(1).max(255),
   description: z.string().min(1),
   type: z.enum(['preventive', 'corrective', 'inspection', 'recall', 'upgrade']),
@@ -76,8 +78,8 @@ const createWorkOrderSchema = z.object({
 const updateWorkOrderSchema = createWorkOrderSchema.partial().omit({ tenantId: true });
 
 const createMaintenanceRecordSchema = z.object({
-  tenantId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid(),
+  tenantId: flexUuid.optional(),
+  vehicleId: flexUuid,
   type: z.enum(['preventive', 'corrective', 'inspection', 'recall', 'upgrade']),
   title: z.string().min(1).max(255),
   description: z.string().min(1),
@@ -88,9 +90,9 @@ const createMaintenanceRecordSchema = z.object({
 });
 
 const createFuelTransactionSchema = z.object({
-  tenantId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid(),
-  driverId: z.string().uuid().optional(),
+  tenantId: flexUuid.optional(),
+  vehicleId: flexUuid,
+  driverId: flexUuid.optional(),
   transactionDate: z.string().datetime(),
   fuelType: z.enum(['gasoline', 'diesel', 'electric', 'hybrid', 'propane', 'cng', 'hydrogen']),
   gallons: z.number().min(0),
@@ -104,8 +106,8 @@ const createFuelTransactionSchema = z.object({
 });
 
 const createGpsPositionSchema = z.object({
-  tenantId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid(),
+  tenantId: flexUuid.optional(),
+  vehicleId: flexUuid,
   timestamp: z.string().datetime(),
   latitude: z.number().min(-90).max(90),
   longitude: z.number().min(-180).max(180),

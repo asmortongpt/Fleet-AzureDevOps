@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { MaintenanceSchedule } from "@/lib/types"
+import { formatCurrency } from "@/utils/format-helpers"
 
 export function MaintenanceScheduling() {
   const { push } = useDrilldown()
@@ -169,7 +170,7 @@ export function MaintenanceScheduling() {
         accessorKey: "estimatedCost",
         header: "Est. Cost",
         cell: ({ row }) => (
-          <div className="text-sm">${row.original.estimatedCost.toLocaleString()}</div>
+          <div className="text-sm">{formatCurrency(row.original.estimatedCost)}</div>
         ),
       },
       {
@@ -336,7 +337,7 @@ export function MaintenanceScheduling() {
                       </div>
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Estimated Cost: ${schedule.estimatedCost.toLocaleString()}
+                      Estimated Cost: {formatCurrency(schedule.estimatedCost)}
                     </div>
                   </div>
                 ))}

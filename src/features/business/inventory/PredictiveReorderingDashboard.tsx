@@ -54,6 +54,8 @@ import {
   Badge
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
+
+import { formatDate } from '@/utils/format-helpers';
 import {
   BarChart,
   Bar,
@@ -70,6 +72,8 @@ import {
   Area,
   AreaChart
 } from 'recharts';
+
+import { formatCurrency, formatTime } from '@/utils/format-helpers';
 
 import {
   predictiveReorderingService,
@@ -226,7 +230,6 @@ const PredictiveReorderingDashboard: React.FC = () => {
 
   const handleApproveOrder = async (recommendation: ReorderRecommendation) => {
     // Integrate with purchase order system
-    // console.log('Approving order for:', recommendation.partNumber);
     // Remove from recommendations after approval
     setRecommendations(prev => prev.filter(r => r.partId !== recommendation.partId));
   };
@@ -348,7 +351,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                 <Box display="flex" alignItems="center" justifyContent="space-between">
                   <Box>
                     <Typography color="textSecondary" gutterBottom>Est. Order Value</Typography>
-                    <Typography variant="h4">${metrics.totalEstimatedCost.toLocaleString()}</Typography>
+                    <Typography variant="h4">{formatCurrency(metrics.totalEstimatedCost)}</Typography>
                   </Box>
                   <AttachMoney color="success" sx={{ fontSize: 40 }} />
                 </Box>
@@ -397,7 +400,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                   </Box>
                   <Box display="flex" alignItems="center" gap={2}>
                     <Typography variant="body2" color="textSecondary">
-                      Last updated: {lastUpdated?.toLocaleTimeString() || 'Never'}
+                      Last updated: {lastUpdated ? formatTime(lastUpdated) : 'Never'}
                     </Typography>
                     <Button variant="outlined" onClick={loadRecommendations} disabled={loading}>
                       Refresh AI Analysis
@@ -470,7 +473,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell align="right">{rec.recommendedQuantity}</TableCell>
-                          <TableCell align="right">${rec.estimatedCost.toLocaleString()}</TableCell>
+                          <TableCell align="right">{formatCurrency(rec.estimatedCost)}</TableCell>
                           <TableCell align="right">
                             <Box display="flex" alignItems="center" gap={1}>
                               <LinearProgress
@@ -493,7 +496,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            {rec.suggestedOrderDate.toLocaleDateString()}
+                            {formatDate(rec.suggestedOrderDate)}
                           </TableCell>
                           <TableCell>
                             <Box display="flex" gap={1}>
@@ -640,7 +643,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
-                    <ChartTooltip formatter={(value: any) => `$${value.toLocaleString()}`} />
+                    <ChartTooltip formatter={(value: any) => formatCurrency(Number(value))} />
                   </PieChart>
                 </ResponsiveContainer>
               </CardContent>

@@ -12,6 +12,7 @@
 import { EventEmitter } from 'events'
 
 import { Vehicle, OBD2Data, EmulatorConfig } from '../types'
+import logger from '../../config/logger'
 
 export class OBD2Emulator extends EventEmitter {
   private vehicle: Vehicle
@@ -66,7 +67,7 @@ return
       }
     }, updateFrequency)
 
-    console.log(`OBD-II Emulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`OBD-II Emulator started for vehicle ${this.vehicle.id}`)
   }
 
   /**
@@ -85,7 +86,7 @@ return
     this.isRunning = false
     this.isPaused = false
 
-    console.log(`OBD-II Emulator stopped for vehicle ${this.vehicle.id}`)
+    logger.info(`OBD-II Emulator stopped for vehicle ${this.vehicle.id}`)
   }
 
   /**

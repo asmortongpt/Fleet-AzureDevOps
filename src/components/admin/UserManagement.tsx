@@ -49,6 +49,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
+import { formatDate } from '@/utils/format-helpers';
 
 interface User {
   id: string;
@@ -275,7 +276,7 @@ export function UserManagement() {
                   <TableCell className="text-sm text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {user.lastLogin.toLocaleDateString()}
+                      {formatDate(user.lastLogin)}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">

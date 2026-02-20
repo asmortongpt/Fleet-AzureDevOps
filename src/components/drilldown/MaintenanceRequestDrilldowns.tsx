@@ -16,6 +16,7 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { formatCurrency, formatDate, formatDateTime, formatTime } from '@/utils/format-helpers'
 
 // ============================================
 // Type Definitions
@@ -172,13 +173,11 @@ export function MaintenanceRequestDetailPanel({
               </CardHeader>
               <CardContent>
                 <p className="text-sm font-semibold">
-                  {request.submitted_date
-                    ? new Date(request.submitted_date).toLocaleDateString()
-                    : 'N/A'}
+                  {formatDate(request.submitted_date)}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {request.submitted_date
-                    ? new Date(request.submitted_date).toLocaleTimeString()
+                    ? formatTime(request.submitted_date)
                     : ''}
                 </p>
               </CardContent>
@@ -207,24 +206,22 @@ export function MaintenanceRequestDetailPanel({
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
-                      <p className="font-medium">{request.request_type || 'N/A'}</p>
+                      <p className="font-medium">{request.request_type || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Category</p>
-                      <p className="font-medium">{request.category || 'N/A'}</p>
+                      <p className="font-medium">{request.category || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Estimated Cost</p>
                       <p className="font-medium">
-                        ${request.estimated_cost?.toLocaleString() || '0'}
+                        {formatCurrency(request.estimated_cost)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Requested Completion</p>
                       <p className="font-medium">
-                        {request.requested_completion_date
-                          ? new Date(request.requested_completion_date).toLocaleDateString()
-                          : 'N/A'}
+                        {formatDate(request.requested_completion_date)}
                       </p>
                     </div>
                   </div>
@@ -241,19 +238,19 @@ export function MaintenanceRequestDetailPanel({
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Asset</p>
-                      <p className="font-medium">{request.asset_name || 'N/A'}</p>
+                      <p className="font-medium">{request.asset_name || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Asset Number</p>
-                      <p className="font-medium">{request.asset_number || 'N/A'}</p>
+                      <p className="font-medium">{request.asset_number || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Location</p>
-                      <p className="font-medium">{request.asset_location || 'N/A'}</p>
+                      <p className="font-medium">{request.asset_location || '—'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Current Status</p>
-                      <p className="font-medium">{request.asset_status || 'N/A'}</p>
+                      <p className="font-medium">{request.asset_status || '—'}</p>
                     </div>
                   </div>
                   {request.asset_id && (
@@ -290,9 +287,7 @@ export function MaintenanceRequestDetailPanel({
                     <div>
                       <p className="text-sm text-muted-foreground">Review Date</p>
                       <p className="font-medium">
-                        {request.review_date
-                          ? new Date(request.review_date).toLocaleDateString()
-                          : 'Pending'}
+                        {request.review_date ? formatDate(request.review_date) : 'Pending'}
                       </p>
                     </div>
                   </div>
@@ -325,7 +320,7 @@ export function MaintenanceRequestDetailPanel({
                         <div className="flex-1">
                           <p className="text-sm font-medium">{activity.action}</p>
                           <p className="text-xs text-muted-foreground">
-                            {activity.user} • {new Date(activity.timestamp).toLocaleString()}
+                            {activity.user} • {formatDateTime(activity.timestamp)}
                           </p>
                         </div>
                       </div>
@@ -458,9 +453,7 @@ export function MaintenanceRequestListView({
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Requested by {request.requester_name} on{' '}
-                      {request.submitted_date
-                        ? new Date(request.submitted_date).toLocaleDateString()
-                        : 'N/A'}
+                      {formatDate(request.submitted_date)}
                     </p>
                   </div>
                   <div className="text-right space-y-1">
@@ -474,7 +467,7 @@ export function MaintenanceRequestListView({
                     )}
                     {request.estimated_cost && (
                       <p className="text-sm font-semibold">
-                        ${request.estimated_cost.toLocaleString()}
+                        {formatCurrency(request.estimated_cost)}
                       </p>
                     )}
                   </div>

@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 
 import { useAuth } from '@/contexts';
 import { secureFetch } from '@/hooks/use-api';
+import { formatDateTime } from '@/utils/format-helpers';
 
 // FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
 export interface FLAIRExpenseEntry {
@@ -1182,7 +1183,7 @@ const DocumentUpload: React.FC<{
                   <div className="font-medium text-sm">{doc.fileName}</div>
                   <div className="text-xs text-gray-700">
                     {(doc.fileSize / 1024).toFixed(1)} KB • Uploaded{' '}
-                    {new Date(doc.uploadedAt).toLocaleString()}
+                    {formatDateTime(doc.uploadedAt)}
                   </div>
                 </div>
               </div>

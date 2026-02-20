@@ -76,6 +76,7 @@ import {
 
 import { useAuth } from '@/contexts';
 import { secureFetch } from '@/hooks/use-api';
+import { formatCurrency, formatDate, formatDateTime, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface TabPanelProps {
@@ -645,7 +646,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                     <TableBody>
                       {recentScans.slice(0, 10).map((scan) => (
                         <TableRow key={scan.id}>
-                          <TableCell>{scan.timestamp.toLocaleTimeString()}</TableCell>
+                          <TableCell>{formatTime(scan.timestamp)}</TableCell>
                           <TableCell>
                             <Chip
                               size="small"
@@ -733,7 +734,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>Total Value</Typography>
-                <Typography variant="h3" color="info.main">${metrics.totalValue.toLocaleString()}</Typography>
+                <Typography variant="h3" color="info.main">{formatCurrency(metrics.totalValue)}</Typography>
                 <Typography variant="body2" color="text.secondary">Current inventory</Typography>
               </CardContent>
             </Card>
@@ -776,7 +777,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                           <TableCell>
                             <Chip
                               size="small"
-                              label={item.condition || 'Unknown'}
+                              label={item.condition || '—'}
                               color={getConditionColor(item.condition || 'unknown')}
                             />
                           </TableCell>
@@ -786,7 +787,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                               : '—'}
                           </TableCell>
                           <TableCell>
-                            {item.lastScanned ? new Date(item.lastScanned).toLocaleDateString() : '—'}
+                            {item.lastScanned ? formatDate(item.lastScanned) : '—'}
                           </TableCell>
                           <TableCell>
                             <Box display="flex" gap={1}>
@@ -913,7 +914,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                           <TableCell>{item.name}</TableCell>
                           <TableCell>{item.rfidTag}</TableCell>
                           <TableCell>860-960MHz</TableCell>
-                          <TableCell>{item.lastScanned?.toLocaleString()}</TableCell>
+                          <TableCell>{formatDateTime(item.lastScanned)}</TableCell>
                           <TableCell>
                             <Badge badgeContent={0} color="primary">
                               <RadioButtonChecked />
@@ -980,7 +981,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
                       />
                       <ListItemSecondaryAction>
                         <Typography variant="caption">
-                          {new Date(currentAudit.startDate).toLocaleDateString()}
+                          {formatDate(currentAudit.startDate)}
                         </Typography>
                       </ListItemSecondaryAction>
                     </ListItem>

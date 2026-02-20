@@ -33,6 +33,8 @@ import { toast } from "sonner"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useVehicleInventory } from "@/hooks/useVehicleInventory"
 import { Part } from "@/lib/types"
+import { formatCurrency, formatCurrencyCompact, formatDate } from '@/utils/format-helpers';
+import { formatEnum } from '@/utils/format-enum';
 import logger from '@/utils/logger';
 
 interface VehicleInventoryProps {
@@ -280,7 +282,7 @@ export function VehicleInventory({
           background: 'linear-gradient(135deg, hsl(var(--success) / 0.15), hsl(var(--muted) / 0.2))'
         }}>
           <div style={{ fontSize: 12, color: 'var(--muted, hsl(var(--muted-foreground)))', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Parts Value</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>${(metrics.totalValue/1000).toFixed(1)}k</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>{formatCurrencyCompact(metrics.totalValue)}</div>
           <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'hsl(var(--success))', marginTop:8 }}>
             <CurrencyDollar style={{width:14, height:14}} />
             Total
@@ -325,7 +327,7 @@ export function VehicleInventory({
           background: 'hsl(var(--muted) / 0.2)'
         }}>
           <div style={{ fontSize: 12, color: 'var(--muted, hsl(var(--muted-foreground)))', textTransform: 'uppercase', letterSpacing: '.12em', marginBottom: 8 }}>Cost (30d)</div>
-          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>${(metrics.costLast30Days/1000).toFixed(1)}k</div>
+          <div style={{ fontSize: 32, fontWeight: 700, color: 'var(--text, hsl(var(--foreground)))' }}>{formatCurrencyCompact(metrics.costLast30Days)}</div>
           <div style={{ display:'flex', alignItems:'center', gap:4, fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))', marginTop:8 }}>
             <CurrencyDollar style={{width:14, height:14}} />
             Parts cost
@@ -468,8 +470,8 @@ export function VehicleInventory({
                               {part.manufacturer}
                             </div>
                           </td>
-                          <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))', textTransform:'capitalize'}}>
-                            {part.category}
+                          <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>
+                            {formatEnum(part.category)}
                           </td>
                           <td style={{padding:16}}>
                             <div style={{width:100}}>
@@ -491,7 +493,7 @@ export function VehicleInventory({
                             {part.quantityOnHand}
                           </td>
                           <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>
-                            ${part.unitCost.toFixed(2)}
+                            {formatCurrency(part.unitCost)}
                           </td>
                           <td style={{padding:16}}>
                             <StatusChip
@@ -556,7 +558,7 @@ export function VehicleInventory({
                                     </div>
                                     <div>
                                       <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>Category</div>
-                                      <div style={{fontSize:14, color:'var(--text, hsl(var(--foreground)))', fontWeight:600, textTransform:'capitalize'}}>{part.category}</div>
+                                      <div style={{fontSize:14, color:'var(--text, hsl(var(--foreground)))', fontWeight:600}}>{formatEnum(part.category)}</div>
                                     </div>
                                     <div>
                                       <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>Reorder Point</div>
@@ -583,7 +585,7 @@ export function VehicleInventory({
                                     </div>
                                     <div>
                                       <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', marginBottom:2}}>Total Value</div>
-                                      <div style={{fontSize:14, color:'hsl(var(--success))', fontWeight:700}}>${(part.quantityOnHand * part.unitCost).toFixed(2)}</div>
+                                      <div style={{fontSize:14, color:'hsl(var(--success))', fontWeight:700}}>{formatCurrency(part.quantityOnHand * part.unitCost)}</div>
                                     </div>
                                   </div>
                                 </div>
@@ -675,9 +677,9 @@ export function VehicleInventory({
                         <div style={{fontWeight:600, fontSize:14, color:'var(--text, hsl(var(--foreground)))', marginBottom:2}}>{part.name}</div>
                         <div style={{fontSize:12, color:'var(--muted, hsl(var(--muted-foreground)))'}}>{part.manufacturer}</div>
                       </td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))', textTransform:'capitalize'}}>{part.category}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>{formatEnum(part.category)}</td>
                       <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>{part.quantityOnHand} units</td>
-                      <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>${part.unitCost.toFixed(2)}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>{formatCurrency(part.unitCost)}</td>
                       <td style={{padding:16}}>
                         <StatusChip
                           status={stockStatus}
@@ -745,7 +747,7 @@ export function VehicleInventory({
                     <td style={{padding:16}}>
                       <div style={{display:'flex', alignItems:'center', gap:8, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>
                         <CalendarBlank style={{width:16, height:16, color:'var(--muted, hsl(var(--muted-foreground)))'}} />
-                        {new Date(record.date).toLocaleDateString()}
+                        {formatDate(record.date)}
                       </div>
                     </td>
                     <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, hsl(var(--foreground)))', fontWeight:600}}>
@@ -755,7 +757,7 @@ export function VehicleInventory({
                     <td style={{padding:16, fontFamily:'monospace', fontSize:13, color:'var(--text, hsl(var(--foreground)))'}}>
                       {record.workOrderId || '-'}
                     </td>
-                    <td style={{padding:16, fontSize:14, color:'hsl(var(--success))', fontWeight:600}}>${(record.cost || 0).toFixed(2)}</td>
+                    <td style={{padding:16, fontSize:14, color:'hsl(var(--success))', fontWeight:600}}>{formatCurrency(record.cost || 0)}</td>
                     <td style={{padding:16, fontSize:13, color:'var(--muted, hsl(var(--muted-foreground)))'}}>
                       {record.notes || '-'}
                     </td>
@@ -799,7 +801,7 @@ export function VehicleInventory({
                 (maintenanceHistory || []).map(event => (
                   <tr key={event.id} style={{borderBottom:'1px solid hsl(var(--border) / 0.15)'}}>
                     <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>
-                      {new Date(event.createdDate).toLocaleDateString()}
+                      {formatDate(event.createdDate)}
                     </td>
                     <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))', fontWeight:600}}>{event.serviceType}</td>
                     <td style={{padding:16}}>
@@ -808,7 +810,7 @@ export function VehicleInventory({
                     <td style={{padding:16}}>
                       <StatusChip status="good" label={event.status} />
                     </td>
-                    <td style={{padding:16, fontSize:14, color:'hsl(var(--success))', fontWeight:600}}>${(event.cost || 0).toFixed(2)}</td>
+                    <td style={{padding:16, fontSize:14, color:'hsl(var(--success))', fontWeight:600}}>{formatCurrency(event.cost || 0)}</td>
                     <td style={{padding:16, fontSize:14, color:'var(--text, hsl(var(--foreground)))'}}>{event.assignedTo || '-'}</td>
                   </tr>
                 ))
@@ -876,7 +878,7 @@ export function VehicleInventory({
                         <div style={{fontWeight:600, fontSize:13, color:'var(--text, hsl(var(--foreground)))', marginBottom:2}}>{part.name}</div>
                         <div style={{fontSize:11, color:'var(--muted, hsl(var(--muted-foreground)))', fontFamily:'monospace'}}>{part.partNumber}</div>
                       </td>
-                      <td style={{padding:12, fontSize:13, color:'var(--text, hsl(var(--foreground)))', textTransform:'capitalize'}}>{part.category}</td>
+                      <td style={{padding:12, fontSize:13, color:'var(--text, hsl(var(--foreground)))'}}>{formatEnum(part.category)}</td>
                       <td style={{padding:12, fontSize:13, color:'var(--text, hsl(var(--foreground)))'}}>{part.quantityOnHand} units</td>
                       <td style={{padding:12}}>
                         <StatusChip
@@ -991,7 +993,7 @@ export function VehicleInventory({
               }}>
                 <div style={{display:'flex', justifyContent:'space-between', marginBottom:8}}>
                   <span style={{fontSize:13, color:'var(--muted, hsl(var(--muted-foreground)))'}}>Unit Cost:</span>
-                  <span style={{fontSize:14, fontWeight:600, color:'var(--text, hsl(var(--foreground)))'}}>${selectedPart.unitCost.toFixed(2)}</span>
+                  <span style={{fontSize:14, fontWeight:600, color:'var(--text, hsl(var(--foreground)))'}}>{formatCurrency(selectedPart.unitCost)}</span>
                 </div>
                 <div style={{display:'flex', justifyContent:'space-between', marginBottom:8}}>
                   <span style={{fontSize:13, color:'var(--muted, hsl(var(--muted-foreground)))'}}>Quantity:</span>
@@ -1000,7 +1002,7 @@ export function VehicleInventory({
                 <div style={{display:'flex', justifyContent:'space-between', paddingTop:8, borderTop:'1px solid hsl(var(--border) / 0.2)'}}>
                   <span style={{fontSize:14, fontWeight:700, color:'var(--text, hsl(var(--foreground)))'}}>Total Cost:</span>
                   <span style={{fontSize:16, fontWeight:700, color:'hsl(var(--success))'}}>
-                    ${(selectedPart.unitCost * usageData.quantity).toFixed(2)}
+                    {formatCurrency(selectedPart.unitCost * usageData.quantity)}
                   </span>
                 </div>
               </div>

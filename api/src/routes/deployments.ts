@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 17: Add Winston logger
 import { pool } from '../db/connection';
@@ -8,6 +9,29 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { getErrorMessage } from '../utils/error-handler'
+
+import { flexUuid } from '../middleware/validation'
+
+// ============================================================================
+// Zod Validation Schemas
+// ============================================================================
+
+const createDeploymentSchema = z.object({
+  tenant_id: flexUuid.optional(),
+  environment: z.enum(['development', 'staging', 'production']),
+  version: z.string().max(255).optional(),
+  commit_hash: z.string().max(255).optional(),
+  branch: z.string().max(255).optional(),
+  deployed_by_user_id: flexUuid.optional(),
+  deployment_notes: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional().default({}),
+})
+
+const updateDeploymentSchema = z.object({
+  status: z.enum(['pending', 'in_progress', 'completed', 'failed', 'rolled_back']).optional(),
+  completed_at: z.string().or(z.date()).nullable().optional(),
+  quality_gate_summary: z.record(z.string(), z.unknown()).optional(),
+})
 
 
 const router = express.Router()
@@ -78,6 +102,11 @@ router.post('/',
   csrfProtection, requirePermission('role:manage:global'),
   async (req: AuthRequest, res: Response) => {
     try {
+      const parsed = createDeploymentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+      }
+
       const {
         tenant_id,
         environment,
@@ -86,22 +115,8 @@ router.post('/',
         branch,
         deployed_by_user_id,
         deployment_notes,
-        metadata = {}
-      } = req.body
-
-      // Validate required fields
-      if (!environment) {
-        throw new ValidationError("environment is required")
-      }
-
-      // Validate environment
-      const validEnvironments = ['development', 'staging', 'production']
-      if (!validEnvironments.includes(environment)) {
-        return res.status(400).json({
-          error: 'Invalid environment',
-          valid_environments: validEnvironments
-        })
-      }
+        metadata,
+      } = parsed.data
 
       const result = await pool.query(
         `INSERT INTO deployments (
@@ -153,16 +168,12 @@ router.patch('/:id',
   async (req: AuthRequest, res: Response) => {
     try {
       const { id } = req.params
-      const { status, completed_at, quality_gate_summary } = req.body
-
-      // Validate status
-      const validStatuses = ['pending', 'in_progress', 'completed', 'failed', 'rolled_back']
-      if (status && !validStatuses.includes(status)) {
-        return res.status(400).json({
-          error: 'Invalid status',
-          valid_statuses: validStatuses
-        })
+      const parsed = updateDeploymentSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
       }
+
+      const { status, completed_at, quality_gate_summary } = parsed.data
 
       let updateQuery = `UPDATE deployments SET updated_at = NOW()`
       const params: any[] = []

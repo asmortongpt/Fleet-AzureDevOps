@@ -17,10 +17,10 @@ interface MapLayer {
 
 export function AdvancedMapController() {
   const [layers, setLayers] = useState<MapLayer[]>([
-    { id: 'vehicles', label: 'Vehicles', icon: <Navigation className="w-4 h-4" />, enabled: true, color: '#41B2E3' },
-    { id: 'routes', label: 'Routes', icon: <MapPin className="w-4 h-4" />, enabled: true, color: '#FF6B35' },
-    { id: 'alerts', label: 'Alerts', icon: <AlertTriangle className="w-4 h-4" />, enabled: true, color: '#F0A000' },
-    { id: 'heatmap', label: 'Heat Map', icon: <Zap className="w-4 h-4" />, enabled: false, color: '#DD3903' },
+    { id: 'vehicles', label: 'Vehicles', icon: <Navigation className="w-4 h-4" />, enabled: true, color: '#3B82F6' },
+    { id: 'routes', label: 'Routes', icon: <MapPin className="w-4 h-4" />, enabled: true, color: '#f5f5f5' },
+    { id: 'alerts', label: 'Alerts', icon: <AlertTriangle className="w-4 h-4" />, enabled: true, color: '#a0a0a0' },
+    { id: 'heatmap', label: 'Heat Map', icon: <Zap className="w-4 h-4" />, enabled: false, color: '#f5f5f5' },
   ])
 
   const [showLayerPanel, setShowLayerPanel] = useState(false)

@@ -295,12 +295,17 @@ async function sendSubscriptionToServer(
   subscription: PushSubscriptionData
 ): Promise<void> {
   try {
-    const response = await fetch('/api/v1/push/subscribe', {
+    const response = await fetch('/api/push-notifications/register-device', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(subscription),
+      body: JSON.stringify({
+        deviceToken: subscription.endpoint,
+        platform: 'web',
+        deviceName: navigator.userAgent.substring(0, 50),
+        keys: subscription.keys,
+      }),
     });
 
     if (!response.ok) {
@@ -320,12 +325,13 @@ async function deleteSubscriptionFromServer(
   subscription: PushSubscriptionData
 ): Promise<void> {
   try {
-    const response = await fetch('/api/v1/push/unsubscribe', {
-      method: 'POST',
+    // Use the endpoint URL as a device identifier, URL-encoded for safety
+    const deviceId = encodeURIComponent(subscription.endpoint);
+    const response = await fetch(`/api/push-notifications/device/${deviceId}`, {
+      method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(subscription),
     });
 
     if (!response.ok) {
@@ -342,7 +348,7 @@ async function deleteSubscriptionFromServer(
  */
 export async function sendTestNotification(): Promise<boolean> {
   try {
-    const response = await fetch('/api/v1/push/test', {
+    const response = await fetch('/api/push-notifications/test', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

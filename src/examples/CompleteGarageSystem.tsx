@@ -17,6 +17,7 @@ import {
   getDamageDetectionService,
   type DamageReport,
 } from '@/services/AIDamageDetectionService';
+import { formatCurrency } from '@/utils/format-helpers';
 import { photoUploadService } from '@/services/PhotoUploadService';
 import logger from '@/utils/logger';
 
@@ -225,8 +226,8 @@ export function CompleteGarageSystem() {
                 <div className="border-t border-slate-700 pt-2">
                   <p className="text-slate-300 mb-2">Estimated Cost:</p>
                   <p className="text-sm font-bold text-green-400">
-                    ${damageReport.summary.estimatedCost.min.toLocaleString()} - 
-                    ${damageReport.summary.estimatedCost.max.toLocaleString()}
+                    {formatCurrency(damageReport.summary.estimatedCost.min)} -
+                    {formatCurrency(damageReport.summary.estimatedCost.max)}
                   </p>
                 </div>
               </div>

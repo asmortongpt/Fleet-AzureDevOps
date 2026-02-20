@@ -24,6 +24,7 @@ import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface VehicleStats {
   // Basic Info
@@ -113,7 +114,7 @@ function StatCard({
           'text-base font-bold tabular-nums',
           warning ? 'text-red-400' : 'text-white'
         )}>
-          {typeof value === 'number' ? value.toLocaleString() : value}
+          {typeof value === 'number' ? formatNumber(value) : value}
         </span>
         {unit && <span className="text-xs text-slate-500">{unit}</span>}
       </div>

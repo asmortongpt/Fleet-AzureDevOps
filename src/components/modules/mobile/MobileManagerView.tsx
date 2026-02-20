@@ -20,6 +20,7 @@ import {
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
 interface PendingAssignment {
@@ -50,10 +51,8 @@ const MobileManagerView: React.FC = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await fetch('/api/mobile/dashboard/manager', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
+      const response = await fetch('/api/mobile-assignment/dashboard/manager', {
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
 
@@ -68,12 +67,12 @@ const MobileManagerView: React.FC = () => {
 
   const handleQuickApproval = async (assignmentId: string, action: 'approve' | 'deny') => {
     try {
-      const response = await fetch(`/api/mobile/assignment/${assignmentId}/quick-approve`, {
+      const response = await fetch(`/api/mobile-assignment/assignment/${assignmentId}/quick-approve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify({
           action,
           notes: approvalNotes || undefined,
@@ -130,7 +129,7 @@ const MobileManagerView: React.FC = () => {
                 Type: {assignment.assignment_type.replace('_', ' ')}
               </p>
               <p className="text-xs text-gray-700">
-                Requested: {new Date(assignment.recommended_at).toLocaleDateString()}
+                Requested: {formatDate(assignment.recommended_at)}
               </p>
             </div>
 
@@ -179,7 +178,7 @@ const MobileManagerView: React.FC = () => {
             {assignment.unit_number} - {assignment.make} {assignment.model}
           </p>
           <p className="text-xs text-gray-700 mt-1">
-            Since: {new Date(assignment.start_date).toLocaleDateString()}
+            Since: {formatDate(assignment.start_date)}
           </p>
         </div>
       ))}
@@ -215,7 +214,7 @@ const MobileManagerView: React.FC = () => {
             <div className="flex items-center gap-2 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
               <div className="flex items-center gap-1">
                 <Phone className="w-4 h-4" />
-                <span>{period.driver_phone || 'N/A'}</span>
+                <span>{period.driver_phone || '—'}</span>
               </div>
               <div>
                 Callbacks: {period.callback_count}
@@ -223,7 +222,7 @@ const MobileManagerView: React.FC = () => {
             </div>
 
             <p className="text-xs text-gray-700 mt-2">
-              Until: {new Date(period.end_datetime).toLocaleDateString()} {new Date(period.end_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              Until: {formatDate(period.end_datetime)} {new Date(period.end_datetime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </p>
           </div>
         ))

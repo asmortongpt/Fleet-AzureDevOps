@@ -3,6 +3,7 @@ import { Wrench, Calendar, DollarSign, Clock, AlertTriangle, CheckCircle } from 
 import React from 'react';
 
 import { ExcelDataTable } from '../shared/ExcelDataTable';
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers';
 
 
 export interface MaintenanceRecord {
@@ -44,7 +45,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-slate-700" />
-          {new Date(getValue<string>()).toLocaleDateString()}
+          {formatDate(getValue<string>())}
         </div>
       ),
     },
@@ -129,7 +130,10 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
     {
       accessorKey: 'mileage',
       header: 'Mileage',
-      cell: ({ getValue }) => `${getValue<number>()?.toLocaleString()} mi`,
+      cell: ({ getValue }) => {
+        const val = getValue<number>();
+        return val != null ? `${formatNumber(val)} mi` : '—';
+      },
     },
     {
       accessorKey: 'cost',
@@ -137,7 +141,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
           <DollarSign className="w-4 h-4 text-emerald-700" />
-          <span className="font-semibold text-emerald-700">${getValue<number>()?.toLocaleString()}</span>
+          <span className="font-semibold text-emerald-700">{formatCurrency(getValue<number>())}</span>
         </div>
       ),
     },
@@ -146,7 +150,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       header: 'Labor Hours',
       cell: ({ getValue }) => {
         const hours = getValue<number>();
-        return hours ? `${hours.toFixed(1)}h` : 'N/A';
+        return hours ? `${hours.toFixed(1)}h` : '—';
       },
     },
     {
@@ -183,11 +187,11 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
       header: 'Next Service',
       cell: ({ getValue }) => {
         const date = getValue<string>();
-        if (!date) return 'N/A';
+        if (!date) return '—';
         const daysUntil = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         return (
           <span className={daysUntil < 7 ? 'text-amber-400 font-semibold' : ''}>
-            {new Date(date).toLocaleDateString()}
+            {formatDate(date)}
             {daysUntil < 7 && daysUntil >= 0 && ` (${daysUntil}d)`}
           </span>
         );

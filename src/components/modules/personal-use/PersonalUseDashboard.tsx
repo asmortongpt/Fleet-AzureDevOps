@@ -12,6 +12,7 @@ import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 interface TripUsageClassification {
@@ -76,20 +77,18 @@ const EmptyState = ({ message }: { message: string }) => (
 )
 
 const apiClient = async (url: string) => {
-  const _token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${_token}` }
+    credentials: 'include'
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
 }
 
 const apiMutation = async (url: string, method: string, data?: any) => {
-  const _token = localStorage.getItem('token')
   const response = await fetch(url, {
     method,
+    credentials: 'include',
     headers: {
-      Authorization: `Bearer ${_token}`,
       'Content-Type': 'application/json'
     },
     body: data ? JSON.stringify(data) : undefined
@@ -114,8 +113,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
   React.useEffect(() => {
-    // Get user info from localStorage or token
-    const _token = localStorage.getItem('token')
+    // Get user info from localStorage (non-sensitive user metadata, not auth token)
     const user = JSON.parse(localStorage.getItem('user') || '{}')
     setUserId(user.id || '')
     setUserRole(user.role || 'driver')
@@ -256,7 +254,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
     const csv = [
       ['Date', 'Vehicle', 'Miles', 'Type', 'Status', 'Purpose'].join(','),
       ...(data || []).map((trip: TripUsageClassification) => [
-        new Date(trip.trip_date || '').toLocaleDateString(),
+        formatDate(trip.trip_date || ''),
         trip.vehicle_id || '',
         trip.miles_total || 0,
         trip.usage_type || '',
@@ -510,11 +508,11 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       <TableBody>
                         {recentTrips.slice(0, 5).map((t: TripUsageClassification) => (
                           <TableRow key={t.id}>
-                            <TableCell>{new Date(t.trip_date || '').toLocaleDateString()}</TableCell>
-                            <TableCell>{t.vehicle_id || 'N/A'}</TableCell>
+                            <TableCell>{formatDate(t.trip_date || '')}</TableCell>
+                            <TableCell>{t.vehicle_id || '—'}</TableCell>
                             <TableCell>{t.miles_total?.toFixed(1) || 0}</TableCell>
-                            <TableCell>{t.usage_type ? getUsageTypeBadge(t.usage_type) : 'N/A'}</TableCell>
-                            <TableCell>{t.approval_status ? getStatusBadge(t.approval_status) : 'N/A'}</TableCell>
+                            <TableCell>{t.usage_type ? getUsageTypeBadge(t.usage_type) : '—'}</TableCell>
+                            <TableCell>{t.approval_status ? getStatusBadge(t.approval_status) : '—'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -550,10 +548,10 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       <TableBody>
                         {charges.slice(0, 5).map((charge: any) => (
                           <TableRow key={charge.id}>
-                            <TableCell>{new Date(charge.date || '').toLocaleDateString()}</TableCell>
-                            <TableCell>${(charge.amount || 0).toFixed(2)}</TableCell>
-                            <TableCell>{charge.type || 'N/A'}</TableCell>
-                            <TableCell>{charge.status || 'N/A'}</TableCell>
+                            <TableCell>{formatDate(charge.date || '')}</TableCell>
+                            <TableCell>{formatCurrency(charge.amount || 0)}</TableCell>
+                            <TableCell>{charge.type || '—'}</TableCell>
+                            <TableCell>{charge.status || '—'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -629,12 +627,12 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       <TableBody>
                         {recentTrips.map((trip: TripUsageClassification) => (
                           <TableRow key={trip.id}>
-                            <TableCell>{new Date(trip.trip_date || '').toLocaleDateString()}</TableCell>
-                            <TableCell>{trip.vehicle_id || 'N/A'}</TableCell>
+                            <TableCell>{formatDate(trip.trip_date || '')}</TableCell>
+                            <TableCell>{trip.vehicle_id || '—'}</TableCell>
                             <TableCell>{trip.miles_total?.toFixed(1) || 0}</TableCell>
-                            <TableCell>{trip.usage_type ? getUsageTypeBadge(trip.usage_type) : 'N/A'}</TableCell>
-                            <TableCell>{trip.approval_status ? getStatusBadge(trip.approval_status) : 'N/A'}</TableCell>
-                            <TableCell>{trip.business_purpose || 'N/A'}</TableCell>
+                            <TableCell>{trip.usage_type ? getUsageTypeBadge(trip.usage_type) : '—'}</TableCell>
+                            <TableCell>{trip.approval_status ? getStatusBadge(trip.approval_status) : '—'}</TableCell>
+                            <TableCell>{trip.business_purpose || '—'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -668,11 +666,11 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       <TableBody>
                         {charges.map((charge: any) => (
                           <TableRow key={charge.id}>
-                            <TableCell>{new Date(charge.date || '').toLocaleDateString()}</TableCell>
-                            <TableCell>${(charge.amount || 0).toFixed(2)}</TableCell>
-                            <TableCell>{charge.type || 'N/A'}</TableCell>
-                            <TableCell>{charge.status || 'N/A'}</TableCell>
-                            <TableCell>{charge.description || 'N/A'}</TableCell>
+                            <TableCell>{formatDate(charge.date || '')}</TableCell>
+                            <TableCell>{formatCurrency(charge.amount || 0)}</TableCell>
+                            <TableCell>{charge.type || '—'}</TableCell>
+                            <TableCell>{charge.status || '—'}</TableCell>
+                            <TableCell>{charge.description || '—'}</TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -713,12 +711,12 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                       <TableBody>
                         {pendingApprovals.map((trip: PendingApproval) => (
                           <TableRow key={trip.id}>
-                            <TableCell>{new Date(trip.trip_date || '').toLocaleDateString()}</TableCell>
-                            <TableCell>{trip.driver_name || 'N/A'}</TableCell>
-                            <TableCell>{trip.vehicle_name || trip.vehicle_id || 'N/A'}</TableCell>
+                            <TableCell>{formatDate(trip.trip_date || '')}</TableCell>
+                            <TableCell>{trip.driver_name || '—'}</TableCell>
+                            <TableCell>{trip.vehicle_name || trip.vehicle_id || '—'}</TableCell>
                             <TableCell>{trip.miles_total?.toFixed(1) || 0}</TableCell>
-                            <TableCell>{trip.usage_type ? getUsageTypeBadge(trip.usage_type) : 'N/A'}</TableCell>
-                            <TableCell>{trip.approval_status ? getStatusBadge(trip.approval_status) : 'N/A'}</TableCell>
+                            <TableCell>{trip.usage_type ? getUsageTypeBadge(trip.usage_type) : '—'}</TableCell>
+                            <TableCell>{trip.approval_status ? getStatusBadge(trip.approval_status) : '—'}</TableCell>
                             <TableCell>
                               {trip.approval_status === 'pending' && (
                                 <div className="flex gap-2">
@@ -782,7 +780,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
                     <CardTitle className="text-sm font-medium">Charges This Month</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold">${(teamSummary?.total_charges_this_month || 0).toFixed(2)}</div>
+                    <div className="text-sm font-bold">{formatCurrency(teamSummary?.total_charges_this_month || 0)}</div>
                   </CardContent>
                 </Card>
               </div>

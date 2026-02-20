@@ -230,7 +230,7 @@ Themes are integrated into the Appearance Settings page:
 
 ```typescript
 const customTheme = createCustomTheme({
-  primaryColor: '#FF6B35',
+  primaryColor: '#DD3903',
   secondaryColor: '#41B2E3',
   accentColor: '#F0A000',
   darkMode: false,

@@ -6,6 +6,7 @@ import { AlertTriangle, ShieldCheck, Video, Truck, Package, Map, Play, Eye } fro
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
 
 
 // ============ SAFETY HUB DRILLDOWNS ============
@@ -55,14 +56,14 @@ export function IncidentsDrilldown() {
                     {incidents.map(incident => (
                         <div key={incident.id} className="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
                             <div>
-                                <div className="font-medium text-white">{incident.type}</div>
+                                <div className="font-medium text-white">{formatEnum(incident.type)}</div>
                                 <div className="text-xs text-slate-700">{incident.driver} • {incident.vehicle} • {incident.date}</div>
                             </div>
                             <Badge variant="outline" className={`${incident.severity === 'high' ? 'border-red-500 text-red-400' :
                                     incident.severity === 'medium' ? 'border-amber-500 text-amber-400' :
                                         'border-slate-500 text-slate-700'
                                 }`}>
-                                {incident.severity}
+                                {formatEnum(incident.severity)}
                             </Badge>
                         </div>
                     ))}
@@ -152,7 +153,7 @@ export function VideoTelematicsDrilldown() {
                             <div className="flex items-center gap-3">
                                 <Play className="w-3 h-3 text-blue-700" />
                                 <div>
-                                    <div className="font-medium text-white">{event.type}</div>
+                                    <div className="font-medium text-white">{formatEnum(event.type)}</div>
                                     <div className="text-xs text-slate-700">{event.vehicle} • {event.time}</div>
                                 </div>
                             </div>
@@ -239,7 +240,7 @@ export function DispatchDrilldown() {
                                     job.status === 'delayed' ? 'border-red-500 text-red-400' :
                                         'border-slate-500 text-slate-700'
                                 }`}>
-                                {job.status}
+                                {formatEnum(job.status)}
                             </Badge>
                         </div>
                     ))}

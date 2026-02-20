@@ -8,6 +8,7 @@ import {
 } from '@phosphor-icons/react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -63,40 +64,41 @@ interface StationUtilization {
   utilization_percent: number;
 }
 
-// Helper function to get auth headers
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Authorization': `Bearer ${token}`,
+// Helper function to get fetch options for authenticated requests
+const getAuthFetchOptions = (method?: string, body?: unknown): RequestInit => ({
+  method,
+  credentials: 'include',
+  headers: {
     'Content-Type': 'application/json'
-  };
-};
+  },
+  body: body ? JSON.stringify(body) : undefined
+});
 
 // Query function for charging stations
 const fetchChargingStations = async (): Promise<ChargingStation[]> => {
-  const response = await fetch('/api/ev/chargers', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/chargers', { credentials: 'include' });
   if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch charging stations');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch charging stations');
 };
 
 // Query function for active sessions
 const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
-  const response = await fetch('/api/ev/sessions/active', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/sessions/active', { credentials: 'include' });
   if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch active sessions');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch active sessions');
 };
 
 // Query function for station utilization
 const fetchStationUtilization = async (): Promise<StationUtilization[]> => {
-  const response = await fetch('/api/ev/station-utilization', { headers: getAuthHeaders() });
+  const response = await fetch('/api/ev-management/station-utilization', { credentials: 'include' });
   if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
-  if (data.success) return data.data;
-  throw new Error('Failed to fetch station utilization');
+  if (data.success) return data.data ?? data;
+  throw new Error(data.error || 'Failed to fetch station utilization');
 };
 
 const EVChargingDashboard: React.FC = () => {
@@ -154,22 +156,18 @@ const EVChargingDashboard: React.FC = () => {
         throw new Error('Please select a vehicle before starting charging');
       }
 
-      const response = await fetch(`/api/ev/chargers/${stationId}/remote-start`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
+      const response = await fetch(`/api/ev-management/chargers/${stationId}/remote-start`, getAuthFetchOptions('POST', {
           connectorId,
           vehicleId: _selectedVehicleId,
           idTag: `VEHICLE_${_selectedVehicleId}`
-        })
-      });
+        }));
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error('Failed to start charging');
       return data;
     },
     onSuccess: () => {
-      alert('Charging started successfully');
+      toast.success('Charging started successfully');
       queryClient.invalidateQueries({ queryKey: ['evActiveSessions'] });
       queryClient.invalidateQueries({ queryKey: ['evChargingStations'] });
     },
@@ -181,17 +179,14 @@ const EVChargingDashboard: React.FC = () => {
   // Mutation for remote stop
   const remoteStopMutation = useMutation({
     mutationFn: async (transactionId: string) => {
-      const response = await fetch(`/api/ev/sessions/${transactionId}/stop`, {
-        method: 'POST',
-        headers: getAuthHeaders()
-      });
+      const response = await fetch(`/api/ev-management/sessions/${transactionId}/stop`, getAuthFetchOptions('POST'));
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error('Failed to stop charging');
       return data;
     },
     onSuccess: () => {
-      alert('Charging stopped successfully');
+      toast.success('Charging stopped successfully');
       queryClient.invalidateQueries({ queryKey: ['evActiveSessions'] });
       queryClient.invalidateQueries({ queryKey: ['evChargingStations'] });
     },
@@ -256,20 +251,16 @@ const EVChargingDashboard: React.FC = () => {
     endTime: string;
   }): Promise<void> => {
     try {
-      const response = await fetch('/api/ev/reservations', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
+      const response = await fetch('/api/ev-management/reservations', getAuthFetchOptions('POST', {
           stationId: reservationStationId,
           ...reservationData
-        })
-      });
+        }));
       if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       const data = await response.json();
 
       if (data.success) {
-        alert('Reservation created successfully');
+        toast.success('Reservation created successfully');
         setShowReservationDialog(false);
         setReservationStationId(null);
         refetchStations();
@@ -278,7 +269,7 @@ const EVChargingDashboard: React.FC = () => {
       }
     } catch (error: unknown) {
       logger.error('Error creating reservation:', error);
-      alert(`Failed to create reservation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to create reservation: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

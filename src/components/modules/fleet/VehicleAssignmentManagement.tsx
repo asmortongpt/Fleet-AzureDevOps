@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { usePermissions } from '@/hooks/usePermissions';
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // StatusChip Component
@@ -142,7 +143,7 @@ const VehicleAssignmentManagement: React.FC = () => {
     setLoading(true);
     try {
       const response = await fetch('/api/vehicle-assignments?limit=100', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
@@ -156,8 +157,8 @@ const VehicleAssignmentManagement: React.FC = () => {
 
   const fetchOnCallPeriods = async () => {
     try {
-      const response = await fetch('/api/on-call-periods/active/current', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+      const response = await fetch('/api/on-call-management/active/current', {
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
@@ -170,7 +171,7 @@ const VehicleAssignmentManagement: React.FC = () => {
   const fetchComplianceExceptions = async () => {
     try {
       const response = await fetch('/api/reports/policy-compliance', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
@@ -186,8 +187,8 @@ const VehicleAssignmentManagement: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ action: 'approve' }),
       });
       if (response.ok) fetchAssignments();
@@ -202,8 +203,8 @@ const VehicleAssignmentManagement: React.FC = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
+        credentials: 'include',
         body: JSON.stringify({ action: 'deny', notes: reason }),
       });
       if (response.ok) fetchAssignments();
@@ -377,7 +378,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                           </td>
                           <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{assignment.department_name}</td>
                           <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>
-                            {new Date(assignment.start_date).toLocaleDateString()}
+                            {formatDate(assignment.start_date)}
                           </td>
                           <td style={{padding:16}}>
                             {(isAdmin || isFleetManager) && assignment.lifecycle_state === 'submitted' && (
@@ -428,7 +429,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, #94a3b8)', marginBottom:4}}>END DATE</div>
                                         <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>
-                                          {assignment.end_date ? new Date(assignment.end_date).toLocaleDateString() : 'Ongoing'}
+                                          {assignment.end_date ? formatDate(assignment.end_date) : 'Ongoing'}
                                         </div>
                                       </div>
                                     </div>

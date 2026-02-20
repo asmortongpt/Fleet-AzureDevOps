@@ -519,14 +519,14 @@ export function useReactiveSafetyComplianceData() {
     const departmentMap = new Map<string, { incidents: number; violations: number }>()
 
     incidents.forEach((incident) => {
-      const key = (incident as any).department || incident.location?.zone || 'Unassigned'
+      const key = (incident as any).department || incident.location?.zone || '—'
       const entry = departmentMap.get(key) || { incidents: 0, violations: 0 }
       entry.incidents += 1
       departmentMap.set(key, entry)
     })
 
     violations.forEach((violation) => {
-      const key = (violation as any).department || 'Unassigned'
+      const key = (violation as any).department || '—'
       const entry = departmentMap.get(key) || { incidents: 0, violations: 0 }
       entry.violations += 1
       departmentMap.set(key, entry)

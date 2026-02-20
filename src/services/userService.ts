@@ -40,7 +40,9 @@ const isSkipAuth = (): boolean =>
  */
 export const fetchUserProfile = async (userId: string): Promise<User> => {
   try {
-    const response = await fetch(`/api/users/${encodeURIComponent(userId)}`);
+    const response = await fetch(`/api/users/${encodeURIComponent(userId)}`, {
+      credentials: 'include',
+    });
     if (!response.ok) {
       throw new AppError(`Failed to fetch user profile: ${response.statusText}`);
     }
@@ -73,7 +75,9 @@ export const fetchCurrentUser = async (): Promise<User> => {
   }
 
   try {
-    const response = await fetch('/api/auth/me');
+    const response = await fetch('/api/auth/me', {
+      credentials: 'include',
+    });
     if (!response.ok) {
       throw new AppError(`Authentication failed: ${response.statusText}`);
     }

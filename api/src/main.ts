@@ -14,5 +14,4 @@
 // Re-export server for type checking
 export { };
 
-console.log('[MAIN] Fleet API entry point loaded');
-console.log('[MAIN] For full server, run: npm run dev or npm start');
+// Entry point loaded — use npm run dev or npm start for full server

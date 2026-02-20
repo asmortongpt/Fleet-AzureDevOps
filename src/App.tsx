@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { pageTransitionVariants } from '@/lib/animations'
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
+import { SkipNavigation } from "@/components/common/SkipNavigation"
 import { ToastContainer } from "@/components/common/ToastContainer"
 import { EnhancedErrorBoundary } from "@/components/errors/EnhancedErrorBoundary"
 import { QueryErrorBoundary } from "@/components/errors/QueryErrorBoundary"
@@ -181,7 +182,7 @@ const LoadingSpinner = () => (
 function App() {
   const { canAccess } = useAuth()
   const { activeModule, setActiveModule } = useNavigation()
-  useState(() => telemetryService.initialize())
+  useEffect(() => { telemetryService.initialize() }, [])
 
   const fleetData = useFleetData()
 
@@ -520,7 +521,14 @@ function App() {
     const moduleContent = renderModule()
     return (
       <DrilldownManager>
-        <SinglePageShell moduleContent={moduleContent} />
+        <SkipNavigation />
+        <EnhancedErrorBoundary showDetails={import.meta.env.DEV}>
+          <QueryErrorBoundary>
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center"><LoadingSpinner /></div>}>
+              <SinglePageShell moduleContent={moduleContent} />
+            </Suspense>
+          </QueryErrorBoundary>
+        </EnhancedErrorBoundary>
 
         {/* Toast notifications */}
         <div role="status" aria-live="polite" aria-label="Toast notifications">
@@ -548,6 +556,7 @@ function App() {
   // Legacy layout (default)
   return (
     <DrilldownManager>
+      <SkipNavigation />
       <CommandCenterLayout>
         <EnhancedErrorBoundary
           showDetails={import.meta.env.DEV}

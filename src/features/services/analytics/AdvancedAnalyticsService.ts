@@ -4,6 +4,7 @@
  */
 
 import { secureFetch } from '@/hooks/use-api';
+import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 export interface FleetMetrics {
@@ -181,7 +182,7 @@ class AdvancedAnalyticsService {
           confidence: Math.round((insight.confidence ?? 0) * 100),
           trend: 'STABLE',
           recommendedAction: insight.actionable ? insight.message : undefined,
-          timeframe: insight.timestamp ? new Date(insight.timestamp).toLocaleDateString() : 'Recent',
+          timeframe: insight.timestamp ? formatDate(insight.timestamp) : 'Recent',
           riskLevel,
           affectedVehicles: insight.relatedVehicle ? [insight.relatedVehicle] : [],
         };

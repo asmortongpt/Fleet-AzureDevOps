@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { formatNumber } from '@/utils/format-helpers'
 import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
 import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
 import { StatusChip } from '@/shared/design-system/StatusChip'
@@ -208,7 +209,7 @@ export default function FleetDesignDemo() {
                                         </div>
                                     </td>
                                     <td style={{ padding: 16, fontSize: 14 }}>{vehicle.kind}</td>
-                                    <td style={{ padding: 16, fontSize: 14 }}>{vehicle.odometer.toLocaleString()} mi</td>
+                                    <td style={{ padding: 16, fontSize: 14 }}>{formatNumber(vehicle.odometer)} mi</td>
                                     <td style={{ padding: 16 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                             <div style={{

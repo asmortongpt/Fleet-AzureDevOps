@@ -20,6 +20,7 @@ import { API_ENDPOINT_CATEGORIES, WEBSOCKET_CONNECTIONS } from '@/config/endpoin
 import { useEndpointHealth } from '@/hooks/useEndpointHealth'
 import { cn } from '@/lib/utils'
 import { EndpointStatus, SocketStatus } from '@/types/endpoint-monitor'
+import { formatTime } from '@/utils/format-helpers'
 
 interface AllEndpointsMonitorProps {
   className?: string
@@ -222,7 +223,7 @@ export function AllEndpointsMonitor({ className }: AllEndpointsMonitorProps) {
       {lastCheck && (
         <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
           <Clock className="w-3 h-3" />
-          Last checked: {lastCheck.toLocaleTimeString()}
+          Last checked: {formatTime(lastCheck)}
         </div>
       )}
 

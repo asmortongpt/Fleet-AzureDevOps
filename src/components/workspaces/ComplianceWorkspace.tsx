@@ -33,6 +33,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useVehicles, useDrivers, useWorkOrders } from "@/hooks/use-api"
 import { swrFetcher } from "@/lib/fetcher"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDate } from "@/utils/format-helpers"
 
 // Document Management Panel
 const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: any[] }) => {
@@ -57,7 +59,7 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
     return new Map(
       safeVehicles.map((vehicle: any) => [
         vehicle.id,
-        vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.name || vehicle.vin || 'Unknown'
+        vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.name || vehicle.vin || '—'
       ])
     )
   }, [vehicles])
@@ -67,7 +69,7 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
     return new Map(
       safeDrivers.map((driver: any) => [
         driver.id,
-        `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() || driver.name || 'Unknown'
+        `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() || driver.name || '—'
       ])
     )
   }, [drivers])
@@ -89,11 +91,11 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
         name: doc.file_name || doc.name || doc.title || 'Untitled Document',
         type: doc.document_type || doc.type || doc.category || 'other',
         status,
-        expiryDate: expiry ? expiry.toLocaleDateString() : 'N/A',
+        expiryDate: expiry ? formatDate(expiry) : '—',
         vehicle: doc.vehicle_id ? vehicleMap.get(doc.vehicle_id) : undefined,
         driver: doc.driver_id ? driverMap.get(doc.driver_id) : undefined,
         uploadedBy: doc.uploaded_by_name || doc.uploaded_by || '',
-        uploadedDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString() : (doc.created_at ? new Date(doc.created_at).toLocaleDateString() : 'N/A')
+        uploadedDate: doc.uploaded_at ? formatDate(doc.uploaded_at) : (doc.created_at ? formatDate(doc.created_at) : '—')
       }
     })
   }, [documents, vehicleMap, driverMap])
@@ -222,7 +224,7 @@ const DocumentManagement = ({ vehicles, drivers }: { vehicles: any[]; drivers: a
                           )}
                           <div className="flex items-center">
                             <User className="h-3 w-3 mr-1" />
-                            By: {doc.uploadedBy || 'N/A'}
+                            By: {doc.uploadedBy || '—'}
                           </div>
                           <div className="flex items-center">
                             <Clock className="h-3 w-3 mr-1" />
@@ -270,7 +272,7 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
     return new Map(
       safeVehicles.map((vehicle: any) => [
         vehicle.id,
-        vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.name || vehicle.vin || 'Unknown'
+        vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.name || vehicle.vin || '—'
       ])
     )
   }, [vehicles])
@@ -280,7 +282,7 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
     return new Map(
       safeDrivers.map((driver: any) => [
         driver.id,
-        `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() || driver.name || 'Unknown'
+        `${driver.first_name || driver.firstName || ''} ${driver.last_name || driver.lastName || ''}`.trim() || driver.name || '—'
       ])
     )
   }, [drivers])
@@ -302,8 +304,8 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
         status: incident.status || 'open',
         vehicle: incident.vehicle_id ? vehicleMap.get(incident.vehicle_id) : undefined,
         driver: incident.driver_id ? driverMap.get(incident.driver_id) : undefined,
-        date: occurredAt ? new Date(occurredAt).toLocaleDateString() : 'N/A',
-        location: incident.location || incident.address || 'N/A'
+        date: occurredAt ? formatDate(occurredAt) : '—',
+        location: incident.location || incident.address || '—'
       }
     })
   }, [incidentsResponse, vehicleMap, driverMap])
@@ -366,13 +368,13 @@ const IncidentTracking = ({ vehicles, drivers }: { vehicles: any[]; drivers: any
                     <div className="flex items-center gap-2 mb-2">
                       <AlertTriangle className={cn("h-4 w-4", getSeverityColor(incident.severity))} />
                       <h4 className="font-semibold">{incident.title}</h4>
-                      <Badge variant="outline" className="capitalize">
-                        {incident.status.replace('_', ' ')}
+                      <Badge variant="outline">
+                        {formatEnum(incident.status)}
                       </Badge>
                     </div>
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                      <div>Type: {incident.type}</div>
-                      <div>Severity: <span className={getSeverityColor(incident.severity)}>{incident.severity}</span></div>
+                      <div>Type: {formatEnum(incident.type)}</div>
+                      <div>Severity: <span className={getSeverityColor(incident.severity)}>{formatEnum(incident.severity)}</span></div>
                       <div>Vehicle: {incident.vehicle}</div>
                       <div>Date: {incident.date}</div>
                       {incident.driver && <div>Driver: {incident.driver}</div>}
@@ -469,7 +471,7 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>{metric.title}</span>
                   <Badge variant="outline" className={getStatusColor(metric.percentage)}>
-                    {metric.total > 0 ? `${metric.percentage}%` : 'N/A'}
+                    {metric.total > 0 ? `${metric.percentage}%` : '—'}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -478,7 +480,7 @@ const SafetyCompliance = ({ vehicles, drivers }: { vehicles?: unknown[]; drivers
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Progress</span>
                     <span className="font-medium">
-                      {metric.total > 0 ? `${metric.completed} / ${metric.total}` : 'No data'}
+                      {metric.total > 0 ? `${metric.completed} / ${metric.total}` : '—'}
                     </span>
                   </div>
                   <div className="w-full bg-secondary rounded-full h-2">

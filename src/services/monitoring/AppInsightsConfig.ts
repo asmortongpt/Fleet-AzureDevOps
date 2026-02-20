@@ -7,7 +7,7 @@ const reactPlugin = new ReactPlugin();
 
 export const appInsights = new ApplicationInsights({
   config: {
-    connectionString: process.env.VITE_APPINSIGHTS_CONNECTION_STRING || '',
+    connectionString: import.meta.env.VITE_APPINSIGHTS_CONNECTION_STRING || '',
     enableAutoRouteTracking: true,
     enableRequestHeaderTracking: true,
     enableResponseHeaderTracking: true,
@@ -37,7 +37,7 @@ export function initAppInsights(history: any) {
     envelope.data = envelope.data || {};
     envelope.data.tenantId = (window as any).__TENANT_ID__;
     envelope.data.userId = (window as any).__USER_ID__;
-    envelope.data.appVersion = process.env.VITE_APP_VERSION;
+    envelope.data.appVersion = import.meta.env.VITE_APP_VERSION;
   });
 }
 

@@ -19,6 +19,8 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { OutlookEmailButton, CalendarEventButton } from '@/components/integrations/MicrosoftIntegration';
+import { formatEnum } from '@/utils/format-enum';
+import { formatDateTime } from '@/utils/format-helpers';
 import { Dialog } from '@/components/shared/Dialog';
 
 // TypeScript Interfaces
@@ -268,14 +270,14 @@ export const ReservationSystem: React.FC = () => {
                     </div>
                   </td>
                   <td className="px-2 py-3 text-sm">
-                    {new Date(reservation.startDate).toLocaleString()}
+                    {formatDateTime(reservation.startDate)}
                   </td>
                   <td className="px-2 py-3 text-sm">
-                    {new Date(reservation.endDate).toLocaleString()}
+                    {formatDateTime(reservation.endDate)}
                   </td>
                   <td className="px-2 py-3">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full border ${statusColors[reservation.status]}`}>
-                      {reservation.status}
+                      {formatEnum(reservation.status)}
                     </span>
                   </td>
                   <td className="px-2 py-3">
@@ -642,7 +644,7 @@ const ReservationDetails: React.FC<{
         {/* Status Badge */}
         <div className="flex items-center gap-2">
           <span className={`px-3 py-1 text-sm font-medium rounded-full border ${statusColors[reservation.status]}`}>
-            {reservation.status.toUpperCase()}
+            {formatEnum(reservation.status)}
           </span>
           {reservation.approvedBy && (
             <span className="text-sm text-muted-foreground">
@@ -663,11 +665,11 @@ const ReservationDetails: React.FC<{
           </div>
           <div>
             <label className="text-sm font-medium text-muted-foreground">Start Date</label>
-            <p className="text-sm">{new Date(reservation.startDate).toLocaleString()}</p>
+            <p className="text-sm">{formatDateTime(reservation.startDate)}</p>
           </div>
           <div>
             <label className="text-sm font-medium text-muted-foreground">End Date</label>
-            <p className="text-sm">{new Date(reservation.endDate).toLocaleString()}</p>
+            <p className="text-sm">{formatDateTime(reservation.endDate)}</p>
           </div>
           <div className="col-span-2">
             <label className="text-sm font-medium text-muted-foreground">Purpose</label>
@@ -688,7 +690,7 @@ const ReservationDetails: React.FC<{
             <OutlookEmailButton
               to={reservation.driverEmail || 'andrew.m@capitaltechalliance.com'}
               subject={`Reservation Confirmation: ${reservation.vehicleName}`}
-              body={`Your reservation for ${reservation.vehicleName} from ${new Date(reservation.startDate).toLocaleString()} to ${new Date(reservation.endDate).toLocaleString()} has been confirmed.`}
+              body={`Your reservation for ${reservation.vehicleName} from ${formatDateTime(reservation.startDate)} to ${formatDateTime(reservation.endDate)} has been confirmed.`}
             />
           </div>
         </div>

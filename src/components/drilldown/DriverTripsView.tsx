@@ -18,6 +18,8 @@ import useSWR from 'swr'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatTime } from '@/utils/format-helpers'
 
 interface DriverTripsViewProps {
   driverId: string
@@ -44,10 +46,11 @@ interface Trip {
   highlights?: string[]
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) {
   const { data: trips, error, isLoading, mutate } = useSWR(
@@ -96,7 +99,7 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                           <div className="space-y-1">
                             <div className="flex items-center gap-2">
                               <Badge variant={trip.status === 'completed' ? 'default' : 'default'}>
-                                {trip.status}
+                                {formatEnum(trip.status)}
                               </Badge>
                               <span className="text-xs text-muted-foreground">
                                 Trip #{String(trip.id).slice(0, 8)}
@@ -116,14 +119,12 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-muted-foreground" />
                             <span>
-                              {trip.start_time
-                                ? new Date(trip.start_time).toLocaleDateString()
-                                : 'N/A'}
+                              {formatDate(trip.start_time)}
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4 text-muted-foreground" />
-                            <span>{trip.duration || 'N/A'}</span>
+                            <span>{trip.duration || '—'}</span>
                           </div>
                         </div>
 
@@ -134,13 +135,13 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                             <div className="flex items-center gap-2">
                               <span className="font-medium">From:</span>
                               <span className="text-muted-foreground truncate">
-                                {trip.start_location || 'Unknown'}
+                                {trip.start_location || '—'}
                               </span>
                             </div>
                             <div className="flex items-center gap-2">
                               <span className="font-medium">To:</span>
                               <span className="text-muted-foreground truncate">
-                                {trip.end_location || 'Unknown'}
+                                {trip.end_location || '—'}
                               </span>
                             </div>
                           </div>
@@ -151,19 +152,19 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                           <div>
                             <p className="text-xs text-muted-foreground">Distance</p>
                             <p className="font-medium">
-                              {trip.distance ? `${trip.distance.toFixed(1)} mi` : 'N/A'}
+                              {trip.distance ? `${trip.distance.toFixed(1)} mi` : '—'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Avg Speed</p>
                             <p className="font-medium">
-                              {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : 'N/A'}
+                              {trip.avg_speed ? `${trip.avg_speed.toFixed(0)} mph` : '—'}
                             </p>
                           </div>
                           <div>
                             <p className="text-xs text-muted-foreground">Fuel</p>
                             <p className="font-medium">
-                              {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : 'N/A'}
+                              {trip.fuel_used ? `${trip.fuel_used.toFixed(1)} gal` : '—'}
                             </p>
                           </div>
                         </div>
@@ -178,22 +179,22 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                               </span>
                             </div>
                             <ul className="space-y-2">
-                              {trip.incidents.map((incident) => (
+                              {trip.incidents.map((incident, idx) => (
                                 <li
-                                  key={`${incident.type}-${incident.timestamp}`}
+                                  key={idx}
                                   className="text-xs p-2 rounded bg-destructive/10 flex items-start gap-2"
                                 >
                                   <AlertTriangle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
                                   <div className="flex-1">
-                                    <p className="font-medium">{incident.type}</p>
+                                    <p className="font-medium">{formatEnum(incident.type)}</p>
                                     {incident.severity && (
                                       <p className="text-muted-foreground">
-                                        Severity: {incident.severity}
+                                        Severity: {formatEnum(incident.severity)}
                                       </p>
                                     )}
                                     {incident.timestamp && (
                                       <p className="text-muted-foreground">
-                                        {new Date(incident.timestamp).toLocaleTimeString()}
+                                        {formatTime(incident.timestamp)}
                                       </p>
                                     )}
                                   </div>
@@ -211,9 +212,9 @@ export function DriverTripsView({ driverId, driverName }: DriverTripsViewProps) 
                               <span className="text-sm font-medium">Highlights</span>
                             </div>
                             <ul className="space-y-1">
-                              {trip.highlights.map((highlight) => (
+                              {trip.highlights.map((highlight, idx) => (
                                 <li
-                                  key={highlight}
+                                  key={idx}
                                   className="text-xs flex items-center gap-2 text-green-600"
                                 >
                                   <TrendingUp className="h-3 w-3 flex-shrink-0" />

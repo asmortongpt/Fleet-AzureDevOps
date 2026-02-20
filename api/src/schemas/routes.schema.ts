@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { commonSchemas } from '../middleware/validation';
+import { commonSchemas, flexUuid } from '../middleware/validation';
 
 /**
  * Comprehensive Zod validation schemas for Routes
@@ -48,8 +48,8 @@ export const routeCreateSchema = z.object({
     .trim(),
 
   // Assignment (OPTIONAL)
-  vehicle_id: z.string().uuid('Invalid vehicle ID format').optional(),
-  driver_id: z.string().uuid('Invalid driver ID format').optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
 
   // Status
   status: routeStatusEnum.default('planned'),
@@ -143,7 +143,7 @@ export const routeCreateSchema = z.object({
 
   priority: z.enum(['low', 'medium', 'high', 'urgent']).default('medium'),
 
-  customer_id: z.string().uuid().optional(),
+  customer_id: flexUuid.optional(),
 
   load_details: z.string().max(2000).optional(),
 
@@ -186,8 +186,8 @@ export const routeUpdateSchema = z.object({
     .trim()
     .optional(),
 
-  vehicle_id: z.string().uuid().nullable().optional(),
-  driver_id: z.string().uuid().nullable().optional(),
+  vehicle_id: flexUuid.nullable().optional(),
+  driver_id: flexUuid.nullable().optional(),
 
   status: routeStatusEnum.optional(),
 
@@ -242,9 +242,9 @@ export const routeQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(500).default(50),
 
   // Filtering
-  vehicle_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid().optional(),
-  customer_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
+  customer_id: flexUuid.optional(),
 
   status: routeStatusEnum.optional(),
   route_type: z.enum([
@@ -344,7 +344,7 @@ export const routeOptimizationSchema = z.object({
  * Route ID parameter schema
  */
 export const routeIdSchema = z.object({
-  id: z.string().uuid('Invalid route ID format')
+  id: flexUuid
 });
 
 // Type exports

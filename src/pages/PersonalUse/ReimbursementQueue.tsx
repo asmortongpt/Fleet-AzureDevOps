@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Textarea } from '@/components/ui/textarea'
 import { usePermissions } from '@/hooks/usePermissions'
+import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 interface ReimbursementRequest {
@@ -46,20 +47,18 @@ interface QueueSummary {
 }
 
 const apiClient = async (url: string): Promise<any> => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
-    headers: { Authorization: `Bearer ${token}` }
+    credentials: 'include'
   })
   if (!response.ok) throw new Error('Failed to fetch')
   return response.json()
 }
 
 const apiMutation = async (url: string, method: string, data?: unknown): Promise<any> => {
-  const token = localStorage.getItem('token')
   const response = await fetch(url, {
     method,
+    credentials: 'include',
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json'
     },
     body: data ? JSON.stringify(data) : undefined
@@ -185,7 +184,7 @@ export function ReimbursementQueue() {
     onSuccess: () => {
       toast.success(
         reviewAction === 'approve'
-          ? `Approved $${approvedAmount}`
+          ? `Approved ${formatCurrency(parseFloat(approvedAmount))}`
           : 'Reimbursement rejected'
       )
       setReviewingRequest(null)
@@ -299,7 +298,7 @@ export function ReimbursementQueue() {
             icon={<Receipt className="h-4 w-4" />}
             contentClassName="space-y-1"
           >
-            <div className="text-sm font-bold">${summary.total_amount.toFixed(2)}</div>
+            <div className="text-sm font-bold">{formatCurrency(summary.total_amount)}</div>
             <p className="text-xs text-muted-foreground">Pending approval</p>
           </Section>
 
@@ -440,8 +439,8 @@ export function ReimbursementQueue() {
                       />
                     </TableCell>
                     <TableCell>{request.driver_name}</TableCell>
-                    <TableCell>${request.request_amount.toFixed(2)}</TableCell>
-                    <TableCell>{request.category || 'N/A'}</TableCell>
+                    <TableCell>{formatCurrency(request.request_amount)}</TableCell>
+                    <TableCell>{request.category || '—'}</TableCell>
                     <TableCell>{format(new Date(request.expense_date), 'MMM d, yyyy')}</TableCell>
                     <TableCell>{getStatusBadge(request.status)}</TableCell>
                     <TableCell>{format(new Date(request.submitted_at), 'MMM d, yyyy')}</TableCell>
@@ -503,7 +502,7 @@ export function ReimbursementQueue() {
               </div>
               <div className="space-y-2">
                 <Label>Requested Amount</Label>
-                <Input value={`$${reviewingRequest.request_amount.toFixed(2)}`} disabled />
+                <Input value={formatCurrency(reviewingRequest.request_amount)} disabled />
               </div>
               {reviewAction === 'approve' && (
                 <div className="space-y-2">

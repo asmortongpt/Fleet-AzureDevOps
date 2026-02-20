@@ -1,4 +1,5 @@
 import { TrendingUp, TrendingDown, TrendingFlat } from '@mui/icons-material';
+import { formatDate, formatDateTime } from '@/utils/format-helpers';
 import { Box, ToggleButton, ToggleButtonGroup, Typography, Chip, Grid, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import React, { useMemo, useState } from 'react';
 import {
@@ -92,7 +93,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
 
       const label = timeRange === '1h' ? new Date(endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) :
                     timeRange === '24h' ? new Date(endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) :
-                    new Date(endTime).toLocaleDateString([], { month: 'short', day: 'numeric' });
+                    formatDate(new Date(endTime));
 
       data.push({
         time: label,
@@ -108,7 +109,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
   const pieData = useMemo(() => {
     const typeCount: Record<string, number> = {};
     filteredErrors.forEach(error => {
-      const type = error.type || 'Unknown';
+      const type = error.type || '—';
       typeCount[type] = (typeCount[type] || 0) + 1;
     });
 
@@ -296,7 +297,7 @@ const ErrorRateChart: React.FC<Props> = ({ errors = [], loading }) => {
                 <strong>{error.type}</strong> at {error.endpoint}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {new Date(error.timestamp).toLocaleString()} - {error.message}
+                {formatDateTime(new Date(error.timestamp))} - {error.message}
               </Typography>
             </Box>
           ))}

@@ -47,6 +47,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useAuth } from "@/contexts"
 import { CommunicationLog as CommunicationLogType } from "@/lib/types"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDate, formatTime } from "@/utils/format-helpers"
 
 const fetcher = (url: string) =>
   fetch(url)
@@ -502,16 +504,16 @@ export function CommunicationLog() {
                 filteredLogs.map(log => (
                   <TableRow key={log.id}>
                     <TableCell className="text-sm">
-                      {new Date(log.date).toLocaleDateString()}
+                      {formatDate(log.date)}
                       <div className="text-xs text-muted-foreground">
-                        {new Date(log.date).toLocaleTimeString()}
+                        {formatTime(log.date)}
                       </div>
                     </TableCell>
                     <TableCell>
                       <Badge className={getTypeColor(log.type)} variant="secondary">
                         <span className="flex items-center gap-1">
                           {getTypeIcon(log.type)}
-                          {log.type}
+                          {formatEnum(log.type)}
                         </span>
                       </Badge>
                     </TableCell>
@@ -537,7 +539,7 @@ export function CommunicationLog() {
                       {log.followUpRequired ? (
                         <Badge variant="secondary" className="bg-orange-100 text-orange-700">
                           <Clock className="w-3 h-3 mr-1" />
-                          {log.followUpDate ? new Date(log.followUpDate).toLocaleDateString() : "Required"}
+                          {log.followUpDate ? formatDate(log.followUpDate) : "Required"}
                         </Badge>
                       ) : (
                         <span className="text-muted-foreground text-sm">-</span>

@@ -193,7 +193,7 @@ router.delete(
       // @ts-expect-error - Build compatibility fix
       await customReportService.deleteReport(id, req.user!.tenant_id ?? '')
 
-      res.json({ message: 'Report deleted successfully' })
+      res.json({ success: true, message: 'Report deleted successfully' })
     } catch (error) {
       logger.error('Delete report error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -395,7 +395,7 @@ router.put(
 
       await reportScheduler.updateSchedule(scheduleId, updates)
 
-      res.json({ message: 'Schedule updated successfully' })
+      res.json({ success: true, message: 'Schedule updated successfully' })
     } catch (error) {
       logger.error('Update schedule error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })
@@ -416,7 +416,7 @@ router.delete(
 
       await reportScheduler.deleteSchedule(scheduleId)
 
-      res.json({ message: 'Schedule deleted successfully' })
+      res.json({ success: true, message: 'Schedule deleted successfully' })
     } catch (error) {
       logger.error('Delete schedule error:', error) // Wave 21: Winston logger
       res.status(500).json({ error: 'Internal server error' })

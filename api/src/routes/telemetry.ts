@@ -121,7 +121,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'telemetry_data' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updateTelemetrySchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -158,7 +162,7 @@ router.delete(
         throw new NotFoundError("Telemetry not found")
       }
 
-      res.json({ message: 'Telemetry deleted successfully' })
+      res.json({ success: true, message: 'Telemetry deleted successfully' })
     } catch (error) {
       logger.error('Delete telemetry error:', error)
       res.status(500).json({ error: 'Internal server error' })

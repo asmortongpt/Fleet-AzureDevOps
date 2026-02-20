@@ -5,6 +5,7 @@ import { Button } from "./button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "./card"
 
 import { cn } from "@/lib/utils"
+import { formatDate, formatNumber } from "@/utils/format-helpers"
 
 
 interface ChartCardProps extends ComponentProps<"div"> {
@@ -175,7 +176,7 @@ export function ChartCard({
               <div>
                 <div className="text-xs text-muted-foreground font-medium">Total</div>
                 <div className="text-sm font-semibold metric-number">
-                  {metadata.total.toLocaleString()}
+                  {formatNumber(metadata.total)}
                   {metadata.unit && ` ${metadata.unit}`}
                 </div>
               </div>
@@ -200,5 +201,5 @@ function formatRelativeTime(date: Date): string {
   if (diffHours < 24) return `${diffHours}h ago`
   if (diffDays < 7) return `${diffDays}d ago`
 
-  return date.toLocaleDateString()
+  return formatDate(date)
 }

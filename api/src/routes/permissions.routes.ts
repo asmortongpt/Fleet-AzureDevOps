@@ -7,6 +7,7 @@
  */
 
 import { Router, Request, Response } from 'express';
+import { z } from 'zod';
 
 import logger from '../config/logger';
 import { container } from '../container';
@@ -18,6 +19,26 @@ import { PermissionsRepository } from '../repositories/PermissionsRepository';
 import { auditService } from '../services/auditService';
 import { TYPES } from '../types';
 import { authenticateJWT } from '../middleware/auth'
+
+import { flexUuid } from '../middleware/validation'
+
+// --- Zod Schemas for input validation ---
+
+const checkPermissionSchema = z.object({
+  action: z.string().min(1, 'Action is required').max(200),
+  resource: z.record(z.string(), z.unknown()).optional(),
+  resourceType: z.string().max(100).optional(),
+});
+
+const createRoleSchema = z.object({
+  name: z.string().min(1, 'Role name is required').max(100),
+  description: z.string().max(500).optional(),
+});
+
+const assignRolesSchema = z.object({
+  roles: z.array(z.string().min(1).max(100), { message: 'Roles must be an array of strings' }).min(1, 'At least one role is required'),
+  org_id: flexUuid.optional(),
+});
 
 const router = Router();
 
@@ -89,14 +110,16 @@ router.post('/check', csrfProtection, async (req: Request, res: Response) => {
       });
     }
 
-    const { action, resource, resourceType } = req.body;
-
-    if (!action) {
+    const parsed = checkPermissionSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Action is required'
+        message: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
       });
     }
+
+    const { action, resource, resourceType } = parsed.data;
 
     const result = await permissionEngine.can(user, action, resource, { resourceType });
 
@@ -143,14 +166,17 @@ router.get('/roles', requireAdmin, async (req: Request, res: Response) => {
 router.post('/roles', csrfProtection, requireAdmin, async (req: Request, res: Response) => {
   try {
     const user = req.user as User;
-    const { name, description } = req.body;
 
-    if (!name) {
+    const parsed = createRoleSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Role name is required'
+        message: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
       });
     }
+
+    const { name, description } = parsed.data;
 
     // Query #3 eliminated - use repository
     const permissionsRepo = getPermissionsRepository();
@@ -220,14 +246,17 @@ router.put('/users/:userId/roles', csrfProtection, requireAdmin, async (req: Req
   try {
     const user = req.user as User;
     const { userId } = req.params;
-    const { roles, org_id } = req.body;
 
-    if (!Array.isArray(roles)) {
+    const parsed = assignRolesSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
         error: 'Bad Request',
-        message: 'Roles must be an array'
+        message: 'Validation failed',
+        details: parsed.error.flatten().fieldErrors,
       });
     }
+
+    const { roles, org_id } = parsed.data;
 
     // Queries #5, #6, #7 eliminated - use repository with transaction
     const permissionsRepo = getPermissionsRepository();

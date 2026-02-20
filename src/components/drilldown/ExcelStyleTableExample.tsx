@@ -10,6 +10,7 @@ import { useState } from 'react'
 import { ExcelStyleTable, ColumnDef } from './ExcelStyleTable'
 
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatCurrency, formatNumber } from '@/utils/format-helpers'
 
 // ============================================================================
 // EXAMPLE 1: Vehicle Fleet Table
@@ -134,7 +135,7 @@ export function VehicleFleetTableExample() {
       width: 120,
       sortable: true,
       filterable: true,
-      format: (value) => `${value.toLocaleString()} mi`,
+      format: (value) => `${formatNumber(value)} mi`,
     },
     {
       id: 'fuelLevel',
@@ -435,7 +436,7 @@ export function WorkOrderTableExample() {
       width: 120,
       sortable: true,
       filterable: true,
-      format: (value) => `$${value.toFixed(2)}`,
+      format: (value) => formatCurrency(value),
     },
     {
       id: 'category',
@@ -523,7 +524,7 @@ export function VirtualizedTableExample() {
       width: 150,
       sortable: true,
       filterable: true,
-      format: (value) => `$${value.toFixed(2)}`,
+      format: (value) => formatCurrency(value),
     },
     {
       id: 'date',

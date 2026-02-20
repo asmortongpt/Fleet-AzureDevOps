@@ -62,6 +62,7 @@ import {
 } from '@/components/ui/select'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 // ============================================================================
 // Types & Interfaces
@@ -207,7 +208,7 @@ const ProviderCard: React.FC<ProviderCardProps> = ({
         {/* Connection Details */}
         {provider.lastSyncTime && (
           <div className="text-sm text-muted-foreground">
-            Last sync: {new Date(provider.lastSyncTime).toLocaleString()}
+            Last sync: {formatDateTime(provider.lastSyncTime)}
           </div>
         )}
 
@@ -560,7 +561,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
     setIsLoading(true)
     setError(null)
     try {
-      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config`)
+      const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config`, { credentials: 'include' })
       if (!response.ok) {
         throw new Error(`Failed to fetch providers: ${response.statusText}`)
       }
@@ -580,6 +581,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       const response = await fetch(`/api/vehicles/${vehicleId}/hardware-config/providers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ type, configuration: config })
       })
 

@@ -10,6 +10,7 @@ import { useState } from "react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { formatTime } from "@/utils/format-helpers"
 
 /**
  * SINGLE-PAGE FLEET MANAGEMENT DASHBOARD
@@ -194,7 +195,7 @@ export default function App() {
             Capital Tech Alliance Fleet Management System
           </p>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Last updated: {new Date().toLocaleTimeString('en-US')}
+            Last updated: {formatTime(new Date())}
           </p>
         </div>
       </footer>

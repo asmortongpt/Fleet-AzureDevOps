@@ -30,7 +30,8 @@ import logger from '../config/logger';
 import { authenticateJWT, AuthRequest } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf';
 import ReservationsService, { UserContext } from '../services/reservations.service';
-import { getErrorMessage } from '../utils/error-handler';
+
+import { flexUuid } from '../middleware/validation'
 
 const router = express.Router();
 
@@ -48,7 +49,7 @@ export function setDatabasePool(dbPool: Pool) {
 // ============================================
 
 const createReservationSchema = z.object({
-  vehicle_id: z.string().uuid('Invalid vehicle ID'),
+  vehicle_id: flexUuid,
   start_datetime: z.string().datetime('Invalid start datetime format'),
   end_datetime: z.string().datetime('Invalid end datetime format'),
   // @ts-expect-error - Build compatibility fix
@@ -190,7 +191,6 @@ return res.status(401).json({ success: false, error: 'Missing tenant context' })
     logger.error('Error fetching reservations:', error);
     res.status(500).json({
       error: 'Failed to fetch reservations',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -216,13 +216,12 @@ router.get('/pending', authenticateJWT, async (req: AuthRequest, res: Response) 
     if (errMsg.includes('permission')) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: errMsg,
+        message: 'You do not have permission to view pending reservations',
       });
     }
 
     res.status(500).json({
       error: 'Failed to fetch pending reservations',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -245,13 +244,12 @@ router.get('/:id', authenticateJWT, async (req: AuthRequest, res: Response) => {
 
     if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: errMsg,
+        error: 'Reservation not found',
       });
     }
 
     res.status(500).json({
       error: 'Failed to fetch reservation',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -300,20 +298,19 @@ router.post('/', csrfProtection, authenticateJWT, async (req: AuthRequest, res: 
 
     if (errMsg.includes('not found')) {
       return res.status(404).json({
-        error: errMsg,
+        error: 'Vehicle or resource not found',
       });
     }
 
     if (errMsg.includes('conflict') || errMsg.includes('reserved')) {
       return res.status(409).json({
         error: 'Reservation conflict',
-        message: errMsg,
+        message: 'The requested vehicle is already reserved for this time period',
       });
     }
 
     res.status(500).json({
       error: 'Failed to create reservation',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -366,20 +363,19 @@ router.put('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, res
 
     if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: errMsg,
+        error: 'Reservation not found',
       });
     }
 
     if (errMsg.includes('Only pending') || errMsg.includes('conflict')) {
       return res.status(400).json({
         error: 'Cannot update reservation',
-        message: errMsg,
+        message: 'Only pending reservations can be updated',
       });
     }
 
     res.status(500).json({
       error: 'Failed to update reservation',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -417,13 +413,12 @@ router.delete('/:id', csrfProtection, authenticateJWT, async (req: AuthRequest, 
 
     if (errMsg.includes('not found') || errMsg.includes('access denied')) {
       return res.status(404).json({
-        error: errMsg,
+        error: 'Reservation not found',
       });
     }
 
     res.status(500).json({
       error: 'Failed to cancel reservation',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -477,26 +472,25 @@ router.post('/:id/approve', csrfProtection, authenticateJWT, async (req: AuthReq
     if (errMsg.includes('permission')) {
       return res.status(403).json({
         error: 'Forbidden',
-        message: errMsg,
+        message: 'You do not have permission to approve reservations',
       });
     }
 
     if (errMsg.includes('not found')) {
       return res.status(404).json({
-        error: errMsg,
+        error: 'Reservation not found',
       });
     }
 
     if (errMsg.includes('Only pending')) {
       return res.status(400).json({
         error: 'Invalid status',
-        message: errMsg,
+        message: 'Only pending reservations can be approved or rejected',
       });
     }
 
     res.status(500).json({
       error: 'Failed to process approval',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -536,7 +530,6 @@ router.get('/vehicles/:vehicleId/availability', authenticateJWT, async (req: Aut
     logger.error('Error checking vehicle availability:', error);
     res.status(500).json({
       error: 'Failed to check vehicle availability',
-      details: getErrorMessage(error),
     });
   }
 });
@@ -572,7 +565,6 @@ router.get('/vehicles/:vehicleId/reservations', authenticateJWT, async (req: Aut
     logger.error('Error fetching vehicle reservations:', error);
     res.status(500).json({
       error: 'Failed to fetch vehicle reservations',
-      details: getErrorMessage(error),
     });
   }
 });

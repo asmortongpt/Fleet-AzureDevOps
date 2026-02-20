@@ -5,6 +5,7 @@
 import { EventEmitter } from 'events'
 
 import { Vehicle, MaintenanceEvent, EmulatorConfig } from '../types'
+import logger from '../../config/logger'
 
 export class MaintenanceEmulator extends EventEmitter {
   private vehicle: Vehicle
@@ -38,7 +39,7 @@ export class MaintenanceEmulator extends EventEmitter {
       }
     }, 300000) // Check every 5 minutes
 
-    console.log(`Maintenance Emulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`Maintenance Emulator started for vehicle ${this.vehicle.id}`)
   }
 
   public async stop(): Promise<void> {
@@ -47,7 +48,7 @@ export class MaintenanceEmulator extends EventEmitter {
       this.updateInterval = null
     }
     this.isRunning = false
-    console.log(`Maintenance Emulator stopped for vehicle ${this.vehicle.id}`)
+    logger.info(`Maintenance Emulator stopped for vehicle ${this.vehicle.id}`)
   }
 
   public async pause(): Promise<void> {

@@ -24,6 +24,7 @@ import { swrFetcher } from "@/lib/fetcher"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { MSOutlookEmail } from "@/lib/types"
 import { brandColors } from '@/theme/designSystem'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
 type OutlookMessageRow = {
   id: string
@@ -124,7 +125,7 @@ export function EmailCenter() {
       to: email.from,
       cc: "",
       subject: `Re: ${email.subject}`,
-      body: `\n\n---\nOn ${new Date(email.date).toLocaleString()}, ${email.from} wrote:\n${email.body}`
+      body: `\n\n---\nOn ${formatDateTime(email.date)}, ${email.from} wrote:\n${email.body}`
     })
     setIsComposeOpen(true)
   }
@@ -271,7 +272,7 @@ export function EmailCenter() {
                           {email.from}
                         </div>
                         <div className="text-xs text-muted-foreground ml-2">
-                          {new Date(email.date).toLocaleDateString()}
+                          {formatDate(email.date)}
                         </div>
                       </div>
                       <div className="text-sm font-semibold mb-1 truncate">
@@ -334,7 +335,7 @@ export function EmailCenter() {
                       )}
                       <div className="flex items-center gap-2">
                         <span className="text-muted-foreground">Date:</span>
-                        <span>{new Date(selectedEmail.date).toLocaleString()}</span>
+                        <span>{formatDateTime(selectedEmail.date)}</span>
                       </div>
                     </div>
                   </div>

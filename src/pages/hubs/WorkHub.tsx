@@ -15,6 +15,7 @@ import { Badge } from "../../components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs";
 import { secureFetch } from "../../hooks/use-api";
 import { useFleetData } from "../../hooks/use-fleet-data";
+import { formatDate } from "../../utils/format-helpers";
 
 type WorkModule = "tasks" | "maintenance" | "routes";
 
@@ -208,7 +209,7 @@ const WorkHub: React.FC = () => {
       {
         accessorKey: "dueDate",
         header: "Due Date",
-        cell: ({ row }) => new Date(row.original.dueDate).toLocaleDateString(),
+        cell: ({ row }) => formatDate(row.original.dueDate),
       },
     ],
     []
@@ -233,7 +234,7 @@ const WorkHub: React.FC = () => {
         accessorKey: "scheduledDate",
         header: "Scheduled",
         cell: ({ row }) =>
-          new Date(row.original.scheduledDate).toLocaleDateString(),
+          formatDate(row.original.scheduledDate),
       },
       {
         accessorKey: "status",

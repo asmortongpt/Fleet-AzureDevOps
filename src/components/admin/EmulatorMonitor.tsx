@@ -39,6 +39,7 @@ import {
 import Grid from '@mui/material/Grid';
 import React, { useState, useMemo } from 'react';
 
+import { formatDate, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface EmulatorData {
@@ -130,7 +131,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
     if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
     if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
-    return date.toLocaleDateString();
+    return formatDate(date);
   };
 
   const handleToggleEmulator = (emulatorId: string) => {
@@ -185,7 +186,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                   />
                 </Box>
                 <Typography variant="h6" sx={{ mt: 1 }}>
-                  {stats.records.toLocaleString()}
+                  {formatNumber(stats.records)}
                 </Typography>
                 <Typography variant="caption">
                   records generated
@@ -202,7 +203,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
           <Grid size={{ xs: 3 }}>
             <Box textAlign="center">
               <Typography variant="h5" color="primary">
-                {emulators.statistics?.totalRecords.toLocaleString() ?? 0}
+                {formatNumber(emulators.statistics?.totalRecords) ?? 0}
               </Typography>
               <Typography variant="caption" color="text.secondary">
                 Total Records
@@ -283,7 +284,7 @@ const EmulatorMonitor: React.FC<Props> = ({ emulators, loading }) => {
                     />
                   </TableCell>
                   <TableCell align="right">
-                    {emulator.recordCount.toLocaleString()}
+                    {formatNumber(emulator.recordCount)}
                   </TableCell>
                   <TableCell align="right">
                     {emulator.updateFrequency}s

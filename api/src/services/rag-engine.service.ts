@@ -11,9 +11,9 @@ import pool from '../config/database'
 import logger from '../config/logger'
 
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+const openai = process.env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  : null
 
 export interface Document {
   document_type: string
@@ -229,6 +229,9 @@ Your task is to answer questions accurately based on the provided context from t
 
 Context from Knowledge Base:
 ${contextText}`
+    if (!openai) {
+      return 'AI service unavailable — OpenAI API key not configured'
+    }
     const response = await openai.chat.completions.create({
       model: this.chatModel,
       messages: [
@@ -247,6 +250,9 @@ ${contextText}`
    */
   private async generateEmbedding(text: string): Promise<number[]> {
     try {
+      if (!openai) {
+        return Array(1536).fill(0)
+      }
       const response = await openai.embeddings.create({
         model: this.embeddingModel,
         input: text

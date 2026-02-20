@@ -41,6 +41,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDateTime, formatNumber } from '@/utils/format-helpers'
 
 interface GarageBayDrilldownProps {
   bayId: string
@@ -132,10 +134,11 @@ interface GarageBay {
   equipment: string[]
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps) {
   const { push } = useDrilldown()
@@ -232,18 +235,6 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
     }
   }
 
-  const formatDate = (date: string | undefined) => {
-    if (!date) return 'N/A'
-    const d = new Date(date)
-    return d.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-  }
-
   const totalPartsCost = currentWorkOrder?.parts.reduce((sum, part) => sum + (part.quantity * part.unit_cost), 0) || 0
   const totalLaborCost = currentWorkOrder?.labor.reduce((sum, entry) => sum + (entry.hours_logged * entry.rate), 0) || 0
   const estimatedLaborCost = currentWorkOrder?.labor.reduce((sum, entry) => sum + (entry.hours_estimated * entry.rate), 0) || 0
@@ -261,8 +252,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
               <h3 className="text-sm font-bold">Garage Bay {bay.bay_number}</h3>
               <p className="text-sm text-muted-foreground">{bay.bay_name}</p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusColor(bay.status)} className="capitalize">
-                  {bay.status}
+                <Badge variant={getStatusColor(bay.status)}>
+                  {formatEnum(bay.status)}
                 </Badge>
                 <Badge variant="outline">
                   <MapPin className="h-3 w-3 mr-1" />
@@ -294,11 +285,11 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                       {currentWorkOrder.description}
                     </p>
                     <div className="mt-3 flex gap-2">
-                      <Badge variant={getPriorityColor(currentWorkOrder.priority)} className="capitalize">
-                        {currentWorkOrder.priority}
+                      <Badge variant={getPriorityColor(currentWorkOrder.priority)}>
+                        {formatEnum(currentWorkOrder.priority)}
                       </Badge>
-                      <Badge variant="outline" className="capitalize">
-                        {currentWorkOrder.type}
+                      <Badge variant="outline">
+                        {formatEnum(currentWorkOrder.type)}
                       </Badge>
                     </div>
                   </CardContent>
@@ -317,7 +308,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                       <div>
                         <p className="text-xs text-muted-foreground">Estimated Completion</p>
                         <p className="font-semibold text-primary">
-                          {formatDate(currentWorkOrder.estimated_completion)}
+                          {formatDateTime(currentWorkOrder.estimated_completion)}
                         </p>
                       </div>
                       <div>
@@ -349,7 +340,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     {currentWorkOrder.vehicle.odometer_reading && (
                       <div className="mt-2 flex items-center gap-2 text-xs">
                         <Gauge className="h-3 w-3" />
-                        <span>{currentWorkOrder.vehicle.odometer_reading.toLocaleString()} miles</span>
+                        <span>{formatNumber(currentWorkOrder.vehicle.odometer_reading)} miles</span>
                       </div>
                     )}
                   </CardContent>
@@ -397,8 +388,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                       </div>
                       {currentWorkOrder.primary_technician.certifications && currentWorkOrder.primary_technician.certifications.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1">
-                          {currentWorkOrder.primary_technician.certifications.map((cert) => (
-                            <Badge key={cert} variant="secondary" className="text-xs">
+                          {currentWorkOrder.primary_technician.certifications.map((cert, idx) => (
+                            <Badge key={idx} variant="secondary" className="text-xs">
                               {cert}
                             </Badge>
                           ))}
@@ -419,7 +410,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold">${totalPartsCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">{formatCurrency(totalPartsCost)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {currentWorkOrder.parts.length} item{currentWorkOrder.parts.length !== 1 ? 's' : ''}
                     </p>
@@ -434,7 +425,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold">${totalLaborCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">{formatCurrency(totalLaborCost)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       {totalHoursLogged.toFixed(1)} / {totalHoursEstimated.toFixed(1)} hrs
                     </p>
@@ -449,7 +440,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold text-primary">${totalCost.toFixed(2)}</div>
+                    <div className="text-sm font-bold text-primary">{formatCurrency(totalCost)}</div>
                     <p className="text-xs text-muted-foreground mt-1">
                       Current total
                     </p>
@@ -464,7 +455,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-sm font-bold">${currentWorkOrder.estimated_cost.toFixed(2)}</div>
+                    <div className="text-sm font-bold">{formatCurrency(currentWorkOrder.estimated_cost)}</div>
                     <p className={`text-xs mt-1 ${totalCost > currentWorkOrder.estimated_cost ? 'text-destructive' : 'text-muted-foreground'}`}>
                       {totalCost > currentWorkOrder.estimated_cost ? 'Over budget' : 'On budget'}
                     </p>
@@ -503,35 +494,35 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           <p className="text-sm text-muted-foreground">Work Order Status</p>
                           <div className="flex items-center gap-2 mt-1">
                             {getStatusIcon(currentWorkOrder.status)}
-                            <Badge variant={getStatusColor(currentWorkOrder.status)} className="capitalize">
-                              {currentWorkOrder.status.replace('_', ' ')}
+                            <Badge variant={getStatusColor(currentWorkOrder.status)}>
+                              {formatEnum(currentWorkOrder.status)}
                             </Badge>
                           </div>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Priority Level</p>
-                          <Badge variant={getPriorityColor(currentWorkOrder.priority)} className="mt-1 capitalize">
-                            {currentWorkOrder.priority}
+                          <Badge variant={getPriorityColor(currentWorkOrder.priority)} className="mt-1">
+                            {formatEnum(currentWorkOrder.priority)}
                           </Badge>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Scheduled Start</p>
-                          <p className="font-medium mt-1">{formatDate(currentWorkOrder.scheduled_start)}</p>
+                          <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.scheduled_start)}</p>
                         </div>
                         <div>
                           <p className="text-sm text-muted-foreground">Scheduled End</p>
-                          <p className="font-medium mt-1">{formatDate(currentWorkOrder.scheduled_end)}</p>
+                          <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.scheduled_end)}</p>
                         </div>
                         {currentWorkOrder.actual_start && (
                           <div>
                             <p className="text-sm text-muted-foreground">Actual Start</p>
-                            <p className="font-medium mt-1">{formatDate(currentWorkOrder.actual_start)}</p>
+                            <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.actual_start)}</p>
                           </div>
                         )}
                         {currentWorkOrder.actual_end && (
                           <div>
                             <p className="text-sm text-muted-foreground">Actual End</p>
-                            <p className="font-medium mt-1">{formatDate(currentWorkOrder.actual_end)}</p>
+                            <p className="font-medium mt-1">{formatDateTime(currentWorkOrder.actual_end)}</p>
                           </div>
                         )}
                       </div>
@@ -543,8 +534,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             Notes ({currentWorkOrder.notes.length})
                           </h5>
                           <ul className="space-y-2">
-                            {currentWorkOrder.notes.map((note) => (
-                              <li key={note} className="text-sm p-2 rounded bg-muted/50">
+                            {currentWorkOrder.notes.map((note, idx) => (
+                              <li key={idx} className="text-sm p-2 rounded bg-muted/50">
                                 {note}
                               </li>
                             ))}
@@ -573,8 +564,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                                 <p className="text-xs text-muted-foreground">Part #: {part.part_number}</p>
                               </div>
                             </div>
-                            <Badge variant={getStatusColor(part.status)} className="capitalize">
-                              {part.status}
+                            <Badge variant={getStatusColor(part.status)}>
+                              {formatEnum(part.status)}
                             </Badge>
                           </div>
 
@@ -591,11 +582,11 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Unit Cost</p>
-                              <p className="font-medium">${part.unit_cost.toFixed(2)}</p>
+                              <p className="font-medium">{formatCurrency(part.unit_cost)}</p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Total</p>
-                              <p className="font-medium text-primary">${(part.quantity * part.unit_cost).toFixed(2)}</p>
+                              <p className="font-medium text-primary">{formatCurrency(part.quantity * part.unit_cost)}</p>
                             </div>
                           </div>
 
@@ -632,7 +623,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             </div>
                             {part.delivery_date && (
                               <p className="text-xs text-muted-foreground mt-2">
-                                Expected: {formatDate(part.delivery_date)}
+                                Expected: {formatDateTime(part.delivery_date)}
                               </p>
                             )}
                           </div>
@@ -645,7 +636,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     <CardContent className="p-2">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold">Total Parts Cost</span>
-                        <span className="text-sm font-bold text-primary">${totalPartsCost.toFixed(2)}</span>
+                        <span className="text-sm font-bold text-primary">{formatCurrency(totalPartsCost)}</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -670,8 +661,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                                 <p className="text-xs text-muted-foreground">{entry.task_description}</p>
                               </div>
                             </div>
-                            <Badge variant={getStatusColor(entry.status)} className="capitalize">
-                              {entry.status.replace('_', ' ')}
+                            <Badge variant={getStatusColor(entry.status)}>
+                              {formatEnum(entry.status)}
                             </Badge>
                           </div>
 
@@ -686,17 +677,17 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Rate</p>
-                              <p className="font-medium">${entry.rate.toFixed(2)}/hr</p>
+                              <p className="font-medium">{formatCurrency(entry.rate)}/hr</p>
                             </div>
                             <div>
                               <p className="text-xs text-muted-foreground">Total</p>
-                              <p className="font-medium text-primary">${(entry.hours_logged * entry.rate).toFixed(2)}</p>
+                              <p className="font-medium text-primary">{formatCurrency(entry.hours_logged * entry.rate)}</p>
                             </div>
                           </div>
 
                           <div className="pt-2 border-t">
                             <p className="text-xs text-muted-foreground">
-                              Date: {formatDate(entry.date)}
+                              Date: {formatDateTime(entry.date)}
                             </p>
                           </div>
                         </div>
@@ -715,11 +706,11 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                         </div>
                         <div className="flex items-center justify-between text-sm">
                           <span>Estimated Labor Cost</span>
-                          <span className="font-semibold">${estimatedLaborCost.toFixed(2)}</span>
+                          <span className="font-semibold">{formatCurrency(estimatedLaborCost)}</span>
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t">
                           <span className="font-semibold">Actual Labor Cost</span>
-                          <span className="text-sm font-bold text-primary">${totalLaborCost.toFixed(2)}</span>
+                          <span className="text-sm font-bold text-primary">{formatCurrency(totalLaborCost)}</span>
                         </div>
                       </div>
                     </CardContent>
@@ -738,8 +729,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                     <CardContent>
                       {bay.equipment && bay.equipment.length > 0 ? (
                         <div className="grid grid-cols-2 gap-3">
-                          {bay.equipment.map((item) => (
-                            <div key={item} className="flex items-center gap-2 p-3 rounded border">
+                          {bay.equipment.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-2 p-3 rounded border">
                               <CheckCircle2 className="h-4 w-4 text-green-500" />
                               <span className="text-sm font-medium">{item}</span>
                             </div>
@@ -819,8 +810,8 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           <p className="text-sm text-muted-foreground">{wo.title}</p>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Badge variant={getStatusColor(wo.status)} className="capitalize">
-                            {wo.status.replace('_', ' ')}
+                          <Badge variant={getStatusColor(wo.status)}>
+                            {formatEnum(wo.status)}
                           </Badge>
                           {idx === 0 && <Badge variant="default">Active</Badge>}
                         </div>

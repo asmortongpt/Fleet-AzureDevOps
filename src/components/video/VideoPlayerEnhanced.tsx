@@ -305,7 +305,7 @@ export default function VideoPlayerEnhanced({
                 size="icon"
                 className="text-white hover:bg-white/20"
                 onClick={togglePlay}
-                aria-label={isPlaying ? "Pause" : "Play"}
+                aria-label={isPlaying ? 'Pause' : 'Play'}
               >
                 {isPlaying ? (
                   <Pause className="h-5 w-5" />
@@ -321,7 +321,7 @@ export default function VideoPlayerEnhanced({
                   size="icon"
                   className="text-white hover:bg-white/20"
                   onClick={toggleMute}
-                  aria-label={isMuted ? "Unmute" : "Mute"}
+                  aria-label={isMuted ? 'Unmute' : 'Mute'}
                 >
                   {isMuted ? (
                     <VolumeX className="h-5 w-5" />
@@ -387,7 +387,7 @@ export default function VideoPlayerEnhanced({
                 size="icon"
                 className="text-white hover:bg-white/20"
                 onClick={toggleFullscreen}
-                aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
               >
                 {isFullscreen ? (
                   <Minimize className="h-5 w-5" />

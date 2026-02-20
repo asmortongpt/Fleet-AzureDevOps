@@ -188,8 +188,7 @@ router.get('/status',
     } catch (error) {
       logger.error('Database health check failed:', error);
       status.data.services.database = {
-        status: 'unhealthy',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        status: 'unhealthy'
       };
       status.data.overall = 'degraded';
     }
@@ -233,7 +232,6 @@ router.get('/status',
         usage: process.cpuUsage()
       },
       process: {
-        pid: process.pid,
         platform: process.platform,
         nodeVersion: process.version
       }
@@ -318,7 +316,7 @@ router.get('/config/stats',
       logger.error('Error fetching config stats:', error);
       res.status(500).json({
         error: 'Failed to fetch configuration statistics',
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: 'An internal error occurred'
       });
     }
   })

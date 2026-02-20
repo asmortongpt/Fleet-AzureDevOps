@@ -4,6 +4,7 @@
 
 import { EventEmitter } from 'events'
 
+import logger from '../../config/logger'
 import { Vehicle, DriverBehaviorEvent, EmulatorConfig, Location } from '../types'
 
 export class DriverBehaviorEmulator extends EventEmitter {
@@ -36,7 +37,7 @@ return
       }
     }, 10000) // Check every 10 seconds
 
-    console.log(`Driver Behavior Emulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`Driver Behavior Emulator started for vehicle ${this.vehicle.id}`)
   }
 
   public async stop(): Promise<void> {

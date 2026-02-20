@@ -41,6 +41,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime } from '@/utils/format-helpers'
 import { useTenant } from '@/contexts/TenantContext'
 import { useVehicles } from '@/hooks/use-api'
 import { useCreateReservation } from '@/hooks/use-reservations'
@@ -185,7 +187,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                       <div className="flex items-center justify-between w-full">
                         <span>{vehicle.name}</span>
                         <Badge variant={vehicle.status === 'available' ? 'default' : 'secondary'}>
-                          {vehicle.status}
+                          {formatEnum(vehicle.status)}
                         </Badge>
                       </div>
                     </SelectItem>
@@ -337,7 +339,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                                 {event.type === 'reservation' ? 'Reservation' : 'Maintenance'}
                               </p>
                               <p className="text-sm text-muted-foreground">
-                                {event.start.toLocaleString()} - {event.end.toLocaleString()}
+                                {formatDateTime(event.start)} - {formatDateTime(event.end)}
                               </p>
                             </div>
                           </div>

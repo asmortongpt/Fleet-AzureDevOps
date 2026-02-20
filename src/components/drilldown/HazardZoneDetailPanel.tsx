@@ -22,6 +22,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 
 interface HazardZoneDetailPanelProps {
   hazardZoneId: string
@@ -71,7 +73,7 @@ interface ZoneEvent {
 const fetcher = (url: string) =>
   fetch(url)
     .then((r) => {
-      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
       return r.json()
     })
     .then((data) => data?.data ?? data)
@@ -174,16 +176,16 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
           <div className="flex items-start justify-between">
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{zone.name}</h3>
-              <p className="text-sm text-muted-foreground capitalize">
-                {zone.type} Hazard Zone
+              <p className="text-sm text-muted-foreground">
+                {formatEnum(zone.type)} Hazard Zone
               </p>
               <div className="flex items-center gap-2 mt-2 flex-wrap">
                 <Badge variant={getSeverityColor(zone.severity)}>
-                  {zone.severity} Severity
+                  {formatEnum(zone.severity)} Severity
                 </Badge>
                 {zone.activeTo ? (
                   <Badge variant="outline">
-                    Active until {new Date(zone.activeTo).toLocaleDateString()}
+                    Active until {formatDate(zone.activeTo)}
                   </Badge>
                 ) : (
                   <Badge variant="outline">Permanent</Badge>
@@ -230,7 +232,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  {new Date(zone.activeFrom).toLocaleDateString()}
+                  {formatDate(zone.activeFrom)}
                 </div>
               </CardContent>
             </Card>
@@ -309,27 +311,27 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-muted-foreground">Type</p>
-                      <p className="font-medium capitalize">{zone.type}</p>
+                      <p className="font-medium">{formatEnum(zone.type)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Severity</p>
                       <Badge variant={getSeverityColor(zone.severity)}>
-                        {zone.severity}
+                        {formatEnum(zone.severity)}
                       </Badge>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Created By</p>
-                      <p className="font-medium">{zone.createdBy || 'N/A'}</p>
+                      <p className="font-medium">{zone.createdBy || '—'}</p>
                       {zone.createdDate && (
                         <p className="text-xs text-muted-foreground">
-                          {new Date(zone.createdDate).toLocaleDateString()}
+                          {formatDate(zone.createdDate)}
                         </p>
                       )}
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Last Updated</p>
                       <p className="font-medium">
-                        {zone.lastUpdated ? new Date(zone.lastUpdated).toLocaleDateString() : 'N/A'}
+                        {formatDate(zone.lastUpdated)}
                       </p>
                     </div>
                   </div>
@@ -349,7 +351,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                 <CardContent>
                   <ul className="space-y-3">
                     {zone.restrictions.map((restriction, index) => (
-                      <li key={restriction} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
+                      <li key={index} className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                         <div className="flex items-center justify-center w-4 h-4 rounded-full bg-primary/10 text-primary font-medium text-sm mt-0.5">
                           {index + 1}
                         </div>
@@ -386,7 +388,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                               <div>
                                 <p className="text-muted-foreground">Last Entry</p>
                                 <p className="font-medium">
-                                  {new Date(vehicle.last_entry).toLocaleDateString()}
+                                  {formatDate(vehicle.last_entry)}
                                 </p>
                               </div>
                               <div>
@@ -440,8 +442,8 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                           <div className="flex-1 pb-2">
                             <div className="flex items-start justify-between">
                               <div>
-                                <p className="font-medium capitalize">
-                                  {event.event_type.replace('_', ' ')}
+                                <p className="font-medium">
+                                  {formatEnum(event.event_type)}
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">
                                   {event.description}
@@ -453,7 +455,7 @@ export function HazardZoneDetailPanel({ hazardZoneId }: HazardZoneDetailPanelPro
                                 )}
                               </div>
                               <span className="text-xs text-muted-foreground">
-                                {new Date(event.timestamp).toLocaleString()}
+                                {formatDateTime(event.timestamp)}
                               </span>
                             </div>
                             {event.metadata && Object.keys(event.metadata).length > 0 && (

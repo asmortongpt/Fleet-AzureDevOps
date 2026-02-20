@@ -23,7 +23,9 @@ import { useAuth } from "@/contexts"
 import { swrFetcher } from "@/lib/fetcher"
 import type { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { formatEnum } from "@/utils/format-enum"
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 
 interface CommunicationLog {
   id: string;
@@ -145,7 +147,7 @@ const MessagePanel = ({ messages, onMessageSelect }: { messages: Message[]; onMe
                 <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{msg.content}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant="outline" className={getPriorityColor(msg.priority)}>
-                    {msg.priority}
+                    {formatEnum(msg.priority)}
                   </Badge>
                   {msg.status === 'unread' && (
                     <Badge variant="default">New</Badge>
@@ -298,7 +300,7 @@ const BroadcastPanel = ({ zones, alerts }: { zones: BroadcastZone[]; alerts: Ale
                   <div className="flex-1">
                     <div className="font-medium text-sm">{alert.description || alert.alert_type}</div>
                     <div className="text-xs text-muted-foreground mt-1">
-                      Active until {alert.expires_at ? new Date(alert.expires_at).toLocaleString() : 'N/A'}
+                      Active until {alert.expires_at ? formatDateTime(alert.expires_at) : '—'}
                     </div>
                   </div>
                 </div>
@@ -334,7 +336,7 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
               message.priority === 'low' ? 'text-blue-800' :
               'text-slate-700'
             }>
-              {message.priority}
+              {formatEnum(message.priority)}
             </Badge>
           </div>
           <p className="text-sm text-muted-foreground">From: {message.from}</p>
@@ -348,12 +350,12 @@ const MessageThreadPanel = ({ message }: { message: Message | null }) => {
         <div className="grid grid-cols-2 gap-2">
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Type</div>
-            <div className="font-medium capitalize">{message.type}</div>
+            <div className="font-medium">{formatEnum(message.type)}</div>
           </Card>
 
           <Card className="p-3">
             <div className="text-sm text-muted-foreground">Status</div>
-            <div className="font-medium capitalize">{message.status}</div>
+            <div className="font-medium">{formatEnum(message.status)}</div>
           </Card>
         </div>
 
@@ -411,7 +413,7 @@ export function CommunicationHub() {
   const formatTimestamp = (timestamp?: string) => {
     if (!timestamp) return ''
     const date = new Date(timestamp)
-    return isNaN(date.getTime()) ? '' : date.toLocaleString()
+    return isNaN(date.getTime()) ? '' : formatDateTime(timestamp)
   }
 
   const messages: Message[] = useMemo(() => {
@@ -421,7 +423,7 @@ export function CommunicationHub() {
       const lng = Number(location.lng ?? location.longitude)
       return {
         id: log.id,
-        from: userMap.get(log.from_user_id || '') || log.from_address || 'Unknown',
+        from: userMap.get(log.from_user_id || '') || log.from_address || '—',
         fromLocation: {
           lat: Number.isFinite(lat) ? lat : 0,
           lng: Number.isFinite(lng) ? lng : 0
@@ -453,7 +455,7 @@ export function CommunicationHub() {
       if (!existing || (timestamp && existing.lastTime && new Date(timestamp) > new Date(existing.lastTime))) {
         threadMap.set(key, {
           id: key,
-          participant: userMap.get(key) || log.from_address || 'Unknown',
+          participant: userMap.get(key) || log.from_address || '—',
           lastMessage,
           unread: (existing?.unread || 0) + unread,
           active: true,

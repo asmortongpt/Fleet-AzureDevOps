@@ -20,6 +20,8 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { setTenantContext } from '../middleware/tenant-context'
 
+import { flexUuid } from '../middleware/validation'
+
 // SECURITY: Input validation schemas
 const createAlertRuleSchema = z.object({
   rule_name: z.string().min(1).max(200),
@@ -27,7 +29,7 @@ const createAlertRuleSchema = z.object({
   conditions: z.record(z.string(), z.unknown()),
   severity: z.enum(['info', 'warning', 'critical', 'emergency']),
   channels: z.array(z.enum(['in_app', 'email', 'sms', 'push'])).optional(),
-  recipients: z.array(z.string().uuid()).optional(),
+  recipients: z.array(flexUuid).optional(),
   is_enabled: z.boolean().optional(),
   cooldown_minutes: z.number().int().min(0).max(1440).optional()
 })

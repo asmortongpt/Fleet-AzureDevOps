@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import logger from '@/utils/logger';
+import { formatDateTime } from '@/utils/format-helpers';
 
 
 interface ErrorSummary {
@@ -420,7 +421,7 @@ export function ErrorDashboard() {
                       Occurred {error.count} times • Affected {error.affectedUsers}{' '}
                       users
                     </p>
-                    <p>{new Date(error.timestamp).toLocaleString()}</p>
+                    <p>{formatDateTime(new Date(error.timestamp))}</p>
                   </div>
                 </div>
               </div>

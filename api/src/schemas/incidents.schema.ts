@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { commonSchemas } from '../middleware/validation';
+import { commonSchemas, flexUuid } from '../middleware/validation';
 
 /**
  * Comprehensive Zod validation schemas for Safety Incidents & Accidents
@@ -75,7 +75,7 @@ export const witnessSchema = z.object({
  * Vehicle involvement schema
  */
 export const vehicleInvolvementSchema = z.object({
-  vehicle_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
   vehicle_type: z.string().max(100).optional(),
   make: z.string().max(100).optional(),
   model: z.string().max(100).optional(),
@@ -126,8 +126,8 @@ export const incidentCreateSchema = z.object({
     .max(10000, 'Description must be 10000 characters or less'),
 
   // Fleet involvement (OPTIONAL)
-  vehicle_id: z.string().uuid('Invalid vehicle ID format').optional(),
-  driver_id: z.string().uuid('Invalid driver ID format').optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
 
   // Casualties and damage
   injuries_count: z.number()
@@ -219,8 +219,8 @@ export const incidentCreateSchema = z.object({
   // Status and tracking
   status: statusEnum.default('reported'),
 
-  reported_by: z.string().uuid().optional(),
-  investigated_by: z.string().uuid().optional(),
+  reported_by: flexUuid.optional(),
+  investigated_by: flexUuid.optional(),
 
   investigation_completed_date: z.coerce.date().optional(),
 
@@ -354,7 +354,7 @@ export const incidentUpdateSchema = z.object({
 
   status: statusEnum.optional(),
 
-  investigated_by: z.string().uuid().nullable().optional(),
+  investigated_by: flexUuid.nullable().optional(),
   investigation_completed_date: z.coerce.date().nullable().optional(),
 
   photos: z.array(z.string().url()).max(100).nullable().optional(),
@@ -383,8 +383,8 @@ export const incidentQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(500).default(50),
 
   // Filtering
-  vehicle_id: z.string().uuid().optional(),
-  driver_id: z.string().uuid().optional(),
+  vehicle_id: flexUuid.optional(),
+  driver_id: flexUuid.optional(),
 
   incident_type: incidentTypeEnum.optional(),
   severity: severityEnum.optional(),
@@ -445,7 +445,7 @@ export const incidentQuerySchema = z.object({
  * Incident ID parameter schema
  */
 export const incidentIdSchema = z.object({
-  id: z.string().uuid('Invalid incident ID format')
+  id: flexUuid
 });
 
 // Type exports

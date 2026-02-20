@@ -19,11 +19,13 @@ import { requireRBAC, Role, PERMISSIONS } from "../middleware/rbac";
 import { validateBody, validateParams, validateQuery } from "../middleware/validate";
 import { tenantSafeQuery } from "../utils/dbHelpers";
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router();
 
 // Validation schemas
 const idSchema = z.object({
-  id: z.string().uuid()
+  id: flexUuid
 });
 
 const safetyAlertSchema = z.object({
@@ -33,9 +35,9 @@ const safetyAlertSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().min(1),
   location: z.string().min(1),
-  facilityId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid().optional(),
-  driverId: z.string().uuid().optional(),
+  facilityId: flexUuid.optional(),
+  vehicleId: flexUuid.optional(),
+  driverId: flexUuid.optional(),
   reportedBy: z.string().min(1),
   reportedAt: z.string().datetime(),
   status: z.enum(["active", "acknowledged", "investigating", "resolved", "closed"]).default("active"),
@@ -61,9 +63,9 @@ const querySchema = z.object({
   status: z.enum(["active", "acknowledged", "investigating", "resolved", "closed"]).optional(),
   type: z.enum(["injury", "near-miss", "hazard", "osha-violation", "equipment-failure", "environmental"]).optional(),
   oshaRecordable: z.string().transform(val => val === "true").optional(),
-  facilityId: z.string().uuid().optional(),
-  vehicleId: z.string().uuid().optional(),
-  driverId: z.string().uuid().optional(),
+  facilityId: flexUuid.optional(),
+  vehicleId: flexUuid.optional(),
+  driverId: flexUuid.optional(),
   startDate: z.string().datetime().optional(),
   endDate: z.string().datetime().optional(),
   limit: z.string().transform(Number).optional(),

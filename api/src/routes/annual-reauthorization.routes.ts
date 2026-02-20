@@ -21,6 +21,8 @@ import { requirePermission } from '../middleware/permissions';
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router();
 // let pool: Pool;
 // export function setDatabasePool(dbPool: Pool) {
@@ -40,12 +42,12 @@ const createReauthCycleSchema = z.object({
 });
 
 const createReauthDecisionSchema = z.object({
-  reauthorization_cycle_id: z.string().uuid(),
-  vehicle_assignment_id: z.string().uuid(),
+  reauthorization_cycle_id: flexUuid,
+  vehicle_assignment_id: flexUuid,
   decision: z.enum(['reauthorize', 'modify', 'terminate']),
   modification_notes: z.string().optional(),
-  new_vehicle_id: z.string().uuid().optional(),
-  new_driver_id: z.string().uuid().optional(),
+  new_vehicle_id: flexUuid.optional(),
+  new_driver_id: flexUuid.optional(),
   parameter_changes: z.record(z.string(), z.any()).optional(),
   termination_reason: z.string().optional(),
   termination_effective_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),

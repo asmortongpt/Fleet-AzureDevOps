@@ -14,6 +14,7 @@
 import { Html, Sphere } from '@react-three/drei'
 import { useState, useRef } from 'react'
 import * as THREE from 'three'
+import { formatCurrency } from '@/utils/format-helpers'
 
 // =============================================================================
 // TYPES
@@ -155,7 +156,7 @@ function DamageMarker({ point, isSelected, onSelect, onRemove, isEditMode }: Dam
                         </div>
                         <p className="text-white text-sm mb-1">{point.description || 'Damage point'}</p>
                         <p className="text-green-400 font-semibold text-sm">
-                            ${point.estimatedCost.toLocaleString()}
+                            {formatCurrency(point.estimatedCost)}
                         </p>
                         {point.zone && (
                             <p className="text-slate-700 text-xs mt-1">Zone: {point.zone}</p>
@@ -271,7 +272,7 @@ export function DamageSummaryPanel({
                     <p className="text-xs text-slate-700">Damage Points</p>
                 </div>
                 <div className="bg-slate-800/50 rounded-lg p-3 text-center">
-                    <p className="text-sm font-bold text-green-400">${totalCost.toLocaleString()}</p>
+                    <p className="text-sm font-bold text-green-400">{formatCurrency(totalCost)}</p>
                     <p className="text-xs text-slate-700">Est. Total Cost</p>
                 </div>
             </div>
@@ -315,7 +316,7 @@ export function DamageSummaryPanel({
                                 />
                                 <span className="text-sm text-white">{point.description || 'Damage'}</span>
                             </div>
-                            <span className="text-xs text-green-400">${point.estimatedCost.toLocaleString()}</span>
+                            <span className="text-xs text-green-400">{formatCurrency(point.estimatedCost)}</span>
                         </div>
                         {point.zone && (
                             <p className="text-xs text-slate-700 mt-0.5 ml-2">{point.zone}</p>

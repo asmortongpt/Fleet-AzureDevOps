@@ -33,6 +33,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DocumentMetadata, FileCategory } from '@/lib/documents/types';
 import { formatFileSize, formatRelativeTime } from '@/lib/documents/utils';
+import { formatEnum } from '@/utils/format-enum';
 
 interface DocumentPropertiesProps {
   document: DocumentMetadata;
@@ -154,8 +155,8 @@ export function DocumentProperties({ document, onUpdate, onClose }: DocumentProp
                   </Select>
                 ) : (
                   <div className="mt-2">
-                    <Badge variant="secondary" className="capitalize">
-                      {document.category.replace(/-/g, ' ')}
+                    <Badge variant="secondary">
+                      {formatEnum(document.category)}
                     </Badge>
                   </div>
                 )}

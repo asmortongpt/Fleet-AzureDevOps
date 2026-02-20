@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { formatTime } from '@/utils/format-helpers';
 
 // Local type definitions for safety dashboard
 interface Driver {
@@ -614,7 +615,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                           </div>
                           <div className="text-xs text-gray-700 flex items-center gap-1 mt-1">
                             <Clock className="w-3 h-3" />
-                            {alert.timestamp.toLocaleTimeString()}
+                            {formatTime(alert.timestamp)}
                           </div>
                         </div>
                       </div>
@@ -772,7 +773,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
         <div className="flex items-center gap-3">
           <div className="text-sm text-gray-700 flex items-center gap-1">
             <Timer className="w-4 h-4" />
-            Last updated: {lastUpdate.toLocaleTimeString()}
+            Last updated: {formatTime(lastUpdate)}
           </div>
           <Button
             size="sm"

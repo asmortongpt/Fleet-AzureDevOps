@@ -18,12 +18,12 @@ export function PremiumFleetDashboard() {
   const [hoveredMetric, setHoveredMetric] = useState<number | null>(null)
 
   const colors = {
-    orange: '#FF6B35',
-    blue: '#41B2E3',
+    orange: '#f5f5f5',
+    blue: '#3B82F6',
     green: '#10B981',
-    gold: '#F0A000',
-    red: '#DD3903',
-    navy: '#2F3359',
+    gold: '#a0a0a0',
+    red: '#f5f5f5',
+    navy: '#1F3076',
     darkBg: '#0F172A',
     cardBg: '#1E293B',
   }
@@ -76,7 +76,7 @@ export function PremiumFleetDashboard() {
       color: colors.orange,
       trend: 'up',
       subtext: 'This month',
-      bgGradient: 'from-orange-500/5 via-orange-500/2 to-transparent'
+      bgGradient: 'from-white/5 via-white/2 to-transparent'
     },
     {
       label: 'Fuel Efficiency',
@@ -96,7 +96,7 @@ export function PremiumFleetDashboard() {
       color: colors.gold,
       trend: 'down',
       subtext: 'Requires attention',
-      bgGradient: 'from-amber-500/5 via-amber-500/2 to-transparent'
+      bgGradient: 'from-gray-400/5 via-gray-400/2 to-transparent'
     }
   ]
 
@@ -104,7 +104,7 @@ export function PremiumFleetDashboard() {
     { id: '1', name: 'Vehicle TX-001', location: 'Route 95 North', status: 'active', speed: '65 mph', efficiency: '92%' },
     { id: '2', name: 'Vehicle TX-002', location: 'Downtown Hub', status: 'idle', speed: '0 mph', efficiency: '88%' },
     { id: '3', name: 'Vehicle TX-003', location: 'Highway 77', status: 'active', speed: '72 mph', efficiency: '95%' },
-    { id: '4', name: 'Vehicle TX-004', location: 'Warehouse A', status: 'maintenance', speed: 'N/A', efficiency: '85%' },
+    { id: '4', name: 'Vehicle TX-004', location: 'Warehouse A', status: 'maintenance', speed: '—', efficiency: '85%' },
   ]
 
   return (
@@ -118,7 +118,7 @@ export function PremiumFleetDashboard() {
           transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
         />
         <motion.div
-          className="absolute bottom-0 right-1/4 w-96 h-96 bg-orange-600/15 rounded-full blur-3xl"
+          className="absolute bottom-0 right-1/4 w-96 h-96 bg-white/10 rounded-full blur-3xl"
           animate={{ opacity: [0.5, 0.8, 0.5], scale: [1, 1.08, 1] }}
           transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
         />
@@ -133,7 +133,7 @@ export function PremiumFleetDashboard() {
       <motion.header
         className="relative z-50 border-b border-white/10 backdrop-blur-2xl bg-gradient-to-r from-slate-950/90 via-slate-900/90 to-slate-900/90"
         style={{
-          boxShadow: '0 8px 32px rgba(65, 178, 227, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+          boxShadow: '0 8px 32px rgba(0, 204, 254, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
         }}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -349,13 +349,13 @@ export function PremiumFleetDashboard() {
           <motion.div
             className="lg:col-span-2 rounded-2xl overflow-hidden backdrop-blur-2xl border transition-all duration-500"
             style={{
-              border: `1px solid rgba(65, 178, 227, 0.2)`,
+              border: `1px solid rgba(0, 204, 254, 0.2)`,
               background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.6))',
-              boxShadow: '0 8px 32px rgba(65, 178, 227, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+              boxShadow: '0 8px 32px rgba(0, 204, 254, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
             }}
             whileHover={{
               y: -6,
-              boxShadow: `0 16px 48px rgba(65, 178, 227, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08)`
+              boxShadow: `0 16px 48px rgba(0, 204, 254, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08)`
             }}
             initial={{ opacity: 0, y: 20, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -504,14 +504,14 @@ export function PremiumFleetDashboard() {
             <motion.div
               className="rounded-2xl overflow-hidden backdrop-blur-2xl border p-6 transition-all duration-500"
               style={{
-                background: `linear-gradient(135deg, ${colors.orange}12, ${colors.blue}08)`,
-                border: `1px solid ${colors.orange}20`,
-                boxShadow: `0 8px 32px rgba(255, 107, 53, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.05)`
+                background: `linear-gradient(135deg, rgba(255,255,255,0.04), rgba(0,204,254,0.03))`,
+                border: `1px solid rgba(255,255,255,0.1)`,
+                boxShadow: `0 8px 32px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.05)`
               }}
               whileHover={{
                 scale: 1.02,
-                boxShadow: `0 16px 48px rgba(255, 107, 53, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08)`,
-                borderColor: `${colors.orange}40`
+                boxShadow: `0 16px 48px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)`,
+                borderColor: `rgba(255,255,255,0.2)`
               }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}

@@ -89,7 +89,7 @@ export const LoginPage = () => {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#0A0E27] text-white">
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-2xl flex flex-col items-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#F0A000] mb-4"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white/60 mb-4"></div>
           <p className="text-white/60 text-sm tracking-wide">INITIALIZING SECURE SESSION</p>
         </div>
       </div>
@@ -99,7 +99,7 @@ export const LoginPage = () => {
   return (
     <div className="flex min-h-screen w-full bg-[#0A0E27] relative overflow-hidden font-sans">
       {/* Dynamic Background Elements */}
-      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#F0A000]/10 blur-[120px]" />
+      <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-white/10 blur-[120px]" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[#7342F9]/10 blur-[100px]" />
 
       <div className="w-full h-full flex items-center justify-center p-4 relative z-10">
@@ -111,14 +111,14 @@ export const LoginPage = () => {
             <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10" />
 
             {/* Glowing Accent */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#F0A000] via-[#FF8A00] to-[#DD3903]" />
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-white via-white/80 to-white/60" />
 
             <div>
               <div className="inline-flex items-center gap-2 mb-2 p-1.5 pr-3 bg-white/5 rounded-full border border-white/10 backdrop-blur-sm">
-                <div className="bg-[#F0A000] rounded-full p-1">
-                  <Truck className="w-3.5 h-3.5 text-white" />
+                <div className="bg-white rounded-full p-1">
+                  <Truck className="w-3.5 h-3.5 text-[#0A0E27]" />
                 </div>
-                <span className="text-[10px] font-bold tracking-wider text-[#F0A000] uppercase">Fleet Command</span>
+                <span className="text-[10px] font-bold tracking-wider text-white uppercase">Fleet Command</span>
               </div>
               <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
                 Capital Technology Alliance
@@ -131,7 +131,7 @@ export const LoginPage = () => {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
-                  <Shield className="w-5 h-5 text-[#F0A000]" />
+                  <Shield className="w-5 h-5 text-white" />
                 </div>
                 <div>
                   <h3 className="text-white text-sm font-semibold">Enterprise Security</h3>

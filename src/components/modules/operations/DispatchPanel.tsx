@@ -20,6 +20,7 @@ import {
 
 import { useDispatchSocket } from "@/hooks/useDispatchSocket";
 import { usePTT } from "@/hooks/usePTT";
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface DispatchPanelProps {
@@ -208,7 +209,7 @@ export const DispatchPanel: React.FC<DispatchPanelProps> = ({ open, onOpenChange
                                                 <div className="flex items-center justify-between mb-1">
                                                     <span className="text-xs font-bold">{t.username || 'Unit'}</span>
                                                     <span className="text-[10px] text-muted-foreground">
-                                                        {new Date(t.startedAt).toLocaleTimeString()}
+                                                        {formatTime(t.startedAt)}
                                                     </span>
                                                 </div>
                                                 <div className="text-xs text-muted-foreground line-clamp-2">

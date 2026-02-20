@@ -33,6 +33,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
 
 // ============================================================================
 // SHARED COMPONENTS
@@ -110,9 +112,9 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
     name: data.assetName || data.name || `Asset ${assetId}`,
     type: data.assetType || data.type || 'Equipment',
     status: data.status || 'active',
-    serialNumber: data.serialNumber || 'N/A',
-    manufacturer: data.manufacturer || 'Unknown',
-    model: data.model || 'Unknown',
+    serialNumber: data.serialNumber || '—',
+    manufacturer: data.manufacturer || '—',
+    model: data.model || '—',
     purchaseDate: data.purchaseDate,
     warrantyExpiry: data.warrantyExpiry,
     location: data.location || 'Main Facility',
@@ -164,17 +166,17 @@ export function AssetDetailPanel({ assetId }: AssetDetailPanelProps) {
           <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Purchase Date"
-              value={asset.purchaseDate ? new Date(asset.purchaseDate).toLocaleDateString() : '-'}
+              value={asset.purchaseDate ? formatDate(asset.purchaseDate) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="Warranty Expiry"
-              value={asset.warrantyExpiry ? new Date(asset.warrantyExpiry).toLocaleDateString() : '-'}
+              value={asset.warrantyExpiry ? formatDate(asset.warrantyExpiry) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
             <DetailRow
               label="Asset Value"
-              value={asset.value ? `$${asset.value.toLocaleString()}` : '-'}
+              value={asset.value ? formatCurrency(asset.value) : '-'}
               icon={<DollarSign className="w-4 h-4" />}
             />
           </div>
@@ -243,7 +245,7 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
           </div>
           <div className="text-right">
             <StatusBadge status={invoice.status} variant={statusVariant} />
-            <div className="text-sm font-bold mt-2">${invoice.total.toLocaleString()}</div>
+            <div className="text-sm font-bold mt-2">{formatCurrency(invoice.total)}</div>
           </div>
         </div>
 
@@ -256,12 +258,12 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
             <DetailRow label="Vendor" value={invoice.vendor} icon={<Building className="w-4 h-4" />} />
             <DetailRow
               label="Issue Date"
-              value={invoice.issueDate ? new Date(invoice.issueDate).toLocaleDateString() : '-'}
+              value={invoice.issueDate ? formatDate(invoice.issueDate) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="Due Date"
-              value={invoice.dueDate ? new Date(invoice.dueDate).toLocaleDateString() : '-'}
+              value={invoice.dueDate ? formatDate(invoice.dueDate) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -272,16 +274,16 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span>${invoice.amount.toLocaleString()}</span>
+              <span>{formatCurrency(invoice.amount)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-muted-foreground">Tax</span>
-              <span>${invoice.tax.toLocaleString()}</span>
+              <span>{formatCurrency(invoice.tax)}</span>
             </div>
             <Separator />
             <div className="flex justify-between font-bold">
               <span>Total</span>
-              <span>${invoice.total.toLocaleString()}</span>
+              <span>{formatCurrency(invoice.total)}</span>
             </div>
           </div>
         </DetailSection>
@@ -422,12 +424,12 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
           <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Start Time"
-              value={route.startTime ? new Date(route.startTime).toLocaleString() : '-'}
+              value={route.startTime ? formatDateTime(route.startTime) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="End Time"
-              value={route.endTime ? new Date(route.endTime).toLocaleString() : '-'}
+              value={route.endTime ? formatDateTime(route.endTime) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -505,12 +507,12 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             <DetailRow label="Assigned To" value={task.assignedTo} icon={<User className="w-4 h-4" />} />
             <DetailRow
               label="Due Date"
-              value={task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '-'}
+              value={task.dueDate ? formatDate(task.dueDate) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="Created"
-              value={task.createdAt ? new Date(task.createdAt).toLocaleDateString() : '-'}
+              value={task.createdAt ? formatDate(task.createdAt) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -582,7 +584,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
   const incident = {
     id: incidentId || data.incidentId || data.id,
     number: data.incidentNumber || data.number || `INC-${incidentId}`,
-    type: data.type || 'Unknown',
+    type: data.type || '—',
     status: data.status || 'open',
     severity: data.severity || 'medium',
     driver: data.driver || data.driverName,
@@ -613,7 +615,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
         <div className="flex items-start justify-between">
           <div>
             <h2 className="text-sm font-bold">{incident.number}</h2>
-            <p className="text-muted-foreground">{incident.type}</p>
+            <p className="text-muted-foreground">{formatEnum(incident.type)}</p>
             <div className="flex gap-2 mt-2">
               <StatusBadge status={incident.status} variant={statusVariant} />
               <StatusBadge status={`${incident.severity} severity`} variant={severityVariant} />
@@ -636,7 +638,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
             <DetailRow label="Type" value={incident.type} icon={<Activity className="w-4 h-4" />} />
             <DetailRow
               label="Occurred"
-              value={incident.occurredAt ? new Date(incident.occurredAt).toLocaleString() : '-'}
+              value={incident.occurredAt ? formatDateTime(incident.occurredAt) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow label="Location" value={incident.location} icon={<MapPin className="w-4 h-4" />} />
@@ -684,7 +686,7 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
           <DetailSection title="Damage Assessment">
             <DetailRow
               label="Estimated Damage"
-              value={`$${incident.damageEstimate.toLocaleString()}`}
+              value={formatCurrency(incident.damageEstimate)}
               icon={<DollarSign className="w-4 h-4" />}
             />
           </DetailSection>
@@ -779,7 +781,7 @@ export function VendorDetailPanel({ vendorId }: VendorDetailPanelProps) {
           <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Total Spend"
-              value={`$${vendor.totalSpend.toLocaleString()}`}
+              value={formatCurrency(vendor.totalSpend)}
               icon={<DollarSign className="w-4 h-4" />}
             />
             <DetailRow
@@ -865,12 +867,12 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
             <DetailRow label="Reorder Level" value={part.reorderLevel} icon={<AlertTriangle className="w-4 h-4" />} />
             <DetailRow
               label="Unit Price"
-              value={`$${part.unitPrice.toLocaleString()}`}
+              value={formatCurrency(part.unitPrice)}
               icon={<DollarSign className="w-4 h-4" />}
             />
             <DetailRow
               label="Total Value"
-              value={`$${(part.quantity * part.unitPrice).toLocaleString()}`}
+              value={formatCurrency(part.quantity * part.unitPrice)}
               icon={<DollarSign className="w-4 h-4" />}
             />
           </div>
@@ -951,7 +953,7 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
           </div>
           <div className="text-right">
             <StatusBadge status={po.status} variant={statusVariant} />
-            <div className="text-sm font-bold mt-2">${po.amount.toLocaleString()}</div>
+            <div className="text-sm font-bold mt-2">{formatCurrency(po.amount)}</div>
           </div>
         </div>
 
@@ -978,12 +980,12 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
             </div>
             <DetailRow
               label="Order Date"
-              value={po.orderDate ? new Date(po.orderDate).toLocaleDateString() : '-'}
+              value={po.orderDate ? formatDate(po.orderDate) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="Expected Delivery"
-              value={po.expectedDate ? new Date(po.expectedDate).toLocaleDateString() : '-'}
+              value={po.expectedDate ? formatDate(po.expectedDate) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -997,7 +999,7 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
                 <div key={item.name || item.partName} className="flex justify-between p-2 bg-muted/30 rounded">
                   <span>{item.name || item.partName}</span>
                   <span className="text-muted-foreground">
-                    {item.quantity} x ${item.unitPrice?.toLocaleString() || '0'}
+                    {item.quantity} x {formatCurrency(item.unitPrice)}
                   </span>
                 </div>
               ))}
@@ -1083,7 +1085,7 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
             <DetailRow label="Trip ID" value={trip.id} icon={<Route className="w-4 h-4" />} />
             <DetailRow
               label="Distance"
-              value={`${trip.distance.toLocaleString()} miles`}
+              value={`${formatNumber(trip.distance)} miles`}
               icon={<MapPin className="w-4 h-4" />}
             />
             <DetailRow
@@ -1142,12 +1144,12 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
           <div className="grid grid-cols-2 gap-2">
             <DetailRow
               label="Start Time"
-              value={trip.startTime ? new Date(trip.startTime).toLocaleString() : '-'}
+              value={trip.startTime ? formatDateTime(trip.startTime) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
             <DetailRow
               label="End Time"
-              value={trip.endTime ? new Date(trip.endTime).toLocaleString() : '-'}
+              value={trip.endTime ? formatDateTime(trip.endTime) : '-'}
               icon={<Clock className="w-4 h-4" />}
             />
           </div>
@@ -1246,7 +1248,7 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
             <DetailRow label="Type" value={inspection.type} icon={<CheckCircle className="w-4 h-4" />} />
             <DetailRow
               label="Date"
-              value={inspection.date ? new Date(inspection.date).toLocaleDateString() : '-'}
+              value={inspection.date ? formatDate(inspection.date) : '-'}
               icon={<Calendar className="w-4 h-4" />}
             />
           </div>

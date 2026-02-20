@@ -23,6 +23,8 @@
 import { randomBytes } from 'crypto'
 import { EventEmitter } from 'events'
 
+import logger from '../../config/logger'
+
 import {
   Vehicle,
   Location,
@@ -270,7 +272,7 @@ export class RadioEmulator extends EventEmitter {
     // Start simulated radio traffic
     this.startTrafficSimulation()
 
-    console.log(`RadioEmulator started for vehicle ${this.vehicle.id}`)
+    logger.info(`RadioEmulator started for vehicle ${this.vehicle.id}`)
     this.emit('started', { vehicleId: this.vehicle.id })
   }
 
@@ -309,7 +311,7 @@ export class RadioEmulator extends EventEmitter {
     this.isRunning = false
     this.isPaused = false
 
-    console.log(`RadioEmulator stopped for vehicle ${this.vehicle.id}`)
+    logger.info(`RadioEmulator stopped for vehicle ${this.vehicle.id}`)
     this.emit('stopped', { vehicleId: this.vehicle.id })
   }
 
@@ -337,27 +339,27 @@ export class RadioEmulator extends EventEmitter {
     // Rate limiting check
     const now = Date.now()
     if (now - this.lastPTTPress < this.PTT_RATE_LIMIT_MS) {
-      console.warn(`PTT rate limit exceeded for vehicle ${this.vehicle.id}`)
+      logger.warn(`PTT rate limit exceeded for vehicle ${this.vehicle.id}`)
       return null
     }
 
     // Validate not already transmitting
     if (this.radioState.isPTTPressed) {
-      console.warn(`PTT already pressed for vehicle ${this.vehicle.id}`)
+      logger.warn(`PTT already pressed for vehicle ${this.vehicle.id}`)
       return null
     }
 
     // Check if channel is available
     const channel = this.channels.get(this.radioState.currentChannel)
     if (!channel) {
-      console.error(`Channel ${this.radioState.currentChannel} not found`)
+      logger.error(`Channel ${this.radioState.currentChannel} not found`)
       return null
     }
 
     // Check if someone else is speaking (unless emergency override)
     if (channel.activeSpeaker && channel.activeSpeaker !== this.vehicle.id) {
       if (priority !== 'emergency' || !this.radioConfig.emergencyPriority) {
-        console.warn(`Channel ${channel.name} is busy`)
+        logger.warn(`Channel ${channel.name} is busy`)
         this.emit('channel-busy', { vehicleId: this.vehicle.id, channelId: channel.id })
         return null
       }
@@ -561,13 +563,13 @@ export class RadioEmulator extends EventEmitter {
     // Validate channel exists
     const newChannel = this.channels.get(channelId)
     if (!newChannel) {
-      console.error(`Channel ${channelId} not found`)
+      logger.error(`Channel ${channelId} not found`)
       return false
     }
 
     // Cannot switch while transmitting
     if (this.radioState.isPTTPressed) {
-      console.warn('Cannot switch channel while transmitting')
+      logger.warn('Cannot switch channel while transmitting')
       return false
     }
 
@@ -819,13 +821,13 @@ export class RadioEmulator extends EventEmitter {
   public registerChannel(channel: RadioChannel): boolean {
     // Validate channel data
     if (!channel.id || !channel.name || !channel.frequency) {
-      console.error('Invalid channel data')
+      logger.error('Invalid channel data')
       return false
     }
 
     // Check for duplicate
     if (this.channels.has(channel.id)) {
-      console.warn(`Channel ${channel.id} already exists`)
+      logger.warn(`Channel ${channel.id} already exists`)
       return false
     }
 

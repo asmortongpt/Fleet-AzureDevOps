@@ -39,6 +39,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Textarea } from '@/components/ui/textarea'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime, formatTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 interface ViolationDetailPanelProps {
@@ -127,10 +129,11 @@ interface Comment {
   is_internal: boolean
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps) {
   const { push } = useDrilldown()
@@ -202,12 +205,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
     if (!newComment.trim()) return
 
     try {
-      const response = await fetch(`/api/violations/${violationId}/comments`, {
+      await fetch(`/api/violations/${violationId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commentText: newComment }),
       })
-      if (!response.ok) throw new Error('Request failed: ' + response.status)
       setNewComment('')
       mutate()
     } catch (error) {
@@ -297,10 +299,10 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
               </CardHeader>
               <CardContent>
                 <div className="text-sm font-bold">
-                  {new Date(violation.occurred_at).toLocaleDateString()}
+                  {formatDate(violation.occurred_at)}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {new Date(violation.occurred_at).toLocaleTimeString()}
+                  {formatTime(violation.occurred_at)}
                 </p>
               </CardContent>
             </Card>
@@ -393,13 +395,13 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                     <div>
                       <p className="text-sm text-muted-foreground">Occurred At</p>
                       <p className="font-medium">
-                        {new Date(violation.occurred_at).toLocaleString()}
+                        {formatDateTime(violation.occurred_at)}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Detected At</p>
                       <p className="font-medium">
-                        {new Date(violation.detected_at).toLocaleString()}
+                        {formatDateTime(violation.detected_at)}
                       </p>
                     </div>
                   </div>
@@ -500,7 +502,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                                 <div>
                                   <p className="text-sm text-muted-foreground">Approved At</p>
                                   <p className="font-medium">
-                                    {new Date(violation.override_approved_at).toLocaleString()}
+                                    {formatDateTime(violation.override_approved_at)}
                                   </p>
                                 </div>
                               )}
@@ -531,7 +533,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                         <div className="flex items-center justify-between">
                           <span className="font-medium text-sm">{comment.created_by}</span>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(comment.created_at).toLocaleString()}
+                            {formatDateTime(comment.created_at)}
                           </span>
                         </div>
                         <p className="text-sm">{comment.comment_text}</p>
@@ -640,13 +642,13 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                           <CheckCircle2 className="h-6 w-6 text-green-500" />
                           <div>
                             <p className="font-medium">{ack.acknowledged_by}</p>
-                            <p className="text-sm text-muted-foreground capitalize">
-                              {ack.role}
+                            <p className="text-sm text-muted-foreground">
+                              {formatEnum(ack.role)}
                             </p>
                           </div>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(ack.acknowledged_at).toLocaleString()}
+                          {formatDateTime(ack.acknowledged_at)}
                         </p>
                       </div>
 
@@ -693,11 +695,11 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                       <div className="flex items-start justify-between">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className="capitalize">
-                              {action.action_type.replace('_', ' ')}
+                            <Badge variant="outline">
+                              {formatEnum(action.action_type)}
                             </Badge>
                             <Badge variant={getActionStatusColor(action.status)}>
-                              {action.status}
+                              {formatEnum(action.status)}
                             </Badge>
                           </div>
                           <p className="text-sm text-muted-foreground">
@@ -705,7 +707,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                           </p>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(action.action_date).toLocaleDateString()}
+                          {formatDate(action.action_date)}
                         </p>
                       </div>
 
@@ -717,7 +719,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                           <span className="text-sm">{action.performed_by}</span>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(action.action_date).toLocaleTimeString()}
+                          {formatTime(action.action_date)}
                         </p>
                       </div>
                     </CardContent>
@@ -745,8 +747,8 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                         <CardContent className="p-2">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <p className="font-medium capitalize">
-                                {event.event_type.replace('_', ' ')}
+                              <p className="font-medium">
+                                {formatEnum(event.event_type)}
                               </p>
                               <p className="text-sm text-muted-foreground">
                                 {event.event_description}
@@ -754,10 +756,10 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                             </div>
                             <div className="text-right">
                               <p className="text-xs text-muted-foreground">
-                                {new Date(event.timestamp).toLocaleDateString()}
+                                {formatDate(event.timestamp)}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                {new Date(event.timestamp).toLocaleTimeString()}
+                                {formatTime(event.timestamp)}
                               </p>
                             </div>
                           </div>
@@ -798,8 +800,8 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="outline" className="capitalize">
-                              {action.action_type.replace('_', ' ')}
+                            <Badge variant="outline">
+                              {formatEnum(action.action_type)}
                             </Badge>
                             <Badge
                               variant={
@@ -810,7 +812,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                                     : 'outline'
                               }
                             >
-                              {action.status.replace('_', ' ')}
+                              {formatEnum(action.status)}
                             </Badge>
                           </div>
                           <p className="font-medium">{action.title}</p>
@@ -838,7 +840,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                                   'text-destructive'
                               )}
                             >
-                              {new Date(action.due_date).toLocaleDateString()}
+                              {formatDate(action.due_date)}
                             </p>
                           </div>
                         )}
@@ -846,7 +848,7 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
                           <div>
                             <p className="text-xs text-muted-foreground">Completed</p>
                             <p className="text-sm font-medium">
-                              {new Date(action.completion_date).toLocaleDateString()}
+                              {formatDate(action.completion_date)}
                             </p>
                           </div>
                         )}

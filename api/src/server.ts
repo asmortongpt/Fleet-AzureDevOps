@@ -72,11 +72,18 @@ import fleetOptimizerRouter from './routes/fleet-optimizer.routes'
 // AI & Automation Routes
 import aiChatRouter from './routes/ai-chat'
 import aiDamageDetectionRouter from './routes/ai-damage-detection.routes'
+import aiInsightsRouter from './routes/ai-insights.routes'
 import aiDispatchRouter from './routes/ai-dispatch.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
-import langchainRouter from './routes/langchain.routes'
+// Lazy-loaded: @langchain/core may not be installed in all environments
+let langchainRouter: import('express').Router | null = null
+try {
+  langchainRouter = require('./routes/langchain.routes').default
+} catch {
+  // langchain dependencies not available - route will be skipped
+}
 import annualReauthorizationRouter from './routes/annual-reauthorization.routes'
 import analyticsRouter from './routes/analytics'
 import arcgisLayersRouter from './routes/arcgis-layers'
@@ -139,7 +146,6 @@ import healthSystemRouter from './routes/health-system.routes' // Comprehensive 
 import healthRouter from './routes/health.routes' // Microsoft integration health
 import heavyEquipmentRouter from './routes/heavy-equipment.routes'
 import incidentsRouter from './routes/incidents'
-import incidentManagementRouter from './routes/incident-management'
 import inspectionsRouter from './routes/inspections-simple'
 import internalTeamsRouter from './routes/internal-teams'
 import hazardZonesRouter from './routes/hazard-zones'
@@ -192,6 +198,7 @@ import communicationsRouter from './routes/communications'
 import reimbursementRouter from './routes/reimbursement-requests'
 import adminRouter from './routes/admin.routes'
 import adminUsersRouter from './routes/admin/users.routes'
+import adminConfigRouter from './routes/admin/configuration'
 // monitoringRouter imported in separate block
 import { initializeBudgetRoutes } from './routes/budgets'
 import reportsRouter from './routes/reports.routes'
@@ -273,8 +280,7 @@ logger.info('Datadog APM disabled')
 // ARCHITECTURE FIX: Import new error handling infrastructure
 
 // Initialize Sentry
-// TEMP: Disabled to resolve initialization loop
-// sentryService.init()
+sentryService.init()
 
 logger.info('--- IMPORTS COMPLETED, CREATING APP ---');
 const app = express()
@@ -358,7 +364,7 @@ app.use(telemetryMiddleware)
 if (process.env.NODE_ENV !== 'production' && process.env.SKIP_AUTH === 'true') {
   logger.info('[DEV] Auth bypass middleware enabled - all API requests will use Morton-tech tenant')
   app.use((req: any, _res: any, next: any) => {
-    if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/') && !req.path.startsWith('/api/csrf')) {
+    if (req.path.startsWith('/api/') && !req.path.startsWith('/api/auth/')) {
       req.user = {
         id: '00000000-0000-0000-0000-000000000001',
         email: 'dev@morton-tech.local',
@@ -435,8 +441,8 @@ app.use('/api/vehicle-contracts', vehicleContractsRouter)
 app.use('/api/vendor-management', vendorManagementRouter)
 app.use('/api/maintenance', maintenanceRouter)
 app.use('/api/incidents', incidentsRouter)
-app.use('/api/incident-management', incidentManagementRouter)
 app.use('/api/parts', partsRouter)
+app.use('/api/parts-inventory', partsRouter)  // Alias: frontend uses /api/parts-inventory
 app.use('/api/inventory', inventoryRouter) // Registered here as core
 app.use('/api/vendors', vendorsRouter)
 app.use('/api/invoices', invoicesRouter)
@@ -517,7 +523,7 @@ app.use('/api/ai-dispatch', aiDispatchRouter)
 app.use('/api/ai-search', aiSearchRouter)
 app.use('/api/ai-task-asset', aiTaskAssetRouter)
 app.use('/api/ai-tasks', aiTaskPrioritizationRouter)
-app.use('/api/langchain', langchainRouter)
+if (langchainRouter) app.use('/api/langchain', langchainRouter)
 
 // Task & Schedule Management Routes
 app.use('/api/scheduling', schedulingRouter)
@@ -546,6 +552,7 @@ app.use('/api/vehicle-3d', vehicle3dRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
 app.use('/api/ai/damage-detection', aiDamageDetectionRouter)
+app.use('/api/ai-insights', aiInsightsRouter)
 app.use('/api/lidar', lidarRouter)
 
 // Trip & Route Management Routes
@@ -598,6 +605,7 @@ app.use('/api/dashboard', dashboardRouter)
 app.use('/api/emulator', emulatorRouter)
 app.use('/api/obd2-emulator', obd2EmulatorRouter)
 app.use('/api/dispatch', dispatchRouter)
+app.use('/api/dispatches', dispatchRouter)  // Alias: frontend uses /api/dispatches
 
 // System Management Routes
 app.use('/api/monitoring', monitoringRouter)
@@ -623,6 +631,7 @@ app.use('/api/system', systemConnectionsRouter)
 app.use('/api/admin/jobs', adminJobsRouter)
 app.use('/api/admin', adminRouter) // PHASE 3: Admin dashboard & config - Priority A
 app.use('/api/admin/users', adminUsersRouter) // PHASE 3: Admin user management - Priority A
+app.use('/api/admin/config', adminConfigRouter)
 
 // Medium-Priority Routes (Batch 2)
 app.use('/api/adaptive-cards', adaptiveCardsRouter)

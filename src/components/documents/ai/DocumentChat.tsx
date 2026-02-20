@@ -177,10 +177,10 @@ function MessageBubble({ message, document }: { message: ChatMessage; document: 
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Thumbs up">
+            <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Helpful">
               <ThumbsUp className="h-3 w-3" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Thumbs down">
+            <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Not helpful">
               <ThumbsDown className="h-3 w-3" />
             </Button>
           </div>

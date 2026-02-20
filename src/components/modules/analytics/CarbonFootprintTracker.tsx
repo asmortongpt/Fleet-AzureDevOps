@@ -22,6 +22,7 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatDate, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
 
@@ -84,10 +85,11 @@ const CarbonFootprintTracker: React.FC = () => {
 
   const loadCarbonData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+      const fetchOptions = {
+        credentials: 'include' as RequestCredentials,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       };
 
       const endDate = new Date();
@@ -108,12 +110,12 @@ const CarbonFootprintTracker: React.FC = () => {
           break;
       }
 
-      let url = `/api/ev/carbon-footprint?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
+      let url = `/api/ev-management/carbon-footprint?startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
       if (_selectedVehicle) {
         url += `&vehicleId=${_selectedVehicle}`;
       }
 
-      const response = await fetch(url, { headers });
+      const response = await fetch(url, fetchOptions);
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
 
@@ -126,8 +128,8 @@ const CarbonFootprintTracker: React.FC = () => {
       const currentYear = new Date().getFullYear();
       const currentMonth = new Date().getMonth() + 1;
       const esgResponse = await fetch(
-        `/api/ev/esg-report?period=monthly&year=${currentYear}&month=${currentMonth}`,
-        { headers }
+        `/api/ev-management/esg-report?period=monthly&year=${currentYear}&month=${currentMonth}`,
+        fetchOptions
       );
       if (!esgResponse.ok) throw new Error('Request failed: ' + esgResponse.status);
       const esgData = await esgResponse.json();
@@ -142,12 +144,7 @@ const CarbonFootprintTracker: React.FC = () => {
     }
   };
 
-  const formatNumber = (num: number, decimals: number = 2): string => {
-    return num.toLocaleString(undefined, {
-      minimumFractionDigits: decimals,
-      maximumFractionDigits: decimals
-    });
-  };
+  // Use formatNumber from @/utils/format-helpers
 
   const formatLargeNumber = (num: number): string => {
     if (num >= 1000) {
@@ -180,7 +177,7 @@ const CarbonFootprintTracker: React.FC = () => {
   const downloadReport = async () => {
     try {
       const doc = new jsPDF();
-      const currentDate = new Date().toLocaleDateString();
+      const currentDate = formatDate(new Date());
 
       // Set up document styling
       doc.setFontSize(20);
@@ -196,10 +193,10 @@ const CarbonFootprintTracker: React.FC = () => {
       doc.setFontSize(11);
       if (summary) {
         const summaryText = [
-          `Total Carbon Saved: ${summary.total_saved_kg.toLocaleString()} kg CO2`,
-          `Total Renewable Energy: ${(summary.total_renewable_kwh ?? 0).toLocaleString()} kWh`,
+          `Total Carbon Saved: ${formatNumber(summary.total_saved_kg)} kg CO2`,
+          `Total Renewable Energy: ${formatNumber(summary.total_renewable_kwh ?? 0)} kWh`,
           `Average Emissions Reduction: ${(summary.avg_saved_percent ?? 0).toFixed(1)}%`,
-          `Total Miles Driven: ${summary.total_miles.toLocaleString()} miles`,
+          `Total Miles Driven: ${formatNumber(summary.total_miles)} miles`,
           `Fleet Efficiency: ${(summary.avg_efficiency_kwh_per_mile ?? 0).toFixed(2)} kWh/mile`
         ];
 
@@ -218,9 +215,9 @@ const CarbonFootprintTracker: React.FC = () => {
       const treesEquivalent = summary ? calculateTreeEquivalent(summary.total_saved_kg) : 0;
       const impactText = [
         `Trees Equivalent: ${treesEquivalent} trees planted`,
-        `Carbon Saved vs ICE Baseline: ${summary?.total_saved_kg.toLocaleString() || 0} kg CO2`,
-        `Renewable Energy Usage: ${(summary?.total_renewable_kwh ?? 0).toLocaleString()} kWh`,
-        `Grid Electricity Usage: ${((summary?.total_kwh || 0) - (summary?.total_renewable_kwh ?? 0)).toLocaleString()} kWh`
+        `Carbon Saved vs ICE Baseline: ${formatNumber(summary?.total_saved_kg ?? 0)} kg CO2`,
+        `Renewable Energy Usage: ${formatNumber(summary?.total_renewable_kwh ?? 0)} kWh`,
+        `Grid Electricity Usage: ${formatNumber((summary?.total_kwh || 0) - (summary?.total_renewable_kwh ?? 0))} kWh`
       ];
 
       let yPos = 115;

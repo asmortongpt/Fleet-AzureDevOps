@@ -4,6 +4,7 @@
  */
 
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -14,6 +15,20 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { applyFieldMasking } from '../utils/fieldMasking'
 import { buildInsertClause } from '../utils/sql-safety'
+
+const trainingUpdateSchema = z.object({
+  training_name: z.string().optional(),
+  training_type: z.string().optional(),
+  completion_date: z.string().optional(),
+  expiry_date: z.string().optional(),
+  status: z.string().optional(),
+  instructor_name: z.string().optional(),
+  score: z.union([z.string(), z.number()]).optional(),
+  certificate_number: z.string().optional(),
+  hours_completed: z.union([z.string(), z.number()]).optional(),
+  provider: z.string().optional(),
+  notes: z.string().optional(),
+})
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -208,7 +223,11 @@ router.put(
     async (req: AuthRequest, res: Response) => {
         try {
             const { id } = req.params
-            const data = req.body
+            const parsed = trainingUpdateSchema.safeParse(req.body)
+            if (!parsed.success) {
+                return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+            }
+            const data = parsed.data
 
             // Build SET clause dynamically
             const allowedFields = [
@@ -231,7 +250,7 @@ router.put(
             Object.keys(data).forEach(key => {
                 if (allowedFields.includes(key)) {
                     updates.push(`${key} = $${paramCount}`)
-                    values.push(data[key])
+                    values.push(data[key as keyof typeof data])
                     paramCount++
                 }
             })
@@ -277,7 +296,7 @@ router.delete(
                 throw new NotFoundError('Training record not found')
             }
 
-            res.json({ message: 'Training record deleted successfully' })
+            res.json({ success: true, message: 'Training record deleted successfully' })
         } catch (error) {
             logger.error('Delete safety-training error:', error)
             res.status(500).json({ error: 'Internal server error' })

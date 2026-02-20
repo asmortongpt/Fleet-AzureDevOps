@@ -20,6 +20,10 @@ export class OpenAIAdapter implements AIProviderAdapter {
   }
 
   async initialize(): Promise<void> {
+    if (!this.apiKey) {
+      logger.warn('[OpenAI] API key not provided - OpenAI adapter will not be available')
+      return
+    }
     this.client = new OpenAI({
       apiKey: this.apiKey,
     })

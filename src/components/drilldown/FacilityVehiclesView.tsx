@@ -9,6 +9,8 @@ import useSWR from 'swr'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { formatEnum } from '@/utils/format-enum'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface FacilityVehiclesViewProps {
   facilityId: string
@@ -28,10 +30,11 @@ interface Vehicle {
   assigned_to?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehiclesViewProps) {
   const { data: vehicles, error, isLoading, mutate } = useSWR<Vehicle[]>(
@@ -73,7 +76,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                           </p>
                         </div>
                         <Badge variant="outline">
-                          {vehicle.status}
+                          {formatEnum(vehicle.status)}
                         </Badge>
                       </div>
 
@@ -84,7 +87,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                             <span>Mileage</span>
                           </div>
                           <p className="text-sm font-medium">
-                            {vehicle.mileage?.toLocaleString() ?? '0'} mi
+                            {formatNumber(vehicle.mileage ?? 0)} mi
                           </p>
                         </div>
                         <div>

@@ -20,11 +20,13 @@ import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/Dril
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatNumber } from '@/utils/format-helpers'
 
 const fetcher = (url: string) =>
   fetch(url)
     .then((r) => {
-      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
       return r.json()
     })
     .then((data) => data?.data ?? data)
@@ -162,7 +164,7 @@ export function OperationsPerformanceDrilldown() {
       key: 'totalCost',
       header: 'Cost',
       sortable: true,
-      render: (v) => `$${v.totalCost.toFixed(2)}`
+      render: (v) => formatCurrency(v.totalCost)
     }
   ]
 
@@ -183,7 +185,7 @@ export function OperationsPerformanceDrilldown() {
       header: 'Status',
       render: (r) => (
         <Badge variant={r.status === 'completed' ? 'secondary' : r.status === 'active' ? 'default' : 'outline'}>
-          {r.status}
+          {formatEnum(r.status)}
         </Badge>
       )
     },
@@ -218,7 +220,7 @@ export function OperationsPerformanceDrilldown() {
       key: 'cost',
       header: 'Fuel Cost',
       sortable: true,
-      render: (r) => r.status !== 'planned' ? `$${r.cost.toFixed(2)}` : '-'
+      render: (r) => r.status !== 'planned' ? formatCurrency(r.cost) : '-'
     },
     {
       key: 'optimization',
@@ -303,7 +305,7 @@ export function OperationsPerformanceDrilldown() {
                     <div>
                       <p className="text-sm text-muted-foreground">{metric.name}</p>
                       <p className="text-sm font-bold">
-                        {metric.value.toLocaleString()} {metric.unit}
+                        {formatNumber(metric.value)} {metric.unit}
                       </p>
                     </div>
                     {getTrendIcon(metric.trend)}

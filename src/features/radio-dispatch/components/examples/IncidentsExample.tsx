@@ -19,6 +19,7 @@ import { ErrorPanel } from '../ErrorPanel';
 import { LoadingSpinner } from '../LoadingSpinner';
 
 import { api } from "@/lib/api";
+import { formatDate } from "@/utils/format-helpers";
 import logger from '@/utils/logger';
 
 // Local Incident type definition for this example
@@ -212,7 +213,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
         >
           {incident.priority}
         </span>
-        <span>{new Date(incident.created_at).toLocaleDateString()}</span>
+        <span>{formatDate(incident.created_at)}</span>
       </div>
     </div>
   );
@@ -274,7 +275,7 @@ export function IncidentsInlineExample() {
                 </p>
               </div>
               <span className="text-xs text-muted-foreground">
-                {new Date(incident.created_at).toLocaleDateString()}
+                {formatDate(incident.created_at)}
               </span>
             </div>
           ))}

@@ -27,7 +27,7 @@ router.get('/', async (req, res) => {
     logger.error('[SystemHealth] Error getting health:', error);
     res.status(503).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
       timestamp: new Date(),
     });
   }
@@ -61,7 +61,7 @@ router.get('/connections', async (req, res) => {
     logger.error('[SystemHealth] Error getting connections:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
     });
   }
 });
@@ -89,7 +89,7 @@ router.get('/memory', async (req, res) => {
     logger.error('[SystemHealth] Error getting memory:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
     });
   }
 });
@@ -114,7 +114,7 @@ router.get('/uptime', async (req, res) => {
     logger.error('[SystemHealth] Error getting uptime:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
     });
   }
 });
@@ -152,7 +152,7 @@ router.get('/metrics', async (req, res) => {
     logger.error('[SystemHealth] Error getting metrics:', error);
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: 'An internal error occurred',
     });
   }
 });

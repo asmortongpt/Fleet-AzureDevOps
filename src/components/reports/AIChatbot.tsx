@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface Message {
@@ -195,7 +196,7 @@ export function AIChatbot() {
                 </div>
               )}
               <p className="text-xs opacity-70 mt-1">
-                {message.timestamp.toLocaleTimeString()}
+                {formatTime(message.timestamp)}
               </p>
             </div>
           </div>

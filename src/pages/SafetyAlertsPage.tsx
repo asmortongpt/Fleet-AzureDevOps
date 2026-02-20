@@ -58,6 +58,8 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDateTime, formatNumber } from '@/utils/format-helpers'
 import { getCsrfToken } from "@/hooks/use-api"
 
 interface SafetyAlert {
@@ -275,7 +277,7 @@ export default function SafetyAlertsPage() {
     }
     return (
       <Badge variant="outline" className={colors[severity]}>
-        {severity.toUpperCase()}
+        {formatEnum(severity)}
       </Badge>
     )
   }
@@ -290,7 +292,7 @@ export default function SafetyAlertsPage() {
     }
     return (
       <Badge className={colors[status]}>
-        {status}
+        {formatEnum(status)}
       </Badge>
     )
   }
@@ -537,13 +539,17 @@ export default function SafetyAlertsPage() {
                       <TableRow
                         key={alert.id}
                         className="border-slate-700 hover:bg-slate-800/50 cursor-pointer"
+                        role="button"
+                        tabIndex={0}
+                        aria-label={`View details for alert ${alert.alertNumber}: ${alert.title}`}
                         onClick={() => handleViewDetails(alert)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleViewDetails(alert); } }}
                       >
                         <TableCell className="font-mono text-slate-300">{alert.alertNumber}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {getTypeIcon(alert.type)}
-                            <span className="text-slate-300 capitalize">{alert.type.replace('-', ' ')}</span>
+                            <span className="text-slate-300">{formatEnum(alert.type.replace('-', '_'))}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-white font-medium">{alert.title}</TableCell>
@@ -558,7 +564,7 @@ export default function SafetyAlertsPage() {
                           )}
                         </TableCell>
                         <TableCell className="text-slate-300">
-                          {new Date(alert.reportedAt).toLocaleString()}
+                          {formatDateTime(alert.reportedAt)}
                         </TableCell>
                         <TableCell>
                           <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
@@ -632,7 +638,7 @@ export default function SafetyAlertsPage() {
               <Card className="bg-slate-800/50 border-slate-700">
                 <CardHeader>
                   <CardTitle className="text-white">Year-to-Date Statistics</CardTitle>
-                  <CardDescription>Total hours worked: {metrics.totalHoursWorked.toLocaleString()}</CardDescription>
+                  <CardDescription>Total hours worked: {formatNumber(metrics.totalHoursWorked)}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="p-2 bg-slate-900/50 rounded-lg">
@@ -779,7 +785,7 @@ export default function SafetyAlertsPage() {
               {selectedAlert?.alertNumber} - {selectedAlert?.title}
             </DialogTitle>
             <DialogDescription>
-              Reported {selectedAlert && new Date(selectedAlert.reportedAt).toLocaleString()} by {selectedAlert?.reportedBy}
+              Reported {selectedAlert && formatDateTime(selectedAlert.reportedAt)} by {selectedAlert?.reportedBy}
             </DialogDescription>
           </DialogHeader>
 

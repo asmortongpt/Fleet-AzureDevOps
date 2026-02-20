@@ -44,6 +44,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { formatEnum } from "@/utils/format-enum"
+import { formatDate } from "@/utils/format-helpers"
 
 // Safety incident severity levels
 type IncidentSeverity = "critical" | "high" | "medium" | "low"
@@ -166,7 +168,7 @@ export function SafetyHub() {
       type: inc.type || inc.incidentType || 'Incident',
       severity: inc.severity || 'medium',
       status: inc.status || 'open',
-      location: inc.location || { lat: 30.4383, lng: -84.2807, address: inc.address || 'Unknown' },
+      location: inc.location || { lat: 30.4383, lng: -84.2807, address: inc.address || '—' },
       vehicleId: inc.vehicleId,
       driverId: inc.driverId,
       date: inc.date || inc.createdAt || new Date().toISOString(),
@@ -174,7 +176,7 @@ export function SafetyHub() {
       injuries: inc.injuries || 0,
       oshaRecordable: inc.oshaRecordable || false,
       workDaysLost: inc.workDaysLost || 0,
-      reportedBy: inc.reportedBy || 'Unknown'
+      reportedBy: inc.reportedBy || '—'
     }))
   }, [(fleetData as any).incidents])
 
@@ -239,7 +241,7 @@ export function SafetyHub() {
   const handleIncidentClick = (incident: SafetyIncident) => {
     push({
       type: 'incident',
-      label: `${incident.type} - ${incident.id}`,
+      label: `${formatEnum(incident.type)} - ${incident.id}`,
       data: { incidentId: incident.id, type: incident.type, severity: incident.severity }
     })
   }
@@ -452,7 +454,7 @@ export function SafetyHub() {
                           strokeColor: "#fff",
                           strokeWeight: 2
                         }}
-                        title={`${incident.type} - ${incident.severity}`}
+                        title={`${formatEnum(incident.type)} - ${formatEnum(incident.severity)}`}
                       />
                     ))}
                   </GoogleMap>
@@ -582,17 +584,17 @@ export function SafetyHub() {
                               onKeyDown={(e) => e.key === 'Enter' && handleIncidentClick(incident)}
                             >
                               <TableCell className="font-medium">
-                                {new Date(incident.date).toLocaleDateString()}
+                                {formatDate(incident.date)}
                               </TableCell>
-                              <TableCell>{incident.type}</TableCell>
+                              <TableCell>{formatEnum(incident.type)}</TableCell>
                               <TableCell>
                                 <Badge variant={getSeverityColor(incident.severity)}>
-                                  {incident.severity}
+                                  {formatEnum(incident.severity)}
                                 </Badge>
                               </TableCell>
                               <TableCell>
                                 <Badge variant="outline">
-                                  {incident.status}
+                                  {formatEnum(incident.status)}
                                 </Badge>
                               </TableCell>
                               <TableCell>
@@ -640,7 +642,7 @@ export function SafetyHub() {
                               onKeyDown={(e) => e.key === 'Enter' && handleInspectionClick(inspection)}
                             >
                               <TableCell className="font-medium">
-                                {new Date(inspection.date).toLocaleDateString()}
+                                {formatDate(inspection.date)}
                               </TableCell>
                               <TableCell
                                 className="text-primary hover:underline"
@@ -694,11 +696,11 @@ export function SafetyHub() {
                                 <div>
                                   <CardTitle className="text-base">{zone.name}</CardTitle>
                                   <p className="text-sm text-muted-foreground mt-1">
-                                    {zone.type.charAt(0).toUpperCase() + zone.type.slice(1)} hazard
+                                    {formatEnum(zone.type)} hazard
                                   </p>
                                 </div>
                                 <Badge variant={zone.severity === "high" ? "destructive" : "secondary"}>
-                                  {zone.severity}
+                                  {formatEnum(zone.severity)}
                                 </Badge>
                               </div>
                             </CardHeader>
@@ -711,8 +713,8 @@ export function SafetyHub() {
                                 <div className="flex items-center gap-2 text-sm">
                                   <Calendar className="w-4 h-4 text-muted-foreground" />
                                   <span>
-                                    Active from {new Date(zone.activeFrom).toLocaleDateString()}
-                                    {zone.activeTo && ` to ${new Date(zone.activeTo).toLocaleDateString()}`}
+                                    Active from {formatDate(zone.activeFrom)}
+                                    {zone.activeTo && ` to ${formatDate(zone.activeTo)}`}
                                   </span>
                                 </div>
                                 <div className="mt-2">

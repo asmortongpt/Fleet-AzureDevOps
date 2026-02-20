@@ -6,6 +6,8 @@
 import { Users, Calendar } from 'lucide-react'
 import useSWR from 'swr'
 
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
+
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -28,10 +30,11 @@ interface LaborEntry {
   date?: string
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsViewProps) {
   const { data: labor, error, isLoading, mutate } = useSWR<LaborEntry[]>(
@@ -55,7 +58,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
               Labor Details {workOrderNumber && `for WO #${workOrderNumber}`}
             </h3>
             <p className="text-sm text-muted-foreground mt-1">
-              {labor.length} technician{labor.length !== 1 ? 's' : ''} • {totalHours.toFixed(1)} hrs • ${totalCost.toFixed(2)}
+              {labor.length} technician{labor.length !== 1 ? 's' : ''} • {totalHours.toFixed(1)} hrs • {formatCurrency(totalCost)}
             </p>
           </div>
 
@@ -101,12 +104,12 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Rate</p>
-                          <p className="font-medium">${entry.rate?.toFixed(2) || '0.00'}/hr</p>
+                          <p className="font-medium">{formatCurrency(entry.rate)}/hr</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Total</p>
                           <p className="font-medium text-primary">
-                            ${((entry.hours * entry.rate) || 0).toFixed(2)}
+                            {formatCurrency((entry.hours * entry.rate) || 0)}
                           </p>
                         </div>
                       </div>
@@ -114,7 +117,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                       {entry.date && (
                         <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2 border-t">
                           <Calendar className="h-3 w-3" />
-                          <span>{new Date(entry.date).toLocaleDateString()}</span>
+                          <span>{formatDate(entry.date)}</span>
                         </div>
                       )}
                     </div>
@@ -134,7 +137,7 @@ export function LaborDetailsView({ workOrderId, workOrderNumber }: LaborDetailsV
                 <div className="flex items-center justify-between pt-2 border-t">
                   <span className="font-semibold">Total Labor Cost</span>
                   <span className="text-sm font-bold text-primary">
-                    ${totalCost.toFixed(2)}
+                    {formatCurrency(totalCost)}
                   </span>
                 </div>
               </div>

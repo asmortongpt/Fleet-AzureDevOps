@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import { pool } from '../db/connection';
 import { NotFoundError } from '../errors/app-error'
@@ -8,6 +9,78 @@ import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { logger } from '../utils/logger'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createOshaLogSchema = z.object({
+  employee_id: z.union([z.string(), z.number()]),
+  vehicle_id: z.union([z.string(), z.number()]).nullable().optional(),
+  incident_date: z.string(),
+  case_number: z.string().optional(),
+  employee_name: z.string().optional(),
+  job_title: z.string().optional(),
+  injury_type: z.string().optional(),
+  body_part_affected: z.string().optional(),
+  incident_description: z.string().optional(),
+  location: z.string().optional(),
+  status: z.string().optional(),
+  days_away_from_work: z.number().optional(),
+  days_restricted_duty: z.number().optional(),
+  outcome: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
+
+const createSafetyInspectionSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+  started_at: z.string().optional(),
+  completed_at: z.string().nullable().optional(),
+  passed_inspection: z.boolean().optional(),
+  odometer_reading: z.number().optional(),
+  notes: z.string().optional(),
+  defects: z.unknown().optional(),
+  checklist: z.unknown().optional(),
+}).passthrough()
+
+const createTrainingRecordSchema = z.object({
+  driver_id: z.union([z.string(), z.number()]),
+  training_type: z.string(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional(),
+  status: z.string().optional(),
+  score: z.number().optional(),
+  passed: z.boolean().optional(),
+  notes: z.string().optional(),
+}).passthrough()
+
+const createAccidentInvestigationSchema = z.object({
+  vehicle_id: z.union([z.string(), z.number()]).optional(),
+  driver_id: z.union([z.string(), z.number()]).optional(),
+  incident_date: z.string().optional(),
+  severity: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+}).passthrough()
+
+const updateOshaLogSchema = z.object({
+  employee_id: z.union([z.string(), z.number()]).optional(),
+  vehicle_id: z.union([z.string(), z.number()]).nullable().optional(),
+  incident_date: z.string().optional(),
+  case_number: z.string().optional(),
+  employee_name: z.string().optional(),
+  job_title: z.string().optional(),
+  injury_type: z.string().optional(),
+  body_part_affected: z.string().optional(),
+  incident_description: z.string().optional(),
+  location: z.string().optional(),
+  status: z.string().optional(),
+  days_away_from_work: z.number().optional(),
+  days_restricted_duty: z.number().optional(),
+  outcome: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+}).passthrough()
 
 
 const router = express.Router()
@@ -126,14 +199,17 @@ router.get(
 // POST /osha-compliance/300-log
 router.post(
   '/300-log',
-  csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
+  csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'osha_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createOshaLogSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         [`tenant_id`, `reported_by`],
         1
       )
@@ -158,7 +234,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'osha_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updateOshaLogSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -256,14 +336,17 @@ router.get(
 // POST /osha-compliance/safety-inspections
 router.post(
   '/safety-inspections',
-  csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
+  csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'inspections' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createSafetyInspectionSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['tenant_id'],
         1
       )
@@ -349,14 +432,17 @@ router.get(
 // POST /osha-compliance/training-records
 router.post(
   '/training-records',
-  csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
+  csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'training_records' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createTrainingRecordSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         ['tenant_id'],
         1
       )
@@ -439,11 +525,15 @@ router.get(
 // POST /osha-compliance/accident-investigations
 router.post(
   '/accident-investigations',
-  csrfProtection, csrfProtection, requirePermission('osha:submit:global'),
+  csrfProtection, requirePermission('osha:submit:global'),
   auditLog({ action: 'CREATE', resourceType: 'incidents' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = { ...req.body, type: req.body.type || 'accident' }
+      const parsed = createAccidentInvestigationSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = { ...parsed.data, type: parsed.data.type || 'accident' }
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,

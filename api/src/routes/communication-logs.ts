@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { pool } from '../db/connection';
@@ -8,6 +9,35 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+import { flexUuid } from '../middleware/validation'
+
+const createCommunicationLogSchema = z.object({
+  communication_type: z.string().min(1),
+  subject: z.string().optional(),
+  body: z.string().optional(),
+  message_body: z.string().optional(),
+  from_user_id: flexUuid.optional(),
+  to_user_id: flexUuid.optional(),
+  sender_id: flexUuid.optional(),
+  sender_name: z.string().optional(),
+  from_address: z.string().optional(),
+  to_address: z.string().optional(),
+  direction: z.enum(['inbound', 'outbound']).optional(),
+  channel: z.string().optional(),
+  priority: z.enum(['low', 'medium', 'high', 'urgent']).optional(),
+  status: z.string().optional(),
+  participants: z.unknown().optional(),
+  recipients: z.unknown().optional(),
+  related_entity_type: z.string().optional(),
+  related_entity_id: flexUuid.optional(),
+  follow_up_required: z.boolean().optional(),
+  follow_up_date: z.string().optional(),
+  follow_up_notes: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+})
+
+const updateCommunicationLogSchema = createCommunicationLogSchema.partial()
 
 
 const router = express.Router()
@@ -125,7 +155,12 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createCommunicationLogSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+
+      const data = parsed.data
 
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
@@ -153,7 +188,12 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'communication_logs' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updateCommunicationLogSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid input', details: parsed.error.issues })
+      }
+
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -189,7 +229,7 @@ router.delete(
         throw new NotFoundError("CommunicationLogs not found")
       }
 
-      res.json({ message: 'CommunicationLogs deleted successfully' })
+      res.json({ success: true, message: 'CommunicationLogs deleted successfully' })
     } catch (error) {
       logger.error('Delete communication-logs error:', error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })

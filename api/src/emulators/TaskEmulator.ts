@@ -11,6 +11,8 @@
 import { faker } from '@faker-js/faker'
 import { Pool } from 'pg'
 
+import logger from '../config/logger'
+
 export interface EmulatedTask {
   id: number
   taskId: string
@@ -516,7 +518,7 @@ throw new Error('Database not initialized')
         await this.insertTask(task)
         inserted++
       } catch (error) {
-        console.error(`Failed to insert task ${task.taskId}:`, error)
+        logger.error(`Failed to insert task ${task.taskId}:`, error)
         failed++
       }
     }

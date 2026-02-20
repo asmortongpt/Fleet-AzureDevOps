@@ -15,6 +15,8 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime, formatTime } from '@/utils/format-helpers'
 
 // ============================================
 // Type Definitions
@@ -106,11 +108,11 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
             <div className="space-y-1">
               <h3 className="text-sm font-bold">{item.title}</h3>
               <p className="text-sm text-muted-foreground">
-                {item.type} • {item.item_number}
+                {formatEnum(item.type)} • {item.item_number}
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <Badge variant={getStatusVariant(item.status)}>{item.status}</Badge>
-                <Badge variant={getTypeVariant(item.type)}>{item.type}</Badge>
+                <Badge variant={getStatusVariant(item.status)}>{formatEnum(item.status)}</Badge>
+                <Badge variant={getTypeVariant(item.type)}>{formatEnum(item.type)}</Badge>
               </div>
             </div>
             <Calendar className="h-9 w-12 text-muted-foreground" />
@@ -127,9 +129,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
               </CardHeader>
               <CardContent>
                 <p className="text-sm font-semibold">
-                  {item.start_time
-                    ? new Date(item.start_time).toLocaleString()
-                    : 'N/A'}
+                  {formatDateTime(item.start_time)}
                 </p>
               </CardContent>
             </Card>
@@ -143,9 +143,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
               </CardHeader>
               <CardContent>
                 <p className="text-sm font-semibold">
-                  {item.end_time
-                    ? new Date(item.end_time).toLocaleString()
-                    : 'N/A'}
+                  {formatDateTime(item.end_time)}
                 </p>
               </CardContent>
             </Card>
@@ -177,7 +175,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Priority</p>
-                      <p className="font-medium capitalize">{item.priority || 'Normal'}</p>
+                      <p className="font-medium">{item.priority ? formatEnum(item.priority) : 'Normal'}</p>
                     </div>
                     <div>
                       <p className="text-sm text-muted-foreground">Created By</p>
@@ -186,9 +184,7 @@ export function ScheduledItemDetailPanel({ itemId }: ScheduledItemDetailPanelPro
                     <div>
                       <p className="text-sm text-muted-foreground">Created Date</p>
                       <p className="font-medium">
-                        {item.created_date
-                          ? new Date(item.created_date).toLocaleDateString()
-                          : 'N/A'}
+                        {formatDate(item.created_date)}
                       </p>
                     </div>
                   </div>
@@ -429,7 +425,7 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
           {items &&
             Object.entries(
               items.reduce<Record<string, ScheduledItem[]>>((groups, item) => {
-                const date = new Date(item.start_time).toLocaleDateString()
+                const date = formatDate(item.start_time)
                 if (!groups[date]) groups[date] = []
                 groups[date].push(item)
                 return groups
@@ -462,8 +458,8 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
                               <p className="font-semibold">{item.title}</p>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                              {new Date(item.start_time).toLocaleTimeString()} -{' '}
-                              {new Date(item.end_time).toLocaleTimeString()}
+                              {formatTime(item.start_time)} -{' '}
+                              {formatTime(item.end_time)}
                             </p>
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               {item.assigned_driver && (
@@ -482,11 +478,11 @@ export function CalendarListView({ timeframe, type = 'all' }: CalendarListViewPr
                           </div>
                           <div className="text-right space-y-1">
                             <Badge variant={getStatusVariant(item.status)}>
-                              {item.status}
+                              {formatEnum(item.status)}
                             </Badge>
                             {item.priority && item.priority !== 'normal' && (
                               <p className="text-xs text-destructive font-semibold">
-                                {item.priority} priority
+                                {formatEnum(item.priority)} priority
                               </p>
                             )}
                           </div>

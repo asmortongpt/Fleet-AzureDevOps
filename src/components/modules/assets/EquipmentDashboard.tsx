@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { apiClient } from "@/lib/api-client"
 import { isSuccessResponse } from "@/lib/schemas/responses"
 import type { ApiResponse } from "@/lib/schemas/responses"
+import { formatEnum } from '@/utils/format-enum';
 import logger from '@/utils/logger';
 
 interface Equipment {
@@ -297,7 +298,7 @@ export function EquipmentDashboard() {
                     .map(([type, count]) => (
                       <div key={type}>
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm capitalize">{type.replace('_', ' ')}</span>
+                          <span className="text-sm">{formatEnum(type)}</span>
                           <span className="font-semibold">{count}</span>
                         </div>
                         <Progress value={(count / totalEquipment) * 100} className="h-2" />
@@ -338,7 +339,7 @@ export function EquipmentDashboard() {
                       <TableRow key={eq.id}>
                         <TableCell className="font-mono text-sm font-medium">{eq.asset_tag}</TableCell>
                         <TableCell className="font-medium">{eq.asset_name}</TableCell>
-                        <TableCell className="capitalize">{eq.equipment_type?.replace('_', ' ')}</TableCell>
+                        <TableCell>{formatEnum(eq.equipment_type)}</TableCell>
                         <TableCell>{parseFloat(eq.engine_hours?.toString() || '0').toFixed(1)} hrs</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(eq.availability_status)} variant="secondary">

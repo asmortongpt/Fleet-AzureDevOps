@@ -16,7 +16,7 @@ import {
   createCommunicationTemplateSchema
 } from '../schemas/communications.schema'
 import { logger } from '../utils/logger'
-import { buildInsertClause } from '../utils/sql-safety'
+import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
 
 
 const router = express.Router()
@@ -249,10 +249,7 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const fields = Object.keys(data)
-        .map((key, i) => `${key} = $${i + 4}`)
-        .join(`, `)
-      const values = Object.values(data)
+      const { fields, values } = buildUpdateClause(data, 4)
 
       // SECURITY FIX: Add tenant_id to WHERE clause to prevent cross-tenant updates
       const result = await pool.query(
@@ -339,7 +336,7 @@ router.delete(
         throw new NotFoundError(`Link not found`)
       }
 
-      res.json({ message: 'Link deleted successfully' })
+      res.json({ success: true, message: 'Link deleted successfully' })
     } catch (error) {
       logger.error('Delete communication link error:', error)
       res.status(500).json({ error: 'Internal server error' })

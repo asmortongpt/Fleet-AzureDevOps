@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface HealthMetric {
@@ -237,7 +238,7 @@ export function SystemHealth({ className }: SystemHealthProps) {
                   <div>
                     <div className="font-semibold text-sm">{metric.name}</div>
                     <div className="text-xs text-muted-foreground">
-                      Last check: {new Date(metric.lastCheck).toLocaleTimeString()}
+                      Last check: {formatTime(metric.lastCheck)}
                     </div>
                   </div>
                 </div>

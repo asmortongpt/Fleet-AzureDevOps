@@ -38,6 +38,8 @@ import {
 } from '@/components/ui/select'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime } from '@/utils/format-helpers'
 
 interface PolicyExecutionViewProps {
   policyId?: string
@@ -82,10 +84,11 @@ interface ExecutionStatistics {
   avg_confidence: number
 }
 
-const fetcher = (url: string) => fetch(url).then((r) => {
-  if (!r.ok) throw new Error(`Request failed: ${r.status}`)
-  return r.json()
-})
+const fetcher = (url: string) =>
+  fetch(url).then((r) => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    return r.json()
+  })
 
 export function PolicyExecutionView({
   policyId,
@@ -194,7 +197,7 @@ export function PolicyExecutionView({
         <div>
           <p className="font-mono text-sm">{exec.execution_number}</p>
           <p className="text-xs text-muted-foreground">
-            {new Date(exec.executed_at).toLocaleString()}
+            {formatDateTime(exec.executed_at)}
           </p>
         </div>
       ),
@@ -243,7 +246,7 @@ export function PolicyExecutionView({
       render: (exec) => (
         <div className="flex items-center gap-2">
           {getExecutionTypeIcon(exec.execution_type)}
-          <span className="text-sm capitalize">{exec.execution_type.replace('_', ' ')}</span>
+          <span className="text-sm">{formatEnum(exec.execution_type)}</span>
         </div>
       ),
     },
@@ -254,8 +257,8 @@ export function PolicyExecutionView({
       render: (exec) => (
         <div className="flex items-center gap-2">
           {getResultIcon(exec.result)}
-          <Badge variant={getResultColor(exec.result)} className="capitalize">
-            {exec.result}
+          <Badge variant={getResultColor(exec.result)}>
+            {formatEnum(exec.result)}
           </Badge>
         </div>
       ),

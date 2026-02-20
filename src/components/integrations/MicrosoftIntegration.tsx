@@ -9,8 +9,8 @@ import logger from '@/utils/logger';
 
 // Microsoft Graph API configuration
 const GRAPH_CONFIG = {
-  clientId: process.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
-  tenantId: process.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
+  clientId: import.meta.env.VITE_AZURE_AD_CLIENT_ID || 'baae0851-0c24-4214-8587-e3fabc46bd4a',
+  tenantId: import.meta.env.VITE_AZURE_AD_TENANT_ID || '0ec14b81-7b82-45ee-8f3d-cbc31ced5347',
   scopes: ['Mail.Send', 'Chat.ReadWrite', 'Calendars.ReadWrite']
 };
 

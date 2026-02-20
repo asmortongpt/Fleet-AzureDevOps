@@ -12,12 +12,14 @@ import { getErrorMessage } from '../utils/error-handler'
 import { logger } from '../utils/logger'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
 // Validation schemas
 const createReimbursementSchema = z.object({
-  charge_id: z.string().uuid(),
+  charge_id: flexUuid,
   request_amount: z.number().positive(),
   description: z.string().optional(),
   expense_date: z.string(),
@@ -29,6 +31,15 @@ const reviewReimbursementSchema = z.object({
   status: z.enum([ReimbursementStatus.APPROVED, ReimbursementStatus.REJECTED]),
   approved_amount: z.number().positive().optional(),
   reviewer_notes: z.string().optional()
+})
+
+const approveReimbursementSchema = z.object({
+  approved_amount: z.number().min(0).optional(),
+  reviewer_notes: z.string().max(2000).optional(),
+})
+
+const rejectReimbursementSchema = z.object({
+  reviewer_notes: z.string().min(1).max(2000),
 })
 
 const processPaymentSchema = z.object({
@@ -362,7 +373,15 @@ router.patch(
   auditLog({ action: 'APPROVE', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { approved_amount, reviewer_notes } = req.body
+      const parsed = approveReimbursementSchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Validation failed',
+          details: parsed.error.flatten()
+        })
+      }
+
+      const { approved_amount, reviewer_notes } = parsed.data
 
       // Get current request
       const currentResult = await pool.query(
@@ -459,14 +478,15 @@ router.patch(
   auditLog({ action: 'REJECT', resourceType: 'reimbursement_requests' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const { reviewer_notes } = req.body
-
-      if (!reviewer_notes) {
+      const parsed = rejectReimbursementSchema.safeParse(req.body)
+      if (!parsed.success) {
         return res.status(400).json({
-          success: false,
-          error: 'Rejection reason is required'
+          error: 'Validation failed',
+          details: parsed.error.flatten()
         })
       }
+
+      const { reviewer_notes } = parsed.data
 
       // Get current request
       const currentResult = await pool.query(

@@ -44,6 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
+import { formatDate, formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 
@@ -246,7 +247,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                         <TableCell className="font-medium">
                           <div className="flex items-center gap-2">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
-                            {new Date(inspection.completed_date).toLocaleDateString()}
+                            {formatDate(inspection.completed_date)}
                           </div>
                         </TableCell>
                         <TableCell>
@@ -283,7 +284,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                               <DialogHeader>
                                 <DialogTitle>Inspection Details</DialogTitle>
                                 <DialogDescription>
-                                  {new Date(inspection.completed_date).toLocaleString()}
+                                  {formatDateTime(inspection.completed_date)}
                                 </DialogDescription>
                               </DialogHeader>
                               {selectedInspection && (
@@ -400,7 +401,7 @@ export function InspectionHistory({ equipmentId }: InspectionHistoryProps) {
                     Last 5 inspections:
                     <div className="flex justify-center gap-2 mt-2">
                       {inspections.slice(0, 5).map((insp) => (
-                        <div key={insp.id} title={new Date(insp.completed_date).toLocaleDateString()}>
+                        <div key={insp.id} title={formatDate(insp.completed_date)}>
                           {getStatusIcon(insp.overall_status)}
                         </div>
                       ))}

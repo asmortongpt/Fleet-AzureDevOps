@@ -21,6 +21,7 @@ import {
 } from 'recharts'
 
 import { Button } from '@/components/ui/button'
+import { formatNumber } from '@/utils/format-helpers'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -103,7 +104,7 @@ export function InteractiveLineChart({
           <div key={entry.name} className="flex items-center gap-2 text-sm">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
             <span>{entry.name}: </span>
-            <span className="font-mono font-semibold">{entry.value.toLocaleString()}</span>
+            <span className="font-mono font-semibold">{formatNumber(entry.value)}</span>
           </div>
         ))}
       </div>

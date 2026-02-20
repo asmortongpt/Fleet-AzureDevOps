@@ -14,6 +14,7 @@
 
 import express, { Request, Response } from 'express';
 import multer from 'multer';
+import { z } from 'zod';
 
 import { loadStorageConfig, loadQuotaConfig, loadFailoverConfig, storageFeatures } from '../config/storage';
 import { ValidationError } from '../errors/app-error'
@@ -235,7 +236,7 @@ router.get('/url/{*key}', async (req: Request, res: Response) => {
  *       200:
  *         description: File deleted successfully
  */
-router.delete('/delete/{*key}', csrfProtection, csrfProtection, async (req: Request, res: Response) => {
+router.delete('/delete/{*key}', csrfProtection, async (req: Request, res: Response) => {
   try {
     const manager = await getStorageManager();
     // Express 5: wildcard params return an array of path segments
@@ -388,16 +389,29 @@ router.get('/stats', async (req: Request, res: Response) => {
  *       200:
  *         description: Migration job created
  */
+// Validation schemas
+const migrateSchema = z.object({
+  sourceProvider: z.string().min(1).max(100),
+  targetProvider: z.string().min(1).max(100),
+  deleteSource: z.boolean().default(false),
+});
+
+const batchDeleteSchema = z.object({
+  keys: z.array(z.string().min(1).max(1024)).min(1).max(1000),
+});
+
 router.post('/migrate', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const manager = await getStorageManager();
-    const { sourceProvider, targetProvider, deleteSource } = req.body;
-
-    if (!sourceProvider || !targetProvider) {
+    const parsed = migrateSchema.safeParse(req.body);
+    if (!parsed.success) {
       return res.status(400).json({
-        error: 'sourceProvider and targetProvider are required'
+        error: 'Validation failed',
+        details: parsed.error.flatten()
       });
     }
+
+    const manager = await getStorageManager();
+    const { sourceProvider, targetProvider, deleteSource } = parsed.data;
 
     const job = await manager.migrateFiles(sourceProvider, targetProvider, {
       deleteSource,
@@ -637,11 +651,15 @@ router.post('/batch/upload', csrfProtection, upload.array('files', 10), async (r
  */
 router.post('/batch/delete', csrfProtection, async (req: Request, res: Response) => {
   try {
-    const { keys } = req.body;
-
-    if (!Array.isArray(keys) || keys.length === 0) {
-      throw new ValidationError("keys array is required");
+    const parsed = batchDeleteSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({
+        error: 'Validation failed',
+        details: parsed.error.flatten()
+      });
     }
+
+    const { keys } = parsed.data;
 
     const manager = await getStorageManager();
     const results = [];

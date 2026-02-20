@@ -21,6 +21,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { brandColors } from '@/theme/designSystem'
+import { formatTime } from '@/utils/format-helpers'
 
 interface EndpointStatus {
   endpoint: string
@@ -293,7 +294,7 @@ export function EndpointMonitor() {
             <div className="flex items-center gap-2">
               {lastUpdate && (
                 <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  Updated {lastUpdate.toLocaleTimeString()}
+                  Updated {formatTime(lastUpdate)}
                 </span>
               )}
               <Button
@@ -480,7 +481,7 @@ export function EndpointMonitor() {
                                   <div className="text-right hidden sm:block">
                                     <div className="flex items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
                                       <Clock className="w-3 h-3" />
-                                      {endpoint.lastChecked.toLocaleTimeString()}
+                                      {formatTime(endpoint.lastChecked)}
                                     </div>
                                   </div>
                                 )}

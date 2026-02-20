@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from "@/lib/api-client";
+import { formatEnum } from '@/utils/format-enum';
+import { formatDate, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 interface DriverInspectorProps {
   id: string;
@@ -121,7 +123,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
             </div>
           </div>
           <Badge variant={driver.status === 'on-duty' ? 'default' : 'secondary'}>
-            {driver.status}
+            {formatEnum(driver.status)}
           </Badge>
         </div>
       </div>
@@ -147,7 +149,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-slate-700">License Expiry</dt>
-                  <dd className="font-medium">{new Date(driver.licenseExpiry).toLocaleDateString()}</dd>
+                  <dd className="font-medium">{formatDate(driver.licenseExpiry)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Email</dt>
@@ -165,11 +167,11 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
               <dl className="space-y-2">
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Total Trips</dt>
-                  <dd className="font-medium">{driver.totalTrips.toLocaleString()}</dd>
+                  <dd className="font-medium">{formatNumber(driver.totalTrips)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Total Miles</dt>
-                  <dd className="font-medium">{driver.totalMiles.toLocaleString()}</dd>
+                  <dd className="font-medium">{formatNumber(driver.totalMiles)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-slate-700">Rating</dt>
@@ -290,7 +292,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 </div>
                 <div className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
                   <span>Medical Certificate</span>
-                  <Badge variant="outline" className="text-green-600">Valid until {new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toLocaleDateString()}</Badge>
+                  <Badge variant="outline" className="text-green-600">Valid until {formatDate(new Date(Date.now() + 180 * 24 * 60 * 60 * 1000))}</Badge>
                 </div>
                 <div className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded">
                   <span>HAZMAT Endorsement</span>

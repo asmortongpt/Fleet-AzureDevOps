@@ -252,10 +252,9 @@ const handleOAuthCallback = async (req: Request, res: Response) => {
     const errorMsg = error instanceof Error ? error.message : 'An unexpected error occurred'
     logger.error('Microsoft OAuth error:', axiosData || errorMsg)
 
-    const errorMessage = axiosData?.error_description || errorMsg || 'Authentication failed'
     const safeErrorUrl = buildSafeRedirectUrl('/login', {
       error: 'auth_failed',
-      message: errorMessage
+      message: 'Authentication failed'
     })
     res.redirect(safeErrorUrl)
   }

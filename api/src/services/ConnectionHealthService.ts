@@ -5,9 +5,10 @@
 
 import { EventEmitter } from 'events';
 
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
 
 import logger from '../config/logger';
+import redisClient from '../config/redis';
 import { checkDatabaseConnection } from '../db/connection';
 
 export interface ConnectionStatus {
@@ -61,22 +62,13 @@ export class ConnectionHealthService extends EventEmitter {
   public async initialize(): Promise<void> {
     logger.info('[ConnectionHealthService] Initializing...');
 
-    // Initialize Redis connection if configured
-    const redisUrl = process.env.REDIS_URL;
-    if (redisUrl) {
-      try {
-        this.redis = new Redis(redisUrl, {
-          maxRetriesPerRequest: 3,
-          enableReadyCheck: true,
-          lazyConnect: true,
-        });
-
-        await this.redis.connect();
-        logger.info('[ConnectionHealthService] Redis connected');
-      } catch (error) {
-        logger.warn('[ConnectionHealthService] Redis connection failed', { error: error instanceof Error ? error.message : String(error) });
-        this.redis = null;
-      }
+    // Use shared Redis client from config/redis.ts (singleton)
+    try {
+      this.redis = redisClient;
+      logger.info('[ConnectionHealthService] Using shared Redis client');
+    } catch (error) {
+      logger.warn('[ConnectionHealthService] Redis not available', { error: error instanceof Error ? error.message : String(error) });
+      this.redis = null;
     }
 
     // Start periodic health checks (every 30 seconds)

@@ -14,6 +14,8 @@ import { useMemo } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate } from '@/utils/format-helpers'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
@@ -24,7 +26,7 @@ import { Progress } from '@/components/ui/progress'
 const fetcher = (url: string) =>
   fetch(url)
     .then((r) => {
-      if (!r.ok) throw new Error(`Request failed: ${r.status}`)
+      if (!r.ok) throw new Error(`HTTP ${r.status}`)
       return r.json()
     })
     .then((data) => data?.data ?? data)
@@ -453,7 +455,7 @@ export function TaskListView({ filter }: { filter?: string }) {
       sortable: true,
       render: (task) => (
         <Badge variant={getStatusColor(task.status)}>
-          {task.status}
+          {formatEnum(task.status)}
         </Badge>
       ),
     },
@@ -486,7 +488,7 @@ export function TaskListView({ filter }: { filter?: string }) {
       key: 'dueDate',
       header: 'Due Date',
       sortable: true,
-      render: (task) => task.dueDate ? new Date(task.dueDate).toLocaleString() : '-',
+      render: (task) => task.dueDate ? formatDate(task.dueDate) : '-',
     },
   ]
 

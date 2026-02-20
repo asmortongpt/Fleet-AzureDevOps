@@ -18,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useWebSocketStatus, useReconnect } from '@/hooks/useWebSocketSubscriptions';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 
 interface WebSocketStatusProps {
   variant?: 'badge' | 'button' | 'icon';
@@ -317,7 +318,7 @@ export function WebSocketStatusPanel({ className }: { className?: string }) {
           <div className="text-xs text-slate-500">
             Last connected:{' '}
             <span className="font-mono">
-              {stats.lastConnectedAt.toLocaleTimeString()}
+              {formatTime(stats.lastConnectedAt)}
             </span>
           </div>
         </div>

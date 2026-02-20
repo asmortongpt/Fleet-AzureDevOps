@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/contexts';
+import { formatDate, formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
@@ -144,7 +145,7 @@ const ExpenseEntryCard: React.FC<{
       <div className="space-y-2 mb-2">
         <div className="text-sm">
           <span className="font-medium text-gray-700">Date:</span>{' '}
-          {new Date(entry.transactionDate).toLocaleDateString()}
+          {formatDate(entry.transactionDate)}
         </div>
         <div className="text-sm">
           <span className="font-medium text-gray-700">Description:</span> {entry.description}
@@ -169,7 +170,7 @@ const ExpenseEntryCard: React.FC<{
             {entry.approvalHistory.map((approval: ApprovalRecord) => (
               <div key={`${approval.approverName}-${approval.approvedAt}`} className="text-xs text-slate-700">
                 <strong>{approval.approverName}</strong> ({approval.approvalLevel}) approved on{' '}
-                {new Date(approval.approvedAt).toLocaleString()}
+                {formatDateTime(approval.approvedAt)}
                 {approval.comments && <div className="italic ml-2">"{approval.comments}"</div>}
               </div>
             ))}

@@ -28,6 +28,7 @@ import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
 import { MSTeamsMessage } from "@/lib/types"
+import { formatDateTime } from "@/utils/format-helpers"
 
 export function TeamsIntegration() {
   const [messages, setMessages] = useState<MSTeamsMessage[]>([])
@@ -238,7 +239,7 @@ export function TeamsIntegration() {
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-semibold text-sm">{message.author}</span>
                           <span className="text-xs text-muted-foreground">
-                            {new Date(message.timestamp).toLocaleString()}
+                            {formatDateTime(message.timestamp)}
                           </span>
                         </div>
                         {message.subject && (

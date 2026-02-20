@@ -315,7 +315,7 @@ export const useMFAGuard = () => {
 
 // Hook for IP-based access control
 export const useIPGuard = () => {
-  const [clientIP, setClientIP] = useState<string>('');
+  const [clientIP, setClientIP] = useState<string>('unknown');
   const [isAllowed, setIsAllowed] = useState(true);
   const { logout } = useAuth();
 
@@ -327,23 +327,29 @@ export const useIPGuard = () => {
         // would be handled on the server side
         const response = await fetch('/api/client-ip');
 
-        if (response.ok) {
-          const data = await response.json();
-          setClientIP(data.ip);
+        if (!response.ok) {
+          // Route may not exist (404) or server error — use fallback
+          logger.debug('Client IP endpoint unavailable, using fallback');
+          setClientIP('unknown');
+          return;
+        }
 
-          // Check if IP is in whitelist
-          if (AUTH_CONFIG.security.ipWhitelist) {
-            const allowed = AUTH_CONFIG.security.ipWhitelist.includes(data.ip);
-            setIsAllowed(allowed);
+        const data = await response.json();
+        setClientIP(data.ip || 'unknown');
 
-            if (!allowed) {
-              logger.error('IP not allowed:', data.ip);
-              logout();
-            }
+        // Check if IP is in whitelist
+        if (AUTH_CONFIG.security.ipWhitelist) {
+          const allowed = AUTH_CONFIG.security.ipWhitelist.includes(data.ip);
+          setIsAllowed(allowed);
+
+          if (!allowed) {
+            logger.error('IP not allowed:', data.ip);
+            logout();
           }
         }
       } catch (error) {
-        logger.error('IP check failed:', error);
+        logger.debug('IP check failed, using fallback:', { error: error instanceof Error ? error.message : String(error) });
+        setClientIP('unknown');
         // Don't block access if IP check fails (fail open for availability)
       }
     };

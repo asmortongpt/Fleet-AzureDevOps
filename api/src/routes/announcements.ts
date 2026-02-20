@@ -131,7 +131,11 @@ router.patch(
   auditLog({ action: 'UPDATE', resourceType: 'announcements' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const updates = req.body || {}
+      const parsed = announcementSchema.partial().safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Invalid update data', details: parsed.error.flatten() })
+      }
+      const updates: Record<string, unknown> = { ...parsed.data }
       if (updates.target_roles) {
         updates.target_roles = JSON.stringify(updates.target_roles)
       }
@@ -154,7 +158,7 @@ router.patch(
     } catch (error: unknown) {
       logger.error('Update announcement error:', error)
       if (error instanceof NotFoundError) {
-        return res.status(404).json({ error: error.message })
+        return res.status(404).json({ error: 'Resource not found' })
       }
       res.status(500).json({ error: 'Internal server error' })
     }

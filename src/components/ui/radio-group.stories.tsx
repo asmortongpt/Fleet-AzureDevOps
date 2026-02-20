@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Radio, RadioGroup } from './radio-group';
+import { RadioGroupItem as Radio, RadioGroup } from './radio-group';
 import { Label } from './label';
 import { Card } from './card';
 

@@ -39,6 +39,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate } from '@/utils/format-helpers'
 import {
   useIncidentMutations,
   type Incident,
@@ -333,7 +335,7 @@ export function InvestigationDialog({
               size="icon"
               onClick={() => handleOpenChange(false)}
               className="rounded-full"
-              aria-label="Close dialog"
+              aria-label="Close investigation dialog"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -350,7 +352,7 @@ export function InvestigationDialog({
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
                 <span className="text-muted-foreground">Date:</span>{' '}
-                {new Date(incident.incident_date).toLocaleDateString()}
+                {formatDate(incident.incident_date)}
               </div>
               <div>
                 <span className="text-muted-foreground">Type:</span>{' '}
@@ -359,7 +361,7 @@ export function InvestigationDialog({
               <div>
                 <span className="text-muted-foreground">Severity:</span>{' '}
                 <Badge variant={incident.severity === 'critical' ? 'destructive' : 'secondary'}>
-                  {incident.severity}
+                  {formatEnum(incident.severity)}
                 </Badge>
               </div>
               <div>
@@ -455,10 +457,10 @@ export function InvestigationDialog({
                 type="button"
                 variant="outline"
                 size="icon"
+                aria-label="Add contributing factor"
                 onClick={() =>
                   addArrayItem('contributing_factors', newContributingFactor, setNewContributingFactor)
                 }
-                aria-label="Add contributing factor"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -476,8 +478,8 @@ export function InvestigationDialog({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
-                      onClick={() => removeArrayItem('contributing_factors', index)}
                       aria-label="Remove contributing factor"
+                      onClick={() => removeArrayItem('contributing_factors', index)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -509,10 +511,10 @@ export function InvestigationDialog({
                 type="button"
                 variant="outline"
                 size="icon"
+                aria-label="Add corrective action"
                 onClick={() =>
                   addArrayItem('corrective_actions', newCorrectiveAction, setNewCorrectiveAction)
                 }
-                aria-label="Add corrective action"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -533,8 +535,8 @@ export function InvestigationDialog({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
-                      onClick={() => removeArrayItem('corrective_actions', index)}
                       aria-label="Remove corrective action"
+                      onClick={() => removeArrayItem('corrective_actions', index)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -569,10 +571,10 @@ export function InvestigationDialog({
                 type="button"
                 variant="outline"
                 size="icon"
+                aria-label="Add preventive measure"
                 onClick={() =>
                   addArrayItem('preventive_measures', newPreventiveMeasure, setNewPreventiveMeasure)
                 }
-                aria-label="Add preventive measure"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -593,8 +595,8 @@ export function InvestigationDialog({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
-                      onClick={() => removeArrayItem('preventive_measures', index)}
                       aria-label="Remove preventive measure"
+                      onClick={() => removeArrayItem('preventive_measures', index)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
@@ -631,6 +633,7 @@ export function InvestigationDialog({
                 type="button"
                 variant="outline"
                 size="icon"
+                aria-label="Add training recommendation"
                 onClick={() =>
                   addArrayItem(
                     'training_recommendations',
@@ -638,7 +641,6 @@ export function InvestigationDialog({
                     setNewTrainingRecommendation
                   )
                 }
-                aria-label="Add training recommendation"
               >
                 <Plus className="h-4 w-4" />
               </Button>
@@ -656,8 +658,8 @@ export function InvestigationDialog({
                       variant="ghost"
                       size="icon"
                       className="h-6 w-6"
-                      onClick={() => removeArrayItem('training_recommendations', index)}
                       aria-label="Remove training recommendation"
+                      onClick={() => removeArrayItem('training_recommendations', index)}
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>

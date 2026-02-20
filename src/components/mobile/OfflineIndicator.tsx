@@ -18,6 +18,7 @@ import React, { useState, useEffect } from 'react';
 
 import { offlineSyncService, type SyncStatus } from '../../services/offline-sync.service';
 
+import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface OfflineIndicatorProps {
@@ -245,7 +246,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
                 <div className="col-span-2">
                   <p className="text-gray-700">Last Sync</p>
                   <p className="font-medium text-gray-800">
-                    {lastSyncTime.toLocaleString()}
+                    {formatDateTime(lastSyncTime)}
                   </p>
                 </div>
               )}

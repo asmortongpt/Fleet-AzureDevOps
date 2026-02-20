@@ -167,7 +167,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       }
       if (filters.search) queryParams.append('search', filters.search);
 
-      const response = await fetch(`/api/policy-violations?${queryParams.toString()}`);
+      const response = await fetch(`/api/policy-violations?${queryParams.toString()}`, {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setViolations(data.data || []);
@@ -182,7 +184,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
   const loadStatistics = async () => {
     try {
-      const response = await fetch(`/api/policy-violations/statistics?tenantId=${tenantId}`);
+      const response = await fetch(`/api/policy-violations/statistics?tenantId=${tenantId}`, {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setStatistics(data.data);
@@ -277,7 +281,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
 
     // Load comments
     try {
-      const response = await fetch(`/api/policy-violations/${violation.id}/comments`);
+      const response = await fetch(`/api/policy-violations/${violation.id}/comments`, {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setComments(data.data || []);
@@ -294,6 +300,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const response = await fetch(`/api/policy-violations/${selectedViolation.id}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ resolutionNotes }),
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
@@ -314,6 +321,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const overrideResponse = await fetch(`/api/policy-violations/${selectedViolation.id}/override`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ reason: overrideReason }),
       });
       if (!overrideResponse.ok) throw new Error('Request failed: ' + overrideResponse.status);
@@ -333,13 +341,16 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const addCommentResponse = await fetch(`/api/policy-violations/${selectedViolation.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ commentText: newComment }),
       });
       if (!addCommentResponse.ok) throw new Error('Request failed: ' + addCommentResponse.status);
 
       setNewComment('');
       // Reload comments
-      const response = await fetch(`/api/policy-violations/${selectedViolation.id}/comments`);
+      const response = await fetch(`/api/policy-violations/${selectedViolation.id}/comments`, {
+        credentials: 'include'
+      });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setComments(data.data || []);
@@ -353,6 +364,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       const response = await fetch(`/api/policy-violations/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           format: exportFormat,
           filters,
@@ -583,14 +595,14 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                           <Car className="w-4 h-4 text-slate-500" />
                           <span className="text-sm font-medium">Vehicle</span>
                         </div>
-                        <Badge variant="outline">{statistics.topViolatingVehicle || 'N/A'}</Badge>
+                        <Badge variant="outline">{statistics.topViolatingVehicle || '—'}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-slate-500" />
                           <span className="text-sm font-medium">Driver</span>
                         </div>
-                        <Badge variant="outline">{statistics.topViolatingDriver || 'N/A'}</Badge>
+                        <Badge variant="outline">{statistics.topViolatingDriver || '—'}</Badge>
                       </div>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -600,7 +612,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                         <Badge variant="outline">
                           {statistics.topViolationType
                             ? VIOLATION_TYPE_LABELS[statistics.topViolationType]
-                            : 'N/A'}
+                            : '—'}
                         </Badge>
                       </div>
                     </>
@@ -736,7 +748,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                     ) : filteredViolations.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={8} className="text-center py-3 text-slate-500">
-                          No violations found
+                          No active violations — fleet is in compliance.
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -750,9 +762,9 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                           </TableCell>
                           <TableCell>{getSeverityBadge(violation.severity)}</TableCell>
                           <TableCell className="font-mono text-sm">
-                            {violation.vehicleNumber || 'N/A'}
+                            {violation.vehicleNumber || '—'}
                           </TableCell>
-                          <TableCell>{violation.driverName || 'N/A'}</TableCell>
+                          <TableCell>{violation.driverName || '—'}</TableCell>
                           <TableCell className="max-w-xs truncate">
                             {violation.description}
                           </TableCell>
@@ -848,11 +860,11 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-500">Vehicle</label>
-                  <div className="mt-1 font-mono">{selectedViolation.vehicleNumber || 'N/A'}</div>
+                  <div className="mt-1 font-mono">{selectedViolation.vehicleNumber || '—'}</div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-500">Driver</label>
-                  <div className="mt-1">{selectedViolation.driverName || 'N/A'}</div>
+                  <div className="mt-1">{selectedViolation.driverName || '—'}</div>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-500">Occurred At</label>

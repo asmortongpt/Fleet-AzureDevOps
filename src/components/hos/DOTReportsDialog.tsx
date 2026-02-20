@@ -533,7 +533,7 @@ function HOSSummaryReport({ data }: { data: HOSSummaryData }): React.ReactElemen
                 <td className="px-3 py-2">
                   {log.start_location?.city}, {log.start_location?.state}
                 </td>
-                <td className="px-3 py-2">{log.vehicle_id || 'N/A'}</td>
+                <td className="px-3 py-2">{log.vehicle_id || '—'}</td>
               </tr>
             ))}
           </tbody>

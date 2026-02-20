@@ -1,4 +1,5 @@
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'; // Wave 16: Add Winston logger
 import { pool } from '../db/connection';
@@ -8,6 +9,26 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause, buildUpdateClause } from '../utils/sql-safety'
+
+const createPolicySchema = z.object({
+  name: z.string(),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  content: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+  version: z.union([z.string(), z.number()]).optional(),
+  is_active: z.boolean().optional(),
+  effective_date: z.string().optional(),
+}).passthrough()
+
+const updatePolicySchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+  category: z.string().optional(),
+  content: z.union([z.string(), z.record(z.string(), z.unknown())]).optional(),
+  version: z.union([z.string(), z.number()]).optional(),
+  is_active: z.boolean().optional(),
+  effective_date: z.string().optional(),
+}).passthrough()
 
 
 const router = express.Router()
@@ -268,10 +289,13 @@ router.post(
   auditLog({ action: 'CREATE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = createPolicySchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
 
       const { columnNames, placeholders, values } = buildInsertClause(
-        data,
+        parsed.data,
         [`tenant_id`],
         1
       )
@@ -296,7 +320,11 @@ router.put(
   auditLog({ action: 'UPDATE', resourceType: 'policies' }),
   async (req: AuthRequest, res: Response) => {
     try {
-      const data = req.body
+      const parsed = updatePolicySchema.safeParse(req.body)
+      if (!parsed.success) {
+        return res.status(400).json({ error: 'Validation failed', details: parsed.error.issues })
+      }
+      const data = parsed.data
       const { fields, values } = buildUpdateClause(data, 3)
 
       const result = await pool.query(
@@ -332,7 +360,7 @@ router.delete(
         throw new NotFoundError("Policies not found")
       }
 
-      res.json({ message: 'Policies deleted successfully' })
+      res.json({ success: true, message: 'Policies deleted successfully' })
     } catch (error) {
       logger.error('Delete policies error:', error) // Wave 16: Winston logger
       res.status(500).json({ error: 'Internal server error' })

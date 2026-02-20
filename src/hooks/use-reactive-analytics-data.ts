@@ -17,11 +17,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, useCallback, useMemo } from 'react'
 import { z } from 'zod'
 
-import logger from '@/utils/logger';
-
-// Environment configuration with validation
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
-
 // Zod schemas for runtime validation
 const AnalyticsReportSchema = z.object({
   id: z.string().uuid(),
@@ -90,73 +85,6 @@ const CALCULATION_CONFIG = {
   DAYS_IN_WEEK: 7,
 } as const
 
-// Error classes for better error handling
-class APIError extends Error {
-  constructor(
-    message: string,
-    public statusCode?: number,
-    public endpoint?: string
-  ) {
-    super(message)
-    this.name = 'APIError'
-  }
-}
-
-class ValidationError extends Error {
-  constructor(message: string, public data?: unknown) {
-    super(message)
-    this.name = 'ValidationError'
-  }
-}
-
-/**
- * Secure fetch with timeout and validation
- */
-async function secureFetch<T>(
-  endpoint: string,
-  schema: z.ZodSchema<T>,
-  signal?: AbortSignal
-): Promise<T> {
-  try {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 30000) // 30s timeout
-
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      signal: signal || controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-        // Add auth headers if needed
-      },
-    })
-
-    clearTimeout(timeoutId)
-
-    if (!response.ok) {
-      throw new APIError(
-        `API request failed: ${response.statusText}`,
-        response.status,
-        endpoint
-      )
-    }
-
-    const data = await response.json()
-    const payload = (data && typeof data === 'object' && Array.isArray((data as any).data))
-      ? (data as any).data
-      : data
-
-    // Validate response with Zod
-    const validated = schema.parse(payload)
-    return validated
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      logger.error('Validation error:', error.errors)
-      throw new ValidationError('Invalid API response format', error.errors)
-    }
-    throw error
-  }
-}
-
-
 /**
  * Main hook for reactive analytics data
  */
@@ -164,7 +92,10 @@ export function useReactiveAnalyticsData() {
   const queryClient = useQueryClient()
   const [realTimeUpdate, setRealTimeUpdate] = useState(0)
 
-  // Fetch analytics reports with validation
+  // Analytics reports query
+  // NOTE: GET /api/reports has no root handler (only sub-routes like /templates,
+  // /scheduled, /history). Until a dedicated analytics-reports endpoint is created,
+  // return empty data to avoid 404 error spam and Zod validation failures.
   const {
     data: reports = [],
     isLoading: reportsLoading,
@@ -172,46 +103,31 @@ export function useReactiveAnalyticsData() {
     refetch: refetchReports,
   } = useQuery<AnalyticsReport[], Error>({
     queryKey: ['analytics-reports', realTimeUpdate],
-    queryFn: async ({ signal }) => {
-      try {
-        // Use array schema for validation
-        const data = await secureFetch(
-          '/reports',
-          z.array(AnalyticsReportSchema),
-          signal
-        )
-        return data
-      } catch (error) {
-        logger.error('Failed to fetch reports:', error instanceof Error ? error : new Error(String(error)))
-        // Return empty array on error rather than throwing
-        return []
-      }
+    queryFn: async () => {
+      // No backend endpoint currently serves AnalyticsReport[] at GET /api/reports.
+      // Return empty array until the endpoint is implemented.
+      return [] as AnalyticsReport[]
     },
-    refetchInterval: QUERY_CONFIG.REFETCH_INTERVAL,
-    staleTime: QUERY_CONFIG.STALE_TIME,
+    staleTime: QUERY_CONFIG.CACHE_TIME,
     gcTime: QUERY_CONFIG.CACHE_TIME,
-    retry: QUERY_CONFIG.RETRY_COUNT,
-    retryDelay: QUERY_CONFIG.RETRY_DELAY,
   })
 
-  // Fetch dashboard widgets
+  // Dashboard widgets query
+  // NOTE: GET /api/dashboard returns a capabilities document ({ message, endpoints }),
+  // not a DashboardWidget[]. The Zod schema mismatch causes validation errors.
+  // Return empty data until a dedicated widgets endpoint is created.
   const {
     data: dashboards = [],
     isLoading: dashboardsLoading,
     error: dashboardsError,
   } = useQuery<DashboardWidget[], Error>({
     queryKey: ['dashboards', realTimeUpdate],
-    queryFn: async ({ signal }) => {
-      try {
-        const data = await secureFetch('/dashboards', z.array(DashboardWidgetSchema), signal)
-        return data
-      } catch (error) {
-        logger.warn('Dashboards API unavailable, returning empty array:', { error })
-        return []
-      }
+    queryFn: async () => {
+      // No backend endpoint currently serves DashboardWidget[] at GET /api/dashboard.
+      // Return empty array until the endpoint is implemented.
+      return [] as DashboardWidget[]
     },
-    refetchInterval: QUERY_CONFIG.REFETCH_INTERVAL,
-    staleTime: QUERY_CONFIG.STALE_TIME,
+    staleTime: QUERY_CONFIG.CACHE_TIME,
     gcTime: QUERY_CONFIG.CACHE_TIME,
   })
 

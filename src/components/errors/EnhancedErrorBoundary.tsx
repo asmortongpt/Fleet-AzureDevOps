@@ -208,18 +208,8 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
     this.logErrorToServer(errorReport)
   }
 
-  private async logErrorToServer(errorReport: any) {
-    try {
-      await fetch('/api/errors', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(errorReport)
-      })
-    } catch {
-      // Fail silently - don't throw in error boundary
-    }
+  private logErrorToServer(errorReport: any) {
+    logger.error('Error boundary caught:', errorReport)
   }
 
   private resetErrorBoundary = () => {

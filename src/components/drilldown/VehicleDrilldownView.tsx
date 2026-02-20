@@ -3,6 +3,7 @@ import { Truck, Calendar, Gauge, DollarSign, Wrench } from 'lucide-react';
 import React from 'react';
 
 import { ExcelDataTable } from '../shared/ExcelDataTable';
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers';
 
 import { Vehicle } from '@/types';
 
@@ -97,7 +98,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
           <Gauge className="w-4 h-4 text-slate-700" />
-          {getValue<number>()?.toLocaleString()} mi
+          {formatNumber(getValue<number>())} mi
         </div>
       ),
     },
@@ -132,7 +133,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       header: 'Last Service',
       cell: ({ getValue }) => {
         const date = getValue<string>();
-        return date ? new Date(date).toLocaleDateString() : 'N/A';
+        return formatDate(date);
       },
     },
     {
@@ -140,7 +141,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       header: 'Next Service',
       cell: ({ getValue }) => {
         const date = getValue<string>();
-        if (!date) return 'N/A';
+        if (!date) return '—';
         const daysUntil = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
         const isOverdue = daysUntil < 0;
         const isDueSoon = daysUntil < 7 && daysUntil >= 0;
@@ -148,7 +149,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
           <div className="flex items-center gap-2">
             <Wrench className={`w-4 h-4 ${isOverdue ? 'text-red-400' : isDueSoon ? 'text-amber-400' : 'text-slate-700'}`} />
             <span className={isOverdue ? 'text-red-400 font-semibold' : isDueSoon ? 'text-amber-400' : ''}>
-              {new Date(date).toLocaleDateString()}
+              {formatDate(date)}
               {isOverdue && ' (OVERDUE)'}
               {isDueSoon && ` (${daysUntil}d)`}
             </span>
@@ -162,7 +163,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       cell: ({ getValue }) => (
         <div className="flex items-center gap-2">
           <DollarSign className="w-4 h-4 text-emerald-700" />
-          ${getValue<number>()?.toLocaleString()}
+          {formatCurrency(getValue<number>())}
         </div>
       ),
     },
@@ -171,7 +172,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
       header: 'Current Value',
       cell: ({ getValue }) => (
         <span className="font-semibold text-emerald-700">
-          ${getValue<number>()?.toLocaleString()}
+          {formatCurrency(getValue<number>())}
         </span>
       ),
     },

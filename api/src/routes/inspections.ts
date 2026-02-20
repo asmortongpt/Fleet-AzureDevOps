@@ -10,6 +10,8 @@ import { validateBody, validateParams } from '../middleware/validate';
 import { InspectionController } from '../modules/inspections/controllers/inspection.controller';
 import { TYPES } from '../types';
 
+import { flexUuid } from '../middleware/validation'
+
 const router = Router();
 const inspectionController = container.get<InspectionController>(TYPES.InspectionController);
 
@@ -19,20 +21,20 @@ const idSchema = z.object({
 });
 
 const createInspectionSchema = z.object({
-  inspection_number: z.string().optional(),
-  vehicle_id: z.string().uuid(),
-  driver_id: z.string().uuid().optional(),
-  inspector_id: z.string().uuid().optional(),
-  inspection_type: z.enum(['pre_trip', 'post_trip', 'periodic', 'annual', 'dot', 'safety']),
+  vehicle_id: flexUuid,
+  driver_id: flexUuid.optional(),
+  inspector_id: flexUuid.optional(),
+  type: z.enum(['pre_trip', 'post_trip', 'annual', 'dot', 'safety', 'emissions', 'special']),
   status: z.enum(['scheduled', 'in_progress', 'completed', 'failed']).default('scheduled'),
-  passed: z.boolean().optional(),
-  failed_items: z.array(z.string()).optional(),
+  inspector_name: z.string().optional(),
+  location: z.string().optional(),
+  started_at: z.string(),
+  completed_at: z.string().optional(),
+  defects_found: z.number().int().min(0).optional(),
+  passed_inspection: z.boolean().optional(),
+  notes: z.string().optional(),
   checklist_data: z.record(z.string(), z.any()).optional(),
-  odometer_reading: z.number().optional(),
-  inspector_notes: z.string().optional(),
-  signature_url: z.string().optional(),
-  scheduled_date: z.string().optional(),
-  completed_at: z.string().optional()
+  signature_url: z.string().optional()
 });
 
 const updateInspectionSchema = createInspectionSchema.partial();

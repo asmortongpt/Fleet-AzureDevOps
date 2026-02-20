@@ -340,7 +340,7 @@ export function VideoPlayer({
                     variant="ghost"
                     className="h-8 w-8 text-white hover:bg-white/20"
                     onClick={(e) => { e.stopPropagation(); togglePlay() }}
-                    aria-label={isPlaying ? "Pause" : "Play"}
+                    aria-label={isPlaying ? 'Pause' : 'Play'}
                   >
                     {isPlaying ? <Pause /> : <Play />}
                   </Button>
@@ -350,7 +350,7 @@ export function VideoPlayer({
                     variant="ghost"
                     className="h-8 w-8 text-white hover:bg-white/20"
                     onClick={(e) => { e.stopPropagation(); toggleMute() }}
-                    aria-label={isMuted ? "Unmute" : "Mute"}
+                    aria-label={isMuted ? 'Unmute' : 'Mute'}
                   >
                     {isMuted ? <VolumeX /> : <Volume2 />}
                   </Button>
@@ -369,7 +369,7 @@ export function VideoPlayer({
                       variant="ghost"
                       className="h-8 w-8 text-white hover:bg-white/20"
                       onClick={(e) => { e.stopPropagation(); toggleFullscreen() }}
-                      aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+                      aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter fullscreen'}
                     >
                       {isFullscreen ? <Minimize /> : <Maximize />}
                     </Button>

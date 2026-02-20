@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react';
 
 export function initSentry() {
   Sentry.init({
-    dsn: process.env.VITE_SENTRY_DSN || '',
+    dsn: import.meta.env.VITE_SENTRY_DSN || '',
     environment: import.meta.env.MODE || 'production',
     integrations: [
       //       new BrowserTracing(),
@@ -24,7 +24,7 @@ export function initSentry() {
     replaysOnErrorSampleRate: 1.0, // 100% of errors
 
     // Release tracking
-    release: process.env.VITE_APP_VERSION || 'unknown',
+    release: import.meta.env.VITE_APP_VERSION || 'unknown',
 
     // Ignore specific errors
     ignoreErrors: [

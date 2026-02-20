@@ -13,9 +13,11 @@ import React from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { formatEnum } from '@/utils/format-enum'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { formatCurrency, formatNumber } from '@/utils/format-helpers'
 
 // Reusable stat row component
 function StatRow({ label, value, trend, icon: Icon }: {
@@ -146,7 +148,7 @@ export function FleetOverviewDrilldown() {
                     <CardTitle className="text-base">Fleet Metrics</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <StatRow label="Avg. Mileage" value={`${Math.round(vehicles.reduce((a, v) => a + v.mileage, 0) / vehicles.length).toLocaleString()} mi`} icon={Gauge} />
+                    <StatRow label="Avg. Mileage" value={`${formatNumber(Math.round(vehicles.reduce((a, v) => a + v.mileage, 0) / vehicles.length))} mi`} icon={Gauge} />
                     <StatRow label="Avg. Fuel Level" value={`${Math.round(vehicles.reduce((a, v) => a + v.fuelLevel, 0) / vehicles.length)}%`} icon={Fuel} />
                     <StatRow label="Vehicles Due Service" value={vehicles.filter(v => v.alerts.length > 0).length} icon={Wrench} />
                     <StatRow label="Electric Vehicles" value={vehicles.filter(v => v.fuelType === 'electric').length} icon={Zap} />
@@ -195,7 +197,7 @@ export function ActiveVehiclesDrilldown() {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="text-sm font-medium">{vehicle.driver?.split(' ').pop() || 'N/A'}</div>
+                                    <div className="text-sm font-medium">{vehicle.driver?.split(' ').pop() || '—'}</div>
                                     <div className="text-xs text-muted-foreground flex items-center gap-1">
                                         <MapPin className="h-3 w-3" />
                                         {vehicle.location.address.split(',')[1]?.trim() || 'On Route'}
@@ -205,7 +207,7 @@ export function ActiveVehiclesDrilldown() {
                             <div className="mt-2 flex gap-2 text-xs text-muted-foreground">
                                 <span>Fuel: {vehicle.fuelLevel}%</span>
                                 <span>|</span>
-                                <span>{vehicle.mileage.toLocaleString()} mi</span>
+                                <span>{formatNumber(vehicle.mileage)} mi</span>
                             </div>
                         </CardContent>
                     </Card>
@@ -320,11 +322,11 @@ export function MaintenanceDrilldown() {
                                 <div>
                                     <div className="font-medium">{order.title}</div>
                                     <div className="text-xs text-muted-foreground">
-                                        {order.vehicleId} • Due: {order.dueDate || 'N/A'}
+                                        {order.vehicleId} • Due: {order.dueDate || '—'}
                                     </div>
                                 </div>
                                 <Badge variant={order.priority === 'urgent' ? 'destructive' : 'secondary'}>
-                                    {order.status}
+                                    {formatEnum(order.status)}
                                 </Badge>
                             </div>
                         ))}
@@ -343,7 +345,7 @@ export function FuelManagementDrilldown() {
 
     const totalCost = transactions.reduce((sum, t) => sum + (t.cost ?? 0), 0)
     const totalGallons = transactions.reduce((sum, t) => sum + t.gallons, 0)
-    const avgCostPerGallon = totalGallons > 0 ? (totalCost / totalGallons).toFixed(2) : '0.00'
+    const avgCostPerGallon = totalGallons > 0 ? totalCost / totalGallons : 0
 
     const byVehicleType = {
         sedan: transactions.filter(t => t.vehicleType === 'sedan'),
@@ -372,7 +374,7 @@ export function FuelManagementDrilldown() {
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-emerald-600" />
                             <div>
-                                <div className="text-sm font-bold text-emerald-600">${totalCost.toFixed(2)}</div>
+                                <div className="text-sm font-bold text-emerald-600">{formatCurrency(totalCost)}</div>
                                 <div className="text-xs text-emerald-700">Total Cost</div>
                             </div>
                         </div>
@@ -383,7 +385,7 @@ export function FuelManagementDrilldown() {
                         <div className="flex items-center gap-2">
                             <Fuel className="h-5 w-5 text-amber-500" />
                             <div>
-                                <div className="text-sm font-bold text-amber-500">${avgCostPerGallon}</div>
+                                <div className="text-sm font-bold text-amber-500">{formatCurrency(avgCostPerGallon)}</div>
                                 <div className="text-xs text-amber-400">Avg. Cost/Gallon</div>
                             </div>
                         </div>
@@ -399,11 +401,11 @@ export function FuelManagementDrilldown() {
                 <CardContent className="space-y-2">
                     {Object.entries(byVehicleType).map(([type, list]) => (
                         <div key={type} className="flex items-center justify-between py-2 border-b last:border-0">
-                            <span className="capitalize">{type}</span>
+                            <span>{formatEnum(type)}</span>
                             <div className="flex items-center gap-2">
                                 <span className="font-semibold">{list.length}</span>
                                 <span className="text-sm text-muted-foreground">
-                                    ${(list.reduce((sum, t) => sum + (t.cost ?? 0), 0)).toFixed(2)}
+                                    {formatCurrency(list.reduce((sum, t) => sum + (t.cost ?? 0), 0))}
                                 </span>
                             </div>
                         </div>
@@ -427,7 +429,7 @@ export function FuelManagementDrilldown() {
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <div className="font-semibold">${(tx.cost ?? 0).toFixed(2)}</div>
+                                    <div className="font-semibold">{formatCurrency(tx.cost ?? 0)}</div>
                                     <div className="text-xs text-muted-foreground">{tx.gallons.toFixed(2)} gal</div>
                                 </div>
                             </div>
@@ -566,7 +568,7 @@ export function VehicleListDrilldown() {
                                 ''
                     }
                 >
-                    {vehicle.status}
+                    {formatEnum(vehicle.status)}
                 </Badge>
             )
         },
@@ -604,7 +606,7 @@ export function VehicleListDrilldown() {
             key: 'mileage',
             header: 'Mileage',
             sortable: true,
-            render: (vehicle: any) => `${vehicle.mileage?.toLocaleString() || '0'} mi`
+            render: (vehicle: any) => `${formatNumber(vehicle.mileage ?? 0)} mi`
         }
     ]
 
@@ -716,7 +718,7 @@ export function VehicleListDrilldown() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <div className="text-right hidden sm:block">
-                                            <div className="text-sm font-medium">{vehicle.mileage?.toLocaleString() || '0'} mi</div>
+                                            <div className="text-sm font-medium">{formatNumber(vehicle.mileage ?? 0)} mi</div>
                                             <div className="text-xs text-muted-foreground">Fuel: {vehicle.fuelLevel}%</div>
                                         </div>
                                         {columns[2].render && columns[2].render(vehicle)}

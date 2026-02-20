@@ -21,6 +21,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { formatDateTime } from '@/utils/format-helpers'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -94,12 +95,12 @@ export default function E2ETestPage() {
 
     try {
       const [usersRes, maintenanceRes, vehiclesRes] = await Promise.all([
-        fetch(`${API_BASE}/api/e2e-test/users`),
-        fetch(`${API_BASE}/api/e2e-test/maintenance-schedules`),
-        fetch(`${API_BASE}/api/e2e-test/vehicles`)
+        fetch(`${API_BASE}/api/e2e-test/users`).catch(() => null),
+        fetch(`${API_BASE}/api/e2e-test/maintenance-schedules`).catch(() => null),
+        fetch(`${API_BASE}/api/e2e-test/vehicles`).catch(() => null)
       ])
 
-      if (!usersRes.ok || !maintenanceRes.ok || !vehiclesRes.ok) {
+      if (!usersRes?.ok || !maintenanceRes?.ok || !vehiclesRes?.ok) {
         throw new Error('Failed to fetch data')
       }
 
@@ -509,7 +510,7 @@ export default function E2ETestPage() {
                       </Badge>
                     </td>
                     <td className="p-2 text-muted-foreground text-xs">
-                      {new Date(user.created_at).toLocaleString()}
+                      {formatDateTime(user.created_at)}
                     </td>
                   </tr>
                 ))}
@@ -550,9 +551,9 @@ export default function E2ETestPage() {
                       <Badge variant="outline">{schedule.type}</Badge>
                     </td>
                     <td className="p-2">${schedule.estimated_cost}</td>
-                    <td className="p-2">{schedule.interval_days ? `${schedule.interval_days} days` : 'N/A'}</td>
+                    <td className="p-2">{schedule.interval_days ? `${schedule.interval_days} days` : '—'}</td>
                     <td className="p-2 text-muted-foreground text-xs">
-                      {new Date(schedule.created_at).toLocaleString()}
+                      {formatDateTime(schedule.created_at)}
                     </td>
                   </tr>
                 ))}

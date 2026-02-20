@@ -24,6 +24,7 @@ import { secureFetch } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { DriverVehicle, DriverTrip } from '@/services/dashboardApi';
+import { formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface InspectionItem {
@@ -60,7 +61,7 @@ export function DriverDashboard() {
     fuel_level: 0,
     mileage: 0,
     status: 'unavailable',
-    last_inspection: 'N/A'
+    last_inspection: '—'
   };
 
   const todaysTrips: DriverTrip[] = tripsData ?? [];
@@ -255,7 +256,7 @@ export function DriverDashboard() {
                 <span className="text-sm text-slate-300 text-sm">Mileage</span>
               </div>
               <p className="text-sm font-bold text-white">
-                {assignedVehicle.mileage.toLocaleString()} mi
+                {formatNumber(assignedVehicle.mileage)} mi
               </p>
             </div>
 

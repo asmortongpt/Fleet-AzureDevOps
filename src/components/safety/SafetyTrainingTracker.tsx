@@ -27,6 +27,7 @@ import {
     TableRow,
 } from '@/components/ui/table'
 import { swrFetcher } from '@/lib/fetcher'
+import { formatDate } from '@/utils/format-helpers'
 
 interface TrainingRecord {
     id: string
@@ -322,7 +323,7 @@ export function SafetyTrainingTracker() {
                                             {record.completion_date ? (
                                                 <div className="flex items-center gap-2">
                                                     <Calendar className="w-4 h-4 text-slate-700" />
-                                                    {new Date(record.completion_date).toLocaleDateString()}
+                                                    {formatDate(record.completion_date)}
                                                 </div>
                                             ) : (
                                                 <span className="text-slate-500">-</span>
@@ -331,7 +332,7 @@ export function SafetyTrainingTracker() {
                                         <TableCell className="text-slate-300">
                                             {record.expiration_date ? (
                                                 <div>
-                                                    <div>{new Date(record.expiration_date).toLocaleDateString()}</div>
+                                                    <div>{formatDate(record.expiration_date)}</div>
                                                     {daysUntilExpiration !== null && (
                                                         <div className={`text-xs ${
                                                             daysUntilExpiration < 0 ? 'text-red-400' :

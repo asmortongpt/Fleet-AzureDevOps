@@ -11,6 +11,7 @@ import { UniversalMap } from '@/components/UniversalMap';
 import { Button } from '@/components/ui/button';
 import { secureFetch } from '@/hooks/use-api';
 import type { Vehicle } from '@/lib/types';
+import { formatNumber } from '@/utils/format-helpers';
 
 export const FleetHub: React.FC = () => {
   // Fetch vehicles from API for map markers
@@ -88,7 +89,7 @@ export const FleetHub: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm cta-subtitle">Total Mileage</p>
-              <p className="text-lg font-semibold">{Math.round(totalMileage).toLocaleString()}</p>
+              <p className="text-lg font-semibold">{formatNumber(Math.round(totalMileage))}</p>
             </div>
             <TrendingUp className="w-4 h-4 cta-accent" />
           </div>

@@ -5,6 +5,7 @@ import useSWR from 'swr';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { FleetMap } from '@/components/FleetMap';
 import { Badge } from '@/components/ui/badge';
+import { formatEnum } from '@/utils/format-enum';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -193,8 +194,8 @@ export default function MapDiagnostic() {
                     <div className="text-xs text-muted-foreground">
                       {vehicle.latitude?.toFixed(4)}, {vehicle.longitude?.toFixed(4)}
                     </div>
-                    <Badge variant="outline" className="mt-1 capitalize">
-                      {vehicle.status}
+                    <Badge variant="outline" className="mt-1">
+                      {formatEnum(vehicle.status)}
                     </Badge>
                   </div>
                 </div>

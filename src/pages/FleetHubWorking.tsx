@@ -114,7 +114,7 @@ const VehiclesContent = memo(function VehiclesContent({ vehicles }: { vehicles: 
                         {vehicles.slice(0, 10).map((vehicle) => (
                             <div key={vehicle.id} className="flex items-center justify-between py-2 border-b border-slate-800">
                                 <span>
-                                    {vehicle.make || 'Unknown'} {vehicle.model || ''} ({vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.id})
+                                    {vehicle.make || '—'} {vehicle.model || ''} ({vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.id})
                                 </span>
                                 <span className="text-green-400">Status: {vehicle.status || 'unknown'}</span>
                             </div>
@@ -149,7 +149,7 @@ const MaintenanceContent = memo(function MaintenanceContent({ schedules }: { sch
                         {schedules.slice(0, 10).map((schedule) => (
                             <div key={schedule.id} className="flex items-center justify-between py-2 border-b border-slate-800">
                                 <span>{schedule.title || schedule.type || 'Maintenance'}</span>
-                                <span className="text-slate-300">{schedule.next_due || schedule.due_date || 'N/A'}</span>
+                                <span className="text-slate-300">{schedule.next_due || schedule.due_date || '—'}</span>
                             </div>
                         ))}
                     </div>

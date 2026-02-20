@@ -10,6 +10,7 @@
 
 import { Policy } from './types';
 
+import { formatCurrency } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 export interface OrganizationProfile {
@@ -597,7 +598,7 @@ export class AIPolicyGenerator {
         requiresMFAForExecution: true,
         tags: ['payments', 'procurement', 'budget-control', 'ai-generated']
       },
-      rationale: `Payments over $${approvalThreshold.toFixed(2)} require approval to prevent budget overruns. Automated checks reduce payment processing time by 70%.`,
+      rationale: `Payments over ${formatCurrency(approvalThreshold)} require approval to prevent budget overruns. Automated checks reduce payment processing time by 70%.`,
       priority: 'medium',
       implementationSteps: [
         'Set up approval routing system',

@@ -15,6 +15,8 @@ import {
 import { getErrorMessage } from '../utils/error-handler'
 
 
+import { flexUuid } from '../middleware/validation'
+
 const router = express.Router()
 router.use(authenticateJWT)
 
@@ -27,7 +29,7 @@ const markTripSchema = z.object({
 })
 
 const startPersonalTripSchema = z.object({
-  vehicle_id: z.string().uuid(),
+  vehicle_id: flexUuid,
   start_location: z.string().optional(),
   notes: z.string().optional()
 })

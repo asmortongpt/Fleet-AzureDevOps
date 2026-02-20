@@ -57,7 +57,7 @@ export function TrafficCameraControlPanel({
     if (!isVisible) return null;
 
     return (
-        <Card className="fixed top-24 right-6 w-80 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5">
+        <Card className="fixed top-24 right-2 sm:right-6 w-[calc(100%-1rem)] sm:w-80 shadow-sm z-40 border border-white/20 bg-white/80 backdrop-blur-xl animate-in slide-in-from-right-10 rounded-lg overflow-hidden ring-1 ring-black/5">
             <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
             <CardHeader className="pb-2 border-b border-black/5 flex flex-row items-center justify-between space-y-0 relative z-10 bg-white/40">
                 <div>

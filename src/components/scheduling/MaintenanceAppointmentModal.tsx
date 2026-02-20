@@ -44,6 +44,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Vehicle, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/utils/format-helpers'
 import { MaintenanceAppointment, CreateMaintenanceRequest, AppointmentType, ServiceBay } from '@/types/scheduling'
 import logger from '@/utils/logger'
 
@@ -285,7 +286,7 @@ export function MaintenanceAppointmentModal({
                   {selectedVehicle && (
                     <div className="text-sm text-muted-foreground mt-2">
                       <div>VIN: {selectedVehicle.vin}</div>
-                      <div>Mileage: {selectedVehicle.mileage.toLocaleString()} miles</div>
+                      <div>Mileage: {formatNumber(selectedVehicle.mileage)} miles</div>
                     </div>
                   )}
                 </FormItem>

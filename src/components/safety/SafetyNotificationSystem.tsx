@@ -19,6 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import { formatDate } from '@/utils/format-helpers'
 
 interface SafetyNotification {
     id: string
@@ -173,7 +174,7 @@ export function SafetyNotificationSystem() {
         if (diffMins < 60) return `${diffMins}m ago`
         if (diffHours < 24) return `${diffHours}h ago`
         if (diffDays < 7) return `${diffDays}d ago`
-        return date.toLocaleDateString()
+        return formatDate(date)
     }
 
     return (

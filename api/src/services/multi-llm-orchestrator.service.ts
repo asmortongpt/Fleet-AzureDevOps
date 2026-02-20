@@ -58,7 +58,7 @@ export interface ReportGenerationResponse {
  * Intelligently routes requests to the most appropriate LLM
  */
 export class MultiLLMOrchestrator {
-  private openai: OpenAI;
+  private openai: OpenAI | null;
   private grokApiKey: string;
   private geminiApiKey: string;
   private cache: Map<string, { response: string; timestamp: number }>;
@@ -66,10 +66,16 @@ export class MultiLLMOrchestrator {
 
   constructor() {
     // Initialize API clients with keys from environment
-    this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-      dangerouslyAllowBrowser: false // Server-side only
-    });
+    this.openai = process.env.OPENAI_API_KEY
+      ? new OpenAI({
+          apiKey: process.env.OPENAI_API_KEY,
+          dangerouslyAllowBrowser: false // Server-side only
+        })
+      : null;
+
+    if (!this.openai) {
+      logger.warn('[MultiLLMOrchestrator] OpenAI API key not configured - GPT-4 features disabled');
+    }
 
     this.grokApiKey = process.env.XAI_API_KEY || '';
     this.geminiApiKey = process.env.GEMINI_API_KEY || '';
@@ -206,6 +212,10 @@ Requirements:
 - Include a detailed data table
 - Apply RBAC rules based on user role`;
 
+    if (!this.openai) {
+      throw new Error('OpenAI API key not configured - report generation unavailable');
+    }
+
     try {
       const completion = await this.openai.chat.completions.create({
         model: 'gpt-4-turbo-preview',
@@ -293,6 +303,10 @@ Be concise, accurate, and helpful. Use bullet points for clarity.`;
    * Call GPT-4 Turbo (OpenAI)
    */
   private async callGPT4(request: LLMRequest): Promise<LLMResponse> {
+    if (!this.openai) {
+      throw new Error('OpenAI API key not configured - GPT-4 is unavailable');
+    }
+
     const completion = await this.openai.chat.completions.create({
       model: 'gpt-4-turbo-preview',
       messages: [

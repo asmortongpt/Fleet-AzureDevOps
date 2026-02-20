@@ -4,9 +4,11 @@
  * Displays the current build version and timestamp
  */
 
+import { formatDate } from '@/utils/format-helpers';
+
 export function BuildVersion() {
   const version = import.meta.env.VITE_APP_VERSION || '1.0.0';
-  const buildDate = new Date().toLocaleDateString();
+  const buildDate = formatDate(new Date());
 
   return (
     <div

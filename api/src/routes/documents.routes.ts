@@ -280,7 +280,7 @@ router.delete('/:id',
 
       await documentManagementService.deleteDocument(id, tenantId, userId)
 
-      res.json({ message: 'Document deleted successfully' })
+      res.json({ success: true, message: 'Document deleted successfully' })
     } catch (error: unknown) {
       logger.error('Error deleting document:', error)
       res.status(500).json({
@@ -546,7 +546,7 @@ router.post('/queries/:id/feedback',
 
       await documentRAGService.provideFeedback(id, rating, comment)
 
-      res.json({ message: 'Feedback submitted successfully' })
+      res.json({ success: true, message: 'Feedback submitted successfully' })
     } catch (error: unknown) {
       logger.error('Error submitting feedback:', error)
       res.status(500).json({

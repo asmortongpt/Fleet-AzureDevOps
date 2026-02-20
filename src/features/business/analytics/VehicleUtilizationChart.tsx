@@ -50,7 +50,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
 }) => {
   // Calculate vehicle status distribution
   const statusCounts = vehicles.reduce((acc, vehicle) => {
-    const status = vehicle.status || 'Unknown';
+    const status = vehicle.status || '—';
     acc[status] = (acc[status] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -76,7 +76,7 @@ const VehicleUtilizationChart: React.FC<VehicleUtilizationChartProps> = ({
 
   // Calculate department distribution
   const departmentCounts = vehicles.reduce((acc, vehicle) => {
-    const dept = vehicle.department || 'Unassigned';
+    const dept = vehicle.department || '—';
     acc[dept] = (acc[dept] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);

@@ -4,6 +4,7 @@
  */
 
 import express, { Response } from 'express'
+import { z } from 'zod'
 
 import logger from '../config/logger'
 import { pool } from '../db/connection'
@@ -13,6 +14,17 @@ import { AuthRequest, authenticateJWT } from '../middleware/auth'
 import { csrfProtection } from '../middleware/csrf'
 import { requirePermission } from '../middleware/permissions'
 import { buildInsertClause } from '../utils/sql-safety'
+
+const createSafetyNotificationSchema = z.object({
+  type: z.string().max(100),
+  title: z.string().max(500),
+  message: z.string().max(5000).optional(),
+  timestamp: z.string().optional(),
+  actionable: z.boolean().optional(),
+  action_url: z.string().max(2000).optional(),
+  category: z.string().max(100).optional(),
+  priority: z.string().max(50).optional(),
+}).passthrough()
 
 const router = express.Router()
 router.use(authenticateJWT)
@@ -100,9 +112,13 @@ router.post(
     auditLog({ action: 'CREATE', resourceType: 'safety_notifications' }),
     async (req: AuthRequest, res: Response) => {
         try {
+            const parsed = createSafetyNotificationSchema.safeParse(req.body)
+            if (!parsed.success) {
+                return res.status(400).json({ error: 'Invalid request body', details: parsed.error.flatten() })
+            }
             const data = {
-                ...req.body,
-                timestamp: req.body.timestamp || new Date().toISOString(),
+                ...parsed.data,
+                timestamp: parsed.data.timestamp || new Date().toISOString(),
                 read: false
             }
 
@@ -196,7 +212,7 @@ router.delete(
                 throw new NotFoundError('Notification not found')
             }
 
-            res.json({ message: 'Notification deleted successfully' })
+            res.json({ success: true, message: 'Notification deleted successfully' })
         } catch (error) {
             logger.error('Delete notification error:', error)
             res.status(500).json({ error: 'Internal server error' })

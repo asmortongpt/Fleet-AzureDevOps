@@ -278,7 +278,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
                     Fuel vs Maintenance Ratio
                   </Typography>
                   <Typography variant="h5" fontWeight={600}>
-                    {maintenanceCost > 0 ? (fuelCost / maintenanceCost).toFixed(2) : 'N/A'} : 1
+                    {maintenanceCost > 0 ? (fuelCost / maintenanceCost).toFixed(2) : '—'} : 1
                   </Typography>
                 </Box>
               </Grid>

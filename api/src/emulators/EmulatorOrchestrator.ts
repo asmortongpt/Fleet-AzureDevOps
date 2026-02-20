@@ -10,6 +10,8 @@ import * as path from 'path'
 
 import { WebSocketServer, WebSocket } from 'ws'
 
+import logger from '../config/logger'
+
 // Dynamic config generator for realistic data
 import { telemetryService, TelemetryVehicle } from '../services/TelemetryService'
 
@@ -111,10 +113,10 @@ export class EmulatorOrchestrator extends EventEmitter {
       this.loadRoutesFromService()
       this.loadScenarios() // Scenarios can stay as config for now
 
-      console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles from database`)
+      logger.info(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles from database`)
       return undefined
     }).catch((err) => {
-      console.warn('TelemetryService initialization failed, falling back to JSON files:', err)
+      logger.warn('TelemetryService initialization failed, falling back to JSON files:', err)
       // Fallback to JSON files
       this.loadVehicles()
       this.loadRoutes()
@@ -135,7 +137,7 @@ export class EmulatorOrchestrator extends EventEmitter {
     // Initialize Inventory Emulator (system-wide, not per-vehicle)
     this.initializeInventoryEmulator()
 
-    console.log(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles`)
+    logger.info(`EmulatorOrchestrator initialized with ${this.vehicles.size} vehicles`)
   }
 
   /**
@@ -148,7 +150,7 @@ return
 
     await telemetryService.initialize()
     this.telemetryServiceInitialized = true
-    console.log('TelemetryService initialized for EmulatorOrchestrator')
+    logger.info('TelemetryService initialized for EmulatorOrchestrator')
   }
 
   /**
@@ -163,7 +165,7 @@ return
     }
 
     this.stats.totalVehicles = this.vehicles.size
-    console.log(`Loaded ${this.vehicles.size} vehicles from TelemetryService`)
+    logger.info(`Loaded ${this.vehicles.size} vehicles from TelemetryService`)
   }
 
   /**
@@ -205,7 +207,7 @@ return
       this.geofences.set(id, geofence)
     }
 
-    console.log(`Loaded ${this.routes.size} routes and ${this.geofences.size} geofences from TelemetryService`)
+    logger.info(`Loaded ${this.routes.size} routes and ${this.geofences.size} geofences from TelemetryService`)
   }
 
   /**
@@ -239,7 +241,7 @@ return
       })
     })
 
-    console.log('Dispatch Radio Emulator initialized')
+    logger.info('Dispatch Radio Emulator initialized')
   }
 
   /**
@@ -263,7 +265,7 @@ return
       })
     })
 
-    console.log('Inventory Management Emulator initialized')
+    logger.info('Inventory Management Emulator initialized')
   }
 
   /**
@@ -281,10 +283,10 @@ return
         this.vehicles.set(vehicle.id, vehicle as unknown as Vehicle);
       });
 
-      console.log(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.vehicles.length} vehicles`);
+      logger.info(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.vehicles.length} vehicles`);
     } catch (error) {
       // Fallback to static JSON file if dynamic generation fails
-      console.warn('[EmulatorOrchestrator] Dynamic vehicle generation failed, falling back to static config');
+      logger.warn('[EmulatorOrchestrator] Dynamic vehicle generation failed, falling back to static config');
       const vehiclesPath = path.join(__dirname, `config`, 'vehicles.json');
       const data = JSON.parse(fs.readFileSync(vehiclesPath, 'utf-8'));
 
@@ -316,10 +318,10 @@ return
         this.geofences.set(geofence.id, geofence as unknown as Geofence);
       });
 
-      console.log(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.routes.length} routes and ${dynamicConfig.geofences.length} geofences`);
+      logger.info(`[EmulatorOrchestrator] Dynamically generated ${dynamicConfig.routes.length} routes and ${dynamicConfig.geofences.length} geofences`);
     } catch (error) {
       // Fallback to static JSON file if dynamic generation fails
-      console.warn('[EmulatorOrchestrator] Dynamic route generation failed, falling back to static config');
+      logger.warn('[EmulatorOrchestrator] Dynamic route generation failed, falling back to static config');
       const routesPath = path.join(__dirname, 'config', 'routes.json');
       const data = JSON.parse(fs.readFileSync(routesPath, 'utf-8'));
 
@@ -341,7 +343,7 @@ return
   private loadScenarios(): void {
     const scenariosPath = path.join(__dirname, 'config', 'scenarios.json')
     if (!fs.existsSync(scenariosPath)) {
-      console.warn(`[EmulatorOrchestrator] scenarios.json not found at ${scenariosPath} - skipping scenario load`)
+      logger.warn(`[EmulatorOrchestrator] scenarios.json not found at ${scenariosPath} - skipping scenario load`)
       return
     }
 
@@ -351,7 +353,7 @@ return
         this.scenarios.set(key, scenario as Scenario)
       })
     } catch (error) {
-      console.warn(`[EmulatorOrchestrator] Failed to load scenarios:`, error)
+      logger.warn(`[EmulatorOrchestrator] Failed to load scenarios:`, error)
     }
   }
 
@@ -363,7 +365,7 @@ return
     this.wss = new WebSocketServer({ port })
 
     this.wss.on('connection', (ws: WebSocket) => {
-      console.log('WebSocket client connected')
+      logger.info('WebSocket client connected')
       this.wsClients.add(ws)
 
       // Send initial state
@@ -378,17 +380,17 @@ return
       }))
 
       ws.on('close', () => {
-        console.log('WebSocket client disconnected')
+        logger.info('WebSocket client disconnected')
         this.wsClients.delete(ws)
       })
 
       ws.on('error', (error) => {
-        console.error(`WebSocket error:`, error)
+        logger.error(`WebSocket error:`, error)
         this.wsClients.delete(ws)
       })
     })
 
-    console.log(`WebSocket server started on port ${port}`)
+    logger.info(`WebSocket server started on port ${port}`)
   }
 
   /**
@@ -423,7 +425,7 @@ return
 
     // Persist to database if enabled
     if (this.config.persistence?.enabled) {
-      this.persistEvent(event).catch((err) => console.error(err))
+      this.persistEvent(event).catch((err) => logger.error(err))
     }
   }
 
@@ -485,7 +487,7 @@ return
           break
       }
     } catch (error) {
-      console.error(`Failed to persist ${event.type} event:`, error)
+      logger.error(`Failed to persist ${event.type} event:`, error)
     }
   }
 
@@ -499,12 +501,12 @@ return
 
     const vehiclesToStart = vehicleIds || Array.from(this.vehicles.keys())
 
-    console.log(`Starting emulators for ${vehiclesToStart.length} vehicles...`)
+    logger.info(`Starting emulators for ${vehiclesToStart.length} vehicles...`)
 
     for (const vehicleId of vehiclesToStart) {
       const vehicle = this.vehicles.get(vehicleId)
       if (!vehicle) {
-        console.warn(`Vehicle ${vehicleId} not found`)
+        logger.warn(`Vehicle ${vehicleId} not found`)
         continue
       }
 
@@ -544,7 +546,7 @@ return
       data: { status: 'running', timestamp: new Date() }
     })
 
-    console.log('All emulators started successfully')
+    logger.info('All emulators started successfully')
   }
 
   /**
@@ -832,7 +834,7 @@ return
       throw new Error('Emulators are not running')
     }
 
-    console.log('Stopping all emulators...')
+    logger.info('Stopping all emulators...')
 
     // Stop dispatch emulator
     if (this.dispatchEmulator) {
@@ -863,7 +865,7 @@ return
       data: { status: 'stopped', timestamp: new Date() }
     })
 
-    console.log('All emulators stopped successfully')
+    logger.info('All emulators stopped successfully')
   }
 
   /**
@@ -935,7 +937,7 @@ return
       throw new Error('Cannot pause: emulators not running or already paused')
     }
 
-    console.log('Pausing all emulators...')
+    logger.info('Pausing all emulators...')
 
     // Pause all emulators
     for (const emulator of this.gpsEmulators.values()) {
@@ -954,7 +956,7 @@ return
       data: { status: 'paused', timestamp: new Date() }
     })
 
-    console.log('All emulators paused')
+    logger.info('All emulators paused')
   }
 
   /**
@@ -965,7 +967,7 @@ return
       throw new Error('Cannot resume: emulators not paused')
     }
 
-    console.log('Resuming all emulators...')
+    logger.info('Resuming all emulators...')
 
     // Resume all emulators
     for (const emulator of this.gpsEmulators.values()) {
@@ -984,7 +986,7 @@ return
       data: { status: 'running', timestamp: new Date() }
     })
 
-    console.log(`All emulators resumed`)
+    logger.info(`All emulators resumed`)
   }
 
   /**
@@ -996,7 +998,7 @@ return
       throw new Error(`Scenario ${scenarioId} not found`)
     }
 
-    console.log(`Running scenario: ${scenario.name}`)
+    logger.info(`Running scenario: ${scenario.name}`)
 
     this.currentScenario = scenarioId
 
@@ -1024,7 +1026,7 @@ return
   private applyScenarioModifiers(modifiers: Record<string, any>): void {
     // Apply modifiers to all active emulators
     // This would adjust speed, fuel consumption, etc.
-    console.log('Applying scenario modifiers:', modifiers)
+    logger.info('Applying scenario modifiers:', modifiers)
   }
 
   /**
@@ -1157,7 +1159,7 @@ return
    * Cleanup and shutdown
    */
   public async shutdown(): Promise<void> {
-    console.log('Shutting down EmulatorOrchestrator...')
+    logger.info('Shutting down EmulatorOrchestrator...')
 
     if (this.isRunning) {
       await this.stop()
@@ -1169,7 +1171,7 @@ return
 
     this.removeAllListeners()
 
-    console.log('EmulatorOrchestrator shutdown complete')
+    logger.info('EmulatorOrchestrator shutdown complete')
   }
 
   /**

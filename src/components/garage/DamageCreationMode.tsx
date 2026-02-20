@@ -18,6 +18,7 @@ import { useCallback, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 import { DamagePoint, DamageSeverity } from './DamageOverlay'
+import { formatCurrency } from '@/utils/format-helpers'
 
 // =============================================================================
 // TYPES
@@ -245,7 +246,7 @@ export function DamageCreationPanel({
                     <div className="flex items-center justify-between">
                         <span className="text-slate-700 text-sm">Estimated Repair Cost</span>
                         <span className="text-sm font-bold text-green-400">
-                            ${estimatedCost.toLocaleString()}
+                            {formatCurrency(estimatedCost)}
                         </span>
                     </div>
                 </div>
