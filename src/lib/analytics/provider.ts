@@ -1,5 +1,7 @@
 import posthog from 'posthog-js';
 
+import logger from '@/utils/logger';
+
 /**
  * Analytics Provider using PostHog
  *
@@ -107,7 +109,7 @@ export class AnalyticsProvider {
 
       this.initialized = true;
     } catch (error) {
-      console.error('Failed to initialize analytics:', error);
+      logger.error('Failed to initialize analytics:', error);
     }
   }
 
@@ -128,7 +130,7 @@ export class AnalyticsProvider {
         posthog.people.set(traits);
       }
     } catch (error) {
-      console.error('Failed to identify user:', error);
+      logger.error('Failed to identify user:', error);
     }
   }
 
@@ -151,7 +153,7 @@ export class AnalyticsProvider {
 
       posthog.capture(event, enrichedProperties);
     } catch (error) {
-      console.error(`Failed to track event: ${event}`, error);
+      logger.error(`Failed to track event: ${event}`, error);
     }
   }
 
@@ -173,7 +175,7 @@ export class AnalyticsProvider {
         ...properties,
       });
     } catch (error) {
-      console.error('Failed to track page view:', error);
+      logger.error('Failed to track page view:', error);
     }
   }
 
@@ -187,7 +189,7 @@ export class AnalyticsProvider {
       posthog.reset();
       this.userId = null;
     } catch (error) {
-      console.error('Failed to reset analytics:', error);
+      logger.error('Failed to reset analytics:', error);
     }
   }
 
@@ -200,7 +202,7 @@ export class AnalyticsProvider {
     try {
       return posthog.isFeatureEnabled(flag) || false;
     } catch (error) {
-      console.error(`Failed to check feature flag: ${flag}`, error);
+      logger.error(`Failed to check feature flag: ${flag}`, error);
       return false;
     }
   }
@@ -214,7 +216,7 @@ export class AnalyticsProvider {
     try {
       return posthog.getFeatureFlag(flag);
     } catch (error) {
-      console.error(`Failed to get feature flag: ${flag}`, error);
+      logger.error(`Failed to get feature flag: ${flag}`, error);
       return undefined;
     }
   }
@@ -230,7 +232,7 @@ export class AnalyticsProvider {
     try {
       posthog.onFeatureFlags(callback);
     } catch (error) {
-      console.error('Failed to listen for feature flags:', error);
+      logger.error('Failed to listen for feature flags:', error);
     }
   }
 
@@ -243,7 +245,7 @@ export class AnalyticsProvider {
     try {
       posthog.reloadFeatureFlags();
     } catch (error) {
-      console.error('Failed to reload feature flags:', error);
+      logger.error('Failed to reload feature flags:', error);
     }
   }
 
@@ -257,7 +259,7 @@ export class AnalyticsProvider {
       const variant = posthog.getFeatureFlag(experiment);
       return typeof variant === 'string' ? variant : undefined;
     } catch (error) {
-      console.error(`Failed to get experiment variant: ${experiment}`, error);
+      logger.error(`Failed to get experiment variant: ${experiment}`, error);
       return undefined;
     }
   }
@@ -283,7 +285,7 @@ export class AnalyticsProvider {
     try {
       posthog.people.set(properties);
     } catch (error) {
-      console.error('Failed to set user properties:', error);
+      logger.error('Failed to set user properties:', error);
     }
   }
 
@@ -298,7 +300,7 @@ export class AnalyticsProvider {
       const currentValue = (posthog.get_property(property) as number) || 0;
       posthog.people.set({ [property]: currentValue + value });
     } catch (error) {
-      console.error(`Failed to increment user property: ${property}`, error);
+      logger.error(`Failed to increment user property: ${property}`, error);
     }
   }
 
@@ -311,7 +313,7 @@ export class AnalyticsProvider {
     try {
       posthog.startSessionRecording();
     } catch (error) {
-      console.error('Failed to start session recording:', error);
+      logger.error('Failed to start session recording:', error);
     }
   }
 
@@ -324,7 +326,7 @@ export class AnalyticsProvider {
     try {
       posthog.stopSessionRecording();
     } catch (error) {
-      console.error('Failed to stop session recording:', error);
+      logger.error('Failed to stop session recording:', error);
     }
   }
 
@@ -337,7 +339,7 @@ export class AnalyticsProvider {
     try {
       return posthog.get_session_id();
     } catch (error) {
-      console.error('Failed to get session ID:', error);
+      logger.error('Failed to get session ID:', error);
       return undefined;
     }
   }
@@ -351,7 +353,7 @@ export class AnalyticsProvider {
     try {
       posthog.opt_out_capturing();
     } catch (error) {
-      console.error('Failed to opt out:', error);
+      logger.error('Failed to opt out:', error);
     }
   }
 
@@ -364,7 +366,7 @@ export class AnalyticsProvider {
     try {
       posthog.opt_in_capturing();
     } catch (error) {
-      console.error('Failed to opt in:', error);
+      logger.error('Failed to opt in:', error);
     }
   }
 
@@ -377,7 +379,7 @@ export class AnalyticsProvider {
     try {
       return posthog.has_opted_out_capturing();
     } catch (error) {
-      console.error('Failed to check opt-out status:', error);
+      logger.error('Failed to check opt-out status:', error);
       return false;
     }
   }
@@ -391,7 +393,7 @@ export class AnalyticsProvider {
     try {
       return posthog.get_distinct_id();
     } catch (error) {
-      console.error('Failed to get distinct ID:', error);
+      logger.error('Failed to get distinct ID:', error);
       return undefined;
     }
   }

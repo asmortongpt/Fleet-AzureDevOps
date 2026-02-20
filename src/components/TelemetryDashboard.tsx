@@ -300,6 +300,9 @@ const EventItem: React.FC<{ event: TelemetryEvent }> = ({ event }) => {
       <div
         style={styles.eventHeader}
         onClick={() => setIsExpanded(!isExpanded)}
+        onKeyDown={(e) => e.key === 'Enter' && setIsExpanded(!isExpanded)}
+        role="button"
+        tabIndex={0}
       >
         <span style={styles.eventTimestamp}>
           {new Date(event.timestamp).toLocaleTimeString()}

@@ -23,6 +23,7 @@ import { detectWebGLCapabilities } from '../../utils/WebGLCompatibilityManager';
 
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
 import type { AssetCategory, AssetType } from '@/types/asset.types';
+import logger from '@/utils/logger';
 
 // ============================================================================
 // TYPES
@@ -489,10 +490,10 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
      
-    console.error('[R3F ErrorBoundary] 3D renderer crashed:', error.message);
+    logger.error('[R3F ErrorBoundary] 3D renderer crashed:', error.message);
     if (import.meta.env.DEV && errorInfo.componentStack) {
        
-      console.error('[R3F ErrorBoundary] Component stack:', errorInfo.componentStack);
+      logger.error('[R3F ErrorBoundary] Component stack:', errorInfo.componentStack);
     }
   }
 

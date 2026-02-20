@@ -19,6 +19,7 @@ import { ErrorPanel } from '../ErrorPanel';
 import { LoadingSpinner } from '../LoadingSpinner';
 
 import { api } from "@/lib/api";
+import logger from '@/utils/logger';
 
 // Local Incident type definition for this example
 interface Incident {
@@ -48,7 +49,7 @@ export function IncidentsExample() {
       // Optional: callbacks for success/error
       onSuccess: () => {},
       onError: (error: Error) => {
-        console.error('Failed to load incidents:', error);
+        logger.error('Failed to load incidents:', error);
       },
     }
   );

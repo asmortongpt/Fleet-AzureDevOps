@@ -45,6 +45,7 @@ const getAuthHeaders = () => {
 const fetchEVVehicles = async (): Promise<EVVehicle[]> => {
   try {
     const response = await fetch('/api/ev/vehicles', { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (data.success) return data.data;
     return [];

@@ -60,9 +60,10 @@ interface Route {
 export function OperationsHub() {
   const { push } = useDrilldown();
   const { data: vehicles = [], isLoading: vehiclesLoading } = useVehicles();
-  const { data: drivers = [] } = useDrivers();
-  const { data: workOrders = [] } = useWorkOrders();
-  const { data: routes = [] } = useRoutes();
+  const { data: drivers = [], isLoading: driversLoading } = useDrivers();
+  const { data: workOrders = [], isLoading: workOrdersLoading } = useWorkOrders();
+  const { data: routes = [], isLoading: routesLoading } = useRoutes();
+  const isLoading = vehiclesLoading || driversLoading || workOrdersLoading || routesLoading;
 
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
 
@@ -279,7 +280,12 @@ export function OperationsHub() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3 max-h-48 overflow-y-auto">
-            {alerts.map(alert => (
+            {alerts.length === 0 ? (
+              <div className="text-center py-4">
+                <CheckCircle className="h-6 w-6 mx-auto text-green-500 mb-2" />
+                <p className="text-xs text-slate-500">No active alerts</p>
+              </div>
+            ) : alerts.map(alert => (
               <div
                 key={alert.id}
                 className={`p-3 rounded-lg border text-xs ${
@@ -485,7 +491,7 @@ export function OperationsHub() {
     </div>
   );
 
-  if (vehiclesLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center">

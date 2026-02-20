@@ -75,6 +75,7 @@ const getAuthHeaders = () => {
 // Query function for charging stations
 const fetchChargingStations = async (): Promise<ChargingStation[]> => {
   const response = await fetch('/api/ev/chargers', { headers: getAuthHeaders() });
+  if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch charging stations');
@@ -83,6 +84,7 @@ const fetchChargingStations = async (): Promise<ChargingStation[]> => {
 // Query function for active sessions
 const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
   const response = await fetch('/api/ev/sessions/active', { headers: getAuthHeaders() });
+  if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch active sessions');
@@ -91,6 +93,7 @@ const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
 // Query function for station utilization
 const fetchStationUtilization = async (): Promise<StationUtilization[]> => {
   const response = await fetch('/api/ev/station-utilization', { headers: getAuthHeaders() });
+  if (!response.ok) throw new Error('Request failed: ' + response.status);
   const data = await response.json();
   if (data.success) return data.data;
   throw new Error('Failed to fetch station utilization');
@@ -160,6 +163,7 @@ const EVChargingDashboard: React.FC = () => {
           idTag: `VEHICLE_${_selectedVehicleId}`
         })
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error('Failed to start charging');
       return data;
@@ -181,6 +185,7 @@ const EVChargingDashboard: React.FC = () => {
         method: 'POST',
         headers: getAuthHeaders()
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error('Failed to stop charging');
       return data;
@@ -259,6 +264,7 @@ const EVChargingDashboard: React.FC = () => {
           ...reservationData
         })
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       const data = await response.json();
 

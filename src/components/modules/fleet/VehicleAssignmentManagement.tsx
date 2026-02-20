@@ -144,6 +144,7 @@ const VehicleAssignmentManagement: React.FC = () => {
       const response = await fetch('/api/vehicle-assignments?limit=100', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setAssignments(data.assignments || []);
     } catch (err: unknown) {
@@ -158,6 +159,7 @@ const VehicleAssignmentManagement: React.FC = () => {
       const response = await fetch('/api/on-call-periods/active/current', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setOnCallPeriods(data || []);
     } catch (err: unknown) {
@@ -170,6 +172,7 @@ const VehicleAssignmentManagement: React.FC = () => {
       const response = await fetch('/api/reports/policy-compliance', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setComplianceExceptions(data.exceptions || []);
     } catch (err: unknown) {
@@ -519,7 +522,7 @@ const VehicleAssignmentManagement: React.FC = () => {
 
       {/* New Assignment Modal */}
       {showNewAssignmentModal && (
-        <div onClick={() => setShowNewAssignmentModal(false)} style={{
+        <div onClick={() => setShowNewAssignmentModal(false)} onKeyDown={(e) => e.key === 'Escape' && setShowNewAssignmentModal(false)} role="dialog" aria-modal="true" aria-label="Create New Assignment" style={{
           position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', display:'flex',
           alignItems:'center', justifyContent:'center', zIndex:9999
         }}>
@@ -545,7 +548,7 @@ const VehicleAssignmentManagement: React.FC = () => {
 
       {/* Edit Assignment Modal */}
       {showEditAssignmentModal && selectedAssignment && (
-        <div onClick={() => setShowEditAssignmentModal(false)} style={{
+        <div onClick={() => setShowEditAssignmentModal(false)} onKeyDown={(e) => e.key === 'Escape' && setShowEditAssignmentModal(false)} role="dialog" aria-modal="true" aria-label="Edit Assignment" style={{
           position:'fixed', inset:0, background:'rgba(0,0,0,0.85)', display:'flex',
           alignItems:'center', justifyContent:'center', zIndex:9999
         }}>

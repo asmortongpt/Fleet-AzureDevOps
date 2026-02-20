@@ -197,6 +197,10 @@ export function WebSocketStatus({
         className
       )}
       onClick={() => !isConnected && reconnect()}
+      onKeyDown={(e) => e.key === 'Enter' && !isConnected && reconnect()}
+      role="button"
+      tabIndex={0}
+      aria-label={`WebSocket ${statusInfo.label}`}
       title={`WebSocket ${statusInfo.label}`}
     >
       {statusInfo.icon}

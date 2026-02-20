@@ -107,6 +107,7 @@ export default function ReportingDashboard() {
   const fetchReports = async () => {
     try {
       const response = await fetch(`${API_URL}/api/reports`);
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setReports(data);
     } catch (error) {
@@ -117,6 +118,7 @@ export default function ReportingDashboard() {
   const fetchScheduledReports = async () => {
     try {
       const response = await fetch(`${API_URL}/api/scheduled-reports`);
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setScheduledReports(data);
     } catch (error) {
@@ -146,6 +148,7 @@ export default function ReportingDashboard() {
           format,
         }),
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       const data = await response.json();
 
@@ -168,6 +171,7 @@ export default function ReportingDashboard() {
   const handleDownloadReport = async (reportId: string, reportName: string, format: string) => {
     try {
       const response = await fetch(`${API_URL}/api/reports/${reportId}/download`);
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -186,7 +190,8 @@ export default function ReportingDashboard() {
     if (!confirm('Are you sure you want to delete this report?')) return;
 
     try {
-      await fetch(`${API_URL}/api/reports/${reportId}`, { method: 'DELETE' });
+      const deleteResponse = await fetch(`${API_URL}/api/reports/${reportId}`, { method: 'DELETE' });
+      if (!deleteResponse.ok) throw new Error('Request failed: ' + deleteResponse.status);
       setSuccess('Report deleted successfully');
       fetchReports();
     } catch (error) {

@@ -76,6 +76,7 @@ import {
 
 import { useAuth } from '@/contexts';
 import { secureFetch } from '@/hooks/use-api';
+import logger from '@/utils/logger';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -242,7 +243,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       // In real implementation, would open print dialog or download
       alert(`QR Code generated: ${result.code}`);
     } catch (error) {
-      console.error('Error generating barcode:', error);
+      logger.error('Error generating barcode:', error);
     } finally {
       setLoading(false);
     }
@@ -273,7 +274,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       setScanLocation('');
       setScanDialogOpen(false);
     } catch (error) {
-      console.error('Error scanning code:', error);
+      logger.error('Error scanning code:', error);
       alert('Error scanning code');
     } finally {
       setLoading(false);
@@ -314,7 +315,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       loadRecentScans();
       alert('Item checked out successfully');
     } catch (error) {
-      console.error('Error checking out item:', error);
+      logger.error('Error checking out item:', error);
       alert('Error checking out item');
     } finally {
       setLoading(false);
@@ -347,7 +348,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       loadInventoryData();
       loadRecentScans();
     } catch (error) {
-      console.error('Error checking in item:', error);
+      logger.error('Error checking in item:', error);
       alert('Error checking in item');
     } finally {
       setLoading(false);
@@ -371,7 +372,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
       setCurrentAudit(audit);
       setAuditDialogOpen(true);
     } catch (error) {
-      console.error('Error starting audit:', error);
+      logger.error('Error starting audit:', error);
       setErrorMessage('Inventory audit creation is not available yet.');
     } finally {
       setLoading(false);
@@ -396,7 +397,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         Missing: ${result.missingItems.length} items
         Duration: ${result.sweepDuration}ms`);
     } catch (error) {
-      console.error('Error performing RFID sweep:', error);
+      logger.error('Error performing RFID sweep:', error);
       setErrorMessage('RFID sweep is not available yet.');
     } finally {
       setLoading(false);
@@ -413,7 +414,7 @@ const BarcodeRFIDTrackingDashboard: React.FC = () => {
         setScannerActive(true);
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      logger.error('Error accessing camera:', error);
       alert('Camera access denied');
     }
   };

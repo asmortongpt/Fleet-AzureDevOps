@@ -11,6 +11,7 @@ import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } 
 import { registerSW } from 'virtual:pwa-register'
 import { validateEnvironment } from './lib/config/validate-environment'
 
+import logger from './utils/logger'
 import App from "./App"
 import ProtectedRoute from "./components/ProtectedRoute"
 import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
@@ -148,7 +149,7 @@ async function validateStartupConfiguration(): Promise<void> {
   if (envErrors.length > 0) {
     const errorMessages = envErrors.map(e => `• ${e.variable}: ${e.message}`).join('\n');
     const fullMessage = `[CONFIGURATION ERROR] Missing or invalid environment variables:\n${errorMessages}\n\nPlease set these variables and restart the application.`;
-    console.error(fullMessage);
+    logger.error(fullMessage);
     throw new Error(fullMessage);
   }
 
@@ -177,13 +178,13 @@ async function validateStartupConfiguration(): Promise<void> {
     if (response.ok) {
       const data = await response.json();
     } else {
-      console.warn(`[Fleet] Backend health check returned status ${response.status} - app will continue but some features may be unavailable`);
+      logger.warn(`[Fleet] Backend health check returned status ${response.status} - app will continue but some features may be unavailable`);
     }
   } catch (error) {
     // Non-blocking: log warning but allow app to render
     // This handles cases where the backend is temporarily unavailable or network is slow
-    console.warn('[Fleet] Backend health check failed (non-blocking):', error instanceof Error ? error.message : 'Unknown error');
-    console.warn('[Fleet] The application will start, but API-dependent features may not work until the backend is reachable');
+    logger.warn('[Fleet] Backend health check failed (non-blocking):', error instanceof Error ? error.message : 'Unknown error');
+    logger.warn('[Fleet] The application will start, but API-dependent features may not work until the backend is reachable');
   }
 }
 
@@ -196,7 +197,7 @@ validateStartupConfiguration().then(async () => {
     // Handle any redirect promise from SSO callback
     await msalInstance.handleRedirectPromise();
   } catch (error) {
-    console.error('[Fleet] MSAL initialization failed:', error);
+    logger.error('[Fleet] MSAL initialization failed:', error);
   }
 
   // Initialize MSAL before rendering - required for MSAL v2+
@@ -205,7 +206,7 @@ validateStartupConfiguration().then(async () => {
     // Handle any redirect promise from SSO callback
     await msalInstance.handleRedirectPromise();
   } catch (error) {
-    console.error('[Fleet] MSAL initialization failed:', error);
+    logger.error('[Fleet] MSAL initialization failed:', error);
   }
 
   ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -250,5 +251,5 @@ validateStartupConfiguration().then(async () => {
   })
 }).catch((error) => {
   // P0-3: Validation failed - app will not start
-  console.error('[Fleet] Application startup aborted due to validation failure:', error);
+  logger.error('[Fleet] Application startup aborted due to validation failure:', error);
 });

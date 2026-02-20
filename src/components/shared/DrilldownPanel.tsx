@@ -69,6 +69,7 @@ export function DrilldownPanel({ levels, onClose, onNavigateToLevel, className =
               <button
                 onClick={onClose}
                 className="flex-shrink-0 p-2 hover:bg-slate-700/50 rounded-lg text-slate-700 hover:text-slate-200 transition-all ml-2"
+                aria-label="Close drilldown panel"
               >
                 <X className="w-4 h-4" />
               </button>

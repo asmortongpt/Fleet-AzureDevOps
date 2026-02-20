@@ -101,13 +101,27 @@ export function AddVehicleDialog({ onAdd }: AddVehicleDialogProps) {
   }, [formData.asset_category])
 
   const handleSubmit = async () => {
-    // Validate required fields
-    if (!formData.number || !formData.make || !formData.model || !formData.vin || !formData.licensePlate) {
+    // Validate required fields (with trim)
+    if (!formData.number?.trim() || !formData.make?.trim() || !formData.model?.trim() || !formData.vin?.trim() || !formData.licensePlate?.trim()) {
       toast.error("Please fill in all required fields")
       return
     }
 
-    if (!formData.location_address) {
+    // VIN must be 17 characters
+    if (formData.vin.trim().length !== 17) {
+      toast.error("VIN must be exactly 17 characters")
+      return
+    }
+
+    // Year range validation
+    const currentYear = new Date().getFullYear()
+    const yearNum = Number(formData.year)
+    if (formData.year && (yearNum < 1900 || yearNum > currentYear + 2)) {
+      toast.error(`Year must be between 1900 and ${currentYear + 2}`)
+      return
+    }
+
+    if (!formData.location_address?.trim()) {
       toast.error("Please enter a location address")
       return
     }

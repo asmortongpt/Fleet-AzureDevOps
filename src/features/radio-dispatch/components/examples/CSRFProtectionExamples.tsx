@@ -6,6 +6,7 @@ import { useMutation } from '../../lib/hooks/useMutation';
 import { CSRFInput, useCSRFToken } from '../CSRFInput';
 
 import { api } from "@/lib/api";
+import logger from '@/utils/logger';
 
 /**
  * CSRF Protection Examples
@@ -50,7 +51,7 @@ export function CreateIncidentExample() {
         setPriority('medium');
       },
       onError: (error: Error) => {
-        console.error('Failed to create incident:', error.message);
+        logger.error('Failed to create incident:', error.message);
       },
     }
   );
@@ -210,7 +211,7 @@ export function DeleteIncidentExample({ incidentId }: { incidentId: string }) {
     {
       onSuccess: () => {},
       onError: (error: Error) => {
-        console.error('Failed to delete incident:', error.message);
+        logger.error('Failed to delete incident:', error.message);
       },
     }
   );

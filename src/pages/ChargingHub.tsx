@@ -72,6 +72,7 @@ const getAuthHeaders = () => {
 const fetchChargingStations = async (): Promise<ChargingStation[]> => {
   try {
     const response = await fetch('/api/ev-management/chargers', { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (data.success) return data.data;
     return [];
@@ -84,6 +85,7 @@ const fetchChargingStations = async (): Promise<ChargingStation[]> => {
 const fetchActiveSessions = async (): Promise<ChargingSession[]> => {
   try {
     const response = await fetch('/api/ev-management/sessions/active', { headers: getAuthHeaders() });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (data.success) return data.data;
     return [];

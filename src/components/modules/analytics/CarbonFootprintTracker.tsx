@@ -114,6 +114,7 @@ const CarbonFootprintTracker: React.FC = () => {
       }
 
       const response = await fetch(url, { headers });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
 
       if (data.success) {
@@ -128,6 +129,7 @@ const CarbonFootprintTracker: React.FC = () => {
         `/api/ev/esg-report?period=monthly&year=${currentYear}&month=${currentMonth}`,
         { headers }
       );
+      if (!esgResponse.ok) throw new Error('Request failed: ' + esgResponse.status);
       const esgData = await esgResponse.json();
       if (esgData.success) {
         setEsgReport(esgData.data);

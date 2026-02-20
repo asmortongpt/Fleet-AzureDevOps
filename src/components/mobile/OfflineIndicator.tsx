@@ -210,6 +210,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
                 onClick={handleManualSync}
                 className="bg-white hover:bg-gray-50 p-2 rounded-full transition-colors"
                 title="Sync now"
+                aria-label="Sync now"
               >
                 <RefreshCw size={16} className="text-slate-700" />
               </button>

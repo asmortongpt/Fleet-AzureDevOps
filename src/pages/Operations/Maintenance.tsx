@@ -40,6 +40,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 // Type definitions for maintenance records
 interface MaintenanceRecord {
@@ -103,7 +104,7 @@ export function MaintenanceOperations() {
         setStats(data.data);
       }
     } catch (error) {
-      console.error('Failed to fetch maintenance data:', error);
+      logger.error('Failed to fetch maintenance data:', error);
       toast.error('Failed to load maintenance data');
     } finally {
       setLoading(false);
@@ -202,6 +203,18 @@ export function MaintenanceOperations() {
       toast.error('Please fill in all required fields');
       return;
     }
+    const scheduledDate = new Date(formData.scheduled_date);
+    if (isNaN(scheduledDate.getTime())) {
+      toast.error('Please enter a valid scheduled date');
+      return;
+    }
+    if ((formData as any).estimated_cost !== undefined && (formData as any).estimated_cost !== '') {
+      const cost = Number((formData as any).estimated_cost);
+      if (isNaN(cost) || cost < 0) {
+        toast.error('Estimated cost must be a non-negative number');
+        return;
+      }
+    }
 
     try {
       setIsSaving(true);
@@ -219,7 +232,7 @@ export function MaintenanceOperations() {
       await fetchMaintenanceData();
       handleCloseDetail();
     } catch (error) {
-      console.error('Error saving maintenance:', error);
+      logger.error('Error saving maintenance:', error);
       toast.error('Failed to schedule maintenance');
     } finally {
       setIsSaving(false);
@@ -250,7 +263,7 @@ export function MaintenanceOperations() {
       await fetchMaintenanceData();
       setIsEditing(false);
     } catch (error) {
-      console.error('Error completing maintenance:', error);
+      logger.error('Error completing maintenance:', error);
       toast.error('Failed to complete maintenance');
     } finally {
       setIsSaving(false);
@@ -259,7 +272,19 @@ export function MaintenanceOperations() {
 
   // Handle reschedule
   const handleReschedule = useCallback(async () => {
-    if (!selectedTask || !formData.scheduled_date) return;
+    if (!selectedTask || !formData.scheduled_date) {
+      toast.error('Please select a reschedule date');
+      return;
+    }
+    const rescheduledDate = new Date(formData.scheduled_date);
+    if (isNaN(rescheduledDate.getTime())) {
+      toast.error('Please enter a valid date');
+      return;
+    }
+    if (rescheduledDate < new Date()) {
+      toast.error('Reschedule date cannot be in the past');
+      return;
+    }
 
     try {
       setIsSaving(true);
@@ -280,7 +305,7 @@ export function MaintenanceOperations() {
       await fetchMaintenanceData();
       setIsEditing(false);
     } catch (error) {
-      console.error('Error rescheduling maintenance:', error);
+      logger.error('Error rescheduling maintenance:', error);
       toast.error('Failed to reschedule maintenance');
     } finally {
       setIsSaving(false);

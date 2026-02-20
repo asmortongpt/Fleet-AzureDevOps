@@ -150,6 +150,7 @@ export default function DispatchConsole() {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
@@ -170,6 +171,7 @@ export default function DispatchConsole() {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
@@ -187,6 +189,7 @@ export default function DispatchConsole() {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
@@ -204,6 +207,7 @@ export default function DispatchConsole() {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {
@@ -442,6 +446,7 @@ export default function DispatchConsole() {
           description: 'Emergency alert triggered from dispatch console'
         })
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
 
       const data = await response.json()
       if (data.success) {

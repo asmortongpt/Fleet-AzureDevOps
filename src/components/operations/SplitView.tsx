@@ -98,6 +98,7 @@ export function SplitView({ theme = 'default', listPanel, detailPanel }: SplitVi
                 <button
                   onClick={detailPanel.onClose}
                   className="p-2 rounded-lg hover:bg-slate-700/50 text-slate-700 hover:text-white transition-colors"
+                  aria-label="Close detail panel"
                 >
                   <X className="w-5 h-5" weight="bold" />
                 </button>

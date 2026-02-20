@@ -168,6 +168,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
       if (filters.search) queryParams.append('search', filters.search);
 
       const response = await fetch(`/api/policy-violations?${queryParams.toString()}`);
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setViolations(data.data || []);
     } catch (error) {
@@ -182,6 +183,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
   const loadStatistics = async () => {
     try {
       const response = await fetch(`/api/policy-violations/statistics?tenantId=${tenantId}`);
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setStatistics(data.data);
     } catch (error) {
@@ -276,6 +278,7 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
     // Load comments
     try {
       const response = await fetch(`/api/policy-violations/${violation.id}/comments`);
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setComments(data.data || []);
     } catch (error) {
@@ -288,11 +291,12 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
     if (!selectedViolation) return;
 
     try {
-      await fetch(`/api/policy-violations/${selectedViolation.id}/resolve`, {
+      const response = await fetch(`/api/policy-violations/${selectedViolation.id}/resolve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ resolutionNotes }),
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       setShowResolveDialog(false);
       setResolutionNotes('');
@@ -307,11 +311,12 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
     if (!selectedViolation) return;
 
     try {
-      await fetch(`/api/policy-violations/${selectedViolation.id}/override`, {
+      const overrideResponse = await fetch(`/api/policy-violations/${selectedViolation.id}/override`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reason: overrideReason }),
       });
+      if (!overrideResponse.ok) throw new Error('Request failed: ' + overrideResponse.status);
 
       setShowOverrideDialog(false);
       setOverrideReason('');
@@ -325,15 +330,17 @@ export const PolicyViolations: React.FC<PolicyViolationsProps> = ({ tenantId }) 
     if (!selectedViolation || !newComment.trim()) return;
 
     try {
-      await fetch(`/api/policy-violations/${selectedViolation.id}/comments`, {
+      const addCommentResponse = await fetch(`/api/policy-violations/${selectedViolation.id}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commentText: newComment }),
       });
+      if (!addCommentResponse.ok) throw new Error('Request failed: ' + addCommentResponse.status);
 
       setNewComment('');
       // Reload comments
       const response = await fetch(`/api/policy-violations/${selectedViolation.id}/comments`);
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       setComments(data.data || []);
     } catch (error) {

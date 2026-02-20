@@ -246,6 +246,7 @@ export const DriverToolbox: React.FC = () => {
             onClick={handleManualSync}
             className="bg-white/20 hover:bg-white/30 p-3 rounded-full transition-colors"
             disabled={isOffline}
+            aria-label="Sync now"
           >
             <CheckCircle className={isOffline ? 'text-gray-300' : 'text-white'} size={24} />
           </button>

@@ -55,11 +55,10 @@ const MobileManagerView: React.FC = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardData(data);
-      }
+      const data = await response.json();
+      setDashboardData(data);
     } catch (error) {
       logger.error('Error fetching manager dashboard:', error);
     } finally {

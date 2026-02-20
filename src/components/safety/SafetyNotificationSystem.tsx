@@ -34,7 +34,10 @@ interface SafetyNotification {
 
 const fetcher = (url: string) =>
     fetch(url)
-        .then((r) => r.json())
+        .then((r) => {
+            if (!r.ok) throw new Error('Request failed: ' + r.status);
+            return r.json();
+        })
         .then((data) => data?.data ?? data)
 
 export function SafetyNotificationSystem() {
@@ -102,28 +105,31 @@ export function SafetyNotificationSystem() {
     const unreadCount = notifications.filter(n => !n.read).length
 
     const markAsRead = async (id: string) => {
-        await fetch(`/api/notifications/${id}/read`, {
+        const response = await fetch(`/api/notifications/${id}/read`, {
             method: 'PATCH',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
         })
+        if (!response.ok) throw new Error('Request failed: ' + response.status)
         mutate()
     }
 
     const markAllAsRead = async () => {
-        await fetch('/api/notifications/mark-all-read', {
+        const markAllResponse = await fetch('/api/notifications/mark-all-read', {
             method: 'PATCH',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' }
         })
+        if (!markAllResponse.ok) throw new Error('Request failed: ' + markAllResponse.status)
         mutate()
     }
 
     const dismissNotification = async (id: string) => {
-        await fetch(`/api/notifications/${id}`, {
+        const dismissResponse = await fetch(`/api/notifications/${id}`, {
             method: 'DELETE',
             credentials: 'include'
         })
+        if (!dismissResponse.ok) throw new Error('Request failed: ' + dismissResponse.status)
         mutate()
     }
 

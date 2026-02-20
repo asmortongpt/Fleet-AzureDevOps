@@ -640,6 +640,7 @@ export function PurchaseOrders() {
                         size="icon"
                         onClick={() => removeItem(index)}
                         disabled={newPO.items.length === 1}
+                        aria-label="Remove item"
                       >
                         <Trash2 className="w-4 h-4 text-destructive" />
                       </Button>

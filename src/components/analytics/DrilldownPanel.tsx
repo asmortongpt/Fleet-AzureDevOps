@@ -250,6 +250,7 @@ export const DrilldownPanel = memo<DrilldownPanelProps>(({
                             <button
                                 onClick={onClose}
                                 className="p-2 hover:bg-slate-700 rounded-lg transition-colors"
+                                aria-label="Close drilldown panel"
                             >
                                 <X className="w-4 h-4 text-slate-700" />
                             </button>

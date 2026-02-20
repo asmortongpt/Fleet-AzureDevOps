@@ -79,6 +79,8 @@ import {
   SupplierRecommendation
 } from '../../../services/inventory/PredictiveReorderingService';
 
+import logger from '@/utils/logger';
+
 interface TabPanelProps {
   children?: React.ReactNode;
   index: number;
@@ -211,7 +213,7 @@ const PredictiveReorderingDashboard: React.FC = () => {
       setRecommendations(recs);
       setLastUpdated(new Date());
     } catch (error) {
-      console.error('Error loading recommendations:', error);
+      logger.error('Error loading recommendations:', error);
     } finally {
       setLoading(false);
     }

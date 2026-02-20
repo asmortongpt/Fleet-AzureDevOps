@@ -99,6 +99,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
           <button
             onClick={onClose}
             className="text-gray-700 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
+            aria-label="Close"
           >
             <X className="w-4 h-4" />
           </button>
@@ -263,6 +264,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                 onClick={previousPage}
                 disabled={page === 1}
                 className="px-3 py-2 rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Previous page"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
@@ -273,6 +275,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                 onClick={nextPage}
                 disabled={page === data.totalPages}
                 className="px-3 py-2 rounded bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Next page"
               >
                 <ChevronRight className="w-4 h-4" />
               </button>

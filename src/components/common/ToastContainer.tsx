@@ -2,7 +2,7 @@
 // Displays toast notifications using the toast event bus
 
 // motion removed - React 19 incompatible
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import { toastEventBus } from '../../utils/toast';
 import './ToastContainer.css';
@@ -17,6 +17,7 @@ interface Toast {
 
 export const ToastContainer: React.FC = () => {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
 
   useEffect(() => {
     // Subscribe to toast events
@@ -24,12 +25,19 @@ export const ToastContainer: React.FC = () => {
       setToasts((prev) => [...prev, toast]);
 
       // Auto-remove toast after duration
-      setTimeout(() => {
+      const timerId = setTimeout(() => {
         setToasts((prev) => prev.filter((t) => t.id !== toast.id));
+        timersRef.current.delete(timerId);
       }, toast.duration);
+      timersRef.current.add(timerId);
     });
 
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+      // Clear all pending auto-dismiss timers on unmount
+      timersRef.current.forEach((id) => clearTimeout(id));
+      timersRef.current.clear();
+    };
   }, []);
 
   const removeToast = (id: string) => {

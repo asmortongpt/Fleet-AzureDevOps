@@ -1,3 +1,5 @@
+import logger from '@/utils/logger';
+
 /**
  * Push Notifications Service
  *
@@ -90,7 +92,7 @@ export class PushNotificationService {
       // Setup message listener for notifications from service worker
       navigator.serviceWorker.addEventListener('message', this.handleServiceWorkerMessage.bind(this));
     } catch (error) {
-      console.error('[PushNotificationService] Failed to initialize:', error);
+      logger.error('[PushNotificationService] Failed to initialize:', error);
     }
   }
 
@@ -112,7 +114,7 @@ export class PushNotificationService {
         return false;
       }
     } catch (error) {
-      console.error('[PushNotificationService] Permission request failed:', error);
+      logger.error('[PushNotificationService] Permission request failed:', error);
       return false;
     }
   }
@@ -122,7 +124,7 @@ export class PushNotificationService {
    */
   public async subscribe(): Promise<PushSubscription | null> {
     if (!this.registration) {
-      console.error('[PushNotificationService] Service Worker not ready');
+      logger.error('[PushNotificationService] Service Worker not ready');
       return null;
     }
 
@@ -139,7 +141,7 @@ export class PushNotificationService {
 
       return this.subscription;
     } catch (error) {
-      console.error('[PushNotificationService] Subscription failed:', error);
+      logger.error('[PushNotificationService] Subscription failed:', error);
       return null;
     }
   }
@@ -158,7 +160,7 @@ export class PushNotificationService {
       this.subscription = null;
       return true;
     } catch (error) {
-      console.error('[PushNotificationService] Unsubscribe failed:', error);
+      logger.error('[PushNotificationService] Unsubscribe failed:', error);
       return false;
     }
   }
@@ -210,7 +212,7 @@ export class PushNotificationService {
       // Track notification
       this.trackNotification(payload);
     } catch (error) {
-      console.error('[PushNotificationService] Failed to show notification:', error);
+      logger.error('[PushNotificationService] Failed to show notification:', error);
     }
   }
 
@@ -240,7 +242,7 @@ export class PushNotificationService {
 
       return true;
     } catch (error) {
-      console.error('[PushNotificationService] Failed to send push notification:', error);
+      logger.error('[PushNotificationService] Failed to send push notification:', error);
       return false;
     }
   }
@@ -319,7 +321,7 @@ export class PushNotificationService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('[PushNotificationService] Failed to send subscription:', error);
+      logger.error('[PushNotificationService] Failed to send subscription:', error);
     }
   }
 
@@ -340,7 +342,7 @@ export class PushNotificationService {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
     } catch (error) {
-      console.error('[PushNotificationService] Failed to delete subscription:', error);
+      logger.error('[PushNotificationService] Failed to delete subscription:', error);
     }
   }
 

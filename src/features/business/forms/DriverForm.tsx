@@ -62,6 +62,45 @@ const DriverForm: React.FC<DriverFormProps> = ({ onSuccess, onCancel }) => {
     setIsSubmitting(true);
     setError(null);
 
+    // Validation
+    if (formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      setError('Please enter a valid email address');
+      setIsSubmitting(false);
+      return;
+    }
+    if (formData.license_expiry) {
+      const expiryDate = new Date(formData.license_expiry);
+      if (isNaN(expiryDate.getTime())) {
+        setError('Please enter a valid license expiry date');
+        setIsSubmitting(false);
+        return;
+      }
+      if (expiryDate < new Date()) {
+        setError('License expiry date is in the past. Please verify the date.');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+    if (formData.date_of_birth) {
+      const dob = new Date(formData.date_of_birth);
+      if (isNaN(dob.getTime())) {
+        setError('Please enter a valid date of birth');
+        setIsSubmitting(false);
+        return;
+      }
+      const age = Math.floor((Date.now() - dob.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      if (age < 16) {
+        setError('Driver must be at least 16 years old');
+        setIsSubmitting(false);
+        return;
+      }
+      if (age > 120) {
+        setError('Please enter a valid date of birth');
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
     try {
       const driver = await DriverAPI.create(formData);
       // logger.info('✅ Driver created in database:', driver);

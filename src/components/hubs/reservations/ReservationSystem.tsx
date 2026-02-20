@@ -12,9 +12,11 @@ import {
   XCircle,
   AlertCircle,
   Plus,
-  Filter
+  Filter,
+  Loader2
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { OutlookEmailButton, CalendarEventButton } from '@/components/integrations/MicrosoftIntegration';
 import { Dialog } from '@/components/shared/Dialog';
@@ -68,12 +70,14 @@ const API_BASE = 'https://fleet.capitaltechalliance.com/api/v1';
 
 async function fetchReservations(): Promise<Reservation[]> {
   const res = await fetch(`${API_BASE}/reservations`);
+  if (!res.ok) throw new Error('Request failed: ' + res.status);
   const json = await res.json();
   return json.reservations || [];
 }
 
 async function fetchVehicles(): Promise<Vehicle[]> {
   const res = await fetch(`${API_BASE}/vehicles`);
+  if (!res.ok) throw new Error('Request failed: ' + res.status);
   const json = await res.json();
   return json.vehicles || [];
 }
@@ -84,6 +88,7 @@ async function checkAvailability(vehicleId: string, startDate: string, endDate: 
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ vehicleId, startDate, endDate })
   });
+  if (!res.ok) throw new Error('Request failed: ' + res.status);
   return res.json();
 }
 
@@ -93,6 +98,7 @@ async function createReservation(data: Partial<Reservation>): Promise<Reservatio
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
   });
+  if (!res.ok) throw new Error('Request failed: ' + res.status);
   return res.json();
 }
 
@@ -102,6 +108,7 @@ async function updateReservationStatus(id: string, status: Reservation['status']
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ status })
   });
+  if (!res.ok) throw new Error('Request failed: ' + res.status);
   return res.json();
 }
 
@@ -210,7 +217,20 @@ export const ReservationSystem: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredReservations.map((reservation) => (
+              {isLoading ? (
+                <tr><td colSpan={6} className="text-center py-8">
+                  <div className="flex items-center justify-center gap-2">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Loading reservations...</span>
+                  </div>
+                </td></tr>
+              ) : filteredReservations.length === 0 ? (
+                <tr><td colSpan={6} className="text-center py-8">
+                  <CalendarIcon className="h-8 w-8 mx-auto text-muted-foreground/40 mb-2" />
+                  <p className="text-sm text-muted-foreground">No reservations found</p>
+                  <p className="text-xs text-muted-foreground/70 mt-1">Create a new reservation to get started</p>
+                </td></tr>
+              ) : filteredReservations.map((reservation) => (
                 <tr
                   key={reservation.id}
                   onClick={() => setSelectedReservation(reservation)}
@@ -434,6 +454,34 @@ const NewReservationForm: React.FC<{
   }, [formData.vehicleId, formData.startDate, formData.endDate]);
 
   const handleSubmit = async () => {
+    // Validation
+    if (!formData.vehicleId) {
+      toast.error('Please select a vehicle');
+      return;
+    }
+    if (!formData.startDate) {
+      toast.error('Please select a start date');
+      return;
+    }
+    if (!formData.endDate) {
+      toast.error('Please select an end date');
+      return;
+    }
+    const start = new Date(formData.startDate);
+    const end = new Date(formData.endDate);
+    if (start >= end) {
+      toast.error('Start date must be before end date');
+      return;
+    }
+    if (start < new Date()) {
+      toast.error('Start date cannot be in the past');
+      return;
+    }
+    if (!formData.purpose?.trim()) {
+      toast.error('Please provide a purpose for the reservation');
+      return;
+    }
+
     const reservation = await createReservation({
       ...formData,
       status: 'pending'

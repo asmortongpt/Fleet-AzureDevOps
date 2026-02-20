@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { useDrivers, useCreateDriver, useUpdateDriver, useDeleteDriver, Driver } from '@/hooks/useDrivers';
 import { cn } from '@/lib/utils';
+import logger from '@/utils/logger';
 
 export function DriversOperations() {
   // API queries
@@ -73,7 +74,7 @@ export function DriversOperations() {
       setFormData({});
     } catch (err) {
       toast.error('Failed to create driver');
-      console.error(err);
+      logger.error('Failed to create driver', err);
     }
   };
 
@@ -91,7 +92,7 @@ export function DriversOperations() {
       setFormData({});
     } catch (err) {
       toast.error('Failed to update driver');
-      console.error(err);
+      logger.error('Failed to update driver', err);
     }
   };
 
@@ -106,7 +107,7 @@ export function DriversOperations() {
       setSelectedDriverId(null);
     } catch (err) {
       toast.error('Failed to delete driver');
-      console.error(err);
+      logger.error('Failed to delete driver', err);
     }
   };
 

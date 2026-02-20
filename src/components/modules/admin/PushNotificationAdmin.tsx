@@ -82,6 +82,7 @@ const PushNotificationAdmin: React.FC = () => {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Failed to fetch stats');
     return data.data;
@@ -93,6 +94,7 @@ const PushNotificationAdmin: React.FC = () => {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Failed to fetch history');
     return data.data;
@@ -104,6 +106,7 @@ const PushNotificationAdmin: React.FC = () => {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Failed to fetch templates');
     return data.data;
@@ -115,6 +118,7 @@ const PushNotificationAdmin: React.FC = () => {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     });
+    if (!response.ok) throw new Error('Request failed: ' + response.status);
     const data = await response.json();
     if (!data.success) throw new Error(data.error || 'Failed to fetch users');
     return data.data;
@@ -152,6 +156,7 @@ const PushNotificationAdmin: React.FC = () => {
         },
         body: JSON.stringify(body.payload)
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error(data.error || 'Failed to send notification');
       return data;
@@ -188,6 +193,7 @@ const PushNotificationAdmin: React.FC = () => {
         },
         body: JSON.stringify(body)
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error(data.error || 'Failed to schedule notification');
       return data;
@@ -224,6 +230,7 @@ const PushNotificationAdmin: React.FC = () => {
         },
         body: JSON.stringify(body)
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error(data.error || 'Failed to send notification');
       return data;
@@ -258,6 +265,7 @@ const PushNotificationAdmin: React.FC = () => {
           Authorization: `Bearer ${localStorage.getItem('token')}`
         }
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
       if (!data.success) throw new Error('Failed to send test notification');
       return data;

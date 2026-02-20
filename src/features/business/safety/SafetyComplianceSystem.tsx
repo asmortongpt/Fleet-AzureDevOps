@@ -59,6 +59,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis } from 'recharts';
 
 import { useAuth } from '@/contexts';
+import logger from '@/utils/logger';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -231,7 +232,7 @@ const SafetyComplianceSystem: React.FC = () => {
         totalRequired: driversData.length
       })));
     } catch (error) {
-      console.error('Error loading safety data:', error);
+      logger.error('Error loading safety data:', error);
     } finally {
       setLoading(false);
     }

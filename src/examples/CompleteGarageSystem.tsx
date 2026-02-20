@@ -18,6 +18,7 @@ import {
   type DamageReport,
 } from '@/services/AIDamageDetectionService';
 import { photoUploadService } from '@/services/PhotoUploadService';
+import logger from '@/utils/logger';
 
 // Phase 2: Condition Monitoring
 import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
@@ -76,7 +77,7 @@ export function CompleteGarageSystem() {
       setShowCamera(false);
       setActiveView('photos');
     } catch (error) {
-      console.error('Photo capture failed:', error);
+      logger.error('Photo capture failed:', error);
     }
   };
 

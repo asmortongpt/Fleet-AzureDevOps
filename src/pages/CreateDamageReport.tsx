@@ -36,6 +36,7 @@ import {
 import { SmartTooltip } from '@/components/ui/smart-tooltip'
 import { Textarea } from '@/components/ui/textarea'
 import { secureFetch } from '@/hooks/use-api'
+import logger from '@/utils/logger'
 
 interface DamageReportFormData {
   vehicle_id: string
@@ -188,7 +189,7 @@ export function CreateDamageReport() {
 
       navigate('/fleet')
     } catch (error) {
-      console.error('Failed to submit damage report:', error)
+      logger.error('Failed to submit damage report:', error)
     } finally {
       setIsSubmitting(false)
     }

@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { RealDataService } from '../../services/RealDataService';
 
 import { secureFetch } from '@/hooks/use-api';
+import logger from '@/utils/logger';
 
 interface PhotorealisticVehicleShowroomProps {
   currentTheme: any;
@@ -109,7 +110,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
 
       setVehicles(enhancedVehicles);
     } catch (error) {
-      console.error('Error loading vehicles:', error);
+      logger.error('Error loading vehicles:', error);
     } finally {
       setLoading(false);
     }
@@ -141,7 +142,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
         return v;
       }));
     } catch (error) {
-      console.error('VIN refresh failed:', error);
+      logger.error('VIN refresh failed:', error);
     } finally {
       setScanningVIN(null);
     }

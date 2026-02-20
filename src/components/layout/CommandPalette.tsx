@@ -45,9 +45,10 @@ export function CommandPalette() {
   // Focus input when opened
   useEffect(() => {
     if (commandPaletteOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50)
+      const timerId = setTimeout(() => inputRef.current?.focus(), 50)
       setQuery('')
       setSelectedIndex(0)
+      return () => clearTimeout(timerId)
     }
   }, [commandPaletteOpen])
 
@@ -126,6 +127,7 @@ export function CommandPalette() {
           <button
             onClick={close}
             className="text-muted-foreground hover:text-foreground transition-colors"
+            aria-label="Close command palette"
           >
             <X className="w-4 h-4" />
           </button>

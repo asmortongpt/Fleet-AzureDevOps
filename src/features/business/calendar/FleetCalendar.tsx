@@ -25,6 +25,7 @@ import { format } from 'date-fns';
 import EventCreateModal from './EventCreateModal';
 
 import { useAuth } from '@/contexts';
+import logger from '@/utils/logger';
 
 
 const localizer = momentLocalizer(moment);
@@ -93,7 +94,7 @@ const FleetCalendar: React.FC = () => {
 
       setEvents(formattedEvents);
     } catch (error) {
-      console.error('Failed to sync with Outlook:', error);
+      logger.error('Failed to sync with Outlook:', error);
     } finally {
       setLoading(false);
     }
@@ -168,7 +169,7 @@ const FleetCalendar: React.FC = () => {
 
       await syncWithOutlook();
     } catch (error) {
-      console.error('Failed to create event in Outlook:', error);
+      logger.error('Failed to create event in Outlook:', error);
     }
   };
 
@@ -212,6 +213,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onNavigate('PREV')}
           className="p-2 hover:bg-muted rounded-lg transition-colors"
+          aria-label="Previous"
         >
           <ChevronLeft className="w-3 h-3" />
         </button>
@@ -224,6 +226,7 @@ const FleetCalendar: React.FC = () => {
         <button
           onClick={() => onNavigate('NEXT')}
           className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          aria-label="Next"
         >
           <ChevronRight className="w-3 h-3" />
         </button>
@@ -304,6 +307,7 @@ const FleetCalendar: React.FC = () => {
                 onClick={syncWithOutlook}
                 disabled={loading}
                 className="p-2 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors disabled:opacity-50"
+                aria-label="Sync with Outlook"
               >
                 <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />
               </button>
@@ -372,6 +376,7 @@ const FleetCalendar: React.FC = () => {
               <button
                 onClick={() => setShowEventModal(false)}
                 className="p-1 hover:bg-gray-100 rounded"
+                aria-label="Close event details"
               >
                 <X className="w-3 h-3" />
               </button>

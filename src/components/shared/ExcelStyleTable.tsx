@@ -503,6 +503,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
                   size="sm"
                   onClick={() => setGlobalFilter('')}
                   className="h-9 px-2 shrink-0"
+                  aria-label="Clear search"
                 >
                   <X className="w-4 h-4" />
                 </Button>

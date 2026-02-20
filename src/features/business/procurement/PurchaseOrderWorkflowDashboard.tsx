@@ -56,6 +56,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/contexts';
 import purchaseOrderWorkflowService from '@/features/services/procurement/PurchaseOrderWorkflowService';
+import logger from '@/utils/logger';
 
 // Types for Purchase Order Workflow
 type POStatus = 'DRAFT' | 'SUBMITTED' | 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'ON_HOLD' | 'CANCELLED' | 'ISSUED' | 'RECEIVED' | 'CLOSED';
@@ -217,7 +218,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setPendingApprovals(pendingPOs);
       setAnalytics(analyticsData);
     } catch (error) {
-      console.error('Error initializing purchase order data:', error);
+      logger.error('Error initializing purchase order data:', error);
     } finally {
       setLoading(false);
     }
@@ -277,7 +278,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setActionComments('');
       await initializeData();
     } catch (error) {
-      console.error('Error approving purchase order:', error);
+      logger.error('Error approving purchase order:', error);
     }
   };
 
@@ -294,7 +295,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setRejectionReason('');
       await initializeData();
     } catch (error) {
-      console.error('Error rejecting purchase order:', error);
+      logger.error('Error rejecting purchase order:', error);
     }
   };
 
@@ -312,7 +313,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       setDelegateToUser('');
       await initializeData();
     } catch (error) {
-      console.error('Error delegating approval:', error);
+      logger.error('Error delegating approval:', error);
     }
   };
 
@@ -332,7 +333,7 @@ const PurchaseOrderWorkflowDashboard: React.FC = () => {
       const updatedPO = await purchaseOrderWorkflowService.getPurchaseOrder(selectedPO.id);
       if (updatedPO) setSelectedPO(updatedPO);
     } catch (error) {
-      console.error('Error adding comment:', error);
+      logger.error('Error adding comment:', error);
     }
   };
 

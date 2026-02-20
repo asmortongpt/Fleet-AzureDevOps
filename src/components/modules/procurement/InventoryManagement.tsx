@@ -739,6 +739,7 @@ export function InventoryManagement() {
             sortOrder: filters.sortOrder === "asc" ? "desc" : "asc"
           })}
           title={`Sort ${filters.sortOrder === "asc" ? "Descending" : "Ascending"}`}
+          aria-label={`Sort ${filters.sortOrder === "asc" ? "descending" : "ascending"}`}
         >
           <RefreshCw className={`w-4 h-4 transition-transform ${filters.sortOrder === "desc" ? "rotate-180" : ""}`} />
         </Button>

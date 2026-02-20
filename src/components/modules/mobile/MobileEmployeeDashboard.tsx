@@ -101,16 +101,15 @@ const MobileEmployeeDashboard: React.FC = () => {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardData(data);
-        // Cache for offline use
-        localStorage.setItem('mobile_dashboard_cache', JSON.stringify({
-          data,
-          cached_at: new Date().toISOString(),
-        }));
-      }
+      const data = await response.json();
+      setDashboardData(data);
+      // Cache for offline use
+      localStorage.setItem('mobile_dashboard_cache', JSON.stringify({
+        data,
+        cached_at: new Date().toISOString(),
+      }));
     } catch (error) {
       logger.error('Error fetching dashboard:', error);
       // Load from cache if offline
@@ -133,6 +132,7 @@ const MobileEmployeeDashboard: React.FC = () => {
         },
         body: JSON.stringify({ acknowledged: true }),
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       if (response.ok) {
         fetchDashboardData(); // Refresh

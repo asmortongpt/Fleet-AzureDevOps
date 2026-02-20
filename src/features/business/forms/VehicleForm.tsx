@@ -7,6 +7,7 @@
 import React, { useState } from 'react';
 
 import { api } from "@/lib/api";
+import logger from '@/utils/logger';
 
 interface VehicleFormData {
   fleet_number: string;
@@ -62,6 +63,24 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
     setIsSubmitting(true);
     setError(null);
 
+    // Validation
+    if (formData.vin && formData.vin.trim().length !== 17) {
+      setError('VIN must be exactly 17 characters');
+      setIsSubmitting(false);
+      return;
+    }
+    const currentYear = new Date().getFullYear();
+    if (formData.year < 1900 || formData.year > currentYear + 2) {
+      setError(`Year must be between 1900 and ${currentYear + 2}`);
+      setIsSubmitting(false);
+      return;
+    }
+    if (formData.mileage !== undefined && formData.mileage < 0) {
+      setError('Mileage cannot be negative');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const vehicle = await api.post('/vehicles', formData);
       // console.log('✅ Vehicle created in database:', vehicle);
@@ -87,7 +106,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ onSuccess, onCancel }) => {
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create vehicle');
-      console.error('❌ Vehicle creation failed:', err);
+      logger.error('Vehicle creation failed:', err);
     } finally {
       setIsSubmitting(false);
     }

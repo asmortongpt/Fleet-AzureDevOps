@@ -251,6 +251,7 @@ export function ConversationalIntake({
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="icon"
+            aria-label="Send message"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />

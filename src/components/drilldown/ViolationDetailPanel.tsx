@@ -199,11 +199,12 @@ export function ViolationDetailPanel({ violationId }: ViolationDetailPanelProps)
     if (!newComment.trim()) return
 
     try {
-      await fetch(`/api/violations/${violationId}/comments`, {
+      const response = await fetch(`/api/violations/${violationId}/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commentText: newComment }),
       })
+      if (!response.ok) throw new Error('Request failed: ' + response.status)
       setNewComment('')
       mutate()
     } catch (error) {

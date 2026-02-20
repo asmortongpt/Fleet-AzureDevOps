@@ -47,6 +47,7 @@ export function TenantProvider({ children }: { children: React.ReactNode }) {
           'X-Tenant-ID': tenantId,
         },
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       const data = await response.json();
       setTenant(data.tenant);

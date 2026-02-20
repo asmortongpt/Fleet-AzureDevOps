@@ -270,11 +270,12 @@ export function useModuleHealth(options: UseModuleOptions) {
     setRenderCount(prev => prev + 1)
 
     // Calculate load time
-    requestAnimationFrame(() => {
+    const frameId = requestAnimationFrame(() => {
       setLoadTime(performance.now() - startTime)
     })
 
     return () => {
+      cancelAnimationFrame(frameId)
       options.onUnmount?.()
     }
   }, options.dependencies || [])

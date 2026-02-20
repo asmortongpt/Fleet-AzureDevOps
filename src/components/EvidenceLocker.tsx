@@ -105,11 +105,10 @@ export default function EvidenceLocker() {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
-      if (response.ok) {
-        const data = await response.json();
-        setLockers(data.lockers || []);
-      }
+      const data = await response.json();
+      setLockers(data.lockers || []);
     } catch (error) {
       logger.error('Failed to load evidence lockers:', error);
     } finally {

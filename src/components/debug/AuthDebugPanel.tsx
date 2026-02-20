@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts';
+import logger from '@/utils/logger';
 
 
 interface DecodedToken {
@@ -79,7 +80,7 @@ export function AuthDebugPanel() {
         }
       }
     } catch (error) {
-      console.error('[AuthDebugPanel] Error decoding token:', error);
+      logger.error('[AuthDebugPanel] Error decoding token:', error);
     }
   }, [isAuthenticated, accounts]);
 
@@ -122,7 +123,7 @@ export function AuthDebugPanel() {
       setCopiedField(field);
       setTimeout(() => setCopiedField(null), 2000);
     } catch (error) {
-      console.error('Failed to copy:', error);
+      logger.error('Failed to copy:', error);
     }
   };
 
@@ -152,6 +153,9 @@ export function AuthDebugPanel() {
         <div
           className="flex items-center justify-between border-b border-yellow-500/30 bg-yellow-500/10 p-3 cursor-pointer"
           onClick={() => setIsExpanded(!isExpanded)}
+          onKeyDown={(e) => e.key === 'Enter' && setIsExpanded(!isExpanded)}
+          role="button"
+          tabIndex={0}
         >
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-yellow-500" />

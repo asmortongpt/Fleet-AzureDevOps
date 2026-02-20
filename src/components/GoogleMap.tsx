@@ -351,7 +351,7 @@ export function GoogleMap({
 
 
         // Add test IDs to map controls after a short delay to ensure they're rendered
-        setTimeout(() => {
+        const testIdTimer = setTimeout(() => {
           try {
             const mapDiv = mapRef.current
             if (mapDiv) {
@@ -374,6 +374,11 @@ export function GoogleMap({
         // Notify parent component
         if (onReady) {
           onReady()
+        }
+
+        // Cleanup timer if effect re-runs or component unmounts
+        return () => {
+          clearTimeout(testIdTimer)
         }
       } catch (err) {
         const errorObj = err instanceof Error ? err : new Error("Unknown error")

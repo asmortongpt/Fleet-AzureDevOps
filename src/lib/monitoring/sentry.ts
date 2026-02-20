@@ -7,6 +7,8 @@
 
 import type { Span } from '@sentry/core';
 import * as Sentry from '@sentry/react';
+
+import logger from '@/utils/logger';
 import {
   browserTracingIntegration,
   replayIntegration,
@@ -213,7 +215,7 @@ export function initSentry(config: Partial<SentryConfig> = {}): void {
     });
 
   } catch (error) {
-    console.error('[Sentry] Failed to initialize:', error);
+    logger.error('[Sentry] Failed to initialize:', error);
   }
 }
 
@@ -362,7 +364,7 @@ export async function flushSentry(timeout: number = 2000): Promise<boolean> {
   try {
     return await Sentry.flush(timeout);
   } catch (error) {
-    console.error('[Sentry] Failed to flush events:', error);
+    logger.error('[Sentry] Failed to flush events:', error);
     return false;
   }
 }
@@ -374,7 +376,7 @@ export async function closeSentry(timeout: number = 2000): Promise<boolean> {
   try {
     return await Sentry.close(timeout);
   } catch (error) {
-    console.error('[Sentry] Failed to close:', error);
+    logger.error('[Sentry] Failed to close:', error);
     return false;
   }
 }
@@ -443,7 +445,7 @@ export class SentryPerformanceMarks {
         );
       }
     } catch (error) {
-      console.warn('[Sentry] Failed to measure performance:', error);
+      logger.warn('[Sentry] Failed to measure performance:', { error: String(error) });
     }
   }
 

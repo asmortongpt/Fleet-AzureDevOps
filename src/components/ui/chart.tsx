@@ -4,6 +4,7 @@ import type { LegendPayload } from "recharts/types/component/DefaultLegendConten
 import type { Payload as TooltipPayload, ValueType, NameType } from "recharts/types/component/DefaultTooltipContent"
 
 import { cn } from "@/lib/utils"
+import logger from '@/utils/logger'
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: "", dark: ".dark" } as const
@@ -123,7 +124,7 @@ function sanitizeColor(color: string | undefined): string | null {
   }
 
   // If none of the above, reject the color
-  console.warn(`Invalid color value rejected: ${color}`)
+  logger.warn(`Invalid color value rejected: ${color}`)
   return null
 }
 

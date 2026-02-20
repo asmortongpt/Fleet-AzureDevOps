@@ -50,6 +50,8 @@ import {
 } from '@mui/material';
 import { format, parseISO } from 'date-fns';
 import React, { useState, useEffect } from 'react';
+
+import logger from '@/utils/logger';
 import {
   LineChart,
   Line,
@@ -148,7 +150,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       setRealtimeKPIs(realtimeData);
       setCostBreakdown(costBreakdownData);
     } catch (error) {
-      console.error('Error initializing analytics data:', error);
+      logger.error('Error initializing analytics data:', error);
     } finally {
       setLoading(false);
     }
@@ -160,7 +162,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
       const realtimeData = await AdvancedAnalyticsService.getRealtimeKPIs();
       setRealtimeKPIs(realtimeData);
     } catch (error) {
-      console.error('Error refreshing real-time data:', error);
+      logger.error('Error refreshing real-time data:', error);
     } finally {
       setRefreshing(false);
     }

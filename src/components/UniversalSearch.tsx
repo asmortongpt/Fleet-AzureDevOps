@@ -306,6 +306,9 @@ function SearchResultItem({ result, isSelected, onClick }: SearchResultItemProps
   return (
     <div
       onClick={onClick}
+      onKeyDown={(e) => e.key === 'Enter' && onClick()}
+      role="button"
+      tabIndex={0}
       className={cn(
         "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-all",
         "border border-transparent hover:border-primary/20 hover:bg-muted/50",

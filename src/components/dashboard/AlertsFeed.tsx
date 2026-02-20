@@ -115,6 +115,9 @@ export function AlertsFeed({
                   alert.isRead && "opacity-80 hover:opacity-100"
                 )}
                 onClick={() => onAlertClick?.(alert)}
+                onKeyDown={(e) => e.key === 'Enter' && onAlertClick?.(alert)}
+                role="button"
+                tabIndex={0}
               >
                 <div className="flex items-start gap-2">
                   <div className={cn("compact-list-item-icon mt-0.5", getAlertStyle(alert.type))}>

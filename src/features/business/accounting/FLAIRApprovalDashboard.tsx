@@ -7,6 +7,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/contexts';
+import logger from '@/utils/logger';
 
 // FLAIR expense entry type - defined locally since FLAIRIntegration service is not yet implemented
 export interface FLAIRExpenseEntry {
@@ -434,7 +435,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
 
       setEntries(mapped);
     } catch (error) {
-      console.error('Error loading expense entries:', error);
+      logger.error('Error loading expense entries:', error);
       setEntries([]);
     } finally {
       setIsLoading(false);
@@ -537,7 +538,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       await loadExpenseEntries();
       onApprovalComplete?.(entryId, true);
     } catch (error) {
-      console.error('Error approving expense:', error);
+      logger.error('Error approving expense:', error);
     }
   };
 
@@ -574,7 +575,7 @@ export const FLAIRApprovalDashboard: React.FC<FLAIRApprovalDashboardProps> = ({
       await loadExpenseEntries();
       onApprovalComplete?.(entryId, false);
     } catch (error) {
-      console.error('Error rejecting expense:', error);
+      logger.error('Error rejecting expense:', error);
     }
   };
 

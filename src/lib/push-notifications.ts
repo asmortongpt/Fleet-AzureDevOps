@@ -9,6 +9,8 @@
  * - Notification customization
  */
 
+import logger from '@/utils/logger';
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -123,7 +125,7 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
     const permission = await Notification.requestPermission();
     return permission;
   } catch (error) {
-    console.error('[Push] Permission request failed:', error);
+    logger.error('[Push] Permission request failed:', error);
     return 'denied';
   }
 }
@@ -164,7 +166,7 @@ export async function showLocalNotification(
 
     return notification;
   } catch (error) {
-    console.error('[Push] Failed to show notification:', error);
+    logger.error('[Push] Failed to show notification:', error);
     return null;
   }
 }
@@ -200,7 +202,7 @@ export async function subscribeToPushNotifications(): Promise<PushSubscriptionDa
 
     // Create new subscription
     if (!VAPID_PUBLIC_KEY) {
-      console.error('[Push] VAPID public key not configured');
+      logger.error('[Push] VAPID public key not configured');
       return null;
     }
 
@@ -215,7 +217,7 @@ export async function subscribeToPushNotifications(): Promise<PushSubscriptionDa
 
     return subscriptionData;
   } catch (error) {
-    console.error('[Push] Subscription failed:', error);
+    logger.error('[Push] Subscription failed:', error);
     return null;
   }
 }
@@ -238,7 +240,7 @@ export async function getCurrentSubscription(): Promise<PushSubscriptionData | n
 
     return subscriptionToJSON(subscription);
   } catch (error) {
-    console.error('[Push] Failed to get subscription:', error);
+    logger.error('[Push] Failed to get subscription:', error);
     return null;
   }
 }
@@ -269,7 +271,7 @@ export async function unsubscribeFromPushNotifications(): Promise<boolean> {
 
     return success;
   } catch (error) {
-    console.error('[Push] Unsubscribe failed:', error);
+    logger.error('[Push] Unsubscribe failed:', error);
     return false;
   }
 }
@@ -306,7 +308,7 @@ async function sendSubscriptionToServer(
     }
 
   } catch (error) {
-    console.error('[Push] Failed to send subscription to server:', error);
+    logger.error('[Push] Failed to send subscription to server:', error);
     // Don't throw - subscription is still active locally
   }
 }
@@ -331,7 +333,7 @@ async function deleteSubscriptionFromServer(
     }
 
   } catch (error) {
-    console.error('[Push] Failed to delete subscription from server:', error);
+    logger.error('[Push] Failed to delete subscription from server:', error);
   }
 }
 
@@ -353,7 +355,7 @@ export async function sendTestNotification(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('[Push] Failed to send test notification:', error);
+    logger.error('[Push] Failed to send test notification:', error);
     return false;
   }
 }
@@ -454,7 +456,7 @@ export async function initPushNotifications(): Promise<boolean> {
 
     return true;
   } catch (error) {
-    console.error('[Push] Initialization failed:', error);
+    logger.error('[Push] Initialization failed:', error);
     return false;
   }
 }

@@ -217,8 +217,20 @@ export function OSHAForms() {
   })
 
   const handleSaveForm = async () => {
-    if (!newForm.title || !newForm.incidentDate || !newForm.location) {
-      toast.error("Please fill in required fields")
+    if (!newForm.title?.trim()) {
+      toast.error("Please enter a form title")
+      return
+    }
+    if (!newForm.incidentDate) {
+      toast.error("Please select an incident date")
+      return
+    }
+    if (new Date(newForm.incidentDate) > new Date()) {
+      toast.error("Incident date cannot be in the future")
+      return
+    }
+    if (!newForm.location?.trim()) {
+      toast.error("Please enter the incident location")
       return
     }
     try {

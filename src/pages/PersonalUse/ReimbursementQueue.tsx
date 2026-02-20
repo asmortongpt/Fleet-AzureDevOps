@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
-import { Receipt, Check, X, Eye, Download, Filter, CheckCircle, XCircle, Clock, CreditCard } from 'lucide-react'
+import { Receipt, Check, X, Eye, Download, Filter, CheckCircle, XCircle, Clock, CreditCard, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
@@ -401,7 +401,10 @@ export function ReimbursementQueue() {
         icon={<Receipt className="h-5 w-5" />}
       >
           {loading ? (
-            <div className="text-center py-3">Loading...</div>
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <span className="ml-2 text-sm text-muted-foreground">Loading reimbursements...</span>
+            </div>
           ) : filteredRequests.length === 0 ? (
             <div className="text-center py-3 text-muted-foreground">
               No reimbursement requests found

@@ -42,6 +42,7 @@ export const OutlookEmailButton: React.FC<{
           }
         })
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       if (response.ok) {
         alert('Email sent successfully!');
@@ -91,6 +92,7 @@ export const TeamsChatButton: React.FC<{
           ]
         })
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       const chat = await response.json();
 
@@ -163,6 +165,7 @@ export const CalendarEventButton: React.FC<{
           }))
         })
       });
+      if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       if (response.ok) {
         alert('Calendar event created!');

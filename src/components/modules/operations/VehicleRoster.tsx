@@ -102,7 +102,7 @@ export const VehicleRoster: React.FC<VehicleRosterProps> = ({
                                     className="pl-9"
                                 />
                             </div>
-                            <Button variant="outline" size="icon">
+                            <Button variant="outline" size="icon" aria-label="Filter vehicles">
                                 <Filter className="w-4 h-4" />
                             </Button>
                         </div>

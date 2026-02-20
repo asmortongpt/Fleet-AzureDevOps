@@ -144,6 +144,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                             className="h-8 w-8"
                                             onClick={() => window.location.href = `tel:${driver.phone}`}
                                             title="Call"
+                                            aria-label={`Call ${driver.name}`}
                                         >
                                             <Phone className="w-4 h-4" />
                                         </Button>
@@ -153,6 +154,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                             className="h-8 w-8"
                                             onClick={() => window.location.href = `mailto:${driver.email}`}
                                             title="Email"
+                                            aria-label={`Email ${driver.name}`}
                                         >
                                             <Mail className="w-4 h-4" />
                                         </Button>
@@ -184,6 +186,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                         className="h-8 w-8"
                                         onClick={() => window.location.href = `tel:${member.phone}`}
                                         title="Call"
+                                        aria-label={`Call ${member.name}`}
                                     >
                                         <Phone className="w-4 h-4" />
                                     </Button>
@@ -193,6 +196,7 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                         className="h-8 w-8"
                                         onClick={() => window.location.href = `mailto:${member.email}`}
                                         title="Email"
+                                        aria-label={`Email ${member.name}`}
                                     >
                                         <Mail className="w-4 h-4" />
                                     </Button>

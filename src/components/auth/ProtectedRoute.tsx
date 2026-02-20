@@ -24,7 +24,7 @@ const SKIP_AUTH = import.meta.env.VITE_SKIP_AUTH === 'true' || import.meta.env.V
 
 // Safety check: NEVER allow auth bypass in production
 if (SKIP_AUTH && import.meta.env.PROD) {
-  console.error('[SECURITY] Auth bypass attempted in production environment - BLOCKED');
+  logger.error('[SECURITY] Auth bypass attempted in production environment - BLOCKED');
   throw new Error('Auth bypass is not allowed in production');
 }
 

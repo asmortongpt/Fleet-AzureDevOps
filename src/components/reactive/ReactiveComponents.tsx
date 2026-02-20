@@ -52,6 +52,7 @@ export function ReactiveMetricCard({
       return
     }
 
+    let frameId: number
     const startValue = displayValue
     const endValue = value
     const duration = 1000 // 1 second
@@ -68,11 +69,13 @@ export function ReactiveMetricCard({
       setDisplayValue(current)
 
       if (progress < 1) {
-        requestAnimationFrame(animateValue)
+        frameId = requestAnimationFrame(animateValue)
       }
     }
 
-    requestAnimationFrame(animateValue)
+    frameId = requestAnimationFrame(animateValue)
+
+    return () => cancelAnimationFrame(frameId)
   }, [value, animate])
 
   const colorClasses: Record<string, string> = {

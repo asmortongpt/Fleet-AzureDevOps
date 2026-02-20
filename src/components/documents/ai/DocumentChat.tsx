@@ -112,6 +112,7 @@ export function DocumentChat({ document, messages, onSendMessage, isLoading = fa
             disabled={!input.trim() || isLoading}
             size="icon"
             className="h-[80px]"
+            aria-label="Send message"
           >
             <Send className="h-4 w-4" />
           </Button>
@@ -176,10 +177,10 @@ function MessageBubble({ message, document }: { message: ChatMessage; document: 
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center gap-1">
-            <Button variant="ghost" size="icon" className="h-6 w-6">
+            <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Thumbs up">
               <ThumbsUp className="h-3 w-3" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6">
+            <Button variant="ghost" size="icon" className="h-6 w-6" aria-label="Thumbs down">
               <ThumbsDown className="h-3 w-3" />
             </Button>
           </div>

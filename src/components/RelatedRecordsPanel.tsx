@@ -92,6 +92,9 @@ function RelatedRecordItem({ reference, config, compact, onNavigate }: RelatedRe
   return (
     <div
       onClick={() => onNavigate(reference)}
+      onKeyDown={(e) => e.key === 'Enter' && onNavigate(reference)}
+      role="button"
+      tabIndex={0}
       className={cn(
         "flex items-center gap-3 p-2 rounded-md cursor-pointer",
         "hover:bg-muted/50 transition-all group border border-transparent",
@@ -349,6 +352,9 @@ export function RelatedRecordsInline({
                     <div
                       key={i}
                       onClick={() => navigateToEntity(item)}
+                      onKeyDown={(e) => e.key === 'Enter' && navigateToEntity(item)}
+                      role="button"
+                      tabIndex={0}
                       className="cursor-pointer hover:text-primary"
                     >
                       {item.label}
