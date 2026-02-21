@@ -251,6 +251,43 @@ router.get(
   }
 )
 
+// GET /drivers/performance-trend - Monthly driver performance trend data (MUST be before /:id)
+router.get(
+  '/performance-trend',
+  requirePermission('driver:view:team'),
+  auditLog({ action: 'READ', resourceType: 'driver_scores_history' }),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const tenantId = req.user!.tenant_id!
+
+      const result = await tenantSafeQuery(
+        `SELECT
+          TO_CHAR(DATE_TRUNC('month', date), 'Mon YY') as month_label,
+          DATE_TRUNC('month', date) as month,
+          ROUND(AVG(safety_score)) as avg_score,
+          SUM(harsh_events_count + speeding_events_count) as violations
+        FROM driver_scores_history
+        WHERE tenant_id = $1
+        GROUP BY DATE_TRUNC('month', date)
+        ORDER BY month`,
+        [tenantId],
+        tenantId
+      )
+
+      const data = result.rows.map((row: any) => ({
+        date: row.month_label,
+        avgScore: row.avg_score !== null ? Number(row.avg_score) : 0,
+        violations: row.violations !== null ? Number(row.violations) : 0
+      }))
+
+      res.json({ success: true, data })
+    } catch (error) {
+      logger.error('Get driver performance trend error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
 // GET /drivers/:id
 router.get(
   '/:id',

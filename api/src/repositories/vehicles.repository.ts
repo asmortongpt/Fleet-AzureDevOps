@@ -120,7 +120,9 @@ export class VehiclesRepository extends BaseRepository<Vehicle> {
     next_service_date AS "nextServiceDate",
     next_service_mileage AS "nextServiceMileage",
     metadata,
-    health_score::float8 AS health_score
+    health_score::float8 AS health_score,
+    department,
+    registration_expiry
   `
 
   /**

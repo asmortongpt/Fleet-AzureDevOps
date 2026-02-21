@@ -135,6 +135,13 @@ export type AssignmentStatus = z.infer<typeof AssignmentStatusEnum>
 // API response types
 const DriversResponseSchema = z.array(DriverSchema)
 const AssignmentsResponseSchema = z.array(AssignmentSchema)
+const PerformanceTrendSchema = z.array(
+  z.object({
+    date: z.string(),
+    avgScore: z.coerce.number(),
+    violations: z.coerce.number(),
+  })
+)
 
 // Custom error types
 export class ApiError extends Error {
@@ -311,25 +318,19 @@ export function useReactiveDriversData(): UseReactiveDriversDataReturn {
     retryDelay: RETRY_DELAY,
   })
 
+  // Fetch performance trend from real historical data
+  const trendQuery = useQuery({
+    queryKey: ['drivers-performance-trend'],
+    queryFn: () => secureFetch('/drivers/performance-trend', PerformanceTrendSchema as any) as Promise<PerformanceTrend[]>,
+    refetchInterval: REFETCH_INTERVAL,
+    staleTime: STALE_TIME,
+    retry: RETRY_ATTEMPTS,
+    retryDelay: RETRY_DELAY,
+  })
+
   const drivers = driversQuery.data ?? []
   const assignments = assignmentsQuery.data ?? []
-  // Synthesize 6-month performance trend from current driver scores
-  const performanceTrend = useMemo<PerformanceTrend[]>(() => {
-    if (drivers.length === 0) return []
-    const avgScore = drivers.reduce((sum, d) => sum + (d.safetyScore ?? 0), 0) / drivers.length
-    const now = new Date()
-    return Array.from({ length: 6 }, (_, i) => {
-      const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1)
-      const month = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' })
-      // Simulate gradual improvement trend with slight variance
-      const offset = (i - 2.5) * 1.2
-      return {
-        date: month,
-        avgScore: Math.round((avgScore + offset) * 10) / 10,
-        violations: Math.max(0, Math.round(4 - i * 0.5 + Math.sin(i) * 1.5)),
-      }
-    })
-  }, [drivers])
+  const performanceTrend = trendQuery.data ?? []
 
   // Memoized metrics calculation - only recalculates when drivers/assignments change
   const metrics = useMemo<DriverMetrics>(() => {
