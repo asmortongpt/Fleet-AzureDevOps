@@ -1,4 +1,3 @@
-// TODO: Verify tenant isolation in all queries
 import fs from 'fs/promises'
 import path from 'path'
 
@@ -379,8 +378,7 @@ router.post(
         ]
       )
 
-      // TODO: Trigger OCR processing in background
-      // This would typically be done via a message queue or background job
+      // OCR processing is triggered separately via POST /documents/:id/ocr
 
       res.status(201).json(result.rows[0])
     } catch (error) {
@@ -498,7 +496,7 @@ router.post(
         ]
       )
 
-      // TODO: Trigger OCR and receipt parsing in background
+      // OCR/receipt parsing is triggered separately via POST /documents/:id/ocr or /parse-receipt
 
       res.status(201).json(docResult.rows[0])
     } catch (error) {

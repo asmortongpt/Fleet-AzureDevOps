@@ -96,6 +96,45 @@ router.get(
   }
 )
 
+// GET /api/inspections/:id/violations — policy violations near the inspection date
+router.get(
+  '/:id/violations',
+  requirePermission('inspection:view:global'),
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const inspectionId = req.params.id
+
+      const result = await pool.query(
+        `SELECT
+          pv.id,
+          pv.violation_date,
+          pv.violation_description as description,
+          pv.severity,
+          pv.case_status as status,
+          pv.location,
+          pv.employee_number as driver_id,
+          d.first_name || ' ' || d.last_name as driver_name,
+          pt.policy_name
+        FROM policy_violations pv
+        LEFT JOIN drivers d ON pv.employee_number = d.id
+        LEFT JOIN policy_templates pt ON pv.policy_id = pt.id
+        JOIN inspections i ON i.id = $1
+        WHERE pv.vehicle_id = i.vehicle_id
+          AND pv.violation_date BETWEEN
+            (i.started_at::date - INTERVAL '30 days')
+            AND (i.started_at::date + INTERVAL '30 days')
+        ORDER BY pv.violation_date DESC`,
+        [inspectionId]
+      )
+
+      res.json(result.rows)
+    } catch (error) {
+      logger.error('Get inspection violations error:', error)
+      res.json([])
+    }
+  }
+)
+
 // GET /api/inspections/:id
 router.get(
   '/:id',

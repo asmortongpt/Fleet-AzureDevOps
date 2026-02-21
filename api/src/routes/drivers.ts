@@ -230,7 +230,22 @@ router.get(
         })
       }
 
-      // TODO: Get trip statistics when trips table is implemented
+      // Get trip statistics from the trips table
+      const tripStatsResult = await tenantSafeQuery(
+        `SELECT
+          COUNT(DISTINCT driver_id) as drivers_with_trips,
+          COUNT(*) as total_trips,
+          COALESCE(SUM(distance_miles), 0) as total_miles,
+          COALESCE(AVG(driver_score), 0) as avg_driver_score
+        FROM trips
+        WHERE tenant_id = $1
+          AND start_time >= NOW() - INTERVAL '30 days'`,
+        [req.user!.tenant_id!],
+        req.user!.tenant_id!
+      )
+
+      const tripStats = tripStatsResult.rows[0] || {}
+
       res.json({
         data: {
           total_drivers: parseInt(stats.total_drivers) || 0,
@@ -238,10 +253,10 @@ router.get(
           inactive_drivers: parseInt(stats.inactive_drivers) || 0,
           suspended_drivers: parseInt(stats.suspended_drivers) || 0,
           avg_performance_score: stats.avg_performance_score !== null && stats.avg_performance_score !== undefined ? parseFloat(stats.avg_performance_score) : 0,
-          drivers_with_trips_last_30_days: 0,
-          total_trips_last_30_days: 0,
-          total_miles_last_30_days: 0,
-          avg_driver_score_last_30_days: 0
+          drivers_with_trips_last_30_days: parseInt(tripStats.drivers_with_trips) || 0,
+          total_trips_last_30_days: parseInt(tripStats.total_trips) || 0,
+          total_miles_last_30_days: parseFloat(tripStats.total_miles) || 0,
+          avg_driver_score_last_30_days: parseFloat(tripStats.avg_driver_score) || 0
         }
       })
     } catch (error) {

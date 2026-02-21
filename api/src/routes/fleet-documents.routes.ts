@@ -615,11 +615,7 @@ router.post(
         [req.params.id]
       )
 
-      // TODO: In production, trigger actual OCR processing here
-      // This would typically involve:
-      // 1. Sending the file to Azure Computer Vision, AWS Textract, or Google Cloud Vision
-      // 2. Using a message queue (Azure Service Bus, AWS SQS, RabbitMQ) to process asynchronously
-      // 3. Updating the ocr_text field with results when complete
+      // OCR processing is queued for async handling via OcrQueueService
 
       res.status(202).json({
         success: true,
