@@ -31,17 +31,17 @@ router.get(
                pt.policy_name,
                pt.policy_code,
                d.first_name || ' ' || d.last_name as employee_name,
-               d.employee_id as employee_number
+               d.employee_number
         FROM policy_violations pv
         JOIN policy_templates pt ON pv.policy_id = pt.id
-        JOIN drivers d ON pv.employee_id = d.id
+        JOIN drivers d ON pv.employee_number = d.employee_number
         WHERE d.tenant_id = $1
       `
       const params: unknown[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (employee_id) {
-        query += ` AND pv.employee_id = $${paramIndex}`
+        query += ` AND pv.employee_number = $${paramIndex}`
         params.push(employee_id)
         paramIndex++
       }
@@ -73,7 +73,7 @@ router.get(
       const countQuery = `
         SELECT COUNT(*)
         FROM policy_violations pv
-        JOIN drivers d ON pv.employee_id = d.id
+        JOIN drivers d ON pv.employee_number = d.employee_number
         WHERE d.tenant_id = $1
       `
       const countResult = await pool.query(countQuery, countParams)
@@ -113,7 +113,7 @@ router.get(
           COUNT(CASE WHEN pv.severity = 'Moderate' THEN 1 END) as moderate_count,
           COUNT(CASE WHEN pv.severity = 'Minor' THEN 1 END) as minor_count
         FROM policy_violations pv
-        JOIN drivers d ON pv.employee_id = d.id
+        JOIN drivers d ON pv.employee_number = d.employee_number
         WHERE d.tenant_id = $1`,
         [tenantId]
       )
@@ -148,10 +148,10 @@ router.get(
                 pt.policy_name,
                 pt.policy_code,
                 d.first_name || ' ' || d.last_name as employee_name,
-                d.employee_id as employee_number
+                d.employee_number
          FROM policy_violations pv
          JOIN policy_templates pt ON pv.policy_id = pt.id
-         JOIN drivers d ON pv.employee_id = d.id
+         JOIN drivers d ON pv.employee_number = d.employee_number
          WHERE d.tenant_id = $1
          ORDER BY pv.violation_date DESC`,
         [req.user!.tenant_id]
