@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { commonSchemas, flexUuid } from '../middleware/validation'
+import { flexUuid } from '../middleware/validation'
 
 /**
  * Communications Validation Schemas
@@ -144,37 +144,30 @@ export const createCommunicationSchema = z.object({
     .max(50000, 'Body must be 50000 characters or less')
     .optional(),
 
-  // Timestamp (REQUIRED)
-  communication_datetime: z.coerce.date(),
-
   // Sender information (OPTIONAL - can be system-generated)
-  from_user_id: flexUuid.optional(),
+  sender_id: flexUuid.optional(),
 
-  from_contact_name: z.string()
-    .max(200, 'Contact name too long')
+  sender_name: z.string()
+    .max(200, 'Sender name too long')
     .trim()
     .optional(),
 
-  from_contact_email: commonSchemas.email.optional(),
-
-  from_contact_phone: commonSchemas.phone.optional(),
-
-  // Recipients (OPTIONAL for some communication types)
-  to_recipients: z.array(
-    z.string().email('Invalid email format')
+  // Recipients (OPTIONAL for some communication types - stored as jsonb)
+  recipients: z.array(
+    z.string().max(500)
   ).max(100, 'Too many recipients').optional(),
 
-  cc_recipients: z.array(
-    z.string().email('Invalid email format')
-  ).max(50, 'Too many CC recipients').optional(),
+  // Participants (OPTIONAL - stored as jsonb)
+  participants: z.array(
+    z.string().max(500)
+  ).max(100, 'Too many participants').optional(),
 
-  bcc_recipients: z.array(
-    z.string().email('Invalid email format')
-  ).max(50, 'Too many BCC recipients').optional(),
+  // Classification
+  priority: communicationPriorityEnum.optional(),
 
-  // Classification (OPTIONAL - can be AI-detected)
-  manual_category: communicationCategoryEnum.optional(),
-  manual_priority: communicationPriorityEnum.optional(),
+  // Related entity
+  related_entity_type: entityTypeEnum.optional(),
+  related_entity_id: flexUuid.optional(),
 
   // Status
   status: communicationStatusEnum.default('sent'),
@@ -182,31 +175,19 @@ export const createCommunicationSchema = z.object({
   // Direction
   direction: z.enum(['inbound', 'outbound', 'internal']).default('outbound'),
 
+  // Channel
+  channel: z.string().max(100).optional(),
+
   // Follow-up tracking (OPTIONAL)
-  requires_follow_up: z.boolean().default(false),
+  follow_up_required: z.boolean().default(false),
 
-  follow_up_by_date: z.coerce.date().optional(),
+  follow_up_date: z.coerce.date().optional(),
 
-  follow_up_assigned_to: flexUuid.optional(),
-
-  follow_up_completed: z.boolean().default(false),
+  follow_up_notes: z.string().max(2000).optional(),
 
   // Entity links (OPTIONAL)
   linked_entities: z.array(entityLinkSchema)
     .max(50, 'Too many linked entities')
-    .optional(),
-
-  // External IDs for integration tracking
-  external_message_id: z.string()
-    .max(500, 'External message ID too long')
-    .optional(),
-
-  external_thread_id: z.string()
-    .max(500, 'External thread ID too long')
-    .optional(),
-
-  external_conversation_id: z.string()
-    .max(500, 'External conversation ID too long')
     .optional(),
 
   // Metadata
@@ -214,24 +195,15 @@ export const createCommunicationSchema = z.object({
     z.string().max(100),
     z.union([z.string().max(1000), z.number(), z.boolean()])
   ).optional()
-}).strict().refine(data => {
-  // If requires_follow_up is true, must have follow_up_by_date
-  if (data.requires_follow_up && !data.follow_up_by_date) {
+}).passthrough().refine(data => {
+  // If follow_up_required is true, must have follow_up_date
+  if (data.follow_up_required && !data.follow_up_date) {
     return false
   }
   return true
 }, {
   message: 'Follow-up date is required when follow-up is enabled',
-  path: ['follow_up_by_date']
-}).refine(data => {
-  // Email communications must have recipients
-  if (data.communication_type === 'email' || data.communication_type === 'outlook_email') {
-    return data.to_recipients && data.to_recipients.length > 0
-  }
-  return true
-}, {
-  message: 'Email communications must have at least one recipient',
-  path: ['to_recipients']
+  path: ['follow_up_date']
 })
 
 /**
@@ -249,21 +221,22 @@ export const updateCommunicationSchema = z.object({
     .max(50000)
     .optional(),
 
-  manual_category: communicationCategoryEnum.optional(),
-  manual_priority: communicationPriorityEnum.optional(),
+  priority: communicationPriorityEnum.optional(),
+
+  related_entity_type: entityTypeEnum.optional(),
+  related_entity_id: flexUuid.optional(),
 
   status: communicationStatusEnum.optional(),
 
-  requires_follow_up: z.boolean().optional(),
-  follow_up_by_date: z.coerce.date().optional(),
-  follow_up_assigned_to: flexUuid.optional(),
-  follow_up_completed: z.boolean().optional(),
+  follow_up_required: z.boolean().optional(),
+  follow_up_date: z.coerce.date().optional(),
+  follow_up_notes: z.string().max(2000).optional(),
 
   metadata: z.record(
     z.string().max(100),
     z.union([z.string().max(1000), z.number(), z.boolean()])
   ).optional()
-}).strict()
+}).passthrough()
 
 /**
  * Link entity to communication
@@ -300,7 +273,7 @@ export const getCommunicationsQuerySchema = z.object({
   end_date: z.coerce.date().optional(),
 
   // Follow-up filtering
-  requires_follow_up: z.coerce.boolean().optional(),
+  follow_up_required: z.coerce.boolean().optional(),
   follow_up_overdue: z.coerce.boolean().optional(),
 
   // Entity filtering
@@ -309,12 +282,12 @@ export const getCommunicationsQuerySchema = z.object({
 
   // Sorting
   sort: z.enum([
-    'communication_datetime',
+    'created_at',
     'subject',
     'priority',
     'status',
-    'follow_up_by_date'
-  ]).default('communication_datetime'),
+    'follow_up_date'
+  ]).default('created_at'),
   order: z.enum(['asc', 'desc']).default('desc')
 }).refine(data => {
   // Validate date range
@@ -331,28 +304,30 @@ export const getCommunicationsQuerySchema = z.object({
  * POST /communications/templates
  */
 export const createCommunicationTemplateSchema = z.object({
-  name: z.string()
+  template_name: z.string()
     .min(1, 'Template name is required')
     .max(200, 'Template name too long')
     .trim(),
 
-  type: communicationTypeEnum,
+  template_category: communicationCategoryEnum.optional(),
 
-  subject: z.string()
+  subject_template: z.string()
     .max(500, 'Subject template too long')
     .optional(),
 
-  body: z.string()
+  body_template: z.string()
     .max(50000, 'Body template too long'),
 
-  template_category: communicationCategoryEnum.optional(),
-
-  variables: z.array(
+  required_variables: z.array(
     z.string().max(100)
   ).max(50, 'Too many template variables').optional(),
 
+  optional_variables: z.array(
+    z.string().max(100)
+  ).max(50, 'Too many optional variables').optional(),
+
   is_active: z.boolean().default(true)
-}).strict()
+}).passthrough()
 
 /**
  * Type exports for TypeScript

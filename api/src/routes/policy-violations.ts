@@ -31,17 +31,17 @@ router.get(
                pt.policy_name,
                pt.policy_code,
                d.first_name || ' ' || d.last_name as employee_name,
-               d.employee_number
+               d.employee_number as employee_number_display
         FROM policy_violations pv
         JOIN policy_templates pt ON pv.policy_id = pt.id
-        JOIN drivers d ON pv.employee_number = d.employee_number
-        WHERE d.tenant_id = $1
+        JOIN drivers d ON pv.employee_number = d.id
+        WHERE pv.tenant_id = $1
       `
       const params: unknown[] = [req.user!.tenant_id]
       let paramIndex = 2
 
       if (employee_id) {
-        query += ` AND pv.employee_number = $${paramIndex}`
+        query += ` AND pv.employee_number = $${paramIndex}::uuid`
         params.push(employee_id)
         paramIndex++
       }
@@ -59,7 +59,7 @@ router.get(
       }
 
       if (status) {
-        query += ` AND pv.status = $${paramIndex}`
+        query += ` AND pv.case_status = $${paramIndex}`
         params.push(status)
         paramIndex++
       }
@@ -73,8 +73,7 @@ router.get(
       const countQuery = `
         SELECT COUNT(*)
         FROM policy_violations pv
-        JOIN drivers d ON pv.employee_number = d.employee_number
-        WHERE d.tenant_id = $1
+        WHERE pv.tenant_id = $1
       `
       const countResult = await pool.query(countQuery, countParams)
 
@@ -106,15 +105,14 @@ router.get(
       const statsResult = await pool.query(
         `SELECT
           COUNT(*) as total_violations,
-          COUNT(CASE WHEN pv.status = 'open' OR pv.status = 'pending' THEN 1 END) as open_violations,
-          COUNT(CASE WHEN pv.status = 'resolved' THEN 1 END) as resolved_violations,
-          COUNT(CASE WHEN pv.severity = 'Critical' THEN 1 END) as critical_count,
-          COUNT(CASE WHEN pv.severity = 'Serious' THEN 1 END) as serious_count,
-          COUNT(CASE WHEN pv.severity = 'Moderate' THEN 1 END) as moderate_count,
-          COUNT(CASE WHEN pv.severity = 'Minor' THEN 1 END) as minor_count
+          COUNT(CASE WHEN pv.case_status = 'under_investigation' THEN 1 END) as open_violations,
+          COUNT(CASE WHEN pv.case_status = 'closed' OR pv.case_status = 'action_taken' THEN 1 END) as resolved_violations,
+          COUNT(CASE WHEN pv.severity = 'critical' THEN 1 END) as critical_count,
+          COUNT(CASE WHEN pv.severity = 'serious' THEN 1 END) as serious_count,
+          COUNT(CASE WHEN pv.severity = 'moderate' THEN 1 END) as moderate_count,
+          COUNT(CASE WHEN pv.severity = 'minor' THEN 1 END) as minor_count
         FROM policy_violations pv
-        JOIN drivers d ON pv.employee_number = d.employee_number
-        WHERE d.tenant_id = $1`,
+        WHERE pv.tenant_id = $1`,
         [tenantId]
       )
 
@@ -148,11 +146,11 @@ router.get(
                 pt.policy_name,
                 pt.policy_code,
                 d.first_name || ' ' || d.last_name as employee_name,
-                d.employee_number
+                d.employee_number as employee_number_display
          FROM policy_violations pv
          JOIN policy_templates pt ON pv.policy_id = pt.id
-         JOIN drivers d ON pv.employee_number = d.employee_number
-         WHERE d.tenant_id = $1
+         JOIN drivers d ON pv.employee_number = d.id
+         WHERE pv.tenant_id = $1
          ORDER BY pv.violation_date DESC`,
         [req.user!.tenant_id]
       )
@@ -219,10 +217,10 @@ router.post(
     try {
       const result = await pool.query(
         `UPDATE policy_violations
-         SET status = 'resolved', corrective_action = COALESCE($3, corrective_action), updated_at = NOW()
-         WHERE id = $1
+         SET case_status = 'closed', action_description = COALESCE($3, action_description), updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
-        [req.params.id, req.user!.id, req.body.corrective_action || null]
+        [req.params.id, req.user!.tenant_id, req.body.corrective_action || null]
       )
 
       if (result.rows.length === 0) {
@@ -245,10 +243,10 @@ router.post(
     try {
       const result = await pool.query(
         `UPDATE policy_violations
-         SET status = 'overridden', corrective_action = COALESCE($3, corrective_action), updated_at = NOW()
-         WHERE id = $1
+         SET case_status = 'action_taken', action_description = COALESCE($3, action_description), updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
-        [req.params.id, req.user!.id, req.body.reason || null]
+        [req.params.id, req.user!.tenant_id, req.body.reason || null]
       )
 
       if (result.rows.length === 0) {

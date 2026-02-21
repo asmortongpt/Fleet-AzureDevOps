@@ -179,6 +179,7 @@ import outlookRouter from './routes/outlook.routes'
 import partsRouter from './routes/parts'
 import flairExpensesRouter from './routes/flair-expenses'
 import warrantyRecallsRouter from './routes/warranty-recalls'
+import trackingDevicesRouter from './routes/tracking-devices'
 import trainingRouter from './routes/training.routes'
 import securityEventsRouter from './routes/security-events'
 import certificationsRouter from './routes/certifications'
@@ -186,10 +187,15 @@ import permissionsRouter from './routes/permissions'
 import chargesRouter from './routes/personal-use-charges'
 import personalUsePoliciesRouter from './routes/personal-use-policies'
 import policiesRouter from './routes/policies'
+import policyAcknowledgmentsRouter from './routes/policy-acknowledgments'
+import policyComplianceAuditsRouter from './routes/policy-compliance-audits'
+import policyExecutionsRouter from './routes/policy-executions'
 
 // Missing importers
 import alertsRouter from './routes/alerts.routes'
 import complianceRouter from './routes/compliance'
+import complianceRequirementsRouter from './routes/compliance-requirements'
+import complianceRecordsRouter from './routes/compliance-records'
 import inventoryRouter from './routes/inventory.routes'
 
 // PHASE 3: Priority A Routes (High-Value Unregistered Features)
@@ -215,7 +221,9 @@ import qualityGatesRouter from './routes/quality-gates'
 import routeOptimizationRouter from './routes/route-optimization.routes'
 // import routeEmulatorRouter from './routes/route-emulator.routes'
 import routesRouter from './routes/routes'
+import proceduresRouter from './routes/procedures'
 import safetyIncidentsRouter from './routes/safety-incidents'
+import safetyPoliciesRouter from './routes/safety-policies'
 import tripsRouter from './routes/trips'
 import safetyAlertsRouter from './routes/safety-alerts'
 import scanSessionsRouter from './routes/scan-sessions.routes'
@@ -572,7 +580,11 @@ app.use('/api/hazard-zones', hazardZonesRouter)
 app.use('/api/safety-alerts', safetyAlertsRouter)
 app.use('/api/osha-compliance', oshaComplianceRouter)
 app.use('/api/compliance', complianceRouter)
+app.use('/api/compliance-requirements', complianceRequirementsRouter)
+app.use('/api/compliance-records', complianceRecordsRouter)
 app.use('/api/annual-reauthorization', annualReauthorizationRouter)
+app.use('/api/safety-policies', safetyPoliciesRouter)
+app.use('/api/procedures', proceduresRouter)
 app.use('/api/training', trainingRouter)
 app.use('/api/certifications', certificationsRouter)
 app.use('/api/hos', hosRouter) // PHASE 3: Hours of Service (DOT compliance) - Priority A
@@ -581,6 +593,9 @@ app.use('/api/hos', hosRouter) // PHASE 3: Hours of Service (DOT compliance) - P
 app.use('/api/policies', policiesRouter)
 app.use('/api/policy-templates', policyTemplatesRouter)
 app.use('/api/policy-violations', policyViolationsRouter)
+app.use('/api/policy-acknowledgments', policyAcknowledgmentsRouter)
+app.use('/api/policy-compliance-audits', policyComplianceAuditsRouter)
+app.use('/api/policy-executions', policyExecutionsRouter)
 app.use('/api/permissions', permissionsRouter)
 app.use('/api/licenses', licensesRouter)
 
@@ -622,6 +637,8 @@ app.use('/api/health/microsoft', healthRouter) // Microsoft integration health
 app.use('/api/health-detailed', healthDetailedRouter)
 app.use('/api/telemetry', telemetryRouter)
 app.use('/api/security', securityEventsRouter)
+app.use('/api/security-events', securityEventsRouter) // Alias: some frontend code uses /api/security-events
+app.use('/api/tracking-devices', trackingDevicesRouter)
 app.use('/api/queue', queueRouter)
 app.use('/api/deployments', deploymentsRouter)
 app.use('/api/facilities', facilitiesRouter)

@@ -51,7 +51,7 @@ router.get(
         SELECT c.*,
                from_user.first_name || ' ' || from_user.last_name as from_user_name
         FROM communication_logs c
-        LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
+        LEFT JOIN drivers from_user ON c.sender_id = from_user.id
         WHERE c.tenant_id = $1
       `
       const params: any[] = [req.user!.tenant_id]
@@ -70,7 +70,7 @@ router.get(
       }
 
       if (priority) {
-        query += ` AND c.status = $${paramIndex}`
+        query += ` AND c.priority = $${paramIndex}`
         params.push(priority)
         paramIndex++
       }
@@ -84,14 +84,14 @@ router.get(
       if (search) {
         query += ` AND (
           c.subject ILIKE $${paramIndex} OR
-          c.message_body ILIKE $${paramIndex} OR
-          c.from_address ILIKE $${paramIndex}
+          c.body ILIKE $${paramIndex} OR
+          c.sender_name ILIKE $${paramIndex}
         )`
         params.push(`%${search}%`)
         paramIndex++
       }
 
-      query += ` ORDER BY c.sent_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
+      query += ` ORDER BY c.created_at DESC LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`
       params.push(limit, offset)
 
       const result = await pool.query(query, params)
@@ -133,7 +133,7 @@ router.get(
         `SELECT c.*,
                 from_user.first_name || ' ' || from_user.last_name as from_user_name
          FROM communication_logs c
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
+         LEFT JOIN drivers from_user ON c.sender_id = from_user.id
          WHERE c.id = $1 AND c.tenant_id = $2`,
         [req.params.id, req.user!.tenant_id]
       )
@@ -157,10 +157,10 @@ router.get(
         `SELECT
       ca.id,
       ca.communication_id,
-      ca.file_name,
-      ca.file_path,
-      ca.file_type,
-      ca.file_size,
+      ca.original_filename as file_name,
+      ca.storage_path as file_path,
+      ca.mime_type as file_type,
+      ca.file_size_bytes as file_size,
       ca.created_at
          FROM communication_attachments ca
          JOIN communication_logs c ON ca.communication_id = c.id
@@ -191,16 +191,16 @@ router.post(
     try {
       const { linked_entities, ...data } = req.body
 
-      // SECURITY FIX: Add tenant_id and created_by to the insert
+      // SECURITY FIX: Add tenant_id to the insert
       const { columnNames, placeholders, values } = buildInsertClause(
         data,
-        [`tenant_id`, `created_by`],
+        [`tenant_id`],
         1
       )
 
       const result = await pool.query(
         `INSERT INTO communication_logs (${columnNames}) VALUES (${placeholders}) RETURNING *`,
-        [req.user!.tenant_id, req.user!.id, ...values]
+        [req.user!.tenant_id, ...values]
       )
 
       const communicationId = result.rows[0].id
@@ -249,15 +249,15 @@ router.put(
   async (req: AuthRequest, res: Response) => {
     try {
       const data = req.body
-      const { fields, values } = buildUpdateClause(data, 4)
+      const { fields, values } = buildUpdateClause(data, 3)
 
       // SECURITY FIX: Add tenant_id to WHERE clause to prevent cross-tenant updates
       const result = await pool.query(
         `UPDATE communication_logs
-         SET ${fields}, updated_at = NOW(), updated_by = $2
-         WHERE id = $1 AND tenant_id = $3
+         SET ${fields}, updated_at = NOW()
+         WHERE id = $1 AND tenant_id = $2
          RETURNING *`,
-        [req.params.id, req.user!.id, req.user!.tenant_id, ...values]
+        [req.params.id, req.user!.tenant_id, ...values]
       )
 
       if (result.rows.length === 0) {
@@ -323,7 +323,7 @@ router.delete(
       // SECURITY FIX: Verify communication belongs to tenant before deleting link
       const result = await pool.query(
         `DELETE FROM communication_entity_links cel
-         USING communications c
+         USING communication_logs c
          WHERE cel.id = $1
            AND cel.communication_id = $2
            AND cel.communication_id = c.id
@@ -367,9 +367,9 @@ router.get(
                 from_user.first_name || ' ' || from_user.last_name as from_user_name
          FROM communication_logs c
          JOIN communication_entity_links cel ON c.id = cel.communication_id
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
+         LEFT JOIN drivers from_user ON c.sender_id = from_user.id
          WHERE cel.entity_type = $1 AND cel.entity_id = $2 AND c.tenant_id = $3
-         ORDER BY c.communication_datetime DESC
+         ORDER BY c.created_at DESC
          LIMIT $4 OFFSET $5`,
         [entity_type, entity_id, req.user!.tenant_id, limit, offset]
       )
@@ -416,20 +416,19 @@ router.get(
         `SELECT c.*,
                 from_user.first_name || ' ' || from_user.last_name as from_user_name,
                 CASE
-                  WHEN c.follow_up_by_date < CURRENT_DATE THEN 'Overdue'
-                  WHEN c.follow_up_by_date = CURRENT_DATE THEN 'Due Today'
+                  WHEN c.follow_up_date < CURRENT_DATE THEN 'Overdue'
+                  WHEN c.follow_up_date = CURRENT_DATE THEN 'Due Today'
                   ELSE 'Upcoming'
                 END AS follow_up_status,
                 COUNT(DISTINCT cel.id) as linked_entities_count
          FROM communication_logs c
-         LEFT JOIN drivers from_user ON c.from_user_id = from_user.id
+         LEFT JOIN drivers from_user ON c.sender_id = from_user.id
          LEFT JOIN communication_entity_links cel ON c.id = cel.communication_id
          WHERE c.tenant_id = $1
-           AND c.requires_follow_up = TRUE
-           AND c.follow_up_completed = FALSE
-           AND c.status != 'Closed'
+           AND c.follow_up_required = TRUE
+           AND c.status != 'closed'
          GROUP BY c.id, from_user.first_name, from_user.last_name
-         ORDER BY c.follow_up_by_date ASC NULLS LAST`,
+         ORDER BY c.follow_up_date ASC NULLS LAST`,
         [req.user!.tenant_id]
       )
 
@@ -458,11 +457,11 @@ router.get(
       let query = `SELECT
       id,
       tenant_id,
-      name,
-      type,
-      subject,
-      body,
-      variables,
+      template_name as name,
+      template_category as type,
+      subject_template as subject,
+      body_template as body,
+      required_variables as variables,
       is_active,
       created_at,
       updated_at FROM communication_templates WHERE tenant_id = $1 AND is_active = TRUE`
@@ -529,10 +528,10 @@ router.get(
       // SECURITY FIX: Total communications this month - use c.tenant_id directly
       const totalResult = await pool.query(
         `SELECT COUNT(*) as total,
-                COUNT(CASE WHEN requires_follow_up = TRUE AND follow_up_completed = FALSE THEN 1 END) as pending_followups
+                COUNT(CASE WHEN follow_up_required = TRUE AND status != 'closed' THEN 1 END) as pending_followups
          FROM communication_logs c
          WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)`,
+         AND c.created_at >= DATE_TRUNC('month', CURRENT_DATE)`,
         [req.user!.tenant_id]
       )
 
@@ -541,7 +540,7 @@ router.get(
         `SELECT communication_type, COUNT(*) as count
          FROM communication_logs c
          WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
+         AND c.created_at >= DATE_TRUNC('month', CURRENT_DATE)
          GROUP BY communication_type
          ORDER BY count DESC`,
         [req.user!.tenant_id]
@@ -549,12 +548,12 @@ router.get(
 
       // SECURITY FIX: By priority - use c.tenant_id directly
       const byPriorityResult = await pool.query(
-        `SELECT COALESCE(ai_detected_priority, manual_priority, 'Unassigned') as priority,
+        `SELECT COALESCE(c.priority, 'Unassigned') as priority,
                 COUNT(*) as count
          FROM communication_logs c
          WHERE c.tenant_id = $1
-         AND c.communication_datetime >= DATE_TRUNC('month', CURRENT_DATE)
-         GROUP BY priority
+         AND c.created_at >= DATE_TRUNC('month', CURRENT_DATE)
+         GROUP BY COALESCE(c.priority, 'Unassigned')
          ORDER BY count DESC`,
         [req.user!.tenant_id]
       )
@@ -564,9 +563,9 @@ router.get(
         `SELECT COUNT(*) as overdue_followups
          FROM communication_logs c
          WHERE c.tenant_id = $1
-         AND c.requires_follow_up = TRUE
-         AND c.follow_up_completed = FALSE
-         AND c.follow_up_by_date < CURRENT_DATE`,
+         AND c.follow_up_required = TRUE
+         AND c.status != 'closed'
+         AND c.follow_up_date < CURRENT_DATE`,
         [req.user!.tenant_id]
       )
 

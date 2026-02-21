@@ -470,7 +470,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT id, tenant_id, vehicle_id, charger_id, start_time, end_time, energy_charged, cost FROM active_charging_sessions ORDER BY start_time DESC`
+        `SELECT id, transaction_id, vehicle_name, vin, driver_name, station_name, station_id, start_time, energy_delivered_kwh, start_soc_percent, target_soc_percent, duration_minutes, avg_power_kw FROM active_charging_sessions ORDER BY start_time DESC`
       )
 
       res.json({
@@ -694,7 +694,7 @@ router.get(
   async (req: Request, res: Response) => {
     try {
       const result = await pool.query(
-        `SELECT station_id, station_name, utilization_percent, total_sessions, peak_hour FROM station_utilization_today ORDER BY utilization_percent DESC`
+        `SELECT id, name, station_id, status, sessions_today, total_energy_kwh, total_minutes_used, utilization_percent FROM station_utilization_today ORDER BY utilization_percent DESC`
       )
 
       res.json({
