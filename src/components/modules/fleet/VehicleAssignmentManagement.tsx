@@ -504,21 +504,372 @@ const VehicleAssignmentManagement: React.FC = () => {
       )}
 
       {activeTab === 'on-call' && (
-        <div style={{padding:40, textAlign:'center', color:'var(--muted, #94a3b8)'}}>
-          On-Call Management - Coming Soon
-        </div>
+        <>
+          {/* On-Call Summary */}
+          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:16, marginBottom:24}}>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Active On-Call</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#10b981'}}>{onCallPeriods.filter(p => p.is_active).length}</div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(96,165,250,0.15), rgba(59,130,246,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>On-Call Assignments</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#60a5fa'}}>{assignments.filter(a => a.assignment_type === 'on_call').length}</div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Pending Acknowledgement</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{onCallPeriods.filter(p => p.is_active && !p.acknowledged_by_driver).length}</div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Total Callbacks</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#a855f7'}}>{onCallPeriods.reduce((sum, p) => sum + (p.callback_count || 0), 0)}</div>
+            </div>
+          </div>
+
+          {/* On-Call Periods Table */}
+          <div style={{borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', overflow:'hidden'}}>
+            <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
+              <thead>
+                <tr style={{background:'rgba(255,255,255,0.02)'}}>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Driver</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Start</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>End</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Acknowledged</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'right', textTransform:'uppercase', letterSpacing:'.12em'}}>Callbacks</th>
+                </tr>
+              </thead>
+              <tbody>
+                {onCallPeriods.length === 0 && !loading ? (
+                  <tr>
+                    <td colSpan={6} style={{padding:40, textAlign:'center', color:'var(--muted, #94a3b8)'}}>
+                      {assignments.filter(a => a.assignment_type === 'on_call').length > 0
+                        ? 'No active on-call periods. On-call assigned drivers are currently off rotation.'
+                        : 'No on-call assignments configured. Create on-call assignments from the Assignments tab.'
+                      }
+                    </td>
+                  </tr>
+                ) : (
+                  onCallPeriods.map(period => (
+                    <tr key={period.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                      <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>
+                        {period.driver_first_name} {period.driver_last_name}
+                      </td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatDate(period.start_datetime)}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatDate(period.end_datetime)}</td>
+                      <td style={{padding:16}}>
+                        <StatusChip status={period.is_active ? 'active' : 'terminated'} label={period.is_active ? 'Active' : 'Ended'} />
+                      </td>
+                      <td style={{padding:16}}>
+                        <span style={{
+                          display:'inline-flex', alignItems:'center', gap:6,
+                          padding:'4px 10px', borderRadius:999, fontSize:12, fontWeight:600,
+                          color: period.acknowledged_by_driver ? '#10b981' : '#f59e0b',
+                          border: `1px solid ${period.acknowledged_by_driver ? 'rgba(16,185,129,0.3)' : 'rgba(245,158,11,0.3)'}`,
+                          background: period.acknowledged_by_driver ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+                        }}>
+                          {period.acknowledged_by_driver ? 'Confirmed' : 'Pending'}
+                        </span>
+                      </td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right', fontWeight:600}}>
+                        {period.callback_count || 0}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* On-call drivers from assignments (fallback if no on-call periods API) */}
+          {onCallPeriods.length === 0 && assignments.filter(a => a.assignment_type === 'on_call').length > 0 && (
+            <div style={{marginTop:24}}>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)', marginBottom:16}}>On-Call Assigned Drivers</div>
+              <div style={{borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', overflow:'hidden'}}>
+                <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
+                  <thead>
+                    <tr style={{background:'rgba(255,255,255,0.02)'}}>
+                      <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Driver</th>
+                      <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Vehicle</th>
+                      <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Department</th>
+                      <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Status</th>
+                      <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Assignment Start</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assignments.filter(a => a.assignment_type === 'on_call').map(a => (
+                      <tr key={a.id} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                        <td style={{padding:16}}>
+                          <div style={{fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>{a.driver_first_name} {a.driver_last_name}</div>
+                          <div style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>#{a.employee_number}</div>
+                        </td>
+                        <td style={{padding:16}}>
+                          <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{a.unit_number}</div>
+                          <div style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>{a.year} {a.make} {a.model}</div>
+                        </td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{a.department_name}</td>
+                        <td style={{padding:16}}>
+                          <StatusChip status={a.lifecycle_state as AssignmentStatus} />
+                        </td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatDate(a.start_date)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {activeTab === 'compliance' && (
-        <div style={{padding:40, textAlign:'center', color:'var(--muted, #94a3b8)'}}>
-          Policy Compliance Monitoring - Coming Soon
-        </div>
+        <>
+          {/* Compliance Summary */}
+          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16, marginBottom:24}}>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Compliant Assignments</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#10b981'}}>{Math.max(0, assignments.length - complianceExceptions.length)}</div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Policy Exceptions</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#ef4444'}}>{complianceExceptions.length}</div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(96,165,250,0.15), rgba(59,130,246,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Compliance Rate</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#60a5fa'}}>
+                {assignments.length > 0 ? Math.round(((assignments.length - complianceExceptions.length) / assignments.length) * 100) : 100}%
+              </div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Commuting Authorized</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{assignments.filter(a => a.commuting_authorized).length}</div>
+            </div>
+          </div>
+
+          {/* Compliance Exceptions Table */}
+          <div style={{borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', overflow:'hidden'}}>
+            <div style={{padding:16, borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)'}}>Policy Compliance Exceptions</div>
+              <div style={{fontSize:13, color:'var(--muted, #94a3b8)', marginTop:4}}>Assignments that do not meet current policy requirements</div>
+            </div>
+            <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
+              <thead>
+                <tr style={{background:'rgba(255,255,255,0.02)'}}>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Driver</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Vehicle</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Department</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Exception Type</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {complianceExceptions.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{padding:40, textAlign:'center', color:'var(--muted, #94a3b8)'}}>
+                      {assignments.length > 0
+                        ? 'All assignments comply with current policies. No exceptions found.'
+                        : 'No assignment data available to evaluate compliance.'
+                      }
+                    </td>
+                  </tr>
+                ) : (
+                  complianceExceptions.map((exc, idx) => (
+                    <tr key={idx} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                      <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>{exc.driver_name}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{exc.unit_number}</td>
+                      <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{exc.department_name}</td>
+                      <td style={{padding:16}}>
+                        <span style={{
+                          display:'inline-flex', alignItems:'center', padding:'4px 10px', borderRadius:999, fontSize:12, fontWeight:600,
+                          color:'#ef4444', border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.15)',
+                        }}>
+                          {exc.exception_type?.replace(/_/g, ' ').toUpperCase() || 'POLICY VIOLATION'}
+                        </span>
+                      </td>
+                      <td style={{padding:16, fontSize:13, color:'var(--muted, #94a3b8)', maxWidth:300}}>{exc.exception_description}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Assignment Policy Status */}
+          {assignments.length > 0 && (
+            <div style={{marginTop:24}}>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)', marginBottom:16}}>Assignment Policy Checks</div>
+              <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(300px, 1fr))', gap:12}}>
+                {assignments.slice(0, 10).map(a => {
+                  const hasException = complianceExceptions.some(e => e.assignment_id === a.id || e.unit_number === a.unit_number);
+                  const isApproved = a.lifecycle_state === 'active' || a.lifecycle_state === 'approved';
+                  return (
+                    <div key={a.id} style={{
+                      padding:16, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)',
+                      background:'rgba(255,255,255,0.02)',
+                      borderLeft: `4px solid ${hasException ? '#ef4444' : isApproved ? '#10b981' : '#f59e0b'}`,
+                    }}>
+                      <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8}}>
+                        <div style={{fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>
+                          {a.driver_first_name} {a.driver_last_name}
+                        </div>
+                        <span style={{
+                          padding:'3px 8px', borderRadius:999, fontSize:11, fontWeight:600,
+                          color: hasException ? '#ef4444' : '#10b981',
+                          background: hasException ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)',
+                        }}>
+                          {hasException ? 'NON-COMPLIANT' : 'COMPLIANT'}
+                        </span>
+                      </div>
+                      <div style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>
+                        {a.unit_number} | {a.department_name} | {a.assignment_type.replace('_', ' ')}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {activeTab === 'reports' && (
-        <div style={{padding:40, textAlign:'center', color:'var(--muted, #94a3b8)'}}>
-          Reports & Analytics - Coming Soon
-        </div>
+        <>
+          {/* Reports Summary Cards */}
+          <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(220px, 1fr))', gap:16, marginBottom:32}}>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(96,165,250,0.15), rgba(59,130,246,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Total Assignments</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#60a5fa'}}>{stats.total}</div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Active Rate</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#10b981'}}>
+                {stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0}%
+              </div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Approval Pending</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{stats.pending}</div>
+            </div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08))'}}>
+              <div style={{fontSize:12, color:'var(--muted, #94a3b8)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Commuting Auth'd</div>
+              <div style={{fontSize:32, fontWeight:900, color:'#a855f7'}}>{assignments.filter(a => a.commuting_authorized).length}</div>
+            </div>
+          </div>
+
+          {/* Assignment Type Distribution */}
+          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:24, marginBottom:32}}>
+            <div style={{padding:24, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)'}}>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)', marginBottom:20}}>Assignment Type Distribution</div>
+              {[
+                { label: 'Designated', count: stats.designated, color: '#3b82f6' },
+                { label: 'On-Call', count: stats.onCall, color: '#10b981' },
+                { label: 'Temporary', count: stats.temporary, color: '#f59e0b' },
+              ].map(item => (
+                <div key={item.label} style={{marginBottom:16}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{item.label}</span>
+                    <span style={{fontSize:14, fontWeight:700, color:item.color}}>{item.count}</span>
+                  </div>
+                  <div style={{width:'100%', height:8, borderRadius:4, background:'rgba(255,255,255,0.06)', overflow:'hidden'}}>
+                    <div style={{
+                      width: stats.total > 0 ? `${(item.count / stats.total) * 100}%` : '0%',
+                      height:'100%', borderRadius:4, background:item.color, transition:'width 0.3s ease'
+                    }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div style={{padding:24, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)'}}>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)', marginBottom:20}}>Lifecycle State Breakdown</div>
+              {[
+                { label: 'Active', count: stats.active, color: '#10b981' },
+                { label: 'Pending Approval', count: stats.pending, color: '#f59e0b' },
+                { label: 'Denied', count: assignments.filter(a => a.lifecycle_state === 'denied').length, color: '#ef4444' },
+                { label: 'Terminated', count: assignments.filter(a => a.lifecycle_state === 'terminated').length, color: '#94a3b8' },
+                { label: 'Draft', count: assignments.filter(a => a.lifecycle_state === 'draft').length, color: '#64748b' },
+              ].filter(item => item.count > 0).map(item => (
+                <div key={item.label} style={{marginBottom:16}}>
+                  <div style={{display:'flex', justifyContent:'space-between', marginBottom:6}}>
+                    <span style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{item.label}</span>
+                    <span style={{fontSize:14, fontWeight:700, color:item.color}}>{item.count}</span>
+                  </div>
+                  <div style={{width:'100%', height:8, borderRadius:4, background:'rgba(255,255,255,0.06)', overflow:'hidden'}}>
+                    <div style={{
+                      width: stats.total > 0 ? `${(item.count / stats.total) * 100}%` : '0%',
+                      height:'100%', borderRadius:4, background:item.color, transition:'width 0.3s ease'
+                    }} />
+                  </div>
+                </div>
+              ))}
+              {stats.total === 0 && (
+                <div style={{fontSize:14, color:'var(--muted, #94a3b8)', textAlign:'center', padding:20}}>No assignment data available</div>
+              )}
+            </div>
+          </div>
+
+          {/* Department Utilization Table */}
+          <div style={{borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.02)', overflow:'hidden'}}>
+            <div style={{padding:16, borderBottom:'1px solid rgba(255,255,255,0.08)'}}>
+              <div style={{fontSize:16, fontWeight:700, color:'var(--text, #e2e8f0)'}}>Department Utilization</div>
+              <div style={{fontSize:13, color:'var(--muted, #94a3b8)', marginTop:4}}>Vehicle assignment distribution by department</div>
+            </div>
+            <table style={{width:'100%', borderCollapse:'separate', borderSpacing:0}}>
+              <thead>
+                <tr style={{background:'rgba(255,255,255,0.02)'}}>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'left', textTransform:'uppercase', letterSpacing:'.12em'}}>Department</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'right', textTransform:'uppercase', letterSpacing:'.12em'}}>Total</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'right', textTransform:'uppercase', letterSpacing:'.12em'}}>Active</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'right', textTransform:'uppercase', letterSpacing:'.12em'}}>Designated</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'right', textTransform:'uppercase', letterSpacing:'.12em'}}>On-Call</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'right', textTransform:'uppercase', letterSpacing:'.12em'}}>Temporary</th>
+                  <th style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', textAlign:'right', textTransform:'uppercase', letterSpacing:'.12em'}}>Utilization</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(() => {
+                  const depts = new Map<string, { total: number; active: number; designated: number; onCall: number; temporary: number }>();
+                  assignments.forEach(a => {
+                    const name = a.department_name || 'Unassigned';
+                    const existing = depts.get(name) || { total: 0, active: 0, designated: 0, onCall: 0, temporary: 0 };
+                    existing.total++;
+                    if (a.lifecycle_state === 'active') existing.active++;
+                    if (a.assignment_type === 'designated') existing.designated++;
+                    if (a.assignment_type === 'on_call') existing.onCall++;
+                    if (a.assignment_type === 'temporary') existing.temporary++;
+                    depts.set(name, existing);
+                  });
+                  const entries = Array.from(depts.entries()).sort((a, b) => b[1].total - a[1].total);
+                  if (entries.length === 0) {
+                    return (
+                      <tr><td colSpan={7} style={{padding:40, textAlign:'center', color:'var(--muted, #94a3b8)'}}>No assignment data available</td></tr>
+                    );
+                  }
+                  return entries.map(([name, d]) => {
+                    const utilization = d.total > 0 ? Math.round((d.active / d.total) * 100) : 0;
+                    return (
+                      <tr key={name} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                        <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>{name}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right'}}>{d.total}</td>
+                        <td style={{padding:16, fontSize:14, color:'#10b981', textAlign:'right', fontWeight:600}}>{d.active}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right'}}>{d.designated}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right'}}>{d.onCall}</td>
+                        <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)', textAlign:'right'}}>{d.temporary}</td>
+                        <td style={{padding:16, textAlign:'right'}}>
+                          <div style={{display:'flex', alignItems:'center', justifyContent:'flex-end', gap:8}}>
+                            <div style={{width:60, height:6, borderRadius:3, background:'rgba(255,255,255,0.08)', overflow:'hidden'}}>
+                              <div style={{width:`${utilization}%`, height:'100%', borderRadius:3, background: utilization >= 80 ? '#10b981' : utilization >= 50 ? '#f59e0b' : '#ef4444'}} />
+                            </div>
+                            <span style={{fontSize:13, color:'var(--text, #e2e8f0)', minWidth:36, textAlign:'right'}}>{utilization}%</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  });
+                })()}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {/* New Assignment Modal */}
