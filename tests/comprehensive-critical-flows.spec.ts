@@ -165,6 +165,7 @@ test.describe('Modal & Dialog Operations', () => {
   });
 
   test('Pressing Escape on pages without dialogs does not crash', async ({ page }) => {
+    test.setTimeout(120000); // 4 sequential page loads need more than 30s default
     const { uncaught } = setupErrorTracking(page);
     const pages = ['/fleet', '/compliance-safety', '/business', '/analytics'];
     for (const p of pages) {
@@ -215,6 +216,7 @@ test.describe('Responsive Layout', () => {
 
 test.describe('Navigation Sweep', () => {
   test('Navigate all 5 hubs sequentially without crash', async ({ page }) => {
+    test.setTimeout(150000); // 5 sequential page loads need more than 30s default
     const { uncaught } = setupErrorTracking(page);
     const hubs = ['/fleet', '/compliance-safety', '/communication-hub-consolidated', '/business', '/cta-configuration-hub'];
     for (const hub of hubs) {

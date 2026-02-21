@@ -929,7 +929,7 @@ test.describe('Edge Cases', () => {
   });
 
   test('Deep link to hub alternate paths work', async ({ page }) => {
-    test.setTimeout(90000); // 7 page navigations need more time
+    test.setTimeout(210000); // 7 sequential page navigations need more time
     const { uncaught } = setupErrorTracking(page);
     const alternates = ['/operations', '/maintenance', '/drivers', '/safety', '/compliance', '/financial', '/admin'];
     for (const path of alternates) {
