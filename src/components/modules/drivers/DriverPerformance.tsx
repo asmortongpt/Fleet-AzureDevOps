@@ -315,7 +315,7 @@ export function DriverPerformance(_props: DriverPerformanceProps) {
                     <div className="flex items-start justify-between">
                       <div className="flex gap-2 flex-1">
                         <div className="w-12 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
-                          {driver.name.split(' ').map((n: string) => n[0]).join('')}
+                          {(driver.name || 'U').split(' ').map((n: string) => n[0]).join('').slice(0, 2)}
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
