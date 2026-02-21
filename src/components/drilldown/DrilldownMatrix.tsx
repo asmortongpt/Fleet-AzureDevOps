@@ -673,7 +673,7 @@ export function WorkOrderMatrix({ workOrders, loading, className }: WorkOrderMat
         <span
           className={cn(
             'px-2 py-0.5 text-xs rounded',
-            row.status === 'open' && 'bg-blue-100 text-blue-700',
+            row.status === 'pending' && 'bg-blue-100 text-blue-700',
             row.status === 'in-progress' && 'bg-yellow-100 text-yellow-700',
             row.status === 'completed' && 'bg-green-100 text-green-700'
           )}

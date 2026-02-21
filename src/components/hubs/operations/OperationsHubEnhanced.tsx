@@ -207,7 +207,7 @@ export function OperationsHubEnhanced() {
       taskNumber: wo.work_order_number,
       description: wo.description || 'No description',
       priority: (wo.priority || 'medium') as 'low' | 'medium' | 'high' | 'urgent',
-      status: (wo.status === 'open' ? 'pending' :
+      status: (wo.status === 'pending' ? 'pending' :
               wo.status === 'in_progress' ? 'in-progress' :
               wo.status === 'completed' ? 'completed' : 'assigned') as 'pending' | 'assigned' | 'in-progress' | 'completed',
       assignedVehicleId: wo.vehicle_id,

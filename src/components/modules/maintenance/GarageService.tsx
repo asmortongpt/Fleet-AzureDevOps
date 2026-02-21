@@ -375,7 +375,7 @@ export function GarageService() {
                           </Button>
 
                           {/* Workflow Transitions */}
-                          {order.status === 'open' && hasPermission('work_order:update') && (
+                          {order.status === 'pending' && hasPermission('work_order:update') && (
                             <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); /* handleTransition(order.id, 'in-progress') */ }}>
                               Start
                             </Button>

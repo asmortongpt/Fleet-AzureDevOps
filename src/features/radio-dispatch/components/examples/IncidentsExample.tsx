@@ -27,14 +27,14 @@ interface Incident {
   id: string;
   title: string;
   description: string;
-  status: 'open' | 'in_progress' | 'closed';
+  status: 'pending' | 'in_progress' | 'closed';
   priority: 'critical' | 'high' | 'medium' | 'low';
   created_at: string;
 }
 
 
 export function IncidentsExample() {
-  const [filter, setFilter] = useState<'all' | 'open' | 'closed'>('all');
+  const [filter, setFilter] = useState<'all' | 'pending' | 'closed'>('all');
 
   // Use the custom hook to fetch data with loading/error/data states
   const { data, loading, error, refetch } = useApiData<Incident[]>(
@@ -117,10 +117,10 @@ export function IncidentsExample() {
               All
             </FilterButton>
             <FilterButton
-              active={filter === 'open'}
-              onClick={() => setFilter('open')}
+              active={filter === 'pending'}
+              onClick={() => setFilter('pending')}
             >
-              Open
+              Pending
             </FilterButton>
             <FilterButton
               active={filter === 'closed'}
@@ -184,7 +184,7 @@ function IncidentCard({ incident }: { incident: Incident }) {
         </h3>
         <span
           className={`rounded px-2 py-1 text-xs font-medium ${
-            incident.status === 'open'
+            incident.status === 'pending'
               ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-700'
               : incident.status === 'in_progress'
               ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400'

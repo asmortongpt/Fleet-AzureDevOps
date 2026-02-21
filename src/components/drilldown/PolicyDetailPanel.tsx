@@ -78,6 +78,7 @@ interface Violation {
   severity: 'low' | 'medium' | 'high' | 'critical'
   description: string
   status: 'open' | 'acknowledged' | 'resolved' | 'dismissed'
+  case_status?: string
   assigned_to?: string
   resolution_date?: string
   resolution_notes?: string
@@ -227,8 +228,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
     }
   }
 
-  const openViolations = violationsArr.filter(v => v.status === 'open').length
-  const resolvedViolations = violationsArr.filter(v => v.status === 'resolved').length
+  const openViolations = violationsArr.filter(v => v.case_status === 'under_investigation').length
+  const resolvedViolations = violationsArr.filter(v => v.case_status === 'closed').length
 
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
@@ -507,8 +508,8 @@ export function PolicyDetailPanel({ policyId }: PolicyDetailPanelProps) {
                                 <Badge variant={getSeverityColor(violation.severity)}>
                                   {violation.severity}
                                 </Badge>
-                                <Badge variant={violation.status === 'resolved' ? 'default' : violation.status === 'open' ? 'destructive' : 'secondary'}>
-                                  {violation.status}
+                                <Badge variant={violation.case_status === 'closed' ? 'default' : violation.case_status === 'under_investigation' ? 'destructive' : 'secondary'}>
+                                  {violation.case_status}
                                 </Badge>
                               </div>
                               <p className="font-medium capitalize">

@@ -52,7 +52,7 @@ interface ComplianceViolation {
   fine_amount?: number
   paid: boolean
   due_date?: string
-  status: 'open' | 'under-review' | 'remediation-in-progress' | 'resolved' | 'appealed'
+  status: 'pending' | 'under_investigation' | 'action_taken' | 'closed' | 'appealed'
   responsible_person?: string
   regulation_reference: string
 }
@@ -71,7 +71,7 @@ interface SafetyIncident {
   driver_id?: string
   driver_name?: string
   description: string
-  status: 'open' | 'investigating' | 'resolved' | 'closed'
+  status: 'pending' | 'in_progress' | 'completed' | 'closed' | 'cancelled'
   cost: number
   root_cause?: string
 }
@@ -224,9 +224,9 @@ export function ViolationsMatrixView() {
       cell: ({ row }) => {
         const status = row.original.status
         const variant =
-          status === 'resolved'
+          status === 'closed'
             ? 'default'
-            : status === 'open'
+            : status === 'pending'
             ? 'destructive'
             : 'secondary'
         return (
@@ -289,7 +289,7 @@ export function ViolationsMatrixView() {
   // Calculate summary stats
   const totalViolations = filteredData.length
   const openCount = filteredData.filter(
-    (v) => v.status === 'open' || v.status === 'under-review' || v.status === 'remediation-in-progress'
+    (v) => v.status === 'under_investigation' || v.status === 'action_taken' || v.status === 'pending'
   ).length
   const criticalCount = filteredData.filter((v) => v.severity === 'critical').length
   const totalFines = filteredData.reduce((sum, v) => sum + (v.fine_amount || 0), 0)
@@ -368,10 +368,11 @@ export function ViolationsMatrixView() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="under-review">Under Review</SelectItem>
-                <SelectItem value="remediation-in-progress">In Progress</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="under_investigation">Under Investigation</SelectItem>
+                <SelectItem value="action_taken">Action Taken</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+                <SelectItem value="appealed">Appealed</SelectItem>
               </SelectContent>
             </Select>
             <Select value={severityFilter} onValueChange={setSeverityFilter}>
@@ -542,7 +543,7 @@ export function IncidentsMatrixView() {
         const variant =
           status === 'closed'
             ? 'default'
-            : status === 'open'
+            : status === 'pending'
             ? 'destructive'
             : 'secondary'
         return (
@@ -617,7 +618,7 @@ export function IncidentsMatrixView() {
 
   // Calculate summary stats
   const totalIncidents = filteredData.length
-  const openCount = filteredData.filter((i) => i.status === 'open' || i.status === 'investigating').length
+  const openCount = filteredData.filter((i) => i.status === 'pending' || i.status === 'in_progress').length
   const criticalCount = filteredData.filter((i) => i.severity === 'critical').length
   const totalInjured = filteredData.reduce((sum, i) => sum + i.injured, 0)
   const totalCost = filteredData.reduce((sum, i) => sum + i.cost, 0)
@@ -700,9 +701,9 @@ export function IncidentsMatrixView() {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="open">Open</SelectItem>
-                <SelectItem value="investigating">Investigating</SelectItem>
-                <SelectItem value="resolved">Resolved</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="in_progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="closed">Closed</SelectItem>
               </SelectContent>
             </Select>

@@ -488,7 +488,7 @@ function generateViolationSummary(violations: HOSViolation[], dateRange: DateRan
       minor: violations.filter((v) => v.severity === 'minor').length
     },
     byStatus: {
-      open: violations.filter((v) => v.status === 'open').length,
+      under_investigation: violations.filter((v) => v.status === 'under_investigation').length,
       acknowledged: violations.filter((v) => v.status === 'acknowledged').length,
       resolved: violations.filter((v) => v.status === 'resolved').length
     },
@@ -626,7 +626,7 @@ function ViolationSummaryReport({ data }: { data: ViolationSummaryData }): React
       <div className="grid grid-cols-4 gap-4">
         <StatCard label="Total Violations" value={data.totalViolations} variant="warning" />
         <StatCard label="Critical" value={data.bySeverity.critical} variant="danger" />
-        <StatCard label="Open" value={data.byStatus.open} variant="warning" />
+        <StatCard label="Open" value={data.byStatus.under_investigation} variant="warning" />
         <StatCard label="Resolved" value={data.byStatus.resolved} variant="success" />
       </div>
 

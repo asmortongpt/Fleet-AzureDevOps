@@ -87,23 +87,23 @@ export function OSHAForms() {
 
   const mapStatusFromApi = (status?: string): OSHAForm["status"] => {
     const normalized = (status || '').toLowerCase()
-    if (normalized === 'open') return 'submitted'
-    if (normalized === 'investigating') return 'under-review'
-    if (normalized === 'closed') return 'closed'
+    if (normalized === 'pending') return 'submitted'
+    if (normalized === 'in_progress') return 'under-review'
+    if (normalized === 'completed' || normalized === 'closed') return 'closed'
     return 'draft'
   }
 
   const mapStatusToApi = (status: OSHAForm["status"]): string => {
     switch (status) {
       case 'submitted':
-        return 'open'
+        return 'pending'
       case 'under-review':
-        return 'investigating'
+        return 'in_progress'
       case 'approved':
       case 'closed':
-        return 'closed'
+        return 'completed'
       default:
-        return 'open'
+        return 'pending'
     }
   }
 

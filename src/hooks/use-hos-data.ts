@@ -20,7 +20,7 @@ export type DutyStatus = 'off_duty' | 'sleeper_berth' | 'driving' | 'on_duty_not
 export type InspectionType = 'pre_trip' | 'post_trip' | 'enroute';
 export type DefectSeverity = 'minor' | 'major' | 'critical';
 export type ViolationSeverity = 'warning' | 'minor' | 'major' | 'critical';
-export type ViolationStatus = 'open' | 'acknowledged' | 'resolved' | 'disputed';
+export type ViolationStatus = 'open' | 'acknowledged' | 'resolved' | 'disputed' | 'under_investigation';
 export type ReportType = 'daily' | 'weekly' | 'monthly' | 'annual' | 'custom';
 
 export interface HOSLocation {
@@ -566,7 +566,7 @@ export function useHOSMetrics(driverId: string, tenantId: string, date?: string)
     drivingHours: 0,
     onDutyHours: 0,
     availableHours: 11,
-    violations: violations?.filter(v => v.status === 'open').length || 0,
+    violations: violations?.filter(v => v.status === 'under_investigation').length || 0,
     isCompliant: true,
   };
 

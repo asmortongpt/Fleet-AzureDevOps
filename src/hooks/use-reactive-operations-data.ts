@@ -88,7 +88,7 @@ const TaskSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1).max(255),
   description: z.string().max(1000).optional(),
-  status: z.enum(['open', 'in_progress', 'completed', 'cancelled', 'overdue']),
+  status: z.enum(['pending', 'in_progress', 'completed', 'cancelled', 'overdue']),
   priority: z.enum(['low', 'medium', 'high', 'critical']),
   assignedTo: z.string().optional(),
   dueDate: z.string().datetime().optional(),
@@ -521,7 +521,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
             !completedAt &&
             new Date(dueDate).getTime() < Date.now()
 
-          let status: Task['status'] = 'open'
+          let status: Task['status'] = 'pending'
           if (statusRaw === 'completed') status = 'completed'
           else if (statusRaw === 'cancelled') status = 'cancelled'
           else if (statusRaw === 'in_progress' || statusRaw === 'in-progress') status = 'in_progress'
@@ -582,7 +582,7 @@ export function useReactiveOperationsData(): UseReactiveOperationsDataReturn {
     const avgFuelCostPerMile = totalDistance > 0 ? totalFuelCost / totalDistance : 0
     const avgFuelCostPerRoute = totalRoutes > 0 ? totalFuelCost / totalRoutes : 0
 
-    const openTasks = tasks.filter((t) => t.status === 'open').length
+    const openTasks = tasks.filter((t) => t.status === 'pending').length
     const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length
     const completedTasks = tasks.filter((t) => t.status === 'completed').length
     const overdueTasks = tasks.filter((t) => t.status === 'overdue').length

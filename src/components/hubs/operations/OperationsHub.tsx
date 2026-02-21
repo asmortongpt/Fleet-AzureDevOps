@@ -125,7 +125,7 @@ export function OperationsHub() {
       return completedDate.toDateString() === now.toDateString();
     });
 
-    const openWorkOrders = workOrderRows.filter((wo) => wo.status === 'open' || wo.status === 'pending');
+    const openWorkOrders = workOrderRows.filter((wo) => wo.status === 'pending');
 
     const availableDrivers = driverRows.filter((driver) =>
       driver.status === 'active' || driver.status === 'available'

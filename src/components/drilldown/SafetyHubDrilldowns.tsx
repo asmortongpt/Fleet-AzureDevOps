@@ -17,7 +17,7 @@ interface IncidentData {
   id: string
   type: string
   severity: 'critical' | 'high' | 'medium' | 'low'
-  status: 'open' | 'investigating' | 'resolved' | 'closed'
+  status: 'pending' | 'in_progress' | 'completed' | 'closed' | 'cancelled'
   date: string
   location: string
   vehicleId?: string
@@ -46,7 +46,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
       case 'recordable':
         return safeIncidents.filter(i => i.oshaRecordable)
       case 'open':
-        return safeIncidents.filter(i => i.status === 'open' || i.status === 'investigating')
+        return safeIncidents.filter(i => i.status === 'pending' || i.status === 'in_progress')
       case 'high-severity':
         return safeIncidents.filter(i => i.severity === 'high' || i.severity === 'critical')
       default:
@@ -130,7 +130,7 @@ export function IncidentListView({ filter }: { filter?: string }) {
         <Card className="bg-red-900/30 border-red-700/50">
           <CardContent className="p-2 text-center">
             <div className="text-sm font-bold text-red-400">
-              {filteredIncidents.filter(i => i.status === 'open' || i.status === 'investigating').length}
+              {filteredIncidents.filter(i => i.status === 'pending' || i.status === 'in_progress').length}
             </div>
             <div className="text-xs text-white/40">Open/Investigating</div>
           </CardContent>

@@ -190,7 +190,7 @@ export default function EvidenceLocker() {
 
   const stats = {
     total: lockers.length,
-    open: lockers.filter(l => l.status === 'open').length,
+    open: lockers.filter(l => l.status === 'pending').length,
     legalHold: lockers.filter(l => l.legal_hold).length,
     totalVideos: lockers.reduce((sum, l) => sum + l.video_count, 0)
   };

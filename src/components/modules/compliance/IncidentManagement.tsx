@@ -52,7 +52,7 @@ interface Incident {
   incident_title: string
   incident_type: string
   severity: 'low' | 'medium' | 'high' | 'critical'
-  status: 'open' | 'investigating' | 'resolved' | 'closed'
+  status: 'pending' | 'in_progress' | 'completed' | 'closed' | 'cancelled'
   incident_date: string
   incident_time?: string
   location?: string
@@ -289,9 +289,9 @@ export function IncidentManagement() {
 
   // Statistics
   const totalIncidents = incidents.length
-  const openIncidents = (incidents || []).filter(i => i.status === 'open' || i.status === 'investigating').length
+  const openIncidents = (incidents || []).filter(i => i.status === 'pending' || i.status === 'in_progress').length
   const criticalIncidents = (incidents || []).filter(i => i.severity === 'critical').length
-  const resolvedIncidents = (incidents || []).filter(i => i.status === 'resolved' || i.status === 'closed').length
+  const resolvedIncidents = (incidents || []).filter(i => i.status === 'completed' || i.status === 'closed').length
 
   const getSeverityColor = (severity: Incident['severity']) => {
     const colors = {
@@ -305,10 +305,11 @@ export function IncidentManagement() {
 
   const getStatusColor = (status: Incident['status']) => {
     const colors = {
-      open: "bg-yellow-100 text-yellow-700",
-      investigating: "bg-blue-100 text-blue-700",
-      resolved: "bg-green-100 text-green-700",
-      closed: "bg-gray-100 text-gray-700"
+      pending: "bg-yellow-100 text-yellow-700",
+      in_progress: "bg-blue-100 text-blue-700",
+      completed: "bg-green-100 text-green-700",
+      closed: "bg-gray-100 text-gray-700",
+      cancelled: "bg-gray-100 text-gray-700"
     }
     return colors[status]
   }
@@ -623,9 +624,9 @@ export function IncidentManagement() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="open">Open</SelectItem>
-            <SelectItem value="investigating">Investigating</SelectItem>
-            <SelectItem value="resolved">Resolved</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
             <SelectItem value="closed">Closed</SelectItem>
           </SelectContent>
         </Select>

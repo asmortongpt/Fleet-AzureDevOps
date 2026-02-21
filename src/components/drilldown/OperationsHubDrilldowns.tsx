@@ -70,7 +70,7 @@ interface TaskData {
   id: string
   title: string
   description?: string
-  status: 'open' | 'in-progress' | 'completed' | 'blocked'
+  status: 'pending' | 'in_progress' | 'completed' | 'blocked' | 'cancelled'
   priority?: 'high' | 'medium' | 'low'
   assignedToId?: string
   assignedToName?: string
@@ -420,9 +420,9 @@ export function TaskListView({ filter }: { filter?: string }) {
 
     switch (filter) {
       case 'open':
-        return safeTasks.filter(t => t.status === 'open')
+        return safeTasks.filter(t => t.status === 'pending')
       case 'in-progress':
-        return safeTasks.filter(t => t.status === 'in-progress')
+        return safeTasks.filter(t => t.status === 'in_progress')
       case 'overdue':
         return safeTasks.filter(t => t.dueDate && new Date(t.dueDate) < new Date())
       case 'blocked':
@@ -434,10 +434,11 @@ export function TaskListView({ filter }: { filter?: string }) {
 
   const getStatusColor = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
     switch (status) {
-      case 'open': return 'default'
-      case 'in-progress': return 'outline'
+      case 'pending': return 'default'
+      case 'in_progress': return 'outline'
       case 'completed': return 'secondary'
       case 'blocked': return 'destructive'
+      case 'cancelled': return 'outline'
       default: return 'outline'
     }
   }
@@ -499,7 +500,7 @@ export function TaskListView({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <ListChecks className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-emerald-400">
-              {filteredTasks.filter(t => t.status === 'open').length}
+              {filteredTasks.filter(t => t.status === 'pending').length}
             </div>
             <div className="text-xs text-white/40">Open Tasks</div>
           </CardContent>
@@ -508,7 +509,7 @@ export function TaskListView({ filter }: { filter?: string }) {
           <CardContent className="p-2 text-center">
             <Clock className="w-4 h-4 text-amber-400 mx-auto mb-1" />
             <div className="text-sm font-bold text-amber-400">
-              {filteredTasks.filter(t => t.status === 'in-progress').length}
+              {filteredTasks.filter(t => t.status === 'in_progress').length}
             </div>
             <div className="text-xs text-white/40">In Progress</div>
           </CardContent>

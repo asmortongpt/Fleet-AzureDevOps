@@ -271,7 +271,7 @@ export function ReportsHub() {
     const activeDrivers = drivers.filter((d: any) => d.status === 'active').length
     const openWorkOrders = workOrders.filter((wo: any) => {
       const status = (wo.status || '').toLowerCase()
-      return status === 'pending' || status === 'in-progress' || status === 'open' || status === 'waiting_parts'
+      return status === 'pending' || status === 'in_progress' || status === 'waiting_parts'
     }).length
     // Approximate fleet health from active vehicles ratio
     const activeVehicles = vehicles.filter((v: any) => v.status === 'active' || v.status === 'idle').length

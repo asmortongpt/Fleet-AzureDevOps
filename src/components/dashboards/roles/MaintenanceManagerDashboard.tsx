@@ -72,7 +72,7 @@ export function MaintenanceManagerDashboard() {
         ? (workOrders as any).data
         : [];
 
-    const open = rows.filter((order: any) => ['open', 'pending'].includes(String(order.status || '').toLowerCase())).length;
+    const open = rows.filter((order: any) => ['pending'].includes(String(order.status || '').toLowerCase())).length;
     const in_progress = rows.filter((order: any) => ['in-progress', 'in_progress', 'active'].includes(String(order.status || '').toLowerCase())).length;
     const completed_this_week = rows.filter((order: any) => {
       const date = new Date(order.completedDate || order.completed_date || order.completed_at || order.updated_at || order.created_at || 0);

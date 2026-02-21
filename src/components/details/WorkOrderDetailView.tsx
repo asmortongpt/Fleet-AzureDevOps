@@ -102,7 +102,7 @@ export function WorkOrderDetailView({ workOrder, onClose }: WorkOrderDetailViewP
     const status = (workOrderDetails.status || '').toLowerCase()
     if (status === 'completed') return 100
     if (status === 'in_progress' || status === 'in progress') return 60
-    if (status === 'pending' || status === 'open') return 10
+    if (status === 'pending') return 10
     if (status === 'cancelled') return 0
     return 0
   }, [workOrderDetails])
