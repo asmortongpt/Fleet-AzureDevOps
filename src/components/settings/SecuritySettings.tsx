@@ -265,9 +265,26 @@ export function SecuritySettings() {
                 <li>Scan the QR code or enter the setup key</li>
                 <li>Enter the 6-digit code from your app to verify</li>
               </ol>
-              <Button variant="outline" className="mt-3" onClick={() => {
-                toast.success('Two-factor authentication setup initiated. Check your authenticator app.')
-                logger.info('2FA setup initiated')
+              <Button variant="outline" className="mt-3" onClick={async () => {
+                const toastId = toast.loading('Initiating 2FA setup...')
+                try {
+                  const response = await fetch('/api/auth/2fa/setup', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' }
+                  })
+                  if (!response.ok) {
+                    throw new Error(`2FA setup failed (${response.status})`)
+                  }
+                  toast.success('Two-factor authentication setup initiated. Check your authenticator app.', { id: toastId })
+                  logger.info('2FA setup initiated')
+                } catch (error) {
+                  logger.error('2FA setup failed', error as Error)
+                  toast.error(
+                    error instanceof Error ? error.message : '2FA setup failed. Please try again.',
+                    { id: toastId }
+                  )
+                }
               }}>
                 Setup 2FA
               </Button>
@@ -398,12 +415,32 @@ export function SecuritySettings() {
           <div className="text-sm text-muted-foreground mb-2">
             API keys allow you to access Fleet Management data programmatically.
           </div>
-          <Button variant="outline" onClick={() => {
+          <Button variant="outline" onClick={async () => {
             const toastId = toast.loading('Generating API key...')
-            setTimeout(() => {
-              toast.success('API key generated successfully. Copy it now — it will not be shown again.', { id: toastId, duration: 6000 })
+            try {
+              const response = await fetch('/api/api-keys', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: `Key-${new Date().toISOString().slice(0, 10)}` })
+              })
+              if (!response.ok) {
+                throw new Error(`Failed to generate API key (${response.status})`)
+              }
+              const data = await response.json()
+              const keyPreview = data?.key ? `${String(data.key).slice(0, 12)}...` : ''
+              toast.success(
+                `API key generated${keyPreview ? `: ${keyPreview}` : ''}. Copy it now — it will not be shown again.`,
+                { id: toastId, duration: 6000 }
+              )
               logger.info('API key generated')
-            }, 1500)
+            } catch (error) {
+              logger.error('Failed to generate API key', error as Error)
+              toast.error(
+                error instanceof Error ? error.message : 'Failed to generate API key',
+                { id: toastId }
+              )
+            }
           }}>
             <Key className="w-4 h-4 mr-2" />
             Generate New API Key

@@ -166,9 +166,9 @@ const PeopleTabContent = memo(function PeopleTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Total Employees"
           value={formatNumber(userRows.length)}
@@ -196,7 +196,7 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Left Column: Employee List */}
         <Section
           title="Team Overview"
@@ -382,9 +382,9 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Unread Messages"
           value={formatNumber(unreadCount)}
@@ -412,7 +412,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Left Column: Communication Log */}
         <Section
           title="Recent Messages"
@@ -615,9 +615,9 @@ const WorkTabContent = memo(function WorkTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Active Tasks"
           value={formatNumber(activeTasks.length)}
@@ -645,7 +645,7 @@ const WorkTabContent = memo(function WorkTabContent() {
       </div>
 
       {/* Main Content: Two columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Left Column: Task Board */}
         <Section
           title="Task Board"
@@ -775,19 +775,19 @@ export default function PeopleCommunicationHub() {
             </TabsTrigger>
           </TabsList>
 
-              <TabsContent value="people" className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="people" className="flex-1 min-h-0 overflow-y-auto">
                 <QueryErrorBoundary>
                   <PeopleTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="communication" className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="communication" className="flex-1 min-h-0 overflow-y-auto">
                 <QueryErrorBoundary>
                   <CommunicationTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="work" className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="work" className="flex-1 min-h-0 overflow-y-auto">
                 <QueryErrorBoundary>
                   <WorkTabContent />
                 </QueryErrorBoundary>

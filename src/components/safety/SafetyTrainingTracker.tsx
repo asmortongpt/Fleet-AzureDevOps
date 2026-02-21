@@ -27,6 +27,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatDate } from '@/utils/format-helpers'
 
@@ -78,6 +79,7 @@ type SafetyTrainingApiRecord = {
 }
 
 export function SafetyTrainingTracker() {
+    const { push } = useDrilldown()
     const [selectedFilter, setSelectedFilter] = useState<string>('all')
 
     const { data: statsPayload } = useSWR<TrainingStats>('/api/safety-training/compliance-stats', apiFetcher, {
@@ -200,16 +202,55 @@ export function SafetyTrainingTracker() {
     }, [filteredData])
 
     const handleScheduleTraining = useCallback((record: TrainingRecord) => {
-        toast.success(`Scheduling training for ${record.employee_name}: ${record.training_type}`)
-    }, [])
+        push({
+            id: `schedule-training-${record.id}`,
+            type: 'training-schedule',
+            label: `Schedule: ${record.training_type}`,
+            data: {
+                trainingId: record.id,
+                employeeId: record.employee_id,
+                employeeName: record.employee_name,
+                trainingType: record.training_type,
+                action: 'schedule',
+            },
+        })
+    }, [push])
 
     const handleRenewCertification = useCallback((record: TrainingRecord) => {
-        toast.success(`Initiating renewal for ${record.employee_name}: ${record.training_type}`)
-    }, [])
+        push({
+            id: `renew-cert-${record.id}`,
+            type: 'training-renewal',
+            label: `Renew: ${record.training_type}`,
+            data: {
+                trainingId: record.id,
+                employeeId: record.employee_id,
+                employeeName: record.employee_name,
+                trainingType: record.training_type,
+                expirationDate: record.expiration_date,
+                certificateNumber: record.certificate_number,
+                action: 'renew',
+            },
+        })
+    }, [push])
 
     const handleViewCertificate = useCallback((record: TrainingRecord) => {
-        toast.success(`Viewing certificate ${record.certificate_number} for ${record.employee_name}`)
-    }, [])
+        push({
+            id: `cert-${record.id}`,
+            type: 'training-certificate',
+            label: `Certificate: ${record.certificate_number}`,
+            data: {
+                trainingId: record.id,
+                employeeId: record.employee_id,
+                employeeName: record.employee_name,
+                trainingType: record.training_type,
+                certificateNumber: record.certificate_number,
+                completionDate: record.completion_date,
+                expirationDate: record.expiration_date,
+                score: record.score,
+                instructor: record.instructor,
+            },
+        })
+    }, [push])
 
     return (
         <div className="space-y-2 p-3">

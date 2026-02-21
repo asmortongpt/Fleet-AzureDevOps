@@ -18,7 +18,6 @@ import {
   LineChart
 } from "lucide-react"
 import { useState, useMemo } from "react"
-import { toast } from "sonner"
 import useSWR from "swr"
 
 import { Badge } from "@/components/ui/badge"
@@ -42,6 +41,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { useNavigation } from "@/contexts/NavigationContext"
 import { apiFetcher } from "@/lib/api-fetcher"
 import type { AssetType, OperationalStatus } from "@/types/asset.types"
 import { formatEnum } from "@/utils/format-enum"
@@ -178,6 +178,7 @@ export function AssetsHub() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [mapLoaded, setMapLoaded] = useState(false)
   const { push } = useDrilldown()
+  const { navigateTo } = useNavigation()
 
   const { data: assetAnalytics = [], error: assetError, isLoading: assetLoading } = useSWR<any[]>(
     "/api/assets/analytics",
@@ -391,10 +392,7 @@ export function AssetsHub() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => {
-              const id = toast.loading('Generating analytics report...')
-              setTimeout(() => toast.success('Analytics report generated', { id }), 1500)
-            }}>
+            <Button variant="outline" onClick={() => navigateTo('cost-analysis')}>
               <LineChart className="w-4 h-4 mr-2" />
               Analytics Report
             </Button>

@@ -219,9 +219,9 @@ const AdminTabContent = memo(function AdminTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Admin Statistics */}
-      <div className="grid gap-1.5 grid-cols-4 shrink-0">
+      <div className="grid gap-1.5 grid-cols-4">
         <StatCard
           title="Total Users"
           value={userRows.length}
@@ -253,22 +253,22 @@ const AdminTabContent = memo(function AdminTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-2 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* User Management */}
         <Section
           title="User Management"
           description="Manage user accounts and permissions"
-          icon={<UserCog className="h-5 w-5" />}
+          icon={<UserCog className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {userGroups.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {userGroups.map((userGroup) => (
                   <div
                     key={userGroup.role}
-                    className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3 cursor-pointer"
+                    className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3 cursor-pointer hover:bg-white/[0.04] transition-colors"
                     onClick={() => push({
                       id: userGroup.role,
                       type: 'user',
@@ -291,7 +291,7 @@ const AdminTabContent = memo(function AdminTabContent() {
                     aria-label={`View details for ${formatEnum(userGroup.role)} users`}
                   >
                     <div className="flex items-center gap-3">
-                      <Users className="h-5 w-5 text-muted-foreground" />
+                      <Users className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <p className="font-semibold text-foreground">{formatEnum(userGroup.role)}</p>
                         <p className="text-sm text-muted-foreground">
@@ -311,13 +311,13 @@ const AdminTabContent = memo(function AdminTabContent() {
         <Section
           title="System Status"
           description="Infrastructure health metrics"
-          icon={<Server className="h-5 w-5" />}
+          icon={<Server className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {systemStatusItems.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {systemStatusItems.map((service) => (
                   <div key={service.service} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                     <div>
@@ -339,7 +339,7 @@ const AdminTabContent = memo(function AdminTabContent() {
           <Section
             title="Recent Activity"
             description="System audit log"
-            icon={<Activity className="h-5 w-5" />}
+            icon={<Activity className="h-4 w-4" />}
           >
             <div className="flex items-center gap-2 mb-2 shrink-0">
               <div className="flex items-center gap-1 rounded-lg border border-white/[0.08] bg-[#242424] p-0.5">
@@ -387,7 +387,7 @@ const AdminTabContent = memo(function AdminTabContent() {
                     {filteredAuditRows.slice(0, 10).map((log: any) => (
                       <tr
                         key={log.id}
-                        className="border-b border-white/[0.04] cursor-pointer"
+                        className="border-b border-white/[0.04] cursor-pointer hover:bg-white/[0.04]"
                         onClick={() => push({
                           id: log.id,
                           type: 'audit-log',
@@ -478,26 +478,26 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* System Settings */}
         <Section
           title="System Settings"
           description="Configure application behavior and preferences"
-          icon={<Sliders className="h-5 w-5" />}
+          icon={<Sliders className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {configCategories.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {configCategories.map((item) => {
                   const Icon = item.icon
                   return (
                     <div key={item.category} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                       <div className="flex items-center gap-3">
-                        <Icon className="h-5 w-5 text-muted-foreground" />
+                        <Icon className="h-4 w-4 text-muted-foreground" />
                         <div>
                           <p className="font-semibold text-foreground">{item.category}</p>
                           <p className="text-sm text-muted-foreground">{item.settings} settings available</p>
@@ -516,13 +516,13 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
         <Section
           title="Feature Flags"
           description="Enable or disable system features"
-          icon={<ToggleLeft className="h-5 w-5" />}
+          icon={<ToggleLeft className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {featureFlags.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {featureFlags.map((flag) => (
                   <div key={flag.feature} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                     <div className="flex-1 min-w-0">
@@ -606,9 +606,9 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Data Governance Statistics */}
-      <div className="grid gap-1.5 grid-cols-4 shrink-0">
+      <div className="grid gap-1.5 grid-cols-4">
         <StatCard
           title="Data Quality"
           value={dataQuality > 0 ? (
@@ -647,16 +647,16 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Data Sources */}
         <Section
           title="Data Sources & Quality"
           description="Monitoring data quality across all sources"
-          icon={<Database className="h-5 w-5" />}
+          icon={<Database className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {databaseStats ? (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {[
                   { source: 'Vehicles', records: databaseStats.vehicles, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
                   { source: 'Drivers', records: databaseStats.drivers, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
@@ -693,13 +693,13 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
         <Section
           title="Backup & Recovery"
           description="Automated backup schedule and recovery points"
-          icon={<Archive className="h-5 w-5" />}
+          icon={<Archive className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {auditRows.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {auditRows.slice(0, 5).map((backup: any) => (
                   <div key={backup.id} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                     <div>
@@ -787,9 +787,9 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Integration Statistics */}
-      <div className="grid gap-1.5 grid-cols-4 shrink-0">
+      <div className="grid gap-1.5 grid-cols-4">
         <StatCard
           title="Active Integrations"
           value={integrations.length}
@@ -819,22 +819,22 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Connected Integrations */}
         <Section
           title="Connected Integrations"
           description="Third-party services and APIs"
-          icon={<Plug className="h-5 w-5" />}
+          icon={<Plug className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {integrations.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {integrations.map((integration: any) => (
                   <div key={integration.name} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                     <div className="flex items-center gap-3">
-                      <Plug className="h-5 w-5 text-muted-foreground" />
+                      <Plug className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <p className="font-semibold text-foreground text-sm">{integration.name}</p>
                         <p className="text-xs text-muted-foreground">
@@ -859,7 +859,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
         <Section
           title="API Usage Trends"
           description="API call volume over time"
-          icon={<Code className="h-5 w-5" />}
+          icon={<Code className="h-4 w-4" />}
         >
           <ResponsiveLineChart
             title="API Usage Trends"
@@ -937,9 +937,9 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Document Statistics */}
-      <div className="grid gap-1.5 grid-cols-4 shrink-0">
+      <div className="grid gap-1.5 grid-cols-4">
         <StatCard
           title="Total Documents"
           value={documentRows.length}
@@ -967,22 +967,22 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
       </div>
 
       {/* Main content: 2 columns */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Document Categories */}
         <Section
           title="Document Library"
           description="Organized by category"
-          icon={<FolderOpen className="h-5 w-5" />}
+          icon={<FolderOpen className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {documentCategories.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {documentCategories.map((cat) => (
                   <div key={cat.category} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                     <div className="flex items-center gap-3">
-                      <FolderOpen className="h-5 w-5 text-muted-foreground" />
+                      <FolderOpen className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <p className="font-semibold text-foreground text-sm">{formatEnum(cat.category)}</p>
                         <p className="text-xs text-muted-foreground">{cat.count} {cat.count === 1 ? 'document' : 'documents'}</p>
@@ -1000,17 +1000,17 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
         <Section
           title="Recently Added"
           description="Latest uploaded documents"
-          icon={<Clock className="h-5 w-5" />}
+          icon={<Clock className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {recentDocuments.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {recentDocuments.map((doc: any) => (
                   <div key={doc.id} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
+                      <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
                       <div className="min-w-0">
                         <p className="font-semibold text-foreground text-sm truncate">{doc.file_name || doc.name || doc.title}</p>
                         <p className="text-xs text-muted-foreground">
@@ -1054,7 +1054,7 @@ export default function AdminConfigurationHub() {
       icon={<Settings className="h-5 w-5" />}
       className="cta-hub"
     >
-      <div className="flex flex-col h-full gap-2 overflow-hidden">
+      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="admin" className="flex items-center gap-2" data-testid="hub-tab-admin" aria-label="Admin">
@@ -1079,31 +1079,31 @@ export default function AdminConfigurationHub() {
             </TabsTrigger>
           </TabsList>
 
-              <TabsContent value="admin" className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="admin" className="flex-1 min-h-0 overflow-y-auto">
                 <QueryErrorBoundary>
                   <AdminTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="config" className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="config" className="flex-1 min-h-0 overflow-y-auto">
                 <QueryErrorBoundary>
                   <ConfigurationTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="data" className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="data" className="flex-1 min-h-0 overflow-y-auto">
                 <QueryErrorBoundary>
                   <DataGovernanceTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="integrations" className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="integrations" className="flex-1 min-h-0 overflow-y-auto">
                 <QueryErrorBoundary>
                   <IntegrationsTabContent />
                 </QueryErrorBoundary>
               </TabsContent>
 
-              <TabsContent value="documents" className="flex-1 min-h-0 overflow-hidden">
+              <TabsContent value="documents" className="flex-1 min-h-0 overflow-y-auto">
                 <QueryErrorBoundary>
                   <DocumentsTabContent />
                 </QueryErrorBoundary>

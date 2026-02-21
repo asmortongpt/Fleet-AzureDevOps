@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react"
 
 
 import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/components/UniversalMap/utils/coordinates"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
+import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor } from "@/utils/vehicle-map-icons"
 import logger from '@/utils/logger';
 /**
  * Props for the GoogleMap component
@@ -39,6 +40,16 @@ export interface GoogleMapProps {
   forceSimulatedView?: boolean
   /** Callback when a vehicle action is triggered from the popup */
   onVehicleAction?: (action: string, vehicleId: string) => void
+  /** Currently selected vehicle ID (renders with a larger highlighted marker) */
+  selectedVehicleId?: string | null
+  /** Set of vehicle IDs to show — if provided, vehicles not in the set are hidden */
+  visibleVehicleIds?: Set<string> | null
+}
+
+/** Methods exposed via ref */
+export interface GoogleMapHandle {
+  fitAll: () => void
+  centerOnVehicle: (vehicleId: string) => void
 }
 
 /**
@@ -110,7 +121,7 @@ let googleMapsLoadingState: LoadingState = "idle"
  * />
  * ```
  */
-export function GoogleMap({
+export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function GoogleMap({
   vehicles = [],
   facilities = [],
   cameras = [],
@@ -126,7 +137,9 @@ export function GoogleMap({
   onError,
   forceSimulatedView = false,
   onVehicleAction,
-}: GoogleMapProps) {
+  selectedVehicleId,
+  visibleVehicleIds,
+}, ref) {
   // Refs for DOM and map instances
   const mapRef = useRef<HTMLDivElement>(null)
   const resolvedCenter = center ?? (calculateDynamicCenter(vehicles, facilities, cameras).reverse() as [number, number]) ?? DEFAULT_CENTER
@@ -140,6 +153,35 @@ export function GoogleMap({
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
   const [forceFallback, setForceFallback] = useState(false)
+
+  // Expose imperative methods to parent via ref
+  useImperativeHandle(ref, () => ({
+    fitAll() {
+      if (!mapInstanceRef.current || !window.google?.maps) return
+      const bounds = new google.maps.LatLngBounds()
+      let any = false
+      for (const { marker } of markersRef.current) {
+        const pos = marker.getPosition()
+        if (pos) { bounds.extend(pos); any = true }
+      }
+      if (any) {
+        mapInstanceRef.current.fitBounds(bounds)
+        google.maps.event.addListenerOnce(mapInstanceRef.current, 'idle', () => {
+          const z = mapInstanceRef.current?.getZoom()
+          if (z !== undefined && z > 15) mapInstanceRef.current?.setZoom(15)
+        })
+      }
+    },
+    centerOnVehicle(vehicleId: string) {
+      if (!mapInstanceRef.current || !window.google?.maps) return
+      const v = vehicles.find(v => v.id === vehicleId)
+      if (!v) return
+      const coords = getVehicleLatLng(v)
+      if (!coords) return
+      mapInstanceRef.current.panTo(coords)
+      mapInstanceRef.current.setZoom(16)
+    },
+  }), [vehicles])
 
   // Get and validate Google Maps API key
   // Try runtime config first (window._env_), then fall back to build-time env
@@ -433,22 +475,26 @@ export function GoogleMap({
       // Add vehicle markers
       if (showVehicles && vehicles.length > 0) {
         vehicles.forEach(vehicle => {
+          // Skip vehicles hidden by filter
+          if (visibleVehicleIds && !visibleVehicleIds.has(vehicle.id)) return
+
           const coords = getVehicleLatLng(vehicle)
           if (!coords) return
+
+          const isSelected = selectedVehicleId === vehicle.id
+          const vehicleType = vehicle.type || (vehicle as any).vehicle_type || 'sedan'
+          const statusClr = getStatusColor(vehicle.status)
+          const markerIcon = isSelected
+            ? buildSelectedMarkerIcon(vehicleType, statusClr, 40)
+            : buildVehicleMarkerIcon(vehicleType, statusClr, 30)
 
           const marker = new google.maps.Marker({
             position: coords,
             map: mapInstanceRef.current,
-            title: vehicle.name,
+            title: `${vehicle.name || vehicle.number || 'Vehicle'} (${vehicleType})`,
             optimized: true,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: getVehicleColor(vehicle.status),
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
-              scale: 8,
-            },
+            icon: markerIcon,
+            zIndex: isSelected ? 1000 : undefined,
           })
 
           // Add data-testid to marker element when DOM is ready
@@ -606,6 +652,8 @@ export function GoogleMap({
     isLoading,
     error,
     clearMarkers,
+    selectedVehicleId,
+    visibleVehicleIds,
   ])
 
   /**
@@ -766,24 +814,9 @@ export function GoogleMap({
       )}
     </div>
   )
-}
+})
 
-/**
- * Get color for vehicle status indicator
- * @param status - Vehicle status
- * @returns Hex color code
- */
-function getVehicleColor(status: Vehicle["status"]): string {
-  const colors: Record<Vehicle["status"], string> = {
-    active: "#10b981", // Green
-    idle: "#6b7280", // Gray
-    charging: "#3b82f6", // Blue
-    service: "#f59e0b", // Amber
-    emergency: "#ef4444", // Red
-    offline: "#374151", // Dark gray
-  }
-  return colors[status] || "#6b7280"
-}
+// getVehicleColor removed — now using getStatusColor from vehicle-map-icons.ts
 
 /**
  * Create HTML content for vehicle info window

@@ -422,7 +422,7 @@ export function OperationsHubEnhanced() {
             <Package className="h-3 w-3" />
             New Job
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => push({ type: 'route' as any, label: 'Route Optimization', data: { action: 'optimize' } })}>
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigateTo('route-optimization')}>
             <Navigation className="h-3 w-3" />
             Optimize Routes
           </Button>
@@ -430,7 +430,7 @@ export function OperationsHubEnhanced() {
             <MapPin className="h-3 w-3" />
             Add Geofence
           </Button>
-          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => push({ type: 'vehicle-assignment' as any, label: 'Assign Vehicle', data: {} })}>
+          <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs" onClick={() => navigateTo('dispatch-console')}>
             <Truck className="h-3 w-3" />
             Assign Vehicle
           </Button>

@@ -53,6 +53,21 @@ router.get("/",
   asyncHandler((req, res, next) => inspectionController.getAll(req, res, next))
 );
 
+// GET inspection violations — sub-resource stub
+// SafetyInspectionDrilldowns calls /api/inspections/:id/violations
+router.get("/:id/violations",
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
+    permissions: [PERMISSIONS.INSPECTION_READ],
+    enforceTenantIsolation: true,
+    resourceType: 'inspection'
+  }),
+  (_req, res) => {
+    // No separate violations table for inspections — return empty array
+    res.json([])
+  }
+);
+
 // GET inspection by ID
 router.get("/:id",
   requireRBAC({

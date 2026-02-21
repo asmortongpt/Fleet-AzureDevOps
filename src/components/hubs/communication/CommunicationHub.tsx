@@ -680,7 +680,10 @@ export function CommunicationHub() {
 
   const handleViewOnMap = useCallback((message: Message) => {
     if (message.fromLocation.lat !== 0 && message.fromLocation.lng !== 0) {
-      toast.success(`Showing ${message.from} on map`)
+      // Select the message so the map highlights the corresponding marker
+      setSelectedEntity({ type: 'message', data: message })
+      setActivePanel('messages')
+      toast.success(`Showing ${message.from} on map at ${message.fromLocation.lat.toFixed(4)}, ${message.fromLocation.lng.toFixed(4)}`)
     }
   }, [])
 
@@ -771,6 +774,7 @@ export function CommunicationHub() {
         <ProfessionalFleetMap
           vehicles={messageMarkers as Vehicle[]}
           facilities={zoneMarkers}
+          onVehicleSelect={handleMessageSelect}
         />
       </div>
 

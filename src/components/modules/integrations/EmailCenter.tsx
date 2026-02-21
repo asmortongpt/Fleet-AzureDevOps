@@ -1,4 +1,4 @@
-import { Mail, Send, Paperclip, Star, ArrowLeft } from "lucide-react"
+import { Mail, Send, Paperclip, Star, ArrowLeft, Forward, Download } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 import { toast } from "sonner"
 import useSWR from "swr"
@@ -122,6 +122,23 @@ export function EmailCenter() {
       body: `\n\n---\nOn ${formatDateTime(email.date)}, ${email.from} wrote:\n${email.body}`
     })
     setIsComposeOpen(true)
+  }
+
+  const handleForward = (email: MSOutlookEmail) => {
+    setNewEmail({
+      to: "",
+      cc: "",
+      subject: `Fwd: ${email.subject}`,
+      body: `\n\n---------- Forwarded message ----------\nFrom: ${email.from}\nDate: ${formatDateTime(email.date)}\nSubject: ${email.subject}\nTo: ${email.to.join(", ")}\n\n${email.body}`
+    })
+    setIsComposeOpen(true)
+  }
+
+  const handleDownloadAttachment = (attachment: { id: string; name: string; type?: string; size: number }) => {
+    // Open the attachment download URL in a new tab
+    const downloadUrl = `/api/outlook/attachments/${attachment.id}/download`
+    window.open(downloadUrl, '_blank', 'noopener,noreferrer')
+    toast.success(`Downloading ${attachment.name}`)
   }
 
   const markAsRead = (emailId: string) => {
@@ -349,7 +366,17 @@ export function EmailCenter() {
                           {selectedEmail.attachments.map(attachment => (
                             <div
                               key={attachment.id}
-                              className="flex items-center gap-2 p-2 border rounded-lg"
+                              className="flex items-center gap-2 p-2 border rounded-lg cursor-pointer hover:bg-muted/50 transition-colors"
+                              onClick={() => handleDownloadAttachment(attachment)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  e.preventDefault()
+                                  handleDownloadAttachment(attachment)
+                                }
+                              }}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`Download attachment ${attachment.name}`}
                             >
                               <Paperclip className="w-4 h-4 text-muted-foreground" />
                               <div className="flex-1">
@@ -358,6 +385,7 @@ export function EmailCenter() {
                                   {(attachment.size / 1024).toFixed(2)} KB
                                 </div>
                               </div>
+                              <Download className="w-4 h-4 text-muted-foreground" />
                             </div>
                           ))}
                         </div>
@@ -371,6 +399,10 @@ export function EmailCenter() {
                     <Button variant="outline" onClick={() => handleReply(selectedEmail)}>
                       <ArrowLeft className="w-4 h-4 mr-2" />
                       Reply
+                    </Button>
+                    <Button variant="outline" onClick={() => handleForward(selectedEmail)}>
+                      <Forward className="w-4 h-4 mr-2" />
+                      Forward
                     </Button>
                     <Button
                       variant="outline"

@@ -193,22 +193,48 @@ router.get(
   auditLog({ action: 'READ', resourceType: 'asset_relationships' }),
   async (req: AuthRequest, res) => {
     try {
-      const result = await pool.query(
-        `SELECT vw.*
-         FROM vw_active_asset_combos vw
-         JOIN vehicles v ON vw.parent_id = v.id
-         WHERE v.tenant_id = $1
-         ORDER BY vw.parent_make, vw.parent_model`,
-        [req.user!.tenant_id]
-      )
+      const { parent_asset_id } = req.query
+
+      let query = `
+        SELECT
+          ar.id,
+          ar.relationship_type,
+          ar.parent_asset_id,
+          ar.child_asset_id,
+          vc.make as child_make,
+          vc.model as child_model,
+          vc.vin as child_vin,
+          vc.asset_type as child_type,
+          vc.make || ' ' || vc.model as child_asset_name,
+          ar.effective_from,
+          ar.effective_to,
+          ar.notes
+        FROM asset_relationships ar
+        JOIN vehicles vp ON ar.parent_asset_id = vp.id
+        LEFT JOIN vehicles vc ON ar.child_asset_id = vc.id
+        WHERE vp.tenant_id = $1
+          AND (ar.effective_to IS NULL OR ar.effective_to > NOW())
+      `
+
+      const params: unknown[] = [req.user!.tenant_id]
+      let paramIndex = 2
+
+      if (parent_asset_id) {
+        query += ` AND ar.parent_asset_id = $${paramIndex++}`
+        params.push(parent_asset_id)
+      }
+
+      query += ` ORDER BY ar.effective_from DESC`
+
+      const result = await pool.query(query, params)
 
       res.json({
-        combinations: result.rows,
+        relationships: result.rows,
         total: result.rows.length
       })
     } catch (error) {
-      logger.error('Error fetching active combinations:', error)
-      res.status(500).json({ error: 'Failed to fetch active combinations' })
+      logger.error('Error fetching active relationships:', error)
+      res.status(500).json({ error: 'Failed to fetch active relationships' })
     }
   }
 )

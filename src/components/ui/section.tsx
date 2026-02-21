@@ -24,7 +24,7 @@ export function Section({
   return (
     <section
       className={cn(
-        'flex flex-col min-h-0 overflow-hidden rounded-lg border border-white/[0.08] bg-[#242424] shadow-sm',
+        'flex flex-col rounded-lg border border-white/[0.08] bg-[#242424] shadow-sm',
         className
       )}
     >
@@ -44,7 +44,7 @@ export function Section({
         </div>
         {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
       </div>
-      <div className={cn('p-2 flex-1 min-h-0 overflow-y-auto', contentClassName)}>{children}</div>
+      <div className={cn('p-2', contentClassName)}>{children}</div>
     </section>
   )
 }

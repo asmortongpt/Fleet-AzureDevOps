@@ -223,9 +223,9 @@ const FinancialTabContent = memo(function FinancialTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Monthly Budget"
           value={budgetTotal > 0 ? formatCurrency(budgetTotal) : '—'}
@@ -256,7 +256,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       </div>
 
       {/* Main Content: Charts + Transactions */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Left Column: Cost Trend + Cost Breakdown */}
         <div className="flex flex-col gap-1.5 min-h-0">
           <Section
@@ -479,9 +479,9 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Active Vendors"
           value={activeVendors.length}
@@ -513,7 +513,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       </div>
 
       {/* Main Content: Vendors + Purchase Orders */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Left: Top Vendors */}
         <Section
           title="Top Vendors"
@@ -670,9 +670,9 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Active Reports"
           value={metrics.activeReports}
@@ -700,7 +700,7 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
       </div>
 
       {/* Main Content: Chart + Lists */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-2 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Left: Report Generation Trend */}
         <Section
           title="Report Generation Trend"
@@ -879,9 +879,9 @@ const ReportsTabContent = memo(function ReportsTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
+      <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Available Reports"
           value={templates.length}
@@ -909,7 +909,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
       </div>
 
       {/* Main Content: Report Library + Recent Reports */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Left: Report Library */}
         <Section
           title="Report Library"
@@ -1004,44 +1004,44 @@ export default function BusinessManagementHub() {
     >
       <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
-          <TabsList className="cta-tabs grid w-full grid-cols-4 rounded-xl p-1">
-            <TabsTrigger value="financial" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-financial" aria-label="Financial">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="financial" className="flex items-center gap-2" data-testid="hub-tab-financial" aria-label="Financial">
               <DollarSign className="h-4 w-4" />
               <span className="hidden sm:inline">Financial</span>
             </TabsTrigger>
-            <TabsTrigger value="procurement" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-procurement" aria-label="Procurement">
+            <TabsTrigger value="procurement" className="flex items-center gap-2" data-testid="hub-tab-procurement" aria-label="Procurement">
               <ShoppingCart className="h-4 w-4" />
               <span className="hidden sm:inline">Procurement</span>
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-analytics" aria-label="Analytics">
+            <TabsTrigger value="analytics" className="flex items-center gap-2" data-testid="hub-tab-analytics" aria-label="Analytics">
               <BarChart className="h-4 w-4" />
               <span className="hidden sm:inline">Analytics</span>
             </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2 cta-tab data-[state=active]:bg-background data-[state=active]:shadow-sm" data-testid="hub-tab-reports" aria-label="Reports">
+            <TabsTrigger value="reports" className="flex items-center gap-2" data-testid="hub-tab-reports" aria-label="Reports">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Reports</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="financial" className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="financial" className="flex-1 min-h-0 overflow-y-auto">
             <QueryErrorBoundary>
               <FinancialTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="procurement" className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="procurement" className="flex-1 min-h-0 overflow-y-auto">
             <QueryErrorBoundary>
               <ProcurementTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="analytics" className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="analytics" className="flex-1 min-h-0 overflow-y-auto">
             <QueryErrorBoundary>
               <AnalyticsTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="reports" className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="reports" className="flex-1 min-h-0 overflow-y-auto">
             <QueryErrorBoundary>
               <ReportsTabContent />
             </QueryErrorBoundary>

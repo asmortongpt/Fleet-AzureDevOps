@@ -159,7 +159,7 @@ export function HubPage({
                         <TabsContent
                             key={tab.id}
                             value={tab.id}
-                            className="flex-1 min-h-0 m-0 outline-none overflow-hidden"
+                            className="flex-1 min-h-0 m-0 outline-none overflow-y-auto"
                             data-testid={`hub-content-${tab.id}`}
                         >
                             {tab.content}
@@ -167,7 +167,7 @@ export function HubPage({
                     ))}
                 </Tabs>
             ) : (
-                <div className="flex flex-col flex-1 min-h-0 p-2 overflow-hidden">
+                <div className="flex flex-col flex-1 min-h-0 p-2 overflow-y-auto">
                     {children}
                 </div>
             )}

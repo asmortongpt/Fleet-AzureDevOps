@@ -273,8 +273,13 @@ import schedulingNotificationsRouter from './routes/scheduling-notifications.rou
 import systemHealthRouter from './routes/system-health.routes'
 import tripMarkingRouter from './routes/trip-marking'
 import vehicleSafetyRouter from './routes/vehicle-safety'
+import violationsRouter from './routes/violations.routes'
 import warrantiesRouter from './routes/warranties'
 import weatherRouter from './routes/weather'
+
+// Drilldown stub routes (empty-array fallbacks for frontend drilldown panels)
+import equipmentRouter from './routes/equipment.routes'
+import jobsRouter from './routes/jobs.routes'
 
 // E2E Testing Routes (DEVELOPMENT ONLY - NO AUTH)
 
@@ -487,6 +492,7 @@ app.use('/api/geofences', geofencesRouter)
 app.use('/api/geospatial', geospatialRouter)
 app.use('/api/telematics', telematicsRouter)
 app.use('/api/traffic-cameras', trafficCamerasRouter)
+app.use('/api/traffic/cameras', trafficCamerasRouter) // Alias: frontend also uses /api/traffic/cameras
 app.use('/api/vehicle-idling', vehicleIdlingRouter)
 
 // Maintenance & Inspection Routes
@@ -504,6 +510,7 @@ app.use('/api/predictive-maintenance', predictiveMaintenanceRouter)
 
 // Document Management Routes
 app.use('/api/attachments', attachmentsRouter)
+app.use('/api/documents/geo', documentGeoRouter) // Alias: frontend calls /api/documents/geo/geocode (must be before /api/documents)
 app.use('/api/documents', documentsRouter)
 app.use('/api/fleet-documents', fleetDocumentsRouter)
 app.use('/api/fleet', fleetRouter)
@@ -690,6 +697,9 @@ if (process.env.ENABLE_E2E_ROUTES === 'true' && process.env.NODE_ENV !== 'produc
 
 // Route aliases for frontend compatibility
 app.use('/api/garage-bays', serviceBaysRouter)
+app.use('/api/violations', violationsRouter)       // Alias: ViolationDetailPanel calls /api/violations (proxies policy_violations)
+app.use('/api/jobs', jobsRouter)                   // Stub: OperationsHubDrilldowns calls /api/jobs
+app.use('/api/equipment', equipmentRouter)         // Stub: AssetHubDrilldowns calls /api/equipment
 app.use('/api', initializeBudgetRoutes(pool))
 
 // 404 handler - must come before error handlers

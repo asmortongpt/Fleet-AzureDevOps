@@ -49,6 +49,7 @@ import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
+  StatCard,
   ResponsiveBarChart,
   ResponsiveLineChart,
 } from '@/components/visualizations'
@@ -65,23 +66,7 @@ const fetcher = apiFetcher
 // SHARED COMPONENTS
 // ============================================================================
 
-function KpiCard({ title, value, icon: Icon, description }: {
-  title: string
-  value: string | number
-  icon: React.ComponentType<{ className?: string }>
-  description: string
-}) {
-  return (
-    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
-      <div className="flex items-center gap-2 mb-1">
-        <Icon className="h-4 w-4 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">{title}</span>
-      </div>
-      <div className="text-xl font-bold text-foreground">{value}</div>
-      <div className="text-xs text-muted-foreground mt-0.5">{description}</div>
-    </div>
-  )
-}
+// KpiCard removed — using StatCard from @/components/visualizations for consistency
 
 // ============================================================================
 // TAB CONTENT COMPONENTS
@@ -306,28 +291,28 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
-        <KpiCard
+      <div className="grid grid-cols-4 gap-1.5">
+        <StatCard
           title="Compliance Rate"
           value={complianceStats.complianceRate > 0 ? `${complianceStats.complianceRate}%` : '\u2014'}
           icon={CheckCircle}
           description="All checks current"
         />
-        <KpiCard
+        <StatCard
           title="Active Certifications"
           value={complianceStats.activeCerts || '\u2014'}
           icon={Award}
           description="Valid medical cards"
         />
-        <KpiCard
+        <StatCard
           title="Expiring Soon"
           value={complianceStats.expiringSoon || '\u2014'}
           icon={Clock}
           description="Within 30 days"
         />
-        <KpiCard
+        <StatCard
           title="Non-Compliant"
           value={complianceStats.nonCompliant || '\u2014'}
           icon={XCircle}
@@ -336,14 +321,14 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       </div>
 
       {/* Main Content: Categories + Renewals */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Compliance Status by Category */}
         <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
             <ClipboardCheck className="h-4 w-4 text-muted-foreground" />
             <h3 className="text-sm font-semibold text-foreground">Compliance by Category</h3>
           </div>
-          <div className="flex-1 min-h-0 overflow-y-auto space-y-2">
+          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1.5">
             {categoryBreakdowns.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -621,28 +606,28 @@ const SafetyTabContent = memo(function SafetyTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
-        <KpiCard
+      <div className="grid grid-cols-4 gap-1.5">
+        <StatCard
           title="Safety Score"
           value={safetyScoreStats.average > 0 ? String(safetyScoreStats.average) : '\u2014'}
           icon={Shield}
           description={`Avg across ${safetyScoreStats.count} drivers`}
         />
-        <KpiCard
+        <StatCard
           title="Days Since Incident"
           value={daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014'}
           icon={Award}
           description="Accident-free streak"
         />
-        <KpiCard
+        <StatCard
           title="Open Incidents"
           value={String(openIncidents)}
           icon={AlertTriangle}
           description="Under investigation"
         />
-        <KpiCard
+        <StatCard
           title="Training Completion"
           value={trainingCompletion > 0 ? `${trainingCompletion}%` : '\u2014'}
           icon={BookOpen}
@@ -651,7 +636,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
       </div>
 
       {/* Main Content: Charts row */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Left: Score Distribution + Driver Rankings */}
         <div className="flex flex-col gap-1.5 min-h-0">
           {/* Score Distribution Chart */}
@@ -845,7 +830,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                 <BookOpen className="h-4 w-4 text-muted-foreground" />
                 <h3 className="text-sm font-semibold text-foreground">Training Progress</h3>
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-1.5">
                 {trainingProgressData.slice(0, 4).map((training: any) => {
                   const pct = training.total > 0 ? Math.round((training.completed / training.total) * 100) : 0
                   return (
@@ -930,28 +915,28 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
-      <div className="grid grid-cols-4 gap-1.5 shrink-0">
-        <KpiCard
+      <div className="grid grid-cols-4 gap-1.5">
+        <StatCard
           title="Active Policies"
           value={String(activePolicies.length)}
           icon={FileText}
           description="Currently enforced"
         />
-        <KpiCard
+        <StatCard
           title="Policy Adherence"
           value={complianceScore > 0 ? `${complianceScore}%` : '\u2014'}
           icon={CheckCircle}
           description="Compliance rate"
         />
-        <KpiCard
+        <StatCard
           title="Under Review"
           value={String(underReview.length)}
           icon={ScrollText}
           description="Pending approval"
         />
-        <KpiCard
+        <StatCard
           title="Violations"
           value={String(policyViolations.length)}
           icon={Gavel}
@@ -960,7 +945,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
       </div>
 
       {/* Main Content: Categories + Violations */}
-      <div className="flex-1 min-h-0 grid grid-cols-2 grid-rows-1 gap-1.5 overflow-hidden">
+      <div className="grid grid-cols-2 gap-1.5">
         {/* Policy Categories */}
         <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
           <div className="flex items-center gap-2 mb-2">
@@ -1145,7 +1130,7 @@ const ReportingTabContent = memo(function ReportingTabContent() {
   }
 
   return (
-    <div className="flex flex-col h-full gap-1.5 p-1.5 overflow-hidden">
+    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col flex-1 min-h-0">
         <div className="flex items-center gap-2 mb-2">
           <FileText className="h-4 w-4 text-muted-foreground" />
@@ -1218,7 +1203,7 @@ export default function ComplianceSafetyHub() {
       icon={<Shield className="h-6 w-6" />}
       className="cta-hub"
     >
-      <div className="flex flex-col h-full gap-2 overflow-hidden">
+      <div className="flex flex-col h-full gap-1.5 overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col flex-1 min-h-0">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="compliance" className="flex items-center gap-2" data-testid="hub-tab-compliance">
@@ -1239,25 +1224,25 @@ export default function ComplianceSafetyHub() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="compliance" className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="compliance" className="flex-1 min-h-0 overflow-y-auto">
             <QueryErrorBoundary>
               <ComplianceTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="safety" className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="safety" className="flex-1 min-h-0 overflow-y-auto">
             <QueryErrorBoundary>
               <SafetyTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="policies" className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="policies" className="flex-1 min-h-0 overflow-y-auto">
             <QueryErrorBoundary>
               <PoliciesTabContent />
             </QueryErrorBoundary>
           </TabsContent>
 
-          <TabsContent value="reporting" className="flex-1 min-h-0 overflow-hidden">
+          <TabsContent value="reporting" className="flex-1 min-h-0 overflow-y-auto">
             <QueryErrorBoundary>
               <ReportingTabContent />
             </QueryErrorBoundary>
