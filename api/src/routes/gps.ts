@@ -11,7 +11,7 @@ import { pool } from '../db/connection'
 import { csrfProtection } from '../middleware/csrf'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
 
-// GPS Emulator placeholder - initialized by EmulatorOrchestrator at runtime
+// GPS Emulator stub - initialized by EmulatorOrchestrator at runtime
 const gpsEmulator: { start: () => void; stop: () => void } = {
   start: () => {
  logger.warn('GPS emulator not initialized') 

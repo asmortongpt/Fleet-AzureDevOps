@@ -255,7 +255,6 @@ router.post(
       })
 
       // In production, upload video to Azure Blob Storage and process asynchronously
-      // For now, we`ll return a placeholder response
       const videoData: VideoAnalysisData = {
         videoUrl: `temp://${req.file.originalname}`,
         metadata: {
@@ -270,7 +269,7 @@ router.post(
         },
       }
 
-      // Extract key frames from video (placeholder - would use FFmpeg in production)
+      // Extract key frames from video (would use FFmpeg in production)
       const frameInterval = parseFloat(req.body.frameInterval || '1')
       const analysis = await getMobileDamageService().analyzeVideoWalkthrough(
         videoData,

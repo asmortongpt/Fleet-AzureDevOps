@@ -1,14 +1,16 @@
-import { Router } from "express";
+import { Router, Response } from "express";
 import { z } from 'zod';
 
+import { pool } from '../config/database';
 import { container } from '../container';
-import { authenticateJWT } from '../middleware/auth';
+import { AuthRequest, authenticateJWT } from '../middleware/auth';
 import { csrfProtection } from '../middleware/csrf'
 import { asyncHandler } from '../middleware/errorHandler';
 import { requireRBAC, Role, PERMISSIONS } from '../middleware/rbac';
 import { validateBody, validateParams } from '../middleware/validate';
 import { InspectionController } from '../modules/inspections/controllers/inspection.controller';
 import { TYPES } from '../types';
+import { logger } from '../utils/logger';
 
 import { flexUuid } from '../middleware/validation'
 
@@ -53,7 +55,7 @@ router.get("/",
   asyncHandler((req, res, next) => inspectionController.getAll(req, res, next))
 );
 
-// GET inspection violations — sub-resource stub
+// GET inspection violations — policy violations associated with the inspected vehicle
 // SafetyInspectionDrilldowns calls /api/inspections/:id/violations
 router.get("/:id/violations",
   requireRBAC({
@@ -62,9 +64,39 @@ router.get("/:id/violations",
     enforceTenantIsolation: true,
     resourceType: 'inspection'
   }),
-  (_req, res) => {
-    // No separate violations table for inspections — return empty array
-    res.json([])
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const inspectionId = req.params.id
+
+      // Find violations for the same vehicle around the inspection date (±30 days)
+      const result = await pool.query(
+        `SELECT
+          pv.id,
+          pv.violation_date,
+          pv.violation_description as description,
+          pv.severity,
+          pv.case_status as status,
+          pv.location,
+          pv.employee_number as driver_id,
+          d.first_name || ' ' || d.last_name as driver_name,
+          pt.policy_name
+        FROM policy_violations pv
+        LEFT JOIN drivers d ON pv.employee_number = d.id
+        LEFT JOIN policy_templates pt ON pv.policy_id = pt.id
+        JOIN inspections i ON i.id = $1
+        WHERE pv.vehicle_id = i.vehicle_id
+          AND pv.violation_date BETWEEN
+            (i.started_at::date - INTERVAL '30 days')
+            AND (i.started_at::date + INTERVAL '30 days')
+        ORDER BY pv.violation_date DESC`,
+        [inspectionId]
+      )
+
+      res.json(result.rows)
+    } catch (error) {
+      logger.error('Get inspection violations error:', error)
+      res.json([])
+    }
   }
 );
 

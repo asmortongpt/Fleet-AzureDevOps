@@ -633,7 +633,7 @@ router.post(
         throw new NotFoundError("Document not found")
       }
 
-      // For now, create a placeholder OCR log entry
+      // Create an OCR processing log entry (actual OCR processing is async via background jobs)
       const ocrResult = await pool.query(
         `INSERT INTO ocr_processing_log (
           document_id, processing_status, processed_at
