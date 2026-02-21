@@ -238,8 +238,12 @@ export default function DispatchConsole() {
     }
 
     ws.onmessage = (event) => {
-      const message = JSON.parse(event.data)
-      handleWebSocketMessage(message)
+      try {
+        const message = JSON.parse(event.data)
+        handleWebSocketMessage(message)
+      } catch {
+        logger.error('Failed to parse WebSocket message')
+      }
     }
 
     ws.onerror = (error) => {

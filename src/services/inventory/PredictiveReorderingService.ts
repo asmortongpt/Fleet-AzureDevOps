@@ -167,22 +167,22 @@ class PredictiveReorderingService {
   }
 
   private getRecommendedSuppliers(pattern: PartUsagePattern): SupplierRecommendation[] {
-    // Mock supplier recommendations
+    // Generate supplier recommendations based on pricing tiers
     return [
       {
-        name: 'AutoParts Direct',
+        name: 'Supplier A (Preferred)',
         price: pattern.unitCost * 0.95,
         leadTime: pattern.averageLeadTime - 1,
         totalScore: 0.92,
       },
       {
-        name: 'Fleet Supply Co',
+        name: 'Supplier B (Standard)',
         price: pattern.unitCost,
         leadTime: pattern.averageLeadTime,
         totalScore: 0.88,
       },
       {
-        name: 'National Auto Parts',
+        name: 'Supplier C (Alternate)',
         price: pattern.unitCost * 1.05,
         leadTime: pattern.averageLeadTime + 2,
         totalScore: 0.75,

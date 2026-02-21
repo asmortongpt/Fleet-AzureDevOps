@@ -167,7 +167,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
               <div className="grid grid-cols-2 gap-2">
                 <div className="text-center p-2 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
                   <MapPin className="w-4 h-4 mx-auto mb-2 text-emerald-400" />
-                  <p className="text-sm font-bold text-emerald-400">{route.totalDistance.toFixed(1)}</p>
+                  <p className="text-sm font-bold text-emerald-400">{(route.totalDistance ?? 0).toFixed(1)}</p>
                   <p className="text-sm text-white/40">Miles</p>
                 </div>
                 <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
@@ -251,7 +251,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                     </div>
                     <p className="text-sm text-white/40 mb-1">{stop.location.address}</p>
                     <p className="text-xs text-gray-700 font-mono">
-                      {stop.location.latitude.toFixed(6)}, {stop.location.longitude.toFixed(6)}
+                      {(stop.location?.latitude ?? 0).toFixed(6)}, {(stop.location?.longitude ?? 0).toFixed(6)}
                     </p>
                     <p className="text-xs text-gray-700 mt-2">
                       Est. Arrival: {formatTime(stop.estimatedArrival)}
@@ -318,7 +318,7 @@ export const RouteInspector: React.FC<RouteInspectorProps> = ({ id, initialTab =
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-white/40">Estimated Fuel Cost</dt>
-                  <dd className="font-medium">${(route.totalDistance * 0.35).toFixed(2)}</dd>
+                  <dd className="font-medium">${((route.totalDistance ?? 0) * 0.35).toFixed(2)}</dd>
                 </div>
               </dl>
             </Card>

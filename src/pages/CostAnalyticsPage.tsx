@@ -535,8 +535,40 @@ export default function CostAnalyticsPage() {
   }
 
   const handleExportData = () => {
-    toast.success('Exporting cost analytics data...')
-    // In production, this would generate and download a CSV/Excel file
+    try {
+      // Build CSV from vehicle cost data
+      const headers = ['Vehicle', 'Department', 'Total Cost', 'Cost/Mile', 'Miles', 'Fuel Cost', 'Maintenance Cost', 'Downtime (hrs)', 'vs IRS Rate (%)']
+      const rows = vehicleCostData.map(v => [
+        v.vehicleName,
+        v.department,
+        v.totalCost.toFixed(2),
+        v.costPerMile.toFixed(3),
+        v.miles.toString(),
+        v.fuelCost.toFixed(2),
+        v.maintenanceCost.toFixed(2),
+        v.downtimeHours.toFixed(1),
+        v.variance.toFixed(1),
+      ])
+
+      const csvContent = [
+        headers.join(','),
+        ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n')
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `cost-analytics-${new Date().toISOString().slice(0, 10)}.csv`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      toast.success(`Exported cost data for ${vehicleCostData.length} vehicles`)
+    } catch {
+      toast.error('Failed to export cost data')
+    }
   }
 
   const getVariantColor = (variant: CostMetric['variant']) => {

@@ -307,7 +307,7 @@ export function DamageAnalysisResults({
                   {depthData && !lidarDimensions && (
                     <div>
                       <p className="text-gray-700">Depth Measurement</p>
-                      <p className="font-medium">{depthData.depthMeasurement.toFixed(1)} mm</p>
+                      <p className="font-medium">{(depthData.depthMeasurement ?? 0).toFixed(1)} mm</p>
                     </div>
                   )}
                 </div>
@@ -320,7 +320,7 @@ export function DamageAnalysisResults({
                     <div>
                       <p className="text-gray-700">Labor</p>
                       <p className="font-medium">
-                        ${costBreakdown.laborCost.toFixed(2)}
+                        ${(costBreakdown.laborCost ?? 0).toFixed(2)}
                         <span className="text-xs text-gray-700 ml-1">
                           ({costBreakdown.estimatedHours}h)
                         </span>
@@ -328,7 +328,7 @@ export function DamageAnalysisResults({
                     </div>
                     <div>
                       <p className="text-gray-700">Parts</p>
-                      <p className="font-medium">${costBreakdown.partsCost.toFixed(2)}</p>
+                      <p className="font-medium">${(costBreakdown.partsCost ?? 0).toFixed(2)}</p>
                     </div>
                     <div>
                       <p className="text-gray-700">Total</p>

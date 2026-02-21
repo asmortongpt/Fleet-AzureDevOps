@@ -147,7 +147,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
               <div className="grid grid-cols-2 gap-2">
                 <div className="text-center p-2 bg-emerald-500/10 dark:bg-white/[0.04] rounded-lg">
                   <MapPin className="w-4 h-4 mx-auto mb-2 text-emerald-400" />
-                  <p className="text-sm font-bold text-emerald-400">{trip.distance.toFixed(1)}</p>
+                  <p className="text-sm font-bold text-emerald-400">{(trip.distance ?? 0).toFixed(1)}</p>
                   <p className="text-sm text-white/40">Miles</p>
                 </div>
                 <div className="text-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
@@ -157,12 +157,12 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div className="text-center p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
                   <Fuel className="w-4 h-4 mx-auto mb-2 text-yellow-600" />
-                  <p className="text-sm font-bold text-yellow-600">{trip.fuelConsumed.toFixed(1)}</p>
+                  <p className="text-sm font-bold text-yellow-600">{(trip.fuelConsumed ?? 0).toFixed(1)}</p>
                   <p className="text-sm text-white/40">Gallons</p>
                 </div>
                 <div className="text-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                   <DollarSign className="w-4 h-4 mx-auto mb-2 text-purple-600" />
-                  <p className="text-sm font-bold text-purple-600">${trip.fuelCost.toFixed(2)}</p>
+                  <p className="text-sm font-bold text-purple-600">${(trip.fuelCost ?? 0).toFixed(2)}</p>
                   <p className="text-sm text-white/40">Fuel Cost</p>
                 </div>
               </div>
@@ -181,11 +181,11 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                 </div>
                 <div>
                   <dt className="text-sm text-white/40">Average Speed</dt>
-                  <dd className="font-medium">{trip.averageSpeed.toFixed(1)} mph</dd>
+                  <dd className="font-medium">{(trip.averageSpeed ?? 0).toFixed(1)} mph</dd>
                 </div>
                 <div>
                   <dt className="text-sm text-white/40">Max Speed</dt>
-                  <dd className="font-medium">{trip.maxSpeed.toFixed(1)} mph</dd>
+                  <dd className="font-medium">{(trip.maxSpeed ?? 0).toFixed(1)} mph</dd>
                 </div>
                 {trip.purpose && (
                   <div>
@@ -205,7 +205,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                     <p className="text-sm mb-2">{trip.startLocation.address}</p>
                   )}
                   <p className="text-xs text-white/40 font-mono">
-                    {trip.startLocation.latitude.toFixed(6)}, {trip.startLocation.longitude.toFixed(6)}
+                    {(trip.startLocation?.latitude ?? 0).toFixed(6)}, {(trip.startLocation?.longitude ?? 0).toFixed(6)}
                   </p>
                 </div>
                 <div className="p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
@@ -214,7 +214,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
                     <p className="text-sm mb-2">{trip.endLocation.address}</p>
                   )}
                   <p className="text-xs text-white/40 font-mono">
-                    {trip.endLocation.latitude.toFixed(6)}, {trip.endLocation.longitude.toFixed(6)}
+                    {(trip.endLocation?.latitude ?? 0).toFixed(6)}, {(trip.endLocation?.longitude ?? 0).toFixed(6)}
                   </p>
                 </div>
               </div>
@@ -232,11 +232,11 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
             <div className="mt-2 grid grid-cols-3 gap-2 text-center">
               <div>
                 <p className="text-sm text-white/40">Total Distance</p>
-                <p className="text-base font-bold">{trip.distance.toFixed(1)} mi</p>
+                <p className="text-base font-bold">{(trip.distance ?? 0).toFixed(1)} mi</p>
               </div>
               <div>
                 <p className="text-sm text-white/40">Avg Speed</p>
-                <p className="text-base font-bold">{trip.averageSpeed.toFixed(1)} mph</p>
+                <p className="text-base font-bold">{(trip.averageSpeed ?? 0).toFixed(1)} mph</p>
               </div>
               <div>
                 <p className="text-sm text-white/40">Stops</p>
@@ -314,11 +314,11 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
               <dl className="space-y-3">
                 <div className="flex justify-between">
                   <dt className="text-white/40">Average Speed</dt>
-                  <dd className="font-medium">{trip.averageSpeed.toFixed(1)} mph</dd>
+                  <dd className="font-medium">{(trip.averageSpeed ?? 0).toFixed(1)} mph</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-white/40">Max Speed</dt>
-                  <dd className="font-medium">{trip.maxSpeed.toFixed(1)} mph</dd>
+                  <dd className="font-medium">{(trip.maxSpeed ?? 0).toFixed(1)} mph</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-white/40">Idle Time</dt>
@@ -336,7 +336,7 @@ export const TripInspector: React.FC<TripInspectorProps> = ({ id, initialTab = '
               <dl className="space-y-3">
                 <div className="flex justify-between">
                   <dt className="text-white/40">Fuel Cost</dt>
-                  <dd className="font-medium">${trip.fuelCost.toFixed(2)}</dd>
+                  <dd className="font-medium">${(trip.fuelCost ?? 0).toFixed(2)}</dd>
                 </div>
                 <div className="flex justify-between">
                   <dt className="text-white/40">Cost per Mile</dt>

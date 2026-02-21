@@ -226,11 +226,11 @@ export const AlertInspector: React.FC<AlertInspectorProps> = ({ id, initialTab =
                   <div className="grid grid-cols-2 gap-2">
                     <div>
                       <p className="text-sm text-white/40">Latitude</p>
-                      <p className="font-mono">{alert.location.latitude.toFixed(6)}</p>
+                      <p className="font-mono">{(alert.location?.latitude ?? 0).toFixed(6)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-white/40">Longitude</p>
-                      <p className="font-mono">{alert.location.longitude.toFixed(6)}</p>
+                      <p className="font-mono">{(alert.location?.longitude ?? 0).toFixed(6)}</p>
                     </div>
                   </div>
                   {alert.location.address && (

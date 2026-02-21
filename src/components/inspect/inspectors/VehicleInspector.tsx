@@ -333,7 +333,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
                   <FieldRow
                     icon={<MapPinned className="h-3.5 w-3.5" />}
                     label="Coordinates"
-                    value={`${vehicle.location.latitude.toFixed(6)}, ${vehicle.location.longitude.toFixed(6)}`}
+                    value={`${(vehicle.location.latitude ?? 0).toFixed(6)}, ${(vehicle.location.longitude ?? 0).toFixed(6)}`}
                     mono
                   />
                   {vehicle.location.address && (

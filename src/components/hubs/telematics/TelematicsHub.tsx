@@ -177,10 +177,10 @@ export const TelematicsHub: React.FC = () => {
                   <MapPin className="w-3 h-3 text-primary" />
                   <div>
                     <p className="font-medium">{vehicle.name || vehicle.id}</p>
-                    {vehicle.location && (
+                    {vehicle.location && vehicle.location.latitude != null && vehicle.location.longitude != null && (
                       <p className="text-sm text-muted-foreground">
-                        {vehicle.location.latitude.toFixed(6)},{' '}
-                        {vehicle.location.longitude.toFixed(6)}
+                        {Number(vehicle.location.latitude).toFixed(6)},{' '}
+                        {Number(vehicle.location.longitude).toFixed(6)}
                       </p>
                     )}
                   </div>
@@ -190,7 +190,7 @@ export const TelematicsHub: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground">Speed</p>
-                      <p className="font-medium">{Math.round(vehicle.location.speed)} km/h</p>
+                      <p className="font-medium">{Math.round(vehicle.location.speed ?? 0)} km/h</p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-muted-foreground">Source</p>

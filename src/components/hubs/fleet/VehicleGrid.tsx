@@ -212,7 +212,7 @@ export const VehicleGrid: React.FC = () => {
                   Current Location
                 </h3>
                 <div className="border border-border rounded-lg h-64 bg-muted flex items-center justify-center">
-                  <p className="text-muted-foreground">Map: {selectedVehicle.location.lat.toFixed(4)}, {selectedVehicle.location.lng.toFixed(4)}</p>
+                  <p className="text-muted-foreground">Map: {selectedVehicle.location.lat != null ? Number(selectedVehicle.location.lat).toFixed(4) : '—'}, {selectedVehicle.location.lng != null ? Number(selectedVehicle.location.lng).toFixed(4) : '—'}</p>
                 </div>
               </div>
             )}

@@ -176,7 +176,7 @@ export const DriverInspector: React.FC<DriverInspectorProps> = ({ id, initialTab
                 <div className="flex justify-between">
                   <dt className="text-white/40">Rating</dt>
                   <dd className="font-medium flex items-center gap-1">
-                    {driver.rating.toFixed(1)} ⭐
+                    {(driver.rating ?? 0).toFixed(1)} ⭐
                   </dd>
                 </div>
                 {driver.currentVehicle && (

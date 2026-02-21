@@ -3,7 +3,7 @@
  * Shows trailers attached to tractors, equipment attachments, etc.
  */
 
-import { Link2, AlertCircle, Loader2 } from 'lucide-react'
+import { Link2, Loader2 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
@@ -67,26 +67,18 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
     )
   }
 
-  // Show error state (API not implemented yet)
+  // Show empty state when data is unavailable
   if (error) {
     return (
-      <Card className="p-2 bg-muted/50 border-dashed">
-        <div className="flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-muted-foreground mt-0.5" />
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground">
-              Asset Relationships Feature
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              This feature will display attached trailers, equipment, and other related assets.
-              API endpoint not yet implemented.
-            </p>
-            <p className="text-xs text-muted-foreground mt-2 italic">
-              Expected endpoint: GET /api/asset-relationships/active?parent_asset_id={vehicleId}
-            </p>
-          </div>
-        </div>
-      </Card>
+      <div className="text-center py-3">
+        <Link2 className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+        <p className="text-sm text-muted-foreground">
+          No asset relationships found
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          No attached trailers, equipment, or related assets for this vehicle
+        </p>
+      </div>
     )
   }
 

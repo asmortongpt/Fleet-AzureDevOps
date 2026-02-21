@@ -200,7 +200,7 @@ export const TelemetryDashboard: React.FC = () => {
               <MetricCard label="Errors" value={metrics.errorCount} color="hsl(var(--chart-6))" />
               <MetricCard
                 label="Avg Response"
-                value={`${metrics.avgResponseTime.toFixed(0)}ms`}
+                value={`${(metrics.avgResponseTime ?? 0).toFixed(0)}ms`}
               />
             </div>
           </div>

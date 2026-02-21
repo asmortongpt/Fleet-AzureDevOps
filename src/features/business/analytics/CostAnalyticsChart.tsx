@@ -82,7 +82,7 @@ const CostAnalyticsChart: React.FC<CostAnalyticsChartProps> = ({
           </Typography>
           {payload.map((entry: any) => (
             <Typography key={entry.name} variant="body2" sx={{ color: entry.color }}>
-              {entry.name}: ${entry.value.toFixed(2)}
+              {entry.name}: ${(entry.value ?? 0).toFixed(2)}
             </Typography>
           ))}
         </Card>

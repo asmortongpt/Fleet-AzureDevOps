@@ -223,7 +223,7 @@ const FleetMetricsCards: React.FC<FleetMetricsCardsProps> = ({ data, period }) =
                           {metric.progress.label}
                         </Typography>
                         <Typography variant="caption" fontWeight={600}>
-                          {metric.progress.value.toFixed(1)}%
+                          {(metric.progress?.value ?? 0).toFixed(1)}%
                         </Typography>
                       </Box>
                       <LinearProgress

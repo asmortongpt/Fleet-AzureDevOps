@@ -550,7 +550,7 @@ const AdvancedAnalyticsDashboard: React.FC = () => {
                     <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 2, mb: 2 }}>
                       <Typography variant="h4">{kpi.current}</Typography>
                       <Chip
-                        label={`${kpi.change >= 0 ? '+' : ''}${kpi.changePercent.toFixed(1)}%`}
+                        label={`${kpi.change >= 0 ? '+' : ''}${(kpi.changePercent ?? 0).toFixed(1)}%`}
                         size="small"
                         color={kpi.trend === 'UP' ? 'success' : kpi.trend === 'DOWN' ? 'error' : 'default'}
                       />
