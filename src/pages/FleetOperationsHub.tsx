@@ -229,7 +229,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
       (wo: any) => wo.status !== 'completed' && wo.status !== 'cancelled'
     )
     const totalDowntimeHours = workOrders.reduce((sum: number, wo: any) =>
-      sum + (wo.actualHours || wo.estimatedHours || 0), 0)
+      sum + Number(wo.downtimeHours || wo.downtime_hours || 0), 0)
     const emergencyCount = workOrders.filter(
       (wo: any) => wo.type === 'emergency' || wo.priority === 'urgent' || wo.priority === 'critical'
     ).length
@@ -454,8 +454,8 @@ const OverviewTabContent = memo(function OverviewTabContent() {
           <div className="flex flex-col gap-2">
             <div className="grid grid-cols-3 gap-2">
               <div className="rounded border border-white/[0.08] bg-[#242424] p-2 text-center">
-                <p className="text-[10px] text-muted-foreground">Total WOs</p>
-                <p className="text-lg font-bold text-foreground">{maintenanceMetrics?.totalWorkOrders ?? 0}</p>
+                <p className="text-[10px] text-muted-foreground">Open WOs</p>
+                <p className="text-lg font-bold text-foreground">{maintenanceOverview.openWorkOrders}</p>
               </div>
               <div className="rounded border border-white/[0.08] bg-[#242424] p-2 text-center">
                 <p className="text-[10px] text-muted-foreground">Downtime</p>

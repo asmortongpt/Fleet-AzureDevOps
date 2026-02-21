@@ -168,6 +168,9 @@ const WorkOrderSchema = z
       scheduledStart: row.scheduled_start ?? row.scheduled_start_date,
       scheduledEnd: row.scheduled_end ?? row.scheduled_end_date,
       cost: row.cost ?? row.actual_cost ?? row.estimated_cost ?? row.total_cost ?? 0,
+      downtimeHours: Number(row.downtime_hours ?? row.downtimeHours ?? 0),
+      partsCost: Number(row.parts_cost ?? row.partsCost ?? 0),
+      laborCost: Number(row.labor_cost ?? row.laborCost ?? 0),
     }
   })
 
