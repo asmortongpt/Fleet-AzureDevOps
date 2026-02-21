@@ -20,6 +20,7 @@ import {
   Eye
 } from 'lucide-react'
 import React, { useState, useRef } from 'react'
+import { toast } from 'sonner'
 
 import { apiClient } from '../../lib/api'
 import { Alert, AlertDescription } from '../ui/alert'
@@ -125,7 +126,7 @@ export function DocumentScanner({
     } catch (error: unknown) {
       logger.error('Document processing error:', error)
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-      alert(`Error processing document: ${errorMessage}`)
+      toast.error(`Error processing document: ${errorMessage}`)
     } finally {
       setIsProcessing(false)
     }

@@ -14,6 +14,7 @@
  */
 
 import React, { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 
 import {
   Alert,
@@ -191,7 +192,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
     try {
       const model = models.find(m => m.format === format);
       if (!model) {
-        alert(`${format.toUpperCase()} model not available`);
+        toast.error(`${format.toUpperCase()} model not available`);
         return;
       }
 
@@ -199,14 +200,14 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
       window.open(model.fileUrl, '_blank');
     } catch (err) {
       logger.error('Export error:', err);
-      alert('Failed to export model');
+      toast.error('Failed to export model');
     }
   };
 
   const handleARPreview = () => {
     const usdzModel = models.find(m => m.format === 'usdz');
     if (!usdzModel) {
-      alert('USDZ model required for AR preview');
+      toast.error('USDZ model required for AR preview');
       return;
     }
 
@@ -214,7 +215,7 @@ export const LidarViewer: React.FC<LidarViewerProps> = ({
     if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
       window.location.href = usdzModel.fileUrl;
     } else {
-      alert('AR preview is currently only supported on iOS devices');
+      toast.info('AR preview is currently only supported on iOS devices');
     }
   };
 

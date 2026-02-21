@@ -1,5 +1,7 @@
 import { AlertTriangle, Car, Upload, X, Loader2, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
+
 import { useNavigation } from '@/contexts/NavigationContext'
 import { z } from 'zod'
 
@@ -80,12 +82,12 @@ export function CreateDamageReport({ vehicleId, onSuccess }: CreateDamageReportP
       const isImage = file.type.startsWith('image/')
       const isVideo = file.type.startsWith('video/')
       if (!isImage && !isVideo) {
-        alert(`${file.name} is not a valid image or video file`)
+        toast.error(`${file.name} is not a valid image or video file`)
         return false
       }
       // Validate file size (max 50MB)
       if (file.size > 50 * 1024 * 1024) {
-        alert(`${file.name} is too large. Maximum file size is 50MB`)
+        toast.error(`${file.name} is too large. Maximum file size is 50MB`)
         return false
       }
       return true

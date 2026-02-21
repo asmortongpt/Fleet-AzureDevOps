@@ -18,6 +18,7 @@ import {
   Radio
 } from 'lucide-react'
 import React, { useState, useEffect, useRef, useCallback } from 'react'
+import { toast } from 'sonner'
 
 import { Badge } from './ui/badge'
 
@@ -386,7 +387,7 @@ export default function DispatchConsole() {
       }
     } catch (error) {
       logger.error('Failed to start transmission:', error)
-      alert('Failed to access microphone. Please check permissions.')
+      toast.error('Failed to access microphone. Please check permissions.')
     }
   }
 
@@ -441,7 +442,7 @@ export default function DispatchConsole() {
 
       const data = await response.json()
       if (data.success) {
-        alert('Emergency alert sent!')
+        toast.success('Emergency alert sent!')
         loadEmergencyAlerts()
       }
     } catch (error) {

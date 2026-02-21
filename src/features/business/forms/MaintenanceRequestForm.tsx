@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-
-
+import { toast } from 'sonner';
 
 interface MaintenanceRequestProps {
   currentTheme: any;
@@ -24,7 +23,7 @@ const MaintenanceRequestForm: React.FC<MaintenanceRequestProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // logger.info('Maintenance Request:', request);
-    alert('Maintenance request submitted successfully!');
+    toast.success('Maintenance request submitted successfully!');
     setActiveView('dashboard');
   };
 

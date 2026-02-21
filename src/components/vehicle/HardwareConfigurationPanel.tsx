@@ -64,6 +64,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
+import { toast } from 'sonner';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -595,7 +596,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       onProviderAdded?.(type)
     } catch (err) {
       logger.error('Error adding provider:', err)
-      alert(err instanceof Error ? err.message : 'Failed to add provider')
+      toast.error(err instanceof Error ? err.message : 'Failed to add provider')
     } finally {
       setIsAdding(false)
     }
@@ -618,7 +619,7 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       onProviderRemoved?.(removedProvider?.type || '')
     } catch (err) {
       logger.error('Error removing provider:', err)
-      alert(err instanceof Error ? err.message : 'Failed to remove provider')
+      toast.error(err instanceof Error ? err.message : 'Failed to remove provider')
     }
   }
 
@@ -633,20 +634,20 @@ export const HardwareConfigurationPanel: React.FC<HardwareConfigurationPanelProp
       const data = await response.json()
 
       if (data.success) {
-        alert('Connection test successful!')
+        toast.success('Connection test successful!')
         // Update provider status
         setProviders(providers.map(p =>
           p.id === providerId ? { ...p, status: 'online' } : p
         ))
       } else {
-        alert(`Connection test failed: ${data.message}`)
+        toast.error(`Connection test failed: ${data.message}`)
         setProviders(providers.map(p =>
           p.id === providerId ? { ...p, status: 'error' } : p
         ))
       }
     } catch (err) {
       logger.error('Error testing connection:', err)
-      alert('Connection test failed')
+      toast.error('Connection test failed')
     } finally {
       setTestingConnectionId(null)
     }

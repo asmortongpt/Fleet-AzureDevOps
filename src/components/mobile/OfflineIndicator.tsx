@@ -20,6 +20,7 @@ import { offlineSyncService, type SyncStatus } from '../../services/offline-sync
 
 import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { toast } from 'sonner';
 
 interface OfflineIndicatorProps {
   showDetails?: boolean;
@@ -84,7 +85,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
   const handleManualSync = async () => {
     if (!isOnline) {
-      alert('Cannot sync while offline');
+      toast.info('Cannot sync while offline');
       return;
     }
 
@@ -92,7 +93,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
       await offlineSyncService.syncWhenOnline();
     } catch (error) {
       logger.error('Manual sync failed:', error);
-      alert('Sync failed. Please try again.');
+      toast.error('Sync failed. Please try again.');
     }
   };
 

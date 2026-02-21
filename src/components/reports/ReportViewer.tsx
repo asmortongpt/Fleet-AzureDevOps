@@ -270,7 +270,7 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
       window.URL.revokeObjectURL(url);
     } catch (err) {
       logger.error('Export error:', err);
-      alert('Export failed. Please try again.');
+      toast.error('Export failed. Please try again.');
     }
   }, [reportDef, filters, user]);
 

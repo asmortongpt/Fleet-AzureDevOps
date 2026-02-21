@@ -28,6 +28,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { brandColors } from '@/theme/designSystem'
 import { formatCurrency, formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { toast } from 'sonner';
 interface Assignment {
   id: string;
   vehicle_id: string;
@@ -135,11 +136,11 @@ const MobileEmployeeDashboard: React.FC = () => {
 
       if (response.ok) {
         fetchDashboardData(); // Refresh
-        alert('On-call period acknowledged successfully');
+        toast.success('On-call period acknowledged successfully');
       }
     } catch (error) {
       logger.error('Error acknowledging on-call:', error);
-      alert('Failed to acknowledge on-call period');
+      toast.error('Failed to acknowledge on-call period');
     }
   };
 
@@ -171,7 +172,7 @@ const MobileEmployeeDashboard: React.FC = () => {
 
       if (response.ok) {
         const result = await response.json();
-        alert(`Callback trip logged successfully! Estimated reimbursement: ${formatCurrency(result.estimated_reimbursement)}`);
+        toast.success(`Callback trip logged successfully! Estimated reimbursement: ${formatCurrency(result.estimated_reimbursement)}`);
         setShowCallbackForm(false);
         fetchDashboardData();
         // Reset form
@@ -186,7 +187,7 @@ const MobileEmployeeDashboard: React.FC = () => {
       }
     } catch (error) {
       logger.error('Error submitting callback trip:', error);
-      alert('Failed to log callback trip');
+      toast.error('Failed to log callback trip');
     }
   };
 

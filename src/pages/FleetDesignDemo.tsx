@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { formatNumber } from '@/utils/format-helpers'
@@ -270,7 +271,7 @@ export default function FleetDesignDemo() {
                                                         severity: 'warn'
                                                     },
                                                 ]}
-                                                onOpenRecord={(id) => alert(`Opening record: ${id}`)}
+                                                onOpenRecord={(id) => toast.info(`Opening record: ${id}`)}
                                             />
                                         </td>
                                     </tr>

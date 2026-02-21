@@ -1,5 +1,6 @@
 import { ArrowLeft, Sparkles, Send, Code, Eye, Save, X } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -85,7 +86,7 @@ export function AIReportBuilder({ onBack, onReportCreated }: AIReportBuilderProp
       onReportCreated(reportId);
     } catch (err) {
       logger.error('Save error:', err);
-      alert('Failed to save report. Please try again.');
+      toast.error('Failed to save report. Please try again.');
     }
   }, [generatedReport, onReportCreated]);
 

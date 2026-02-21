@@ -24,6 +24,7 @@ import {
   Flag
 } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -192,7 +193,7 @@ export function SystemConfiguration() {
     // In real app, this would call API to save configuration
     logger.info('Saving configuration...', { envVars, featureFlags });
     setHasChanges(false);
-    alert('Configuration saved successfully!');
+    toast.success('Configuration saved successfully!');
   };
 
   const handleRefreshHealth = () => {

@@ -16,6 +16,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Progress } from '../ui/progress';
 
 import logger from '@/utils/logger';
+import { toast } from 'sonner';
 
 interface MobileDamageCaptureProps {
   vehicleId: string;
@@ -142,7 +143,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
       setCaptureMode(null);
     } catch (error) {
       logger.error('Error analyzing photos:', error);
-      alert('Failed to analyze photos. Please try again.');
+      toast.error('Failed to analyze photos. Please try again.');
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);
@@ -188,7 +189,7 @@ export function MobileDamageCapture({ onAnalysisComplete }: MobileDamageCaptureP
       setCaptureMode(null);
     } catch (error) {
       logger.error('Error analyzing video:', error);
-      alert('Failed to analyze video. Please try again.');
+      toast.error('Failed to analyze video. Please try again.');
     } finally {
       setIsAnalyzing(false);
       setAnalysisProgress(0);

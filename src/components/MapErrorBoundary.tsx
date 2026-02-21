@@ -12,6 +12,7 @@
  */
 
 import { Component, ReactNode, ErrorInfo } from 'react'
+import { toast } from 'sonner'
 
 import type { MapProvider } from './UniversalMap'
 
@@ -399,15 +400,15 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
 
   private handleCheckNetwork = (): void => {
     if (navigator.onLine) {
-      alert('You appear to be online. The issue may be with the map service.')
+      toast.info('You appear to be online. The issue may be with the map service.')
     } else {
-      alert('You are currently offline. Please check your internet connection.')
+      toast.error('You are currently offline. Please check your internet connection.')
     }
   }
 
   private handleOfflineMode = (): void => {
     // FUTURE: Implement offline mode
-    alert('Offline mode is not yet implemented.')
+    toast.info('Offline mode is not yet implemented.')
   }
 
   private handleClearCache = (): void => {
@@ -415,7 +416,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
     try {
       localStorage.removeItem('fleet_map_provider')
       localStorage.removeItem('fleet_map_cache')
-      alert('Cache cleared. Reloading page...')
+      toast.success('Cache cleared. Reloading page...')
       window.location.reload()
     } catch (error) {
       logger.error('Failed to clear cache:', error)
@@ -426,7 +427,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
     try {
       localStorage.removeItem('fleet_map_provider')
       localStorage.removeItem('fleet_map_settings')
-      alert('Settings reset. Reloading page...')
+      toast.success('Settings reset. Reloading page...')
       window.location.reload()
     } catch (error) {
       logger.error('Failed to reset settings:', error)
@@ -437,7 +438,7 @@ export class MapErrorBoundary extends Component<MapErrorBoundaryProps, MapErrorB
     const { error, errorInfo } = this.state
     if (error && errorInfo) {
       reportError(error, errorInfo, this.props.provider)
-      alert('Error reported. Thank you!')
+      toast.success('Error reported. Thank you!')
     }
   }
 

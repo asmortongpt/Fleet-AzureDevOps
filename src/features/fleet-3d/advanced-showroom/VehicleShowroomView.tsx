@@ -1,4 +1,5 @@
 import React from "react";
+import { toast } from 'sonner';
 
 interface Vehicle {
   id: string;
@@ -38,7 +39,7 @@ const VehicleShowroomView: React.FC<VehicleShowroomViewProps> = ({
     if (selectedVehicle) {
       setShowReservationModal(true);
     } else {
-      alert('Please select a vehicle first');
+      toast.info('Please select a vehicle first');
     }
   };
 

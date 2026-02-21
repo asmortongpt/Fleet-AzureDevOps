@@ -4,6 +4,7 @@
 
 import { Mail, MessageSquare, Calendar, Send } from 'lucide-react';
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import logger from '@/utils/logger';
 
@@ -45,11 +46,11 @@ export const OutlookEmailButton: React.FC<{
       if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       if (response.ok) {
-        alert('Email sent successfully!');
+        toast.success('Email sent successfully!');
       }
     } catch (error) {
       logger.error('Failed to send email:', error);
-      alert('Failed to send email');
+      toast.error('Failed to send email');
     } finally {
       setSending(false);
     }
@@ -168,11 +169,11 @@ export const CalendarEventButton: React.FC<{
       if (!response.ok) throw new Error('Request failed: ' + response.status);
 
       if (response.ok) {
-        alert('Calendar event created!');
+        toast.success('Calendar event created!');
       }
     } catch (error) {
       logger.error('Failed to create event:', error);
-      alert('Failed to create calendar event');
+      toast.error('Failed to create calendar event');
     } finally {
       setCreating(false);
     }

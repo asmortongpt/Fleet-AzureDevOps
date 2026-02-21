@@ -16,6 +16,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { toast } from 'sonner'
 
 import { useNavigation } from '@/contexts/NavigationContext'
 import { useDrilldown } from '@/contexts/DrilldownContext'
@@ -69,17 +70,17 @@ export function DamageReportDetails() {
 
   const handleGenerateModel = async () => {
     if (!id || !report || !report.photos || report.photos.length === 0) {
-      alert('Photos are required to generate a 3D model')
+      toast.error('Photos are required to generate a 3D model')
       return
     }
 
     try {
       await damageReportsApi.generateModel(id)
-      alert('3D model generation started. This may take several minutes.')
+      toast.success('3D model generation started. This may take several minutes.')
       fetchReportDetails()
     } catch (err) {
       logger.error('Error generating 3D model:', err)
-      alert('Failed to start 3D model generation')
+      toast.error('Failed to start 3D model generation')
     }
   }
 

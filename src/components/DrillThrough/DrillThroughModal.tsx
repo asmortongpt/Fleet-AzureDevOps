@@ -1,5 +1,6 @@
 import { X, Filter, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 
 import { useDrillThrough } from '../../hooks/drill-through/useDrillThrough';
 import type { DrillThroughConfig, ExportFormat } from '../../types/drill-through';
@@ -76,7 +77,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
       await exportData(format);
     } catch (err) {
       logger.error('Export failed:', err);
-      alert('Export failed. Please try again.');
+      toast.error('Export failed. Please try again.');
     }
   };
 

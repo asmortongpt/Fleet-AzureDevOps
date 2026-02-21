@@ -24,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatDate, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { toast } from 'sonner';
 import { brandColors } from '@/theme/designSystem'
 
 interface CarbonData {
@@ -284,7 +285,7 @@ const CarbonFootprintTracker: React.FC = () => {
       logger.debug('[CarbonFootprint] PDF report generated successfully');
     } catch (error: any) {
       logger.error('[CarbonFootprint] Error generating PDF report:', error);
-      alert(`Failed to generate PDF report: ${error.message}`);
+      toast.error(`Failed to generate PDF report: ${error.message}`);
     }
   };
 

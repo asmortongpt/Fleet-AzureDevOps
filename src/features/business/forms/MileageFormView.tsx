@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { MileageReimbursement } from '@/components/modules/tools/MileageReimbursement';
 import { formatCurrency } from '@/utils/format-helpers';
@@ -33,7 +34,7 @@ const MileageFormView: React.FC<MileageFormViewProps> = ({ currentTheme, setActi
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Mileage reimbursement submitted: ${formatCurrency(reimbursement)} for ${totalMiles} miles`);
+    toast.success(`Mileage reimbursement submitted: ${formatCurrency(reimbursement)} for ${totalMiles} miles`);
   };
 
   return (

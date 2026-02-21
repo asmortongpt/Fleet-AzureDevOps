@@ -186,7 +186,7 @@ export default function VehicleShowroom3D() {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(window.location.href);
-        alert('Link copied to clipboard!');
+        toast.success('Link copied to clipboard!');
       }
     } catch (err) {
       logger.error('Error sharing:', err);

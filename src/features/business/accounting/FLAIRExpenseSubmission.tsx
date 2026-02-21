@@ -5,6 +5,7 @@
  */
 
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 import { useAuth } from '@/contexts';
 import { secureFetch } from '@/hooks/use-api';
@@ -1091,7 +1092,7 @@ const DocumentUpload: React.FC<{
     for (const file of Array.from(files)) {
       if (file.size > 10 * 1024 * 1024) {
         // 10MB limit
-        alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+        toast.error(`File ${file.name} is too large. Maximum size is 10MB.`);
         continue;
       }
 

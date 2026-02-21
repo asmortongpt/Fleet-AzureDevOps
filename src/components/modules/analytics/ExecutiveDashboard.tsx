@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatTime, formatNumber } from '@/utils/format-helpers'
+import { toast } from 'sonner'
 
 interface KPIData {
   totalVehicles: number
@@ -189,7 +190,7 @@ export function ExecutiveDashboard() {
 
   const handleExportPDF = () => {
     // In production, this would generate a PDF report
-    alert('PDF Export functionality - integrate with jsPDF or similar library')
+    toast.info('PDF Export functionality - integrate with jsPDF or similar library')
   }
 
   const getHealthColor = (score: number) => {

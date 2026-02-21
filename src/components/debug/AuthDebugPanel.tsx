@@ -24,6 +24,7 @@ import {
   Shield
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -131,9 +132,9 @@ export function AuthDebugPanel() {
   const handleRefresh = async () => {
     try {
       await refreshToken();
-      alert('Token refreshed successfully!');
+      toast.success('Token refreshed successfully!');
     } catch (error) {
-      alert('Token refresh failed: ' + (error as Error).message);
+      toast.error('Token refresh failed: ' + (error as Error).message);
     }
   };
 

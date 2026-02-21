@@ -13,6 +13,7 @@
 
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 // Type declarations for Okta SDK (packages not installed - this is an optional enterprise feature)
 // These types provide compile-time safety without requiring the actual @okta packages
@@ -590,7 +591,7 @@ export const OktaAuthProvider: React.FC<OktaAuthProviderProps> = ({
         );
         if (shouldExtend) {
           extendSession().catch(() => {
-            alert('Failed to extend session. Please log in again.');
+            toast.error('Failed to extend session. Please log in again.');
             logout();
           });
         }

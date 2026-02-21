@@ -21,6 +21,7 @@ import { pushNotificationService } from '../../services/push-notifications.servi
 
 import logger from '@/utils/logger';
 import { formatNumber, formatTime } from '@/utils/format-helpers';
+import { toast } from 'sonner';
 
 interface Vehicle {
   id: string;
@@ -140,7 +141,7 @@ export const DriverToolbox: React.FC = () => {
 
   const handleStartInspection = () => {
     if (!activeVehicle) {
-      alert('Please select a vehicle first');
+      toast.info('Please select a vehicle first');
       return;
     }
     window.location.href = `/mobile/inspection/${activeVehicle.id}`;
@@ -148,7 +149,7 @@ export const DriverToolbox: React.FC = () => {
 
   const handleReportDamage = () => {
     if (!activeVehicle) {
-      alert('Please select a vehicle first');
+      toast.info('Please select a vehicle first');
       return;
     }
     window.location.href = `/mobile/damage-report/${activeVehicle.id}`;
@@ -164,7 +165,7 @@ export const DriverToolbox: React.FC = () => {
       const { lat, lng } = activeVehicle.location;
       window.open(`https://maps.google.com?q=${lat},${lng}`, '_blank');
     } else {
-      alert('Vehicle location not available');
+      toast.info('Vehicle location not available');
     }
   };
 
@@ -174,7 +175,7 @@ export const DriverToolbox: React.FC = () => {
       setLastSyncTime(new Date());
     } catch (error) {
       logger.error('Manual sync failed:', error);
-      alert('Sync failed. Please check your connection.');
+      toast.error('Sync failed. Please check your connection.');
     }
   };
 

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { maintenanceService, MaintenanceRecord } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
@@ -54,7 +55,7 @@ const MaintenanceHistoryList: React.FC<MaintenanceHistoryListProps> = ({
       await fetchData();
     } catch (err: any) {
       logger.error('Failed to complete maintenance:', err);
-      alert('Failed to mark as completed: ' + (err.message || 'Unknown error'))
+      toast.error('Failed to mark as completed: ' + (err.message || 'Unknown error'))
     }
   };
 

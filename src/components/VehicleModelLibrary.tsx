@@ -17,6 +17,7 @@ import {
   Check,
 } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
+import { toast } from 'sonner';
 
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Badge } from '@/components/ui/badge';
@@ -183,7 +184,7 @@ export function VehicleModelLibrary({
       await service.downloadModel(model.id, `${model.name}.${model.fileFormat}`);
     } catch (error) {
       logger.error('Download error:', error);
-      alert('Failed to download model');
+      toast.error('Failed to download model');
     }
   };
 

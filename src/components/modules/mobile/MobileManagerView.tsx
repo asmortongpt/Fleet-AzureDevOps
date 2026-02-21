@@ -22,6 +22,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { toast } from 'sonner';
 import { brandColors } from '@/theme/designSystem'
 interface PendingAssignment {
   id: string;
@@ -80,7 +81,7 @@ const MobileManagerView: React.FC = () => {
       });
 
       if (response.ok) {
-        alert(`Assignment ${action}d successfully`);
+        toast.success(`Assignment ${action}d successfully`);
         setShowApprovalModal(false);
         setSelectedAssignment(null);
         setApprovalNotes('');
@@ -88,7 +89,7 @@ const MobileManagerView: React.FC = () => {
       }
     } catch (error) {
       logger.error('Error processing approval:', error);
-      alert('Failed to process approval');
+      toast.error('Failed to process approval');
     }
   };
 

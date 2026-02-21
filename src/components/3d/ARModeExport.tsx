@@ -20,6 +20,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useState, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
@@ -170,7 +171,7 @@ export default function ARModeExport({
       } else {
         // Fallback: copy to clipboard
         await navigator.clipboard.writeText(generatedUrl);
-        alert('AR link copied to clipboard!');
+        toast.success('AR link copied to clipboard!');
       }
     } catch (err) {
       logger.error('Error sharing:', err);
