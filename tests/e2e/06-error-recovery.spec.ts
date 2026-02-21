@@ -289,7 +289,8 @@ test.describe('Data Loading Errors', () => {
 
     // Should have loading indicator
     const skeleton = page.locator('[data-testid="loading"]').or(
-      page.locator('[class*="skeleton"]').or(
+      page.locator('[class*="skeleton"]')
+    ).or(
       page.locator('[role="status"]')
     );
 

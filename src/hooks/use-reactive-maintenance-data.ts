@@ -239,17 +239,21 @@ const PredictiveMaintenanceSchema = z
     vehicle_name: z.string().max(255).optional(),
     issue: z.string().max(500).optional(),
     prediction_type: z.string().optional(),
-    confidence: z.number().min(0).max(100).optional(),
-    confidence_score: z.number().min(0).max(100).optional(),
+    component: z.string().max(500).optional(),
+    confidence: z.coerce.number().min(0).optional(),
+    confidence_score: z.coerce.number().min(0).optional(),
     daysUntilFailure: z.number().int().min(0).max(365).optional(),
-    predicted_failure_date: z.string().optional(),
+    predicted_failure_date: z.string().optional().nullable(),
     severity: z.enum(['low', 'medium', 'high', 'critical']).optional(),
+    risk_level: z.string().optional(),
     recommendedAction: z.string().max(1000).optional(),
-    recommended_action: z.string().max(100).optional(),
-    estimatedCost: z.number().min(0).optional(),
-    estimated_cost: z.number().min(0).optional(),
+    recommended_action: z.string().max(1000).optional(),
+    recommendation: z.string().max(2000).optional().nullable(),
+    estimatedCost: z.coerce.number().min(0).optional(),
+    estimated_cost: z.coerce.number().min(0).optional(),
     createdAt: z.string().datetime().optional(),
     created_at: z.string().datetime().optional(),
+    status: z.string().optional(),
   })
   .passthrough()
   .transform((row) => {
@@ -262,15 +266,30 @@ const PredictiveMaintenanceSchema = z
       }
     }
 
+    // Normalize confidence: API returns 0-1 scale, we need 0-100
+    let confidence = row.confidence ?? row.confidence_score ?? 0
+    if (confidence > 0 && confidence <= 1) {
+      confidence = Math.round(confidence * 100)
+    }
+
+    // Map risk_level to severity enum
+    const riskToSeverity: Record<string, 'low' | 'medium' | 'high' | 'critical'> = {
+      low: 'low',
+      medium: 'medium',
+      high: 'high',
+      critical: 'critical',
+    }
+    const severity = row.severity ?? riskToSeverity[row.risk_level ?? ''] ?? 'low'
+
     return {
       id: row.id,
       vehicleId: row.vehicleId ?? row.vehicle_id ?? '',
       vehicleName: row.vehicleName ?? row.vehicle_name ?? '',
-      issue: row.issue ?? row.prediction_type ?? '',
-      confidence: row.confidence ?? row.confidence_score ?? 0,
+      issue: row.issue ?? row.prediction_type ?? row.component ?? '',
+      confidence,
       daysUntilFailure: daysUntilFailure ?? 0,
-      severity: row.severity ?? 'low',
-      recommendedAction: row.recommendedAction ?? row.recommended_action,
+      severity,
+      recommendedAction: row.recommendedAction ?? row.recommended_action ?? row.recommendation,
       estimatedCost: row.estimatedCost ?? row.estimated_cost,
       createdAt: row.createdAt ?? row.created_at ?? new Date().toISOString(),
     }
@@ -278,13 +297,39 @@ const PredictiveMaintenanceSchema = z
 
 const MaintenanceScheduleSchema = z.object({
   id: z.string().uuid(),
-  vehicleId: z.string().uuid(),
+  vehicleId: z.string().uuid().optional(),
+  vehicle_id: z.string().uuid().optional(),
   vehicleName: z.string().max(255).optional(),
-  type: z.string().max(100),
-  scheduledDate: z.string().datetime(),
-  estimatedDuration: z.number().min(0).max(100), // hours
-  status: z.enum(['scheduled', 'completed', 'overdue', 'cancelled']),
+  vehicle_name: z.string().max(255).optional(),
+  name: z.string().max(255).optional(),
+  type: z.string().max(100).optional(),
+  scheduledDate: z.string().datetime().optional(),
+  next_service_date: z.string().datetime().optional().nullable(),
+  last_service_date: z.string().datetime().optional().nullable(),
+  estimatedDuration: z.coerce.number().min(0).max(100).optional().nullable(),
+  estimated_duration: z.coerce.number().min(0).max(100).optional().nullable(),
+  estimated_cost: z.coerce.number().min(0).optional().nullable(),
+  status: z.enum(['scheduled', 'completed', 'overdue', 'cancelled']).optional(),
+  is_active: z.boolean().optional(),
   description: z.string().max(1000).optional(),
+  interval_miles: z.coerce.number().optional().nullable(),
+  interval_days: z.coerce.number().optional().nullable(),
+  last_service_mileage: z.coerce.number().optional().nullable(),
+  next_service_mileage: z.coerce.number().optional().nullable(),
+}).passthrough().transform((row) => {
+  // Derive status from is_active if explicit status not present
+  const status = row.status ?? (row.is_active ? 'scheduled' : 'completed')
+
+  return {
+    id: row.id,
+    vehicleId: row.vehicleId ?? row.vehicle_id ?? '',
+    vehicleName: row.vehicleName ?? row.vehicle_name,
+    type: row.type ?? 'preventive',
+    scheduledDate: row.scheduledDate ?? row.next_service_date ?? new Date().toISOString(),
+    estimatedDuration: row.estimatedDuration ?? row.estimated_duration ?? 0,
+    status,
+    description: row.description ?? row.name,
+  }
 })
 
 // ============================================================================

@@ -91,8 +91,8 @@ const DriverSchema = z
       hosStatus: row.hos_status,
       hours_available: row.hours_available,
       hoursAvailable: row.hours_available,
-      medical_card_expiry: row.medical_card_expiry_date,
-      medicalCardExpiry: row.medical_card_expiry_date,
+      medical_card_expiry: row.medical_card_expiry ?? row.medical_card_expiry_date,
+      medicalCardExpiry: row.medical_card_expiry ?? row.medical_card_expiry_date,
       drug_test_date: row.drug_test_date,
       safety_score: safetyScore,
     }
@@ -424,11 +424,11 @@ export function useReactiveDriversData(): UseReactiveDriversDataReturn {
     })
   }, [drivers])
 
-  // Memoized top performers (top 10 by performance rating)
+  // Memoized top performers (top 10 by safety score, descending)
   const topPerformers = useMemo<Driver[]>(() => {
     return drivers
       .filter(d => d.status === 'active')
-      .sort((a, b) => b.performanceRating - a.performanceRating)
+      .sort((a, b) => b.safetyScore - a.safetyScore)
       .slice(0, MAX_TOP_PERFORMERS)
   }, [drivers])
 

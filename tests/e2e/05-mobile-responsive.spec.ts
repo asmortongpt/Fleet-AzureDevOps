@@ -146,7 +146,8 @@ test.describe('Mobile Navigation', () => {
     await page.setViewportSize(mobileViewport);
 
     const hamburger = page.locator('button[aria-label*="Menu"]').or(
-      page.locator('button[aria-label*="menu"]').or(
+      page.locator('button[aria-label*="menu"]')
+    ).or(
       page.locator('[data-testid="mobile-menu"]')
     );
 

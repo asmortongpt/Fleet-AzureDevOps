@@ -535,7 +535,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex items-center justify-center h-full min-h-[200px]">
         <div className="text-center">
           <Gauge className="h-9 w-12 animate-spin mx-auto text-emerald-400" />
           <p className="mt-2 text-white/40">Loading fleet data...</p>

@@ -160,6 +160,8 @@ const BusinessManagementHub = lazy(() => import("@/pages/BusinessManagementHub")
 const PeopleCommunicationHub = lazy(() => import("@/pages/PeopleCommunicationHub"))
 const AdminConfigurationHub = lazy(() => import("@/pages/AdminConfigurationHub"))
 const VehicleShowroom3D = lazy(() => import("@/pages/VehicleShowroom3D"))
+const MapDiagnostic = lazy(() => import("@/pages/MapDiagnostic"))
+const ReservationsHub = lazy(() => import("@/components/hubs/reservations/ReservationsHub").then(m => ({ default: m.ReservationsHub })))
 
 // PAGES
 const SettingsPage = lazy(() => import("@/pages/SettingsPage"))
@@ -492,9 +494,18 @@ function App() {
       case "cta-configuration-hub":
       case "data-governance-hub":
       case "configuration-hub":
+      case "configuration":
       case "admin":
       case "integrations":
         return <AdminConfigurationHub />
+
+      // RESERVATIONS - Vehicle Booking & Calendar Management
+      case "reservations":
+        return <ReservationsHub />
+
+      // MAP DIAGNOSTICS - Map & GPS diagnostic tools
+      case "map-diagnostics":
+        return <MapDiagnostic />
 
       // 3D GARAGE - Interactive Vehicle Showroom
       case "3d-garage":

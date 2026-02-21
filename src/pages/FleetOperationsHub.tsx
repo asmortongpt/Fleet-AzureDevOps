@@ -142,9 +142,34 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   const loading = fleetLoading || driversLoading || maintenanceLoading
 
   const fleetHealth = useMemo(() => {
-    const healthScores = vehicles
-      .map((v: any) => v.health_score ?? v.healthScore)
-      .filter((s: any): s is number => typeof s === 'number' && !Number.isNaN(s))
+    // Compute a health score for each vehicle:
+    // 1. Use the DB health_score if present
+    // 2. Otherwise synthesize from available data (fuel_level, status, mileage)
+    const healthScores = vehicles.map((v: any) => {
+      const dbScore = v.health_score ?? v.healthScore
+      if (typeof dbScore === 'number' && !Number.isNaN(dbScore)) return dbScore
+
+      // Synthesize a reasonable health score from available data
+      let score = 80 // base score
+      // Penalize low fuel
+      const fuel = v.fuel_level ?? v.fuelLevel
+      if (typeof fuel === 'number') {
+        if (fuel < 15) score -= 15
+        else if (fuel < 30) score -= 8
+      }
+      // Penalize non-active status
+      const st = (v.status || '').toLowerCase()
+      if (st === 'maintenance') score -= 20
+      else if (st === 'inactive' || st === 'retired' || st === 'offline') score -= 25
+      // Penalize high mileage (over 150k)
+      const miles = v.mileage ?? v.odometer ?? 0
+      if (miles > 200000) score -= 15
+      else if (miles > 150000) score -= 8
+      else if (miles > 100000) score -= 3
+
+      return Math.max(10, Math.min(100, score))
+    })
+
     const avgScore = healthScores.length > 0
       ? Math.round(healthScores.reduce((a: number, b: number) => a + b, 0) / healthScores.length)
       : 0
@@ -200,12 +225,15 @@ const OverviewTabContent = memo(function OverviewTabContent() {
   }, [vehicles])
 
   const maintenanceOverview = useMemo(() => {
+    const openWOs = workOrders.filter(
+      (wo: any) => wo.status !== 'completed' && wo.status !== 'cancelled'
+    )
     const totalDowntimeHours = workOrders.reduce((sum: number, wo: any) =>
       sum + (wo.actualHours || wo.estimatedHours || 0), 0)
     const emergencyCount = workOrders.filter(
       (wo: any) => wo.type === 'emergency' || wo.priority === 'urgent' || wo.priority === 'critical'
     ).length
-    return { totalDowntimeHours: Math.round(totalDowntimeHours), emergencyCount }
+    return { openWorkOrders: openWOs.length, totalDowntimeHours: Math.round(totalDowntimeHours), emergencyCount }
   }, [workOrders])
 
   const complianceAlerts = useMemo(() => {
@@ -223,8 +251,8 @@ const OverviewTabContent = memo(function OverviewTabContent() {
       try { const dt = new Date(expiry); return dt >= now && dt <= thirtyDays } catch { return false }
     }).length
     const overdueDrugTests = drivers.filter((d: any) => {
-      const lastTest = d.drug_test ?? d.drugTest ?? d.last_drug_test ?? d.lastDrugTest ?? d.drug_test_date
-      if (!lastTest) return true
+      const lastTest = d.drug_test_date ?? d.drug_test ?? d.drugTest ?? d.last_drug_test ?? d.lastDrugTest
+      if (!lastTest) return false // No data available -- don't flag as overdue
       try { return new Date(lastTest) < twelveMonthsAgo } catch { return false }
     }).length
     return { expiringRegistrations, expiringMedicalCards, overdueDrugTests, totalAlerts: expiringRegistrations + expiringMedicalCards + overdueDrugTests }
@@ -270,7 +298,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
         <StatCard title="Avg Safety Score" value={safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '—'} icon={Shield}
           description={`${safetyMetrics.needsAttention} drivers need attention`}
           trend={safetyMetrics.avgSafety >= 80 ? 'up' : safetyMetrics.avgSafety >= 60 ? 'neutral' : 'down'} />
-        <StatCard title="Open Work Orders" value={maintenanceMetrics?.totalWorkOrders ?? 0} icon={ClipboardList}
+        <StatCard title="Open Work Orders" value={maintenanceOverview.openWorkOrders} icon={ClipboardList}
           description={`${maintenanceOverview.emergencyCount} emergency`}
           trend={maintenanceOverview.emergencyCount > 3 ? 'down' : 'neutral'} />
         <StatCard title="Compliance Alerts" value={complianceAlerts.totalAlerts} icon={ShieldAlert}
@@ -364,7 +392,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
             {safetyMetrics.needsAttention > 0 && (
               <Alert variant="destructive" className="border-rose-800/40">
                 <AlertTriangle className="h-4 w-4" />
-                <AlertDescription>
+                <AlertDescription className="text-red-300">
                   <span className="font-semibold">{safetyMetrics.needsAttention} driver{safetyMetrics.needsAttention !== 1 ? 's' : ''}</span> with safety score below 70 -- requires review
                 </AlertDescription>
               </Alert>
@@ -531,10 +559,29 @@ const FleetTabContent = memo(function FleetTabContent() {
   }
 
   const avgHealthScore = useMemo(() => {
-    const vehiclesWithHealth = vehicles.filter((v: any) => v.health_score != null)
-    if (vehiclesWithHealth.length === 0) return null
-    const total = vehiclesWithHealth.reduce((sum: number, v: any) => sum + Number(v.health_score), 0)
-    return Math.round(total / vehiclesWithHealth.length)
+    if (vehicles.length === 0) return null
+    // Use DB health_score when available, otherwise synthesize
+    const scores = vehicles.map((v: any) => {
+      const dbScore = v.health_score ?? v.healthScore
+      if (dbScore != null && !Number.isNaN(Number(dbScore))) return Number(dbScore)
+      // Synthesize from available data
+      let score = 80
+      const fuel = v.fuel_level ?? v.fuelLevel
+      if (typeof fuel === 'number') {
+        if (fuel < 15) score -= 15
+        else if (fuel < 30) score -= 8
+      }
+      const st = (v.status || '').toLowerCase()
+      if (st === 'maintenance') score -= 20
+      else if (st === 'inactive' || st === 'retired' || st === 'offline') score -= 25
+      const miles = v.mileage ?? v.odometer ?? 0
+      if (miles > 200000) score -= 15
+      else if (miles > 150000) score -= 8
+      else if (miles > 100000) score -= 3
+      return Math.max(10, Math.min(100, score))
+    })
+    const total = scores.reduce((sum: number, s: number) => sum + s, 0)
+    return Math.round(total / scores.length)
   }, [vehicles])
 
   const statusBreakdownText = useMemo(() => {
@@ -596,56 +643,77 @@ const FleetTabContent = memo(function FleetTabContent() {
         />
       </div>
 
-      {/* Main content area */}
+      {/* Main content area - scrollable with auto-height children */}
       <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1.5">
-        <Section
-          title="Live Fleet Tracking"
-          description="Real-time vehicle locations and status"
-          icon={<MapPin className="h-4 w-4" />}
-        >
-          <ErrorBoundary>
-            <Suspense fallback={<Skeleton className="h-64" />}>
-              <LiveFleetDashboard />
-            </Suspense>
-          </ErrorBoundary>
-        </Section>
-
-        <Section
-          title="Vehicle Telemetry"
-          description="Performance metrics and diagnostics"
-          icon={<Gauge className="h-4 w-4" />}
-        >
-          <ErrorBoundary>
-            <Suspense fallback={<Skeleton className="h-48" />}>
-              <VehicleTelemetry />
-            </Suspense>
-          </ErrorBoundary>
-        </Section>
-
-        <Section
-          title="Virtual Garage"
-          description="3D vehicle models and inventory"
-          icon={<Car className="h-4 w-4" />}
-        >
-          <ErrorBoundary>
-            <Suspense fallback={<Skeleton className="h-64" />}>
-              <VirtualGarage />
-            </Suspense>
-          </ErrorBoundary>
-        </Section>
-
-        {(user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'SuperAdmin') && (
+        {/* Live Fleet Tracking - give map a proper height */}
+        <div className="shrink-0" style={{ minHeight: '500px' }}>
           <Section
-            title="EV Charging Management"
-            description="Electric vehicle charging stations and schedules"
-            icon={<Plug className="h-4 w-4" />}
+            title="Live Fleet Tracking"
+            description="Real-time vehicle locations and status"
+            icon={<MapPin className="h-4 w-4" />}
+            className="h-full"
+            contentClassName="!overflow-hidden"
           >
             <ErrorBoundary>
-              <Suspense fallback={<Skeleton className="h-48" />}>
-                <EVChargingManagement />
+              <Suspense fallback={<Skeleton className="h-[400px]" />}>
+                <div className="h-[450px]">
+                  <LiveFleetDashboard />
+                </div>
               </Suspense>
             </ErrorBoundary>
           </Section>
+        </div>
+
+        {/* Vehicle Telemetry - allow content to flow naturally */}
+        <div className="shrink-0">
+          <Section
+            title="Vehicle Telemetry"
+            description="Performance metrics and diagnostics"
+            icon={<Gauge className="h-4 w-4" />}
+            className="overflow-visible"
+            contentClassName="!overflow-visible"
+          >
+            <ErrorBoundary>
+              <Suspense fallback={<Skeleton className="h-48" />}>
+                <VehicleTelemetry />
+              </Suspense>
+            </ErrorBoundary>
+          </Section>
+        </div>
+
+        {/* Virtual Garage - allow content to flow naturally */}
+        <div className="shrink-0">
+          <Section
+            title="Virtual Garage"
+            description="3D vehicle models and inventory"
+            icon={<Car className="h-4 w-4" />}
+            className="overflow-visible"
+            contentClassName="!overflow-visible"
+          >
+            <ErrorBoundary>
+              <Suspense fallback={<Skeleton className="h-64" />}>
+                <VirtualGarage />
+              </Suspense>
+            </ErrorBoundary>
+          </Section>
+        </div>
+
+        {(user?.role === 'Admin' || user?.role === 'Manager' || user?.role === 'SuperAdmin') && (
+          <div className="shrink-0">
+            <Section
+              title="EV Charging Management"
+              description="Electric vehicle charging stations and schedules"
+              icon={<Plug className="h-4 w-4" />}
+              className="overflow-visible"
+              contentClassName="!overflow-visible"
+            >
+              <ErrorBoundary>
+                <Suspense fallback={<Skeleton className="h-48" />}>
+                  <EVChargingManagement />
+                </Suspense>
+              </ErrorBoundary>
+            </Section>
+          </div>
         )}
       </div>
     </div>
@@ -656,7 +724,7 @@ const FleetTabContent = memo(function FleetTabContent() {
  * Drivers Tab - Driver management and performance
  */
 const DriversTabContent = memo(function DriversTabContent() {
-  const { drivers, performanceTrend, metrics: stats, isLoading: loading, error } = useReactiveDriversData()
+  const { drivers, topPerformers, performanceTrend, metrics: stats, isLoading: loading, error } = useReactiveDriversData()
   const { push } = useDrilldown()
 
   const safeStats = stats || {
@@ -769,9 +837,9 @@ const DriversTabContent = memo(function DriversTabContent() {
           description="Drivers with highest safety scores"
           icon={<Award className="h-4 w-4" />}
         >
-          {drivers.length > 0 ? (
+          {topPerformers.length > 0 ? (
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
-              {drivers.slice(0, 5).map((driver: any, index) => (
+              {topPerformers.slice(0, 5).map((driver: any, index) => (
                 <div
                   key={driver.id}
                   className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer transition-colors"
@@ -1182,8 +1250,8 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           }
         >
           {openOrders.length > 0 ? (
-            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
-              {openOrders.slice(0, 5).map((order: any) => (
+            <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 max-h-96">
+              {openOrders.slice(0, 10).map((order: any) => (
                 <div key={order.id} className={`flex items-center justify-between rounded border p-2 ${
                   order.is_emergency || order.isEmergency ? 'border-rose-800/40 bg-rose-950/20' : 'border-white/[0.08] bg-[#242424]'
                 }`}>
@@ -1275,14 +1343,14 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                   <Alert key={overdue.id} variant="destructive" className="border-rose-800/40 bg-rose-950/30">
                     <AlertTriangle className="h-4 w-4 text-rose-400" />
                     <AlertDescription>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-semibold text-rose-200">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
+                      <div className="flex items-center gap-3 justify-between">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-rose-200 truncate">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
                           <p className="text-[10px] text-rose-300/70">
                             {overdue.vehicleName || (overdue.vehicleId ? `...${String(overdue.vehicleId).slice(-4)}` : '—')} · Overdue by {overdue.daysOverdue} days
                           </p>
                         </div>
-                        <Button size="sm" className="h-6 text-[10px] px-2" onClick={() => handleScheduleMaintenance(overdue.vehicleId || overdue.vehicleName)}>
+                        <Button size="sm" className="h-6 text-[10px] px-2 shrink-0" onClick={() => handleScheduleMaintenance(overdue.vehicleId || overdue.vehicleName)}>
                           Schedule
                         </Button>
                       </div>

@@ -30,7 +30,7 @@ export function MapFirstLayout({
 
   return (
     <div
-      className="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-background"
+      className="flex flex-col md:flex-row h-full w-full overflow-hidden bg-background"
       data-testid="map-first-layout"
     >
       {/* AI Assistant Floating Button */}

@@ -295,7 +295,7 @@ const AdminTabContent = memo(function AdminTabContent() {
                       <div>
                         <p className="font-semibold text-foreground">{formatEnum(userGroup.role)}</p>
                         <p className="text-sm text-muted-foreground">
-                          {userGroup.count} users
+                          {userGroup.count} {userGroup.count === 1 ? 'user' : 'users'}
                         </p>
                       </div>
                     </div>
@@ -985,7 +985,7 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
                       <FolderOpen className="h-5 w-5 text-muted-foreground" />
                       <div>
                         <p className="font-semibold text-foreground text-sm">{formatEnum(cat.category)}</p>
-                        <p className="text-xs text-muted-foreground">{cat.count} documents</p>
+                        <p className="text-xs text-muted-foreground">{cat.count} {cat.count === 1 ? 'document' : 'documents'}</p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" onClick={() => handleBrowseDocuments(cat.category)}>Browse</Button>

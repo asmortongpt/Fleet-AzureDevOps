@@ -22,7 +22,8 @@ test.describe('Reporting and Export Operations', () => {
 
   test('should navigate to reports section', async ({ page }) => {
     const reportsNav = page.locator('a:has-text("Reports")').or(
-      page.locator('button:has-text("Reports")').or(
+      page.locator('button:has-text("Reports")')
+    ).or(
       page.locator('a:has-text("Analytics")')
     );
 

@@ -43,18 +43,16 @@ const updateCameraSourceSchema = z.object({
 
 // Camera data sources CRUD endpoints
 // IMPORTANT: These must be defined BEFORE /:id to avoid route conflicts
-router.get('/sources', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+// NOTE: camera_data_sources and traffic_cameras tables are NOT tenant-scoped
+router.get('/sources', authenticateJWT, async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const result = await pool.query(
       `SELECT id, name, description, source_type, service_url, enabled,
               sync_interval_minutes, authentication, field_mapping,
               last_sync_at, last_sync_status, last_sync_error,
               total_cameras_synced, metadata, created_at, updated_at
        FROM camera_data_sources
-       WHERE tenant_id = $1
-       ORDER BY name`,
-      [tenantId]
+       ORDER BY name`
     );
     res.json(result.rows);
   } catch (err) {
@@ -63,17 +61,14 @@ router.get('/sources', authenticateJWT, async (req: Request, res: Response, next
 });
 
 // Alias for /sources to match legacy endpoint expectations
-router.get('/sources/list', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/sources/list', authenticateJWT, async (_req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const result = await pool.query(
       `SELECT id, name, description, source_type, service_url, enabled,
               sync_interval_minutes, last_sync_at, last_sync_status,
               total_cameras_synced, created_at, updated_at
        FROM camera_data_sources
-       WHERE tenant_id = $1
-       ORDER BY name`,
-      [tenantId]
+       ORDER BY name`
     );
     res.json(result.rows);
   } catch (err) {
@@ -83,15 +78,14 @@ router.get('/sources/list', authenticateJWT, async (req: Request, res: Response,
 
 router.get('/sources/:id', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const result = await pool.query(
       `SELECT id, name, description, source_type, service_url, enabled,
               sync_interval_minutes, authentication, field_mapping,
               last_sync_at, last_sync_status, last_sync_error,
               total_cameras_synced, metadata, created_at, updated_at
        FROM camera_data_sources
-       WHERE id = $1 AND tenant_id = $2`,
-      [req.params.id, tenantId]
+       WHERE id = $1`,
+      [req.params.id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Camera source not found' });
@@ -104,8 +98,6 @@ router.get('/sources/:id', authenticateJWT, async (req: Request, res: Response, 
 
 router.post('/sources', authenticateJWT, csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
-
     // Validate request body
     const parsed = createCameraSourceSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -122,21 +114,20 @@ router.post('/sources', authenticateJWT, csrfProtection, async (req: Request, re
 
     const result = await pool.query(
       `INSERT INTO camera_data_sources
-        (tenant_id, name, description, source_type, service_url, enabled,
+        (name, description, source_type, service_url, enabled,
          sync_interval_minutes, authentication, field_mapping, metadata)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        RETURNING *`,
       [
-        tenantId,
         name,
         description || null,
         source_type,
         service_url,
         enabled !== undefined ? enabled : true,
         sync_interval_minutes || 60,
-        authentication || null,
-        field_mapping,
-        metadata || null
+        authentication ? JSON.stringify(authentication) : null,
+        JSON.stringify(field_mapping),
+        metadata ? JSON.stringify(metadata) : null
       ]
     );
     res.status(201).json(result.rows[0]);
@@ -150,8 +141,6 @@ router.post('/sources', authenticateJWT, csrfProtection, async (req: Request, re
 
 router.put('/sources/:id', authenticateJWT, csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
-
     // Validate request body
     const parsed = updateCameraSourceSchema.safeParse(req.body);
     if (!parsed.success) {
@@ -178,7 +167,7 @@ router.put('/sources/:id', authenticateJWT, csrfProtection, async (req: Request,
            field_mapping = COALESCE($8, field_mapping),
            metadata = COALESCE($9, metadata),
            updated_at = CURRENT_TIMESTAMP
-       WHERE id = $10 AND tenant_id = $11
+       WHERE id = $10
        RETURNING *`,
       [
         name || null,
@@ -187,11 +176,10 @@ router.put('/sources/:id', authenticateJWT, csrfProtection, async (req: Request,
         service_url || null,
         enabled !== undefined ? enabled : null,
         sync_interval_minutes || null,
-        authentication || null,
-        field_mapping || null,
-        metadata || null,
-        req.params.id,
-        tenantId
+        authentication ? JSON.stringify(authentication) : null,
+        field_mapping ? JSON.stringify(field_mapping) : null,
+        metadata ? JSON.stringify(metadata) : null,
+        req.params.id
       ]
     );
     if (result.rows.length === 0) {
@@ -208,10 +196,9 @@ router.put('/sources/:id', authenticateJWT, csrfProtection, async (req: Request,
 
 router.delete('/sources/:id', authenticateJWT, csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const result = await pool.query(
-      `DELETE FROM camera_data_sources WHERE id = $1 AND tenant_id = $2 RETURNING id, name`,
-      [req.params.id, tenantId]
+      `DELETE FROM camera_data_sources WHERE id = $1 RETURNING id, name`,
+      [req.params.id]
     );
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Camera source not found' });
@@ -234,11 +221,10 @@ router.post('/sync', authenticateJWT, csrfProtection, async (_req: Request, res:
 
 router.post('/sources/:id/sync', authenticateJWT, csrfProtection, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const result = await pool.query(
       `SELECT id, name, source_type, service_url, field_mapping, authentication
-       FROM camera_data_sources WHERE id = $1 AND tenant_id = $2`,
-      [req.params.id, tenantId]
+       FROM camera_data_sources WHERE id = $1`,
+      [req.params.id]
     )
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Camera source not found' })
@@ -253,7 +239,6 @@ router.post('/sources/:id/sync', authenticateJWT, csrfProtection, async (req: Re
 // Specific routes before parameterized routes
 router.get('/nearby', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const latRaw = req.query.lat;
     const lngRaw = req.query.lng;
     const radiusRaw = req.query.radius;
@@ -286,8 +271,7 @@ router.get('/nearby', authenticateJWT, async (req: Request, res: Response, next:
           )
         ) AS distance_meters
       FROM traffic_cameras tc
-      WHERE tc.tenant_id = $6
-        AND tc.latitude BETWEEN ($2 - $4) AND ($2 + $4)
+      WHERE tc.latitude BETWEEN ($2 - $4) AND ($2 + $4)
         AND tc.longitude BETWEEN ($1 - $5) AND ($1 + $5)
         AND (
           6371000 * acos(
@@ -298,7 +282,7 @@ router.get('/nearby', authenticateJWT, async (req: Request, res: Response, next:
       ORDER BY distance_meters ASC
       LIMIT 200
       `,
-      [lng, lat, radiusMeters, latDelta, lngDelta, tenantId]
+      [lng, lat, radiusMeters, latDelta, lngDelta]
     );
 
     res.json(result.rows);
@@ -309,8 +293,11 @@ router.get('/nearby', authenticateJWT, async (req: Request, res: Response, next:
 
 router.get('/route/:routeName', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
-    const result = await pool.query('SELECT * FROM traffic_cameras WHERE route = $1 AND tenant_id = $2', [req.params.routeName, tenantId]);
+    // traffic_cameras table has no 'route' column; filter by name containing route name instead
+    const result = await pool.query(
+      'SELECT * FROM traffic_cameras WHERE name ILIKE $1',
+      [`%${req.params.routeName}%`]
+    );
     res.json(result.rows);
   } catch (err) {
     next(err);
@@ -320,11 +307,10 @@ router.get('/route/:routeName', authenticateJWT, async (req: Request, res: Respo
 // Base routes
 router.get('/', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
     const limit = req.query.limit ? parseInt(req.query.limit as string) : 50;
     const offset = req.query.offset ? parseInt(req.query.offset as string) : 0;
 
-    const result = await pool.query('SELECT * FROM traffic_cameras WHERE tenant_id = $1 LIMIT $2 OFFSET $3', [tenantId, limit, offset]);
+    const result = await pool.query('SELECT * FROM traffic_cameras LIMIT $1 OFFSET $2', [limit, offset]);
     res.json(result.rows);
   } catch (err) {
     next(err);
@@ -334,8 +320,7 @@ router.get('/', authenticateJWT, async (req: Request, res: Response, next: NextF
 // Parameterized routes LAST to avoid matching specific routes
 router.get('/:id', authenticateJWT, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = (req as any).tenantId || (req as any).user?.tenantId;
-    const result = await pool.query('SELECT * FROM traffic_cameras WHERE id = $1 AND tenant_id = $2', [req.params.id, tenantId]);
+    const result = await pool.query('SELECT * FROM traffic_cameras WHERE id = $1', [req.params.id]);
     res.json(result.rows[0]);
   } catch (err) {
     next(err);
