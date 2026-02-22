@@ -373,6 +373,25 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
   const channelRows = Array.isArray(teams) ? teams : []
   const unreadCount = typeof notifications?.unread_count === 'number' ? notifications.unread_count : 0
 
+  // Compute average response time from message timestamps (proxy: avg gap between consecutive messages)
+  const avgResponseTime = useMemo(() => {
+    if (messages.length < 2) return null
+    const timestamps = messages
+      .map((m: any) => new Date(m.created_at || m.createdAt || m.timestamp).getTime())
+      .filter((t: number) => !isNaN(t))
+      .sort((a: number, b: number) => a - b)
+    if (timestamps.length < 2) return null
+    let totalGap = 0
+    for (let i = 1; i < timestamps.length; i++) {
+      totalGap += timestamps[i] - timestamps[i - 1]
+    }
+    const avgMs = totalGap / (timestamps.length - 1)
+    const avgMin = Math.round(avgMs / 60000)
+    if (avgMin < 60) return `${avgMin}m`
+    const hours = Math.round(avgMin / 60)
+    return hours < 24 ? `${hours}h` : `${Math.round(hours / 24)}d`
+  }, [messages])
+
   if (communicationError) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
@@ -405,7 +424,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
         />
         <StatCard
           title="Response Time"
-          value="—"
+          value={avgResponseTime || '—'}
           icon={Clock}
           description="Avg response"
         />
@@ -638,7 +657,7 @@ const WorkTabContent = memo(function WorkTabContent() {
         />
         <StatCard
           title="Team Productivity"
-          value={productivity > 0 ? `${productivity}%` : '—'}
+          value={`${productivity}%`}
           icon={TrendingUp}
           description="Task completion rate"
         />

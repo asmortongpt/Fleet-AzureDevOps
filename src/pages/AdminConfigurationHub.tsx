@@ -162,7 +162,11 @@ const AdminTabContent = memo(function AdminTabContent() {
     return Object.entries(checks).map(([service, details]: any) => ({
       service,
       status: details.status || 'unknown',
-      uptime: details.latency || details.message || '\u2014'
+      uptime: details.latency
+        || details.message
+        || (details.heapPercentage != null ? `Heap: ${details.heapPercentage}% \u00b7 System: ${details.systemMemoryPercentage ?? '?'}%` : null)
+        || (details.usedPercentage != null ? `${details.usedGB ?? '?'}GB / ${details.totalGB ?? '?'}GB (${details.usedPercentage}%)` : null)
+        || '\u2014'
     }))
   }, [health])
 

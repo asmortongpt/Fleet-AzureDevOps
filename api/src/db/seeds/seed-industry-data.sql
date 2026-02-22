@@ -545,20 +545,21 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO announcements (id, tenant_id, title, message, type, priority, target_roles, published_at, expires_at, created_by_id, is_active)
 VALUES
-(gen_random_uuid(), '12345678-1234-1234-1234-123456789012', 'New Safety Policy: Distracted Driving Prevention',
+('72000000-0000-0000-0000-000000000001', '12345678-1234-1234-1234-123456789012', 'New Safety Policy: Distracted Driving Prevention',
  'Effective February 1, 2026, our updated Distracted Driving Prevention Policy is now in effect. All drivers must complete the mandatory awareness training by February 28. Zero tolerance for handheld device use while driving. See policy SP-002 for complete details.',
  'alert', 'high', '["SuperAdmin","Admin","Manager","User"]'::jsonb, now() - interval '2 days', now() + interval '30 days', '00000000-0000-0000-0000-000000000001', true),
-(gen_random_uuid(), '12345678-1234-1234-1234-123456789012', 'Q1 2026 Compliance Audit Scheduled',
+('72000000-0000-0000-0000-000000000002', '12345678-1234-1234-1234-123456789012', 'Q1 2026 Compliance Audit Scheduled',
  'The quarterly compliance audit is scheduled for March 15-17, 2026. All department managers must ensure DQ files, maintenance records, and training documentation are current. Contact the compliance team with questions.',
  'reminder', 'high', '["Admin","Manager"]'::jsonb, now() - interval '5 days', now() + interval '25 days', '00000000-0000-0000-0000-000000000002', true),
-(gen_random_uuid(), '12345678-1234-1234-1234-123456789012', 'Defensive Driving Course Registration Open',
+('72000000-0000-0000-0000-000000000003', '12345678-1234-1234-1234-123456789012', 'Defensive Driving Course Registration Open',
  'Registration is now open for the next defensive driving course session on March 1-2, 2026. This 8-hour course is required for all CDL drivers and must be completed every 3 years. Register through the training portal or contact your supervisor.',
  'info', 'medium', '["User","Manager"]'::jsonb, now() - interval '3 days', now() + interval '15 days', '00000000-0000-0000-0000-000000000001', true),
-(gen_random_uuid(), '12345678-1234-1234-1234-123456789012', 'Fleet Safety Alert: Catalytic Converter Theft',
+('72000000-0000-0000-0000-000000000004', '12345678-1234-1234-1234-123456789012', 'Fleet Safety Alert: Catalytic Converter Theft',
  'We have experienced a catalytic converter theft from a fleet vehicle. All drivers: park in well-lit areas when possible, report suspicious activity immediately, and use designated secure parking when available overnight. See incident INC-2026-010.',
  'warning', 'high', '["SuperAdmin","Admin","Manager","User"]'::jsonb, now() - interval '1 day', now() + interval '14 days', '00000000-0000-0000-0000-000000000001', true),
-(gen_random_uuid(), '12345678-1234-1234-1234-123456789012', 'PM Compliance Rate Achievement',
+('72000000-0000-0000-0000-000000000005', '12345678-1234-1234-1234-123456789012', 'PM Compliance Rate Achievement',
  'Congratulations to the maintenance team! We achieved a 97% preventive maintenance compliance rate in January 2026, exceeding our 95% target. Special recognition to lead technician James Brown and the scheduling team for their outstanding work.',
- 'success', 'low', '[]'::jsonb, now() - interval '7 days', now() + interval '30 days', '00000000-0000-0000-0000-000000000002', true);
+ 'success', 'low', '[]'::jsonb, now() - interval '7 days', now() + interval '30 days', '00000000-0000-0000-0000-000000000002', true)
+ON CONFLICT (id) DO NOTHING;
 
 COMMIT;

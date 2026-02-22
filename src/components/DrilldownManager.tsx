@@ -83,8 +83,105 @@ import {
 import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
 import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
+import { ViolationDetailPanel } from '@/components/drilldown/ViolationDetailPanel'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
+
+// ============================================================================
+// INLINE DETAIL COMPONENTS FOR COMPLIANCE DRILLDOWNS
+// ============================================================================
+
+function ComplianceItemDrilldown() {
+  const { currentLevel } = useDrilldown()
+  const data = currentLevel?.data || {}
+  const rate = data.rate || 0
+  const status = data.status || 'unknown'
+
+  return (
+    <div className="space-y-3 p-1">
+      <div>
+        <h3 className="text-base font-semibold">{data.category || 'Compliance Item'}</h3>
+        <p className="text-sm text-muted-foreground mt-1">Compliance category details</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-2xl font-bold text-emerald-400">{rate}%</div>
+          <div className="text-xs text-white/60 mt-1">Compliance Rate</div>
+        </div>
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className={`text-sm font-semibold px-2 py-1 rounded-full inline-block ${
+            status === 'Compliant' ? 'bg-emerald-500/20 text-emerald-400' :
+            status === 'Warning' ? 'bg-yellow-500/20 text-yellow-400' :
+            'bg-red-500/20 text-red-400'
+          }`}>{status}</div>
+          <div className="text-xs text-white/60 mt-1">Status</div>
+        </div>
+      </div>
+      {data.details && (
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-sm font-medium mb-1">Details</div>
+          <p className="text-sm text-white/60">{data.details}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function PolicyCategoryDrilldown() {
+  const { currentLevel } = useDrilldown()
+  const data = currentLevel?.data || {}
+
+  return (
+    <div className="space-y-3 p-1">
+      <div>
+        <h3 className="text-base font-semibold">{data.category || 'Policy Category'}</h3>
+        <p className="text-sm text-muted-foreground mt-1">Policy category overview</p>
+      </div>
+      <div className="bg-white/[0.03] rounded-lg p-3">
+        <div className="text-sm text-white/60">
+          View all policies in the <span className="font-medium text-white/80">{data.category}</span> category.
+          Use the Policies tab to manage individual policy templates and enforcement rules.
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function SecurityEventDrilldown() {
+  const { currentLevel } = useDrilldown()
+  const data = currentLevel?.data || {}
+
+  return (
+    <div className="space-y-3 p-1">
+      <div>
+        <h3 className="text-base font-semibold">{currentLevel?.label || 'Security Event'}</h3>
+        <p className="text-sm text-muted-foreground mt-1">Security / policy event details</p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-xs text-white/40 mb-1">Event Type</div>
+          <div className="text-sm font-medium">{data.eventType || '\u2014'}</div>
+        </div>
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-xs text-white/40 mb-1">Status</div>
+          <div className="text-sm font-semibold px-2 py-0.5 rounded-full inline-block bg-red-500/20 text-red-400">Review</div>
+        </div>
+      </div>
+      {data.message && (
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-xs text-white/40 mb-1">Details</div>
+          <p className="text-sm text-white/60">{data.message}</p>
+        </div>
+      )}
+      {data.timestamp && (
+        <div className="bg-white/[0.03] rounded-lg p-3">
+          <div className="text-xs text-white/40 mb-1">Occurred</div>
+          <p className="text-sm text-white/60">{formatDateTime(data.timestamp)}</p>
+        </div>
+      )}
+    </div>
+  )
+}
 
 // ============================================================================
 // INLINE DETAIL COMPONENTS FOR COMMUNICATION DRILLDOWNS
@@ -920,6 +1017,20 @@ function DrilldownContent() {
     case 'incidents-ytd':
     case 'days-safe':
       return <CSADrilldown />
+
+    case 'compliance-item':
+      return <ComplianceItemDrilldown />
+
+    case 'policy-category':
+      return <PolicyCategoryDrilldown />
+
+    case 'violation':
+      // Security events (from audit log) pass eventType in data — show inline
+      // Real policy violations have a UUID violationId — use ViolationDetailPanel
+      if (currentLevel.data?.eventType) {
+        return <SecurityEventDrilldown />
+      }
+      return <ViolationDetailPanel violationId={currentLevel.data?.violationId || currentLevel.id} />
 
     // ============================================
     // Admin Hub Drilldowns

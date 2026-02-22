@@ -207,6 +207,7 @@ router.get(
                 wo.actual_start_date as actual_start,
                 wo.actual_end_date as actual_end,
                 wo.labor_hours, wo.estimated_cost, wo.actual_cost,
+                wo.parts_cost, wo.labor_cost, wo.total_cost,
                 wo.odometer_at_start as odometer_reading,
                 wo.odometer_at_end, wo.notes, wo.metadata, wo.created_at, wo.updated_at,
                 v.name as vehicle_name,

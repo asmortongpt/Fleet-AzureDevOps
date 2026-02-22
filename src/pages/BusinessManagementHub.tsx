@@ -176,8 +176,8 @@ const FinancialTabContent = memo(function FinancialTabContent() {
   const costTrendData = useMemo(() => {
     if (!Array.isArray(trends)) return []
     return trends.map((row: any) => ({
-      name: row.month,
-      month: row.month,
+      name: row.month || row.period,
+      month: row.month || row.period,
       actual: Number(row.amount || 0)
     }))
   }, [trends])
@@ -410,7 +410,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       const vendorId = wo.vendor_id || wo.vendorId
       if (!vendorId) return
       const existing = map.get(vendorId) || { totalCost: 0, partsCost: 0, laborCost: 0, count: 0 }
-      existing.totalCost += Number(wo.total_cost || wo.cost || 0)
+      existing.totalCost += Number(wo.total_cost || wo.actual_cost || wo.cost || 0)
       existing.partsCost += Number(wo.parts_cost || 0)
       existing.laborCost += Number(wo.labor_cost || 0)
       existing.count += 1

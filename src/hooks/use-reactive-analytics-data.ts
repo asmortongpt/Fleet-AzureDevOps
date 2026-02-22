@@ -17,25 +17,46 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState, useCallback, useMemo } from 'react'
 import { z } from 'zod'
 
-// Zod schemas for runtime validation
+// Lightweight type for analytics reports (no Zod validation — data is transformed from multiple API responses)
+interface AnalyticsReportShape {
+  id: string
+  name: string
+  type: 'custom' | 'scheduled' | 'standard'
+  category: 'operational' | 'financial' | 'compliance' | 'performance'
+  frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly' | 'on_demand'
+  lastRun?: string
+  nextRun?: string
+  createdAt: string
+  status: 'active' | 'inactive' | 'archived'
+}
+
+interface DashboardWidgetShape {
+  id: string
+  title: string
+  type: 'chart' | 'stat' | 'table' | 'map'
+  dataSource: string
+  refreshInterval: number
+}
+
+// Keep Zod schemas for reference but use them only when strict validation is needed
 const AnalyticsReportSchema = z.object({
-  id: z.string().uuid(),
-  name: z.string().min(1).max(255),
+  id: z.string(),
+  name: z.string(),
   type: z.enum(['custom', 'scheduled', 'standard']),
   category: z.enum(['operational', 'financial', 'compliance', 'performance']),
   frequency: z.enum(['daily', 'weekly', 'monthly', 'quarterly', 'on_demand']),
-  lastRun: z.string().datetime().optional(),
-  nextRun: z.string().datetime().optional(),
-  createdAt: z.string().datetime(),
+  lastRun: z.string().optional(),
+  nextRun: z.string().optional(),
+  createdAt: z.string(),
   status: z.enum(['active', 'inactive', 'archived']),
 })
 
 const DashboardWidgetSchema = z.object({
-  id: z.string().uuid(),
-  title: z.string().min(1).max(255),
+  id: z.string(),
+  title: z.string(),
   type: z.enum(['chart', 'stat', 'table', 'map']),
-  dataSource: z.string().min(1),
-  refreshInterval: z.number().int().min(1000).max(300000), // 1s to 5min
+  dataSource: z.string(),
+  refreshInterval: z.number(),
 })
 
 // TypeScript types derived from schemas
@@ -92,40 +113,113 @@ export function useReactiveAnalyticsData() {
   const queryClient = useQueryClient()
   const [realTimeUpdate, setRealTimeUpdate] = useState(0)
 
-  // Analytics reports query
-  // NOTE: GET /api/reports has no root handler (only sub-routes like /templates,
-  // /scheduled, /history). Until a dedicated analytics-reports endpoint is created,
-  // return empty data to avoid 404 error spam and Zod validation failures.
+  // Helper to unwrap standard API response envelope { success, data }
+  const unwrap = (json: any): any[] => {
+    if (Array.isArray(json)) return json
+    if (json?.data && Array.isArray(json.data)) return json.data
+    if (json?.data?.data && Array.isArray(json.data.data)) return json.data.data
+    return []
+  }
+
+  // Analytics reports — aggregate from /api/reports/templates, /scheduled, /history
   const {
     data: reports = [],
     isLoading: reportsLoading,
     error: reportsError,
     refetch: refetchReports,
-  } = useQuery<AnalyticsReport[], Error>({
+  } = useQuery<AnalyticsReportShape[], Error>({
     queryKey: ['analytics-reports', realTimeUpdate],
     queryFn: async () => {
-      // No backend endpoint currently serves AnalyticsReport[] at GET /api/reports.
-      // Return empty array until the endpoint is implemented.
-      return [] as AnalyticsReport[]
+      const [templatesRes, schedulesRes, historyRes] = await Promise.allSettled([
+        fetch('/api/reports/templates', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/reports/scheduled', { credentials: 'include' }).then(r => r.json()),
+        fetch('/api/reports/history', { credentials: 'include' }).then(r => r.json()),
+      ])
+
+      const templates = templatesRes.status === 'fulfilled' ? unwrap(templatesRes.value) : []
+      const schedules = schedulesRes.status === 'fulfilled' ? unwrap(schedulesRes.value) : []
+      const history = historyRes.status === 'fulfilled' ? unwrap(historyRes.value) : []
+
+      // Build maps keyed by template_id (API returns camelCase)
+      const scheduleByTemplate = new Map<string, any>()
+      for (const s of schedules) {
+        scheduleByTemplate.set(s.templateId || s.template_id || s.id, s)
+      }
+      const historyByTemplate = new Map<string, any>()
+      for (const h of history) {
+        const key = h.templateId || h.template_id || h.id
+        const existing = historyByTemplate.get(key)
+        const hDate = new Date(h.generatedAt || h.generated_at || h.createdAt || h.created_at).getTime()
+        if (!existing || hDate > new Date(existing.generatedAt || existing.generated_at || existing.createdAt || existing.created_at).getTime()) {
+          historyByTemplate.set(key, h)
+        }
+      }
+
+      // Map domain/category → analytics category
+      const toCategory = (raw: string): AnalyticsReportShape['category'] => {
+        const d = (raw || '').toLowerCase()
+        if (d.includes('financ') || d.includes('cost') || d.includes('fuel')) return 'financial'
+        if (d.includes('compliance') || d.includes('safety') || d.includes('incident')) return 'compliance'
+        if (d.includes('performance') || d.includes('driver')) return 'performance'
+        return 'operational'
+      }
+
+      // Extract frequency from schedule string like "Every Monday 08:00" or jsonb
+      const toFrequency = (sched: any): AnalyticsReportShape['frequency'] => {
+        if (!sched) return 'on_demand'
+        const raw = String(sched.schedule?.frequency || sched.frequency || sched.schedule || '').toLowerCase()
+        if (raw.includes('daily') || raw.includes('every day')) return 'daily'
+        if (raw.includes('weekly') || raw.includes('every monday') || raw.includes('every week')) return 'weekly'
+        if (raw.includes('monthly') || raw.includes('1st of')) return 'monthly'
+        if (raw.includes('quarterly') || raw.includes('quarter')) return 'quarterly'
+        return 'on_demand'
+      }
+
+      return templates.map((t: any): AnalyticsReportShape => {
+        const sched = scheduleByTemplate.get(t.id)
+        const hist = historyByTemplate.get(t.id)
+        return {
+          id: t.id,
+          name: t.title || t.name || 'Report',
+          type: (t.isCore || t.is_core) ? 'standard' : 'custom',
+          category: toCategory(t.category || t.domain || ''),
+          frequency: toFrequency(sched),
+          lastRun: hist?.generatedAt || hist?.generated_at || sched?.lastRun || sched?.last_run || undefined,
+          nextRun: sched?.nextRun || sched?.next_run || undefined,
+          createdAt: t.createdAt || t.created_at || new Date().toISOString(),
+          status: sched?.status === 'active' ? 'active' : (sched ? 'inactive' : 'active'),
+        }
+      })
     },
     staleTime: QUERY_CONFIG.CACHE_TIME,
     gcTime: QUERY_CONFIG.CACHE_TIME,
   })
 
-  // Dashboard widgets query
-  // NOTE: GET /api/dashboard returns a capabilities document ({ message, endpoints }),
-  // not a DashboardWidget[]. The Zod schema mismatch causes validation errors.
-  // Return empty data until a dedicated widgets endpoint is created.
+  // Dashboard widgets — built from executive_dashboard_data via /api/dashboard/stats
   const {
     data: dashboards = [],
     isLoading: dashboardsLoading,
     error: dashboardsError,
-  } = useQuery<DashboardWidget[], Error>({
+  } = useQuery<DashboardWidgetShape[], Error>({
     queryKey: ['dashboards', realTimeUpdate],
     queryFn: async () => {
-      // No backend endpoint currently serves DashboardWidget[] at GET /api/dashboard.
-      // Return empty array until the endpoint is implemented.
-      return [] as DashboardWidget[]
+      try {
+        const res = await fetch('/api/dashboard/stats', { credentials: 'include' })
+        if (!res.ok) return []
+        const json = await res.json()
+        const stats = json?.data || json || {}
+        // Build synthetic widget list from dashboard stat keys
+        const widgets: DashboardWidgetShape[] = [
+          { id: 'widget-fleet', title: 'Fleet Overview', type: 'stat', dataSource: 'dashboard/stats', refreshInterval: 60000 },
+          { id: 'widget-vehicles', title: 'Vehicle Status', type: 'chart', dataSource: 'vehicles', refreshInterval: 60000 },
+          { id: 'widget-workorders', title: 'Work Orders', type: 'table', dataSource: 'work-orders', refreshInterval: 60000 },
+          { id: 'widget-map', title: 'Fleet Map', type: 'map', dataSource: 'gps/positions', refreshInterval: 30000 },
+        ]
+        // Only return widgets if we got real stats data
+        return stats.total_vehicles != null ? widgets : []
+      } catch {
+        return []
+      }
     },
     staleTime: QUERY_CONFIG.CACHE_TIME,
     gcTime: QUERY_CONFIG.CACHE_TIME,

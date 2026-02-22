@@ -116,7 +116,7 @@ export function ResponsiveBarChart({
       style={{ height: compact ? '100%' : height }}
     />
   ) : (
-    <ResponsiveContainer width="100%" height={compact ? '100%' : height}>
+    <ResponsiveContainer width="100%" height={height}>
       <BarChart
         data={data}
         margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
@@ -191,7 +191,7 @@ export function ResponsiveBarChart({
   )
 
   if (compact) {
-    return <div className="w-full h-full">{barChartContent}</div>
+    return <div className="w-full" style={{ minHeight: height || 140 }}>{barChartContent}</div>
   }
 
   return (

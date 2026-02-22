@@ -17,25 +17,40 @@ router.use(authenticateJWT)
 router.use(setTenantContext)
 
 // Response transformer to convert DB fields to API contract
-const transformRouteResponse = (dbRow: any) => ({
-  routeId: dbRow.id,
-  name: dbRow.name || null,
-  vehicleId: dbRow.vehicle_id,
-  driverId: dbRow.driver_id,
-  status: dbRow.status,
-  stops: parseStops(dbRow.waypoints || dbRow.optimized_waypoints),
-  optimizationScore: calculateOptimizationScore(dbRow),
-  estimatedDuration: dbRow.estimated_duration || 0,
-  type: dbRow.route_type || 'delivery',
-  date: dbRow.planned_start_time || new Date().toISOString(),
-  startLocation: dbRow.start_location,
-  endLocation: dbRow.end_location,
-  startLocationName: dbRow.start_facility_name || null,
-  endLocationName: dbRow.end_facility_name || null,
-  notes: dbRow.notes,
-  createdAt: dbRow.created_at,
-  updatedAt: dbRow.updated_at
-})
+const transformRouteResponse = (dbRow: any) => {
+  const stops = parseStops(dbRow.waypoints || dbRow.optimized_waypoints)
+  const completedStops = stops.filter((s: any) => s.status === 'completed' || s.status === 'delivered').length
+  return {
+    id: dbRow.id,
+    routeId: dbRow.id,
+    number: dbRow.name || `RT-${String(dbRow.id).slice(0, 8).toUpperCase()}`,
+    name: dbRow.name || null,
+    vehicleId: dbRow.vehicle_id,
+    vehicleName: dbRow.vehicle_name || null,
+    driverId: dbRow.driver_id,
+    driverName: dbRow.driver_name || null,
+    status: dbRow.status,
+    stops,
+    totalStops: stops.length,
+    completedStops,
+    remainingStops: stops.length - completedStops,
+    distance: Number(dbRow.total_distance) || 0,
+    startTime: dbRow.planned_start_time || dbRow.actual_start_time || '',
+    endTime: dbRow.planned_end_time || dbRow.actual_end_time || '',
+    eta: dbRow.planned_end_time || '',
+    optimizationScore: calculateOptimizationScore(dbRow),
+    estimatedDuration: dbRow.estimated_duration || 0,
+    type: dbRow.route_type || 'delivery',
+    date: dbRow.planned_start_time || new Date().toISOString(),
+    startLocation: dbRow.start_location,
+    endLocation: dbRow.end_location,
+    startLocationName: dbRow.start_facility_name || null,
+    endLocationName: dbRow.end_facility_name || null,
+    notes: dbRow.notes,
+    createdAt: dbRow.created_at,
+    updatedAt: dbRow.updated_at
+  }
+}
 
 // Parse waypoints JSON to stops array
 const parseStops = (waypoints: any): any[] => {
@@ -126,10 +141,14 @@ router.get(
       r.metadata as route_geometry,
       r.description as notes,
       r.created_at,
-      r.updated_at
+      r.updated_at,
+      v.name as vehicle_name,
+      CONCAT(d.first_name, ' ', d.last_name) as driver_name
       FROM routes r
       LEFT JOIN facilities sf ON sf.id = r.start_facility_id AND sf.tenant_id = r.tenant_id
       LEFT JOIN facilities ef ON ef.id = r.end_facility_id AND ef.tenant_id = r.tenant_id
+      LEFT JOIN vehicles v ON r.assigned_vehicle_id = v.id
+      LEFT JOIN drivers d ON r.assigned_driver_id = d.id
       WHERE r.tenant_id = $1`
       let countQuery = `SELECT COUNT(*) FROM routes r WHERE r.tenant_id = $1`
       const params: any[] = [req.user!.tenant_id]

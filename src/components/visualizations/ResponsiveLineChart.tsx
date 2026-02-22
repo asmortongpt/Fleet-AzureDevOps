@@ -162,7 +162,7 @@ export function ResponsiveLineChart({
       style={{ height: compact ? '100%' : height }}
     />
   ) : (
-    <ResponsiveContainer width="100%" height={compact ? '100%' : height}>
+    <ResponsiveContainer width="100%" height={height}>
       <ChartComponent data={data} margin={{ top: 10, right: 30, left: 20, bottom: 5 }}>
         <defs>
           {GRADIENT_COLORS.map((gradient) => (
@@ -247,7 +247,7 @@ export function ResponsiveLineChart({
   )
 
   if (compact) {
-    return <div className="w-full h-full">{lineChartContent}</div>
+    return <div className="w-full" style={{ minHeight: height || 140 }}>{lineChartContent}</div>
   }
 
   return (
