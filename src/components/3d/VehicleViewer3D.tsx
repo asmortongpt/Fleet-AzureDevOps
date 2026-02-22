@@ -14,10 +14,8 @@
 
 import {
   OrbitControls,
-  Environment,
   ContactShadows,
   Html,
-  Sky,
   Grid,
   Stats,
 } from '@react-three/drei';
@@ -273,7 +271,6 @@ function Scene({
   interiorColor,
   paintType,
   quality,
-  environment,
   showDamage,
   damageMarkers,
   cameraPreset,
@@ -286,7 +283,6 @@ function Scene({
   interiorColor: string;
   paintType: PaintType;
   quality: MaterialQuality;
-  environment: string;
   showDamage: boolean;
   damageMarkers: DamageMarker[];
   cameraPreset: { x: number; y: number; z: number; target?: { x: number; y: number; z: number } };
@@ -333,25 +329,13 @@ function Scene({
       <pointLight position={[0, 5, -10]} intensity={0.8} color="#88ccff" />
       <hemisphereLight intensity={0.3} color="#ffffff" groundColor="#444444" />
 
-      {/* Environment */}
-      {environment === 'studio' && (
-        <Environment preset="studio" background={false} blur={0.1} />
-      )}
-      {environment === 'sunset' && (
-        <>
-          <Sky sunPosition={[100, 20, 100]} turbidity={8} rayleigh={2} />
-          <Environment preset="sunset" background={false} blur={0.05} />
-        </>
-      )}
-      {environment === 'city' && (
-        <Environment preset="city" background={false} blur={0.15} />
-      )}
-      {environment === 'night' && (
-        <>
-          <Environment preset="night" background={false} blur={0.2} />
-          <pointLight position={[0, 5, 0]} intensity={2} color="#ffaa00" decay={2} />
-        </>
-      )}
+      {/* Scene background + fog (replaces Environment presets that required external HDR files) */}
+      <color attach="background" args={['#1a1a2e']} />
+      <fog attach="fog" args={['#1a1a2e', 25, 50]} />
+
+      {/* Fill light for reflections (replaces HDR environment map) */}
+      <directionalLight position={[5, 8, 5]} intensity={0.6} color="#e0e0ff" />
+      <directionalLight position={[-5, 3, -5]} intensity={0.3} color="#ffe0d0" />
 
       {/* Ground */}
       <ContactShadows position={[0, -0.8, 0]} opacity={0.4} scale={10} blur={2.5} far={4} />
@@ -494,7 +478,6 @@ export default function VehicleViewer3D({
   quality = 'medium',
 }: VehicleViewer3DProps) {
   const [selectedQuality, setSelectedQuality] = useState<MaterialQuality>(quality);
-  const [environment, setEnvironment] = useState<string>('studio');
   const [showDamage, setShowDamage] = useState<boolean>(false);
   const [exteriorColor, setExteriorColor] = useState<string>(vehicleData?.exteriorColor || '#ffffff');
   const [paintType, setPaintType] = useState<PaintType>('metallic');
@@ -502,6 +485,13 @@ export default function VehicleViewer3D({
   const [showStats, setShowStats] = useState(false);
   const [autoRotateEnabled, setAutoRotateEnabled] = useState(autoRotate);
   const [modelMetadata, setModelMetadata] = useState<VehicleModelMetadata | null>(null);
+
+  // Sync exterior color when parent changes it (e.g. color picker in showroom)
+  useEffect(() => {
+    if (vehicleData?.exteriorColor) {
+      setExteriorColor(vehicleData.exteriorColor);
+    }
+  }, [vehicleData?.exteriorColor]);
 
   const cameraPresets = {
     front: { x: 0, y: 2, z: 6, target: { x: 0, y: 0.5, z: 0 } },
@@ -550,7 +540,6 @@ export default function VehicleViewer3D({
             interiorColor={vehicleData?.interiorColor || '#333333'}
             paintType={paintType}
             quality={selectedQuality}
-            environment={environment}
             showDamage={showDamage}
             damageMarkers={vehicleData?.damageMarkers || []}
             cameraPreset={cameraPreset}

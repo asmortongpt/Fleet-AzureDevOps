@@ -55,7 +55,7 @@ interface TimelineDrawerProps {
 
 // Event type colors and icons
 const EVENT_CONFIG: Record<EventType, { icon: any; color: string; bgColor: string }> = {
-  maintenance: { icon: Wrench, color: 'text-blue-700', bgColor: 'bg-blue-950/50' },
+  maintenance: { icon: Wrench, color: 'text-emerald-400', bgColor: 'bg-emerald-950/50' },
   damage: { icon: AlertTriangle, color: 'text-red-400', bgColor: 'bg-red-950/50' },
   inspection: { icon: ShieldCheck, color: 'text-green-400', bgColor: 'bg-green-950/50' },
   service: { icon: Fuel, color: 'text-amber-400', bgColor: 'bg-amber-950/50' },
@@ -83,7 +83,7 @@ function TimelineEventCard({
       className={cn(
         'relative pl-3 pb-2',
         'before:absolute before:left-3 before:top-6 before:h-full before:w-px',
-        'before:bg-gradient-to-b before:from-slate-600 before:to-transparent'
+        'before:bg-gradient-to-b before:from-white/20 before:to-transparent'
       )}
     >
       {/* Timeline dot */}
@@ -91,7 +91,7 @@ function TimelineEventCard({
         className={cn(
           'absolute left-0 top-1 w-4 h-4 rounded-full flex items-center justify-center',
           config.bgColor,
-          'border border-slate-600'
+          'border border-white/[0.12]'
         )}
       >
         <Icon className={cn('w-3 h-3', config.color)} />
@@ -100,9 +100,9 @@ function TimelineEventCard({
       {/* Event card */}
       <div
         className={cn(
-          'rounded-lg border border-slate-700/50 overflow-hidden',
-          'bg-gradient-to-br from-slate-900/90 to-slate-800/90',
-          'hover:border-slate-600/50 transition-colors cursor-pointer'
+          'rounded-lg border border-white/[0.08] overflow-hidden',
+          'bg-white/[0.03]',
+          'hover:border-white/[0.12] transition-colors cursor-pointer'
         )}
         onClick={onClick}
       >
@@ -121,10 +121,10 @@ function TimelineEventCard({
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center gap-2 mt-1 text-xs text-slate-700">
+              <div className="flex items-center gap-2 mt-1 text-xs text-white/40">
                 <Clock className="w-3 h-3" />
                 <span>{format(event.date, 'MMM d, yyyy')}</span>
-                <span className="text-slate-600">|</span>
+                <span className="text-white/20">|</span>
                 <span>{formatDistanceToNow(event.date, { addSuffix: true })}</span>
               </div>
             </div>
@@ -148,13 +148,13 @@ function TimelineEventCard({
           {/* Metadata row */}
           <div className="flex items-center gap-3 mt-2">
             {event.mileage && (
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-white/40">
                 <Car className="w-3 h-3 inline mr-1" />
                 {formatNumber(event.mileage)} mi
               </span>
             )}
             {event.cost && (
-              <span className="text-xs text-slate-500">
+              <span className="text-xs text-white/40">
                 {formatCurrency(event.cost)}
               </span>
             )}
@@ -175,24 +175,24 @@ function TimelineEventCard({
 
         {/* Expanded content */}
         {isExpanded && (
-          <div className="px-3 pb-3 pt-0 border-t border-slate-700/50 mt-2">
+          <div className="px-3 pb-3 pt-0 border-t border-white/[0.06] mt-2">
             {event.description && (
-              <p className="text-xs text-slate-700 mt-2">{event.description}</p>
+              <p className="text-xs text-white/60 mt-2">{event.description}</p>
             )}
             {event.technician && (
-              <p className="text-xs text-slate-500 mt-2">
-                Technician: <span className="text-slate-700">{event.technician}</span>
+              <p className="text-xs text-white/40 mt-2">
+                Technician: <span className="text-white/60">{event.technician}</span>
               </p>
             )}
             {event.location && (
-              <p className="text-xs text-slate-500">
-                Location: <span className="text-slate-700">{event.location}</span>
+              <p className="text-xs text-white/40">
+                Location: <span className="text-white/60">{event.location}</span>
               </p>
             )}
             {event.photos && event.photos.length > 0 && (
               <div className="flex items-center gap-2 mt-2">
-                <Camera className="w-3 h-3 text-slate-500" />
-                <span className="text-xs text-slate-500">
+                <Camera className="w-3 h-3 text-white/40" />
+                <span className="text-xs text-white/40">
                   {event.photos.length} photo{event.photos.length > 1 ? 's' : ''} attached
                 </span>
               </div>
@@ -212,22 +212,22 @@ function QuickStats({ events }: { events: TimelineEvent[] }) {
   const totalCost = events.reduce((sum, e) => sum + (e.cost || 0), 0)
 
   return (
-    <div className="grid grid-cols-4 gap-2 p-3 bg-slate-900/50 rounded-lg border border-slate-700/50">
+    <div className="grid grid-cols-4 gap-2 p-3 bg-white/[0.03] rounded-lg border border-white/[0.08]">
       <div className="text-center">
-        <p className="text-sm font-bold text-blue-700">{maintenanceCount}</p>
-        <p className="text-[10px] text-gray-800 uppercase">Service</p>
+        <p className="text-sm font-bold text-emerald-400">{maintenanceCount}</p>
+        <p className="text-[10px] text-white/40 uppercase">Service</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-red-400">{damageCount}</p>
-        <p className="text-[10px] text-gray-800 uppercase">Damage</p>
+        <p className="text-[10px] text-white/40 uppercase">Damage</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-green-400">{inspectionCount}</p>
-        <p className="text-[10px] text-gray-800 uppercase">Inspect</p>
+        <p className="text-[10px] text-white/40 uppercase">Inspect</p>
       </div>
       <div className="text-center">
         <p className="text-sm font-bold text-amber-400">${(totalCost / 1000).toFixed(1)}k</p>
-        <p className="text-[10px] text-gray-800 uppercase">Total</p>
+        <p className="text-[10px] text-white/40 uppercase">Total</p>
       </div>
     </div>
   )
@@ -259,18 +259,18 @@ export function TimelineDrawer({
     <div
       className={cn(
         'fixed right-0 top-0 h-full w-80 z-50',
-        'bg-gradient-to-b from-slate-950 to-slate-900',
-        'border-l border-slate-700/50 shadow-sm',
+        'bg-[#1a1a1a]',
+        'border-l border-white/[0.08] shadow-sm',
         'transform transition-transform duration-300',
         isOpen ? 'translate-x-0' : 'translate-x-full',
         className
       )}
     >
       {/* Header */}
-      <div className="p-2 border-b border-slate-700/50">
+      <div className="p-2 border-b border-white/[0.08]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clock className="w-3 h-3 text-blue-700" />
+            <Clock className="w-3 h-3 text-emerald-400" />
             <h3 className="font-bold text-white">Vehicle Timeline</h3>
           </div>
           <Button
@@ -313,7 +313,7 @@ export function TimelineDrawer({
               />
             ))
           ) : (
-            <div className="text-center py-3 text-slate-500">
+            <div className="text-center py-3 text-white/40">
               <Clock className="w-4 h-4 mx-auto mb-2 opacity-50" />
               <p className="text-sm">No events found</p>
             </div>
@@ -322,7 +322,7 @@ export function TimelineDrawer({
       </ScrollArea>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-slate-700/50 bg-slate-950">
+      <div className="absolute bottom-0 left-0 right-0 p-2 border-t border-white/[0.08] bg-[#1a1a1a]">
         <Button variant="outline" size="sm" className="w-full">
           <CaretDoubleRight className="w-4 h-4 mr-2" />
           View Full History
