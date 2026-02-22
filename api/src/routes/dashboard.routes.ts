@@ -573,11 +573,13 @@ router.get('/costs/summary',
             AND COALESCE(actual_end_date, actual_start_date, updated_at) < ${previousPeriodEnd}
         `, [tenantId]),
 
-        // Total miles driven (for cost per mile)
+        // Total miles driven (for cost per mile) — use actual trip distances, not odometer readings
         pool.query(`
-          SELECT COALESCE(SUM(v.odometer), 0)::integer as total_miles
-          FROM vehicles v
-          WHERE v.tenant_id = $1::uuid
+          SELECT COALESCE(SUM(t.distance_miles), 0)::numeric as total_miles
+          FROM trips t
+          WHERE t.tenant_id = $1::uuid
+            AND t.status = 'completed'
+            AND t.start_time >= (NOW() - INTERVAL '6 months')
         `, [tenantId])
         ,
         // Active budget total for target cost-per-mile benchmark

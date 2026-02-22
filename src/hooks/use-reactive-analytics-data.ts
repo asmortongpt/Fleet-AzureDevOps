@@ -300,7 +300,9 @@ export function useReactiveAnalyticsData() {
       }
     })
 
-    return Array.from(counts.entries()).map(([name, value]) => ({ name, value }))
+    return Array.from(counts.entries())
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime())
   }, [reports])
 
   const performanceMetricsTrend = useMemo<TrendDataPoint[]>(() => [], [])

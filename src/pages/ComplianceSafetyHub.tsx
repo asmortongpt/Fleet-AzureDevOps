@@ -296,25 +296,25 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
       <div className="grid grid-cols-4 gap-1.5">
         <StatCard
           title="Compliance Rate"
-          value={complianceStats.complianceRate > 0 ? `${complianceStats.complianceRate}%` : '\u2014'}
+          value={complianceStats.complianceRate != null ? `${complianceStats.complianceRate}%` : '\u2014'}
           icon={CheckCircle}
           description="All checks current"
         />
         <StatCard
           title="Active Certifications"
-          value={complianceStats.activeCerts || '\u2014'}
+          value={complianceStats.activeCerts != null ? complianceStats.activeCerts : '\u2014'}
           icon={Award}
           description="Valid medical cards"
         />
         <StatCard
           title="Expiring Soon"
-          value={complianceStats.expiringSoon || '\u2014'}
+          value={complianceStats.expiringSoon != null ? complianceStats.expiringSoon : '\u2014'}
           icon={Clock}
           description="Within 30 days"
         />
         <StatCard
           title="Non-Compliant"
-          value={complianceStats.nonCompliant || '\u2014'}
+          value={complianceStats.nonCompliant != null ? complianceStats.nonCompliant : '\u2014'}
           icon={XCircle}
           description="Expired or overdue"
         />

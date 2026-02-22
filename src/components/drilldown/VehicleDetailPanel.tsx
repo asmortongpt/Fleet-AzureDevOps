@@ -20,7 +20,7 @@ import {
   User,
   MapPin,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 import { MetricCard } from './MetricCard'
@@ -241,6 +241,23 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
     apiFetcher
   )
 
+  const { data: schedules } = useSWR<any[]>(
+    vehicleId ? `/api/maintenance-schedules?vehicle_id=${vehicleId}&status=active&limit=5` : null,
+    apiFetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const nextPm = useMemo(() => {
+    if (!Array.isArray(schedules) || schedules.length === 0) return null
+    const sorted = schedules
+      .filter((s: any) => s.next_service_date || s.next_due_date || s.nextDueDate)
+      .sort((a: any, b: any) =>
+        new Date(a.next_service_date || a.next_due_date || a.nextDueDate).getTime() -
+        new Date(b.next_service_date || b.next_due_date || b.nextDueDate).getTime()
+      )
+    return sorted[0] || null
+  }, [schedules])
+
   const handleViewTrips = () => {
     push({
       id: `vehicle-trips-${vehicleId}`,
@@ -340,6 +357,14 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                     </span>
                   )}
                 </div>
+                {/* Next PM due */}
+                {nextPm && (
+                  <div className="flex items-center gap-1.5 mt-2 text-xs text-white/50">
+                    <Wrench className="h-3 w-3" />
+                    <span>Next PM: <span className="font-semibold text-white/70">{formatDate(nextPm.next_service_date || nextPm.next_due_date || nextPm.nextDueDate)}</span></span>
+                    {(nextPm.name || nextPm.description) && <span className="text-white/30">({nextPm.name || nextPm.description})</span>}
+                  </div>
+                )}
               </div>
               <Car className="h-8 w-8 text-white/20 shrink-0 mt-0.5" />
             </div>

@@ -28,11 +28,20 @@ interface CategoryDef {
 const categories: CategoryDef[] = [
   { id: 'fleet', label: 'Fleet', icon: <Truck className="w-5 h-5" /> },
   { id: 'operations', label: 'Ops', icon: <Route className="w-5 h-5" /> },
-  { id: 'maintenance', label: 'Maint', icon: <Wrench className="w-5 h-5" /> },
+  { id: 'maintenance', label: 'Maint.', icon: <Wrench className="w-5 h-5" /> },
   { id: 'safety', label: 'Safety', icon: <ShieldCheck className="w-5 h-5" /> },
-  { id: 'analytics', label: 'Stats', icon: <BarChart3 className="w-5 h-5" /> },
+  { id: 'analytics', label: 'Reports', icon: <BarChart3 className="w-5 h-5" /> },
   { id: 'admin', label: 'Admin', icon: <Settings className="w-5 h-5" /> },
 ]
+
+const hubDescriptions: Record<string, string> = {
+  fleet: 'Fleet Dashboard',
+  operations: 'Fleet Operations',
+  maintenance: 'Maintenance & Work Orders',
+  safety: 'Compliance & Safety',
+  analytics: 'Business & Reports',
+  admin: 'Admin & Configuration',
+}
 
 export function IconRail() {
   const { state, setFlyout } = usePanel()
@@ -75,7 +84,7 @@ export function IconRail() {
                 onMouseEnter={() => handleMouseEnter(cat.id)}
                 onClick={() => handleClick(cat.id)}
                 aria-label={cat.label}
-                title={cat.label}
+                title={hubDescriptions[cat.id] || cat.label}
                 className={cn(
                   'flex flex-col items-center justify-center w-10 h-11 lg:w-11 lg:h-12 rounded-lg transition-all duration-200',
                   isActive

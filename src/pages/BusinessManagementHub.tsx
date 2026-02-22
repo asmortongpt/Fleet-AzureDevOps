@@ -93,7 +93,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     const deptMap = new Map<string, number>()
     fleetWorkOrders.forEach((wo: any) => {
       const vehicle = vehicles.find((v: any) => v.id === (wo.vehicleId || wo.vehicle_id))
-      const dept = vehicle?.department || wo.department || '—'
+      const dept = vehicle?.department || wo.department || 'Unassigned'
       const cost = Number(wo.total_cost || wo.cost || 0)
       deptMap.set(dept, (deptMap.get(dept) || 0) + cost)
     })
@@ -183,19 +183,28 @@ const FinancialTabContent = memo(function FinancialTabContent() {
   }, [trends])
 
   const breakdownData = useMemo(() => {
-    const breakdown = summary?.categoryBreakdown || summary?.category_breakdown
-    if (!Array.isArray(breakdown)) return []
-    return breakdown.map((row: any) => ({
-      name: row.category || row.name || "Uncategorized",
-      value: Number(row.amount || row.value || 0)
-    }))
-  }, [summary])
+    const s = summary?.data || summary
+    const breakdown = s?.categoryBreakdown || s?.category_breakdown
+    if (Array.isArray(breakdown) && breakdown.length > 0) {
+      return breakdown.map((row: any) => ({
+        name: row.category || row.name || "Uncategorized",
+        value: Number(row.amount || row.value || 0)
+      })).filter((d: any) => d.value > 0)
+    }
+    // Fallback: derive from work orders by type
+    const cats = new Map<string, number>()
+    fleetWorkOrders.forEach((wo: any) => {
+      const cat = formatEnum(wo.type || 'maintenance')
+      cats.set(cat, (cats.get(cat) || 0) + Number(wo.total_cost || wo.cost || 0))
+    })
+    return Array.from(cats.entries()).map(([name, value]) => ({ name, value })).filter(d => d.value > 0)
+  }, [summary, fleetWorkOrders])
 
   const recentTransactions = useMemo((): { description: string; amount: number; category: string; date: string }[] => {
     const expenses = summary?.topExpenses || summary?.top_expenses
     if (Array.isArray(expenses) && expenses.length > 0) {
       return expenses.map((row: any) => ({
-        description: row.description || "Expense",
+        description: row.description || row.name || row.title || formatEnum(row.category || 'Expense'),
         amount: Number(row.amount || 0),
         category: row.category || "General",
         date: row.date || row.transactionDate || row.transaction_date
@@ -285,12 +294,13 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             className="flex-1 min-h-0"
           >
             {breakdownData.length > 0 ? (
-              <ResponsivePieChart
-                title="Cost Breakdown by Category"
-                data={breakdownData}
-                height={140}
-                compact
-              />
+              <div style={{ minHeight: 160 }}>
+                <ResponsivePieChart
+                  title="Cost Breakdown by Category"
+                  data={breakdownData}
+                  height={160}
+                />
+              </div>
             ) : (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             )}

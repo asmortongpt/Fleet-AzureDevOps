@@ -293,18 +293,52 @@ const OverviewTabContent = memo(function OverviewTabContent() {
       {/* ROW 1: TOP-LEVEL KPI SUMMARY */}
       <div className="grid grid-cols-4 gap-1.5">
         <StatCard title="Fleet Health Score" value={fleetHealth.avgScore > 0 ? fleetHealth.avgScore : '—'} icon={HeartPulse}
-          description={`${fleetHealth.totalWithScores} vehicles scored`}
+          description={`${fleetHealth.excellent + fleetHealth.good}/${fleetHealth.totalWithScores} good+ · ${fleetHealth.totalWithScores} scored`}
           trend={fleetHealth.avgScore >= 80 ? 'up' : fleetHealth.avgScore >= 60 ? 'neutral' : 'down'} />
         <StatCard title="Avg Safety Score" value={safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '—'} icon={Shield}
           description={`${safetyMetrics.needsAttention} drivers need attention`}
           trend={safetyMetrics.avgSafety >= 80 ? 'up' : safetyMetrics.avgSafety >= 60 ? 'neutral' : 'down'} />
         <StatCard title="Open Work Orders" value={maintenanceOverview.openWorkOrders} icon={ClipboardList}
-          description={`${maintenanceOverview.emergencyCount} emergency`}
+          description={`${maintenanceOverview.emergencyCount} emergency · ${maintenanceOverview.totalDowntimeHours}h downtime`}
           trend={maintenanceOverview.emergencyCount > 3 ? 'down' : 'neutral'} />
         <StatCard title="Compliance Alerts" value={complianceAlerts.totalAlerts} icon={ShieldAlert}
           description="Items requiring attention"
           trend={complianceAlerts.totalAlerts > 5 ? 'down' : complianceAlerts.totalAlerts > 0 ? 'neutral' : 'up'} />
       </div>
+
+      {/* Attention Required Banner */}
+      {(maintenanceOverview.emergencyCount > 0 || complianceAlerts.totalAlerts > 0) && (
+        <div className="grid grid-cols-4 gap-1.5 p-2 rounded border border-rose-800/30 bg-rose-950/10">
+          <div className="flex items-center gap-2">
+            <Siren className="h-4 w-4 text-rose-400" />
+            <div>
+              <p className="text-xs font-semibold text-rose-300">{maintenanceOverview.emergencyCount}</p>
+              <p className="text-[10px] text-white/50">Emergency WOs</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Car className="h-4 w-4 text-amber-400" />
+            <div>
+              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.expiringRegistrations}</p>
+              <p className="text-[10px] text-white/50">Expiring Registrations</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <UserCheck className="h-4 w-4 text-amber-400" />
+            <div>
+              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.expiringMedicalCards}</p>
+              <p className="text-[10px] text-white/50">Expiring Med Cards</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4 text-amber-400" />
+            <div>
+              <p className="text-xs font-semibold text-amber-300">{complianceAlerts.overdueDrugTests}</p>
+              <p className="text-[10px] text-white/50">Overdue Drug Tests</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ROW 2: FLEET HEALTH + HOS COMPLIANCE */}
       <div className="grid grid-cols-2 gap-1.5">
@@ -1124,9 +1158,20 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
     return { partsCost, laborCost }
   }, [workOrders])
 
+  const [woStatusFilter, setWoStatusFilter] = useState<string | null>(null)
+
   const openOrders = workOrders.filter(order =>
     order.status !== 'completed' && order.status !== 'cancelled'
   )
+
+  const woStatusCounts = useMemo(() => {
+    const counts: Record<string, number> = {}
+    openOrders.forEach((o: any) => { counts[o.status || 'pending'] = (counts[o.status || 'pending'] || 0) + 1 })
+    return counts
+  }, [openOrders])
+
+  const filteredOrders = woStatusFilter
+    ? openOrders.filter((o: any) => o.status === woStatusFilter) : openOrders
 
   const upcomingOrders = workOrders.filter(order =>
     order.status === 'pending' || order.status === 'in_progress'
@@ -1194,13 +1239,14 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           title="Open Work Orders"
           value={openOrders.length}
           icon={ClipboardList}
-          description="Active maintenance tasks"
+          description={`${safeMetrics.inProgress} in progress · ${safeMetrics.pendingOrders} pending`}
         />
         <StatCard
           title="Urgent Orders"
           value={safeMetrics.urgentOrders}
           icon={AlertTriangle}
           description="Needs immediate attention"
+          trend={safeMetrics.urgentOrders > 3 ? 'down' : safeMetrics.urgentOrders > 0 ? 'neutral' : 'up'}
         />
         <StatCard
           title="Total Downtime"
@@ -1249,9 +1295,20 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             </Button>
           }
         >
-          {openOrders.length > 0 ? (
+          {/* Status filter pills */}
+          <div className="flex gap-1 mb-2 flex-wrap">
+            <Badge variant={!woStatusFilter ? 'default' : 'outline'} className="cursor-pointer text-[10px]"
+              onClick={() => setWoStatusFilter(null)}>All ({openOrders.length})</Badge>
+            {Object.entries(woStatusCounts).map(([status, count]) => (
+              <Badge key={status} variant={woStatusFilter === status ? 'default' : 'outline'}
+                className="cursor-pointer text-[10px]" onClick={() => setWoStatusFilter(status)}>
+                {formatEnum(status)} ({count})
+              </Badge>
+            ))}
+          </div>
+          {filteredOrders.length > 0 ? (
             <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1 max-h-96">
-              {openOrders.slice(0, 10).map((order: any) => (
+              {filteredOrders.slice(0, 10).map((order: any) => (
                 <div key={order.id} className={`flex items-center justify-between rounded border p-2 ${
                   order.is_emergency || order.isEmergency ? 'border-rose-800/40 bg-rose-950/20' : 'border-white/[0.08] bg-[#242424]'
                 }`}>

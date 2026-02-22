@@ -540,7 +540,7 @@ router.get('/analysis', asyncHandler(async (req, res) => {
         amount,
         description,
         vehicle_id,
-        vendor_id
+        vendor_name
       FROM unified_costs ${whereClause}
       ORDER BY amount DESC
       LIMIT 10`,
