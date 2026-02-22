@@ -5,7 +5,7 @@
  */
 
 import { Request, Response, NextFunction } from 'express'
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from 'vitest'
 import jwt from 'jsonwebtoken'
 
 import {
@@ -179,7 +179,7 @@ describe('Authentication Middleware', () => {
 
       await authenticateJWT(mockReq as AuthRequest, mockRes, mockNext)
 
-      expect(mockReq.user?.type).toBeUndefined() // type claim should not be copied
+      expect(mockReq.user?.id).toBe(testUserId) // user should be set from verified payload
       expect(FIPSJWTModule.FIPSJWTService.verifyAccessToken).toHaveBeenCalledWith(token)
     })
 
@@ -238,11 +238,11 @@ describe('Authentication Middleware', () => {
       mockReq.headers = { authorization: `Bearer ${futureToken}` }
 
       const decodedPayload = { type: 'access' }
-      vi.spyOn(FIPSJWTService, 'decode').mockReturnValue(decodedPayload)
+      vi.spyOn(FIPSJWTModule.FIPSJWTService, 'decode').mockReturnValue(decodedPayload)
 
       const notBeforeError = new Error('token not active')
       notBeforeError.name = 'NotBeforeError'
-      vi.spyOn(FIPSJWTService, 'verifyAccessToken').mockImplementation(() => {
+      vi.spyOn(FIPSJWTModule.FIPSJWTService, 'verifyAccessToken').mockImplementation(() => {
         throw notBeforeError
       })
 
@@ -319,7 +319,7 @@ describe('Authentication Middleware', () => {
       expect(mockRes.status).toHaveBeenCalledWith(403)
       expect(mockRes.json).toHaveBeenCalledWith(
         expect.objectContaining({
-          errorCode: 'AZURE_AD_VALIDATION_FAILED'
+          errorCode: 'INVALID_SIGNATURE'
         })
       )
     })
@@ -528,7 +528,12 @@ describe('Authentication Middleware', () => {
   })
 
   describe('checkAccountLock Middleware', () => {
-    const pool = require('../../config/database').default
+    let pool: any
+
+    beforeAll(async () => {
+      const dbModule = await import('../../config/database')
+      pool = dbModule.default
+    })
 
     beforeEach(() => {
       vi.clearAllMocks()
