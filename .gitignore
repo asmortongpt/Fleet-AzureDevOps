@@ -46,6 +46,7 @@ keyvault-config-*.env
 **/agent-eval-report*
 
 # AI assistant artifacts - NEVER commit
+.sdlc-agent/
 .clawdrc.json
 clawd.sh
 clawd.*
