@@ -74,6 +74,7 @@ import {
   ResponsiveBarChart,
   ResponsiveLineChart,
   ResponsivePieChart,
+  GaugeChart,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
 import { useReactiveAssetsData } from '@/hooks/use-reactive-assets-data'
@@ -138,6 +139,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
     typeDistribution: woTypeDistribution,
     isLoading: maintenanceLoading,
   } = useReactiveMaintenanceData()
+  const { push } = useDrilldown()
 
   const loading = fleetLoading || driversLoading || maintenanceLoading
 
@@ -292,49 +294,53 @@ const OverviewTabContent = memo(function OverviewTabContent() {
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* ROW 1: TOP-LEVEL KPI SUMMARY */}
       <div className="grid grid-cols-4 gap-1.5">
-        <StatCard title="Fleet Health Score" value={fleetHealth.avgScore > 0 ? fleetHealth.avgScore : '—'} icon={HeartPulse}
-          description={`${fleetHealth.excellent + fleetHealth.good}/${fleetHealth.totalWithScores} good+ · ${fleetHealth.totalWithScores} scored`}
-          trend={fleetHealth.avgScore >= 80 ? 'up' : fleetHealth.avgScore >= 60 ? 'neutral' : 'down'} />
+        <StatCard title="Fleet Utilization" value={`${vehicles.length > 0 ? Math.round(((fleetStats?.activeVehicles ?? 0) / vehicles.length) * 100) : 0}%`} icon={Gauge}
+          description={`${fleetStats?.activeVehicles ?? 0} active of ${vehicles.length} vehicles`}
+          trend={vehicles.length > 0 && ((fleetStats?.activeVehicles ?? 0) / vehicles.length) >= 0.7 ? 'up' : 'neutral'}
+          loading={loading} />
         <StatCard title="Avg Safety Score" value={safetyMetrics.avgSafety > 0 ? safetyMetrics.avgSafety : '—'} icon={Shield}
           description={`${safetyMetrics.needsAttention} drivers need attention`}
-          trend={safetyMetrics.avgSafety >= 80 ? 'up' : safetyMetrics.avgSafety >= 60 ? 'neutral' : 'down'} />
+          trend={safetyMetrics.avgSafety >= 80 ? 'up' : safetyMetrics.avgSafety >= 60 ? 'neutral' : 'down'}
+          loading={loading} />
         <StatCard title="Open Work Orders" value={maintenanceOverview.openWorkOrders} icon={ClipboardList}
           description={`${maintenanceOverview.emergencyCount} emergency · ${maintenanceOverview.totalDowntimeHours}h downtime`}
-          trend={maintenanceOverview.emergencyCount > 3 ? 'down' : 'neutral'} />
+          trend={maintenanceOverview.emergencyCount > 3 ? 'down' : 'neutral'}
+          loading={loading} />
         <StatCard title="Compliance Alerts" value={complianceAlerts.totalAlerts} icon={ShieldAlert}
           description="Items requiring attention"
-          trend={complianceAlerts.totalAlerts > 5 ? 'down' : complianceAlerts.totalAlerts > 0 ? 'neutral' : 'up'} />
+          trend={complianceAlerts.totalAlerts > 5 ? 'down' : complianceAlerts.totalAlerts > 0 ? 'neutral' : 'up'}
+          loading={loading} />
       </div>
 
       {/* Attention Required Banner */}
       {(maintenanceOverview.emergencyCount > 0 || complianceAlerts.totalAlerts > 0) && (
-        <div className="grid grid-cols-4 gap-1.5 p-2 rounded border border-rose-800/30 bg-rose-950/10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-2 rounded border border-rose-800/30 bg-rose-950/10">
           <div className="flex items-center gap-2">
-            <Siren className="h-4 w-4 text-rose-400" />
+            <Siren className="h-5 w-5 text-rose-400" />
             <div>
               <p className="text-xs font-semibold text-rose-300">{maintenanceOverview.emergencyCount}</p>
-              <p className="text-[10px] text-white/50">Emergency WOs</p>
+              <p className="text-xs text-white/50">Emergency WOs</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Car className="h-4 w-4 text-amber-400" />
+            <Car className="h-5 w-5 text-amber-400" />
             <div>
               <p className="text-xs font-semibold text-amber-300">{complianceAlerts.expiringRegistrations}</p>
-              <p className="text-[10px] text-white/50">Expiring Registrations</p>
+              <p className="text-xs text-white/50">Expiring Registrations</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <UserCheck className="h-4 w-4 text-amber-400" />
+            <UserCheck className="h-5 w-5 text-amber-400" />
             <div>
               <p className="text-xs font-semibold text-amber-300">{complianceAlerts.expiringMedicalCards}</p>
-              <p className="text-[10px] text-white/50">Expiring Med Cards</p>
+              <p className="text-xs text-white/50">Expiring Med Cards</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <ShieldAlert className="h-4 w-4 text-amber-400" />
+            <ShieldAlert className="h-5 w-5 text-amber-400" />
             <div>
               <p className="text-xs font-semibold text-amber-300">{complianceAlerts.overdueDrugTests}</p>
-              <p className="text-[10px] text-white/50">Overdue Drug Tests</p>
+              <p className="text-xs text-white/50">Overdue Drug Tests</p>
             </div>
           </div>
         </div>
@@ -345,17 +351,11 @@ const OverviewTabContent = memo(function OverviewTabContent() {
         <Section title="Fleet Health Overview" description="Vehicle health score distribution" icon={<HeartPulse className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-4">
-              <div>
-                <span className={`text-2xl font-bold ${getScoreColor(fleetHealth.avgScore)}`}>
-                  {fleetHealth.avgScore > 0 ? fleetHealth.avgScore : '--'}
-                </span>
-                <span className="text-xs text-muted-foreground ml-1">/ 100</span>
-              </div>
-              <div className="flex-1">
-                <ProgressBar value={fleetHealth.avgScore} color={getBarColor(fleetHealth.avgScore)} />
+              <GaugeChart title="Fleet Health" value={fleetHealth.avgScore} size={120} height={140} />
+              <div className="flex-1 flex flex-col gap-1">
+                <p className="text-xs text-muted-foreground">{fleetHealth.totalWithScores} of {vehicles.length} vehicles with scores</p>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground">{fleetHealth.totalWithScores} of {vehicles.length} vehicles with scores</p>
             <div className="grid grid-cols-4 gap-2">
               {[
                 { label: 'Excellent', count: fleetHealth.excellent, color: 'text-emerald-400' },
@@ -449,34 +449,8 @@ const OverviewTabContent = memo(function OverviewTabContent() {
 
         <Section title="Department Utilization" description="Vehicle count and uptime by department" icon={<Building2 className="h-4 w-4" />}>
           <div className="flex flex-col gap-2">
-            {departmentUtil.length > 0 ? (
-              <>
-                <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-1">
-                  {departmentUtil.slice(0, 6).map((dept) => (
-                    <div key={dept.name} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-xs font-medium text-foreground">{dept.name}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <div className="text-right">
-                          <p className="text-xs font-semibold text-foreground">{dept.count}</p>
-                          <p className="text-[10px] text-muted-foreground">vehicles</p>
-                        </div>
-                        {dept.avgUptime !== null && (
-                          <div className="text-right">
-                            <p className="text-xs font-semibold text-foreground">{dept.avgUptime}%</p>
-                            <p className="text-[10px] text-muted-foreground">uptime</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                {departmentChartData.length > 0 && (
-                  <ResponsiveBarChart title="Vehicles by Department" data={departmentChartData} dataKey="count" height={140} showValues compact />
-                )}
-              </>
+            {departmentChartData.length > 0 ? (
+              <ResponsiveBarChart title="Vehicles by Department" data={departmentChartData} dataKey="count" height={200} showValues compact />
             ) : (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No department data available</div>
             )}
@@ -532,17 +506,24 @@ const OverviewTabContent = memo(function OverviewTabContent() {
             ) : (
               <>
                 {[
-                  { icon: Car, title: 'Registration Expiry', desc: 'Vehicles expiring within 30 days', count: complianceAlerts.expiringRegistrations, severity: 'amber' as const },
-                  { icon: UserIcon, title: 'Medical Card Expiry', desc: 'Drivers expiring within 30 days', count: complianceAlerts.expiringMedicalCards, severity: 'amber' as const },
-                  { icon: ShieldAlert, title: 'Drug Test Overdue', desc: 'Last test over 12 months ago', count: complianceAlerts.overdueDrugTests, severity: 'red' as const },
+                  { icon: Car, title: 'Registration Expiry', desc: 'Vehicles expiring within 30 days', count: complianceAlerts.expiringRegistrations, severity: 'amber' as const, category: 'registration' },
+                  { icon: UserIcon, title: 'Medical Card Expiry', desc: 'Drivers expiring within 30 days', count: complianceAlerts.expiringMedicalCards, severity: 'amber' as const, category: 'medical-card' },
+                  { icon: ShieldAlert, title: 'Drug Test Overdue', desc: 'Last test over 12 months ago', count: complianceAlerts.overdueDrugTests, severity: 'red' as const, category: 'drug-test' },
                 ].map(alert => (
-                  <div key={alert.title} className={`rounded border p-3 ${
-                    alert.count > 0
-                      ? alert.severity === 'red'
-                        ? 'border-rose-800/40 bg-rose-950/20'
-                        : 'border-amber-800/40 bg-amber-950/20'
-                      : 'border-white/[0.08] bg-[#242424]'
-                  }`}>
+                  <div
+                    key={alert.title}
+                    className={`rounded border p-3 cursor-pointer transition-colors hover:bg-white/[0.04] ${
+                      alert.count > 0
+                        ? alert.severity === 'red'
+                          ? 'border-rose-800/40 bg-rose-950/20'
+                          : 'border-amber-800/40 bg-amber-950/20'
+                        : 'border-white/[0.08] bg-[#242424]'
+                    }`}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => push({ type: 'compliance-item', label: alert.title, data: { category: alert.category, alertType: alert.title } })}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ type: 'compliance-item', label: alert.title, data: { category: alert.category, alertType: alert.title } }); } }}
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <alert.icon className={`h-4 w-4 ${
@@ -580,7 +561,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
  * Fleet Tab - Vehicle tracking and telemetry
  */
 const FleetTabContent = memo(function FleetTabContent() {
-  const { vehicles, metrics: stats, statusDistribution, isLoading: loading, error } = useReactiveFleetData()
+  const { vehicles, metrics: stats, statusDistribution, lowFuelVehicles, highMileageVehicles, makeDistribution, isLoading: loading, error } = useReactiveFleetData()
   const { user } = useAuth()
 
   const safeStats = stats || {
@@ -655,12 +636,15 @@ const FleetTabContent = memo(function FleetTabContent() {
           value={safeStats.totalVehicles}
           icon={Car}
           description={statusBreakdownText || 'Active fleet count'}
+          loading={loading}
+          sparklineData={statusDistribution.map(s => ({ value: s.value }))}
         />
         <StatCard
           title="Active Vehicles"
           value={safeStats.activeVehicles}
           icon={Gauge}
           description="Currently in use"
+          loading={loading}
         />
         <StatCard
           title="Fleet Health"
@@ -668,14 +652,60 @@ const FleetTabContent = memo(function FleetTabContent() {
           icon={HeartPulse}
           trend={avgHealthScore != null ? (avgHealthScore >= 80 ? 'up' : avgHealthScore >= 60 ? 'neutral' : 'down') : 'neutral'}
           description="Avg health score"
+          loading={loading}
         />
         <StatCard
           title="Avg Fuel Level"
           value={`${(safeStats.averageFuelLevel || 0).toFixed(1)}%`}
           icon={Fuel}
           description="Fleet average"
+          loading={loading}
         />
       </div>
+
+      {/* Fleet Alerts */}
+      {(lowFuelVehicles.length > 0 || highMileageVehicles.length > 0) && (
+        <Section
+          title="Fleet Alerts"
+          description={`${lowFuelVehicles.length + highMileageVehicles.length} vehicles need attention`}
+          icon={<AlertTriangle className="h-4 w-4" />}
+        >
+          <div className="flex flex-col gap-1">
+            {lowFuelVehicles.slice(0, 5).map((v: any) => (
+              <div key={`fuel-${v.id}`} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                <div className="flex items-center gap-2">
+                  <Fuel className="h-3.5 w-3.5 text-amber-400" />
+                  <div>
+                    <p className="text-xs font-medium text-foreground">
+                      {v.unit_number || v.unitNumber || `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim() || 'Unknown Vehicle'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Fuel: {v.fuel_level != null ? `${v.fuel_level}%` : 'N/A'}</p>
+                  </div>
+                </div>
+                <Badge variant={v.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
+                  {v.severity === 'high' ? 'Critical' : 'Warning'}
+                </Badge>
+              </div>
+            ))}
+            {highMileageVehicles.slice(0, 5).map((v: any) => (
+              <div key={`mile-${v.id}`} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
+                  <div>
+                    <p className="text-xs font-medium text-foreground">
+                      {v.unit_number || v.unitNumber || `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim() || 'Unknown Vehicle'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Mileage: {formatNumber(v.mileage)} mi</p>
+                  </div>
+                </div>
+                <Badge variant={v.severity === 'high' ? 'destructive' : 'secondary'} className="text-[10px] px-1 py-0">
+                  {v.severity === 'high' ? 'Critical' : 'Warning'}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </Section>
+      )}
 
       {/* Main content area - scrollable with auto-height children */}
       <div className="flex flex-col gap-1.5">
@@ -758,7 +788,7 @@ const FleetTabContent = memo(function FleetTabContent() {
  * Drivers Tab - Driver management and performance
  */
 const DriversTabContent = memo(function DriversTabContent() {
-  const { drivers, topPerformers, performanceTrend, metrics: stats, isLoading: loading, error } = useReactiveDriversData()
+  const { drivers, topPerformers, performanceTrend, metrics: stats, lowSafetyDrivers, driversWithViolations, expiringLicenses, isLoading: loading, error } = useReactiveDriversData()
   const { push } = useDrilldown()
 
   const safeStats = stats || {
@@ -818,12 +848,14 @@ const DriversTabContent = memo(function DriversTabContent() {
           value={safeStats.totalDrivers}
           icon={Users}
           description="Active driver pool"
+          loading={loading}
         />
         <StatCard
           title="On Duty"
           value={safeStats.activeDrivers}
           icon={UserIcon}
           description="Currently working"
+          loading={loading}
         />
         <StatCard
           title="Avg Safety Score"
@@ -831,12 +863,15 @@ const DriversTabContent = memo(function DriversTabContent() {
           icon={Shield}
           trend={computedAvgSafetyScore >= 80 ? 'up' : computedAvgSafetyScore >= 60 ? 'neutral' : 'down'}
           description="From driver safety scores"
+          loading={loading}
+          sparklineData={performanceTrend.map(p => ({ value: p.avgScore }))}
         />
         <StatCard
           title="HOS Driving"
           value={driversDrivingCount}
           icon={Activity}
           description="Currently driving"
+          loading={loading}
         />
       </div>
 
@@ -854,10 +889,10 @@ const DriversTabContent = memo(function DriversTabContent() {
                 name: point.date,
                 date: point.date,
                 safety_score: point.avgScore,
-                performance_rating: point.avgScore
+                violations: point.violations
               }))}
-              dataKeys={['safety_score', 'performance_rating']}
-              colors={['hsl(var(--success))', 'hsl(var(--primary))']}
+              dataKeys={['safety_score', 'violations']}
+              colors={['hsl(var(--success))', 'hsl(var(--destructive))']}
               height={140}
               compact
             />
@@ -917,12 +952,89 @@ const DriversTabContent = memo(function DriversTabContent() {
                   </div>
                 </div>
               ))}
+              {topPerformers.length > 5 && (
+                <Button variant="outline" size="sm" className="w-full mt-1 text-xs" onClick={() => push({ type: 'drivers-list', label: 'All Top Performers', data: { filter: 'top-performers' } })}>
+                  View All ({topPerformers.length})
+                </Button>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
           )}
         </Section>
       </div>
+
+      {/* Drivers Needing Attention */}
+      {(lowSafetyDrivers.length > 0 || driversWithViolations.length > 0 || expiringLicenses.length > 0) && (
+        <Section
+          title="Drivers Needing Attention"
+          description={`${lowSafetyDrivers.length + driversWithViolations.length + expiringLicenses.length} items requiring review`}
+          icon={<AlertTriangle className="h-4 w-4" />}
+        >
+          <div className="grid grid-cols-3 gap-1.5">
+            {/* Low Safety Scores */}
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Low Safety Scores ({lowSafetyDrivers.length})</p>
+              {lowSafetyDrivers.slice(0, 3).map((driver: any) => (
+                <div
+                  key={`safety-${driver.id}`}
+                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
+                >
+                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <p className="text-[10px] text-muted-foreground">Score: {driver.safetyScore}</p>
+                    <Badge variant="destructive" className="text-[10px] px-1 py-0">Low</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Violations */}
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">With Violations ({driversWithViolations.length})</p>
+              {driversWithViolations.slice(0, 3).map((driver: any) => (
+                <div
+                  key={`viol-${driver.id}`}
+                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
+                >
+                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <p className="text-[10px] text-muted-foreground">{driver.violationCount} violations</p>
+                    <Badge variant="secondary" className="text-[10px] px-1 py-0">Review</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Expiring Licenses */}
+            <div className="flex flex-col gap-1">
+              <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Expiring Licenses ({expiringLicenses.length})</p>
+              {expiringLicenses.slice(0, 3).map((driver: any) => (
+                <div
+                  key={`lic-${driver.id}`}
+                  className="rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } })}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); push({ id: driver.id, type: 'driver', label: driver.name, data: { driverId: driver.id, driverName: driver.name } }); } }}
+                >
+                  <p className="text-xs font-medium text-foreground truncate">{driver.name}</p>
+                  <div className="flex items-center justify-between mt-0.5">
+                    <p className="text-[10px] text-muted-foreground">Exp: {formatDate(driver.licenseExpiry)}</p>
+                    <Badge variant="secondary" className="text-[10px] px-1 py-0">Expiring</Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Section>
+      )}
     </div>
   )
 })
@@ -931,7 +1043,7 @@ const DriversTabContent = memo(function DriversTabContent() {
  * Operations Tab - Dispatch, routing, fuel management
  */
 const OperationsTabContent = memo(function OperationsTabContent() {
-  const { routes, fuelTransactions, metrics: stats, isLoading: loading, error } = useReactiveOperationsData()
+  const { routes, fuelTransactions, metrics: stats, completionTrendData, fuelConsumptionData, delayedRoutes, avgFuelCostPerMile, isLoading: loading, error } = useReactiveOperationsData()
   const { vehicles: fleetVehicles } = useReactiveFleetData()
   const { push } = useDrilldown()
 
@@ -1002,37 +1114,90 @@ const OperationsTabContent = memo(function OperationsTabContent() {
   return (
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* Operations Statistics */}
-      <div className="grid grid-cols-4 gap-1.5">
+      <div className="grid grid-cols-5 gap-1.5">
         <StatCard
           title="Active Routes"
           value={safeStats.activeJobs}
           icon={RouteIcon}
           description="In progress"
+          loading={loading}
         />
         <StatCard
           title="Pending Tasks"
           value={safeStats.openTasks}
           icon={CheckSquare}
           description="Need assignment"
+          loading={loading}
         />
         <StatCard
           title="Total Fuel Cost"
           value={formatCurrency(safeStats.totalFuelCost || 0)}
           icon={Fuel}
           description="Total fuel spend"
+          loading={loading}
+          sparklineData={fuelConsumptionData.map(d => ({ value: Number(d.cost) || 0 }))}
         />
         <StatCard
           title="Completion Rate"
           value={`${safeStats.completionRate.toFixed(1)}%`}
           icon={TrendingUp}
           description="Route completion"
+          loading={loading}
+          sparklineData={completionTrendData.map(d => ({ value: Number(d.completed) || 0 }))}
         />
+        <StatCard
+          title="Avg MPG"
+          value={avgMpg ?? '—'}
+          icon={Gauge}
+          loading={loading}
+          description="Fleet fuel efficiency"
+        />
+      </div>
+
+      {/* Trend Charts */}
+      <div className="grid grid-cols-2 gap-1.5">
+        <Section
+          title="Route Completion Trend"
+          description="Completed routes over the past 7 days"
+          icon={<LineChart className="h-4 w-4" />}
+        >
+          {completionTrendData.length > 0 ? (
+            <ResponsiveLineChart
+              title="Route Completion"
+              data={completionTrendData}
+              dataKeys={['completed', 'target']}
+              colors={['hsl(var(--success))', 'hsl(var(--muted-foreground))']}
+              height={140}
+              compact
+            />
+          ) : (
+            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No trend data available</div>
+          )}
+        </Section>
+        <Section
+          title="Fuel Consumption"
+          description="Daily fuel usage over the past 7 days"
+          icon={<Fuel className="h-4 w-4" />}
+        >
+          {fuelConsumptionData.length > 0 ? (
+            <ResponsiveBarChart
+              title="Fuel Consumption"
+              data={fuelConsumptionData}
+              dataKey="gallons"
+              height={140}
+              showValues
+              compact
+            />
+          ) : (
+            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No fuel data available</div>
+          )}
+        </Section>
       </div>
 
       {/* Main content */}
       <div className="grid grid-cols-2 gap-1.5">
         <Section
-          title="Active Routes"
+          title={`Active Routes (${routes.length})`}
           description="Real-time route tracking"
           icon={<Map className="h-4 w-4" />}
         >
@@ -1062,6 +1227,11 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                   </Badge>
                 </div>
               ))}
+              {routes.length > 5 && (
+                <Button variant="outline" size="sm" className="w-full mt-1 text-xs" onClick={() => push({ type: 'routes-list', label: 'All Routes', data: {} })}>
+                  View All ({routes.length})
+                </Button>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No active routes</div>
@@ -1080,7 +1250,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                   <div>
                     <div className="flex items-center gap-1.5">
                       <p className="text-xs font-semibold text-foreground">
-                        {vehicleNameMap[transaction.vehicleId] || `Vehicle ...${String(transaction.vehicleId).slice(-4)}`}
+                        {vehicleNameMap[transaction.vehicleId] || 'Unknown Vehicle'}
                       </p>
                       {(transaction.station_brand || transaction.stationBrand) && (
                         <Badge variant="outline" className="text-[10px] px-1 py-0">
@@ -1119,7 +1289,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
  * Maintenance Tab - Work orders and schedules
  */
 const MaintenanceTabContent = memo(function MaintenanceTabContent() {
-  const { workOrders, metrics, isLoading, errors } = useReactiveMaintenanceData()
+  const { workOrders, metrics, predictions, highConfidencePredictions, predictiveMetrics, requests, requestMetrics, isLoading, errors } = useReactiveMaintenanceData()
   const { inventoryMetrics } = useReactiveAssetsData()
   const { push } = useDrilldown()
   const { data: partsResponse } = useSWR<any>(
@@ -1191,7 +1361,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
       })
       .filter(Boolean)
       .sort((a: any, b: any) => b.daysOverdue - a.daysOverdue)
-      .slice(0, 3)
+      .slice(0, 5)
   }, [workOrders])
 
 
@@ -1240,6 +1410,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           value={openOrders.length}
           icon={ClipboardList}
           description={`${safeMetrics.inProgress} in progress · ${safeMetrics.pendingOrders} pending`}
+          loading={isLoading}
         />
         <StatCard
           title="Urgent Orders"
@@ -1247,6 +1418,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           icon={AlertTriangle}
           description="Needs immediate attention"
           trend={safeMetrics.urgentOrders > 3 ? 'down' : safeMetrics.urgentOrders > 0 ? 'neutral' : 'up'}
+          loading={isLoading}
         />
         <StatCard
           title="Total Downtime"
@@ -1254,12 +1426,14 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
           icon={Timer}
           trend={totalDowntimeHours > 100 ? 'down' : 'neutral'}
           description="Sum of downtime hours"
+          loading={isLoading}
         />
         <StatCard
           title="Parts Inventory"
           value={formatCurrency(inventoryMetrics?.totalValue || 0)}
           icon={Package}
           description="Current stock value"
+          loading={isLoading}
         />
       </div>
 
@@ -1333,7 +1507,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                         )}
                       </div>
                       <p className="text-[10px] text-muted-foreground">
-                        {order.vehicleName || (order.vehicleId ? `...${String(order.vehicleId).slice(-4)}` : '—')} · Created: {formatDate(order.createdAt)}
+                        {order.vehicleName || 'Unknown Vehicle'} · Created: {formatDate(order.createdAt)}
                         {(order.parts_cost || order.partsCost || order.labor_cost || order.laborCost) && (
                           <span className="ml-1">
                             Parts: {formatCurrency(Number(order.parts_cost || order.partsCost || 0))} | Labor: {formatCurrency(Number(order.labor_cost || order.laborCost || 0))}
@@ -1375,7 +1549,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                     <div>
                       <p className="text-xs font-semibold text-foreground">{maintenance.title || `${formatEnum(maintenance.type || 'maintenance')} Maintenance`}</p>
                       <p className="text-[10px] text-muted-foreground">
-                        {maintenance.vehicleName || (maintenance.vehicleId ? `...${String(maintenance.vehicleId).slice(-4)}` : '—')} · {formatDate(maintenance.createdAt)}
+                        {maintenance.vehicleName || 'Unknown Vehicle'} · {formatDate(maintenance.createdAt)}
                       </p>
                     </div>
                     <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => handleViewWorkOrder(maintenance.id)}>
@@ -1404,7 +1578,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-semibold text-rose-200 truncate">{overdue.title || `${formatEnum(overdue.type || 'Maintenance')} Maintenance`}</p>
                           <p className="text-[10px] text-rose-300/70">
-                            {overdue.vehicleName || (overdue.vehicleId ? `...${String(overdue.vehicleId).slice(-4)}` : '—')} · Overdue by {overdue.daysOverdue} days
+                            {overdue.vehicleName || 'Unknown Vehicle'} · Overdue by {overdue.daysOverdue} days
                           </p>
                         </div>
                         <Button size="sm" className="h-6 text-[10px] px-2 shrink-0" onClick={() => handleScheduleMaintenance(overdue.vehicleId || overdue.vehicleName)}>
@@ -1452,6 +1626,47 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
             <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No parts inventory available</div>
           )}
         </Section>
+
+        {/* Predictive Alerts */}
+        {highConfidencePredictions.length > 0 && (
+          <Section
+            title="Predictive Alerts"
+            description={`${highConfidencePredictions.length} high-confidence predictions`}
+            icon={<Activity className="h-4 w-4" />}
+          >
+            <div className="flex flex-col gap-1">
+              {highConfidencePredictions.slice(0, 6).map((prediction: any) => (
+                <div key={prediction.id} className={`flex items-center justify-between rounded border p-2 ${
+                  prediction.severity === 'critical' ? 'border-rose-800/40 bg-rose-950/20' :
+                  prediction.severity === 'high' ? 'border-amber-800/40 bg-amber-950/20' :
+                  'border-white/[0.08] bg-[#242424]'
+                }`}>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className={`h-3.5 w-3.5 ${
+                      prediction.severity === 'critical' ? 'text-rose-400' :
+                      prediction.severity === 'high' ? 'text-amber-400' : 'text-muted-foreground'
+                    }`} />
+                    <div>
+                      <p className="text-xs font-medium text-foreground">
+                        {prediction.vehicleName || 'Unknown Vehicle'} - {prediction.issue || 'Predicted Issue'}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {prediction.daysUntilFailure} days until failure · Confidence: {prediction.confidence}%
+                        {prediction.estimatedCost ? ` · Est. ${formatCurrency(prediction.estimatedCost)}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                  <Badge variant={
+                    prediction.severity === 'critical' ? 'destructive' :
+                    prediction.severity === 'high' ? 'default' : 'secondary'
+                  } className="text-[10px] px-1 py-0">
+                    {formatEnum(prediction.severity)}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </Section>
+        )}
       </div>
     </div>
   )
@@ -1469,6 +1684,12 @@ const AssetsTabContent = memo(function AssetsTabContent() {
     typeDistribution,
     maintenanceRequired,
     inventoryByCategory,
+    lifecycleData,
+    highValueAssets,
+    lowStockItems,
+    outOfStockItems,
+    conditionDistribution,
+    depreciationByTypeData,
     isLoading,
   } = useReactiveAssetsData()
 
@@ -1511,24 +1732,28 @@ const AssetsTabContent = memo(function AssetsTabContent() {
           value={metrics.totalAssets}
           icon={Box}
           description="Equipment and tools"
+          loading={isLoading}
         />
         <StatCard
           title="Assets in Use"
           value={metrics.activeAssets}
           icon={Truck}
           description="Currently deployed"
+          loading={isLoading}
         />
         <StatCard
           title="Maintenance Due"
           value={metrics.inMaintenance}
           icon={Wrench}
           description="Needs servicing"
+          loading={isLoading}
         />
         <StatCard
           title="Asset Value"
           value={formatCurrency(metrics.totalValue)}
           icon={DollarSign}
           description="Total fleet value"
+          loading={isLoading}
         />
       </div>
 
@@ -1555,7 +1780,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                     <div className="flex items-center gap-2">
                       <Box className="h-4 w-4 text-muted-foreground" />
                       <div>
-                        <p className="text-xs font-semibold text-foreground">{asset.assetTag || `...${String(asset.id).slice(-4)}`} - {asset.name}</p>
+                        <p className="text-xs font-semibold text-foreground">{asset.assetTag || asset.name} - {asset.name}</p>
                         <p className="text-[10px] text-muted-foreground">
                           {formatEnum(asset.type)} · {asset.location}
                           {(asset.department || asset.dept) && (
@@ -1624,7 +1849,7 @@ const AssetsTabContent = memo(function AssetsTabContent() {
                 {maintenanceRequired.slice(0, 4).map((maintenance) => (
                   <div key={maintenance.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
                     <div>
-                      <p className="text-xs font-semibold text-foreground">{maintenance.assetTag || `...${String(maintenance.id).slice(-4)}`} - {maintenance.name}</p>
+                      <p className="text-xs font-semibold text-foreground">{maintenance.assetTag || maintenance.name} - {maintenance.name}</p>
                       <p className="text-[10px] text-muted-foreground">
                         {formatEnum(maintenance.type)} · Due: {formatDate(maintenance.nextServiceDate || maintenance.lastServiceDate)}
                       </p>
@@ -1671,6 +1896,86 @@ const AssetsTabContent = memo(function AssetsTabContent() {
             ))}
           </div>
         </Section>
+
+        {/* Asset Lifecycle + High-Value Assets + Low Stock */}
+        <div className="grid grid-cols-3 gap-1.5">
+          <Section
+            title="Asset Lifecycle"
+            description="Age distribution of assets"
+            icon={<Clock className="h-4 w-4" />}
+          >
+            {(() => {
+              const lcData = [
+                { name: 'New (<1yr)', value: lifecycleData.new, fill: '#10B981' },
+                { name: 'Operational (1-5yr)', value: lifecycleData.operational, fill: '#06b6d4' },
+                { name: 'Aging (5-10yr)', value: lifecycleData.aging, fill: '#F59E0B' },
+                { name: 'End of Life (10yr+)', value: lifecycleData.endOfLife, fill: '#EF4444' },
+              ].filter(d => d.value > 0)
+              return lcData.length > 0 ? (
+                <ResponsivePieChart title="Lifecycle" data={lcData} height={140} innerRadius={30} showPercentages compact />
+              ) : (
+                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No lifecycle data</div>
+              )
+            })()}
+          </Section>
+
+          <Section
+            title="High-Value Assets"
+            description="Top assets by current value"
+            icon={<DollarSign className="h-4 w-4" />}
+          >
+            {highValueAssets.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {highValueAssets.slice(0, 5).map((asset: any) => (
+                  <div key={asset.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-1.5 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                    role="button" tabIndex={0}
+                    onClick={() => handleViewAsset(asset.id)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleViewAsset(asset.id); } }}
+                  >
+                    <div>
+                      <p className="text-xs font-medium text-foreground truncate">{asset.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{formatEnum(asset.type)} · {formatEnum(asset.condition)}</p>
+                    </div>
+                    <p className="text-xs font-semibold text-foreground">{formatCurrency(asset.currentValue)}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No assets</div>
+            )}
+          </Section>
+
+          <Section
+            title="Low Stock Alert"
+            description="Inventory items at or below reorder point"
+            icon={<AlertTriangle className="h-4 w-4" />}
+          >
+            {lowStockItems.length > 0 || outOfStockItems.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {outOfStockItems.slice(0, 3).map((item: any) => (
+                  <div key={`oos-${item.id}`} className="flex items-center justify-between rounded border border-rose-800/40 bg-rose-950/20 p-1.5">
+                    <div>
+                      <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
+                      <p className="text-[10px] text-muted-foreground">{item.category}</p>
+                    </div>
+                    <Badge variant="destructive" className="text-[10px] px-1 py-0">Out of Stock</Badge>
+                  </div>
+                ))}
+                {lowStockItems.slice(0, 3).map((item: any) => (
+                  <div key={`low-${item.id}`} className="flex items-center justify-between rounded border border-amber-800/40 bg-amber-950/20 p-1.5">
+                    <div>
+                      <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
+                      <p className="text-[10px] text-muted-foreground">Qty: {item.quantity} / Reorder: {item.reorderPoint}</p>
+                    </div>
+                    <Badge variant="secondary" className="text-[10px] px-1 py-0">Low Stock</Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">All stock levels OK</div>
+            )}
+          </Section>
+        </div>
       </div>
     </div>
   )

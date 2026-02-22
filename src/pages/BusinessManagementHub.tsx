@@ -36,17 +36,18 @@ import {
   Clock,
   Building,
   Receipt,
-  Tag
+  Tag,
+  Activity,
+  Wrench,
+  Gauge,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { apiFetcher } from '@/lib/api-fetcher'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
@@ -62,13 +63,30 @@ import {
 import { useAuth } from '@/contexts'
 import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
-import { useReactiveAnalyticsData } from '@/hooks/use-reactive-analytics-data'
 import { formatEnum } from '@/utils/format-enum'
-import { formatDate, formatDateTime, formatCurrency } from '@/utils/format-helpers'
+import { formatDate, formatDateTime, formatCurrency, formatNumber } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 
 
 const fetcher = apiFetcher
+
+// ============================================================================
+// LOADING SKELETON COMPONENT
+// ============================================================================
+
+function TabLoadingSkeleton() {
+  return (
+    <div className="space-y-1.5 p-2">
+      <div className="grid grid-cols-4 gap-1.5">
+        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+      </div>
+      <div className="grid grid-cols-2 gap-1.5">
+        <Skeleton className="h-40 rounded-md" />
+        <Skeleton className="h-40 rounded-md" />
+      </div>
+    </div>
+  )
+}
 
 // ============================================================================
 // TAB CONTENT COMPONENTS
@@ -101,6 +119,10 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       .map(([department, cost]) => ({ department, cost }))
       .sort((a, b) => b.cost - a.cost)
   }, [fleetWorkOrders, vehicles])
+
+  const totalDeptCost = useMemo(() => {
+    return departmentCosts.reduce((sum, d) => sum + d.cost, 0)
+  }, [departmentCosts])
 
   const dateRange = useMemo(() => {
     const end = new Date()
@@ -152,35 +174,59 @@ const FinancialTabContent = memo(function FinancialTabContent() {
 
   const financialError = summaryError || costSummaryError || fleetMetricsError || trendsError || budgetsError || invoicesError
 
-  const budgetTotal = useMemo(() => {
+  // P0-1: Loading state for Financial tab
+  const isLoading = !summary && !summaryError && !costSummary && !costSummaryError
+  if (isLoading) {
+    return <TabLoadingSkeleton />
+  }
+
+  const budgetTotal = (() => {
     if (!Array.isArray(budgets)) return 0
     return budgets.reduce((sum, b) => sum + Number(b.allocated || b.allocated_amount || 0), 0)
-  }, [budgets])
+  })()
 
   const spentTotal = Number(summary?.totalCost || summary?.total_cost || 0)
   const totalMileage = Number(fleetMetrics?.totalMileage || fleetMetrics?.total_mileage || 0)
 
-  const costPerMile = useMemo(() => {
+  const costPerMile = (() => {
     const reported = Number(costSummary?.cost_per_mile ?? costSummary?.costPerMile)
     if (Number.isFinite(reported) && reported > 0) return reported
     if (totalMileage > 0) return spentTotal / totalMileage
     return 0
-  }, [costSummary, totalMileage, spentTotal])
+  })()
 
-  const savingsYtd = useMemo(() => {
-    if (budgetTotal <= 0) return 0
-    const delta = budgetTotal - spentTotal
-    return delta > 0 ? delta : 0
-  }, [budgetTotal, spentTotal])
+  // P0-4: Fix savings calculation — show negative (overrun) values
+  const budgetDelta = budgetTotal > 0 ? budgetTotal - spentTotal : 0
+  const isOverBudget = budgetDelta < 0
+
+  // P0-5: Build cost trend data with budget comparison line
+  const budgetByMonth = useMemo(() => {
+    if (!Array.isArray(budgets)) return new Map<string, number>()
+    const map = new Map<string, number>()
+    budgets.forEach((b: any) => {
+      const period = b.month || b.period || b.fiscal_quarter
+      if (period) {
+        map.set(period, Number(b.allocated || b.allocated_amount || 0))
+      }
+    })
+    return map
+  }, [budgets])
 
   const costTrendData = useMemo(() => {
     if (!Array.isArray(trends)) return []
-    return trends.map((row: any) => ({
-      name: row.month || row.period,
-      month: row.month || row.period,
-      actual: Number(row.amount || 0)
-    }))
-  }, [trends])
+    // Calculate average budget per month for the reference line
+    const avgBudgetPerMonth = budgetTotal > 0 && trends.length > 0 ? budgetTotal / trends.length : 0
+    return trends.map((row: any) => {
+      const monthKey = row.month || row.period
+      const matchedBudget = budgetByMonth.get(monthKey)
+      return {
+        name: monthKey,
+        month: monthKey,
+        actual: Number(row.amount || 0),
+        budget: matchedBudget != null ? matchedBudget : (avgBudgetPerMonth > 0 ? Math.round(avgBudgetPerMonth) : undefined)
+      }
+    })
+  }, [trends, budgetByMonth, budgetTotal])
 
   const breakdownData = useMemo(() => {
     const s = summary?.data || summary
@@ -231,36 +277,48 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     )
   }
 
+  // Determine if we have budget data for a trend line
+  const hasBudgetTrendData = costTrendData.some(d => d.budget != null && d.budget > 0)
+  const trendDataKeys = hasBudgetTrendData ? ['actual', 'budget'] : ['actual']
+  const trendColors = hasBudgetTrendData
+    ? ['hsl(var(--chart-2))', '#10B981']
+    : ['hsl(var(--chart-2))']
+
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-1.5 p-1.5">
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-1.5">
+        {/* P0-2 & P0-3: Fix budget label and add period description */}
         <StatCard
-          title="Monthly Budget"
-          value={budgetTotal > 0 ? formatCurrency(budgetTotal) : '—'}
+          title="Total Budget"
+          value={budgetTotal > 0 ? formatCurrency(budgetTotal) : '--'}
           icon={Wallet}
-          description="Current fiscal quarter"
+          description="Total allocated"
         />
         <StatCard
           title="Actual Spend"
-          value={spentTotal > 0 ? formatCurrency(spentTotal) : '—'}
+          value={spentTotal > 0 ? formatCurrency(spentTotal) : '--'}
           icon={DollarSign}
           description="Last 6 months"
         />
+        {/* P1-7: Fix Cost Per Mile icon to DollarSign */}
         <StatCard
           title="Cost Per Mile"
           value={costPerMile > 0 ? formatCurrency(costPerMile) : 'No data'}
-          icon={TrendingDown}
+          icon={DollarSign}
           description={costSummary?.target_cost_per_mile
             ? `Target ${formatCurrency(Number(costSummary.target_cost_per_mile))}`
             : "Computed from fleet totals"
           }
         />
+        {/* P0-4: Show budget overruns with negative styling */}
         <StatCard
-          title="Savings YTD"
-          value={savingsYtd > 0 ? formatCurrency(savingsYtd) : '$0'}
-          icon={Target}
-          description={budgetTotal > 0 ? "Budget vs spend" : "No budget allocations"}
+          title={isOverBudget ? "Budget Overrun" : "Savings YTD"}
+          value={budgetTotal > 0 ? formatCurrency(Math.abs(budgetDelta)) : '$0'}
+          icon={isOverBudget ? TrendingDown : Target}
+          trend={isOverBudget ? 'down' : (budgetDelta > 0 ? 'up' : 'neutral')}
+          description={isOverBudget ? "Over budget" : (budgetTotal > 0 ? "Under budget" : "No budget allocations")}
+          className={isOverBudget ? "border-rose-500/20" : ""}
         />
       </div>
 
@@ -270,16 +328,17 @@ const FinancialTabContent = memo(function FinancialTabContent() {
         <div className="flex flex-col gap-1.5 min-h-0">
           <Section
             title="Cost Trend"
-            description="Monthly actual costs"
+            description={hasBudgetTrendData ? "Actual vs budget" : "Monthly actual costs"}
             icon={<BarChart className="h-4 w-4" />}
             className="flex-1 min-h-0"
           >
+            {/* P0-5: Add budget comparison line to chart */}
             {costTrendData.length > 0 ? (
               <ResponsiveBarChart
                 title="Actual Costs"
                 data={costTrendData}
-                dataKeys={['actual']}
-                colors={['hsl(var(--chart-2))']}
+                dataKeys={trendDataKeys}
+                colors={trendColors}
                 height={140}
                 compact
               />
@@ -315,7 +374,8 @@ const FinancialTabContent = memo(function FinancialTabContent() {
             icon={<Receipt className="h-4 w-4" />}
             className="flex-1 min-h-0"
           >
-            <div className="flex-1 min-h-0 overflow-y-auto">
+            {/* P1-11: Removed inner overflow-y-auto */}
+            <div className="flex-1 min-h-0">
               {recentTransactions.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -344,36 +404,44 @@ const FinancialTabContent = memo(function FinancialTabContent() {
           >
             <div className="grid grid-cols-3 gap-1.5">
               <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
-                <p className="text-xs text-muted-foreground">Parts</p>
+                <p className="text-xs text-white/60">Parts</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalPartsCost)}</p>
               </div>
               <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
-                <p className="text-xs text-muted-foreground">Labor</p>
+                <p className="text-xs text-white/60">Labor</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalLaborCost)}</p>
               </div>
               <div className="rounded-md border border-white/[0.08] bg-[#242424] p-2 text-center">
-                <p className="text-xs text-muted-foreground">Total</p>
+                <p className="text-xs text-white/60">Total</p>
                 <p className="text-sm font-semibold text-foreground">{formatCurrency(workOrderCosts.totalWoCost)}</p>
               </div>
             </div>
           </Section>
 
+          {/* P1-8: Department cost bars with percentage */}
           <Section
             title="Cost by Department"
             description="Work order costs by department"
             icon={<Building className="h-4 w-4" />}
             className="flex-1 min-h-0"
           >
-            <div className="flex-1 min-h-0 overflow-y-auto">
+            {/* P1-11: Removed inner overflow-y-auto */}
+            <div className="flex-1 min-h-0">
               {departmentCosts.length > 0 ? (
-                <div className="flex flex-col gap-1">
+                <div className="flex flex-col gap-1.5">
                   {departmentCosts.map((dept) => (
-                    <div key={dept.department} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
-                      <div className="flex items-center gap-2">
-                        <Building className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm font-medium text-foreground">{dept.department}</span>
+                    <div key={dept.department} className="flex items-center gap-2">
+                      <span className="text-xs text-white/80 w-24 truncate" title={dept.department}>{dept.department}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
+                        <div
+                          className="h-full rounded-full bg-emerald-500/60"
+                          style={{ width: `${totalDeptCost > 0 ? (dept.cost / totalDeptCost * 100) : 0}%` }}
+                        />
                       </div>
-                      <span className="text-sm font-semibold text-foreground">{formatCurrency(dept.cost)}</span>
+                      <span className="text-xs text-white/60 w-16 text-right">{formatCurrency(dept.cost)}</span>
+                      <span className="text-[10px] text-white/40 w-8 text-right">
+                        {totalDeptCost > 0 ? `${Math.round(dept.cost / totalDeptCost * 100)}%` : '0%'}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -408,13 +476,19 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
 
   const procurementError = vendorsError || purchaseOrdersError
 
+  // P0-1: Loading state for Procurement tab
+  const isLoading = !vendorsResponse && !vendorsError && !purchaseOrdersResponse && !purchaseOrdersError
+  if (isLoading) {
+    return <TabLoadingSkeleton />
+  }
+
   const vendors = Array.isArray(vendorsResponse) ? vendorsResponse : (vendorsResponse?.data || [])
   const purchaseOrders = Array.isArray(purchaseOrdersResponse)
     ? purchaseOrdersResponse
     : (purchaseOrdersResponse?.data || [])
 
   // Vendor costs from work orders
-  const vendorWoCosts = useMemo(() => {
+  const vendorWoCosts = (() => {
     const map = new Map<string, { totalCost: number; partsCost: number; laborCost: number; count: number }>()
     fleetWorkOrders.forEach((wo: any) => {
       const vendorId = wo.vendor_id || wo.vendorId
@@ -427,7 +501,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       map.set(vendorId, existing)
     })
     return map
-  }, [fleetWorkOrders])
+  })()
 
   const activeVendors = vendors.filter((v: any) => v.isActive !== false)
   const openOrders = purchaseOrders.filter((po: any) => {
@@ -435,11 +509,16 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
     return status && !['delivered', 'closed', 'cancelled', 'complete'].includes(status)
   })
 
+  // P1-9: Open PO Value KPI
+  const openPoValue = openOrders.reduce((sum: number, po: any) =>
+    sum + Number(po.totalAmount || po.total_amount || 0), 0
+  )
+
   const avgVendorRating = vendors.length > 0
     ? (vendors.reduce((sum: number, v: any) => sum + Number(v.rating || 0), 0) / vendors.length).toFixed(1)
     : null
 
-  const ordersByVendor = useMemo(() => {
+  const ordersByVendor = (() => {
     const map = new Map<string, number>()
     purchaseOrders.forEach((po: any) => {
       const id = po.vendorId || po.vendor_id
@@ -447,9 +526,10 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       map.set(id, (map.get(id) || 0) + 1)
     })
     return map
-  }, [purchaseOrders])
+  })()
 
-  const topVendors = useMemo((): { id: string; name: string; category: string; orders: number; rating: number; woCost: number }[] => {
+  // P1-9: Increase vendor list from 4 to 8
+  const topVendors: { id: string; name: string; category: string; orders: number; rating: number; woCost: number }[] = (() => {
     return vendors
       .map((vendor: any) => {
         const woCostData = vendorWoCosts.get(vendor.id)
@@ -463,10 +543,13 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
         }
       })
       .sort((a: { orders: number }, b: { orders: number }) => b.orders - a.orders)
-      .slice(0, 4)
-  }, [vendors, ordersByVendor, vendorWoCosts])
+      .slice(0, 8)
+  })()
 
-  const recentPurchaseOrders = useMemo((): { id: string; number: string; vendor: string; status: string; amount: number }[] => {
+  const [showAllVendors, setShowAllVendors] = useState(false)
+  const displayedVendors = showAllVendors ? topVendors : topVendors.slice(0, 4)
+
+  const recentPurchaseOrders: { id: string; number: string; vendor: string; status: string; amount: number }[] = (() => {
     return purchaseOrders.slice(0, 10).map((po: any) => ({
       id: po.id,
       number: po.number,
@@ -474,7 +557,19 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       status: po.status,
       amount: Number(po.totalAmount || po.total_amount || 0)
     }))
-  }, [purchaseOrders])
+  })()
+
+  // P1-9: Comprehensive PO status badge color mapping
+  const statusVariant = (status: string): 'default' | 'secondary' | 'outline' | 'destructive' => {
+    switch (status?.toLowerCase()) {
+      case 'delivered': return 'default'
+      case 'in_transit': return 'secondary'
+      case 'pending': return 'outline'
+      case 'cancelled': return 'destructive'
+      case 'approved': case 'ordered': return 'secondary'
+      default: return 'outline'
+    }
+  }
 
   if (procurementError) {
     return (
@@ -489,7 +584,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-1.5 p-1.5">
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-1.5">
         <StatCard
@@ -504,20 +599,22 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           icon={ShoppingCart}
           description="Pending delivery"
         />
+        {/* P1-9: Add Open PO Value KPI */}
         <StatCard
-          title="Avg Vendor Rating"
-          value={avgVendorRating ? `${avgVendorRating}/5` : '—'}
-          icon={Award}
-          description="Based on delivery performance"
+          title="Open PO Value"
+          value={formatCurrency(openPoValue)}
+          icon={CreditCard}
+          description="Non-delivered PO total"
         />
+        {/* P1-9: Rename "WO Vendor Spend" to "Vendor Maintenance Spend" */}
         <StatCard
-          title="WO Vendor Spend"
+          title="Vendor Maintenance Spend"
           value={(() => {
             let total = 0
             vendorWoCosts.forEach((v) => { total += v.totalCost })
             return formatCurrency(total)
           })()}
-          icon={CreditCard}
+          icon={Wrench}
           description="Work order vendor costs"
         />
       </div>
@@ -531,10 +628,11 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           icon={<Building className="h-4 w-4" />}
           className="min-h-0"
         >
-          <div className="flex-1 min-h-0 overflow-y-auto">
-            {topVendors.length > 0 ? (
+          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex-1 min-h-0">
+            {displayedVendors.length > 0 ? (
               <div className="flex flex-col gap-1">
-                {topVendors.map((vendor) => (
+                {displayedVendors.map((vendor) => (
                   <div
                     key={vendor.id}
                     className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2 cursor-pointer"
@@ -560,10 +658,10 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                     aria-label={`View details for vendor ${vendor.name}`}
                   >
                     <div className="flex items-center gap-2">
-                      <Building className="h-4 w-4 text-muted-foreground" />
+                      <Building className="h-4 w-4 text-white/40" />
                       <div>
                         <p className="text-sm font-medium text-foreground">{vendor.name}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-white/60">
                           {formatEnum(vendor.category)} · {vendor.orders} {vendor.orders === 1 ? 'order' : 'orders'}
                           {vendor.woCost > 0 && (
                             <span className="ml-1">· WO: {formatCurrency(vendor.woCost)}</span>
@@ -575,11 +673,32 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                       className="flex items-center gap-1"
                       title="Based on delivery performance"
                     >
-                      <Award className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium text-foreground">{vendor.rating ? `${vendor.rating}/5` : '—'}</span>
+                      <Award className="h-4 w-4 text-white/40" />
+                      <span className="text-sm font-medium text-foreground">{vendor.rating ? `${vendor.rating}/5` : '--'}</span>
                     </div>
                   </div>
                 ))}
+                {/* P1-9: View All Vendors button */}
+                {topVendors.length > 4 && !showAllVendors && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-1"
+                    onClick={() => setShowAllVendors(true)}
+                  >
+                    View All Vendors ({topVendors.length})
+                  </Button>
+                )}
+                {showAllVendors && topVendors.length > 4 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-1"
+                    onClick={() => setShowAllVendors(false)}
+                  >
+                    Show Less
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
@@ -594,7 +713,8 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
           icon={<ShoppingCart className="h-4 w-4" />}
           className="min-h-0"
         >
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex-1 min-h-0">
             {recentPurchaseOrders.length > 0 ? (
               <div className="flex flex-col gap-1">
                 {recentPurchaseOrders.map((order) => (
@@ -624,14 +744,12 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
                   >
                     <div>
                       <p className="text-sm font-medium text-foreground">{order.number || String(order.id).slice(0, 8)}</p>
-                      <p className="text-xs text-muted-foreground">{order.vendor}</p>
+                      <p className="text-xs text-white/60">{order.vendor}</p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge variant={
-                        order.status === 'delivered' ? 'default' :
-                        order.status === 'in_transit' ? 'secondary' : 'outline'
-                      }>
-                        {formatEnum(order.status) || '—'}
+                      {/* P1-9: Use comprehensive status badge mapping */}
+                      <Badge variant={statusVariant(order.status)}>
+                        {formatEnum(order.status) || '--'}
                       </Badge>
                       <p className="text-sm font-semibold text-foreground">{formatCurrency(order.amount)}</p>
                     </div>
@@ -649,145 +767,329 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
 })
 
 /**
- * Analytics Tab - Business intelligence and metrics
+ * Analytics Tab - Real business analytics (P0-6: Complete replacement)
+ * Shows fleet utilization, cost metrics, performance trends, and action items
  */
 const AnalyticsTabContent = memo(function AnalyticsTabContent() {
   const {
-    metrics,
-    reportGenerationTrend,
-    recentReports,
-    upcomingReports,
-    isLoading,
-    error,
-  } = useReactiveAnalyticsData()
+    vehicles,
+    workOrders: fleetWorkOrders,
+    fuelTransactions,
+    maintenanceRequests,
+    isLoading: fleetLoading,
+    error: fleetError,
+  } = useFleetData()
 
+  // Fetch cost trend data for the analytics charts
+  const { data: costTrends, error: costTrendsError } = useSWR<any[]>(
+    '/api/cost-analysis/trends?months=6',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: costSummary, error: costSummaryError } = useSWR<any>(
+    '/api/dashboard/costs/summary?period=monthly',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  // P0-1: Loading state for Analytics tab
+  const isLoading = fleetLoading && vehicles.length === 0
   if (isLoading) {
-    return (
-      <div className="grid gap-1.5 grid-cols-4 p-1.5">
-        {[...Array(4)].map((_, i) => (
-          <Skeleton key={i} className="h-24" />
-        ))}
-      </div>
-    )
+    return <TabLoadingSkeleton />
   }
 
-  if (error) {
+  if (fleetError) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
-        {error instanceof Error ? error.message : 'Failed to load analytics data.'}
+        {fleetError instanceof Error ? fleetError.message : 'Failed to load analytics data.'}
       </div>
     )
   }
 
+  // KPI computations
+  const totalVehicles = vehicles.length
+  const activeVehicles = vehicles.filter((v: any) => {
+    const status = (v.status || '').toLowerCase()
+    return status === 'active' || status === 'in_service' || status === 'available'
+  }).length
+  const fleetUtilization = totalVehicles > 0 ? Math.round((activeVehicles / totalVehicles) * 100) : 0
+
+  // Total spend from work orders
+  const totalSpend = fleetWorkOrders.reduce((sum: number, wo: any) =>
+    sum + Number(wo.total_cost || wo.cost || 0), 0
+  )
+  const avgCostPerVehicle = totalVehicles > 0 ? totalSpend / totalVehicles : 0
+
+  // Fuel efficiency: average MPG from fuel transactions
+  const fuelEfficiency = (() => {
+    const withMpg = fuelTransactions.filter((ft: any) => {
+      const mpg = Number(ft.mpg || ft.fuel_efficiency || ft.miles_per_gallon || 0)
+      return mpg > 0
+    })
+    if (withMpg.length === 0) {
+      // Fallback: calculate from gallons and odometer
+      const totalGallons = fuelTransactions.reduce((sum: number, ft: any) =>
+        sum + Number(ft.gallons || ft.quantity || 0), 0
+      )
+      const totalMiles = fuelTransactions.reduce((sum: number, ft: any) =>
+        sum + Number(ft.odometer || ft.mileage || 0), 0
+      )
+      if (totalGallons > 0 && totalMiles > 0) return totalMiles / totalGallons
+      return 0
+    }
+    const totalMpg = withMpg.reduce((sum: number, ft: any) =>
+      sum + Number(ft.mpg || ft.fuel_efficiency || ft.miles_per_gallon || 0), 0
+    )
+    return totalMpg / withMpg.length
+  })()
+
+  // Maintenance ratio: maintenance cost / total cost
+  const maintenanceCost = fleetWorkOrders
+    .filter((wo: any) => {
+      const type = (wo.type || '').toLowerCase()
+      return type.includes('maintenance') || type.includes('preventive') || type.includes('repair')
+    })
+    .reduce((sum: number, wo: any) => sum + Number(wo.total_cost || wo.cost || 0), 0)
+  const maintenanceRatio = totalSpend > 0 ? Math.round((maintenanceCost / totalSpend) * 100) : 0
+
+  // Cost trend chart data
+  const costTrendData = (() => {
+    if (!Array.isArray(costTrends)) return []
+    return costTrends.map((row: any) => ({
+      name: row.month || row.period,
+      actual: Number(row.amount || 0)
+    }))
+  })()
+
+  // Top cost drivers: top 5 vehicles by maintenance cost
+  const topCostDrivers = (() => {
+    const vehicleCostMap = new Map<string, { name: string; cost: number; woCount: number }>()
+    fleetWorkOrders.forEach((wo: any) => {
+      const vehicleId = wo.vehicle_id || wo.vehicleId
+      if (!vehicleId) return
+      const vehicle = vehicles.find((v: any) => v.id === vehicleId)
+      const vehicleName = vehicle
+        ? `${(vehicle as any).year || ''} ${(vehicle as any).make || ''} ${(vehicle as any).model || ''}`.trim() || `Vehicle ${String(vehicleId).slice(0, 8)}`
+        : `Vehicle ${String(vehicleId).slice(0, 8)}`
+      const existing = vehicleCostMap.get(vehicleId) || { name: vehicleName, cost: 0, woCount: 0 }
+      existing.cost += Number(wo.total_cost || wo.cost || 0)
+      existing.woCount += 1
+      vehicleCostMap.set(vehicleId, existing)
+    })
+    return Array.from(vehicleCostMap.values())
+      .sort((a, b) => b.cost - a.cost)
+      .slice(0, 5)
+  })()
+
+  // Action items: items needing attention
+  const actionItems = (() => {
+    const items: { label: string; detail: string; severity: 'high' | 'medium' | 'low' }[] = []
+
+    // Overdue work orders
+    const overdueWOs = fleetWorkOrders.filter((wo: any) => {
+      const dueDate = wo.due_date || wo.dueDate
+      if (!dueDate) return false
+      const status = (wo.status || '').toLowerCase()
+      return new Date(dueDate) < new Date() && !['completed', 'cancelled', 'closed'].includes(status)
+    })
+    if (overdueWOs.length > 0) {
+      items.push({
+        label: `${overdueWOs.length} overdue work order${overdueWOs.length > 1 ? 's' : ''}`,
+        detail: 'Past due date and not completed',
+        severity: 'high'
+      })
+    }
+
+    // Out-of-service vehicles
+    const outOfService = vehicles.filter((v: any) => {
+      const status = (v.status || '').toLowerCase()
+      return status === 'out_of_service' || status === 'down' || status === 'inactive'
+    })
+    if (outOfService.length > 0) {
+      items.push({
+        label: `${outOfService.length} vehicle${outOfService.length > 1 ? 's' : ''} out of service`,
+        detail: 'Requiring attention or repair',
+        severity: outOfService.length > 3 ? 'high' : 'medium'
+      })
+    }
+
+    // High-cost vehicles
+    const highCostThreshold = avgCostPerVehicle * 2
+    const highCostVehicles = topCostDrivers.filter(v => v.cost > highCostThreshold)
+    if (highCostVehicles.length > 0) {
+      items.push({
+        label: `${highCostVehicles.length} vehicle${highCostVehicles.length > 1 ? 's' : ''} above 2x avg cost`,
+        detail: `Avg: ${formatCurrency(avgCostPerVehicle)}, threshold: ${formatCurrency(highCostThreshold)}`,
+        severity: 'medium'
+      })
+    }
+
+    // Low fleet utilization
+    if (fleetUtilization < 70 && totalVehicles > 0) {
+      items.push({
+        label: `Fleet utilization at ${fleetUtilization}%`,
+        detail: 'Below 70% target',
+        severity: 'low'
+      })
+    }
+
+    return items
+  })()
+
+  // Fleet performance over time (vehicles active per month from cost trends)
+  const fleetPerformanceData = (() => {
+    if (!Array.isArray(costTrends)) return []
+    return costTrends.map((row: any) => ({
+      name: row.month || row.period,
+      cost: Number(row.amount || 0),
+      costPerVehicle: totalVehicles > 0 ? Math.round(Number(row.amount || 0) / totalVehicles) : 0,
+    }))
+  })()
+
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-1.5 p-1.5">
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-1.5">
         <StatCard
-          title="Active Reports"
-          value={metrics.activeReports}
-          icon={BarChart}
-          description="Currently running"
+          title="Fleet Utilization"
+          value={`${fleetUtilization}%`}
+          icon={Activity}
+          description={`${activeVehicles} of ${totalVehicles} vehicles active`}
+          trend={fleetUtilization >= 80 ? 'up' : fleetUtilization >= 60 ? 'neutral' : 'down'}
         />
         <StatCard
-          title="Scheduled Reports"
-          value={metrics.scheduledReports}
-          icon={TrendingUp}
-          description="Automated cadence"
+          title="Avg Cost Per Vehicle"
+          value={avgCostPerVehicle > 0 ? formatCurrency(avgCostPerVehicle) : '--'}
+          icon={DollarSign}
+          description={`${totalVehicles} vehicles, ${fleetWorkOrders.length} work orders`}
         />
         <StatCard
-          title="Custom Reports"
-          value={metrics.customReports}
-          icon={Target}
-          description="User-defined"
+          title="Fuel Efficiency"
+          value={fuelEfficiency > 0 ? `${formatNumber(fuelEfficiency, 1)} MPG` : 'No data'}
+          icon={Gauge}
+          description={fuelTransactions.length > 0 ? `From ${fuelTransactions.length} transactions` : 'No fuel data available'}
         />
         <StatCard
-          title="Active Dashboards"
-          value={metrics.activeDashboards}
-          icon={LineChart}
-          description="Live dashboards"
+          title="Maintenance Ratio"
+          value={`${maintenanceRatio}%`}
+          icon={Wrench}
+          description="Maintenance as % of total spend"
+          trend={maintenanceRatio > 60 ? 'down' : 'neutral'}
         />
       </div>
 
-      {/* Main Content: Chart + Lists */}
+      {/* Chart Row */}
       <div className="grid grid-cols-2 gap-1.5">
-        {/* Left: Report Generation Trend */}
         <Section
-          title="Report Generation Trend"
-          description="Reports executed over time"
-          icon={<LineChart className="h-4 w-4" />}
+          title="Cost Trend"
+          description="Monthly fleet costs over 6 months"
+          icon={<BarChart className="h-4 w-4" />}
           className="min-h-0"
         >
-          {reportGenerationTrend.length > 0 ? (
-            <ResponsiveLineChart
-              title="Report Generation"
-              data={reportGenerationTrend}
-              dataKeys={['value']}
-              colors={['hsl(var(--chart-1))']}
+          {costTrendData.length > 0 ? (
+            <ResponsiveBarChart
+              title="Fleet Costs"
+              data={costTrendData}
+              dataKeys={['actual']}
+              colors={['hsl(var(--chart-2))']}
               height={140}
               compact
             />
           ) : (
-            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No cost trend data available</div>
           )}
         </Section>
 
-        {/* Right: Upcoming + Recent Reports */}
-        <div className="flex flex-col gap-1.5 min-h-0">
-          <Section
-            title="Upcoming Reports"
-            description="Scheduled report executions"
-            icon={<Target className="h-4 w-4" />}
-            className="flex-1 min-h-0"
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {upcomingReports.length > 0 ? (
-                <div className="flex flex-col gap-1">
-                  {upcomingReports.map((report) => (
-                    <div key={report.id} className="rounded-md border border-white/[0.08] bg-[#242424] p-2">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-foreground">{report.name}</p>
-                        <Badge variant="outline">{formatEnum(report.frequency)}</Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Next run: {formatDateTime(report.nextRun)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              )}
-            </div>
-          </Section>
+        <Section
+          title="Cost Per Vehicle"
+          description="Monthly cost per vehicle trend"
+          icon={<LineChart className="h-4 w-4" />}
+          className="min-h-0"
+        >
+          {fleetPerformanceData.length > 0 ? (
+            <ResponsiveLineChart
+              title="Cost Per Vehicle"
+              data={fleetPerformanceData}
+              dataKeys={['costPerVehicle']}
+              colors={['#10B981']}
+              height={140}
+              compact
+            />
+          ) : (
+            <div className="flex items-center justify-center h-32 text-white/40 text-sm">No performance data available</div>
+          )}
+        </Section>
+      </div>
 
-          <Section
-            title="Recent Reports"
-            description="Most recent analytics runs"
-            icon={<Clock className="h-4 w-4" />}
-            className="flex-1 min-h-0"
-          >
-            <div className="flex-1 min-h-0 overflow-y-auto">
-              {recentReports.length > 0 ? (
-                <div className="flex flex-col gap-1">
-                  {recentReports.map((report) => (
-                    <div key={report.id} className="flex items-start gap-2 rounded-md border border-white/[0.08] bg-[#242424] p-2">
-                      <CheckCircle className="h-4 w-4 text-muted-foreground mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{report.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatEnum(report.category)} · Last run {formatDateTime(report.lastRun)}
-                        </p>
-                      </div>
+      {/* Bottom Row: Action Items + Top Cost Drivers */}
+      <div className="grid grid-cols-2 gap-1.5">
+        <Section
+          title="Action Items"
+          description="Items requiring attention"
+          icon={<AlertCircle className="h-4 w-4" />}
+          className="min-h-0"
+        >
+          <div className="flex-1 min-h-0">
+            {actionItems.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {actionItems.map((item, index) => (
+                  <div key={index} className="flex items-start gap-2 rounded-md border border-white/[0.08] bg-[#242424] p-2">
+                    <div className={`mt-0.5 h-2 w-2 rounded-full shrink-0 ${
+                      item.severity === 'high' ? 'bg-rose-500' :
+                      item.severity === 'medium' ? 'bg-amber-500' :
+                      'bg-emerald-500'
+                    }`} />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{item.label}</p>
+                      <p className="text-xs text-white/40">{item.detail}</p>
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-white/40 text-sm">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-500" />
+                  <span>No action items -- fleet is in good shape</span>
                 </div>
-              ) : (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
-              )}
-            </div>
-          </Section>
-        </div>
+              </div>
+            )}
+          </div>
+        </Section>
+
+        <Section
+          title="Top Cost Drivers"
+          description="Vehicles with highest maintenance costs"
+          icon={<TrendingUp className="h-4 w-4" />}
+          className="min-h-0"
+        >
+          <div className="flex-1 min-h-0">
+            {topCostDrivers.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                {topCostDrivers.map((vehicle, index) => {
+                  const maxCost = topCostDrivers[0]?.cost || 1
+                  return (
+                    <div key={index} className="flex items-center gap-2">
+                      <span className="text-xs text-white/60 w-6 text-right">{index + 1}.</span>
+                      <span className="text-xs text-white/80 w-32 truncate" title={vehicle.name}>{vehicle.name}</span>
+                      <div className="flex-1 h-1.5 rounded-full bg-white/[0.06]">
+                        <div
+                          className="h-full rounded-full bg-emerald-500/60"
+                          style={{ width: `${(vehicle.cost / maxCost * 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-white/60 w-16 text-right">{formatCurrency(vehicle.cost)}</span>
+                      <span className="text-[10px] text-white/40 w-12 text-right">{vehicle.woCount} WOs</span>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-32 text-white/40 text-sm">No cost data available</div>
+            )}
+          </div>
+        </Section>
       </div>
     </div>
   )
@@ -823,12 +1125,18 @@ const ReportsTabContent = memo(function ReportsTabContent() {
 
   const reportsError = reportTemplatesError || scheduledReportsError || reportHistoryError || customReportsError
 
+  // P0-1: Loading state for Reports tab
+  const isLoading = !reportTemplates && !reportTemplatesError && !reportHistory && !reportHistoryError
+  if (isLoading) {
+    return <TabLoadingSkeleton />
+  }
+
   const templates = Array.isArray(reportTemplates) ? reportTemplates : []
   const history = Array.isArray(reportHistory) ? reportHistory : []
   const schedules = Array.isArray(scheduledReports) ? scheduledReports : []
   const custom = Array.isArray(customReports) ? customReports : []
 
-  const generatedThisMonth = useMemo(() => {
+  const generatedThisMonth = (() => {
     const now = new Date()
     const month = now.getMonth()
     const year = now.getFullYear()
@@ -837,7 +1145,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
       if (!date || Number.isNaN(date.getTime())) return false
       return date.getMonth() === month && date.getFullYear() === year
     }).length
-  }, [history])
+  })()
 
   // Handler for generating reports
   const handleGenerateReport = async (reportId: string, reportName: string) => {
@@ -889,7 +1197,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
   }
 
   return (
-    <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+    <div className="flex flex-col gap-1.5 p-1.5">
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-1.5">
         <StatCard
@@ -927,7 +1235,8 @@ const ReportsTabContent = memo(function ReportsTabContent() {
           icon={<FileText className="h-4 w-4" />}
           className="min-h-0"
         >
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex-1 min-h-0">
             {templates.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -935,10 +1244,10 @@ const ReportsTabContent = memo(function ReportsTabContent() {
                 {templates.map((report: any) => (
                   <div key={report.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
                     <div className="flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
+                      <FileText className="h-4 w-4 text-white/40" />
                       <div>
                         <p className="text-sm font-medium text-foreground">{report.title}</p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-white/60">
                           {formatEnum(report.category || report.domain) || 'General'} · {report.isCore ? 'Core' : 'Custom'}
                         </p>
                       </div>
@@ -965,7 +1274,8 @@ const ReportsTabContent = memo(function ReportsTabContent() {
           icon={<Clock className="h-4 w-4" />}
           className="min-h-0"
         >
-          <div className="flex-1 min-h-0 overflow-y-auto">
+          {/* P1-11: Removed inner overflow-y-auto */}
+          <div className="flex-1 min-h-0">
             {history.length === 0 ? (
               <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
             ) : (
@@ -974,7 +1284,7 @@ const ReportsTabContent = memo(function ReportsTabContent() {
                   <div key={item.id} className="flex items-center justify-between rounded-md border border-white/[0.08] bg-[#242424] p-2">
                     <div>
                       <p className="text-sm font-medium text-foreground">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-white/60">
                         Generated by {item.generatedBy || 'System'} · {formatDate(item.generatedAt)}
                       </p>
                     </div>

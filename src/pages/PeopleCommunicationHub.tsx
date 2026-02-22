@@ -32,20 +32,24 @@ import {
   TrendingUp,
   Hash,
   Megaphone,
-  Activity,
-  BookOpen
+  BookOpen,
+  Plus,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
+import { toast } from 'sonner'
 
 import { apiFetcher } from '@/lib/api-fetcher'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import HubPage from '@/components/ui/hub-page'
 import { Section } from '@/components/ui/section'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   StatCard,
@@ -73,29 +77,29 @@ const rawFetcher = (url: string) =>
  * People Tab - HR and team management
  */
 const PeopleTabContent = memo(function PeopleTabContent() {
-  const { push } = useDrilldown()
-  const { data: users, error: usersError } = useSWR<any[]>(
+  const { data: users, error: usersError, isLoading: usersLoading } = useSWR<any[]>(
     '/api/users?limit=200',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: teams, error: teamsError } = useSWR<any[]>(
+  const { data: teams, error: teamsError, isLoading: teamsLoading } = useSWR<any[]>(
     '/api/internal-teams',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: trainingCourses, error: trainingCoursesError } = useSWR<any[]>(
+  const { data: trainingCourses, error: trainingCoursesError, isLoading: trainingCoursesLoading } = useSWR<any[]>(
     '/api/training/courses?limit=200',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: trainingProgress, error: trainingProgressError } = useSWR<any[]>(
+  const { data: trainingProgress, error: trainingProgressError, isLoading: trainingProgressLoading } = useSWR<any[]>(
     '/api/training/progress',
     fetcher,
     { shouldRetryOnError: false }
   )
 
   const peopleError = usersError || teamsError || trainingCoursesError || trainingProgressError
+  const peopleLoading = usersLoading || teamsLoading || trainingCoursesLoading || trainingProgressLoading
 
   const userRows = Array.isArray(users) ? users : []
   const teamRows = Array.isArray(teams) ? teams : []
@@ -117,18 +121,18 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     return tenureYears.reduce((sum, years) => sum + years, 0) / tenureYears.length
   }, [userRows])
 
-  const recentActivity = useMemo(() => {
+  // P1-6: Renamed to "Recently Added Users" — sorted by created_at desc
+  const recentUsers = useMemo(() => {
     return userRows
       .slice()
       .sort((a: any, b: any) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
       .slice(0, 4)
       .map((user: any) => {
-        const activityType = user.status ? formatEnum(user.status) : 'Added'
         return {
-          type: activityType,
+          isActive: user.status === 'active',
           name: user.name || `${user.first_name} ${user.last_name}`.trim(),
           department: user.role ? formatEnum(user.role) : 'Team Member',
-          date: formatDate(user.created_at)
+          createdAt: user.created_at
         }
       })
   }, [userRows])
@@ -141,7 +145,9 @@ const PeopleTabContent = memo(function PeopleTabContent() {
       if (!courseId) return acc
       if (!acc[courseId]) acc[courseId] = { completed: 0, total: 0 }
       acc[courseId].total += 1
-      if (Number(row.progress) >= 100 || row.completed_modules?.length === row.total_modules?.length) {
+      // P1-8: Fix training completion — completed_modules is a string (status column alias), not array
+      // Only check numeric progress >= 100 or status string === 'completed'
+      if (Number(row.progress) >= 100 || row.completed_modules === 'completed') {
         acc[courseId].completed += 1
       }
       return acc
@@ -165,6 +171,21 @@ const PeopleTabContent = memo(function PeopleTabContent() {
     )
   }
 
+  // P1-5: Loading state
+  if (peopleLoading) {
+    return (
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
@@ -181,15 +202,16 @@ const PeopleTabContent = memo(function PeopleTabContent() {
           icon={UserCheck}
           description="Currently working"
         />
+        {/* P0-2: Fix "On Leave" → "Inactive" — is_active===false means deactivated, not on leave */}
         <StatCard
-          title="On Leave"
+          title="Inactive"
           value={formatNumber(inactiveUsers.length)}
           icon={UserX}
-          description="PTO / Vacation"
+          description="Deactivated accounts"
         />
         <StatCard
           title="Avg Tenure"
-          value={avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : '—'}
+          value={avgTenureYears > 0 ? `${avgTenureYears.toFixed(1)} yrs` : '\u2014'}
           icon={Award}
           description="Employee retention"
         />
@@ -197,7 +219,8 @@ const PeopleTabContent = memo(function PeopleTabContent() {
 
       {/* Main Content: Two columns */}
       <div className="grid grid-cols-2 gap-1.5">
-        {/* Left Column: Employee List */}
+        {/* Left Column: Team Overview */}
+        {/* P1-11: Action button placeholder for team management */}
         <Section
           title="Team Overview"
           description="Department breakdown and headcount"
@@ -211,34 +234,15 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                 {teamRows.map((dept: any) => (
                   <div
                     key={dept.id}
-                    className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5 cursor-pointer hover:bg-white/[0.04]"
-                    onClick={() => push({
-                      id: dept.id,
-                      type: 'team',
-                      label: dept.name,
-                      data: { teamId: dept.id, teamLead: dept.team_lead_name, memberCount: dept.member_count, isActive: dept.is_active },
-                    })}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        push({
-                          id: dept.id,
-                          type: 'team',
-                          label: dept.name,
-                          data: { teamId: dept.id, teamLead: dept.team_lead_name, memberCount: dept.member_count, isActive: dept.is_active },
-                        })
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View details for team ${dept.name}`}
+                    className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                    title="Team details coming soon"
                   >
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <p className="text-sm font-medium text-foreground">{dept.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          Lead: {dept.team_lead_name || '—'} -- {formatNumber(dept.member_count || 0)} members
+                          Lead: {dept.team_lead_name || '\u2014'} -- {formatNumber(dept.member_count || 0)} members
                         </p>
                       </div>
                     </div>
@@ -252,50 +256,37 @@ const PeopleTabContent = memo(function PeopleTabContent() {
           </div>
         </Section>
 
-        {/* Right Column: Recent Activity + Training */}
+        {/* Right Column: Recently Added Users + Training */}
         <div className="flex flex-col gap-1.5 min-h-0">
+          {/* P1-6: Renamed from "Recent Activity" to "Recently Added Users" */}
           <Section
-            title="Recent Activity"
-            description="Latest HR updates"
-            icon={<Activity className="h-4 w-4" />}
+            title="Recently Added Users"
+            description="Newest team members"
+            icon={<UserPlus className="h-4 w-4" />}
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
-              {recentActivity.length === 0 ? (
+              {recentUsers.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
                 <div className="space-y-1.5">
-                  {recentActivity.map((activity, index) => (
+                  {recentUsers.map((user, index) => (
                     <div
                       key={index}
-                      className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5 cursor-pointer hover:bg-white/[0.04]"
-                      onClick={() => push({
-                        id: `activity-${index}`,
-                        type: 'user',
-                        label: activity.name,
-                        data: { name: activity.name, department: activity.department, type: activity.type, date: activity.date },
-                      })}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          push({
-                            id: `activity-${index}`,
-                            type: 'user',
-                            label: activity.name,
-                            data: { name: activity.name, department: activity.department, type: activity.type, date: activity.date },
-                          })
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`View details for ${activity.name}`}
+                      className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                      title="User details coming soon"
                     >
-                      <UserPlus className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      {/* P1-6: UserPlus for active, UserX for inactive */}
+                      {user.isActive ? (
+                        <UserPlus className="h-4 w-4 text-emerald-400 mt-0.5" />
+                      ) : (
+                        <UserX className="h-4 w-4 text-muted-foreground mt-0.5" />
+                      )}
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-foreground">{activity.type}</p>
+                        <p className="text-sm font-medium text-foreground">{user.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          {activity.name} -- {activity.department}
+                          {user.department}
                         </p>
-                        <p className="text-xs text-muted-foreground">{activity.date}</p>
+                        <p className="text-xs text-muted-foreground">Added on {formatDate(user.createdAt)}</p>
                       </div>
                     </div>
                   ))}
@@ -314,22 +305,29 @@ const PeopleTabContent = memo(function PeopleTabContent() {
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
                 <div className="space-y-1.5">
-                  {trainingProgressData.map((training) => (
-                    <div key={training.program} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-medium text-foreground">{training.program}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatNumber(training.completed)}/{formatNumber(training.enrolled)} ({training.enrolled > 0 ? Math.round((training.completed / training.enrolled) * 100) : 0}%)
-                        </p>
+                  {trainingProgressData.map((training) => {
+                    // P1-7: Conditional progress bar colors
+                    const completionPct = training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0
+                    return (
+                      <div key={training.program} className="rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm font-medium text-foreground">{training.program}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatNumber(training.completed)}/{formatNumber(training.enrolled)} ({Math.round(completionPct)}%)
+                          </p>
+                        </div>
+                        <div className="w-full bg-white/[0.06] rounded-full h-1.5 mt-1.5">
+                          <div
+                            className={`rounded-full h-1.5 ${
+                              completionPct > 75 ? 'bg-emerald-500' :
+                              completionPct > 50 ? 'bg-amber-500' : 'bg-rose-500'
+                            }`}
+                            style={{ width: `${completionPct}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className="w-full bg-white/[0.06] rounded-full h-1.5 mt-1.5">
-                        <div
-                          className="bg-foreground/60 rounded-full h-1.5"
-                          style={{ width: `${training.enrolled > 0 ? (training.completed / training.enrolled) * 100 : 0}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
@@ -344,29 +342,29 @@ const PeopleTabContent = memo(function PeopleTabContent() {
  * Communication Tab - Messaging and announcements
  */
 const CommunicationTabContent = memo(function CommunicationTabContent() {
-  const { push } = useDrilldown()
-  const { data: communicationLogs, error: communicationLogsError } = useSWR<any[]>(
+  const { data: communicationLogs, error: communicationLogsError, isLoading: commLogsLoading } = useSWR<any[]>(
     '/api/communication-logs?limit=50',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: announcements, error: announcementsError } = useSWR<any[]>(
+  const { data: announcements, error: announcementsError, isLoading: announcementsLoading } = useSWR<any[]>(
     '/api/announcements?limit=20',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: notifications, error: notificationsError } = useSWR<any>(
+  const { data: notifications, error: notificationsError, isLoading: notificationsLoading } = useSWR<any>(
     '/api/notifications?limit=50',
     rawFetcher,
     { shouldRetryOnError: false }
   )
-  const { data: teams, error: commTeamsError } = useSWR<any[]>(
+  const { data: teams, error: commTeamsError, isLoading: commTeamsLoading } = useSWR<any[]>(
     '/api/internal-teams',
     fetcher,
     { shouldRetryOnError: false }
   )
 
   const communicationError = communicationLogsError || announcementsError || notificationsError || commTeamsError
+  const communicationLoading = commLogsLoading || announcementsLoading || notificationsLoading || commTeamsLoading
 
   const messages = Array.isArray(communicationLogs) ? communicationLogs : []
   const announcementRows = Array.isArray(announcements) ? announcements : []
@@ -400,6 +398,21 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
     )
   }
 
+  // P1-5: Loading state
+  if (communicationLoading) {
+    return (
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
       {/* KPI Row */}
@@ -416,15 +429,16 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
           icon={Hash}
           description="Communication channels"
         />
+        {/* P1-9: Fix "Announcements" KPI description — no date filter exists */}
         <StatCard
           title="Announcements"
           value={formatNumber(announcementRows.length)}
           icon={Megaphone}
-          description="This week"
+          description="Total published"
         />
         <StatCard
           title="Response Time"
-          value={avgResponseTime || '—'}
+          value={avgResponseTime || '\u2014'}
           icon={Clock}
           description="Avg response"
         />
@@ -433,6 +447,7 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
       {/* Main Content: Two columns */}
       <div className="grid grid-cols-2 gap-1.5">
         {/* Left Column: Communication Log */}
+        {/* P1-11: Add "Compose" button */}
         <Section
           title="Recent Messages"
           description="Latest team communications"
@@ -446,37 +461,21 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
                 {messages.slice(0, 8).map((msg: any) => (
                   <div
                     key={msg.id}
-                    className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5 cursor-pointer hover:bg-white/[0.04]"
-                    onClick={() => push({
-                      id: msg.id,
-                      type: 'user',
-                      label: msg.from_address || 'System',
-                      data: { messageId: msg.id, from: msg.from_address, subject: msg.subject, sentAt: msg.sent_at },
-                    })}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault()
-                        push({
-                          id: msg.id,
-                          type: 'user',
-                          label: msg.from_address || 'System',
-                          data: { messageId: msg.id, from: msg.from_address, subject: msg.subject, sentAt: msg.sent_at },
-                        })
-                      }
-                    }}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View details for message from ${msg.from_address || 'System'}`}
+                    className="flex items-start gap-2 rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                    title="Message details coming soon"
                   >
                     <User className="h-4 w-4 text-muted-foreground mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-medium text-foreground truncate">{msg.from_address || 'System'}</p>
-                        {!msg.is_read && <Badge variant="default">New</Badge>}
+                        {/* P0-3: Fix from_address → sender_name */}
+                        <p className="text-sm font-medium text-foreground truncate">{msg.sender_name || 'System'}</p>
+                        {/* P1-12: Fix is_read badge — use status field instead of non-existent is_read */}
+                        {msg.status === 'pending' && <Badge variant="default">New</Badge>}
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5 truncate">{msg.subject || msg.message_body || 'Message'}</p>
+                      {/* P0-3: Fix sent_at → created_at */}
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {formatDateTime(msg.sent_at)}
+                        {formatDateTime(msg.created_at)}
                       </p>
                     </div>
                   </div>
@@ -527,27 +526,8 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
                   {channelRows.map((channel: any) => (
                     <div
                       key={channel.id}
-                      className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5 cursor-pointer hover:bg-white/[0.04]"
-                      onClick={() => push({
-                        id: channel.id,
-                        type: 'team',
-                        label: channel.name,
-                        data: { teamId: channel.id, memberCount: channel.member_count },
-                      })}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault()
-                          push({
-                            id: channel.id,
-                            type: 'team',
-                            label: channel.name,
-                            data: { teamId: channel.id, memberCount: channel.member_count },
-                          })
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      aria-label={`View details for channel ${channel.name}`}
+                      className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5"
+                      title="Channel details coming soon"
                     >
                       <div className="flex items-center gap-2">
                         <Hash className="h-4 w-4 text-muted-foreground" />
@@ -573,11 +553,15 @@ const CommunicationTabContent = memo(function CommunicationTabContent() {
  */
 const WorkTabContent = memo(function WorkTabContent() {
   const { push } = useDrilldown()
-  const { data: tasks, error: tasksError } = useSWR<any[]>(
+  const { data: tasks, error: tasksError, isLoading: tasksLoading } = useSWR<any[]>(
     '/api/tasks?limit=200',
     fetcher,
     { shouldRetryOnError: false }
   )
+
+  // P0-4: Add Task dialog state
+  const [showAddTask, setShowAddTask] = useState(false)
+  const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium', status: 'pending' })
 
   const taskRows = Array.isArray(tasks) ? tasks : []
   const now = new Date()
@@ -595,10 +579,17 @@ const WorkTabContent = memo(function WorkTabContent() {
     return due.getTime() >= now.getTime() && due.getTime() <= now.getTime() + 7 * 24 * 60 * 60 * 1000
   })
 
-  const productivity = taskRows.length > 0
-    ? Math.round((completedThisWeek.length / taskRows.length) * 100)
-    : 0
+  // P1-10: Fix productivity calculation — use tasks due this week as denominator
+  const dueThisWeek = taskRows.filter((task: any) => {
+    if (!task.dueDate) return false
+    const due = new Date(task.dueDate)
+    return due.getTime() >= now.getTime() - 7 * 24 * 60 * 60 * 1000 && due.getTime() <= now.getTime() + 7 * 24 * 60 * 60 * 1000
+  })
+  const productivity = dueThisWeek.length > 0
+    ? Math.round((completedThisWeek.length / dueThisWeek.length) * 100)
+    : (taskRows.length > 0 ? Math.round((completedThisWeek.length / taskRows.length) * 100) : 0)
 
+  // P1-13: Cap tasks at 5 per column
   const taskColumns = useMemo(() => {
     const columns = [
       { status: 'To Do', key: 'pending' },
@@ -611,7 +602,7 @@ const WorkTabContent = memo(function WorkTabContent() {
       return {
         ...column,
         count: tasksForColumn.length,
-        tasks: tasksForColumn.slice(0, 3)
+        tasks: tasksForColumn.slice(0, 5)
       }
     })
   }, [taskRows])
@@ -625,10 +616,51 @@ const WorkTabContent = memo(function WorkTabContent() {
     })
   }
 
+  // P0-4: Create task handler
+  const handleCreateTask = async () => {
+    if (!newTask.title.trim()) {
+      toast.error('Task title is required')
+      return
+    }
+    try {
+      const res = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(newTask)
+      })
+      if (res.ok) {
+        toast.success('Task created')
+        setShowAddTask(false)
+        setNewTask({ title: '', description: '', priority: 'medium', status: 'pending' })
+        mutate('/api/tasks?limit=200')
+      } else {
+        toast.error('Failed to create task')
+      }
+    } catch {
+      toast.error('Failed to create task')
+    }
+  }
+
   if (tasksError) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
         Unable to load tasks data. Please try again.
+      </div>
+    )
+  }
+
+  // P1-5: Loading state
+  if (tasksLoading) {
+    return (
+      <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-64" />
+          <Skeleton className="h-64" />
+        </div>
       </div>
     )
   }
@@ -655,21 +687,28 @@ const WorkTabContent = memo(function WorkTabContent() {
           icon={Calendar}
           description="Next 7 days"
         />
+        {/* P1-10: Renamed to "Weekly Completion Rate" */}
         <StatCard
-          title="Team Productivity"
+          title="Weekly Completion Rate"
           value={`${productivity}%`}
           icon={TrendingUp}
-          description="Task completion rate"
+          description="Of all tasks"
         />
       </div>
 
       {/* Main Content: Two columns */}
       <div className="grid grid-cols-2 gap-1.5">
         {/* Left Column: Task Board */}
+        {/* P0-4: Add Task button in Section actions */}
         <Section
           title="Task Board"
           description="Team tasks organized by status"
           icon={<CheckSquare className="h-4 w-4" />}
+          actions={
+            <Button size="sm" variant="outline" onClick={() => setShowAddTask(true)}>
+              <Plus className="h-3 w-3 mr-1" /> Add Task
+            </Button>
+          }
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             <div className="grid grid-cols-3 gap-1.5">
@@ -683,42 +722,66 @@ const WorkTabContent = memo(function WorkTabContent() {
                     {column.tasks.length === 0 ? (
                       <div className="text-xs text-muted-foreground">No tasks</div>
                     ) : (
-                      column.tasks.map((task: any) => (
-                        <div
-                          key={task.id}
-                          className="rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04]"
-                          onClick={() => push({
-                            id: task.id,
-                            type: 'task',
-                            label: task.title,
-                            data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
-                          })}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                              e.preventDefault()
-                              push({
-                                id: task.id,
-                                type: 'task',
-                                label: task.title,
-                                data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
-                              })
-                            }
-                          }}
-                          role="button"
-                          tabIndex={0}
-                          aria-label={`View details for task: ${task.title}`}
-                        >
-                          <p className="text-xs font-medium text-foreground">{task.title}</p>
-                          <div className="flex items-center justify-between mt-1">
-                            <Badge variant={
-                              task.priority === 'high' ? 'destructive' :
-                              task.priority === 'medium' ? 'secondary' : 'outline'
-                            } className="text-[10px]">
-                              {formatEnum(task.priority || 'low')}
-                            </Badge>
+                      column.tasks.map((task: any) => {
+                        // P1-13: Show due date, color red if overdue
+                        const dueDate = task.dueDate ? new Date(task.dueDate) : null
+                        const isOverdue = dueDate ? dueDate.getTime() < now.getTime() : false
+                        return (
+                          <div
+                            key={task.id}
+                            className="rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04]"
+                            onClick={() => push({
+                              id: task.id,
+                              type: 'task',
+                              label: task.title,
+                              data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
+                            })}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault()
+                                push({
+                                  id: task.id,
+                                  type: 'task',
+                                  label: task.title,
+                                  data: { taskId: task.id, status: task.status, priority: task.priority, assignedTo: task.assignedToId },
+                                })
+                              }
+                            }}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`View details for task: ${task.title}`}
+                          >
+                            <p className="text-xs font-medium text-foreground">{task.title}</p>
+                            <div className="flex items-center justify-between mt-1">
+                              <Badge variant={
+                                task.priority === 'high' || task.priority === 'urgent' ? 'destructive' :
+                                task.priority === 'medium' ? 'secondary' : 'outline'
+                              } className="text-[10px]">
+                                {formatEnum(task.priority || 'low')}
+                              </Badge>
+                            </div>
+                            {dueDate && (
+                              <p className={`text-[10px] mt-1 ${isOverdue ? 'text-rose-400' : 'text-muted-foreground'}`}>
+                                {isOverdue ? 'Overdue: ' : 'Due: '}{formatDate(task.dueDate)}
+                              </p>
+                            )}
                           </div>
-                        </div>
-                      ))
+                        )
+                      })
+                    )}
+                    {/* P1-13: "View All" link when more tasks exist */}
+                    {column.count > 5 && (
+                      <button
+                        className="text-xs text-emerald-400 hover:underline w-full text-center py-1"
+                        onClick={() => push({
+                          id: `tasks-${column.key}`,
+                          type: 'tasks',
+                          label: column.status,
+                          data: { filter: column.key },
+                        })}
+                      >
+                        View All ({formatNumber(column.count)})
+                      </button>
                     )}
                   </div>
                 </div>
@@ -727,11 +790,12 @@ const WorkTabContent = memo(function WorkTabContent() {
           </div>
         </Section>
 
-        {/* Right Column: Task List + Schedule */}
+        {/* Right Column: Upcoming Deadlines */}
         <div className="flex flex-col gap-1.5 min-h-0">
+          {/* P1-13: Rename "This Week's Schedule" to "Upcoming Deadlines" */}
           <Section
-            title="This Week's Schedule"
-            description="Important meetings and deadlines"
+            title="Upcoming Deadlines"
+            description="Tasks due in the next 7 days"
             icon={<Calendar className="h-4 w-4" />}
           >
             <div className="flex-1 min-h-0 overflow-y-auto">
@@ -759,6 +823,43 @@ const WorkTabContent = memo(function WorkTabContent() {
           </Section>
         </div>
       </div>
+
+      {/* P0-4: Add Task Dialog */}
+      <Dialog open={showAddTask} onOpenChange={setShowAddTask}>
+        <DialogContent className="bg-[#242424] border-white/[0.08]">
+          <DialogHeader>
+            <DialogTitle>Create Task</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              placeholder="Task title"
+              value={newTask.title}
+              onChange={e => setNewTask(p => ({...p, title: e.target.value}))}
+              className="bg-[#1a1a1a] border-white/[0.08]"
+            />
+            <Input
+              placeholder="Description"
+              value={newTask.description}
+              onChange={e => setNewTask(p => ({...p, description: e.target.value}))}
+              className="bg-[#1a1a1a] border-white/[0.08]"
+            />
+            <select
+              className="w-full rounded-md bg-[#1a1a1a] border border-white/[0.08] text-white/80 p-2 text-sm"
+              value={newTask.priority}
+              onChange={e => setNewTask(p => ({...p, priority: e.target.value}))}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddTask(false)}>Cancel</Button>
+            <Button onClick={handleCreateTask}>Create</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 })

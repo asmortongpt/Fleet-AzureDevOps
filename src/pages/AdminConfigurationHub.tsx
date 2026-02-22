@@ -41,7 +41,10 @@ import {
   FolderOpen,
   Upload,
   Download,
-  Archive
+  Archive,
+  AlertTriangle,
+  CheckCircle,
+  Info
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 
@@ -49,7 +52,7 @@ import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
 import { apiFetcher } from '@/lib/api-fetcher'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useNavigation } from '@/contexts/NavigationContext'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
@@ -93,7 +96,6 @@ function semanticPercentBg(value: number): string {
  */
 const AdminTabContent = memo(function AdminTabContent() {
   const { push } = useDrilldown()
-  const { navigateTo } = useNavigation()
   const [auditDateFilter, setAuditDateFilter] = useState<'all' | '24h' | '7d' | '30d'>('all')
 
   const { data: users, error: usersError } = useSWR<any[]>(
@@ -208,10 +210,25 @@ const AdminTabContent = memo(function AdminTabContent() {
     logger.info(`Audit logs exported: ${filteredAuditRows.length}`)
   }
 
-  const handleManageUsers = (role: string) => {
-    toast.success(`Opening user management for role: ${formatEnum(role)}`)
-    logger.info('Manage users clicked:', role)
-    navigateTo('admin-hub-consolidated')
+  const handleManageUsers = () => {
+    push({ type: 'active-sessions', label: 'User Management', data: {} })
+  }
+
+  // Loading state
+  const isLoading = !users && !usersError && !health && !healthError
+  if (isLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+        <Skeleton className="h-48 rounded-md" />
+      </div>
+    )
   }
 
   if (adminError) {
@@ -266,7 +283,10 @@ const AdminTabContent = memo(function AdminTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {userGroups.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <Users className="h-6 w-6 text-white/20" />
+                <p>No user accounts found. Users will appear here after Azure AD sync.</p>
+              </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {userGroups.map((userGroup) => (
@@ -303,7 +323,7 @@ const AdminTabContent = memo(function AdminTabContent() {
                         </p>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleManageUsers(userGroup.role); }}>Manage</Button>
+                    <Button variant="outline" size="sm" onClick={(e) => { e.stopPropagation(); handleManageUsers(); }}>Manage</Button>
                   </div>
                 ))}
               </div>
@@ -319,7 +339,10 @@ const AdminTabContent = memo(function AdminTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {systemStatusItems.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <CheckCircle className="h-6 w-6 text-white/20" />
+                <p>System health checks will appear once the health endpoint responds.</p>
+              </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {systemStatusItems.map((service) => (
@@ -376,7 +399,15 @@ const AdminTabContent = memo(function AdminTabContent() {
             </div>
             <div className="flex-1 min-h-0 overflow-y-auto">
               {filteredAuditRows.length === 0 ? (
-                <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+                <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                  <Activity className="h-6 w-6 text-white/20" />
+                  <p>No audit log entries found for the selected time period.</p>
+                  {auditDateFilter !== 'all' && (
+                    <button onClick={() => setAuditDateFilter('all')} className="text-emerald-400 hover:text-emerald-300 text-xs underline">
+                      Show all entries
+                    </button>
+                  )}
+                </div>
               ) : (
                 <table className="w-full text-sm">
                   <thead className="sticky top-0 bg-[#242424]">
@@ -481,8 +512,29 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
     logger.info(`Feature flag toggled: ${feature} -> ${newState}`)
   }
 
+  // Loading state — tenant settings come from context, so check if they're available
+  const isConfigLoading = settings === undefined || settings === null
+  if (isConfigLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+      {/* Session-only override warning (P0-3) */}
+      {Object.keys(featureFlagOverrides).length > 0 && (
+        <div className="text-[10px] text-amber-400/80 flex items-center gap-1 px-2 py-1 bg-amber-950/20 rounded border border-amber-500/20">
+          <AlertTriangle className="h-3 w-3 shrink-0" />
+          Feature flag overrides are session-only and will reset on page reload
+        </div>
+      )}
+
       {/* Main content: 2 columns */}
       <div className="grid grid-cols-2 gap-1.5">
         {/* System Settings */}
@@ -493,7 +545,10 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {configCategories.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <Settings className="h-6 w-6 text-white/20" />
+                <p>No configuration categories available.</p>
+              </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {configCategories.map((item) => {
@@ -524,7 +579,10 @@ const ConfigurationTabContent = memo(function ConfigurationTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {featureFlags.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <ToggleLeft className="h-6 w-6 text-white/20" />
+                <p>No feature flags configured for this tenant.</p>
+              </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {featureFlags.map((flag) => (
@@ -577,11 +635,12 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
 
   const dataGovernanceError = databaseHealthError || dgStorageError || dgAuditError || complianceDashboardError
 
-  const dataQuality = useMemo(() => {
+  // P0-4: Renamed from "Data Quality Score" to "System Health Score" — derived from DB connectivity status
+  const systemHealthScore = useMemo(() => {
     const status = databaseHealth?.status
-    if (status === 'healthy') return 96
-    if (status === 'degraded') return 85
-    if (status === 'unhealthy') return 60
+    if (status === 'healthy') return 100
+    if (status === 'degraded') return 75
+    if (status === 'unhealthy') return 40
     return 0
   }, [databaseHealth])
 
@@ -592,13 +651,20 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
   const databaseStats = databaseHealth?.database?.statistics || {}
   const auditRows = Array.isArray(auditLogs) ? auditLogs : []
 
-  const handleRunBackup = (backupType: string) => {
-    const toastId = toast.loading(`Running backup: ${formatEnum(backupType)}...`)
-    logger.info('Run backup started:', backupType)
-    setTimeout(() => {
-      toast.success(`Backup completed: ${formatEnum(backupType)}`, { id: toastId })
-      logger.info('Backup completed:', backupType)
-    }, 2500)
+  // Loading state
+  const isDataLoading = !databaseHealth && !databaseHealthError
+  if (isDataLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
   }
 
   if (dataGovernanceError) {
@@ -614,12 +680,12 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
       {/* Data Governance Statistics */}
       <div className="grid gap-1.5 grid-cols-4">
         <StatCard
-          title="Data Quality"
-          value={dataQuality > 0 ? (
-            <span className={semanticPercentColor(dataQuality)}>{dataQuality}%</span>
+          title="System Health Score"
+          value={systemHealthScore > 0 ? (
+            <span className={semanticPercentColor(systemHealthScore)}>{systemHealthScore}%</span>
           ) : "\u2014"}
           icon={Database}
-          description="Validated records"
+          description="Based on database connectivity status"
         />
         <StatCard
           title="Storage Used"
@@ -662,10 +728,10 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
             {databaseStats ? (
               <div className="flex flex-col gap-1.5">
                 {[
-                  { source: 'Vehicles', records: databaseStats.vehicles, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
-                  { source: 'Drivers', records: databaseStats.drivers, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
-                  { source: 'Maintenance Records', records: databaseStats.maintenanceRecords, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
-                  { source: 'Database Size', records: databaseStats.databaseSize, quality: dataQuality, lastUpdated: databaseHealth?.timestamp },
+                  { source: 'Vehicles', records: databaseStats.vehicles, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
+                  { source: 'Drivers', records: databaseStats.drivers, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
+                  { source: 'Maintenance Records', records: databaseStats.maintenanceRecords, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
+                  { source: 'Database Size', records: databaseStats.databaseSize, quality: systemHealthScore, lastUpdated: databaseHealth?.timestamp },
                 ].map((source) => (
                   <div key={source.source} className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                     <div className="flex items-center justify-between mb-1">
@@ -688,31 +754,39 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
                 ))}
               </div>
             ) : (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <Database className="h-6 w-6 text-white/20" />
+                <p>Database health data not available. Check backend connectivity.</p>
+              </div>
             )}
           </div>
         </Section>
 
-        {/* Backup & Recovery */}
+        {/* System Activity Log (was "Backup & Recovery" — P0-5) */}
         <Section
-          title="Backup & Recovery"
-          description="Automated backup schedule and recovery points"
-          icon={<Archive className="h-4 w-4" />}
+          title="System Activity Log"
+          description="Recent system operations and events"
+          icon={<Activity className="h-4 w-4" />}
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {auditRows.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <Info className="h-6 w-6 text-white/20" />
+                <p>No recent system activity recorded.</p>
+              </div>
             ) : (
               <div className="flex flex-col gap-1.5">
-                {auditRows.slice(0, 5).map((backup: any) => (
-                  <div key={backup.id} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                {auditRows.slice(0, 5).map((entry: any) => (
+                  <div key={entry.id} className="flex items-center justify-between rounded-lg border border-white/[0.08] bg-[#242424] p-3">
                     <div>
-                      <p className="font-semibold text-foreground text-sm">{formatEnum(backup.action)}</p>
+                      <p className="font-semibold text-foreground text-sm">{formatEnum(entry.action)}</p>
                       <p className="text-xs text-muted-foreground">
-                        {formatEnum(backup.resource)} · {formatDateTime(backup.timestamp)}
+                        {formatEnum(entry.resource)} · {formatDateTime(entry.timestamp)}
                       </p>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => handleRunBackup(backup.action)}>Run Now</Button>
+                    <Badge variant={entry.action === 'delete' ? 'destructive' : 'default'}>
+                      {formatEnum(entry.action)}
+                    </Badge>
                   </div>
                 ))}
               </div>
@@ -728,7 +802,7 @@ const DataGovernanceTabContent = memo(function DataGovernanceTabContent() {
  * Integrations Tab - Third-party integrations and APIs
  */
 const IntegrationsTabContent = memo(function IntegrationsTabContent() {
-  const { navigateTo } = useNavigation()
+  const { push } = useDrilldown()
   const { data: integrationsHealth, error: integrationsHealthError } = useSWR<any>(
     '/api/integrations/health',
     fetcher,
@@ -777,9 +851,33 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
   }, [metricsHistory, apiCallsToday])
 
   const handleConfigureIntegration = (integrationName: string) => {
-    toast.success(`Opening configuration for: ${integrationName}`)
-    logger.info('Configure integration clicked:', integrationName)
-    navigateTo('settings')
+    push({ type: 'system-health', label: `Integration: ${integrationName}`, data: { integrationName } })
+  }
+
+  // P1-6: Derive health description from actual data
+  const integrationHealthDescription = useMemo(() => {
+    if (integrations.length === 0) return 'No integrations configured'
+    const unhealthyCount = integrations.filter((i: any) => i.status === 'unhealthy').length
+    const degradedCount = integrations.filter((i: any) => i.status === 'degraded').length
+    if (unhealthyCount > 0) return `${unhealthyCount} system${unhealthyCount > 1 ? 's' : ''} with issues`
+    if (degradedCount > 0) return `${degradedCount} system${degradedCount > 1 ? 's' : ''} experiencing issues`
+    return 'All systems operational'
+  }, [integrations])
+
+  // Loading state
+  const isIntegrationsLoading = !integrationsHealth && !integrationsHealthError
+  if (isIntegrationsLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
   }
 
   if (integrationsError) {
@@ -818,7 +916,7 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
             <span className={semanticPercentColor(integrationHealthPercent)}>{integrationHealthPercent}%</span>
           ) : "\u2014"}
           icon={Activity}
-          description="All systems operational"
+          description={integrationHealthDescription}
         />
       </div>
 
@@ -832,7 +930,10 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {integrations.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <Plug className="h-6 w-6 text-white/20" />
+                <p>No integrations connected. Configure API connections in Settings.</p>
+              </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {integrations.map((integration: any) => (
@@ -932,6 +1033,22 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
     logger.info('Download document clicked:', documentName)
   }
 
+  // Loading state
+  const isDocumentsLoading = !documents && !documentsError
+  if (isDocumentsLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
+  }
+
   if (documentsError) {
     return (
       <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
@@ -980,7 +1097,10 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {documentCategories.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <FolderOpen className="h-6 w-6 text-white/20" />
+                <p>No documents uploaded yet. Upload files to organize them into categories.</p>
+              </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {documentCategories.map((cat) => (
@@ -1008,7 +1128,10 @@ const DocumentsTabContent = memo(function DocumentsTabContent() {
         >
           <div className="flex-1 min-h-0 overflow-y-auto">
             {recentDocuments.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground text-sm gap-2">
+                <FileText className="h-6 w-6 text-white/20" />
+                <p>No recent documents. Uploaded files will appear here.</p>
+              </div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {recentDocuments.map((doc: any) => (

@@ -35,7 +35,8 @@ import {
   ScrollText,
   Gavel,
   BookMarked,
-  BarChart
+  BarChart,
+  Plus,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
@@ -47,9 +48,11 @@ import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import HubPage from '@/components/ui/hub-page'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   StatCard,
+  RadialProgressChart,
   ResponsiveBarChart,
   ResponsiveLineChart,
 } from '@/components/visualizations'
@@ -77,7 +80,12 @@ const fetcher = apiFetcher
  */
 const ComplianceTabContent = memo(function ComplianceTabContent() {
   const { push } = useDrilldown()
-  const { drivers, vehicles, error: fleetDataError } = useFleetData()
+  const { drivers, vehicles, isLoading, error: fleetDataError } = useFleetData()
+  const { data: complianceDashboard } = useSWR<any>(
+    '/api/compliance/dashboard',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
 
   const now = useMemo(() => new Date(), [])
   const msPerDay = 86400000
@@ -278,6 +286,34 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     })
   }
 
+  // Extract dashboard metrics for radial charts (P0-2)
+  const dashMetrics = useMemo(() => {
+    if (!complianceDashboard) return null
+    const metrics = complianceDashboard?.metrics || complianceDashboard?.data?.metrics
+    if (!metrics) return null
+    // metrics could be an object with named keys or an array
+    if (Array.isArray(metrics)) {
+      return {
+        vehicleCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('vehicle'))?.score || 0),
+        driverCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('driver'))?.score || 0),
+        safetyCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('safety'))?.score || 0),
+        regulatoryCompliance: Number(metrics.find((m: any) => m.name?.toLowerCase().includes('regulatory'))?.score || 0),
+      }
+    }
+    return {
+      vehicleCompliance: Number(metrics.vehicleCompliance ?? metrics.vehicle_compliance ?? 0),
+      driverCompliance: Number(metrics.driverCompliance ?? metrics.driver_compliance ?? 0),
+      safetyCompliance: Number(metrics.safetyCompliance ?? metrics.safety_compliance ?? 0),
+      regulatoryCompliance: Number(metrics.regulatoryCompliance ?? metrics.regulatory_compliance ?? 0),
+    }
+  }, [complianceDashboard])
+
+  const dashAlerts = useMemo(() => {
+    if (!complianceDashboard) return []
+    const alerts = complianceDashboard?.alerts || complianceDashboard?.data?.alerts
+    return Array.isArray(alerts) ? alerts : []
+  }, [complianceDashboard])
+
   if (fleetDataError) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-4">
@@ -286,6 +322,21 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
         <Button variant="outline" onClick={() => window.location.reload()}>
           Retry
         </Button>
+      </div>
+    )
+  }
+
+  // P0-1: Loading skeleton for Compliance tab
+  if (isLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
       </div>
     )
   }
@@ -395,7 +446,10 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           </div>
           <div className="flex-1 min-h-0 overflow-y-auto">
             {renewals.length === 0 ? (
-              <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
+              <div className="flex flex-col items-center justify-center h-32 gap-2">
+                <CheckCircle className="h-6 w-6 text-emerald-500" />
+                <span className="text-sm text-muted-foreground">All certifications current. No renewals due within 60 days.</span>
+              </div>
             ) : (
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-[#242424]">
@@ -438,6 +492,31 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
           </div>
         </div>
       </div>
+
+      {/* P0-2: Compliance Scores — radial gauge charts */}
+      {dashMetrics && (dashMetrics.vehicleCompliance > 0 || dashMetrics.driverCompliance > 0 || dashMetrics.safetyCompliance > 0 || dashMetrics.regulatoryCompliance > 0) && (
+        <div className="grid grid-cols-4 gap-1.5">
+          <RadialProgressChart title="Vehicle" value={dashMetrics.vehicleCompliance} size="sm" height={120} />
+          <RadialProgressChart title="Driver" value={dashMetrics.driverCompliance} size="sm" height={120} />
+          <RadialProgressChart title="Safety" value={dashMetrics.safetyCompliance} size="sm" height={120} />
+          <RadialProgressChart title="Regulatory" value={dashMetrics.regulatoryCompliance} size="sm" height={120} />
+        </div>
+      )}
+
+      {/* P0-2: Alert banner from compliance dashboard */}
+      {dashAlerts.length > 0 && (
+        <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-2.5">
+          <div className="flex items-center gap-2 mb-1">
+            <AlertTriangle className="h-4 w-4 text-yellow-500 shrink-0" />
+            <h4 className="text-xs font-semibold text-yellow-400">Compliance Alerts</h4>
+          </div>
+          <div className="flex flex-col gap-1">
+            {dashAlerts.slice(0, 3).map((alert: any, i: number) => (
+              <p key={i} className="text-xs text-white/60">{alert.message || alert.description || String(alert)}</p>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 })
@@ -447,8 +526,8 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
  */
 const SafetyTabContent = memo(function SafetyTabContent() {
   const { push } = useDrilldown()
-  const { drivers, incidents: fleetIncidents, error: fleetDataError } = useFleetData()
-  const { data: safetyIncidents } = useSWR<any[]>(
+  const { drivers, incidents: fleetIncidents, isLoading, error: fleetDataError } = useFleetData()
+  const { data: safetyIncidents, isLoading: safetyIncidentsLoading } = useSWR<any>(
     '/api/safety-incidents?limit=200',
     fetcher,
     { shouldRetryOnError: false }
@@ -469,9 +548,12 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     { shouldRetryOnError: false }
   )
 
+  // P0-5: Properly unwrap safetyIncidents — API may return { data: [...] } envelope
   const incidents = useMemo(() => {
-    const apiIncidents = Array.isArray(safetyIncidents) ? safetyIncidents : []
-    if (apiIncidents.length > 0) return apiIncidents
+    const unwrapped = Array.isArray(safetyIncidents)
+      ? safetyIncidents
+      : (safetyIncidents?.data && Array.isArray(safetyIncidents.data) ? safetyIncidents.data : [])
+    if (unwrapped.length > 0) return unwrapped
     return Array.isArray(fleetIncidents) ? fleetIncidents : []
   }, [safetyIncidents, fleetIncidents])
 
@@ -605,8 +687,46 @@ const SafetyTabContent = memo(function SafetyTabContent() {
     )
   }
 
+  // P0-1: Loading skeleton for Safety tab
+  if (isLoading && safetyIncidentsLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
+  }
+
+  // Visible driver rankings capped to 5 (P0-6)
+  const visibleDriverRankings = driverRankings.slice(0, 5)
+  // Visible recent incidents capped to 5 (P0-6)
+  const visibleRecentIncidents = recentIncidents.slice(0, 5)
+
   return (
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
+      {/* P1-8: Report Incident action header */}
+      <div className="flex items-center justify-between">
+        <div />
+        <Button
+          size="sm"
+          className="h-7 text-xs gap-1"
+          onClick={() => push({
+            id: 'new-incident',
+            type: 'incidents',
+            label: 'Report Incident',
+            data: {},
+          })}
+        >
+          <Plus className="h-3.5 w-3.5" />
+          Report Incident
+        </Button>
+      </div>
+
       {/* KPI Row */}
       <div className="grid grid-cols-4 gap-1.5">
         <StatCard
@@ -616,10 +736,10 @@ const SafetyTabContent = memo(function SafetyTabContent() {
           description={`Avg across ${safetyScoreStats.count} drivers`}
         />
         <StatCard
-          title="Days Since Incident"
+          title="Days Since Last Report"
           value={daysSinceIncident !== null ? String(daysSinceIncident) : '\u2014'}
           icon={Award}
-          description="Accident-free streak"
+          description="Since last incident reported"
         />
         <StatCard
           title="Open Incidents"
@@ -655,14 +775,14 @@ const SafetyTabContent = memo(function SafetyTabContent() {
             />
           </div>
 
-          {/* Driver Safety Rankings */}
-          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex-1 flex flex-col min-h-0">
+          {/* Driver Safety Rankings — capped to 5 rows (P0-6) */}
+          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
               <Users className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold text-foreground">Driver Rankings</h3>
               <span className="text-xs text-muted-foreground ml-auto">Lowest first</span>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="max-h-[200px] overflow-y-auto">
               {driverRankings.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -676,7 +796,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                     </tr>
                   </thead>
                   <tbody>
-                    {driverRankings.map((driver: any) => (
+                    {visibleDriverRankings.map((driver: any) => (
                       <tr
                         key={driver.id}
                         className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
@@ -727,10 +847,55 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                 </table>
               )}
             </div>
+            {driverRankings.length > 5 && (
+              <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => push({
+                    id: 'all-driver-rankings',
+                    type: 'driver-rankings',
+                    label: 'All Driver Rankings',
+                    data: { rankings: driverRankings },
+                  })}
+                >
+                  View All ({driverRankings.length})
+                </Button>
+              </div>
+            )}
           </div>
+
+          {/* Training Progress — moved alongside charts to reduce vertical height (P0-6) */}
+          {trainingProgressData.length > 0 && (
+            <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <BookOpen className="h-4 w-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold text-foreground">Training Progress</h3>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                {trainingProgressData.slice(0, 4).map((training: any) => {
+                  const pct = training.total > 0 ? Math.round((training.completed / training.total) * 100) : 0
+                  return (
+                    <div key={training.course}>
+                      <div className="flex items-center justify-between mb-0.5">
+                        <span className="text-xs text-foreground truncate mr-2">{training.course}</span>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {training.completed}/{training.total} ({pct}%)
+                        </span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full">
+                        <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }} />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Right: Incident Trends + Recent Incidents + Training */}
+        {/* Right: Incident Trends + Recent Incidents */}
         <div className="flex flex-col gap-1.5 min-h-0">
           {/* Incident Trends */}
           <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
@@ -748,13 +913,13 @@ const SafetyTabContent = memo(function SafetyTabContent() {
             />
           </div>
 
-          {/* Recent Incidents */}
-          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex-1 flex flex-col min-h-0">
+          {/* Recent Incidents — capped to 5 rows (P0-6) */}
+          <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2">
               <AlertCircle className="h-4 w-4 text-muted-foreground" />
               <h3 className="text-sm font-semibold text-foreground">Recent Incidents</h3>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto">
+            <div className="max-h-[200px] overflow-y-auto">
               {recentIncidents.length === 0 ? (
                 <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No records found</div>
               ) : (
@@ -768,7 +933,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentIncidents.map((incident: any) => {
+                    {visibleRecentIncidents.map((incident: any) => {
                       const severity = (incident.severity || '').toString().toLowerCase()
                       const status = incident.status || 'open'
                       const incidentLabel = incident.incident_type || 'Incident'
@@ -821,35 +986,24 @@ const SafetyTabContent = memo(function SafetyTabContent() {
                 </table>
               )}
             </div>
+            {recentIncidents.length > 5 && (
+              <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                  onClick={() => push({
+                    id: 'all-incidents',
+                    type: 'incidents',
+                    label: 'All Incidents',
+                    data: { incidents: recentIncidents },
+                  })}
+                >
+                  View All ({incidents.length})
+                </Button>
+              </div>
+            )}
           </div>
-
-          {/* Training Progress */}
-          {trainingProgressData.length > 0 && (
-            <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold text-foreground">Training Progress</h3>
-              </div>
-              <div className="flex flex-col gap-1.5">
-                {trainingProgressData.slice(0, 4).map((training: any) => {
-                  const pct = training.total > 0 ? Math.round((training.completed / training.total) * 100) : 0
-                  return (
-                    <div key={training.course}>
-                      <div className="flex items-center justify-between mb-0.5">
-                        <span className="text-xs text-foreground truncate mr-2">{training.course}</span>
-                        <span className="text-xs text-muted-foreground shrink-0">
-                          {training.completed}/{training.total} ({pct}%)
-                        </span>
-                      </div>
-                      <div className="h-2 bg-white/10 rounded-full">
-                        <div className="h-2 bg-emerald-500 rounded-full" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
@@ -861,7 +1015,7 @@ const SafetyTabContent = memo(function SafetyTabContent() {
  */
 const PoliciesTabContent = memo(function PoliciesTabContent() {
   const { push } = useDrilldown()
-  const { data: policies } = useSWR<any[]>(
+  const { data: policies, isLoading: policiesLoading } = useSWR<any>(
     '/api/policies?limit=200',
     fetcher,
     { shouldRetryOnError: false }
@@ -871,13 +1025,18 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: securityEvents } = useSWR<any[]>(
+  const { data: securityEvents } = useSWR<any>(
     '/api/security/events?limit=50',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const policyRows = Array.isArray(policies) ? policies : []
+  // Unwrap policies from potential { data: [...] } envelope
+  const policyRows = useMemo(() => {
+    if (Array.isArray(policies)) return policies
+    if (policies?.data && Array.isArray(policies.data)) return policies.data
+    return []
+  }, [policies])
   const activePolicies = policyRows.filter((policy: any) => policy.is_active)
   const underReview = policyRows.filter((policy: any) => !policy.is_active)
 
@@ -885,23 +1044,34 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
     ? Math.round(complianceDashboard.metrics.reduce((sum: number, metric: any) => sum + Number(metric.score || 0), 0) / complianceDashboard.metrics.length)
     : 0
 
-  const policyViolations = (Array.isArray(securityEvents) ? securityEvents : []).filter((event: any) => {
+  // Unwrap security events from potential { data: [...] } envelope
+  const securityEventsList = useMemo(() => {
+    if (Array.isArray(securityEvents)) return securityEvents
+    if (securityEvents?.data && Array.isArray(securityEvents.data)) return securityEvents.data
+    return []
+  }, [securityEvents])
+
+  const policyViolations = securityEventsList.filter((event: any) => {
     const type = (event.event_type || '').toString().toLowerCase()
     return type.includes('policy') || type.includes('violation')
   })
 
+  // P1-9: Per-category adherence instead of identical global score
   const policyCategories = useMemo(() => {
-    const categoryMap = new Map<string, number>()
+    const categoryMap = new Map<string, { active: number; total: number }>()
     policyRows.forEach((policy: any) => {
       const category = policy.category || 'General'
-      categoryMap.set(category, (categoryMap.get(category) || 0) + 1)
+      const existing = categoryMap.get(category) || { active: 0, total: 0 }
+      existing.total += 1
+      if (policy.is_active) existing.active += 1
+      categoryMap.set(category, existing)
     })
-    return Array.from(categoryMap.entries()).map(([category, count]) => ({
+    return Array.from(categoryMap.entries()).map(([category, stats]) => ({
       category,
-      policies: count,
-      adherence: complianceScore || 0
+      policies: stats.total,
+      adherence: stats.total > 0 ? Math.round((stats.active / stats.total) * 100) : 0
     }))
-  }, [policyRows, complianceScore])
+  }, [policyRows])
 
   const handleViewPolicy = (category: string) => {
     toast.success(`Opening policy details for: ${category}`)
@@ -912,6 +1082,21 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
       label: category,
       data: { category },
     })
+  }
+
+  // P0-1: Loading skeleton for Policies tab
+  if (policiesLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <div className="grid grid-cols-4 gap-1.5">
+          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-20 rounded-md" />)}
+        </div>
+        <div className="grid grid-cols-2 gap-1.5">
+          <Skeleton className="h-48 rounded-md" />
+          <Skeleton className="h-48 rounded-md" />
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -940,7 +1125,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           title="Violations"
           value={String(policyViolations.length)}
           icon={Gavel}
-          description="This month"
+          description="Total violations"
         />
       </div>
 
@@ -1014,6 +1199,7 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                 <tbody>
                   {policyViolations.slice(0, 8).map((violation: any) => {
                     const violationLabel = violation.event_type || 'Policy Violation'
+                    const violationStatus = (violation.status || '').toString().toLowerCase()
                     return (
                       <tr
                         key={violation.id}
@@ -1044,7 +1230,9 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
                           {violation.message || '\u2014'}
                         </td>
                         <td className="py-1.5 px-2 text-right">
-                          <Badge variant="destructive">Review</Badge>
+                          <Badge variant={violationStatus === 'resolved' ? 'default' : 'destructive'}>
+                            {formatEnum(violationStatus || 'Review')}
+                          </Badge>
                         </td>
                       </tr>
                     )
@@ -1055,6 +1243,68 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
           </div>
         </div>
       </div>
+
+      {/* P0-3: Active Policies list to fill dead space */}
+      {activePolicies.length > 0 && (
+        <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-2 mb-2">
+            <FileCheck className="h-4 w-4 text-muted-foreground" />
+            <h3 className="text-sm font-semibold text-foreground">Active Policies</h3>
+            <span className="text-xs text-muted-foreground ml-auto">{activePolicies.length} policies</span>
+          </div>
+          <div className="max-h-[240px] overflow-y-auto">
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-[#242424]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Policy Name</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Category</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {activePolicies.slice(0, 10).map((policy: any) => (
+                  <tr
+                    key={policy.id}
+                    className="border-b border-white/[0.06] cursor-pointer hover:bg-white/[0.04]"
+                    onClick={() => push({
+                      id: policy.id,
+                      type: 'policy',
+                      label: policy.name || policy.title || 'Policy',
+                      data: { policyId: policy.id, category: policy.category },
+                    })}
+                    role="button"
+                    tabIndex={0}
+                    aria-label={`View policy: ${policy.name || policy.title}`}
+                  >
+                    <td className="py-1.5 px-2 text-xs text-foreground font-medium">{policy.name || policy.title || '\u2014'}</td>
+                    <td className="py-1.5 px-2 text-xs text-muted-foreground">{formatEnum(policy.category || 'General')}</td>
+                    <td className="py-1.5 px-2 text-right">
+                      <Badge variant="default">Active</Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {activePolicies.length > 10 && (
+            <div className="pt-1.5 border-t border-white/[0.06] mt-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="w-full h-6 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => push({
+                  id: 'all-policies',
+                  type: 'policies',
+                  label: 'All Policies',
+                  data: { policies: activePolicies },
+                })}
+              >
+                View All ({activePolicies.length})
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 })
@@ -1063,19 +1313,28 @@ const PoliciesTabContent = memo(function PoliciesTabContent() {
  * Reporting Tab - Compliance and safety reporting
  */
 const ReportingTabContent = memo(function ReportingTabContent() {
-  const { data: reportTemplates } = useSWR<any[]>(
+  const { data: reportTemplates, isLoading: templatesLoading } = useSWR<any>(
     '/api/reports/templates',
     fetcher,
     { shouldRetryOnError: false }
   )
-  const { data: reportHistory } = useSWR<any[]>(
+  const { data: reportHistory, isLoading: historyLoading } = useSWR<any>(
     '/api/reports/history',
     fetcher,
     { shouldRetryOnError: false }
   )
 
-  const templates = Array.isArray(reportTemplates) ? reportTemplates : []
-  const history = Array.isArray(reportHistory) ? reportHistory : []
+  // Unwrap from potential { data: [...] } envelope
+  const templates = useMemo(() => {
+    if (Array.isArray(reportTemplates)) return reportTemplates
+    if (reportTemplates?.data && Array.isArray(reportTemplates.data)) return reportTemplates.data
+    return []
+  }, [reportTemplates])
+  const history = useMemo(() => {
+    if (Array.isArray(reportHistory)) return reportHistory
+    if (reportHistory?.data && Array.isArray(reportHistory.data)) return reportHistory.data
+    return []
+  }, [reportHistory])
 
   const complianceTemplates = templates.filter((template: any) => {
     const domain = (template.domain || template.category || '').toString().toLowerCase()
@@ -1129,9 +1388,19 @@ const ReportingTabContent = memo(function ReportingTabContent() {
     }
   }
 
+  // P0-1: Loading skeleton for Reports tab
+  if (templatesLoading && historyLoading) {
+    return (
+      <div className="space-y-1.5 p-2">
+        <Skeleton className="h-48 rounded-md" />
+        <Skeleton className="h-48 rounded-md" />
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1.5 p-1.5 overflow-y-auto">
-      <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col flex-1 min-h-0">
+      <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
         <div className="flex items-center gap-2 mb-2">
           <FileText className="h-4 w-4 text-muted-foreground" />
           <h3 className="text-sm font-semibold text-foreground">Compliance & Safety Reports</h3>
@@ -1185,6 +1454,54 @@ const ReportingTabContent = memo(function ReportingTabContent() {
           )}
         </div>
       </div>
+
+      {/* P0-4: Recent History section to fill dead space */}
+      <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3 flex flex-col min-h-0">
+        <div className="flex items-center gap-2 mb-2">
+          <Clock className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-sm font-semibold text-foreground">Recent History</h3>
+          <span className="text-xs text-muted-foreground ml-auto">{history.length} reports</span>
+        </div>
+        <div className="max-h-[240px] overflow-y-auto">
+          {history.length === 0 ? (
+            <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">No report history available</div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="sticky top-0 bg-[#242424]">
+                <tr className="border-b border-white/[0.08]">
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Report Name</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Generated</th>
+                  <th className="py-1.5 px-2 text-left text-xs font-medium text-muted-foreground">Generated By</th>
+                  <th className="py-1.5 px-2 text-right text-xs font-medium text-muted-foreground">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.slice(0, 10).map((entry: any, idx: number) => (
+                  <tr key={entry.id || idx} className="border-b border-white/[0.06]">
+                    <td className="py-1.5 px-2 text-xs text-foreground font-medium">
+                      {entry.title || entry.reportName || entry.name || '\u2014'}
+                    </td>
+                    <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                      {formatDate(entry.generatedAt || entry.created_at || entry.timestamp)}
+                    </td>
+                    <td className="py-1.5 px-2 text-xs text-muted-foreground">
+                      {entry.generatedBy || entry.created_by || entry.user || '\u2014'}
+                    </td>
+                    <td className="py-1.5 px-2 text-right">
+                      <Badge variant={
+                        (entry.status || '').toLowerCase() === 'completed' || (entry.status || '').toLowerCase() === 'success'
+                          ? 'default' : 'secondary'
+                      }>
+                        {formatEnum(entry.status || 'completed')}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
     </div>
   )
 })
@@ -1195,6 +1512,76 @@ const ReportingTabContent = memo(function ReportingTabContent() {
 
 export default function ComplianceSafetyHub() {
   const [activeTab, setActiveTab] = useState('compliance')
+
+  // P1-12: Badge counts for tabs
+  const { drivers, vehicles, incidents: fleetIncidents, isLoading: fleetLoading } = useFleetData()
+  const { data: safetyIncidentsRaw } = useSWR<any>(
+    '/api/safety-incidents?limit=200',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: securityEventsRaw } = useSWR<any>(
+    '/api/security/events?limit=50',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const tabBadges = useMemo(() => {
+    // Safety: open incidents count
+    const allSafetyIncidents = Array.isArray(safetyIncidentsRaw)
+      ? safetyIncidentsRaw
+      : (safetyIncidentsRaw?.data && Array.isArray(safetyIncidentsRaw.data) ? safetyIncidentsRaw.data : [])
+    const incidentsToUse = allSafetyIncidents.length > 0
+      ? allSafetyIncidents
+      : (Array.isArray(fleetIncidents) ? fleetIncidents : [])
+    const openCount = incidentsToUse.filter((inc: any) => {
+      const status = (inc.status || '').toString().toLowerCase()
+      return status && !['resolved', 'closed', 'completed'].includes(status)
+    }).length
+
+    // Policies: violation count
+    const secEventsList = Array.isArray(securityEventsRaw)
+      ? securityEventsRaw
+      : (securityEventsRaw?.data && Array.isArray(securityEventsRaw.data) ? securityEventsRaw.data : [])
+    const violationCount = secEventsList.filter((event: any) => {
+      const type = (event.event_type || '').toString().toLowerCase()
+      return type.includes('policy') || type.includes('violation')
+    }).length
+
+    // Compliance: non-compliant + expiring soon
+    const now = new Date()
+    const msPerDay = 86400000
+    const activeDrivers = drivers.filter((d: any) => d.status === 'active')
+    const isExpired = (dateStr: string | undefined): boolean => {
+      if (!dateStr) return true
+      const date = new Date(dateStr)
+      if (isNaN(date.getTime())) return true
+      return date < now
+    }
+    const isWithinMonths = (dateStr: string | undefined, months: number): boolean => {
+      if (!dateStr) return false
+      const date = new Date(dateStr)
+      if (isNaN(date.getTime())) return false
+      const cutoff = new Date(now)
+      cutoff.setMonth(cutoff.getMonth() - months)
+      return date >= cutoff
+    }
+    const isExpiringSoon = (dateStr: string | undefined, days: number): boolean => {
+      if (!dateStr) return false
+      const date = new Date(dateStr)
+      if (isNaN(date.getTime())) return false
+      const threshold = new Date(now.getTime() + days * msPerDay)
+      return date >= now && date <= threshold
+    }
+    const nonCompliant = activeDrivers.filter((d: any) => {
+      return isExpired(d.medical_card_expiry) || !isWithinMonths(d.drug_test_date, 12)
+    }).length
+    const driverExpiring = activeDrivers.filter((d: any) => isExpiringSoon(d.medical_card_expiry, 30)).length
+    const vehicleExpiring = vehicles.filter((v: any) => isExpiringSoon((v as any).registration_expiry, 30)).length
+    const complianceAlertCount = nonCompliant + driverExpiring + vehicleExpiring
+
+    return { openCount, violationCount, complianceAlertCount }
+  }, [safetyIncidentsRaw, fleetIncidents, securityEventsRaw, drivers, vehicles])
 
   return (
     <HubPage
@@ -1209,14 +1596,29 @@ export default function ComplianceSafetyHub() {
             <TabsTrigger value="compliance" className="flex items-center gap-2" data-testid="hub-tab-compliance">
               <ClipboardCheck className="h-4 w-4" />
               <span className="hidden sm:inline">Compliance</span>
+              {!fleetLoading && tabBadges.complianceAlertCount > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+                  {tabBadges.complianceAlertCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="safety" className="flex items-center gap-2" data-testid="hub-tab-safety">
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Safety</span>
+              {!fleetLoading && tabBadges.openCount > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+                  {tabBadges.openCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="policies" className="flex items-center gap-2" data-testid="hub-tab-policies">
               <FileText className="h-4 w-4" />
               <span className="hidden sm:inline">Policies</span>
+              {tabBadges.violationCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-4 min-w-4 px-1 text-[10px] leading-none">
+                  {tabBadges.violationCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="reporting" className="flex items-center gap-2" data-testid="hub-tab-reports">
               <BarChart className="h-4 w-4" />
