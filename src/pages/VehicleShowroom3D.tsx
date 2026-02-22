@@ -23,10 +23,12 @@ import {
   ChevronLeft,
   CircleDot,
   Clock,
+  Columns,
   Eye,
   FileText,
   Fuel,
   History,
+  LayoutGrid,
   Loader2,
   PanelRight,
   Shield,
@@ -49,12 +51,16 @@ import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import useSWR from 'swr';
 
+import { AIModelGenerationPanel } from '@/components/garage/AIModelGenerationPanel';
+import { ComparisonSplitView } from '@/components/garage/ComparisonSplitView';
 import { DamageStrip, type DamagePin, type DamageZone } from '@/components/garage/DamageStrip';
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
+import { FleetGalleryGrid } from '@/components/garage/FleetGalleryGrid';
 import { ReferencePhotoCard } from '@/components/garage/ReferencePhotoCard';
 import { TimelineDrawer, type TimelineEvent } from '@/components/garage/TimelineDrawer';
 import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD';
-import { buildImaginUrl, type ImaginAngleId } from '@/utils/imagin-studio';
+import { buildImaginUrl, hexToPaintId, type ImaginAngleId } from '@/utils/imagin-studio';
+import { resolveLocalModelUrl, type ModelResolution } from '@/utils/model-resolution';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -88,174 +94,7 @@ interface Vehicle {
   assigned_driver_id?: string;
 }
 
-/* ---------- resolveLocalModelUrl ---------- */
-
-interface ModelResolution {
-  url: string;
-  isExactMatch: boolean;
-  matchedModelName: string | null; // e.g., "Ram 1500" when approximating RAM 2500
-}
-
-/** Extract a display name from a GLB path, e.g. "/models/vehicles/trucks/ram_1500.glb" → "Ram 1500" */
-function glbToDisplayName(url: string): string {
-  const filename = url.split('/').pop()?.replace('.glb', '') || '';
-  return filename
-    .split('_')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
-function resolveLocalModelUrl(make: string, model: string, vehicleType?: string): ModelResolution {
-  const normalizedMake = make.toLowerCase().replace(/[-\s]/g, '_');
-  const normalizedModel = model.toLowerCase().replace(/[-\s]/g, '_');
-
-  const modelMappings: Record<string, string> = {
-    // ── Trucks (exact + closest-match fallbacks) ──
-    'ford_f_150': '/models/vehicles/trucks/ford_f_150.glb',
-    'ford_f_250': '/models/vehicles/trucks/ford_f_250.glb',
-    'ford_f_350': '/models/vehicles/trucks/ford_f_250.glb',           // closest: F-250
-    'ford_f150': '/models/vehicles/trucks/ford_f_150.glb',
-    'ford_f_150_lightning': '/models/vehicles/trucks/ford_f_150.glb',
-    'ford_ranger': '/models/vehicles/trucks/ford_f_150.glb',
-    'chevrolet_silverado': '/models/vehicles/trucks/chevrolet_silverado.glb',
-    'chevrolet_silverado_1500': '/models/vehicles/trucks/chevrolet_silverado.glb',
-    'chevrolet_silverado_2500': '/models/vehicles/trucks/chevrolet_silverado.glb',
-    'chevrolet_colorado': '/models/vehicles/trucks/chevrolet_colorado.glb',
-    'ram_1500': '/models/vehicles/trucks/ram_1500.glb',
-    'ram_2500': '/models/vehicles/trucks/ram_1500.glb',               // closest: RAM 1500
-    'ram_3500': '/models/vehicles/trucks/ram_1500.glb',               // closest: RAM 1500
-    'ram_pickup_1500': '/models/vehicles/trucks/ram_1500.glb',
-    'ram_pickup_2500': '/models/vehicles/trucks/ram_1500.glb',
-    'toyota_tacoma': '/models/vehicles/trucks/toyota_tacoma.glb',
-    'toyota_tundra': '/models/vehicles/trucks/toyota_tacoma.glb',     // closest: Tacoma (same brand)
-    'nissan_titan': '/models/vehicles/trucks/toyota_tacoma.glb',      // closest: full-size truck
-    'gmc_sierra': '/models/vehicles/trucks/gmc_sierra.glb',
-    'gmc_sierra_1500': '/models/vehicles/trucks/gmc_sierra.glb',
-    'gmc_sierra_2500': '/models/vehicles/trucks/gmc_sierra.glb',
-    'gmc_sierra_2500hd': '/models/vehicles/trucks/gmc_sierra.glb',
-    'freightliner_cascadia': '/models/vehicles/trucks/freightliner_cascadia.glb',
-    'kenworth_t680': '/models/vehicles/trucks/kenworth_t680.glb',
-    'kenworth_w990': '/models/vehicles/trucks/kenworth_t680.glb',     // closest: Kenworth
-    'mack_anthem': '/models/vehicles/trucks/mack_anthem.glb',
-    'peterbilt_579': '/models/vehicles/construction/peterbilt_567.glb', // closest: Peterbilt
-    // ── Vans ──
-    'ford_transit': '/models/vehicles/vans/ford_transit.glb',
-    'ford_transit_250': '/models/vehicles/vans/ford_transit.glb',
-    'ford_transit_350': '/models/vehicles/vans/ford_transit.glb',
-    'ford_transit_connect': '/models/vehicles/vans/ford_transit.glb',
-    'ford_e_transit': '/models/vehicles/vans/ford_transit.glb',
-    'mercedes_benz_sprinter': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
-    'mercedes_sprinter_2500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
-    'mercedes_sprinter_3500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
-    'ram_promaster': '/models/vehicles/vans/ram_promaster.glb',
-    'ram_promaster_1500': '/models/vehicles/vans/ram_promaster.glb',
-    'ram_promaster_2500': '/models/vehicles/vans/ram_promaster.glb',
-    'nissan_nv3500': '/models/vehicles/vans/nissan_nv3500.glb',
-    'chevrolet_express': '/models/vehicles/vans/nissan_nv3500.glb',  // closest: cargo van
-    'chevrolet_express_2500': '/models/vehicles/vans/nissan_nv3500.glb',
-    'chevrolet_express_3500': '/models/vehicles/vans/nissan_nv3500.glb',
-    // ── Sedans (exact + closest-match) ──
-    'toyota_camry': '/models/vehicles/sedans/toyota_camry.glb',
-    'toyota_corolla': '/models/vehicles/sedans/toyota_corolla.glb',
-    'toyota_prius': '/models/vehicles/sedans/toyota_corolla.glb',    // closest: Toyota compact
-    'honda_accord': '/models/vehicles/sedans/honda_accord.glb',
-    'honda_civic': '/models/vehicles/sedans/honda_accord.glb',       // closest: Honda sedan
-    'nissan_altima': '/models/vehicles/sedans/nissan_altima.glb',
-    'hyundai_elantra': '/models/vehicles/sedans/toyota_corolla.glb', // closest: compact sedan
-    'kia_forte': '/models/vehicles/sedans/toyota_corolla.glb',       // closest: compact sedan
-    'chevrolet_malibu': '/models/vehicles/sedans/toyota_camry.glb',  // closest: mid-size sedan
-    'ford_fusion': '/models/vehicles/sedans/toyota_camry.glb',       // closest: mid-size sedan
-    'tesla_model_3': '/models/vehicles/electric_sedans/tesla_model_3.glb',
-    'tesla_model_s': '/models/vehicles/sedans/tesla_model_s.glb',
-    'chevrolet_bolt_euv': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
-    'chevrolet_bolt_ev': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
-    'nissan_leaf': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb', // closest: EV hatchback
-    // ── SUVs (exact + closest-match) ──
-    'chevrolet_tahoe': '/models/vehicles/suvs/chevrolet_tahoe.glb',
-    'chevrolet_suburban': '/models/vehicles/suvs/chevrolet_tahoe.glb', // same platform
-    'ford_explorer': '/models/vehicles/suvs/ford_explorer.glb',
-    'ford_expedition': '/models/vehicles/suvs/ford_explorer.glb',    // closest: Ford SUV
-    'honda_cr_v': '/models/vehicles/suvs/honda_cr_v.glb',
-    'jeep_wrangler': '/models/vehicles/suvs/jeep_wrangler.glb',
-    'tesla_model_y': '/models/vehicles/electric_suvs/tesla_model_y.glb',
-    'tesla_model_x': '/models/vehicles/suvs/tesla_model_x.glb',
-    'gmc_yukon': '/models/vehicles/suvs/chevrolet_tahoe.glb',       // same platform as Tahoe
-    'toyota_4runner': '/models/vehicles/suvs/jeep_wrangler.glb',    // closest: rugged SUV
-    'toyota_sequoia': '/models/vehicles/suvs/chevrolet_tahoe.glb',  // closest: full-size SUV
-    'nissan_armada': '/models/vehicles/suvs/chevrolet_tahoe.glb',   // closest: full-size SUV
-    'dodge_durango': '/models/vehicles/suvs/ford_explorer.glb',     // closest: mid-size SUV
-    // ── Electric ──
-    'blue_bird_vision': '/models/vehicles/vans/ford_transit.glb',
-    // ── Construction & Heavy Equipment ──
-    'caterpillar_320': '/models/vehicles/construction/caterpillar_320.glb',
-    'john_deere_200g': '/models/vehicles/construction/john_deere_200g.glb',
-    'komatsu_pc210': '/models/vehicles/construction/komatsu_pc210.glb',
-    'volvo_ec220': '/models/vehicles/construction/volvo_ec220.glb',
-    'volvo_a40f': '/models/vehicles/construction/volvo_ec220.glb',   // closest: Volvo equipment
-    'hitachi_zx210': '/models/vehicles/construction/hitachi_zx210.glb',
-    'kenworth_t880': '/models/vehicles/construction/kenworth_t880.glb',
-    'peterbilt_567': '/models/vehicles/construction/peterbilt_567.glb',
-    'mack_granite': '/models/vehicles/construction/mack_granite.glb',
-    'jcb_3cx': '/models/vehicles/construction/john_deere_200g.glb',  // closest: backhoe/excavator
-    'bobcat_s570': '/models/vehicles/construction/caterpillar_320.glb', // closest: equipment
-    // ── Altech fleet ──
-    'altech_st_200_service': '/models/vehicles/trucks/altech_st_200_service.glb',
-    'altech_fh_250_flatbed': '/models/vehicles/trucks/altech_fh_250_flatbed.glb',
-    'altech_fh_300_flatbed': '/models/vehicles/trucks/altech_fh_300_flatbed.glb',
-    'altech_hd_40_dump': '/models/vehicles/construction/altech_hd_40_dump_truck.glb',
-    'altech_wt_2000_water': '/models/vehicles/trucks/altech_wt_2000_water.glb',
-    'altech_fl_1500_fuel_lube': '/models/vehicles/trucks/altech_fl_1500_fuel_lube.glb',
-    'altech_cm_3000_mixer': '/models/vehicles/construction/altech_cm_3000_mixer.glb',
-    'altech_ah_350_hauler': '/models/vehicles/construction/altech_ah_350_hauler.glb',
-  };
-
-  // Determine if a resolved URL is an exact GLB match for the requested vehicle
-  function classify(url: string, requestedKey: string): ModelResolution {
-    const filename = url.split('/').pop()?.replace('.glb', '') || '';
-    const isExact = filename === requestedKey || filename === normalizedModel;
-    return {
-      url,
-      isExactMatch: isExact,
-      matchedModelName: isExact ? null : glbToDisplayName(url),
-    };
-  }
-
-  const exactKey = `${normalizedMake}_${normalizedModel}`;
-  if (modelMappings[exactKey]) return classify(modelMappings[exactKey], exactKey);
-  if (modelMappings[normalizedModel]) return classify(modelMappings[normalizedModel], exactKey);
-
-  for (const [key, url] of Object.entries(modelMappings)) {
-    if (key.includes(normalizedMake) && key.includes(normalizedModel.split('_')[0])) {
-      return classify(url, exactKey);
-    }
-  }
-
-  const typeDefaults: Record<string, string> = {
-    truck: '/models/vehicles/trucks/ford_f_150.glb',
-    pickup: '/models/vehicles/trucks/ford_f_150.glb',
-    pickup_truck: '/models/vehicles/trucks/ford_f_150.glb',
-    van: '/models/vehicles/vans/ford_transit.glb',
-    cargo_van: '/models/vehicles/vans/ford_transit.glb',
-    suv: '/models/vehicles/suvs/ford_explorer.glb',
-    sedan: '/models/vehicles/sedans/toyota_camry.glb',
-    car: '/models/vehicles/sedans/toyota_camry.glb',
-    bus: '/models/vehicles/vans/ford_transit.glb',
-    electric: '/models/vehicles/electric_sedans/tesla_model_3.glb',
-    ev: '/models/vehicles/electric_sedans/tesla_model_3.glb',
-    semi: '/models/vehicles/trucks/freightliner_cascadia.glb',
-    semi_truck: '/models/vehicles/trucks/freightliner_cascadia.glb',
-    heavy_truck: '/models/vehicles/trucks/freightliner_cascadia.glb',
-    equipment: '/models/vehicles/construction/caterpillar_320.glb',
-    construction: '/models/vehicles/construction/caterpillar_320.glb',
-    excavator: '/models/vehicles/construction/caterpillar_320.glb',
-    trailer: '/models/vehicles/trailers/utility_3000r.glb',
-  };
-
-  if (vehicleType && typeDefaults[vehicleType]) {
-    return { url: typeDefaults[vehicleType], isExactMatch: false, matchedModelName: glbToDisplayName(typeDefaults[vehicleType]) };
-  }
-  return { url: '/models/vehicles/trucks/sample_truck.glb', isExactMatch: false, matchedModelName: 'Sample Truck' };
-}
+/* resolveLocalModelUrl imported from @/utils/model-resolution */
 
 /* ---------- Helpers ---------- */
 
@@ -522,6 +361,19 @@ export default function VehicleShowroom3D() {
   const [matchedModelName, setMatchedModelName] = useState<string | null>(null);
   const [showReferenceCard, setShowReferenceCard] = useState(true);
   const [autoWrapApplied, setAutoWrapApplied] = useState(false);
+
+  // Feature: Fleet Gallery (F4)
+  const [showGallery, setShowGallery] = useState(false);
+
+  // Feature: Color Sync (F1)
+  const [vehicleColor, setVehicleColor] = useState<string | null>(null);
+  const [vehicleColorName, setVehicleColorName] = useState<string | null>(null);
+
+  // Feature: Comparison Split View (F2)
+  const [isComparisonMode, setIsComparisonMode] = useState(false);
+
+  // Feature: AI Model Generation (F3)
+  const [showAIGenerationPanel, setShowAIGenerationPanel] = useState(false);
 
   // Vehicle crossfade animation
   const [viewerOpacity, setViewerOpacity] = useState(1);
@@ -831,8 +683,15 @@ export default function VehicleShowroom3D() {
         setShowHotspots((p) => !p);
       } else if (e.key === 'd' || e.key === 'D') {
         setIsDamageMode((p) => !p);
+      } else if (e.key === 'g' || e.key === 'G') {
+        setShowGallery((p) => !p);
+      } else if (e.key === 'c' || e.key === 'C') {
+        setIsComparisonMode((p) => !p);
       } else if (e.key === 'Escape') {
-        if (isDataPanelOpen) setIsDataPanelOpen(false);
+        if (showGallery) setShowGallery(false);
+        else if (isComparisonMode) setIsComparisonMode(false);
+        else if (showAIGenerationPanel) setShowAIGenerationPanel(false);
+        else if (isDataPanelOpen) setIsDataPanelOpen(false);
         else if (isTimelineOpen) setIsTimelineOpen(false);
         else if (isDamageMode) setIsDamageMode(false);
       }
@@ -840,7 +699,7 @@ export default function VehicleShowroom3D() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDataPanelOpen, isTimelineOpen, isDamageMode]);
+  }, [isDataPanelOpen, isTimelineOpen, isDamageMode, showGallery, isComparisonMode, showAIGenerationPanel]);
 
   // Load vehicle on mount or when ID changes
   useEffect(() => {
@@ -892,6 +751,16 @@ export default function VehicleShowroom3D() {
           const data = await response.json();
           if (!active) return;
           const glbUrl = data.glb_model_url || data.glbModelUrl || data.model_url || data.modelUrl;
+
+          // Read color data (Feature 1: Color Sync)
+          if (data.exterior_color_hex) {
+            setVehicleColor(data.exterior_color_hex);
+            setVehicleColorName(data.exterior_color_name || null);
+          } else {
+            setVehicleColor(null);
+            setVehicleColorName(null);
+          }
+
           if (glbUrl) {
             setModelUrl(glbUrl);
             setIsModelExact(true);
@@ -919,7 +788,8 @@ export default function VehicleShowroom3D() {
 
       // Auto-wrap for approximate models: preload the side-view reference image
       if (!resolution.isExactMatch) {
-        const wrapUrl = buildImaginUrl(selectedVehicle.make, selectedVehicle.model, selectedVehicle.year, '02', 1200);
+        const pid = vehicleColor ? hexToPaintId(vehicleColor) : undefined;
+        const wrapUrl = buildImaginUrl(selectedVehicle.make, selectedVehicle.model, selectedVehicle.year, '02', 1200, pid);
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
@@ -1093,6 +963,7 @@ export default function VehicleShowroom3D() {
               hotspots={vehicleHotspots}
               showHotspots={showHotspots}
               wrapTextureUrl={wrapTextureUrl || undefined}
+              color={vehicleColor || undefined}
               opacity={viewerOpacity}
               onCameraChange={(preset) => setCurrentCamera(preset)}
               onLoad={() => setModelLoading(false)}
@@ -1177,7 +1048,21 @@ export default function VehicleShowroom3D() {
               Approximate{matchedModelName ? ` (${matchedModelName})` : ''}
             </Badge>
           )}
+          {vehicleColorName && (
+            <span className="text-[10px] text-white/40">{vehicleColorName}</span>
+          )}
         </div>
+
+        {/* Gallery toggle */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn('h-8 w-8', showGallery ? 'text-emerald-400' : 'text-white/40 hover:text-white/60')}
+          onClick={() => setShowGallery(!showGallery)}
+          title="Fleet Gallery (G)"
+        >
+          <LayoutGrid className="w-4 h-4" />
+        </Button>
 
         {/* Spacer */}
         <div className="flex-1" />
@@ -1301,6 +1186,20 @@ export default function VehicleShowroom3D() {
         >
           <Crosshair className="w-4 h-4" />
           <span>Damage</span>
+        </button>
+
+        <button
+          onClick={() => setIsComparisonMode(!isComparisonMode)}
+          className={cn(
+            'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
+            isComparisonMode
+              ? 'bg-emerald-500/20 text-emerald-400'
+              : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+          )}
+          title="Compare (C)"
+        >
+          <Columns className="w-4 h-4" />
+          <span>Compare</span>
         </button>
 
         <button
@@ -2378,14 +2277,91 @@ export default function VehicleShowroom3D() {
           year={selectedVehicle.year}
           isExactMatch={isModelExact}
           matchedModelName={matchedModelName}
+          paintId={vehicleColor ? hexToPaintId(vehicleColor) : undefined}
           onApplyAsWrap={!isModelExact ? () => {
-            const wrapUrl = buildImaginUrl(selectedVehicle.make, selectedVehicle.model, selectedVehicle.year, '02', 1200);
+            const pid = vehicleColor ? hexToPaintId(vehicleColor) : undefined;
+            const wrapUrl = buildImaginUrl(selectedVehicle.make, selectedVehicle.model, selectedVehicle.year, '02', 1200, pid);
             setWrapTextureUrl(wrapUrl);
             setAutoWrapApplied(true);
           } : undefined}
+          onGenerateModel={!isModelExact ? () => setShowAIGenerationPanel(true) : undefined}
           onDismiss={() => setShowReferenceCard(false)}
           hasActiveWrap={!!wrapTextureUrl}
           autoWrapApplied={autoWrapApplied}
+        />
+      )}
+
+      {/* ========================================== */}
+      {/* Layer 5c: Comparison Split View (F2)         */}
+      {/* ========================================== */}
+      {isComparisonMode && selectedVehicle && (
+        <ComparisonSplitView
+          referenceImageUrl={buildImaginUrl(
+            selectedVehicle.make,
+            selectedVehicle.model,
+            selectedVehicle.year,
+            // Map current camera preset to IMAGIN angle
+            currentCamera === 'front' ? '09' :
+            currentCamera === 'rear' ? '13' :
+            currentCamera === 'left' || currentCamera === 'right' ? '02' :
+            currentCamera === 'topDown' ? '29' :
+            '01',
+            1200,
+            vehicleColor ? hexToPaintId(vehicleColor) : undefined
+          )}
+          onClose={() => setIsComparisonMode(false)}
+        />
+      )}
+
+      {/* ========================================== */}
+      {/* Layer 5d: AI Model Generation Panel (F3)     */}
+      {/* ========================================== */}
+      {showAIGenerationPanel && selectedVehicle && (
+        <AIModelGenerationPanel
+          vehicleId={selectedVehicle.id}
+          vehicleName={`${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}`}
+          referenceImageUrl={buildImaginUrl(
+            selectedVehicle.make,
+            selectedVehicle.model,
+            selectedVehicle.year,
+            '01',
+            800,
+            vehicleColor ? hexToPaintId(vehicleColor) : undefined
+          )}
+          onClose={() => setShowAIGenerationPanel(false)}
+          onModelGenerated={(newModelUrl) => {
+            setModelUrl(newModelUrl);
+            setIsModelExact(true);
+            setMatchedModelName(null);
+            setShowAIGenerationPanel(false);
+            // Clear auto-wrap since we now have an "exact" model
+            if (autoWrapApplied) {
+              setWrapTextureUrl(null);
+              setAutoWrapApplied(false);
+            }
+            toast.success('AI-generated 3D model applied');
+          }}
+        />
+      )}
+
+      {/* ========================================== */}
+      {/* Layer 5e: Fleet Gallery Grid (F4)            */}
+      {/* ========================================== */}
+      {showGallery && (
+        <FleetGalleryGrid
+          vehicles={showroomVehicles.map((v) => ({
+            id: v.id,
+            make: v.make,
+            model: v.model,
+            year: v.year,
+            vehicleType: v.vehicleType,
+            status: v.status,
+          }))}
+          onSelectVehicle={(id) => {
+            handleVehicleSelect(id);
+            setShowGallery(false);
+          }}
+          onClose={() => setShowGallery(false)}
         />
       )}
 

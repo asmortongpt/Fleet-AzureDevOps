@@ -5,7 +5,7 @@
  */
 
 import { useState } from 'react';
-import { CheckCircle2, AlertTriangle, X, Minimize2, ImageOff } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, X, Minimize2, ImageOff, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   IMAGIN_ANGLES,
@@ -23,6 +23,8 @@ export interface ReferencePhotoCardProps {
   onDismiss: () => void;
   hasActiveWrap: boolean;
   autoWrapApplied: boolean;
+  paintId?: string;
+  onGenerateModel?: () => void;
 }
 
 export function ReferencePhotoCard({
@@ -35,12 +37,14 @@ export function ReferencePhotoCard({
   onDismiss,
   hasActiveWrap,
   autoWrapApplied,
+  paintId,
+  onGenerateModel,
 }: ReferencePhotoCardProps) {
   const [angle, setAngle] = useState<ImaginAngleId>('01');
   const [imgError, setImgError] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  const imageUrl = buildImaginUrl(make, model, year, angle, 800);
+  const imageUrl = buildImaginUrl(make, model, year, angle, 800, paintId);
 
   if (collapsed) {
     return (
@@ -139,7 +143,7 @@ export function ReferencePhotoCard({
 
       {/* Apply as wrap — only for approximate matches */}
       {!isExactMatch && !imgError && onApplyAsWrap && (
-        <div className="px-3 pb-2.5 pt-0.5">
+        <div className="px-3 pb-2.5 pt-0.5 space-y-1.5">
           <button
             onClick={onApplyAsWrap}
             disabled={hasActiveWrap && autoWrapApplied}
@@ -154,6 +158,15 @@ export function ReferencePhotoCard({
               ? 'Reference Wrap Applied'
               : 'Apply Reference as Wrap'}
           </button>
+          {onGenerateModel && (
+            <button
+              onClick={onGenerateModel}
+              className="w-full py-1.5 rounded-lg text-[10px] font-medium bg-white/[0.06] text-white/50 hover:bg-white/[0.10] hover:text-white/70 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <Sparkles className="w-3 h-3" />
+              Generate Exact Model
+            </button>
+          )}
         </div>
       )}
     </div>

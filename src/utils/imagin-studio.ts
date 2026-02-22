@@ -103,6 +103,14 @@ export function normalizeForImagin(
 }
 
 /**
+ * Strip '#' prefix from a hex color to produce IMAGIN.studio paintId param.
+ * E.g. '#1A2B3C' → '1A2B3C', 'FF0000' → 'FF0000'
+ */
+export function hexToPaintId(hex: string): string {
+  return hex.replace(/^#/, '').toUpperCase();
+}
+
+/**
  * Build a single IMAGIN.studio CDN URL.
  */
 export function buildImaginUrl(
@@ -110,7 +118,8 @@ export function buildImaginUrl(
   rawModel: string,
   year: number,
   angle: ImaginAngleId = '01',
-  width: number = 800
+  width: number = 800,
+  paintId?: string
 ): string {
   const { make, model } = normalizeForImagin(rawMake, rawModel);
 
@@ -123,6 +132,10 @@ export function buildImaginUrl(
     width: String(width),
   });
 
+  if (paintId) {
+    params.set('paintId', paintId);
+  }
+
   return `https://cdn.imagin.studio/getimage?${params.toString()}`;
 }
 
@@ -133,11 +146,12 @@ export function buildImaginAngleSet(
   rawMake: string,
   rawModel: string,
   year: number,
-  width: number = 800
+  width: number = 800,
+  paintId?: string
 ): Record<ImaginAngleId, string> {
   const result = {} as Record<ImaginAngleId, string>;
   for (const angle of IMAGIN_ANGLES) {
-    result[angle.id] = buildImaginUrl(rawMake, rawModel, year, angle.id, width);
+    result[angle.id] = buildImaginUrl(rawMake, rawModel, year, angle.id, width, paintId);
   }
   return result;
 }
