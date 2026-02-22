@@ -26,6 +26,7 @@ import {
   Eye,
   FileText,
   Fuel,
+  History,
   Loader2,
   PanelRight,
   Shield,
@@ -43,14 +44,17 @@ import {
   Cog,
   Video,
 } from 'lucide-react';
-import { lazy, Suspense, useState, useCallback, useEffect, useMemo } from 'react';
+import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import useSWR from 'swr';
 
 import { DamageStrip, type DamagePin, type DamageZone } from '@/components/garage/DamageStrip';
+import type { DamagePoint } from '@/components/garage/DamageOverlay';
+import { ReferencePhotoCard } from '@/components/garage/ReferencePhotoCard';
 import { TimelineDrawer, type TimelineEvent } from '@/components/garage/TimelineDrawer';
 import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD';
+import { buildImaginUrl, type ImaginAngleId } from '@/utils/imagin-studio';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -86,79 +90,171 @@ interface Vehicle {
 
 /* ---------- resolveLocalModelUrl ---------- */
 
-function resolveLocalModelUrl(make: string, model: string, vehicleType?: string): string {
+interface ModelResolution {
+  url: string;
+  isExactMatch: boolean;
+  matchedModelName: string | null; // e.g., "Ram 1500" when approximating RAM 2500
+}
+
+/** Extract a display name from a GLB path, e.g. "/models/vehicles/trucks/ram_1500.glb" → "Ram 1500" */
+function glbToDisplayName(url: string): string {
+  const filename = url.split('/').pop()?.replace('.glb', '') || '';
+  return filename
+    .split('_')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+function resolveLocalModelUrl(make: string, model: string, vehicleType?: string): ModelResolution {
   const normalizedMake = make.toLowerCase().replace(/[-\s]/g, '_');
   const normalizedModel = model.toLowerCase().replace(/[-\s]/g, '_');
 
   const modelMappings: Record<string, string> = {
-    // Trucks
+    // ── Trucks (exact + closest-match fallbacks) ──
     'ford_f_150': '/models/vehicles/trucks/ford_f_150.glb',
     'ford_f_250': '/models/vehicles/trucks/ford_f_250.glb',
+    'ford_f_350': '/models/vehicles/trucks/ford_f_250.glb',           // closest: F-250
     'ford_f150': '/models/vehicles/trucks/ford_f_150.glb',
     'ford_f_150_lightning': '/models/vehicles/trucks/ford_f_150.glb',
+    'ford_ranger': '/models/vehicles/trucks/ford_f_150.glb',
     'chevrolet_silverado': '/models/vehicles/trucks/chevrolet_silverado.glb',
     'chevrolet_silverado_1500': '/models/vehicles/trucks/chevrolet_silverado.glb',
+    'chevrolet_silverado_2500': '/models/vehicles/trucks/chevrolet_silverado.glb',
     'chevrolet_colorado': '/models/vehicles/trucks/chevrolet_colorado.glb',
     'ram_1500': '/models/vehicles/trucks/ram_1500.glb',
+    'ram_2500': '/models/vehicles/trucks/ram_1500.glb',               // closest: RAM 1500
+    'ram_3500': '/models/vehicles/trucks/ram_1500.glb',               // closest: RAM 1500
+    'ram_pickup_1500': '/models/vehicles/trucks/ram_1500.glb',
+    'ram_pickup_2500': '/models/vehicles/trucks/ram_1500.glb',
     'toyota_tacoma': '/models/vehicles/trucks/toyota_tacoma.glb',
+    'toyota_tundra': '/models/vehicles/trucks/toyota_tacoma.glb',     // closest: Tacoma (same brand)
+    'nissan_titan': '/models/vehicles/trucks/toyota_tacoma.glb',      // closest: full-size truck
     'gmc_sierra': '/models/vehicles/trucks/gmc_sierra.glb',
+    'gmc_sierra_1500': '/models/vehicles/trucks/gmc_sierra.glb',
+    'gmc_sierra_2500': '/models/vehicles/trucks/gmc_sierra.glb',
     'gmc_sierra_2500hd': '/models/vehicles/trucks/gmc_sierra.glb',
-    'ford_ranger': '/models/vehicles/trucks/ford_f_150.glb',
     'freightliner_cascadia': '/models/vehicles/trucks/freightliner_cascadia.glb',
     'kenworth_t680': '/models/vehicles/trucks/kenworth_t680.glb',
+    'kenworth_w990': '/models/vehicles/trucks/kenworth_t680.glb',     // closest: Kenworth
     'mack_anthem': '/models/vehicles/trucks/mack_anthem.glb',
-    // Vans
+    'peterbilt_579': '/models/vehicles/construction/peterbilt_567.glb', // closest: Peterbilt
+    // ── Vans ──
     'ford_transit': '/models/vehicles/vans/ford_transit.glb',
+    'ford_transit_250': '/models/vehicles/vans/ford_transit.glb',
+    'ford_transit_350': '/models/vehicles/vans/ford_transit.glb',
     'ford_transit_connect': '/models/vehicles/vans/ford_transit.glb',
     'ford_e_transit': '/models/vehicles/vans/ford_transit.glb',
     'mercedes_benz_sprinter': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
+    'mercedes_sprinter_2500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
+    'mercedes_sprinter_3500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
     'ram_promaster': '/models/vehicles/vans/ram_promaster.glb',
+    'ram_promaster_1500': '/models/vehicles/vans/ram_promaster.glb',
+    'ram_promaster_2500': '/models/vehicles/vans/ram_promaster.glb',
     'nissan_nv3500': '/models/vehicles/vans/nissan_nv3500.glb',
-    // Sedans
+    'chevrolet_express': '/models/vehicles/vans/nissan_nv3500.glb',  // closest: cargo van
+    'chevrolet_express_2500': '/models/vehicles/vans/nissan_nv3500.glb',
+    'chevrolet_express_3500': '/models/vehicles/vans/nissan_nv3500.glb',
+    // ── Sedans (exact + closest-match) ──
     'toyota_camry': '/models/vehicles/sedans/toyota_camry.glb',
     'toyota_corolla': '/models/vehicles/sedans/toyota_corolla.glb',
+    'toyota_prius': '/models/vehicles/sedans/toyota_corolla.glb',    // closest: Toyota compact
     'honda_accord': '/models/vehicles/sedans/honda_accord.glb',
+    'honda_civic': '/models/vehicles/sedans/honda_accord.glb',       // closest: Honda sedan
     'nissan_altima': '/models/vehicles/sedans/nissan_altima.glb',
+    'hyundai_elantra': '/models/vehicles/sedans/toyota_corolla.glb', // closest: compact sedan
+    'kia_forte': '/models/vehicles/sedans/toyota_corolla.glb',       // closest: compact sedan
+    'chevrolet_malibu': '/models/vehicles/sedans/toyota_camry.glb',  // closest: mid-size sedan
+    'ford_fusion': '/models/vehicles/sedans/toyota_camry.glb',       // closest: mid-size sedan
     'tesla_model_3': '/models/vehicles/electric_sedans/tesla_model_3.glb',
     'tesla_model_s': '/models/vehicles/sedans/tesla_model_s.glb',
     'chevrolet_bolt_euv': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
     'chevrolet_bolt_ev': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
-    // SUVs
+    'nissan_leaf': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb', // closest: EV hatchback
+    // ── SUVs (exact + closest-match) ──
     'chevrolet_tahoe': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+    'chevrolet_suburban': '/models/vehicles/suvs/chevrolet_tahoe.glb', // same platform
     'ford_explorer': '/models/vehicles/suvs/ford_explorer.glb',
+    'ford_expedition': '/models/vehicles/suvs/ford_explorer.glb',    // closest: Ford SUV
     'honda_cr_v': '/models/vehicles/suvs/honda_cr_v.glb',
     'jeep_wrangler': '/models/vehicles/suvs/jeep_wrangler.glb',
     'tesla_model_y': '/models/vehicles/electric_suvs/tesla_model_y.glb',
     'tesla_model_x': '/models/vehicles/suvs/tesla_model_x.glb',
-    // Electric
+    'gmc_yukon': '/models/vehicles/suvs/chevrolet_tahoe.glb',       // same platform as Tahoe
+    'toyota_4runner': '/models/vehicles/suvs/jeep_wrangler.glb',    // closest: rugged SUV
+    'toyota_sequoia': '/models/vehicles/suvs/chevrolet_tahoe.glb',  // closest: full-size SUV
+    'nissan_armada': '/models/vehicles/suvs/chevrolet_tahoe.glb',   // closest: full-size SUV
+    'dodge_durango': '/models/vehicles/suvs/ford_explorer.glb',     // closest: mid-size SUV
+    // ── Electric ──
     'blue_bird_vision': '/models/vehicles/vans/ford_transit.glb',
-    // Construction
+    // ── Construction & Heavy Equipment ──
     'caterpillar_320': '/models/vehicles/construction/caterpillar_320.glb',
     'john_deere_200g': '/models/vehicles/construction/john_deere_200g.glb',
     'komatsu_pc210': '/models/vehicles/construction/komatsu_pc210.glb',
+    'volvo_ec220': '/models/vehicles/construction/volvo_ec220.glb',
+    'volvo_a40f': '/models/vehicles/construction/volvo_ec220.glb',   // closest: Volvo equipment
+    'hitachi_zx210': '/models/vehicles/construction/hitachi_zx210.glb',
+    'kenworth_t880': '/models/vehicles/construction/kenworth_t880.glb',
+    'peterbilt_567': '/models/vehicles/construction/peterbilt_567.glb',
+    'mack_granite': '/models/vehicles/construction/mack_granite.glb',
+    'jcb_3cx': '/models/vehicles/construction/john_deere_200g.glb',  // closest: backhoe/excavator
+    'bobcat_s570': '/models/vehicles/construction/caterpillar_320.glb', // closest: equipment
+    // ── Altech fleet ──
+    'altech_st_200_service': '/models/vehicles/trucks/altech_st_200_service.glb',
+    'altech_fh_250_flatbed': '/models/vehicles/trucks/altech_fh_250_flatbed.glb',
+    'altech_fh_300_flatbed': '/models/vehicles/trucks/altech_fh_300_flatbed.glb',
+    'altech_hd_40_dump': '/models/vehicles/construction/altech_hd_40_dump_truck.glb',
+    'altech_wt_2000_water': '/models/vehicles/trucks/altech_wt_2000_water.glb',
+    'altech_fl_1500_fuel_lube': '/models/vehicles/trucks/altech_fl_1500_fuel_lube.glb',
+    'altech_cm_3000_mixer': '/models/vehicles/construction/altech_cm_3000_mixer.glb',
+    'altech_ah_350_hauler': '/models/vehicles/construction/altech_ah_350_hauler.glb',
   };
 
+  // Determine if a resolved URL is an exact GLB match for the requested vehicle
+  function classify(url: string, requestedKey: string): ModelResolution {
+    const filename = url.split('/').pop()?.replace('.glb', '') || '';
+    const isExact = filename === requestedKey || filename === normalizedModel;
+    return {
+      url,
+      isExactMatch: isExact,
+      matchedModelName: isExact ? null : glbToDisplayName(url),
+    };
+  }
+
   const exactKey = `${normalizedMake}_${normalizedModel}`;
-  if (modelMappings[exactKey]) return modelMappings[exactKey];
-  if (modelMappings[normalizedModel]) return modelMappings[normalizedModel];
+  if (modelMappings[exactKey]) return classify(modelMappings[exactKey], exactKey);
+  if (modelMappings[normalizedModel]) return classify(modelMappings[normalizedModel], exactKey);
 
   for (const [key, url] of Object.entries(modelMappings)) {
     if (key.includes(normalizedMake) && key.includes(normalizedModel.split('_')[0])) {
-      return url;
+      return classify(url, exactKey);
     }
   }
 
   const typeDefaults: Record<string, string> = {
     truck: '/models/vehicles/trucks/ford_f_150.glb',
     pickup: '/models/vehicles/trucks/ford_f_150.glb',
+    pickup_truck: '/models/vehicles/trucks/ford_f_150.glb',
     van: '/models/vehicles/vans/ford_transit.glb',
+    cargo_van: '/models/vehicles/vans/ford_transit.glb',
     suv: '/models/vehicles/suvs/ford_explorer.glb',
-    sedan: '/models/vehicles/sedans/sample_sedan.glb',
+    sedan: '/models/vehicles/sedans/toyota_camry.glb',
+    car: '/models/vehicles/sedans/toyota_camry.glb',
     bus: '/models/vehicles/vans/ford_transit.glb',
+    electric: '/models/vehicles/electric_sedans/tesla_model_3.glb',
+    ev: '/models/vehicles/electric_sedans/tesla_model_3.glb',
+    semi: '/models/vehicles/trucks/freightliner_cascadia.glb',
+    semi_truck: '/models/vehicles/trucks/freightliner_cascadia.glb',
+    heavy_truck: '/models/vehicles/trucks/freightliner_cascadia.glb',
+    equipment: '/models/vehicles/construction/caterpillar_320.glb',
+    construction: '/models/vehicles/construction/caterpillar_320.glb',
+    excavator: '/models/vehicles/construction/caterpillar_320.glb',
+    trailer: '/models/vehicles/trailers/utility_3000r.glb',
   };
 
-  if (vehicleType && typeDefaults[vehicleType]) return typeDefaults[vehicleType];
-  return '/models/vehicles/trucks/sample_truck.glb';
+  if (vehicleType && typeDefaults[vehicleType]) {
+    return { url: typeDefaults[vehicleType], isExactMatch: false, matchedModelName: glbToDisplayName(typeDefaults[vehicleType]) };
+  }
+  return { url: '/models/vehicles/trucks/sample_truck.glb', isExactMatch: false, matchedModelName: 'Sample Truck' };
 }
 
 /* ---------- Helpers ---------- */
@@ -418,6 +514,19 @@ export default function VehicleShowroom3D() {
   const [showHotspots, setShowHotspots] = useState(true);
   const [wrapTextureUrl, setWrapTextureUrl] = useState<string | null>(null);
 
+  // Auto-rotate speed (0.2 to 3.0)
+  const [autoRotateSpeed, setAutoRotateSpeed] = useState(0.8);
+
+  // Reference image / model accuracy state
+  const [isModelExact, setIsModelExact] = useState(true);
+  const [matchedModelName, setMatchedModelName] = useState<string | null>(null);
+  const [showReferenceCard, setShowReferenceCard] = useState(true);
+  const [autoWrapApplied, setAutoWrapApplied] = useState(false);
+
+  // Vehicle crossfade animation
+  const [viewerOpacity, setViewerOpacity] = useState(1);
+  const prevVehicleId = useRef<string | null>(null);
+
   // Damage state
   const [damagePins, setDamagePins] = useState<DamagePin[]>([]);
 
@@ -549,7 +658,7 @@ export default function VehicleShowroom3D() {
       events.push({
         id: `incident-${inc.id}`,
         type: 'damage',
-        title: inc.title || inc.type || 'Incident',
+        title: inc.title || (inc.type ? formatEnum(inc.type) : 'Incident'),
         description: inc.description,
         date: new Date(inc.date || inc.incident_date || Date.now()),
         cost: inc.cost || inc.estimated_cost,
@@ -627,8 +736,81 @@ export default function VehicleShowroom3D() {
       });
     }
 
+    // Enrich with schedule/maintenance context
+    if (nextPm) {
+      const pmDate = nextPm.next_service_date || nextPm.next_due_date;
+      if (pmDate) {
+        h.push({
+          id: 'next-pm', label: 'Next PM', position: [0, 1.6, -0.5],
+          value: formatDate(pmDate), status: 'warning',
+          detail: `Scheduled: ${nextPm.description || nextPm.task_name || 'Preventive Maintenance'}`,
+        });
+      }
+    }
+
+    if (maintArr.length > 0) {
+      const lastService = maintArr[0];
+      const serviceDate = lastService.date || lastService.created_at;
+      if (serviceDate) {
+        h.push({
+          id: 'last-service', label: 'Last Svc', position: [-0.8, 1.0, -1.2],
+          value: formatDate(serviceDate), status: 'good',
+          detail: `${lastService.description || lastService.title || 'Service'} — ${lastService.cost ? formatCurrency(lastService.cost) : 'No cost data'}`,
+        });
+      }
+    }
+
     return h;
-  }, [selectedVehicle, vehicleStats]);
+  }, [selectedVehicle, vehicleStats, nextPm, maintArr]);
+
+  // Generate 3D damage points from incident data (instead of hardcoded [])
+  const incidentDamagePoints: DamagePoint[] = useMemo(() => {
+    if (incidentsArr.length === 0) return [];
+
+    // Map incident types to approximate 3D positions on vehicle
+    const incidentPositions: Record<string, [number, number, number]> = {
+      collision: [0, 0.8, 2.0],
+      property_damage: [-1.0, 0.6, 0.5],
+      fender_bender: [1.2, 0.5, 1.8],
+      rollover: [0, 1.5, 0],
+      vandalism: [-0.8, 0.9, -0.5],
+      theft: [0, 1.0, 0],
+      weather: [0, 1.8, 0],
+      mechanical: [0, 0.6, 1.8],
+    };
+
+    return incidentsArr.map((inc: any, idx: number) => {
+      const type = (inc.type || 'other').toLowerCase().replace(/\s+/g, '_');
+      const basePos = incidentPositions[type] || [
+        Math.sin(idx * 1.8) * 1.2,
+        0.6 + (idx * 0.2) % 1.0,
+        Math.cos(idx * 1.8) * 1.5,
+      ];
+      // Add slight offset per incident to avoid stacking
+      const pos: [number, number, number] = [
+        basePos[0] + (idx * 0.15) % 0.5,
+        basePos[1],
+        basePos[2] + (idx * 0.1) % 0.3,
+      ];
+
+      const severity = inc.severity === 'critical' || inc.severity === 'high' ? 'critical'
+        : inc.severity === 'medium' ? 'severe'
+        : inc.severity === 'low' ? 'moderate'
+        : 'minor';
+
+      return {
+        id: `inc-${inc.id}`,
+        position: pos,
+        normal: [0, 1, 0] as [number, number, number],
+        severity: severity as any,
+        description: inc.description || inc.title || formatEnum(inc.type || 'Incident'),
+        estimatedCost: inc.cost || inc.estimated_cost || 0,
+        photos: [],
+        createdAt: inc.date || inc.incident_date || new Date().toISOString(),
+        zone: inc.location || formatEnum(inc.type || 'general'),
+      };
+    });
+  }, [incidentsArr]);
 
   // Keyboard shortcuts for camera presets & toggles
   useEffect(() => {
@@ -673,6 +855,17 @@ export default function VehicleShowroom3D() {
     }
   }, [vehicleIdParam, showroomVehicles]);
 
+  // Crossfade: when vehicle changes, fade out, load, fade in
+  useEffect(() => {
+    if (!selectedVehicle?.id) return;
+    if (prevVehicleId.current && prevVehicleId.current !== selectedVehicle.id) {
+      setViewerOpacity(0);
+      const timer = setTimeout(() => setViewerOpacity(1), 450);
+      return () => clearTimeout(timer);
+    }
+    prevVehicleId.current = selectedVehicle.id;
+  }, [selectedVehicle?.id]);
+
   // Load 3D model when selected vehicle changes
   useEffect(() => {
     if (!selectedVehicle?.id) return;
@@ -681,6 +874,13 @@ export default function VehicleShowroom3D() {
     const fetchModel = async () => {
       setModelLoading(true);
       setModelError(null);
+      prevVehicleId.current = selectedVehicle.id;
+
+      // Clear previous auto-wrap when switching vehicles
+      if (autoWrapApplied) {
+        setWrapTextureUrl(null);
+        setAutoWrapApplied(false);
+      }
 
       try {
         const response = await fetch(`/api/vehicle-3d/${selectedVehicle.id}/3d-model`, {
@@ -694,6 +894,8 @@ export default function VehicleShowroom3D() {
           const glbUrl = data.glb_model_url || data.glbModelUrl || data.model_url || data.modelUrl;
           if (glbUrl) {
             setModelUrl(glbUrl);
+            setIsModelExact(true);
+            setMatchedModelName(null);
             setModelLoading(false);
             return;
           }
@@ -703,18 +905,38 @@ export default function VehicleShowroom3D() {
       }
 
       if (!active) return;
-      const resolvedUrl = resolveLocalModelUrl(
+      const resolution = resolveLocalModelUrl(
         selectedVehicle.make,
         selectedVehicle.model,
         selectedVehicle.vehicleType
       );
-      setModelUrl(resolvedUrl);
+      setModelUrl(resolution.url);
+      setIsModelExact(resolution.isExactMatch);
+      setMatchedModelName(resolution.matchedModelName);
+      setShowReferenceCard(true);
       setModelError(null);
       setModelLoading(false);
+
+      // Auto-wrap for approximate models: preload the side-view reference image
+      if (!resolution.isExactMatch) {
+        const wrapUrl = buildImaginUrl(selectedVehicle.make, selectedVehicle.model, selectedVehicle.year, '02', 1200);
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+          if (!active) return;
+          setWrapTextureUrl(wrapUrl);
+          setAutoWrapApplied(true);
+        };
+        img.onerror = () => {
+          // CDN image unavailable — skip auto-wrap
+        };
+        img.src = wrapUrl;
+      }
     };
 
     fetchModel();
     return () => { active = false; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedVehicle?.id, selectedVehicle?.make, selectedVehicle?.model, selectedVehicle?.vehicleType]);
 
   // When switching interior/exterior, update camera
@@ -863,13 +1085,15 @@ export default function VehicleShowroom3D() {
               customModelUrl={modelUrl}
               currentCamera={currentCamera}
               autoRotate={autoRotate}
+              autoRotateSpeed={autoRotateSpeed}
               showDamage={true}
-              damagePoints={[]}
+              damagePoints={incidentDamagePoints}
               qualityLevel="high"
               showControls={false}
               hotspots={vehicleHotspots}
               showHotspots={showHotspots}
               wrapTextureUrl={wrapTextureUrl || undefined}
+              opacity={viewerOpacity}
               onCameraChange={(preset) => setCurrentCamera(preset)}
               onLoad={() => setModelLoading(false)}
               onError={() => setModelError('Failed to load 3D model')}
@@ -885,6 +1109,22 @@ export default function VehicleShowroom3D() {
           </div>
         )}
       </div>
+
+      {/* ========================================== */}
+      {/* Interior photos overlay (when in interior mode) */}
+      {/* ========================================== */}
+      {viewMode === 'interior' && vehiclePhotos.filter(p => p.category === 'interior').length > 0 && (
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-10 flex gap-2 p-2 bg-[#111]/70 backdrop-blur-sm rounded-xl border border-white/[0.08]">
+          {vehiclePhotos
+            .filter(p => p.category === 'interior')
+            .slice(0, 6)
+            .map((photo) => (
+              <div key={photo.id} className="w-20 h-14 rounded-lg overflow-hidden border border-white/[0.08] cursor-pointer hover:border-emerald-500/50 transition-colors">
+                <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
+              </div>
+            ))}
+        </div>
+      )}
 
       {/* ========================================== */}
       {/* Layer 1: Top bar (glassmorphism, h-12)      */}
@@ -927,6 +1167,16 @@ export default function VehicleShowroom3D() {
               {formatEnum(selectedVehicle.status)}
             </Badge>
           )}
+          {/* Model accuracy badge */}
+          {isModelExact ? (
+            <Badge className="text-[10px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20">
+              Exact 3D Model
+            </Badge>
+          ) : (
+            <Badge className="text-[10px] bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/20">
+              Approximate{matchedModelName ? ` (${matchedModelName})` : ''}
+            </Badge>
+          )}
         </div>
 
         {/* Spacer */}
@@ -958,22 +1208,36 @@ export default function VehicleShowroom3D() {
           </button>
         </div>
 
-        {/* Auto-rotate toggle */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className={cn(
-            'h-8 w-8',
-            autoRotate ? 'text-emerald-400' : 'text-white/40'
+        {/* Auto-rotate toggle + speed */}
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              'h-8 w-8',
+              autoRotate ? 'text-emerald-400' : 'text-white/40'
+            )}
+            onClick={() => setAutoRotate(!autoRotate)}
+            title={autoRotate ? 'Stop rotation' : 'Auto rotate'}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12a9 9 0 11-6.219-8.56" />
+              <polyline points="21 3 21 9 15 9" />
+            </svg>
+          </Button>
+          {autoRotate && (
+            <input
+              type="range"
+              min="0.2"
+              max="3"
+              step="0.1"
+              value={autoRotateSpeed}
+              onChange={(e) => setAutoRotateSpeed(Number(e.target.value))}
+              className="w-16 h-1 appearance-none bg-white/[0.12] rounded-full accent-emerald-500 cursor-pointer"
+              title={`Speed: ${autoRotateSpeed.toFixed(1)}x`}
+            />
           )}
-          onClick={() => setAutoRotate(!autoRotate)}
-          title={autoRotate ? 'Stop rotation' : 'Auto rotate'}
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M21 12a9 9 0 11-6.219-8.56" />
-            <polyline points="21 3 21 9 15 9" />
-          </svg>
-        </Button>
+        </div>
 
         {/* More menu placeholder */}
         <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white/60">
@@ -1063,6 +1327,20 @@ export default function VehicleShowroom3D() {
         </button>
 
         <button
+          onClick={() => setShowReferenceCard(!showReferenceCard)}
+          className={cn(
+            'flex flex-col items-center gap-0.5 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-colors min-w-[52px]',
+            showReferenceCard
+              ? 'bg-emerald-500/20 text-emerald-400'
+              : 'text-white/40 hover:text-white/70 hover:bg-white/[0.05]'
+          )}
+          title="Reference Photo"
+        >
+          <ImageIcon className="w-4 h-4" />
+          <span>Ref</span>
+        </button>
+
+        <button
           onClick={() => {
             const next = !isDataPanelOpen;
             setIsDataPanelOpen(next);
@@ -1140,16 +1418,17 @@ export default function VehicleShowroom3D() {
         {/* Scrollable tab content */}
         <div className="flex-1 overflow-y-auto">
           <Tabs value={dataPanelTab} onValueChange={setDataPanelTab} className="w-full">
-            <TabsList className="sticky top-0 z-10 bg-[#1a1a1a] w-full grid grid-cols-3 h-auto gap-0.5 p-1 rounded-none border-b border-white/[0.08]">
-              <TabsTrigger value="overview" className="text-[10px] h-7">Overview</TabsTrigger>
-              <TabsTrigger value="maintenance" className="text-[10px] h-7">Maint.</TabsTrigger>
-              <TabsTrigger value="driver" className="text-[10px] h-7">Driver</TabsTrigger>
-              <TabsTrigger value="inspections" className="text-[10px] h-7">Inspect.</TabsTrigger>
-              <TabsTrigger value="fuel" className="text-[10px] h-7">Fuel</TabsTrigger>
-              <TabsTrigger value="incidents" className="text-[10px] h-7">Incidents</TabsTrigger>
-              <TabsTrigger value="tires" className="text-[10px] h-7">Tires</TabsTrigger>
-              <TabsTrigger value="costs" className="text-[10px] h-7">Costs</TabsTrigger>
-              <TabsTrigger value="compliance" className="text-[10px] h-7">Compliance</TabsTrigger>
+            <TabsList className="sticky top-0 z-10 bg-[#1a1a1a] w-full flex flex-wrap h-auto gap-0.5 p-1 rounded-none border-b border-white/[0.08]">
+              <TabsTrigger value="overview" className="text-[10px] h-7 flex-1 min-w-[60px]">Overview</TabsTrigger>
+              <TabsTrigger value="maintenance" className="text-[10px] h-7 flex-1 min-w-[60px]">Maint.</TabsTrigger>
+              <TabsTrigger value="driver" className="text-[10px] h-7 flex-1 min-w-[60px]">Driver</TabsTrigger>
+              <TabsTrigger value="inspections" className="text-[10px] h-7 flex-1 min-w-[60px]">Inspect.</TabsTrigger>
+              <TabsTrigger value="fuel" className="text-[10px] h-7 flex-1 min-w-[60px]">Fuel</TabsTrigger>
+              <TabsTrigger value="incidents" className="text-[10px] h-7 flex-1 min-w-[60px]">Incidents</TabsTrigger>
+              <TabsTrigger value="tires" className="text-[10px] h-7 flex-1 min-w-[60px]">Tires</TabsTrigger>
+              <TabsTrigger value="costs" className="text-[10px] h-7 flex-1 min-w-[60px]">Costs</TabsTrigger>
+              <TabsTrigger value="compliance" className="text-[10px] h-7 flex-1 min-w-[60px]">Comply</TabsTrigger>
+              <TabsTrigger value="history" className="text-[10px] h-7 flex-1 min-w-[60px]">History</TabsTrigger>
             </TabsList>
 
             {/* ---- Tab: Overview ---- */}
@@ -1995,9 +2274,120 @@ export default function VehicleShowroom3D() {
                 );
               })()}
             </TabsContent>
+
+            {/* ---- Tab: History ---- */}
+            <TabsContent value="history" className="p-3 mt-0">
+              <div className="space-y-3">
+                {/* History Summary */}
+                <div className="grid grid-cols-3 gap-1.5">
+                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                    <div className="text-[9px] text-white/50 mb-0.5">Services</div>
+                    <div className="text-sm font-bold text-white">{maintArr.length}</div>
+                  </div>
+                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                    <div className="text-[9px] text-white/50 mb-0.5">Incidents</div>
+                    <div className="text-sm font-bold text-white">{incidentsArr.length}</div>
+                  </div>
+                  <div className="bg-[#242424] rounded-lg p-2 border border-white/[0.08]">
+                    <div className="text-[9px] text-white/50 mb-0.5">Inspections</div>
+                    <div className="text-sm font-bold text-white">{inspectionsArr.length}</div>
+                  </div>
+                </div>
+
+                {/* Chronological history log */}
+                {timelineEvents.length === 0 ? (
+                  <EmptyState icon={History} message="No history records" />
+                ) : (
+                  <div className="space-y-1.5">
+                    <div className="text-[10px] text-white/40 uppercase tracking-wider">
+                      Vehicle History ({timelineEvents.length} events)
+                    </div>
+                    <div className="max-h-[500px] overflow-y-auto space-y-1.5 pr-1">
+                      {timelineEvents.map((event) => (
+                        <div
+                          key={event.id}
+                          className="bg-[#242424] rounded-lg p-2.5 border border-white/[0.08] hover:bg-white/[0.04] transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              <div className={cn(
+                                'w-2 h-2 rounded-full shrink-0 mt-1',
+                                event.type === 'maintenance' ? 'bg-emerald-400' :
+                                event.type === 'damage' ? 'bg-rose-400' :
+                                event.type === 'inspection' ? 'bg-amber-400' :
+                                'bg-white/40'
+                              )} />
+                              <div>
+                                <div className="text-xs text-white/80 font-medium">{event.title}</div>
+                                {event.description && (
+                                  <div className="text-[10px] text-white/40 mt-0.5 line-clamp-2">{event.description}</div>
+                                )}
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <div className="text-[10px] text-white/50">{formatDate(event.date)}</div>
+                              {event.cost != null && event.cost > 0 && (
+                                <div className="text-[10px] text-emerald-400 font-medium">{formatCurrency(event.cost)}</div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <Badge
+                              variant={
+                                event.type === 'maintenance' ? 'success' :
+                                event.type === 'damage' ? 'destructive' :
+                                event.type === 'inspection' ? 'warning' :
+                                'outline'
+                              }
+                              className="text-[8px]"
+                            >
+                              {event.type}
+                            </Badge>
+                            {event.status && (
+                              <Badge variant={statusBadgeVariant(event.status)} className="text-[8px]">
+                                {formatEnum(event.status)}
+                              </Badge>
+                            )}
+                            {event.severity && (
+                              <Badge variant={severityBadgeVariant(event.severity)} className="text-[8px]">
+                                {formatEnum(event.severity)}
+                              </Badge>
+                            )}
+                            {event.mileage && (
+                              <span className="text-[9px] text-white/30">{formatNumber(event.mileage)} mi</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </div>
+
+      {/* ========================================== */}
+      {/* Layer 5b: Reference Photo Card                */}
+      {/* ========================================== */}
+      {showReferenceCard && selectedVehicle && (
+        <ReferencePhotoCard
+          make={selectedVehicle.make}
+          model={selectedVehicle.model}
+          year={selectedVehicle.year}
+          isExactMatch={isModelExact}
+          matchedModelName={matchedModelName}
+          onApplyAsWrap={!isModelExact ? () => {
+            const wrapUrl = buildImaginUrl(selectedVehicle.make, selectedVehicle.model, selectedVehicle.year, '02', 1200);
+            setWrapTextureUrl(wrapUrl);
+            setAutoWrapApplied(true);
+          } : undefined}
+          onDismiss={() => setShowReferenceCard(false)}
+          hasActiveWrap={!!wrapTextureUrl}
+          autoWrapApplied={autoWrapApplied}
+        />
+      )}
 
       {/* ========================================== */}
       {/* Layer 6: Timeline drawer                     */}
@@ -2015,8 +2405,8 @@ export default function VehicleShowroom3D() {
         <PhotoUploadModal
           onClose={() => setIsPhotoModalOpen(false)}
           onUpload={handlePhotoUpload}
-          onApplyWrap={(url) => setWrapTextureUrl(url)}
-          onClearWrap={() => setWrapTextureUrl(null)}
+          onApplyWrap={(url) => { setWrapTextureUrl(url); setAutoWrapApplied(false); }}
+          onClearWrap={() => { setWrapTextureUrl(null); setAutoWrapApplied(false); }}
           photos={vehiclePhotos}
           hasActiveWrap={!!wrapTextureUrl}
         />
