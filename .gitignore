@@ -141,6 +141,7 @@ deployment/vendor-access/.vendor-credentials/
 
 # Python scripts and cache files
 *.py
+!tools/vehicle-scanner/**/*.py
 __pycache__/
 *.py[cod]
 *$py.class
