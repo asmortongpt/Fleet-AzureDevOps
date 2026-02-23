@@ -31,6 +31,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import { brandColors } from '@/theme/designSystem'
+import { formatVehicleName } from '@/utils/vehicle-display'
 import {
   AssetCategory,
   AssetType,
@@ -97,7 +98,7 @@ async function fetchVehicles(): Promise<GarageVehicle[]> {
       if (data.success && Array.isArray(data.data) && data.data.length > 0) {
         return data.data.map((v: any) => ({
           id: v.id,
-          name: v.name || `${v.year} ${v.make} ${v.model}`,
+          name: v.name || formatVehicleName(v),
           make: v.make,
           model: v.model,
           year: v.year,

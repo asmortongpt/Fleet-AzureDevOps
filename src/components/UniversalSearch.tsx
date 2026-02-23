@@ -34,6 +34,7 @@ import { useDebounce } from '@/hooks/useDebounce'
 import { Vehicle, Driver, WorkOrder } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -148,7 +149,7 @@ function useUniversalSearch(query: string, enabled: boolean = true) {
           searchResults.push({
             type: 'vehicle',
             id: vehicle.id,
-            title: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+            title: formatVehicleName(vehicle),
             subtitle: vehicle.number,
             description: `${formatEnum(vehicle.status)} | ${vehicle.region}`,
             score,

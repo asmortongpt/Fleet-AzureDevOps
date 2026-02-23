@@ -19,6 +19,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Vehicle } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { formatNumber } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface MobileVehicleCardProps {
   vehicle: Vehicle;
@@ -77,7 +78,7 @@ export function MobileVehicleCard({
             )}
           </div>
           <div className="text-xs text-muted-foreground truncate">
-            {vehicle.make} {vehicle.model} {vehicle.year}
+            {formatVehicleName(vehicle)}
           </div>
           {vehicle.driver && (
             <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
@@ -124,7 +125,7 @@ export function MobileVehicleCard({
                 <h3 className="font-semibold text-sm truncate">{vehicle.id}</h3>
               </div>
               <p className="text-xs text-muted-foreground truncate">
-                {vehicle.make} {vehicle.model}
+                {formatVehicleName(vehicle)}
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
@@ -188,7 +189,7 @@ export function MobileVehicleCard({
               <h3 className="font-bold text-base truncate">{vehicle.id}</h3>
             </div>
             <p className="text-sm text-muted-foreground">
-              {vehicle.make} {vehicle.model} {vehicle.year}
+              {formatVehicleName(vehicle)}
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">

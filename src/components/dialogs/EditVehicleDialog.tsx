@@ -103,6 +103,16 @@ interface VehicleFormData {
   axle_count: string
   max_payload_kg: string
   tank_capacity_l: string
+
+  // Insurance
+  insurance_provider: string
+  insurance_policy_number: string
+  insurance_expiry: string
+
+  // Financial
+  purchase_date: string
+  purchase_price: string
+  current_value: string
 }
 
 const EMPTY_FORM: VehicleFormData = {
@@ -141,6 +151,12 @@ const EMPTY_FORM: VehicleFormData = {
   axle_count: '',
   max_payload_kg: '',
   tank_capacity_l: '',
+  insurance_provider: '',
+  insurance_policy_number: '',
+  insurance_expiry: '',
+  purchase_date: '',
+  purchase_price: '',
+  current_value: '',
 }
 
 // ---------------------------------------------------------------------------
@@ -229,6 +245,12 @@ export function EditVehicleDialog({
       axle_count: v.axle_count != null ? String(v.axle_count) : '',
       max_payload_kg: v.max_payload_kg != null ? String(v.max_payload_kg) : '',
       tank_capacity_l: v.tank_capacity_l != null ? String(v.tank_capacity_l) : '',
+      insurance_provider: (v.insurance_provider as string) ?? '',
+      insurance_policy_number: (v.insurance_policy_number as string) ?? '',
+      insurance_expiry: v.insurance_expiry ? String(v.insurance_expiry).slice(0, 10) : '',
+      purchase_date: v.purchase_date ? String(v.purchase_date).slice(0, 10) : '',
+      purchase_price: v.purchase_price != null ? String(v.purchase_price) : '',
+      current_value: v.current_value != null ? String(v.current_value) : '',
     })
     setInitialized(true)
   }, [vehicle, initialized])
@@ -735,6 +757,80 @@ export function EditVehicleDialog({
                 </div>
               </div>
             )}
+
+            {/* ---- Insurance ---- */}
+            <div>
+              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                Insurance
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label htmlFor="edit-ins-provider">Provider</Label>
+                  <Input
+                    id="edit-ins-provider"
+                    value={formData.insurance_provider}
+                    onChange={(e) => set('insurance_provider', e.target.value)}
+                    placeholder="e.g. State Farm"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-ins-policy">Policy Number</Label>
+                  <Input
+                    id="edit-ins-policy"
+                    value={formData.insurance_policy_number}
+                    onChange={(e) => set('insurance_policy_number', e.target.value)}
+                    placeholder="POL-123456"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-ins-expiry">Expiry Date</Label>
+                  <Input
+                    id="edit-ins-expiry"
+                    type="date"
+                    value={formData.insurance_expiry}
+                    onChange={(e) => set('insurance_expiry', e.target.value)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* ---- Financial ---- */}
+            <div>
+              <p className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">
+                Financial
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label htmlFor="edit-purchase-date">Purchase Date</Label>
+                  <Input
+                    id="edit-purchase-date"
+                    type="date"
+                    value={formData.purchase_date}
+                    onChange={(e) => set('purchase_date', e.target.value)}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-purchase-price">Purchase Price ($)</Label>
+                  <Input
+                    id="edit-purchase-price"
+                    type="number"
+                    value={formData.purchase_price}
+                    onChange={(e) => set('purchase_price', e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="edit-current-value">Current Value ($)</Label>
+                  <Input
+                    id="edit-current-value"
+                    type="number"
+                    value={formData.current_value}
+                    onChange={(e) => set('current_value', e.target.value)}
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
+            </div>
 
             {/* ---- Trailer Specs (conditional) ---- */}
             {showTrailerFields && (

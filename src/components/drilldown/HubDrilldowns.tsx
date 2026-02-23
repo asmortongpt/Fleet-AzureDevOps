@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // Define interfaces for data structures
 interface Driver {
@@ -522,8 +523,8 @@ export function PredictiveMaintenanceDrilldown() {
                                     </div>
                                     <div>
                                         <div className="font-medium text-white">
-                                            {vehicle.make && vehicle.model
-                                                ? `${vehicle.year || ''} ${vehicle.make} ${vehicle.model}`.trim()
+                                            {formatVehicleName(vehicle) !== 'Unknown Vehicle'
+                                                ? formatVehicleName(vehicle)
                                                 : `Vehicle #${vehicle.number || vehicle.vehicleNumber || vehicle.id?.slice(-6)}`}
                                         </div>
                                         <div className="text-xs text-white/40">{(vehicle.mileage || 0).toLocaleString()} mi</div>
@@ -1159,8 +1160,8 @@ export function FleetOptimizerDrilldown() {
                                     </div>
                                     <div>
                                         <div className="font-medium text-white text-sm">
-                                            {v.make && v.model
-                                                ? `${v.year || ''} ${v.make} ${v.model}`.trim()
+                                            {formatVehicleName(v) !== 'Unknown Vehicle'
+                                                ? formatVehicleName(v)
                                                 : `Vehicle #${v.number || v.vehicleNumber || v.id?.slice(-6)}`}
                                         </div>
                                         <div className="text-xs text-white/40">{(v.mileage || 0).toLocaleString()} mi | {formatEnum(v.fuelType || 'unknown')}</div>

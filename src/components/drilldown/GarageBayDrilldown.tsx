@@ -44,6 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatDateTime, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface GarageBayDrilldownProps {
   bayId: string
@@ -325,7 +326,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                   </CardHeader>
                   <CardContent>
                     <p className="font-semibold text-sm">
-                      {currentWorkOrder.vehicle.year} {currentWorkOrder.vehicle.make} {currentWorkOrder.vehicle.model}
+                      {formatVehicleName(currentWorkOrder.vehicle)}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       Unit #{currentWorkOrder.vehicle.vehicle_number}

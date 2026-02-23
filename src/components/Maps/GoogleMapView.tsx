@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Spinner } from '@/components/ui/spinner'
 import { Vehicle } from '@/types/Vehicle'
 import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 
 // ============================================================================
@@ -201,7 +202,7 @@ const VehicleMarker: React.FC<VehicleMarkerProps> = ({ vehicle, map, onClick }) 
           <div style="font-size: 14px; color: hsl(var(--muted-foreground)); line-height: 1.6;">
             <div><strong>Status:</strong> <span style="color: ${getMarkerColor(vehicle.status)};">${formatEnum(vehicle.status)}</span></div>
             <div><strong>Type:</strong> ${vehicle.type}</div>
-            <div><strong>Make:</strong> ${vehicle.make} ${vehicle.model}</div>
+            <div><strong>Make:</strong> ${formatVehicleName(vehicle)}</div>
             <div><strong>Driver:</strong> ${vehicle.assignedDriver || vehicle.driver || '—'}</div>
             <div><strong>Fuel:</strong> ${vehicle.fuelLevel}%</div>
             <div><strong>Location:</strong> ${vehicle.location?.address || (vehicle as any).location_address || '—'}</div>

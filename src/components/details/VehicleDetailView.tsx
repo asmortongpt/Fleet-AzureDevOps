@@ -15,6 +15,7 @@ import { useDrilldown } from '@/contexts/DrilldownContext';
 import { secureFetch } from '@/hooks/use-api';
 import { formatEnum } from '@/utils/format-enum';
 import { formatCurrency, formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface Vehicle {
   id: string;
@@ -380,7 +381,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                 <Car className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-base font-bold text-white">{vehicle.year} {vehicle.make} {vehicle.model}</h1>
+                <h1 className="text-base font-bold text-white">{formatVehicleName(vehicle)}</h1>
                 <p className="text-xs text-white/60 font-mono">VIN: {vehicle.vin || '--'}</p>
               </div>
             </div>

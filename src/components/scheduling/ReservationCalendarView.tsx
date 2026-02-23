@@ -22,8 +22,11 @@ import { getCsrfToken } from '@/hooks/use-api'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { VehicleReservationModal } from '@/components/scheduling/VehicleReservationModal'
+import type { CreateReservationRequest } from '@/types/scheduling'
 
 // ============================================================================
 // Types
@@ -158,6 +161,7 @@ export function ReservationCalendarView() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [prefillDate, setPrefillDate] = useState<Date | null>(null)
 
   // ---------------------------------------------------------------------------
   // Data fetching
@@ -194,7 +198,7 @@ export function ReservationCalendarView() {
     const v = vehicleMap.get(r.vehicle_id)
     if (v) {
       if (v.name) return v.name
-      return [v.year, v.make, v.model].filter(Boolean).join(' ')
+      return formatVehicleName(v)
     }
     return 'Vehicle'
   }
@@ -306,6 +310,45 @@ export function ReservationCalendarView() {
     if (selectedReservation?.id === id) setSelectedReservation(null)
   }
 
+  const handleCreateReservation = async (data: CreateReservationRequest) => {
+    const csrf = await getCsrfToken()
+    const res = await fetch('/api/reservations', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+      body: JSON.stringify({
+        vehicle_id: data.vehicleId,
+        driver_id: data.driverId || undefined,
+        reservation_type: data.reservationType,
+        start_time: data.startTime,
+        end_time: data.endTime,
+        pickup_location: data.pickupLocation,
+        dropoff_location: data.dropoffLocation,
+        estimated_miles: data.estimatedMiles,
+        purpose: data.purpose,
+        notes: data.notes,
+      }),
+    })
+    if (!res.ok) {
+      toast.error('Failed to create reservation')
+      throw new Error('Failed to create reservation')
+    }
+    toast.success('Reservation created')
+    mutate()
+  }
+
+  const handleOpenCreateModal = (date?: Date) => {
+    setPrefillDate(date ?? null)
+    setShowCreateModal(true)
+  }
+
+  const handleCloseCreateModal = (open: boolean) => {
+    if (!open) {
+      setShowCreateModal(false)
+      setPrefillDate(null)
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Status filter chips
   // ---------------------------------------------------------------------------
@@ -408,7 +451,7 @@ export function ReservationCalendarView() {
         {/* New Reservation button */}
         <Button
           size="sm"
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => handleOpenCreateModal()}
           className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border-emerald-500/30 gap-1.5"
         >
           <Plus className="w-3.5 h-3.5" />
@@ -423,7 +466,7 @@ export function ReservationCalendarView() {
           <p className="text-sm text-white/40">No reservations for this week</p>
           <Button
             size="sm"
-            onClick={() => setShowCreateModal(true)}
+            onClick={() => handleOpenCreateModal()}
             className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30 border-emerald-500/30 gap-1.5 mt-1"
           >
             <Plus className="w-3.5 h-3.5" />
@@ -474,8 +517,13 @@ export function ReservationCalendarView() {
             return (
               <div
                 key={key}
+                onClick={(e) => {
+                  // Only open modal if clicking on the empty area, not on a reservation button
+                  if ((e.target as HTMLElement).closest('button')) return
+                  handleOpenCreateModal(d)
+                }}
                 className={cn(
-                  'min-h-[120px] p-1.5 space-y-1',
+                  'min-h-[120px] p-1.5 space-y-1 cursor-pointer hover:bg-white/[0.02] transition-colors',
                   isToday ? 'bg-emerald-500/[0.03]' : 'bg-[#1a1a1a]'
                 )}
               >
@@ -599,6 +647,24 @@ export function ReservationCalendarView() {
           </div>
         </div>
       )}
+
+      {/* ---- Create Reservation Modal ---- */}
+      <VehicleReservationModal
+        open={showCreateModal}
+        onOpenChange={handleCloseCreateModal}
+        onSubmit={handleCreateReservation}
+        vehicles={(Array.isArray(vehicles) ? vehicles : []).map((v) => ({
+          id: String(v.id),
+          make: v.make ?? '',
+          model: v.model ?? '',
+          year: v.year ?? 0,
+          licensePlate: v.license_plate ?? '',
+        })) as any}
+        reservation={prefillDate ? {
+          start_time: prefillDate.toISOString(),
+          end_time: new Date(prefillDate.getTime() + 8 * 60 * 60 * 1000).toISOString(),
+        } as any : undefined}
+      />
 
       {/* ---- List view ---- */}
       {!isEmpty && viewMode === 'list' && (

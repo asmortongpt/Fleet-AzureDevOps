@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useVehicles } from "@/hooks/use-api"
 import { Vehicle } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface MaintenanceRisk {
     vehicleId: string
@@ -66,7 +67,7 @@ export function PredictiveMaintenanceWidget() {
                     prediction.vehicle_name ||
                     prediction.vehicle_unit ||
                     vehicle?.name ||
-                    (vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'Unknown Vehicle')
+                    (vehicle ? formatVehicleName(vehicle) : 'Unknown Vehicle')
 
                 const predictedDate = prediction.predicted_failure_date
                     ? new Date(prediction.predicted_failure_date)

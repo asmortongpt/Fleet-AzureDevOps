@@ -6,6 +6,7 @@ import { secureFetch } from '@/hooks/use-api';
 import { formatEnum } from '@/utils/format-enum';
 import { formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface PhotorealisticVehicleShowroomProps {
   currentTheme: any;
@@ -407,7 +408,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                     vehicle.imageUrl ? (
                       <img
                         src={vehicle.imageUrl}
-                        alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                        alt={formatVehicleName(vehicle)}
                         style={{
                           width: '100%',
                           height: '100%',
@@ -540,7 +541,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                     fontWeight: '600',
                     color: currentTheme.text
                   }}>
-                    {vehicle.year} {vehicle.make} {vehicle.model}
+                    {formatVehicleName(vehicle)}
                   </h3>
 
                   <div style={{
@@ -583,7 +584,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
                   fontWeight: '700',
                   color: currentTheme.text
                 }}>
-                  {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
+                  {formatVehicleName(selectedVehicle)}
                 </h2>
                 <p style={{
                   margin: 0,
@@ -617,7 +618,7 @@ const PhotorealisticVehicleShowroom: React.FC<PhotorealisticVehicleShowroomProps
             }}>
               <img
                 src={selectedVehicle.imageSet[selectedAngle] || selectedVehicle.imageUrl}
-                alt={`${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}`}
+                alt={formatVehicleName(selectedVehicle)}
                 style={{
                   width: '100%',
                   height: '250px',

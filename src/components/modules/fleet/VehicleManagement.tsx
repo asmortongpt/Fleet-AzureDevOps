@@ -4,6 +4,7 @@ import toast from 'react-hot-toast'
 
 import { useVehicles, useDeleteVehicle, Vehicle } from "@/hooks/useVehicles"
 import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 // StatusChip component following Fleet Design System
 const StatusChip: React.FC<{status: 'active'|'inactive'|'maintenance'|'retired'; label?: string}> = ({status, label}) => {
@@ -326,7 +327,7 @@ export function VehicleManagement() {
                         </div>
                       </td>
                       <td style={{padding:16, fontSize:14, color:'var(--text, #f1f5f9)'}}>
-                        {vehicle.make} {vehicle.model} ({vehicle.year})
+                        {formatVehicleName(vehicle)}
                       </td>
                       <td style={{padding:16, fontSize:12, color:'var(--muted, #94a3b8)', fontFamily:'monospace'}}>
                         {vehicle.vin}

@@ -661,7 +661,7 @@ const FleetTabContent = memo(function FleetTabContent() {
         />
         <StatCard
           title="Avg Fuel Level"
-          value={`${(safeStats.averageFuelLevel || 0).toFixed(1)}%`}
+          value={`${formatNumber(safeStats.averageFuelLevel || 0, 1)}%`}
           icon={Fuel}
           description="Fleet average"
           loading={loading}
@@ -1106,7 +1106,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
     const total = txWithMpg.reduce((sum: number, tx: any) =>
       sum + Number(tx.mpg_calculated || tx.mpgCalculated || 0), 0
     )
-    return (total / txWithMpg.length).toFixed(1)
+    return formatNumber(total / txWithMpg.length, 1)
   }, [fuelTransactions])
 
   if (loading) {
@@ -1160,7 +1160,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
         />
         <StatCard
           title="Completion Rate"
-          value={`${safeStats.completionRate.toFixed(1)}%`}
+          value={`${formatNumber(safeStats.completionRate, 1)}%`}
           icon={TrendingUp}
           description="Route completion"
           loading={loading}
@@ -1289,7 +1289,7 @@ const OperationsTabContent = memo(function OperationsTabContent() {
                       <p className="text-[10px] text-muted-foreground">{transaction.location || '—'}</p>
                       {(transaction.mpg_calculated || transaction.mpgCalculated) && (
                         <Badge variant="secondary" className="text-[10px] px-1 py-0">
-                          {Number(transaction.mpg_calculated || transaction.mpgCalculated).toFixed(1)} MPG
+                          {formatNumber(Number(transaction.mpg_calculated || transaction.mpgCalculated), 1)} MPG
                         </Badge>
                       )}
                     </div>
@@ -1443,7 +1443,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
         />
         <StatCard
           title="Total Downtime"
-          value={`${totalDowntimeHours.toFixed(1)} hrs`}
+          value={`${formatNumber(totalDowntimeHours, 1)} hrs`}
           icon={Timer}
           trend={totalDowntimeHours > 100 ? 'down' : 'neutral'}
           description="Sum of downtime hours"
@@ -2043,7 +2043,7 @@ export default function FleetOperationsHub() {
                   relative flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg cta-tab
                   transition-colors whitespace-nowrap shrink-0
                   ${isActive
-                    ? 'cta-pill text-primary-foreground shadow-md cta-tab--active'
+                    ? 'cta-pill text-white shadow-md cta-tab--active'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
                   }
                 `}

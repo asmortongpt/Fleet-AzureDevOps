@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select"
 import { Driver, Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface DriversMapViewProps {
   drivers: Driver[]
@@ -230,7 +231,7 @@ export function DriversMapView({ drivers, vehicles, onDriverSelect }: DriversMap
                 <div className="flex items-center gap-2">
                   <Truck className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    {selectedDriverVehicle.year} {selectedDriverVehicle.make} {selectedDriverVehicle.model}
+                    {formatVehicleName(selectedDriverVehicle)}
                   </span>
                 </div>
                 <div className="text-xs text-muted-foreground">

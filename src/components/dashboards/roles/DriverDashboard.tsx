@@ -27,6 +27,7 @@ import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { DriverVehicle, DriverTrip } from '@/services/dashboardApi';
 import { formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface InspectionItem {
   id: string;
@@ -207,7 +208,7 @@ export function DriverDashboard() {
                 {assignedVehicle.name}
               </h3>
               <p className="text-sm text-white/60">
-                {assignedVehicle.year} {assignedVehicle.make} {assignedVehicle.model}
+                {formatVehicleName(assignedVehicle)}
               </p>
             </div>
             <div className={cn(

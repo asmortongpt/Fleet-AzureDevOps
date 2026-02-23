@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { buildImaginUrl } from '@/utils/imagin-studio';
 import { resolveLocalModelUrl } from '@/utils/model-resolution';
 import { formatEnum } from '@/utils/format-enum';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface GalleryVehicle {
   id: string;
@@ -92,7 +93,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
     const q = search.toLowerCase();
     return vehicles.filter(
       (v) =>
-        `${v.year} ${v.make} ${v.model}`.toLowerCase().includes(q) ||
+        formatVehicleName(v).toLowerCase().includes(q) ||
         v.make.toLowerCase().includes(q) ||
         v.model.toLowerCase().includes(q)
     );
@@ -187,7 +188,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
                 ) : (
                   <img
                     src={thumbUrl}
-                    alt={`${v.year} ${v.make} ${v.model}`}
+                    alt={formatVehicleName(v)}
                     className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                     onError={() => setImgErrors((prev) => new Set(prev).add(v.id))}
@@ -213,7 +214,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
               <div className="px-3 py-2.5">
                 <div className="flex items-center justify-between">
                   <div className="text-xs font-medium text-white/80 truncate">
-                    {v.year} {v.make} {v.model}
+                    {formatVehicleName(v)}
                   </div>
                   {/* Feature 5: Condition sparkline */}
                   {scores && scores.length >= 2 && (

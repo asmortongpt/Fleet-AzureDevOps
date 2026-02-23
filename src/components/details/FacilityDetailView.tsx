@@ -21,6 +21,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface Facility {
   id: string
@@ -317,7 +318,7 @@ export function FacilityDetailView({ facility, onClose }: FacilityDetailViewProp
                   assignedVehicles.map((vehicle: { id: string; make: string; model: string; year: number; status: string; assignedDate: string; driver: string }) => (
                     <div key={vehicle.id} className="flex items-center justify-between p-2 bg-muted rounded-md">
                       <div>
-                        <p className="font-medium">{vehicle.year} {vehicle.make} {vehicle.model}</p>
+                        <p className="font-medium">{formatVehicleName(vehicle)}</p>
                         <p className="text-xs text-muted-foreground">{vehicle.id}</p>
                       </div>
                       <div className="flex items-center gap-2">

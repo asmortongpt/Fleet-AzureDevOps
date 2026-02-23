@@ -48,6 +48,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { useVehicles, useDrivers } from '@/hooks/use-api'
 import { useFuelMutations, type CreateFuelCardInput } from '@/hooks/use-reactive-fuel-data'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -306,7 +307,7 @@ export function FuelCardDialog({
                     <SelectItem value="">None</SelectItem>
                     {vehicles.map(v => (
                       <SelectItem key={v.id} value={v.id.toString()}>
-                        {v.number} - {v.year} {v.make} {v.model}
+                        {formatVehicleName(v)}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -32,6 +32,7 @@ import { Vehicle, Facility, WorkOrder } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
 import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 /** Safely extract an array from an API response that may be nested as { data: [...] } or { data: { data: [...] } } */
 const safeArray = <T,>(value: unknown): T[] => {
@@ -114,7 +115,7 @@ const VehicleMaintenancePanel = ({ vehicle, _maintenanceHistory }: { vehicle: Ve
         {/* Vehicle Header */}
         <div>
           <h3 className="text-sm font-semibold">
-            {vehicle.year} {vehicle.make} {vehicle.model}
+            {formatVehicleName(vehicle)}
           </h3>
           <p className="text-sm text-muted-foreground">
             {vehicle.licensePlate} • {vehicle.vin}

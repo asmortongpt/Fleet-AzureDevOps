@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { formatEnum } from '@/utils/format-enum'
 import { formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface FacilityVehiclesViewProps {
   facilityId: string
@@ -69,7 +70,7 @@ export function FacilityVehiclesView({ facilityId, facilityName }: FacilityVehic
                         <div>
                           <p className="font-medium">{vehicle.name}</p>
                           <p className="text-sm text-muted-foreground">
-                            {vehicle.year} {vehicle.make} {vehicle.model}
+                            {formatVehicleName(vehicle)}
                           </p>
                         </div>
                         <Badge variant="outline">

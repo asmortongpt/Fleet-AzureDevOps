@@ -47,6 +47,7 @@ import { useVehicles, useDrivers } from '@/hooks/use-api'
 import { useFuelMutations, type CreateFuelTransactionInput } from '@/hooks/use-reactive-fuel-data'
 import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -262,7 +263,7 @@ export function FuelTransactionDialog({
                   <SelectContent>
                     {vehicles.map(v => (
                       <SelectItem key={v.id} value={v.id.toString()}>
-                        {v.number} - {v.year} {v.make} {v.model}
+                        {formatVehicleName(v)}
                       </SelectItem>
                     ))}
                   </SelectContent>

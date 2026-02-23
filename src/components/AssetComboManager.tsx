@@ -10,6 +10,7 @@ import type {
 
 import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface AssetComboManagerProps extends React.HTMLAttributes<HTMLDivElement> {
   tenantId?: string
@@ -218,7 +219,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
   }
 
   const getVehicleLabel = (vehicle: Vehicle): string =>
-    `${vehicle.year} ${vehicle.make} ${vehicle.model} (${vehicle.vin})`
+    `${formatVehicleName(vehicle)} (${vehicle.vin})`
 
   const filteredCombos = selectedAssetId
     ? activeCombos.filter(combo =>

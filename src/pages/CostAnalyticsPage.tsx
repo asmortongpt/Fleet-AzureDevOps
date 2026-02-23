@@ -35,6 +35,7 @@ import { toast } from 'sonner'
 
 import { formatCurrency, formatNumber } from '@/utils/format-helpers'
 import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
@@ -365,7 +366,7 @@ export default function CostAnalyticsPage() {
 
       return {
         vehicleId: vehicle.id,
-        vehicleName: `${vehicle.year} ${vehicle.make} ${vehicle.model}`,
+        vehicleName: formatVehicleName(vehicle),
         totalCost,
         costPerMile,
         miles,
@@ -475,7 +476,7 @@ export default function CostAnalyticsPage() {
     const vehiclesWithEfficiency = vehicles
       .map(v => ({
         id: v.id,
-        name: `${v.year} ${v.make} ${v.model}`,
+        name: formatVehicleName(v),
         type: v.type || 'unknown',
         department: (v as any).department || '—',
         fuelEfficiency: Number((v as any).fuel_efficiency ?? (v as any).fuelEfficiency ?? 0)

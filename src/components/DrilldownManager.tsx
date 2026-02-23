@@ -6,7 +6,7 @@
 import React from 'react'
 
 import { DrilldownBreadcrumbs } from '@/components/DrilldownBreadcrumbs'
-import { formatDateTime, formatTime } from '@/utils/format-helpers'
+import { formatDateTime, formatTime, formatCurrency } from '@/utils/format-helpers'
 import { DrilldownPanel } from '@/components/DrilldownPanel'
 import {
   IncidentsDrilldown,
@@ -209,7 +209,7 @@ function MessageDetailDrilldown() {
         {data.reactions !== undefined && <span>Reactions: {data.reactions}</span>}
       </div>
       <div className="flex gap-2">
-        <button className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md">Reply</button>
+        <button className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-md">Reply</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">React</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">Share</button>
       </div>
@@ -232,8 +232,8 @@ function ConversationDetailDrilldown() {
         </div>
         <span className={`px-2 py-1 text-xs rounded ${
           data.status === 'resolved' ? 'bg-green-100 text-green-800' :
-          data.status === 'active' ? 'bg-blue-100 text-blue-800' :
-          'bg-yellow-100 text-yellow-800'
+          data.status === 'active' ? 'bg-emerald-500/20 text-emerald-400' :
+          'bg-yellow-500/20 text-yellow-400'
         }`}>
           {data.status || 'unknown'}
         </span>
@@ -245,7 +245,7 @@ function ConversationDetailDrilldown() {
           messages.map((msg: any) => (
             <div key={msg.id || msg.timestamp} className={`flex ${msg.sender === 'ai' ? 'justify-start' : 'justify-end'}`}>
               <div className={`max-w-[80%] p-3 rounded-lg ${
-                msg.sender === 'ai' ? 'bg-muted' : 'bg-primary text-primary-foreground'
+                msg.sender === 'ai' ? 'bg-muted' : 'bg-emerald-600 text-white'
               }`}>
                 <p className="text-sm">{msg.content}</p>
               </div>
@@ -288,7 +288,7 @@ function EmailTemplateDrilldown() {
         </div>
       </div>
       <div className="flex gap-2">
-        <button className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md">Use Template</button>
+        <button className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-md">Use Template</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">Edit</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">Preview</button>
       </div>
@@ -337,7 +337,7 @@ function CampaignDetailDrilldown() {
         </div>
       </div>
       <div className="flex gap-2">
-        <button className="px-3 py-1.5 text-sm bg-primary text-primary-foreground rounded-md">Resend</button>
+        <button className="px-3 py-1.5 text-sm bg-emerald-600 text-white rounded-md">Resend</button>
         <button className="px-3 py-1.5 text-sm border rounded-md">Export Report</button>
       </div>
     </div>
@@ -361,7 +361,7 @@ function MaintenanceRequestsDrilldown() {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-bold">{data.title || 'Maintenance Requests'}</h2>
-        <span className="px-2 py-1 text-xs rounded bg-primary/20 text-primary">{requests.length} requests</span>
+        <span className="px-2 py-1 text-xs rounded bg-emerald-500/20 text-emerald-400">{requests.length} requests</span>
       </div>
       <div className="space-y-2">
         {requests.length === 0 ? (
@@ -381,7 +381,7 @@ function MaintenanceRequestsDrilldown() {
               <div className="flex items-center gap-2">
                 <span className={`px-2 py-1 text-xs rounded ${
                   req.priority === 'high' ? 'bg-red-100 text-red-800' :
-                  req.priority === 'normal' ? 'bg-blue-100 text-blue-800' :
+                  req.priority === 'normal' ? 'bg-emerald-500/20 text-emerald-400' :
                   'bg-gray-100 text-gray-800'
                 }`}>{req.priority}</span>
                 <span className="text-xs text-muted-foreground">→</span>
@@ -484,7 +484,7 @@ function OperationsCalendarDrilldown() {
                 </div>
               </div>
               <span className={`px-2 py-1 text-xs rounded ${
-                evt.status === 'in-progress' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'
+                evt.status === 'in-progress' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-gray-100 text-gray-800'
               }`}>{evt.status}</span>
             </div>
           </div>
@@ -522,7 +522,7 @@ function DriverShiftsDrilldown() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-8 rounded-full bg-primary/20 flex items-center justify-center font-bold">
+                <div className="w-10 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center font-bold">
                   {shift.driver.split(' ').map((n: string) => n[0]).join('')}
                 </div>
                 <div>
@@ -656,11 +656,11 @@ function AssetValueDrilldown() {
       </div>
       <div className="grid grid-cols-3 gap-2">
         <div className="bg-muted/30 rounded-lg p-2 text-center">
-          <div className="text-sm font-bold">${((data.totalValue || 4200000) / 1000000).toFixed(1)}M</div>
+          <div className="text-sm font-bold">{formatCurrency(data.totalValue || 4200000)}</div>
           <div className="text-sm text-muted-foreground">Total Value</div>
         </div>
         <div className="bg-muted/30 rounded-lg p-2 text-center">
-          <div className="text-sm font-bold text-red-600">${((data.depreciation || 320000) / 1000).toFixed(0)}K</div>
+          <div className="text-sm font-bold text-red-600">{formatCurrency(data.depreciation || 320000)}</div>
           <div className="text-sm text-muted-foreground">YTD Depreciation</div>
         </div>
         <div className="bg-muted/30 rounded-lg p-2 text-center">
@@ -683,8 +683,8 @@ function AssetValueDrilldown() {
                   <p className="text-sm text-muted-foreground">{cat.count} assets</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">${(cat.value / 1000000).toFixed(2)}M</p>
-                  <p className="text-xs text-red-500">-${(cat.depreciation / 1000).toFixed(0)}K/yr</p>
+                  <p className="font-medium">{formatCurrency(cat.value)}</p>
+                  <p className="text-xs text-red-500">-{formatCurrency(cat.depreciation)}/yr</p>
                 </div>
               </div>
             </div>

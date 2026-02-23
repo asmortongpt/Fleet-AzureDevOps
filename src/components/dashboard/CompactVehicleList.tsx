@@ -5,6 +5,7 @@ import { useMemo, useRef, useEffect, useState } from "react"
 import { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface CompactVehicleListProps {
   vehicles: Vehicle[]
@@ -130,7 +131,7 @@ export function CompactVehicleList({
                     )}
                   </div>
                   <div className="compact-list-item-subtitle" data-testid="vehicle-plate">
-                    {vehicle.year} {vehicle.make} {vehicle.model}
+                    {formatVehicleName(vehicle)}
                   </div>
                 </div>
 

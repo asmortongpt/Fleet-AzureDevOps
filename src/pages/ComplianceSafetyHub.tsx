@@ -61,6 +61,7 @@ import { useFleetData } from '@/hooks/use-fleet-data'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 
 const fetcher = apiFetcher
@@ -258,7 +259,8 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
 
     vehicles.forEach((v: any) => {
       if ((v as any).registration_expiry && isExpiringSoon((v as any).registration_expiry, 60)) {
-        const vName = v.name || `${v.year} ${v.make} ${v.model}` || `Vehicle #${String(v.id).slice(0, 8)}`
+        const rawVName = formatVehicleName(v as any)
+        const vName = v.name || (rawVName !== 'Unknown Vehicle' ? rawVName : `Vehicle #${String(v.id).slice(0, 8)}`)
         items.push({
           item: `${vName} - Registration`,
           type: 'vehicle',

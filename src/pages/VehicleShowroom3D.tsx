@@ -76,6 +76,7 @@ import { apiFetcher } from '@/lib/api-fetcher';
 import { cn } from '@/lib/utils';
 import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers';
 import { formatEnum } from '@/utils/format-enum';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer'));
 
@@ -489,7 +490,7 @@ export default function VehicleShowroom3D() {
     const v = selectedVehicle;
     const d = vehicleDetail;
     return {
-      name: v ? `${v.year} ${v.make} ${v.model}` : '',
+      name: v ? formatVehicleName(v) : '',
       make: v?.make || '',
       model: v?.model || '',
       year: v?.year || 0,
@@ -1065,7 +1066,7 @@ export default function VehicleShowroom3D() {
           <SelectContent className="max-h-80">
             {showroomVehicles.map((v) => (
               <SelectItem key={v.id} value={v.id}>
-                {v.year} {v.make} {v.model}
+                {formatVehicleName(v)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -1074,7 +1075,7 @@ export default function VehicleShowroom3D() {
         {/* Vehicle name + status */}
         <div className="hidden md:flex items-center gap-2">
           <span className="text-sm font-semibold text-white">
-            {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
+            {formatVehicleName(selectedVehicle)}
           </span>
           {selectedVehicle.unit_number && (
             <span className="text-xs text-white/40">#{selectedVehicle.unit_number}</span>
@@ -2445,7 +2446,7 @@ export default function VehicleShowroom3D() {
       {showAIGenerationPanel && selectedVehicle && (
         <AIModelGenerationPanel
           vehicleId={selectedVehicle.id}
-          vehicleName={`${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}`}
+          vehicleName={formatVehicleName(selectedVehicle)}
           referenceImageUrl={buildImaginUrl(
             selectedVehicle.make,
             selectedVehicle.model,

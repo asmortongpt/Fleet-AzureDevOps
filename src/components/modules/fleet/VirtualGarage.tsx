@@ -131,8 +131,8 @@ export function VirtualGarage() {
                   }}
                 >
                   <div className="flex items-center gap-4">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Car className="h-6 w-6 text-primary" />
+                    <div className="p-2 bg-emerald-500/10 rounded-lg">
+                      <Car className="h-6 w-6 text-emerald-500" />
                     </div>
                     <div>
                       <p className="font-medium">{formatVehicleName(vehicle)}</p>

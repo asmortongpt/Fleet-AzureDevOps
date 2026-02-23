@@ -38,6 +38,7 @@ import { Input } from '@/components/ui/input';
 import { useVehicles, useVehicleMutations } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
 import { formatNumber } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface Vehicle {
   id: string;
@@ -251,8 +252,7 @@ export function VehiclesOperations() {
 
           {/* Make/Model */}
           <div className="col-span-3">
-            <p className="font-semibold text-foreground">{vehicle.year || '—'} {vehicle.make || '—'}</p>
-            <p className="text-xs text-muted-foreground mt-1">{vehicle.model || 'Unknown Model'}</p>
+            <p className="font-semibold text-foreground">{formatVehicleName(vehicle)}</p>
           </div>
 
           {/* Status */}
@@ -675,7 +675,7 @@ export function VehiclesOperations() {
             ? {
                 title: isCreating
                   ? 'Register New Vehicle'
-                  : `${selectedVehicle?.year || '—'} ${selectedVehicle?.make || '—'} ${selectedVehicle?.model || '—'}`,
+                  : formatVehicleName(selectedVehicle || {}),
                 subtitle: isCreating
                   ? 'Complete vehicle details'
                   : `${selectedVehicle?.vehicle_number || '—'} • ${selectedVehicle?.licensePlate || 'No plate'}`,

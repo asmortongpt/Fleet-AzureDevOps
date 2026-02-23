@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { apiFetcher } from "@/lib/api-fetcher"
 import { formatCurrency } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface PredictiveMaintenanceProps {
   data: ReturnType<typeof useFleetData>
@@ -165,7 +166,7 @@ export function PredictiveMaintenance() {
                     <div>
                       <p className="font-medium">{vehicle.number || vehicle.unit_number || vehicle.name || "Vehicle"}</p>
                       <p className="text-sm text-muted-foreground">
-                        {[vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(" ") || "Details unavailable"}
+                        {formatVehicleName(vehicle) || "Details unavailable"}
                       </p>
                     </div>
                   </div>

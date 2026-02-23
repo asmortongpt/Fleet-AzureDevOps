@@ -18,11 +18,14 @@ import {
   Wrench,
   FileText,
   User,
+  UserPlus,
   MapPin,
   Pencil,
   UserCheck,
+  History,
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
+import { toast } from 'sonner'
 import useSWR from 'swr'
 
 import { MetricCard } from './MetricCard'
@@ -454,7 +457,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               </div>
               <div className="w-full h-1.5 rounded-full bg-white/[0.06] mt-1.5 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-sky-500"
+                  className="h-full rounded-full bg-emerald-500"
                   style={{ width: `${Math.min(uptime, 100)}%` }}
                 />
               </div>
@@ -555,22 +558,45 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   const assignments = Array.isArray(currentAssignment) ? currentAssignment : currentAssignment?.assignments ?? []
                   const active = assignments[0]
                   if (!active) return (
-                    <p className="text-xs text-white/40">No active assignment</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs text-white/40">No active assignment</p>
+                      <button
+                        onClick={() => toast.info('Assignment management available in the Assignments tab')}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
+                      >
+                        <UserPlus className="h-3.5 w-3.5" />
+                        Assign Driver
+                      </button>
+                    </div>
                   )
                   return (
-                    <div className="flex items-center gap-3">
-                      <div className="h-8 w-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
-                        <User className="h-4 w-4 text-emerald-400" />
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                          <User className="h-4 w-4 text-emerald-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-white/80 truncate">
+                            {active.driver_first_name} {active.driver_last_name}
+                          </p>
+                          <p className="text-[11px] text-white/40">
+                            {formatEnum(active.assignment_type)} · {active.department_name || 'No department'}
+                          </p>
+                        </div>
+                        <Badge variant="success" size="sm">{formatEnum(active.lifecycle_state)}</Badge>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-white/80 truncate">
-                          {active.driver_first_name} {active.driver_last_name}
-                        </p>
-                        <p className="text-[11px] text-white/40">
-                          {formatEnum(active.assignment_type)} · {active.department_name || 'No department'}
-                        </p>
-                      </div>
-                      <Badge variant="success" size="sm">{formatEnum(active.lifecycle_state)}</Badge>
+                      <button
+                        onClick={() => push({
+                          id: `vehicle-assignments-${vehicleId}`,
+                          type: 'vehicle-assignments',
+                          label: 'Assignment History',
+                          data: { vehicleId, vehicleName: vehicle?.name },
+                        })}
+                        className="inline-flex items-center gap-1 text-[11px] text-white/40 hover:text-emerald-400 transition-colors"
+                      >
+                        <History className="h-3 w-3" />
+                        View History
+                      </button>
                     </div>
                   )
                 })()}

@@ -31,6 +31,7 @@ import { useVehicles, useDrivers } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
 import { Geofence, Driver } from '@/lib/types';
 import { formatEnum } from '@/utils/format-enum';
+import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
 
 
@@ -586,7 +587,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                     'bg-gray-500'
                   }`} />
                   <span className="font-semibold text-sm text-white/95 truncate">
-                    {selectedVehicle.name || `${selectedVehicle.make || ''} ${selectedVehicle.model || ''}`.trim() || '—'}
+                    {selectedVehicle.name || formatVehicleName(selectedVehicle)}
                   </span>
                 </div>
                 <Badge className={`text-[10px] px-2 py-0 shrink-0 ${
@@ -909,7 +910,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                       {vehicle.vehicleNumber || vehicle.number || '—'}
                     </span>
                     <span className="text-[10px] text-white/30 truncate">
-                      {vehicle.name || `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || ''}
+                      {vehicle.name || formatVehicleName(vehicle)}
                     </span>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
@@ -957,9 +958,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="font-semibold">Vehicle:</div>
           <div>
-            {selectedVehicle.name ||
-              `${selectedVehicle.make || ''} ${selectedVehicle.model || ''}`.trim() ||
-              '—'}
+            {selectedVehicle.name || formatVehicleName(selectedVehicle)}
           </div>
           <div className="font-semibold">Year:</div>
           <div>{selectedVehicle.year || '—'}</div>

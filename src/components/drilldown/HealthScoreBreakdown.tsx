@@ -7,6 +7,7 @@ import { Activity, AlertTriangle, Droplet, Battery, Gauge, Wrench } from 'lucide
 import { useMemo } from 'react'
 
 import { cn } from '@/lib/utils'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatNumber } from '@/utils/format-helpers'
 
 // ---------------------------------------------------------------------------
@@ -80,11 +81,12 @@ interface CriticalAlert {
 // ---------------------------------------------------------------------------
 
 export function HealthScoreBreakdown({
-  vehicleId: _vehicleId,
+  vehicleId,
   vehicleName,
   condition,
   healthScore = 0,
 }: HealthScoreBreakdownProps) {
+  const { push } = useDrilldown()
   // Build the 8 metrics — use real condition data or simulate from overall score
   const metrics: Metric[] = useMemo(() => {
     if (condition) {
@@ -238,6 +240,11 @@ export function HealthScoreBreakdown({
         <button
           type="button"
           className="w-full flex items-center justify-center gap-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 transition-colors py-2.5 text-sm font-semibold text-white"
+          onClick={() => push({
+            type: 'create-work-order',
+            label: 'Schedule Service',
+            data: { vehicleId, vehicleName },
+          })}
         >
           <Wrench className="h-4 w-4" />
           Schedule Service

@@ -46,6 +46,7 @@ import {
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import { formatDate } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -495,10 +496,10 @@ export function DrilldownVehicleTable({
     {
       key: 'make',
       header: 'Make/Model',
-      render: (row) =>
-        row.make && row.model
-          ? `${row.year || ''} ${row.make} ${row.model}`.trim()
-          : '-',
+      render: (row) => {
+        const name = formatVehicleName(row)
+        return name !== 'Unknown Vehicle' ? name : '-'
+      },
     },
     {
       key: 'status',

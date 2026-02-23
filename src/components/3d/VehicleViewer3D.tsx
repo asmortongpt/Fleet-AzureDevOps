@@ -38,6 +38,7 @@ import {
   type PaintType,
 } from '@/lib/3d/pbr-materials';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 export interface VehicleViewer3DProps {
   vehicleId?: number;
@@ -517,7 +518,7 @@ export default function VehicleViewer3D({
   };
 
   const vehicleLabel = vehicleData
-    ? `${vehicleData.year} ${vehicleData.make} ${vehicleData.model}`
+    ? formatVehicleName(vehicleData)
     : undefined;
 
   return (
@@ -556,7 +557,7 @@ export default function VehicleViewer3D({
           {/* Info Panel */}
           <div className="bg-black/80 backdrop-blur-sm text-white px-2 py-3 rounded-lg pointer-events-auto space-y-1">
             <h3 className="font-semibold text-sm">
-              {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
+              {vehicleData ? formatVehicleName(vehicleData) : ''}
             </h3>
             {vehicleData?.trim && (
               <p className="text-sm text-gray-300">{vehicleData.trim}</p>

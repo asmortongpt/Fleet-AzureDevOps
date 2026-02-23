@@ -21,6 +21,7 @@ import { toast } from 'sonner';
 import { OutlookEmailButton, CalendarEventButton } from '@/components/integrations/MicrosoftIntegration';
 import { formatEnum } from '@/utils/format-enum';
 import { formatDateTime } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
 import { Dialog } from '@/components/shared/Dialog';
 
 // TypeScript Interfaces
@@ -525,7 +526,7 @@ const NewReservationForm: React.FC<{
             <option value="">Select a vehicle</option>
             {vehicles.filter(v => v.status === 'active').map(v => (
               <option key={v.id} value={v.id}>
-                {v.year} {v.make} {v.model} ({v.vin})
+                {formatVehicleName(v)}{v.vin ? ` (${v.vin})` : ''}
               </option>
             ))}
           </select>

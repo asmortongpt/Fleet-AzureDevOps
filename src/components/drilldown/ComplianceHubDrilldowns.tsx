@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 
 export function RegulationsDrilldown() {
@@ -197,7 +198,7 @@ export function InspectionsDrilldown() {
         const map = new Map<string, string>()
         vehicles.forEach((v: any) => {
             const id = String(v.id)
-            const display = v.number || v.name || `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim() || id
+            const display = v.number || v.name || formatVehicleName(v) || id
             map.set(id, display)
         })
         return map

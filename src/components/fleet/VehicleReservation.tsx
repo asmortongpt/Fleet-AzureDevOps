@@ -43,6 +43,7 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDateTime } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 import { useTenant } from '@/contexts/TenantContext'
 import { useVehicles } from '@/hooks/use-api'
 import { useCreateReservation } from '@/hooks/use-reservations'
@@ -141,7 +142,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
   const availableVehicles = (vehiclesData || [])
     .map(v => ({
       id: String(v.id),
-      name: `Vehicle ${v.number || v.id} - ${v.make} ${v.model} (${v.year})`,
+      name: formatVehicleName(v),
       status: v.status === 'active' || v.status === 'idle' ? 'available' : v.status === 'service' ? 'maintenance' : v.status,
     }))
     .filter(v => v.name.toLowerCase().includes(searchTerm.toLowerCase()))

@@ -5,6 +5,7 @@
  */
 
 import { AssetCategory, AssetType, OperationalStatus } from "@/types/asset.types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 /**
  * Map vehicle type string to asset category
@@ -66,7 +67,7 @@ export function normalizeEmulatorVehicles(vehicles: any[]): any[] {
     year: v.year || new Date().getFullYear(),
     vin: v.vin,
     license_plate: v.licensePlate || v.license_plate,
-    asset_name: v.name || `${v.year} ${v.make} ${v.model}`,
+    asset_name: v.name || formatVehicleName(v),
     asset_tag: v.assetTag || v.id,
     department: v.department || "Fleet Operations",
     vehicle_type: v.type || v.vehicleType,

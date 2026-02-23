@@ -27,6 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 export interface ARModeExportProps {
   vehicleId?: number;
@@ -160,7 +161,7 @@ export default function ARModeExport({
     if (!generatedUrl) return;
 
     const shareData = {
-      title: `${vehicleData?.year} ${vehicleData?.make} ${vehicleData?.model} - AR View`,
+      title: `${vehicleData ? formatVehicleName(vehicleData) : 'Vehicle'} - AR View`,
       text: 'View this vehicle in augmented reality!',
       url: generatedUrl,
     };
@@ -219,7 +220,7 @@ export default function ARModeExport({
             {/* Vehicle Info */}
             <div className="bg-muted p-2 rounded-lg">
               <h3 className="font-semibold mb-1">
-                {vehicleData?.year} {vehicleData?.make} {vehicleData?.model}
+                {vehicleData ? formatVehicleName(vehicleData) : ''}
               </h3>
               {vehicleData?.exteriorColor && (
                 <p className="text-sm text-muted-foreground">

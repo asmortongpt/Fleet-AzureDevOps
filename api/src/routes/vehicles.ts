@@ -1,4 +1,8 @@
+import fs from 'fs'
+import path from 'path'
+
 import { Router, Request, Response } from "express"
+import multer from 'multer'
 
 import { cacheService } from '../config/cache';
 import logger from '../config/logger'; // Wave 10: Add Winston logger
@@ -727,6 +731,98 @@ router.get("/statistics",
 
     logger.info('Fetched vehicle statistics', { tenantId })
     res.json(statistics)
+  })
+)
+
+// Configure multer for vehicle photo uploads (disk storage)
+const photoStorage = multer.diskStorage({
+  destination: (req, _file, cb) => {
+    const vehicleId = req.params.id
+    const uploadDir = path.resolve(process.cwd(), 'uploads', 'vehicles', vehicleId)
+    fs.mkdirSync(uploadDir, { recursive: true })
+    cb(null, uploadDir)
+  },
+  filename: (_req, file, cb) => {
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`
+    const ext = path.extname(file.originalname)
+    cb(null, `${uniqueSuffix}${ext}`)
+  }
+})
+
+const photoUpload = multer({
+  storage: photoStorage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB per file
+  },
+  fileFilter: (_req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Only image files are allowed'))
+    }
+    cb(null, true)
+  }
+})
+
+// POST vehicle photos - Upload photos for a vehicle
+router.post("/:id/photos",
+  csrfProtection,
+  requireRBAC({
+    roles: [Role.ADMIN, Role.MANAGER, Role.USER],
+    permissions: [PERMISSIONS.VEHICLE_UPDATE],
+    enforceTenantIsolation: true,
+    resourceType: 'vehicle'
+  }),
+  validateParams(vehicleIdSchema),
+  photoUpload.array('photos', 20),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    const vehicleId = req.params.id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      return res.status(400).json({
+        error: 'No photo files provided',
+        message: 'At least one image file is required in the "photos" field'
+      })
+    }
+
+    // Verify the vehicle exists and belongs to this tenant
+    const vehicleService = container.get<VehicleService>(TYPES.VehicleService)
+    const vehicle = await vehicleService.getVehicleById(vehicleId, tenantId)
+
+    if (!vehicle) {
+      // Clean up uploaded files if vehicle not found
+      for (const file of req.files) {
+        fs.unlink(file.path, () => {})
+      }
+      return res.status(404).json({
+        error: 'Vehicle not found',
+        message: `Vehicle with ID ${vehicleId} not found or does not belong to your organization`
+      })
+    }
+
+    const uploadedFiles = req.files.map((file) => ({
+      filename: file.filename,
+      originalName: file.originalname,
+      size: file.size,
+      mimeType: file.mimetype,
+      path: `/uploads/vehicles/${vehicleId}/${file.filename}`
+    }))
+
+    logger.info('Vehicle photos uploaded', {
+      vehicleId,
+      tenantId,
+      count: uploadedFiles.length,
+      totalSize: uploadedFiles.reduce((sum, f) => sum + f.size, 0)
+    })
+
+    res.status(201).json({
+      success: true,
+      data: uploadedFiles,
+      message: `${uploadedFiles.length} photo(s) uploaded successfully`
+    })
   })
 )
 

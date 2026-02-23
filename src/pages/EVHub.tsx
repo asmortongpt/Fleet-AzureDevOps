@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { Section } from '@/components/ui/section';
 import { formatCurrency, formatNumber } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface EVVehicle {
   id: number;
@@ -242,7 +243,7 @@ const EVHub = () => {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <h3 className="font-medium text-sm text-foreground">
-                            {vehicle.year} {vehicle.make} {vehicle.model}
+                            {formatVehicleName(vehicle)}
                           </h3>
                           <p className="text-xs text-muted-foreground mt-0.5">{vehicle.location}</p>
                           <div className="mt-2 space-y-1">

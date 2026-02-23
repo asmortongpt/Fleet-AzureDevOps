@@ -47,6 +47,7 @@ import { cn } from '@/lib/utils'
 import { formatNumber } from '@/utils/format-helpers'
 import { MaintenanceAppointment, CreateMaintenanceRequest, AppointmentType, ServiceBay } from '@/types/scheduling'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 const appointmentSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
@@ -277,7 +278,7 @@ export function MaintenanceAppointmentModal({
                     <SelectContent>
                       {vehicles.map((vehicle) => (
                         <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.make} {vehicle.model} ({vehicle.licensePlate}) - {vehicle.year}
+                          {formatVehicleName(vehicle)}{vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>

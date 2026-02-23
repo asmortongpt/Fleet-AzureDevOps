@@ -5,6 +5,7 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vehicle } from "@/lib/types"
 import { formatEnum } from "@/utils/format-enum"
 import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface FleetTableProps {
   vehicles: Vehicle[]
@@ -63,7 +64,7 @@ export function FleetTable({ vehicles, onVehicleClick }: FleetTableProps) {
                     <div>
                       <p className="font-medium">{vehicle.number}</p>
                       <p className="text-sm text-muted-foreground">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
+                        {formatVehicleName(vehicle)}
                       </p>
                     </div>
                   </td>

@@ -66,6 +66,7 @@ import { useFleetData } from '@/hooks/use-fleet-data'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime, formatCurrency, formatNumber } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 
 const fetcher = apiFetcher
@@ -869,8 +870,9 @@ const AnalyticsTabContent = memo(function AnalyticsTabContent() {
       const vehicleId = wo.vehicle_id || wo.vehicleId
       if (!vehicleId) return
       const vehicle = vehicles.find((v: any) => v.id === vehicleId)
-      const vehicleName = vehicle
-        ? `${(vehicle as any).year || ''} ${(vehicle as any).make || ''} ${(vehicle as any).model || ''}`.trim() || `Vehicle ${String(vehicleId).slice(0, 8)}`
+      const rawName = vehicle ? formatVehicleName(vehicle as any) : null
+      const vehicleName = rawName && rawName !== 'Unknown Vehicle'
+        ? rawName
         : `Vehicle ${String(vehicleId).slice(0, 8)}`
       const existing = vehicleCostMap.get(vehicleId) || { name: vehicleName, cost: 0, woCount: 0 }
       existing.cost += Number(wo.total_cost || wo.cost || 0)

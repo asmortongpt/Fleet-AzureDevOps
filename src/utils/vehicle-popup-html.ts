@@ -9,6 +9,7 @@
  */
 
 import type { Vehicle } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 // ---------------------------------------------------------------------------
 // Status colour mapping
@@ -221,7 +222,7 @@ export function buildVehiclePopupHTML(
   const department = vehicle.department || null
   const makeModelYear =
     vehicle.make && vehicle.model
-      ? `${vehicle.year || ""} ${vehicle.make} ${vehicle.model}`.trim()
+      ? formatVehicleName(vehicle)
       : null
   const escapedId = escape(vehicle.id)
 

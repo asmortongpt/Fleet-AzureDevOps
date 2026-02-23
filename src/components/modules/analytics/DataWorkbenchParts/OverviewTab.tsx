@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Vehicle } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface ActiveFilter {
   id: string
@@ -143,7 +144,7 @@ export function OverviewTab({ vehicles, onAdvancedSearch }: OverviewTabProps) {
                     <td className="p-2">
                       <p className="font-medium">{vehicle.number}</p>
                       <p className="text-sm text-muted-foreground">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
+                        {formatVehicleName(vehicle)}
                       </p>
                     </td>
                     <td className="p-2">

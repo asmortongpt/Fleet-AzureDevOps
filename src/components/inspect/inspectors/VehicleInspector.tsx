@@ -40,6 +40,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from "@/lib/api-client";
 import { formatEnum } from '@/utils/format-enum';
 import { formatDateTime, formatNumber } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
 
 interface VehicleInspectorProps {
@@ -236,7 +237,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
               {vehicle.name}
             </h2>
             <p className="text-xs text-muted-foreground">
-              {vehicle.year} {vehicle.make} {vehicle.model} &middot; {vehicle.licensePlate}
+              {formatVehicleName(vehicle)} &middot; {vehicle.licensePlate}
             </p>
           </div>
           <Badge variant={getStatusBadgeVariant(vehicle.status)} size="sm">
@@ -289,7 +290,7 @@ export const VehicleInspector: React.FC<VehicleInspectorProps> = ({ id, initialT
               <FieldRow
                 icon={<Car className="h-3.5 w-3.5" />}
                 label="Make / Model"
-                value={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
+                value={formatVehicleName(vehicle)}
               />
             </div>
           </Card>

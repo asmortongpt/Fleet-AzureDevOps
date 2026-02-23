@@ -39,6 +39,7 @@ import { Vehicle, Driver } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, CreateReservationRequest } from '@/types/scheduling'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 const reservationSchema = z.object({
   vehicleId: z.string().min(1, 'Vehicle is required'),
@@ -250,7 +251,7 @@ export function VehicleReservationModal({
                     <SelectContent>
                       {vehicles.map((vehicle) => (
                         <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.make} {vehicle.model} ({vehicle.licensePlate}) - {vehicle.year}
+                          {formatVehicleName(vehicle)}{vehicle.licensePlate ? ` (${vehicle.licensePlate})` : ''}
                         </SelectItem>
                       ))}
                     </SelectContent>

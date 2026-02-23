@@ -32,6 +32,7 @@ import type { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
 import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface FleetVehicle {
   id: string;
@@ -77,7 +78,7 @@ const VehicleTelemetryPanel = ({ vehicle, telemetry }: { vehicle: FleetVehicle |
         <div className="flex items-start justify-between">
           <div>
             <h3 className="text-sm font-semibold">
-              {vehicle.year} {vehicle.make} {vehicle.model}
+              {formatVehicleName(vehicle)}
             </h3>
             <p className="text-sm text-muted-foreground">
               VIN: {vehicle.vin} • Plate: {vehicle.licensePlate}
@@ -313,7 +314,7 @@ const VehicleInventoryPanel = ({ vehicles, onVehicleSelect }: { vehicles: FleetV
                     <div className={cn("h-2 w-2 rounded-full", getStatusColor(vehicle.status))} />
                     <div>
                       <div className="font-medium">
-                        {vehicle.year} {vehicle.make} {vehicle.model}
+                        {formatVehicleName(vehicle)}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         {vehicle.licensePlate} • {vehicle.department}
@@ -488,7 +489,7 @@ export function FleetWorkspace({ _data }: { _data?: unknown }) {
                             'bg-gray-400'
                           )} />
                           <span className="text-sm font-medium truncate">
-                            {vehicle.year} {vehicle.make} {vehicle.model}
+                            {formatVehicleName(vehicle)}
                           </span>
                         </div>
                         <div className="text-xs text-muted-foreground space-y-0.5">

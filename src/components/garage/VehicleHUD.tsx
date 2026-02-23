@@ -23,6 +23,7 @@ import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { cn } from '@/lib/utils'
 import { formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface VehicleStats {
   // Basic Info
@@ -257,7 +258,7 @@ export function VehicleHUD({ stats, className, compact = false }: VehicleHUDProp
       {/* Vehicle Title */}
       <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
         <h3 className="font-bold text-white text-sm">
-          {stats.name || `${stats.year} ${stats.make} ${stats.model}`}
+          {stats.name || formatVehicleName(stats)}
         </h3>
         <div className="flex gap-2 mt-1">
           {stats.licensePlate && (
