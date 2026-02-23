@@ -85,6 +85,7 @@ import { useReactiveMaintenanceData } from '@/hooks/use-reactive-maintenance-dat
 import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName } from '@/utils/vehicle-display'
 import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers'
 
 
@@ -566,6 +567,7 @@ const OverviewTabContent = memo(function OverviewTabContent() {
 const FleetTabContent = memo(function FleetTabContent() {
   const { vehicles, metrics: stats, statusDistribution, lowFuelVehicles, highMileageVehicles, makeDistribution, isLoading: loading, error } = useReactiveFleetData()
   const { user } = useAuth()
+  const { push } = useDrilldown()
 
   const safeStats = stats || {
     totalVehicles: 0,
@@ -675,12 +677,20 @@ const FleetTabContent = memo(function FleetTabContent() {
         >
           <div className="flex flex-col gap-1">
             {lowFuelVehicles.slice(0, 5).map((v: any) => (
-              <div key={`fuel-${v.id}`} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+              <div
+                key={`fuel-${v.id}`}
+                className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                onClick={() => push({
+                  type: 'vehicle-details',
+                  label: formatVehicleName(v),
+                  data: { vehicleId: String(v.id), vehicle: v },
+                })}
+              >
                 <div className="flex items-center gap-2">
                   <Fuel className="h-3.5 w-3.5 text-amber-400" />
                   <div>
                     <p className="text-xs font-medium text-foreground">
-                      {v.unit_number || v.unitNumber || `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim() || 'Unknown Vehicle'}
+                      {formatVehicleName(v)}
                     </p>
                     <p className="text-[10px] text-muted-foreground">Fuel: {v.fuel_level != null ? `${v.fuel_level}%` : 'N/A'}</p>
                   </div>
@@ -691,12 +701,20 @@ const FleetTabContent = memo(function FleetTabContent() {
               </div>
             ))}
             {highMileageVehicles.slice(0, 5).map((v: any) => (
-              <div key={`mile-${v.id}`} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2">
+              <div
+                key={`mile-${v.id}`}
+                className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2 cursor-pointer hover:bg-white/[0.04] transition-colors"
+                onClick={() => push({
+                  type: 'vehicle-details',
+                  label: formatVehicleName(v),
+                  data: { vehicleId: String(v.id), vehicle: v },
+                })}
+              >
                 <div className="flex items-center gap-2">
                   <TrendingUp className="h-3.5 w-3.5 text-amber-400" />
                   <div>
                     <p className="text-xs font-medium text-foreground">
-                      {v.unit_number || v.unitNumber || `${v.year || ''} ${v.make || ''} ${v.model || ''}`.trim() || 'Unknown Vehicle'}
+                      {formatVehicleName(v)}
                     </p>
                     <p className="text-[10px] text-muted-foreground">Mileage: {formatNumber(v.mileage)} mi</p>
                   </div>

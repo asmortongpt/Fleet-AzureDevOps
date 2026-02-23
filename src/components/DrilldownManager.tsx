@@ -82,6 +82,7 @@ import {
 } from '@/components/drilldown/RecordDetailPanels'
 import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
 import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
+import { HealthScoreBreakdown } from '@/components/drilldown/HealthScoreBreakdown'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
 import { ViolationDetailPanel } from '@/components/drilldown/ViolationDetailPanel'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
@@ -748,10 +749,18 @@ function DrilldownContent() {
     // Vehicle drilldown hierarchy
     // ============================================
     case 'vehicle':
+    case 'vehicle-detail':
+    case 'vehicle-details':
       return <VehicleDetailPanel vehicleId={currentLevel.data?.vehicleId} />
 
-    case 'vehicle-detail':
-      return <VehicleDetailPanel vehicleId={currentLevel.data?.vehicleId} />
+    case 'health-breakdown':
+      return (
+        <HealthScoreBreakdown
+          vehicleId={currentLevel.data?.vehicleId}
+          condition={currentLevel.data?.condition}
+          healthScore={currentLevel.data?.healthScore}
+        />
+      )
 
     case 'vehicle-trips':
       return (

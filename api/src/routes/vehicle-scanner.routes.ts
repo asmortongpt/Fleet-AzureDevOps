@@ -18,7 +18,7 @@ const SCANNER_PORT = parseInt(process.env.VEHICLE_SCANNER_PORT || '8000', 10)
  * Proxy all requests to the Python vehicle scanner service.
  * Preserves method, headers, query string, and body (including multipart).
  */
-router.all('/*', (req: Request, res: Response) => {
+router.all('/{*splat}', (req: Request, res: Response) => {
   // Build target path: strip /api/vehicle-scanner prefix
   const targetPath = req.originalUrl.replace(/^\/api\/vehicle-scanner/, '') || '/'
 
