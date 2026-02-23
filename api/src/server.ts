@@ -247,6 +247,7 @@ import tripUsageRouter from './routes/trip-usage'
 import predictiveMaintenanceRouter from './routes/predictive-maintenance'
 import usersRouter from './routes/users'
 import vehicle3dRouter from './routes/vehicle-3d.routes'
+import vehicleScannerRouter from './routes/vehicle-scanner.routes'
 import vehicleAssignmentsRouter from './routes/vehicle-assignments.routes'
 import vehicleHistoryRouter from './routes/vehicle-history.routes'
 import vehicleIdlingRouter from './routes/vehicle-idling.routes'
@@ -568,6 +569,7 @@ app.use('/api/vehicle-hardware-config', vehicleHardwareConfigRouter)
 app.use('/api/vehicle-history', vehicleHistoryRouter)
 app.use('/api/vehicle-identification', vehicleIdentificationRouter)
 app.use('/api/vehicle-3d', vehicle3dRouter)
+app.use('/api/vehicle-scanner', vehicleScannerRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)
 app.use('/api/ai/damage-detection', aiDamageDetectionRouter)

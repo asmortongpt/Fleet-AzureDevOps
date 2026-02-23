@@ -57,6 +57,7 @@ import { DamageStrip, type DamagePin, type DamageZone } from '@/components/garag
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
 import { FleetGalleryGrid } from '@/components/garage/FleetGalleryGrid';
 import { ReferencePhotoCard } from '@/components/garage/ReferencePhotoCard';
+import { VehicleScanUpload } from '@/components/garage/VehicleScanUpload';
 import { TimelineDrawer, type TimelineEvent } from '@/components/garage/TimelineDrawer';
 import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD';
 import { buildImaginUrl, hexToPaintId, type ImaginAngleId } from '@/utils/imagin-studio';
@@ -375,6 +376,9 @@ export default function VehicleShowroom3D() {
   // Feature: AI Model Generation (F3)
   const [showAIGenerationPanel, setShowAIGenerationPanel] = useState(false);
 
+  // Feature: Vehicle Scanner
+  const [showScanUpload, setShowScanUpload] = useState(false);
+
   // Vehicle crossfade animation
   const [viewerOpacity, setViewerOpacity] = useState(1);
   const prevVehicleId = useRef<string | null>(null);
@@ -687,8 +691,11 @@ export default function VehicleShowroom3D() {
         setShowGallery((p) => !p);
       } else if (e.key === 'c' || e.key === 'C') {
         setIsComparisonMode((p) => !p);
+      } else if (e.key === 's' || e.key === 'S') {
+        setShowScanUpload((p) => !p);
       } else if (e.key === 'Escape') {
-        if (showGallery) setShowGallery(false);
+        if (showScanUpload) setShowScanUpload(false);
+        else if (showGallery) setShowGallery(false);
         else if (isComparisonMode) setIsComparisonMode(false);
         else if (showAIGenerationPanel) setShowAIGenerationPanel(false);
         else if (isDataPanelOpen) setIsDataPanelOpen(false);
@@ -699,7 +706,7 @@ export default function VehicleShowroom3D() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isDataPanelOpen, isTimelineOpen, isDamageMode, showGallery, isComparisonMode, showAIGenerationPanel]);
+  }, [isDataPanelOpen, isTimelineOpen, isDamageMode, showGallery, isComparisonMode, showAIGenerationPanel, showScanUpload]);
 
   // Load vehicle on mount or when ID changes
   useEffect(() => {
@@ -1062,6 +1069,17 @@ export default function VehicleShowroom3D() {
           title="Fleet Gallery (G)"
         >
           <LayoutGrid className="w-4 h-4" />
+        </Button>
+
+        {/* Scan button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className={cn('h-8 w-8', showScanUpload ? 'text-emerald-400' : 'text-white/40 hover:text-white/60')}
+          onClick={() => setShowScanUpload(!showScanUpload)}
+          title="Vehicle Scanner (S)"
+        >
+          <Camera className="w-4 h-4" />
         </Button>
 
         {/* Spacer */}
@@ -2362,6 +2380,19 @@ export default function VehicleShowroom3D() {
             setShowGallery(false);
           }}
           onClose={() => setShowGallery(false)}
+        />
+      )}
+
+      {/* ========================================== */}
+      {/* Layer 5f: Vehicle Scanner                     */}
+      {/* ========================================== */}
+      {showScanUpload && (
+        <VehicleScanUpload
+          vehicleId={selectedVehicle?.id}
+          make={selectedVehicle?.make}
+          model={selectedVehicle?.model}
+          year={selectedVehicle?.year}
+          onClose={() => setShowScanUpload(false)}
         />
       )}
 
