@@ -173,34 +173,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     { shouldRetryOnError: false }
   )
 
-  const financialError = summaryError || costSummaryError || fleetMetricsError || trendsError || budgetsError || invoicesError
-
-  // P0-1: Loading state for Financial tab
-  const isLoading = !summary && !summaryError && !costSummary && !costSummaryError
-  if (isLoading) {
-    return <TabLoadingSkeleton />
-  }
-
-  const budgetTotal = (() => {
-    if (!Array.isArray(budgets)) return 0
-    return budgets.reduce((sum, b) => sum + Number(b.allocated || b.allocated_amount || 0), 0)
-  })()
-
-  const spentTotal = Number(summary?.totalCost || summary?.total_cost || 0)
-  const totalMileage = Number(fleetMetrics?.totalMileage || fleetMetrics?.total_mileage || 0)
-
-  const costPerMile = (() => {
-    const reported = Number(costSummary?.cost_per_mile ?? costSummary?.costPerMile)
-    if (Number.isFinite(reported) && reported > 0) return reported
-    if (totalMileage > 0) return spentTotal / totalMileage
-    return 0
-  })()
-
-  // P0-4: Fix savings calculation — show negative (overrun) values
-  const budgetDelta = budgetTotal > 0 ? budgetTotal - spentTotal : 0
-  const isOverBudget = budgetDelta < 0
-
-  // P0-5: Build cost trend data with budget comparison line
+  // All hooks must be called unconditionally before any early returns (React Rules of Hooks)
   const budgetByMonth = useMemo(() => {
     if (!Array.isArray(budgets)) return new Map<string, number>()
     const map = new Map<string, number>()
@@ -213,9 +186,13 @@ const FinancialTabContent = memo(function FinancialTabContent() {
     return map
   }, [budgets])
 
+  const budgetTotal = useMemo(() => {
+    if (!Array.isArray(budgets)) return 0
+    return budgets.reduce((sum: number, b: any) => sum + Number(b.allocated || b.allocated_amount || 0), 0)
+  }, [budgets])
+
   const costTrendData = useMemo(() => {
     if (!Array.isArray(trends)) return []
-    // Calculate average budget per month for the reference line
     const avgBudgetPerMonth = budgetTotal > 0 && trends.length > 0 ? budgetTotal / trends.length : 0
     return trends.map((row: any) => {
       const monthKey = row.month || row.period
@@ -265,6 +242,28 @@ const FinancialTabContent = memo(function FinancialTabContent() {
       date: row.invoiceDate || row.invoice_date || row.createdAt || row.created_at
     }))
   }, [summary, invoices])
+
+  const financialError = summaryError || costSummaryError || fleetMetricsError || trendsError || budgetsError || invoicesError
+
+  // Loading state for Financial tab (after all hooks)
+  const isLoading = !summary && !summaryError && !costSummary && !costSummaryError
+  if (isLoading) {
+    return <TabLoadingSkeleton />
+  }
+
+  const spentTotal = Number(summary?.totalCost || summary?.total_cost || 0)
+  const totalMileage = Number(fleetMetrics?.totalMileage || fleetMetrics?.total_mileage || 0)
+
+  const costPerMile = (() => {
+    const reported = Number(costSummary?.cost_per_mile ?? costSummary?.costPerMile)
+    if (Number.isFinite(reported) && reported > 0) return reported
+    if (totalMileage > 0) return spentTotal / totalMileage
+    return 0
+  })()
+
+  // P0-4: Fix savings calculation — show negative (overrun) values
+  const budgetDelta = budgetTotal > 0 ? budgetTotal - spentTotal : 0
+  const isOverBudget = budgetDelta < 0
 
   if (financialError) {
     return (
@@ -463,6 +462,7 @@ const FinancialTabContent = memo(function FinancialTabContent() {
 const ProcurementTabContent = memo(function ProcurementTabContent() {
   const { push } = useDrilldown()
   const { workOrders: fleetWorkOrders, error: fleetDataError } = useFleetData()
+  const [showAllVendors, setShowAllVendors] = useState(false)
 
   const { data: vendorsResponse, error: vendorsError } = useSWR<any>(
     '/api/vendors',
@@ -477,7 +477,7 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
 
   const procurementError = vendorsError || purchaseOrdersError
 
-  // P0-1: Loading state for Procurement tab
+  // Loading state (after all hooks)
   const isLoading = !vendorsResponse && !vendorsError && !purchaseOrdersResponse && !purchaseOrdersError
   if (isLoading) {
     return <TabLoadingSkeleton />
@@ -547,7 +547,6 @@ const ProcurementTabContent = memo(function ProcurementTabContent() {
       .slice(0, 8)
   })()
 
-  const [showAllVendors, setShowAllVendors] = useState(false)
   const displayedVendors = showAllVendors ? topVendors : topVendors.slice(0, 4)
 
   const recentPurchaseOrders: { id: string; number: string; vendor: string; status: string; amount: number }[] = (() => {
