@@ -237,59 +237,61 @@
 }
 
 /**
- * LIGHT THEME - WCAG AAA Compliant (7:1 minimum contrast)
- * Optimized for bright environments and accessibility
+ * LIGHT THEME - Inherits dark theme values
+ * ArchonY Fleet Command is a dark-mode-first app. The "light" class may be
+ * active via localStorage or system preference, but all UI components use
+ * hardcoded dark backgrounds (bg-[#242424], text-white/60, etc.).
+ * To prevent visual inconsistency, light theme mirrors the dark :root values.
  */
 .light {
-  --background: #FFFFFF;
-  --foreground: #0F172A;
+  --background: #09090b;
+  --foreground: #FFFFFF;
 
-  --card: #F9FAFB;
-  --card-foreground: #0F172A;
+  --card: #111113;
+  --card-foreground: #FFFFFF;
 
-  --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
+  --popover: #111113;
+  --popover-foreground: #F8FAFC;
 
-  --primary: #1E40AF;
-  --primary-foreground: #FFFFFF;
+  --primary: #1F3076;
+  --primary-foreground: #ffffff;
 
-  --secondary: #0284C7;
-  --secondary-foreground: #FFFFFF;
+  --secondary: #3a3a3a;
+  --secondary-foreground: #f5f5f5;
 
-  --muted: #F3F4F6;
-  --muted-foreground: #475569;
+  --muted: #18181b;
+  --muted-foreground: #D1D5DB;
 
-  --accent: #DC2626;
-  --accent-foreground: #FFFFFF;
+  --accent: #e0e0e0;
+  --accent-foreground: #1a1a1a;
 
-  --destructive: #991B1B;
-  --destructive-foreground: #FFFFFF;
+  --destructive: #DC2626;
+  --destructive-foreground: #FECACA;
 
-  --success: #047857;
-  --warning: #B45309;
+  --success: #10B981;
+  --warning: #f59e0b;
 
-  --border: #E2E8F0;
-  --input: #F3F4F6;
-  --ring: #1E40AF;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: #18181b;
+  --ring: rgba(255, 255, 255, 0.3);
 
-  /* WCAG AAA Compliant Colors (7:1 contrast on white) */
-  --blue-badge-bg: #DBEAFE;
-  --blue-badge-text: #1E3A8A;
-  --gray-text: #475569;
-  --link-color: #1E40AF;
+  /* CTA Brand Colors (same as dark) */
+  --blue-badge-bg: #1F3076;
+  --blue-badge-text: #1F3076;
+  --gray-text: #334155;
+  --link-color: #ffffff;
 
-  /* CTA Light Brand Colors */
-  --cta-daytime: #1E40AF;
-  --cta-blue-skies: #0284C7;
-  --cta-midnight: #0F172A;
-  --cta-noon: #4a4a4a;
-  --cta-golden-hour: #1a1a1a;
+  --cta-daytime: #1F3076;
+  --cta-blue-skies: #60a5fa;
+  --cta-midnight: #242424;
+  --cta-noon: #e0e0e0;
+  --cta-golden-hour: #ffffff;
 
-  /* Light theme gradients */
-  --cta-gradient-primary: linear-gradient(90deg, #1a1a1a 0%, #6a6a6a 100%);
-  --cta-gradient-secondary: linear-gradient(135deg, #0284C7 0%, #1E40AF 100%);
-  --cta-gradient-accent: linear-gradient(135deg, #1E40AF 0%, #0F172A 100%);
-  --cta-gradient-skyline: linear-gradient(90deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1) 100%);
+  /* Gradients (same as dark) */
+  --cta-gradient-primary: linear-gradient(90deg, #ffffff 0%, #a0a0a0 100%);
+  --cta-gradient-secondary: linear-gradient(135deg, #a0a0a0 0%, #666666 100%);
+  --cta-gradient-accent: linear-gradient(135deg, #666666 0%, #333333 100%);
+  --cta-gradient-skyline: linear-gradient(90deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.15) 100%);
 }
 
 /**
