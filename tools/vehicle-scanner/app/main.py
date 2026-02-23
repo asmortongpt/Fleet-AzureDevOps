@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import shutil
 import uuid
@@ -13,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.config import ALLOWED_EXTENSIONS, MAX_UPLOAD_SIZE_MB, RESULTS_DIR, UPLOAD_DIR
+from app.config import ALLOWED_EXTENSIONS, DATA_DIR, MAX_UPLOAD_SIZE_MB, RESULTS_DIR, UPLOAD_DIR
 from app.models import (
     CompareRequest,
     ComparisonResult,
@@ -213,6 +214,28 @@ async def compare_scans_endpoint(request: CompareRequest):
         request.vehicle_id,
     )
     return result
+
+
+# ========================
+# History Endpoint
+# ========================
+
+@app.get("/scan/history/{vehicle_id}")
+async def scan_history(vehicle_id: str):
+    """Get scan history for a vehicle, sorted by timestamp ascending."""
+    history_path = DATA_DIR / "history" / f"{vehicle_id}.json"
+
+    scans: list[dict] = []
+    if history_path.exists():
+        try:
+            scans = json.loads(history_path.read_text())
+        except (json.JSONDecodeError, OSError):
+            scans = []
+
+    # Sort by timestamp ascending
+    scans.sort(key=lambda s: s.get("timestamp", ""))
+
+    return {"vehicle_id": vehicle_id, "scans": scans}
 
 
 # ========================

@@ -79,6 +79,12 @@ export interface Asset3DViewerProps {
 
   // Photo/video texture wrapping
   wrapTextureUrl?: string;
+
+  // Auto-rotate speed (0.1 – 3.0, default 0.8)
+  autoRotateSpeed?: number;
+
+  // Opacity for crossfade transitions (0–1)
+  opacity?: number;
 }
 
 // Camera preset positions
@@ -126,66 +132,112 @@ function resolveModelUrl(
     const normalizedMake = make.toLowerCase().replace(/[-\s]/g, '_');
     const normalizedModel = model.toLowerCase().replace(/[-\s]/g, '_');
 
-    // Check known model mappings
+    // Check known model mappings (exact make_model → closest available GLB)
     const modelMappings: Record<string, string> = {
-      // Trucks
+      // ── Trucks (exact + closest-match fallbacks) ──
       'ford_f_150': '/models/vehicles/trucks/ford_f_150.glb',
       'ford_f_250': '/models/vehicles/trucks/ford_f_250.glb',
+      'ford_f_350': '/models/vehicles/trucks/ford_f_250.glb',
       'ford_f150': '/models/vehicles/trucks/ford_f_150.glb',
+      'ford_f_150_lightning': '/models/vehicles/trucks/ford_f_150.glb',
+      'ford_ranger': '/models/vehicles/trucks/ford_f_150.glb',
       'chevrolet_silverado': '/models/vehicles/trucks/chevrolet_silverado.glb',
       'chevrolet_silverado_1500': '/models/vehicles/trucks/chevrolet_silverado.glb',
+      'chevrolet_silverado_2500': '/models/vehicles/trucks/chevrolet_silverado.glb',
       'chevrolet_colorado': '/models/vehicles/trucks/chevrolet_colorado.glb',
       'ram_1500': '/models/vehicles/trucks/ram_1500.glb',
       'ram_1500_big_horn': '/models/vehicles/trucks/ram_1500.glb',
+      'ram_2500': '/models/vehicles/trucks/ram_1500.glb',
+      'ram_3500': '/models/vehicles/trucks/ram_1500.glb',
+      'ram_pickup_1500': '/models/vehicles/trucks/ram_1500.glb',
+      'ram_pickup_2500': '/models/vehicles/trucks/ram_1500.glb',
       'toyota_tacoma': '/models/vehicles/trucks/toyota_tacoma.glb',
       'toyota_tacoma_trd': '/models/vehicles/trucks/toyota_tacoma.glb',
+      'toyota_tundra': '/models/vehicles/trucks/toyota_tacoma.glb',
+      'nissan_titan': '/models/vehicles/trucks/toyota_tacoma.glb',
       'gmc_sierra': '/models/vehicles/trucks/gmc_sierra.glb',
+      'gmc_sierra_1500': '/models/vehicles/trucks/gmc_sierra.glb',
+      'gmc_sierra_2500': '/models/vehicles/trucks/gmc_sierra.glb',
+      'gmc_sierra_2500hd': '/models/vehicles/trucks/gmc_sierra.glb',
       'freightliner_cascadia': '/models/vehicles/trucks/freightliner_cascadia.glb',
       'kenworth_t680': '/models/vehicles/trucks/kenworth_t680.glb',
+      'kenworth_w990': '/models/vehicles/trucks/kenworth_t680.glb',
       'mack_anthem': '/models/vehicles/trucks/mack_anthem.glb',
+      'peterbilt_579': '/models/vehicles/construction/peterbilt_567.glb',
 
-      // Vans
+      // ── Vans ──
       'ford_transit': '/models/vehicles/vans/ford_transit.glb',
+      'ford_transit_250': '/models/vehicles/vans/ford_transit.glb',
       'ford_transit_350': '/models/vehicles/vans/ford_transit.glb',
+      'ford_transit_connect': '/models/vehicles/vans/ford_transit.glb',
+      'ford_e_transit': '/models/vehicles/vans/ford_transit.glb',
       'mercedes_benz_sprinter': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
       'mercedes_sprinter': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
+      'mercedes_sprinter_2500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
+      'mercedes_sprinter_3500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
       'sprinter_2500': '/models/vehicles/vans/mercedes_benz_sprinter.glb',
       'ram_promaster': '/models/vehicles/vans/ram_promaster.glb',
+      'ram_promaster_1500': '/models/vehicles/vans/ram_promaster.glb',
+      'ram_promaster_2500': '/models/vehicles/vans/ram_promaster.glb',
       'nissan_nv3500': '/models/vehicles/vans/nissan_nv3500.glb',
+      'chevrolet_express': '/models/vehicles/vans/nissan_nv3500.glb',
+      'chevrolet_express_2500': '/models/vehicles/vans/nissan_nv3500.glb',
+      'chevrolet_express_3500': '/models/vehicles/vans/nissan_nv3500.glb',
 
-      // Sedans
+      // ── Sedans ──
       'toyota_camry': '/models/vehicles/sedans/toyota_camry.glb',
       'toyota_corolla': '/models/vehicles/sedans/toyota_corolla.glb',
+      'toyota_prius': '/models/vehicles/sedans/toyota_corolla.glb',
       'honda_accord': '/models/vehicles/sedans/honda_accord.glb',
+      'honda_civic': '/models/vehicles/sedans/honda_accord.glb',
       'nissan_altima': '/models/vehicles/sedans/nissan_altima.glb',
-      'tesla_model_3': '/models/vehicles/sedans/tesla_model_3.glb',
+      'hyundai_elantra': '/models/vehicles/sedans/toyota_corolla.glb',
+      'kia_forte': '/models/vehicles/sedans/toyota_corolla.glb',
+      'chevrolet_malibu': '/models/vehicles/sedans/toyota_camry.glb',
+      'ford_fusion': '/models/vehicles/sedans/toyota_camry.glb',
+      'tesla_model_3': '/models/vehicles/electric_sedans/tesla_model_3.glb',
       'tesla_model_s': '/models/vehicles/sedans/tesla_model_s.glb',
+      'chevrolet_bolt_euv': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
+      'chevrolet_bolt_ev': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
+      'nissan_leaf': '/models/vehicles/electric_sedans/chevrolet_bolt_ev.glb',
 
-      // SUVs
-      'tesla_model_y': '/models/vehicles/electric_suvs/tesla_model_y.glb',
-      'tesla_model_x': '/models/vehicles/suvs/tesla_model_x.glb',
+      // ── SUVs ──
       'chevrolet_tahoe': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+      'chevrolet_suburban': '/models/vehicles/suvs/chevrolet_tahoe.glb',
       'ford_explorer': '/models/vehicles/suvs/ford_explorer.glb',
+      'ford_expedition': '/models/vehicles/suvs/ford_explorer.glb',
       'honda_cr_v': '/models/vehicles/suvs/honda_cr_v.glb',
       'jeep_wrangler': '/models/vehicles/suvs/jeep_wrangler.glb',
+      'tesla_model_y': '/models/vehicles/electric_suvs/tesla_model_y.glb',
+      'tesla_model_x': '/models/vehicles/suvs/tesla_model_x.glb',
+      'gmc_yukon': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+      'toyota_4runner': '/models/vehicles/suvs/jeep_wrangler.glb',
+      'toyota_sequoia': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+      'nissan_armada': '/models/vehicles/suvs/chevrolet_tahoe.glb',
+      'dodge_durango': '/models/vehicles/suvs/ford_explorer.glb',
 
-      // Construction/Heavy Equipment
+      // ── Construction & Heavy Equipment ──
       'caterpillar_320': '/models/vehicles/construction/caterpillar_320.glb',
       'john_deere_200g': '/models/vehicles/construction/john_deere_200g.glb',
       'komatsu_pc210': '/models/vehicles/construction/komatsu_pc210.glb',
       'volvo_ec220': '/models/vehicles/construction/volvo_ec220.glb',
+      'volvo_a40f': '/models/vehicles/construction/volvo_ec220.glb',
       'hitachi_zx210': '/models/vehicles/construction/hitachi_zx210.glb',
       'kenworth_t880': '/models/vehicles/construction/kenworth_t880.glb',
       'peterbilt_567': '/models/vehicles/construction/peterbilt_567.glb',
       'mack_granite': '/models/vehicles/construction/mack_granite.glb',
+      'jcb_3cx': '/models/vehicles/construction/john_deere_200g.glb',
+      'bobcat_s570': '/models/vehicles/construction/caterpillar_320.glb',
 
-      // Altech fleet vehicles
+      // ── Altech fleet ──
       'altech_st_200_service': '/models/vehicles/trucks/altech_st_200_service.glb',
       'altech_fh_250_flatbed': '/models/vehicles/trucks/altech_fh_250_flatbed.glb',
       'altech_fh_300_flatbed': '/models/vehicles/trucks/altech_fh_300_flatbed.glb',
       'altech_hd_40_dump': '/models/vehicles/construction/altech_hd_40_dump_truck.glb',
       'altech_wt_2000_water': '/models/vehicles/trucks/altech_wt_2000_water.glb',
       'altech_fl_1500_fuel_lube': '/models/vehicles/trucks/altech_fl_1500_fuel_lube.glb',
+      'altech_cm_3000_mixer': '/models/vehicles/construction/altech_cm_3000_mixer.glb',
+      'altech_ah_350_hauler': '/models/vehicles/construction/altech_ah_350_hauler.glb',
     };
 
     // Try exact match first
@@ -511,9 +563,10 @@ interface CameraControllerProps {
   preset: CameraPreset;
   autoRotate: boolean;
   enableControls: boolean;
+  autoRotateSpeed?: number;
 }
 
-function CameraController({ preset, autoRotate, enableControls }: CameraControllerProps) {
+function CameraController({ preset, autoRotate, enableControls, autoRotateSpeed = 0.8 }: CameraControllerProps) {
   const { camera } = useThree();
   const controlsRef = useRef<any>(null);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -559,7 +612,7 @@ function CameraController({ preset, autoRotate, enableControls }: CameraControll
         enableZoom={enableControls}
         enableRotate={enableControls}
         autoRotate={autoRotate && !isAnimating}
-        autoRotateSpeed={0.8}
+        autoRotateSpeed={autoRotateSpeed}
         maxPolarAngle={Math.PI / 2}
         minDistance={1}
         maxDistance={25}
@@ -680,6 +733,8 @@ export function Asset3DViewer({
   hotspots = [],
   showHotspots = true,
   wrapTextureUrl,
+  autoRotateSpeed = 0.8,
+  opacity = 1,
 }: Asset3DViewerProps) {
   const [deviceCapabilities, setDeviceCapabilities] = useState<any>(null);
   const [internalCamera, setInternalCamera] = useState(currentCamera);
@@ -750,7 +805,7 @@ export function Asset3DViewer({
   const vehicleLabel = [year, make, model].filter(Boolean).join(' ') || undefined;
 
   return (
-    <div className="relative w-full h-full bg-[#111]">
+    <div className="relative w-full h-full bg-[#111]" style={{ opacity, transition: 'opacity 0.4s ease-in-out' }}>
       {/* 3D Canvas wrapped in error boundary for React 19 / R3F v8 compatibility */}
       <R3FErrorBoundary vehicleLabel={vehicleLabel}>
         <Canvas
@@ -774,6 +829,7 @@ export function Asset3DViewer({
               preset={cameraPreset}
               autoRotate={autoRotate}
               enableControls={true}
+              autoRotateSpeed={autoRotateSpeed}
             />
 
             {/* Lighting System */}

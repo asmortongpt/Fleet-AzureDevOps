@@ -51,6 +51,8 @@ import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import useSWR from 'swr';
 
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+
 import { AIModelGenerationPanel } from '@/components/garage/AIModelGenerationPanel';
 import { ComparisonSplitView } from '@/components/garage/ComparisonSplitView';
 import { DamageStrip, type DamagePin, type DamageZone } from '@/components/garage/DamageStrip';
@@ -386,6 +388,14 @@ export default function VehicleShowroom3D() {
   // Damage state
   const [damagePins, setDamagePins] = useState<DamagePin[]>([]);
 
+  // Feature 3: Scan damage points from VehicleScanUpload → 3D viewer
+  const [scanDamagePoints, setScanDamagePoints] = useState<DamagePoint[]>([]);
+
+  // Feature 5: Condition timeline from scan history
+  const [scanHistory, setScanHistory] = useState<
+    Array<{ scan_id: string; timestamp: string; overall_score: number; damage_count: number }>
+  >([]);
+
   // Photos state
   const [vehiclePhotos, setVehiclePhotos] = useState<
     Array<{ id: string; url: string; name: string; category: string }>
@@ -667,6 +677,35 @@ export default function VehicleShowroom3D() {
       };
     });
   }, [incidentsArr]);
+
+  // Feature 3: Merge incident damage + scan damage points
+  const allDamagePoints: DamagePoint[] = useMemo(
+    () => [...incidentDamagePoints, ...scanDamagePoints],
+    [incidentDamagePoints, scanDamagePoints]
+  );
+
+  // Feature 5: Fetch scan history for condition timeline
+  useEffect(() => {
+    if (!vehicleId) {
+      setScanHistory([]);
+      return;
+    }
+    let active = true;
+    fetch(`/api/vehicle-scanner/scan/history/${vehicleId}`, { credentials: 'include' })
+      .then((res) => {
+        if (!res.ok) throw new Error('Failed to fetch scan history');
+        return res.json();
+      })
+      .then((data) => {
+        if (!active) return;
+        const arr = Array.isArray(data) ? data : data?.history || [];
+        setScanHistory(arr);
+      })
+      .catch(() => {
+        if (active) setScanHistory([]);
+      });
+    return () => { active = false; };
+  }, [vehicleId]);
 
   // Keyboard shortcuts for camera presets & toggles
   useEffect(() => {
@@ -964,7 +1003,7 @@ export default function VehicleShowroom3D() {
               autoRotate={autoRotate}
               autoRotateSpeed={autoRotateSpeed}
               showDamage={true}
-              damagePoints={incidentDamagePoints}
+              damagePoints={allDamagePoints}
               qualityLevel="high"
               showControls={false}
               hotspots={vehicleHotspots}
@@ -1462,6 +1501,75 @@ export default function VehicleShowroom3D() {
                   </div>
                 </div>
               </div>
+
+              {/* Feature 5: Condition History chart */}
+              {scanHistory.length > 1 && (
+                <div className="bg-[#242424] rounded-lg p-3 border border-white/[0.08]">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="text-[10px] font-semibold text-white/60 uppercase tracking-wide">
+                      Condition History
+                    </h4>
+                    {scanHistory.length >= 2 && (() => {
+                      const latest = scanHistory[scanHistory.length - 1].overall_score;
+                      const previous = scanHistory[scanHistory.length - 2].overall_score;
+                      const diff = latest - previous;
+                      const pctChange = previous > 0 ? ((diff / previous) * 100).toFixed(1) : '0.0';
+                      return (
+                        <span className={cn('text-[10px] font-medium', diff >= 0 ? 'text-emerald-400' : 'text-rose-400')}>
+                          {diff >= 0 ? '\u2191' : '\u2193'} {Math.abs(Number(pctChange))}%
+                        </span>
+                      );
+                    })()}
+                  </div>
+                  <ResponsiveContainer width="100%" height={120}>
+                    <AreaChart
+                      data={scanHistory.map((s) => ({
+                        date: formatDate(s.timestamp),
+                        score: s.overall_score,
+                        damages: s.damage_count,
+                      }))}
+                      margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
+                    >
+                      <defs>
+                        <linearGradient id="conditionGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <YAxis
+                        domain={[0, 100]}
+                        tick={{ fontSize: 9, fill: 'rgba(255,255,255,0.3)' }}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1a1a1a',
+                          border: '1px solid rgba(255,255,255,0.08)',
+                          borderRadius: '8px',
+                          fontSize: '11px',
+                          color: 'rgba(255,255,255,0.8)',
+                        }}
+                        labelStyle={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px' }}
+                      />
+                      <Area
+                        type="monotone"
+                        dataKey="score"
+                        stroke="#10b981"
+                        strokeWidth={2}
+                        fill="url(#conditionGradient)"
+                        name="Score"
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </TabsContent>
 
             {/* ---- Tab: Maintenance ---- */}
@@ -2393,6 +2501,11 @@ export default function VehicleShowroom3D() {
           model={selectedVehicle?.model}
           year={selectedVehicle?.year}
           onClose={() => setShowScanUpload(false)}
+          onViewDamageIn3D={(points) => {
+            setScanDamagePoints(points);
+            setShowScanUpload(false);
+            if (!isDamageMode) setIsDamageMode(true);
+          }}
         />
       )}
 

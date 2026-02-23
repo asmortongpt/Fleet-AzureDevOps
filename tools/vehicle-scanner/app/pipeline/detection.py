@@ -12,6 +12,8 @@ import numpy as np
 from app.config import (
     YOLO_CONF_THRESHOLD,
     YOLO_IOU_THRESHOLD,
+    YOLO_FINE_TUNED,
+    FINE_TUNED_DAMAGE_CLASSES,
     DAMAGE_CLASS_MAP,
     SEVERITY_THRESHOLDS,
 )
@@ -69,9 +71,14 @@ def detect_damage(
         frame_items = _process_detections(results, frame_idx, w, h)
         all_items.extend(frame_items)
 
-        # Also run visual anomaly detection (color/texture analysis)
-        anomaly_items = _detect_visual_anomalies(img, frame_idx, w, h)
-        all_items.extend(anomaly_items)
+        # Skip visual anomaly detection when using the fine-tuned model
+        # to avoid double-counting damage (the fine-tuned model already
+        # detects our 8 damage classes directly).
+        if not YOLO_FINE_TUNED:
+            anomaly_items = _detect_visual_anomalies(img, frame_idx, w, h)
+            all_items.extend(anomaly_items)
+        else:
+            anomaly_items = []
 
         # Save annotated frame
         annotated = _draw_detections(img, frame_items + anomaly_items)
@@ -91,7 +98,13 @@ def detect_damage(
 def _process_detections(
     results, frame_idx: int, img_w: int, img_h: int
 ) -> list[DamageItem]:
-    """Process YOLO results into DamageItem list."""
+    """Process YOLO results into DamageItem list.
+
+    When YOLO_FINE_TUNED is True the model outputs our 8 damage classes
+    directly, so we read the class name from the results without heuristic
+    mapping.  When using the pre-trained COCO model (Phase 1) we fall back
+    to the original anomaly-based logic.
+    """
     items: list[DamageItem] = []
 
     for result in results:
@@ -104,28 +117,47 @@ def _process_detections(
             cls_id = int(boxes.cls[i])
             cls_name = result.names.get(cls_id, "unknown")
 
-            # Phase 1: General detection — detect vehicles and their parts
-            # Look for damage-indicative patterns
             x1, y1, x2, y2 = boxes.xyxy[i].tolist()
+            area_ratio = (x2 - x1) * (y2 - y1) / max(img_w * img_h, 1)
 
-            # Skip detections that are clearly not damage-related
-            if cls_name in ("person", "bicycle", "motorcycle", "bus", "train",
-                            "traffic light", "stop sign", "parking meter"):
-                continue
+            if YOLO_FINE_TUNED:
+                # --- Fine-tuned model path ---
+                # Class names come directly from the model and match our
+                # taxonomy, so no heuristic mapping is needed.
+                if cls_name not in FINE_TUNED_DAMAGE_CLASSES:
+                    logger.debug(
+                        "Skipping unexpected class from fine-tuned model: %s", cls_name
+                    )
+                    continue
 
-            # In Phase 1, we note detections that could indicate damage context
-            # (e.g., a "car" detected with low confidence might have visual damage)
-            if cls_name == "car" and conf < 0.5:
-                # Low-confidence car detection may indicate visual anomaly
                 items.append(DamageItem(
                     id=str(uuid.uuid4())[:8],
-                    damage_type="potential_anomaly",
-                    severity=_classify_severity(conf, (x2 - x1) * (y2 - y1) / (img_w * img_h)),
+                    damage_type=cls_name,
+                    severity=_classify_severity(conf, area_ratio),
                     confidence=conf,
                     bbox=BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2),
                     frame_index=frame_idx,
-                    description=f"Low-confidence vehicle region (YOLO: {cls_name} @ {conf:.2f})",
+                    description=f"{cls_name} detected (fine-tuned model @ {conf:.2f})",
                 ))
+            else:
+                # --- Phase 1: Pre-trained COCO model path ---
+                # Skip detections that are clearly not damage-related
+                if cls_name in ("person", "bicycle", "motorcycle", "bus", "train",
+                                "traffic light", "stop sign", "parking meter"):
+                    continue
+
+                # In Phase 1, we note detections that could indicate damage context
+                # (e.g., a "car" detected with low confidence might have visual damage)
+                if cls_name == "car" and conf < 0.5:
+                    items.append(DamageItem(
+                        id=str(uuid.uuid4())[:8],
+                        damage_type="potential_anomaly",
+                        severity=_classify_severity(conf, area_ratio),
+                        confidence=conf,
+                        bbox=BoundingBox(x1=x1, y1=y1, x2=x2, y2=y2),
+                        frame_index=frame_idx,
+                        description=f"Low-confidence vehicle region (YOLO: {cls_name} @ {conf:.2f})",
+                    ))
 
     return items
 

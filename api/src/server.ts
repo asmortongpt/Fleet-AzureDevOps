@@ -77,6 +77,7 @@ import aiDispatchRouter from './routes/ai-dispatch.routes'
 import aiSearchRouter from './routes/ai-search'
 import aiTaskAssetRouter from './routes/ai-task-asset.routes'
 import aiTaskPrioritizationRouter from './routes/ai-task-prioritization.routes'
+import vehicleScannerAIRouter from './routes/vehicle-scanner-ai.routes'
 // Lazy-loaded: @langchain/core may not be installed in all environments
 let langchainRouter: import('express').Router | null = null
 try {
@@ -569,6 +570,7 @@ app.use('/api/vehicle-hardware-config', vehicleHardwareConfigRouter)
 app.use('/api/vehicle-history', vehicleHistoryRouter)
 app.use('/api/vehicle-identification', vehicleIdentificationRouter)
 app.use('/api/vehicle-3d', vehicle3dRouter)
+app.use('/api/vehicle-scanner-ai', vehicleScannerAIRouter)
 app.use('/api/vehicle-scanner', vehicleScannerRouter)
 app.use('/api/damage', damageRouter)
 app.use('/api/damage-reports', damageReportsRouter)

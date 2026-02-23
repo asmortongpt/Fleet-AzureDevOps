@@ -5,6 +5,7 @@ import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/componen
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
 import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor } from "@/utils/vehicle-map-icons"
+import type { MarkerStyle, MarkerSize } from "@/stores/useMapMarkerSettings"
 import logger from '@/utils/logger';
 /**
  * Props for the GoogleMap component
@@ -44,6 +45,12 @@ export interface GoogleMapProps {
   selectedVehicleId?: string | null
   /** Set of vehicle IDs to show — if provided, vehicles not in the set are hidden */
   visibleVehicleIds?: Set<string> | null
+  /** Marker visual style */
+  markerStyle?: MarkerStyle
+  /** Marker size */
+  markerSize?: MarkerSize
+  /** Show vehicle name labels below markers */
+  showMarkerLabels?: boolean
 }
 
 /** Methods exposed via ref */
@@ -139,6 +146,9 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
   onVehicleAction,
   selectedVehicleId,
   visibleVehicleIds,
+  markerStyle = 'pin',
+  markerSize = 'medium',
+  showMarkerLabels = false,
 }, ref) {
   // Refs for DOM and map instances
   const mapRef = useRef<HTMLDivElement>(null)
@@ -485,8 +495,8 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
           const vehicleType = vehicle.type || (vehicle as any).vehicle_type || 'sedan'
           const statusClr = getStatusColor(vehicle.status)
           const markerIcon = isSelected
-            ? buildSelectedMarkerIcon(vehicleType, statusClr, 40)
-            : buildVehicleMarkerIcon(vehicleType, statusClr, 30)
+            ? buildSelectedMarkerIcon(vehicleType, statusClr, markerStyle, markerSize)
+            : buildVehicleMarkerIcon(vehicleType, statusClr, markerStyle, markerSize)
 
           const marker = new google.maps.Marker({
             position: coords,
@@ -494,6 +504,15 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
             title: `${vehicle.name || vehicle.number || 'Vehicle'} (${vehicleType})`,
             optimized: true,
             icon: markerIcon,
+            label: showMarkerLabels
+              ? {
+                  text: vehicle.name || vehicle.number || '',
+                  color: '#fff',
+                  fontSize: '9px',
+                  fontWeight: '500',
+                  className: 'map-vehicle-label',
+                }
+              : undefined,
             zIndex: isSelected ? 1000 : undefined,
           })
 
@@ -654,6 +673,9 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
     clearMarkers,
     selectedVehicleId,
     visibleVehicleIds,
+    markerStyle,
+    markerSize,
+    showMarkerLabels,
   ])
 
   /**

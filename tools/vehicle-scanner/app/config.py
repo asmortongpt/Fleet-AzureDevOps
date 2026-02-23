@@ -41,6 +41,14 @@ DAMAGE_CLASS_MAP = {
     "missing_part": {"severity_weight": 1.0, "color": (128, 0, 128)},
 }
 
+# --- Fine-tuned damage model (Phase 2) ---
+YOLO_FINE_TUNED = os.getenv("YOLO_FINE_TUNED", "false").lower() == "true"
+FINE_TUNED_MODEL_PATH = MODELS_DIR / "fleet-damage-v1.pt"
+FINE_TUNED_DAMAGE_CLASSES = [
+    "dent", "scratch", "rust", "crack",
+    "broken_light", "broken_glass", "paint_chip", "missing_part",
+]
+
 # --- SAM2 segmentation ---
 SAM_MODEL = os.getenv("SAM_MODEL", "sam2_hiera_tiny")
 SAM_ENABLED = os.getenv("SAM_ENABLED", "false").lower() == "true"

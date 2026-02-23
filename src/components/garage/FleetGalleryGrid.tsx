@@ -1,9 +1,9 @@
 /**
  * FleetGalleryGrid — Responsive grid of fleet vehicles with IMAGIN.studio
- * thumbnails, model accuracy badges, and click-to-enter navigation.
+ * thumbnails, model accuracy badges, condition sparklines, and click-to-enter navigation.
  */
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, CheckCircle2, AlertTriangle, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { buildImaginUrl } from '@/utils/imagin-studio';
@@ -35,9 +35,57 @@ function statusColor(status: string): string {
   }
 }
 
+// ============================================================================
+// Condition Sparkline (inline SVG)
+// ============================================================================
+
+function ConditionSparkline({ scores }: { scores: number[] }) {
+  if (scores.length < 2) return null;
+
+  const width = 60;
+  const height = 20;
+  const padding = 1;
+
+  const min = Math.min(...scores);
+  const max = Math.max(...scores);
+  const range = max - min || 1;
+
+  const points = scores.map((score, i) => {
+    const x = padding + (i / (scores.length - 1)) * (width - padding * 2);
+    const y = height - padding - ((score - min) / range) * (height - padding * 2);
+    return `${x},${y}`;
+  });
+
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      className="shrink-0"
+    >
+      <polyline
+        points={points.join(' ')}
+        fill="none"
+        stroke="#10b981"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+// ============================================================================
+// Main Component
+// ============================================================================
+
 export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGalleryGridProps) {
   const [search, setSearch] = useState('');
   const [imgErrors, setImgErrors] = useState<Set<string>>(new Set());
+
+  // Feature 5: Condition scores cache per vehicle
+  const [conditionScores, setConditionScores] = useState<Map<string, number[]>>(new Map());
+  const fetchedRef = useRef<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
     if (!search.trim()) return vehicles;
@@ -49,6 +97,45 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
         v.model.toLowerCase().includes(q)
     );
   }, [vehicles, search]);
+
+  // Feature 5: Fetch scan history for visible vehicles
+  useEffect(() => {
+    const vehiclesToFetch = filtered.filter(
+      (v) => !conditionScores.has(v.id) && !fetchedRef.current.has(v.id)
+    );
+
+    if (vehiclesToFetch.length === 0) return;
+
+    // Mark as fetching to avoid duplicate requests
+    vehiclesToFetch.forEach((v) => fetchedRef.current.add(v.id));
+
+    const fetchPromises = vehiclesToFetch.map((v) =>
+      fetch(`/api/vehicle-scanner/scan/history/${v.id}`, { credentials: 'include' })
+        .then((res) => {
+          if (!res.ok) return { id: v.id, scores: [] as number[] };
+          return res.json().then((data: any) => {
+            const arr = Array.isArray(data) ? data : data?.history || [];
+            const scores = arr
+              .map((entry: any) => entry.overall_score)
+              .filter((s: any) => typeof s === 'number');
+            return { id: v.id, scores };
+          });
+        })
+        .catch(() => ({ id: v.id, scores: [] as number[] }))
+    );
+
+    Promise.allSettled(fetchPromises).then((results) => {
+      const newScores = new Map(conditionScores);
+      results.forEach((result) => {
+        if (result.status === 'fulfilled') {
+          newScores.set(result.value.id, result.value.scores);
+        }
+      });
+      setConditionScores(newScores);
+    });
+    // Only re-run when the filtered list changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered]);
 
   return (
     <div className="absolute inset-0 z-15 top-12 bottom-14 bg-[#111]/95 backdrop-blur-sm overflow-y-auto">
@@ -83,6 +170,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
           const resolution = resolveLocalModelUrl(v.make, v.model, v.vehicleType);
           const thumbUrl = buildImaginUrl(v.make, v.model, v.year, '01', 400);
           const hasError = imgErrors.has(v.id);
+          const scores = conditionScores.get(v.id);
 
           return (
             <button
@@ -123,8 +211,14 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
 
               {/* Info */}
               <div className="px-3 py-2.5">
-                <div className="text-xs font-medium text-white/80 truncate">
-                  {v.year} {v.make} {v.model}
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-medium text-white/80 truncate">
+                    {v.year} {v.make} {v.model}
+                  </div>
+                  {/* Feature 5: Condition sparkline */}
+                  {scores && scores.length >= 2 && (
+                    <ConditionSparkline scores={scores} />
+                  )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-1">
                   {v.status && (

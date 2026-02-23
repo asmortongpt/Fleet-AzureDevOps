@@ -9,6 +9,9 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { usePermissions } from '@/hooks/usePermissions';
 import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { useDrilldown } from '@/contexts/DrilldownContext';
+import { getCsrfToken } from '@/hooks/use-api';
+import { toast } from 'sonner';
 
 // StatusChip Component
 type AssignmentStatus = 'designated'|'on_call'|'temporary'|'active'|'approved'|'submitted'|'denied'|'terminated'|'draft';
@@ -84,6 +87,7 @@ interface ComplianceException {
 
 const VehicleAssignmentManagement: React.FC = () => {
   const { can, isAdmin, isFleetManager } = usePermissions();
+  const { push } = useDrilldown();
   const [activeTab, setActiveTab] = useState<'assignments' | 'on-call' | 'compliance' | 'reports'>('assignments');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
 
@@ -194,6 +198,24 @@ const VehicleAssignmentManagement: React.FC = () => {
       if (response.ok) fetchAssignments();
     } catch (err: unknown) {
       logger.error('Error approving assignment:', err);
+    }
+  };
+
+  const handleTerminateAssignment = async (assignmentId: string) => {
+    try {
+      const csrf = await getCsrfToken();
+      const response = await fetch(`/api/vehicle-assignments/${assignmentId}/terminate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        credentials: 'include',
+        body: JSON.stringify({ reason: 'Terminated by fleet manager' })
+      });
+      if (!response.ok) throw new Error('Failed to terminate');
+      toast.success('Assignment terminated');
+      fetchAssignments();
+    } catch (err: unknown) {
+      logger.error('Error terminating assignment:', err);
+      toast.error('Failed to terminate assignment');
     }
   };
 
@@ -466,23 +488,26 @@ const VehicleAssignmentManagement: React.FC = () => {
                                       >
                                         Edit Assignment
                                       </button>
-                                      <button style={{
-                                        padding:'10px 14px', borderRadius:12, border:'1px solid rgba(168,85,247,0.3)',
-                                        background:'rgba(168,85,247,0.15)', color:'#a855f7', cursor:'pointer', fontSize:13, textAlign:'left'
-                                      }}>
+                                      <button onClick={(e) => { e.stopPropagation(); push({ id: assignment.vehicle_id, type: 'vehicle-details', label: `${assignment.unit_number} ${assignment.make} ${assignment.model}`, data: { vehicleId: assignment.vehicle_id } }); }}
+                                        style={{
+                                          padding:'10px 14px', borderRadius:12, border:'1px solid rgba(168,85,247,0.3)',
+                                          background:'rgba(168,85,247,0.15)', color:'#a855f7', cursor:'pointer', fontSize:13, textAlign:'left'
+                                        }}>
                                         View Vehicle Details
                                       </button>
-                                      <button style={{
-                                        padding:'10px 14px', borderRadius:12, border:'1px solid rgba(245,158,11,0.3)',
-                                        background:'rgba(245,158,11,0.15)', color:'#f59e0b', cursor:'pointer', fontSize:13, textAlign:'left'
-                                      }}>
+                                      <button onClick={(e) => { e.stopPropagation(); push({ id: assignment.driver_id, type: 'driver', label: `${assignment.driver_first_name} ${assignment.driver_last_name}`, data: { driverId: assignment.driver_id, driverName: `${assignment.driver_first_name} ${assignment.driver_last_name}` } }); }}
+                                        style={{
+                                          padding:'10px 14px', borderRadius:12, border:'1px solid rgba(245,158,11,0.3)',
+                                          background:'rgba(245,158,11,0.15)', color:'#f59e0b', cursor:'pointer', fontSize:13, textAlign:'left'
+                                        }}>
                                         View Driver Profile
                                       </button>
                                       {assignment.lifecycle_state === 'active' && (
-                                        <button style={{
-                                          padding:'10px 14px', borderRadius:12, border:'1px solid rgba(239,68,68,0.3)',
-                                          background:'rgba(239,68,68,0.15)', color:'#ef4444', cursor:'pointer', fontSize:13, textAlign:'left'
-                                        }}>
+                                        <button onClick={(e) => { e.stopPropagation(); handleTerminateAssignment(assignment.id); }}
+                                          style={{
+                                            padding:'10px 14px', borderRadius:12, border:'1px solid rgba(239,68,68,0.3)',
+                                            background:'rgba(239,68,68,0.15)', color:'#ef4444', cursor:'pointer', fontSize:13, textAlign:'left'
+                                          }}>
                                           Terminate Assignment
                                         </button>
                                       )}

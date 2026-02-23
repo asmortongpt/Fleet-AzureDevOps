@@ -7,6 +7,8 @@ import { MapFirstLayout } from '../layout/MapFirstLayout';
 import { GoogleMap, GoogleMapHandle } from '../GoogleMap';
 import { MapLegend } from '../map/MapLegend';
 import { MapToolbar } from '../map/MapToolbar';
+import { MapMarkerSettings } from '../map/MapMarkerSettings';
+import { useMapMarkerSettings } from '@/stores/useMapMarkerSettings';
 import { VehicleTypeFilter, VehicleFilters } from '../map/VehicleTypeFilter';
 import { MobileMapControls } from '../mobile/MobileMapControls';
 import { MobileQuickActions } from '../mobile/MobileQuickActions';
@@ -124,6 +126,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVehicleId, setSelectedVehicleId] = useState<string | null>(null);
   const mapRef = useRef<GoogleMapHandle>(null);
+  const { markerStyle, markerSize, showLabels } = useMapMarkerSettings();
   const { navigateTo } = useNavigation();
   const { push: openDrilldown } = useDrilldown();
 
@@ -996,6 +999,9 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               mapStyle="roadmap"
               selectedVehicleId={selectedVehicleId}
               visibleVehicleIds={visibleVehicleIds}
+              markerStyle={markerStyle}
+              markerSize={markerSize}
+              showMarkerLabels={showLabels}
               onVehicleAction={(action, vehicleId) => {
                 if (action === 'select') setSelectedVehicleId(vehicleId);
                 if (action === 'viewDetails') {
@@ -1022,6 +1028,8 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
               onCenterSelected={() => selectedVehicleId && mapRef.current?.centerOnVehicle(selectedVehicleId)}
               hasSelectedVehicle={!!selectedVehicleId}
             />
+            {/* Marker settings overlay */}
+            <MapMarkerSettings />
             {/* Map legend overlay */}
             <MapLegend />
             {/* Vehicle type filter overlay */}

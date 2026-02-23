@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import json
 import logging
+import tempfile
 import time
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-from app.config import RESULTS_DIR, UPLOAD_DIR
+from app.config import DATA_DIR, RESULTS_DIR, UPLOAD_DIR
 from app.models import (
     ComparisonResult,
     DamageItem,
@@ -254,6 +256,10 @@ def run_pipeline(
         )
         _scan_results[scan_id] = scan_results
 
+        # ===== Persist scan history =====
+        if vehicle_id:
+            _persist_scan_history(vehicle_id, scan_id, damage_report)
+
         elapsed = time.time() - start_time
         _update_status(scan_id, ScanStage.complete, 100,
                         f"Scan complete — {len(damage_items)} damages found ({elapsed:.1f}s)")
@@ -265,6 +271,60 @@ def run_pipeline(
     except Exception as e:
         logger.exception("[%s] Pipeline failed: %s", scan_id, e)
         _update_status(scan_id, ScanStage.error, 0, error=str(e))
+
+
+def _persist_scan_history(
+    vehicle_id: str, scan_id: str, report: DamageReport
+) -> None:
+    """Append a scan summary to the vehicle's JSON history file.
+
+    Uses an atomic-write pattern (write to temp file then rename) so that
+    concurrent readers never see a partially written file.
+    """
+    history_dir = DATA_DIR / "history"
+    history_dir.mkdir(parents=True, exist_ok=True)
+
+    history_path = history_dir / f"{vehicle_id}.json"
+
+    # Read existing history
+    scans: list[dict] = []
+    if history_path.exists():
+        try:
+            scans = json.loads(history_path.read_text())
+        except (json.JSONDecodeError, OSError) as exc:
+            logger.warning(
+                "Could not read history file %s, starting fresh: %s",
+                history_path,
+                exc,
+            )
+            scans = []
+
+    # Append new entry
+    entry = {
+        "scan_id": scan_id,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "overall_score": report.overall_score,
+        "damage_count": len(report.items),
+        "total_damage_area_percent": report.total_damage_area_percent,
+    }
+    scans.append(entry)
+
+    # Atomic write: write to a temp file in the same directory then rename
+    try:
+        fd, tmp_path = tempfile.mkstemp(
+            dir=str(history_dir), suffix=".tmp", prefix=f"{vehicle_id}_"
+        )
+        with open(fd, "w") as f:
+            json.dump(scans, f, indent=2)
+        Path(tmp_path).replace(history_path)
+        logger.info(
+            "[%s] Persisted scan history for vehicle %s (%d total scans)",
+            scan_id,
+            vehicle_id,
+            len(scans),
+        )
+    except OSError as exc:
+        logger.error("Failed to persist scan history: %s", exc)
 
 
 def _estimate_eta(start_time: float, progress: float) -> float | None:

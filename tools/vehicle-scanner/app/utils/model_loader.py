@@ -5,7 +5,14 @@ from __future__ import annotations
 import logging
 from typing import Any, Optional
 
-from app.config import DEVICE, YOLO_MODEL, SAM_ENABLED, ESRGAN_ENABLED
+from app.config import (
+    DEVICE,
+    YOLO_MODEL,
+    SAM_ENABLED,
+    ESRGAN_ENABLED,
+    YOLO_FINE_TUNED,
+    FINE_TUNED_MODEL_PATH,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -19,12 +26,34 @@ def get_device() -> str:
 
 
 def load_yolo() -> Any:
-    """Load YOLOv8 model (lazy, cached)."""
+    """Load YOLOv8 model (lazy, cached).
+
+    If YOLO_FINE_TUNED is True and the fine-tuned weights exist at
+    FINE_TUNED_MODEL_PATH, loads those instead of the default pre-trained model.
+    """
     if "yolo" not in _models:
-        logger.info("Loading YOLOv8 model: %s on %s", YOLO_MODEL, DEVICE)
         from ultralytics import YOLO
 
-        model = YOLO(YOLO_MODEL)
+        if YOLO_FINE_TUNED and FINE_TUNED_MODEL_PATH.exists():
+            model_path = str(FINE_TUNED_MODEL_PATH)
+            logger.info(
+                "Loading fine-tuned damage model: %s on %s",
+                FINE_TUNED_MODEL_PATH.name,
+                DEVICE,
+            )
+        else:
+            model_path = YOLO_MODEL
+            if YOLO_FINE_TUNED:
+                logger.warning(
+                    "YOLO_FINE_TUNED is True but model not found at %s — "
+                    "falling back to default model: %s",
+                    FINE_TUNED_MODEL_PATH,
+                    YOLO_MODEL,
+                )
+            else:
+                logger.info("Loading YOLOv8 model: %s on %s", YOLO_MODEL, DEVICE)
+
+        model = YOLO(model_path)
         if DEVICE == "cuda":
             model.to("cuda")
         _models["yolo"] = model

@@ -54,7 +54,8 @@ import {
   Activity,
   UserCheck,
   BedDouble,
-  Siren
+  Siren,
+  CalendarCheck
 } from 'lucide-react'
 import { useState, Suspense, lazy, memo, useMemo } from 'react'
 
@@ -95,6 +96,8 @@ const LiveFleetDashboard = lazy(() => import('@/components/dashboard/LiveFleetDa
 const VehicleTelemetry = lazy(() => import('@/components/modules/fleet/VehicleTelemetry').then(m => ({ default: m.VehicleTelemetry })))
 const VirtualGarage = lazy(() => import('@/components/modules/fleet/VirtualGarage').then(m => ({ default: m.VirtualGarage })))
 const EVChargingManagement = lazy(() => import('@/components/modules/charging/EVChargingManagement').then(m => ({ default: m.EVChargingManagement })))
+const VehicleAssignmentManagement = lazy(() => import('@/components/modules/fleet/VehicleAssignmentManagement').then(m => ({ default: m.default })))
+const ReservationCalendarView = lazy(() => import('@/components/scheduling/ReservationCalendarView').then(m => ({ default: m.ReservationCalendarView })))
 
 
 // ============================================================================
@@ -1992,6 +1995,8 @@ export default function FleetOperationsHub() {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard, testId: 'hub-tab-overview' },
     { id: 'fleet', label: 'Fleet', icon: Car, testId: 'hub-tab-fleet' },
+    { id: 'assignments', label: 'Assignments', icon: UserCheck, testId: 'hub-tab-assignments' },
+    { id: 'reservations', label: 'Reservations', icon: CalendarCheck, testId: 'hub-tab-reservations' },
     { id: 'drivers', label: 'Drivers', icon: Users, testId: 'hub-tab-drivers' },
     { id: 'operations', label: 'Operations', icon: OperationsIcon, testId: 'hub-tab-operations' },
     { id: 'maintenance', label: 'Maintenance', icon: Wrench, testId: 'hub-tab-maintenance' },
@@ -2062,6 +2067,20 @@ export default function FleetOperationsHub() {
           {activeTab === 'assets' && (
             <QueryErrorBoundary>
               <AssetsTabContent />
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'assignments' && (
+            <QueryErrorBoundary>
+              <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton className="h-8 w-40" /></div>}>
+                <VehicleAssignmentManagement />
+              </Suspense>
+            </QueryErrorBoundary>
+          )}
+          {activeTab === 'reservations' && (
+            <QueryErrorBoundary>
+              <Suspense fallback={<div className="flex items-center justify-center py-20"><Skeleton className="h-8 w-40" /></div>}>
+                <ReservationCalendarView />
+              </Suspense>
             </QueryErrorBoundary>
           )}
         </div>

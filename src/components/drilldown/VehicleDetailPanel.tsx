@@ -19,12 +19,15 @@ import {
   FileText,
   User,
   MapPin,
+  Pencil,
+  UserCheck,
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 import { MetricCard } from './MetricCard'
 
+import { EditVehicleDialog } from '@/components/dialogs/EditVehicleDialog'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
@@ -41,6 +44,7 @@ import {
 } from '@/types/asset.types'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime, formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface VehicleDetailPanelProps {
   vehicleId: string
@@ -210,6 +214,7 @@ function EmptyState({ icon: Icon, message }: { icon: React.ComponentType<{ class
 export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
   const { push } = useDrilldown()
   const [activeTab, setActiveTab] = useState('overview')
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
 
   const { data: vehicle, error, isLoading, mutate } = useSWR(
     `/api/vehicles/${vehicleId}`,
@@ -243,6 +248,12 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
 
   const { data: schedules } = useSWR<any[]>(
     vehicleId ? `/api/maintenance-schedules?vehicle_id=${vehicleId}&status=active&limit=5` : null,
+    apiFetcher,
+    { shouldRetryOnError: false }
+  )
+
+  const { data: currentAssignment } = useSWR(
+    vehicleId ? `/api/vehicle-assignments?vehicle_id=${vehicleId}&lifecycle_state=active&limit=1` : null,
     apiFetcher,
     { shouldRetryOnError: false }
   )
@@ -320,15 +331,19 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
           <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0 flex-1">
-                {/* Line 1: name + year/make/model */}
-                <h3 className="text-sm font-bold text-white truncate">
-                  {vehicle.name}
-                  {(vehicle.year || vehicle.make || vehicle.model) && (
-                    <span className="font-normal text-white/50 ml-2">
-                      {[vehicle.year, vehicle.make, vehicle.model].filter(Boolean).join(' ')}
-                    </span>
-                  )}
-                </h3>
+                {/* Line 1: name + edit button */}
+                <div className="flex items-center gap-2 min-w-0">
+                  <h3 className="text-sm font-bold text-white truncate">
+                    {formatVehicleName(vehicle)}
+                  </h3>
+                  <button
+                    onClick={() => setEditDialogOpen(true)}
+                    className="shrink-0 p-1 rounded-md text-white/30 hover:text-white/70 hover:bg-white/[0.06] transition-colors"
+                    title="Edit vehicle"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
 
                 {/* Line 2: status badge + assigned driver */}
                 <div className="flex items-center gap-2 mt-1.5 flex-wrap">
@@ -375,7 +390,15 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
           {/* ---------------------------------------------------------------- */}
           <div className="grid grid-cols-4 gap-2">
             {/* Health Score */}
-            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
+            <button
+              onClick={() => push({
+                id: `health-breakdown-${vehicleId}`,
+                type: 'health-breakdown',
+                label: 'Health Score',
+                data: { vehicleId, healthScore }
+              })}
+              className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5 text-left hover:bg-white/[0.04] transition-colors cursor-pointer"
+            >
               <div className="flex items-center gap-1.5 mb-1">
                 <Activity className="h-3.5 w-3.5 text-white/40" />
                 <span className="text-[11px] text-white/40 font-medium">Health</span>
@@ -389,7 +412,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   style={{ width: `${Math.min(healthScore, 100)}%` }}
                 />
               </div>
-            </div>
+            </button>
 
             {/* Fuel Level */}
             <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
@@ -521,6 +544,37 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                   </div>
                 </div>
               )}
+
+              {/* Current Assignment */}
+              <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-3">
+                <h4 className="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <UserCheck className="h-3.5 w-3.5" />
+                  Current Assignment
+                </h4>
+                {(() => {
+                  const assignments = Array.isArray(currentAssignment) ? currentAssignment : currentAssignment?.assignments ?? []
+                  const active = assignments[0]
+                  if (!active) return (
+                    <p className="text-xs text-white/40">No active assignment</p>
+                  )
+                  return (
+                    <div className="flex items-center gap-3">
+                      <div className="h-8 w-8 rounded-full bg-emerald-500/15 flex items-center justify-center">
+                        <User className="h-4 w-4 text-emerald-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white/80 truncate">
+                          {active.driver_first_name} {active.driver_last_name}
+                        </p>
+                        <p className="text-[11px] text-white/40">
+                          {formatEnum(active.assignment_type)} · {active.department_name || 'No department'}
+                        </p>
+                      </div>
+                      <Badge variant="success" size="sm">{formatEnum(active.lifecycle_state)}</Badge>
+                    </div>
+                  )
+                })()}
+              </div>
 
               {/* Multi-Metric Tracking */}
               {(vehicle.primary_metric ||
@@ -988,6 +1042,12 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
           </div>
         </div>
       )}
+      <EditVehicleDialog
+        vehicleId={vehicleId}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSaved={() => mutate()}
+      />
     </DrilldownContent>
   )
 }
