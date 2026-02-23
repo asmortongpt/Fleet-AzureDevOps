@@ -103,14 +103,14 @@ router.get('/fleet-metrics',
     };
 
     try {
-      // Get vehicle stats
+      // Get vehicle stats (exclude retired vehicles)
       const vehicleStats = await pool.query(`
-        SELECT 
+        SELECT
           COUNT(*) as total,
           COUNT(*) FILTER (WHERE status = 'active') as active,
           COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance
-        FROM vehicles 
-        WHERE tenant_id = $1
+        FROM vehicles
+        WHERE tenant_id = $1 AND status != 'retired'
       `, [tenantId]);
 
       const vStats = vehicleStats.rows[0];
@@ -225,7 +225,7 @@ router.get('/stats',
       await pool.query('SET statement_timeout = 5000');
 
       const [vehicleStats, driverStats, staffStats, workOrderStats] = await Promise.all([
-        // Vehicle stats - using index idx_vehicles_tenant_status
+        // Vehicle stats - using index idx_vehicles_tenant_status (exclude retired)
         pool.query(`
           SELECT
             COUNT(*)::integer as total,
@@ -233,7 +233,7 @@ router.get('/stats',
             COUNT(*) FILTER (WHERE status = 'maintenance')::integer as maintenance,
             COUNT(*) FILTER (WHERE status = 'idle')::integer as idle
           FROM vehicles
-          WHERE tenant_id = $1::uuid
+          WHERE tenant_id = $1::uuid AND status != 'retired'
         `, [tenantId]),
 
         // Driver stats - using index idx_drivers_tenant_status
@@ -444,7 +444,7 @@ router.get('/fleet/stats',
           COUNT(*) FILTER (WHERE status = 'idle')::integer as idle_vehicles,
           COUNT(*) FILTER (WHERE status = 'out_of_service')::integer as out_of_service
         FROM vehicles
-        WHERE tenant_id = $1::uuid
+        WHERE tenant_id = $1::uuid AND status != 'retired'
       `, [tenantId]);
 
       await pool.query('RESET statement_timeout');
@@ -918,7 +918,7 @@ router.post('/reports/daily',
     const doc = new PDFDocument({ margin: 50 });
 
     const [vehicleResult, driverResult, workOrderResult] = await Promise.all([
-      pool.query('SELECT COUNT(*)::integer as count FROM vehicles WHERE tenant_id = $1', [userTenantId]),
+      pool.query("SELECT COUNT(*)::integer as count FROM vehicles WHERE tenant_id = $1 AND status != 'retired'", [userTenantId]),
       pool.query('SELECT COUNT(*)::integer as count FROM drivers WHERE tenant_id = $1', [userTenantId]),
       pool.query('SELECT COUNT(*)::integer as count FROM work_orders WHERE tenant_id = $1', [userTenantId]),
     ]);

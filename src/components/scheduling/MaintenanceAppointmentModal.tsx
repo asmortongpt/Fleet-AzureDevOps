@@ -106,7 +106,7 @@ const generateTimeSlots = () => {
 const TIME_SLOTS = generateTimeSlots()
 
 const PRIORITY_OPTIONS = [
-  { value: 'low', label: 'Low', color: 'text-blue-800' },
+  { value: 'low', label: 'Low', color: 'text-emerald-500' },
   { value: 'medium', label: 'Medium', color: 'text-yellow-600' },
   { value: 'high', label: 'High', color: 'text-orange-600' },
   { value: 'urgent', label: 'Urgent', color: 'text-red-600' },
@@ -520,8 +520,8 @@ export function MaintenanceAppointmentModal({
 
             {/* Availability Check */}
             {checking && (
-              <Alert variant="default" className="border-blue-200 bg-blue-50">
-                <Clock className="h-4 w-4 text-blue-800" />
+              <Alert variant="default" className="border-emerald-500/20 bg-emerald-500/5">
+                <Clock className="h-4 w-4 text-emerald-500" />
                 <AlertDescription>Checking availability...</AlertDescription>
               </Alert>
             )}

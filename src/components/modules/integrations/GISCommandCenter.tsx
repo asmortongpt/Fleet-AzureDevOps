@@ -90,15 +90,22 @@ export function GISCommandCenter() {
   }
 
   const _getStatusColor = (status: Vehicle["status"]) => {
-    const colors = {
+    const colors: Record<string, string> = {
       active: "text-success",
       idle: "text-muted-foreground",
       charging: "text-accent",
       service: "text-warning",
       emergency: "text-destructive",
-      offline: "text-muted-foreground"
+      offline: "text-muted-foreground",
+      assigned: "text-indigo-400",
+      dispatched: "text-orange-400",
+      en_route: "text-sky-400",
+      on_site: "text-yellow-400",
+      completed: "text-emerald-400",
+      maintenance: "text-warning",
+      retired: "text-muted-foreground",
     }
-    return colors[status]
+    return colors[status] || colors.offline
   }
 
   const getFacilityIcon = (type: "office" | "depot" | "service-center" | "fueling-station") => {

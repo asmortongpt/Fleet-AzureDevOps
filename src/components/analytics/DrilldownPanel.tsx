@@ -11,6 +11,7 @@ import { CostAnalyticsChart } from './CostAnalyticsChart'
 import { EfficiencyMetricsChart } from './EfficiencyMetricsChart'
 
 import { formatCurrency, formatNumber as formatNum } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 export type DrilldownLevel = 'overview' | 'category' | 'vehicle' | 'detail'
 
@@ -368,7 +369,7 @@ const VehicleList = memo<{ vehicles: any[]; onVehicleClick: (vehicle: any) => vo
 
 const VehicleDetailCard = memo<{ vehicle: any }>(({ vehicle }) => (
     <div className="bg-slate-800/40 rounded-lg p-3">
-        <h3 className="text-white font-semibold text-base mb-2">{vehicle.name}</h3>
+        <h3 className="text-white font-semibold text-base mb-2">{vehicle.name || formatVehicleName(vehicle)}</h3>
         <div className="grid grid-cols-2 gap-2">
             <div>
                 <p className="text-slate-700 text-sm">VIN</p>

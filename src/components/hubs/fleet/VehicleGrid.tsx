@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 
 import { formatEnum } from '@/utils/format-enum';
 import { formatNumber } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 import { Dialog } from '@/components/shared/Dialog';
 import { Button } from '@/components/ui/button';
@@ -102,10 +103,15 @@ export const VehicleGrid: React.FC = () => {
     );
   }
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     active: 'bg-green-500/10 text-green-500 border-green-500/20',
     maintenance: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
-    inactive: 'bg-red-500/10 text-red-500 border-red-500/20'
+    inactive: 'bg-red-500/10 text-red-500 border-red-500/20',
+    assigned: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+    dispatched: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+    en_route: 'bg-sky-500/10 text-sky-400 border-sky-500/20',
+    on_site: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+    completed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   };
 
   return (
@@ -130,7 +136,7 @@ export const VehicleGrid: React.FC = () => {
 
             {/* Vehicle Info */}
             <h3 className="font-semibold text-sm mb-1">
-              {vehicle.make} {vehicle.model}
+              {formatVehicleShortName(vehicle)}
             </h3>
             <p className="text-sm text-muted-foreground mb-2">
               {vehicle.year} • VIN: {vehicle.vin?.slice(-6)}
@@ -157,7 +163,7 @@ export const VehicleGrid: React.FC = () => {
         <Dialog
           open={!!selectedVehicle}
           onClose={() => setSelectedVehicle(null)}
-          title={`${selectedVehicle.make} ${selectedVehicle.model}`}
+          title={formatVehicleShortName(selectedVehicle)}
           variant="drawer"
           size="xl"
         >

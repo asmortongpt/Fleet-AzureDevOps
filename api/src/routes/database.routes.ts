@@ -56,7 +56,7 @@ router.get('/health',
       // Get additional database statistics
       const dbStats = await pool.query(`
         SELECT
-          (SELECT COUNT(*) FROM vehicles) as vehicle_count,
+          (SELECT COUNT(*) FROM vehicles WHERE status != 'retired') as vehicle_count,
           (SELECT COUNT(*) FROM drivers) as driver_count,
           (SELECT COUNT(*) FROM maintenance_requests) as maintenance_count,
           (SELECT pg_database_size(current_database())) as database_size

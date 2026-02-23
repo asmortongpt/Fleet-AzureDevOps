@@ -343,7 +343,7 @@ router.get(
         fuel_level,
         metadata
       FROM vehicles
-      WHERE tenant_id = $1 AND assigned_facility_id = $2
+      WHERE tenant_id = $1 AND assigned_facility_id = $2 AND status != 'retired'
       ORDER BY name ASC`,
       [tenantId, facilityId],
       tenantId

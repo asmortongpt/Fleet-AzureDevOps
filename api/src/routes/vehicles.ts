@@ -762,6 +762,116 @@ const photoUpload = multer({
   }
 })
 
+// GET vehicle condition data for HealthScoreBreakdown (real telemetry from DB)
+router.get("/:id/condition",
+  requirePermission('vehicle:view:own'),
+  asyncHandler(async (req: Request, res: Response) => {
+    const tenantId = req.user?.tenant_id
+    const vehicleId = req.params.id
+
+    if (!tenantId) {
+      throw new ValidationError('Tenant ID is required')
+    }
+
+    // Verify vehicle belongs to tenant
+    const vehicleCheck = await pool.query(
+      `SELECT id FROM vehicles WHERE id = $1 AND tenant_id = $2`,
+      [vehicleId, tenantId]
+    )
+
+    if (vehicleCheck.rows.length === 0) {
+      throw new NotFoundError('Vehicle not found')
+    }
+
+    // Get the latest telemetry record for this vehicle
+    const telemetryResult = await pool.query(
+      `SELECT
+        oil_life_percent,
+        battery_percent,
+        battery_voltage_12v,
+        tire_pressure_fl,
+        tire_pressure_fr,
+        tire_pressure_rl,
+        tire_pressure_rr,
+        fuel_percent,
+        coolant_temp_f,
+        raw_data,
+        timestamp
+      FROM vehicle_telemetry
+      WHERE vehicle_id = $1 AND tenant_id = $2
+      ORDER BY timestamp DESC
+      LIMIT 1`,
+      [vehicleId, tenantId]
+    )
+
+    if (telemetryResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'No telemetry data found for this vehicle',
+      })
+    }
+
+    const row = telemetryResult.rows[0]
+    const rawData = row.raw_data || {}
+
+    // Map battery_voltage_12v to health %: 12V+ = 100%, 11V = 50%, 10V- = 0%
+    const mapBatteryVoltage = (v: number | null): number => {
+      if (v === null || v === undefined) return 0
+      if (v >= 12) return 100
+      if (v <= 10) return 0
+      return Math.round(((v - 10) / 2) * 100)
+    }
+
+    const batteryHealth =
+      row.battery_percent != null
+        ? Number(row.battery_percent)
+        : mapBatteryVoltage(row.battery_voltage_12v != null ? Number(row.battery_voltage_12v) : null)
+
+    const FRONT_RECOMMENDED_PSI = 32
+    const REAR_RECOMMENDED_PSI = 35
+
+    const conditionData = {
+      engine: {
+        oilLife: row.oil_life_percent != null ? Number(row.oil_life_percent) : 0,
+      },
+      battery: {
+        health: batteryHealth,
+      },
+      brakes: {
+        frontPadLife: rawData.brake_pad_front_percent != null ? Number(rawData.brake_pad_front_percent) : 0,
+        rearPadLife: rawData.brake_pad_rear_percent != null ? Number(rawData.brake_pad_rear_percent) : 0,
+      },
+      tires: {
+        frontLeft: {
+          pressure: row.tire_pressure_fl != null ? Number(row.tire_pressure_fl) : 0,
+          recommendedPressure: FRONT_RECOMMENDED_PSI,
+        },
+        frontRight: {
+          pressure: row.tire_pressure_fr != null ? Number(row.tire_pressure_fr) : 0,
+          recommendedPressure: FRONT_RECOMMENDED_PSI,
+        },
+        rearLeft: {
+          pressure: row.tire_pressure_rl != null ? Number(row.tire_pressure_rl) : 0,
+          recommendedPressure: REAR_RECOMMENDED_PSI,
+        },
+        rearRight: {
+          pressure: row.tire_pressure_rr != null ? Number(row.tire_pressure_rr) : 0,
+          recommendedPressure: REAR_RECOMMENDED_PSI,
+        },
+      },
+    }
+
+    res.json({
+      success: true,
+      data: conditionData,
+      meta: {
+        vehicleId,
+        telemetryTimestamp: row.timestamp,
+      },
+    })
+  })
+)
+
 // POST vehicle photos - Upload photos for a vehicle
 router.post("/:id/photos",
   csrfProtection,

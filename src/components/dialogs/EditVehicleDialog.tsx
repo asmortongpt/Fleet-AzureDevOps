@@ -186,6 +186,7 @@ export function EditVehicleDialog({
   const [availableAssetTypes, setAvailableAssetTypes] = useState<AssetType[]>([])
 
   // Update available asset types when category changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally only re-run when category changes; asset_type is read but should not trigger this effect
   useEffect(() => {
     if (formData.asset_category) {
       const types = getAssetTypesForCategory(formData.asset_category as AssetCategory)
@@ -664,9 +665,13 @@ export function EditVehicleDialog({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="inactive">Inactive</SelectItem>
-                      <SelectItem value="in_service">In Service</SelectItem>
-                      <SelectItem value="out_of_service">Out of Service</SelectItem>
+                      <SelectItem value="idle">Idle</SelectItem>
+                      <SelectItem value="charging">Charging</SelectItem>
+                      <SelectItem value="service">Service</SelectItem>
+                      <SelectItem value="emergency">Emergency</SelectItem>
+                      <SelectItem value="offline">Offline</SelectItem>
+                      <SelectItem value="maintenance">Maintenance</SelectItem>
+                      <SelectItem value="retired">Retired</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

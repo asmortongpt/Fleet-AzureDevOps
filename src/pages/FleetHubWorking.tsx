@@ -4,6 +4,7 @@
  */
 
 import * as TabsPrimitive from "@radix-ui/react-tabs"
+import { formatVehicleName } from "@/utils/vehicle-display"
 import {
     Layout,
     Truck,
@@ -116,7 +117,7 @@ const VehiclesContent = memo(function VehiclesContent({ vehicles }: { vehicles: 
                         {vehicles.slice(0, 10).map((vehicle) => (
                             <div key={vehicle.id} className="flex items-center justify-between py-2 border-b border-white/[0.08]">
                                 <span>
-                                    {vehicle.make || '—'} {vehicle.model || ''} ({vehicle.unit_number || vehicle.unitNumber || vehicle.number || vehicle.id})
+                                    {formatVehicleName({ make: vehicle.make, model: vehicle.model, number: vehicle.unit_number || vehicle.unitNumber || vehicle.number })}
                                 </span>
                                 <span className="text-green-400">Status: {vehicle.status || 'unknown'}</span>
                             </div>

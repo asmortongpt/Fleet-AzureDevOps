@@ -7,6 +7,7 @@ import { format, isWithinInterval, isSameDay } from 'date-fns'
 import { Calendar, CheckCircle, Clock, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
@@ -49,7 +50,7 @@ type FilterStatus = 'all' | 'pending' | 'confirmed' | 'active' | 'scheduled' | '
 const STATUS_COLORS = {
   // Reservations
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-  confirmed: 'bg-blue-100 text-blue-800 border-blue-300',
+  confirmed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   active: 'bg-green-100 text-green-800 border-green-300',
   completed: 'bg-gray-100 text-slate-700 border-gray-300',
   cancelled: 'bg-red-100 text-red-800 border-red-300',
@@ -59,7 +60,7 @@ const STATUS_COLORS = {
 }
 
 const PRIORITY_COLORS = {
-  low: 'bg-blue-500',
+  low: 'bg-emerald-500',
   medium: 'bg-yellow-500',
   high: 'bg-orange-500',
   urgent: 'bg-red-500',
@@ -228,9 +229,9 @@ export function ScheduleView({
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
-              <Truck className="h-4 w-4 text-blue-800" />
+              <Truck className="h-4 w-4 text-emerald-500" />
               <h4 className="font-semibold">
-                {reservation.make} {reservation.model}
+                {formatVehicleShortName(reservation)}
               </h4>
               <Badge variant="outline" className={cn('ml-2', STATUS_COLORS[reservation.status as keyof typeof STATUS_COLORS])}>
                 {reservation.status}
@@ -367,7 +368,7 @@ export function ScheduleView({
                 <div className="flex items-center gap-2">
                   <Truck className="h-3 w-3" />
                   <span>
-                    {appointment.make} {appointment.model}
+                    {formatVehicleShortName(appointment)}
                   </span>
                 </div>
               )}

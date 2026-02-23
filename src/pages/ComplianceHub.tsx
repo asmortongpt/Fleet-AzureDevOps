@@ -27,6 +27,7 @@ import {
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
+import { formatVehicleName } from '@/utils/vehicle-display'
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn } from '@/components/ui/data-table'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
@@ -62,7 +63,7 @@ export default function ComplianceHub() {
       return {
         id: inspection.id,
         recordType: 'Inspection' as const,
-        vehicle: vehicle ? `${vehicle.name || vehicle.make} ${vehicle.model || ''}`.trim() : '',
+        vehicle: vehicle ? formatVehicleName(vehicle) : '',
         driver: driver ? `${driver.first_name || ''} ${driver.last_name || ''}`.trim() : '',
         date: inspection.completed_at || inspection.inspection_date || inspection.created_at || '',
         status: (inspection.status === 'passed' ? 'Passed' : inspection.status === 'failed' ? 'Failed' : 'Pending') as ComplianceRecord['status'],
@@ -89,7 +90,7 @@ export default function ComplianceHub() {
       return {
         id: incident.id,
         recordType: 'Violation' as const,
-        vehicle: vehicle ? `${vehicle.name || vehicle.make} ${vehicle.model || ''}`.trim() : '',
+        vehicle: vehicle ? formatVehicleName(vehicle) : '',
         driver: driver ? `${driver.first_name || ''} ${driver.last_name || ''}`.trim() : '',
         date: incident.created_at || incident.event_time || '',
         status: status as ComplianceRecord['status'],

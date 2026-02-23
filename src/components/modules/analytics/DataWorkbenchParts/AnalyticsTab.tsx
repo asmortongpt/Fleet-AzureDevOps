@@ -8,6 +8,7 @@ import { useMemo } from "react"
 import { MaintenanceRecord, FuelRecord } from "./types"
 
 import { formatCurrency } from "@/utils/format-helpers"
+import { formatVehicleShortName } from "@/utils/vehicle-display"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -68,7 +69,7 @@ export function AnalyticsTab({
       if (avgMPG > mostEfficient.mpg) {
         const vehicle = (vehicles || []).find(v => v.number === vehicleNum)
         mostEfficient = {
-          vehicle: vehicle ? `${vehicle.number} (${vehicle.make} ${vehicle.model})` : vehicleNum,
+          vehicle: vehicle ? formatVehicleShortName(vehicle) : vehicleNum,
           mpg: avgMPG
         }
       }
@@ -158,7 +159,7 @@ export function AnalyticsTab({
       if (costPerMile > 0 && (lowestCost.costPerMile === 0 || costPerMile < lowestCost.costPerMile)) {
         const vehicle = vehicles.find(v => v.number === vehicleNumber)
         lowestCost = {
-          vehicle: vehicle ? `${vehicle.number} (${vehicle.make} ${vehicle.model})` : vehicleNumber,
+          vehicle: vehicle ? formatVehicleShortName(vehicle) : vehicleNumber,
           costPerMile
         }
       }
@@ -174,7 +175,7 @@ export function AnalyticsTab({
       if (mostReliable.vehicle === "—" || count < mostReliable.count) {
         const vehicle = vehicles.find(v => v.number === vehicleNumber)
         mostReliable = {
-          vehicle: vehicle ? `${vehicle.number} (${vehicle.make} ${vehicle.model})` : vehicleNumber,
+          vehicle: vehicle ? formatVehicleShortName(vehicle) : vehicleNumber,
           count
         }
       }

@@ -174,7 +174,7 @@ export default function FleetHub() {
           }
           const opStatusConfig: Record<string, { bg: string; text: string; label: string }> = {
             AVAILABLE: { bg: 'bg-emerald-500/15', text: 'text-emerald-500', label: 'Available' },
-            IN_USE: { bg: 'bg-blue-500/15', text: 'text-blue-500', label: 'In Use' },
+            IN_USE: { bg: 'bg-emerald-500/15', text: 'text-emerald-500', label: 'In Use' },
             MAINTENANCE: { bg: 'bg-amber-500/15', text: 'text-amber-500', label: 'Maintenance' },
             RESERVED: { bg: 'bg-yellow-400/15', text: 'text-yellow-400', label: 'Reserved' },
           }

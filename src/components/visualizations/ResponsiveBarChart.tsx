@@ -34,7 +34,7 @@ export interface ResponsiveBarChartProps {
 }
 
 const GRADIENT_COLORS = [
-  { id: 'bar-gradient-1', start: '#3B82F6', end: '#3B82F6' },
+  { id: 'bar-gradient-1', start: '#10B981', end: '#10B981' },
   { id: 'bar-gradient-2', start: '#10B981', end: '#10B981' },
   { id: 'bar-gradient-3', start: '#F59E0B', end: '#F59E0B' },
   { id: 'bar-gradient-4', start: '#EF4444', end: '#EF4444' },

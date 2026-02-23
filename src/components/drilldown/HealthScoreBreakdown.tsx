@@ -1,12 +1,15 @@
 /**
  * HealthScoreBreakdown — pushable drilldown panel showing vehicle health details.
  * Renders an overall score ring, 8 metric bars, critical alerts, and a service CTA.
+ * All data comes from real telemetry records via GET /api/vehicles/:id/condition.
  */
 
-import { Activity, AlertTriangle, Droplet, Battery, Gauge, Wrench } from 'lucide-react'
+import { Activity, AlertTriangle, Droplet, Battery, Gauge, Wrench, Loader2 } from 'lucide-react'
 import { useMemo } from 'react'
+import useSWR from 'swr'
 
 import { cn } from '@/lib/utils'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatNumber } from '@/utils/format-helpers'
 
@@ -83,42 +86,42 @@ interface CriticalAlert {
 export function HealthScoreBreakdown({
   vehicleId,
   vehicleName,
-  condition,
+  condition: conditionProp,
   healthScore = 0,
 }: HealthScoreBreakdownProps) {
   const { push } = useDrilldown()
-  // Build the 8 metrics — use real condition data or simulate from overall score
+
+  // Fetch real condition data from the database
+  const { data: conditionResponse, isLoading } = useSWR(
+    vehicleId ? `/api/vehicles/${vehicleId}/condition` : null,
+    apiFetcher,
+    { shouldRetryOnError: false }
+  )
+
+  // Unwrap from response formatter: { success, data: ConditionData }
+  const fetchedCondition: ConditionData | undefined =
+    conditionResponse?.data ?? conditionResponse
+
+  // Use prop if provided, otherwise use fetched data
+  const condition = conditionProp ?? fetchedCondition
+
+  // Build the 8 metrics from real condition data
   const metrics: Metric[] = useMemo(() => {
-    if (condition) {
-      return [
-        { key: 'oil', label: 'Oil Life', value: clamp(Math.round(condition.engine.oilLife), 0, 100), icon: Droplet },
-        { key: 'battery', label: 'Battery Health', value: clamp(Math.round(condition.battery.health), 0, 100), icon: Battery },
-        { key: 'front-brakes', label: 'Front Brake Pads', value: clamp(Math.round(condition.brakes.frontPadLife), 0, 100), icon: Gauge },
-        { key: 'rear-brakes', label: 'Rear Brake Pads', value: clamp(Math.round(condition.brakes.rearPadLife), 0, 100), icon: Gauge },
-        { key: 'tire-fl', label: 'Tire FL', value: tirePercent(condition.tires.frontLeft), icon: Activity },
-        { key: 'tire-fr', label: 'Tire FR', value: tirePercent(condition.tires.frontRight), icon: Activity },
-        { key: 'tire-rl', label: 'Tire RL', value: tirePercent(condition.tires.rearLeft), icon: Activity },
-        { key: 'tire-rr', label: 'Tire RR', value: tirePercent(condition.tires.rearRight), icon: Activity },
-      ]
-    }
-
-    // Simulate breakdown from overall score — distribute evenly with small variance
-    const base = clamp(healthScore, 0, 100)
-    const spread = (i: number) => clamp(base + ((i % 3) - 1) * 4, 0, 100)
+    if (!condition) return []
     return [
-      { key: 'oil', label: 'Oil Life', value: spread(0), icon: Droplet },
-      { key: 'battery', label: 'Battery Health', value: spread(1), icon: Battery },
-      { key: 'front-brakes', label: 'Front Brake Pads', value: spread(2), icon: Gauge },
-      { key: 'rear-brakes', label: 'Rear Brake Pads', value: spread(3), icon: Gauge },
-      { key: 'tire-fl', label: 'Tire FL', value: spread(4), icon: Activity },
-      { key: 'tire-fr', label: 'Tire FR', value: spread(5), icon: Activity },
-      { key: 'tire-rl', label: 'Tire RL', value: spread(6), icon: Activity },
-      { key: 'tire-rr', label: 'Tire RR', value: spread(7), icon: Activity },
+      { key: 'oil', label: 'Oil Life', value: clamp(Math.round(condition.engine.oilLife), 0, 100), icon: Droplet },
+      { key: 'battery', label: 'Battery Health', value: clamp(Math.round(condition.battery.health), 0, 100), icon: Battery },
+      { key: 'front-brakes', label: 'Front Brake Pads', value: clamp(Math.round(condition.brakes.frontPadLife), 0, 100), icon: Gauge },
+      { key: 'rear-brakes', label: 'Rear Brake Pads', value: clamp(Math.round(condition.brakes.rearPadLife), 0, 100), icon: Gauge },
+      { key: 'tire-fl', label: 'Tire FL', value: tirePercent(condition.tires.frontLeft), icon: Activity },
+      { key: 'tire-fr', label: 'Tire FR', value: tirePercent(condition.tires.frontRight), icon: Activity },
+      { key: 'tire-rl', label: 'Tire RL', value: tirePercent(condition.tires.rearLeft), icon: Activity },
+      { key: 'tire-rr', label: 'Tire RR', value: tirePercent(condition.tires.rearRight), icon: Activity },
     ]
-  }, [condition, healthScore])
+  }, [condition])
 
-  // Compute the overall score from metrics or fall back to prop
-  const overall = condition
+  // Compute the overall score from real metrics or fall back to prop
+  const overall = condition && metrics.length > 0
     ? Math.round(metrics.reduce((sum, m) => sum + m.value, 0) / metrics.length)
     : clamp(healthScore, 0, 100)
 
@@ -146,6 +149,36 @@ export function HealthScoreBreakdown({
   const CIRCUMFERENCE = 2 * Math.PI * RADIUS
   const dashOffset = CIRCUMFERENCE - (overall / 100) * CIRCUMFERENCE
 
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-12">
+        <Loader2 className="h-8 w-8 animate-spin text-white/40" />
+        <span className="ml-3 text-sm text-white/40">Loading condition data...</span>
+      </div>
+    )
+  }
+
+  // No data state (no telemetry records found)
+  if (!condition) {
+    return (
+      <div className="space-y-4 p-1">
+        {vehicleName && (
+          <p className="text-[9px] font-semibold uppercase tracking-wider text-white/40">
+            Health Breakdown — {vehicleName}
+          </p>
+        )}
+        <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-6 text-center">
+          <Activity className="h-8 w-8 mx-auto text-white/20 mb-3" />
+          <p className="text-sm text-white/60 font-medium">No Telemetry Data</p>
+          <p className="text-xs text-white/40 mt-1">
+            Connect an OBD2 adapter or telematics provider to see real-time health metrics.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-4 p-1">
       {/* Header */}
@@ -156,7 +189,7 @@ export function HealthScoreBreakdown({
       )}
 
       {/* Overall score ring */}
-      <div className="flex items-center justify-center rounded-lg bg-[#242424] border border-white/[0.08] p-4">
+      <div className="relative flex items-center justify-center rounded-lg bg-[#242424] border border-white/[0.08] p-4">
         <svg width="140" height="140" viewBox="0 0 140 140" className="-rotate-90">
           {/* Background track */}
           <circle

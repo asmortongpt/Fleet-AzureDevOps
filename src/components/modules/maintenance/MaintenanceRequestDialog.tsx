@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
+import { formatVehicleName } from "@/utils/vehicle-display"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -117,7 +118,7 @@ export function MaintenanceRequestDialog({
                             <SelectContent>
                                 {vehicles.map(v => (
                                     <SelectItem key={v.id} value={v.id}>
-                                        {v.number} - {v.make} {v.model}
+                                        {formatVehicleName(v)}
                                     </SelectItem>
                                 ))}
                             </SelectContent>

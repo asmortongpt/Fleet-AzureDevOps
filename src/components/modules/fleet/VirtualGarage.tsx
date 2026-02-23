@@ -7,7 +7,7 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useVehicles } from "@/hooks/use-api"
 import { brandColors } from "@/theme/designSystem"
 import { formatEnum } from "@/utils/format-enum"
-import { formatVehicleName } from "@/utils/vehicle-display"
+import { formatVehicleName, formatVehicleShortName } from "@/utils/vehicle-display"
 
 export function VirtualGarage() {
   const { tenantId } = useTenant()
@@ -136,7 +136,7 @@ export function VirtualGarage() {
                     </div>
                     <div>
                       <p className="font-medium">{formatVehicleName(vehicle)}</p>
-                      <p className="text-sm text-muted-foreground">{vehicle.make} {vehicle.model}</p>
+                      <p className="text-sm text-muted-foreground">{formatVehicleShortName(vehicle)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">

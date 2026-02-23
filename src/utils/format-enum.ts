@@ -7,13 +7,33 @@
  *   "full_time"       → "Full Time"
  *   "inProgress"      → "In Progress"
  */
+/** Well-known fleet acronyms that should stay uppercase. */
+const ACRONYMS: Record<string, string> = {
+  suv: 'SUV',
+  ev: 'EV',
+  cng: 'CNG',
+  cdl: 'CDL',
+  vin: 'VIN',
+  pto: 'PTO',
+  hos: 'HOS',
+  dot: 'DOT',
+  eld: 'ELD',
+  obd: 'OBD',
+  gps: 'GPS',
+  api: 'API',
+  url: 'URL',
+  eta: 'ETA',
+  mpg: 'MPG',
+  id: 'ID',
+}
+
 export function formatEnum(value: string | null | undefined): string {
   if (!value) return '—'
   return value
     .replace(/_/g, ' ')
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .split(' ')
-    .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .map(w => ACRONYMS[w.toLowerCase()] || w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
     .join(' ')
 }
 

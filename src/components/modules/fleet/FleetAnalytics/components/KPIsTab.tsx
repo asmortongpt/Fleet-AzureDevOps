@@ -155,7 +155,7 @@ export function KPIsTab({
         <Card>
           <CardContent className="p-3">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-lg bg-blue-500/10 text-blue-500">
+              <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500">
                 <GasPump className="w-3 h-3" />
               </div>
               <p className="text-sm font-medium text-muted-foreground">Avg Fuel Efficiency</p>

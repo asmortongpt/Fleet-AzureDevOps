@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 import React from 'react'
 
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -1126,13 +1127,19 @@ export function VehicleListDrilldown() {
             render: (vehicle: any) => (
                 <Badge
                     variant={
-                        vehicle.status === 'active' ? 'default' :
+                        vehicle.status === 'active' || vehicle.status === 'completed' ? 'default' :
                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'destructive' :
+                            vehicle.status === 'assigned' || vehicle.status === 'dispatched' || vehicle.status === 'en_route' || vehicle.status === 'on_site' ? 'default' :
                                 'secondary'
                     }
                     className={
                         vehicle.status === 'active' ? 'bg-emerald-600 hover:bg-emerald-700' :
                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-500 hover:bg-amber-600' :
+                            vehicle.status === 'assigned' ? 'bg-indigo-500 hover:bg-indigo-600' :
+                            vehicle.status === 'dispatched' ? 'bg-orange-500 hover:bg-orange-600' :
+                            vehicle.status === 'en_route' ? 'bg-sky-500 hover:bg-sky-600' :
+                            vehicle.status === 'on_site' ? 'bg-yellow-500 hover:bg-yellow-600' :
+                            vehicle.status === 'completed' ? 'bg-emerald-500 hover:bg-emerald-600' :
                                 ''
                     }
                 >
@@ -1268,10 +1275,20 @@ export function VehicleListDrilldown() {
                                     <div className="flex items-center gap-3 flex-1">
                                         <div className={`w-10 h-8 rounded-full flex items-center justify-center ${vehicle.status === 'active' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
                                             vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'bg-amber-100 dark:bg-amber-900/30' :
+                                            vehicle.status === 'assigned' ? 'bg-indigo-100 dark:bg-indigo-900/30' :
+                                            vehicle.status === 'dispatched' ? 'bg-orange-100 dark:bg-orange-900/30' :
+                                            vehicle.status === 'en_route' ? 'bg-sky-100 dark:bg-sky-900/30' :
+                                            vehicle.status === 'on_site' ? 'bg-yellow-100 dark:bg-yellow-900/30' :
+                                            vehicle.status === 'completed' ? 'bg-emerald-100 dark:bg-emerald-900/30' :
                                                 'bg-white/[0.06] dark:bg-[#1a1a1a]'
                                             }`}>
                                             <Truck className={`h-5 w-5 ${vehicle.status === 'active' ? 'text-emerald-600 dark:text-emerald-700' :
                                                 vehicle.status === 'maintenance' || vehicle.status === 'service' ? 'text-amber-600 dark:text-amber-400' :
+                                                vehicle.status === 'assigned' ? 'text-indigo-600 dark:text-indigo-400' :
+                                                vehicle.status === 'dispatched' ? 'text-orange-600 dark:text-orange-400' :
+                                                vehicle.status === 'en_route' ? 'text-sky-600 dark:text-sky-400' :
+                                                vehicle.status === 'on_site' ? 'text-yellow-600 dark:text-yellow-400' :
+                                                vehicle.status === 'completed' ? 'text-emerald-600 dark:text-emerald-400' :
                                                     'text-white/40'
                                                 }`} />
                                         </div>
@@ -1280,7 +1297,7 @@ export function VehicleListDrilldown() {
                                                 {vehicle.vehicleNumber || vehicle.number || `V-${vehicle.id}`}
                                             </div>
                                             <div className="text-sm text-muted-foreground truncate">
-                                                {vehicle.name || `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || 'Unknown Vehicle'}
+                                                {vehicle.name || formatVehicleShortName(vehicle)}
                                             </div>
                                         </div>
                                     </div>

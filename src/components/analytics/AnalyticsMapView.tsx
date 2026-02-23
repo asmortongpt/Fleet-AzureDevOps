@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
 import { ProfessionalFleetMap } from '@/components/map/ProfessionalFleetMap';
 import { Badge } from '@/components/ui/badge';
@@ -292,7 +293,7 @@ export function AnalyticsMapView({ analyticsType, onVehicleSelect }: AnalyticsMa
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="text-sm">
-                <span className="font-medium">{selectedVehicle.make} {selectedVehicle.model}</span>
+                <span className="font-medium">{formatVehicleShortName(selectedVehicle)}</span>
               </div>
               {selectedVehicle.latitude && selectedVehicle.longitude && (
                 <div className="flex items-center text-xs text-muted-foreground">

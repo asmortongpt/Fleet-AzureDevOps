@@ -6,6 +6,7 @@ import { FuelRecord, FuelMetrics, SortField, SortDirection } from "./types"
 
 import { MetricCard } from "@/components/MetricCard"
 import { formatCurrency, formatDate, formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -187,7 +188,7 @@ export function FuelTab({ fuelRecords, vehicles }: FuelTabProps) {
               <SelectItem value="all">All Vehicles</SelectItem>
               {vehicles.slice(0, 10).map(v => (
                 <SelectItem key={v.id} value={v.number}>
-                  {v.number} - {v.make} {v.model}
+                  {formatVehicleName(v)}
                 </SelectItem>
               ))}
             </SelectContent>

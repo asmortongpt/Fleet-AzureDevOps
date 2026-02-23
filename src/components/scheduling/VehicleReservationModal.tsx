@@ -544,12 +544,15 @@ export function VehicleReservationModal({
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              <Button type="button" variant="outline" onClick={() => onOpenChange(false)}
+                className="border-white/[0.08] text-white/60 hover:text-white hover:bg-white/[0.06]"
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={checking || submitting || conflicts.length > 0}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white"
               >
                 {submitting ? 'Submitting...' : isEditing ? 'Update Reservation' : 'Create Reservation'}
               </Button>

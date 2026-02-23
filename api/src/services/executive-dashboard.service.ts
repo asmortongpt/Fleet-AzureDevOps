@@ -106,15 +106,15 @@ class ExecutiveDashboardService {
     const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0)
 
-    // Get vehicle counts
+    // Get vehicle counts (exclude retired vehicles)
     const vehicleStats = await this.db.query(`
       SELECT
         COUNT(*) as total,
         COUNT(*) FILTER (WHERE status = 'active') as active,
         COUNT(*) FILTER (WHERE status = 'maintenance') as maintenance,
-        COUNT(*) FILTER (WHERE status IN ('offline', 'retired')) as inactive
+        COUNT(*) FILTER (WHERE status = 'offline') as inactive
       FROM vehicles
-      WHERE tenant_id = $1
+      WHERE tenant_id = $1 AND status != 'retired'
     `, [tenantId])
 
     const vStats = vehicleStats.rows[0]

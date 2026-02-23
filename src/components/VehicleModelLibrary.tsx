@@ -28,6 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { getVehicleModelsService, type Vehicle3DModel } from '@/services/vehicle-models';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 interface VehicleModelLibraryProps extends React.HTMLAttributes<HTMLDivElement> {
   onSelectModel?: (model: Vehicle3DModel) => void;
   selectedModelId?: string;
@@ -421,7 +422,7 @@ function ModelCard({
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold truncate">{model.name}</h3>
               <p className="text-sm text-muted-foreground truncate">
-                {[model.make, model.model, model.year].filter(Boolean).join(' ')}
+                {formatVehicleName({ year: model.year as unknown as number, make: model.make, model: model.model })}
               </p>
               <div className="flex items-center gap-2 mt-2">
                 <Badge variant="secondary">{model.source}</Badge>
@@ -509,7 +510,7 @@ function ModelCard({
           {model.name}
         </h3>
         <p className="text-sm text-muted-foreground truncate">
-          {[model.make, model.model, model.year].filter(Boolean).join(' ') || 'No details'}
+          {formatVehicleName({ year: model.year as unknown as number, make: model.make, model: model.model }) || 'No details'}
         </p>
 
         <div className="flex items-center gap-2 mt-3">

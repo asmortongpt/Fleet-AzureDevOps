@@ -294,7 +294,7 @@ clearInterval(this.motionTimer)
         COALESCE(v.fuel_type, 'diesel') as fuel_type
       FROM vehicles v
       LEFT JOIN drivers d ON d.id = COALESCE(v.driver_id, v.assigned_driver_id)
-      WHERE v.status = 'active'
+      WHERE v.is_active = true AND v.status != 'retired'
       ORDER BY RANDOM()
       LIMIT $1
     `,

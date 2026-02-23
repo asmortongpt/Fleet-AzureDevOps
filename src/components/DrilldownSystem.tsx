@@ -12,6 +12,7 @@ import { api } from '@/services/api';
 import { Vehicle } from '@/types';
 import { formatEnum } from '@/utils/format-enum';
 import { formatCurrency, formatNumber } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
 
 /**
@@ -133,7 +134,7 @@ export function DrilldownSystem() {
                   <div className="space-y-2">
                     <div>
                       <label className="text-sm text-slate-700">Make / Model</label>
-                      <p className="text-sm text-white">{vehicle.make} {vehicle.model} ({vehicle.year})</p>
+                      <p className="text-sm text-white">{formatVehicleName(vehicle)}</p>
                     </div>
                     <div>
                       <label className="text-sm text-slate-700">VIN</label>

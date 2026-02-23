@@ -210,13 +210,20 @@ const MAP_CONFIG = {
 /**
  * Color scheme for vehicle status indicators
  */
-const VEHICLE_STATUS_COLORS: Record<Vehicle["status"], string> = {
+const VEHICLE_STATUS_COLORS: Record<string, string> = {
   active: "#10b981", // emerald-500 - operational and moving
   idle: "#6b7280", // gray-500 - operational but stationary
   charging: "#3b82f6", // blue-500 - electric vehicle charging
   service: "#f59e0b", // amber-500 - under maintenance
   emergency: "#ef4444", // red-500 - emergency/breakdown
   offline: "#374151", // gray-700 - no connection/inactive
+  assigned: "#818cf8", // indigo-400 - assigned, not yet moving
+  dispatched: "#fb923c", // orange-400 - dispatched
+  en_route: "#38bdf8", // sky-400 - en route
+  on_site: "#facc15", // yellow-400 - on site
+  completed: "#34d399", // emerald-400 - completed
+  maintenance: "#f59e0b", // amber-500 - under maintenance
+  retired: "#6b7280", // gray-500 - retired
 } as const
 
 /**

@@ -13,6 +13,7 @@ import { Card } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { formatDate } from '@/utils/format-helpers'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 export interface AssetRelationshipsListProps {
   /** ID of the vehicle to show relationships for */
@@ -110,7 +111,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
                 <Link2 className="h-4 w-4 text-muted-foreground" />
                 <h4 className="font-medium">
                   {relationship.child_asset_name ||
-                    `${relationship.child_make} ${relationship.child_model}` ||
+                    formatVehicleShortName({ make: relationship.child_make, model: relationship.child_model }) ||
                     'Unknown Asset'}
                 </h4>
                 <Badge variant="secondary" className="text-xs">
@@ -152,7 +153,7 @@ export function AssetRelationshipsList({ vehicleId }: AssetRelationshipsListProp
                   id: `vehicle-${relationship.child_asset_id}`,
                   type: 'vehicle',
                   label: relationship.child_asset_name ||
-                    `${relationship.child_make || ''} ${relationship.child_model || ''}`.trim() ||
+                    formatVehicleShortName({ make: relationship.child_make, model: relationship.child_model }) ||
                     'Asset',
                   data: { vehicleId: relationship.child_asset_id }
                 })

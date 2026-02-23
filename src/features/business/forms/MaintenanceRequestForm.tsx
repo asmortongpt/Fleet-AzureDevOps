@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
+import { formatVehicleName } from '@/utils/vehicle-display';
+
 interface MaintenanceRequestProps {
   currentTheme: any;
   setActiveView: (view: string) => void;
@@ -70,7 +72,7 @@ const MaintenanceRequestForm: React.FC<MaintenanceRequestProps> = ({
             <option value="">Select Vehicle</option>
             {vehicles.slice(0, 10).map(vehicle => (
               <option key={vehicle.id} value={vehicle.id}>
-                {vehicle.id} - {vehicle.make} {vehicle.model}
+                {formatVehicleName(vehicle)}
               </option>
             ))}
           </select>

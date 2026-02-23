@@ -33,6 +33,7 @@ import React, { useState, useRef, useCallback, KeyboardEvent, MouseEvent } from 
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import { formatDate, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // TYPES
@@ -544,7 +545,7 @@ export function VehicleMatrix({ vehicles, loading, className }: VehicleMatrixPro
       key: 'makeModel',
       header: 'Make/Model',
       width: '150px',
-      render: (row) => (row.make && row.model ? `${row.make} ${row.model}` : '-'),
+      render: (row) => (row.make && row.model ? formatVehicleShortName(row) : '-'),
     },
     {
       key: 'year',

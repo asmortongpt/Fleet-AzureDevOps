@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatEnum } from '@/utils/format-enum'
 import { formatNumber } from '@/utils/format-helpers'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 interface Vehicle {
   make: string;
@@ -23,7 +24,7 @@ export function VehicleDetailDrilldown({ vehicle }: VehicleDetailDrilldownProps)
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
-            {vehicle.make} {vehicle.model}
+            {formatVehicleShortName(vehicle)}
             <span className="text-sm font-normal text-muted-foreground">
               VIN: {vehicle.vin}
             </span>

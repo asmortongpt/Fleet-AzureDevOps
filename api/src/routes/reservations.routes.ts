@@ -147,13 +147,19 @@ return res.status(401).json({ success: false, error: 'Missing tenant context' })
       params.push(driver_id);
       where.push(`r.driver_id = $${++p}`);
     }
-    if (start_date) {
-      params.push(start_date);
-      where.push(`r.start_time >= $${++p}`);
-    }
-    if (end_date) {
+    if (start_date && end_date) {
+      // Overlap: reservation overlaps with the requested window
+      // A reservation overlaps if it starts before the window ends AND ends after the window starts
       params.push(end_date);
-      where.push(`r.end_time <= $${++p}`);
+      where.push(`r.start_time < ($${++p})::timestamp`);
+      params.push(start_date);
+      where.push(`r.end_time > ($${++p})::timestamp`);
+    } else if (start_date) {
+      params.push(start_date);
+      where.push(`r.start_time >= ($${++p})::timestamp`);
+    } else if (end_date) {
+      params.push(end_date);
+      where.push(`r.end_time <= ($${++p})::timestamp`);
     }
 
     params.push(lim);

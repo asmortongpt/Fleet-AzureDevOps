@@ -702,7 +702,7 @@ async function executeReport(
         COUNT(*) FILTER (WHERE status = 'active') as active_count,
         COUNT(*) as total_count
        FROM vehicles
-       WHERE tenant_id = $1`,
+       WHERE tenant_id = $1 AND status != 'retired'`,
       [tenantId]
     )
 

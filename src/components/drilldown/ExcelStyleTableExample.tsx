@@ -211,7 +211,7 @@ export function VehicleFleetTableExample() {
     push({
       id: `vehicle-${vehicle.id}`,
       type: 'vehicle',
-      label: `${vehicle.number} - ${vehicle.make} ${vehicle.model}`,
+      label: formatVehicleName(vehicle),
       data: {
         vehicleId: vehicle.id,
         ...vehicle,

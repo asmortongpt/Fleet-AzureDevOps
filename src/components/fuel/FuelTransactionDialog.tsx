@@ -241,7 +241,7 @@ export function FuelTransactionDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Fuel className="h-5 w-5 text-blue-600" />
+              <Fuel className="h-5 w-5 text-emerald-500" />
               Add Fuel Transaction
             </DialogTitle>
             <DialogDescription>

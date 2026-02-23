@@ -21,6 +21,13 @@ export const STATUS_COLORS: Record<string, string> = {
   service: '#f59e0b',
   emergency: '#ef4444',
   offline: '#374151',
+  assigned: '#818cf8',
+  dispatched: '#fb923c',
+  en_route: '#38bdf8',
+  on_site: '#facc15',
+  completed: '#34d399',
+  maintenance: '#f59e0b',
+  retired: '#6b7280',
 };
 
 export const STATUS_LABELS: Record<string, string> = {
@@ -30,6 +37,13 @@ export const STATUS_LABELS: Record<string, string> = {
   service: 'In Service',
   emergency: 'Emergency',
   offline: 'Offline',
+  assigned: 'Assigned',
+  dispatched: 'Dispatched',
+  en_route: 'En Route',
+  on_site: 'On Site',
+  completed: 'Completed',
+  maintenance: 'Maintenance',
+  retired: 'Retired',
 };
 
 export function getStatusColor(status: string): string {

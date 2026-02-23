@@ -2,26 +2,26 @@
  * ReservationCalendarView - Calendar-style view for vehicle reservations.
  *
  * Provides week and list views with status filtering, week navigation,
- * and approve/reject/cancel actions. Self-contained data fetching via SWR.
+ * and approve/reject/cancel actions. Self-contained data fetching via fetch + useEffect.
  */
 
-import { useState, useMemo } from 'react'
-import useSWR from 'swr'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import {
   Calendar,
   ChevronLeft,
   ChevronRight,
+  Loader2,
   Plus,
   Clock,
   Car,
   CheckCircle,
   XCircle,
 } from 'lucide-react'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { getCsrfToken } from '@/hooks/use-api'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
-import { formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate, formatDateTime, formatNumber, formatTime as formatTimeHelper } from '@/utils/format-helpers'
 import { formatVehicleName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -85,11 +85,10 @@ function toDateKey(date: Date): string {
   return date.toISOString().split('T')[0]
 }
 
-/** Format a time string from an ISO date. */
+/** Format a time string from an ISO date — delegates to centralized helper. */
 function formatTime(isoStr: string): string {
-  const d = new Date(isoStr)
-  if (Number.isNaN(d.getTime())) return '--'
-  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  const result = formatTimeHelper(isoStr)
+  return result === '\u2014' ? '--' : result
 }
 
 /** Get the status color classes for a reservation status. */
@@ -167,18 +166,54 @@ export function ReservationCalendarView() {
   // Data fetching
   // ---------------------------------------------------------------------------
 
+  const [reservations, setReservations] = useState<Reservation[] | null>(null)
+  const [reservationsLoading, setReservationsLoading] = useState(true)
+  const [vehicles, setVehicles] = useState<Vehicle[] | null>(null)
+
   const weekEnd = useMemo(() => {
     const d = new Date(currentWeekStart)
     d.setDate(d.getDate() + 7)
     return d
   }, [currentWeekStart])
 
-  const { data: reservations, mutate } = useSWR<Reservation[]>(
-    `/api/reservations?start_date=${currentWeekStart.toISOString()}&end_date=${weekEnd.toISOString()}`,
-    apiFetcher
-  )
+  const fetchReservations = useCallback(async () => {
+    setReservationsLoading(true)
+    try {
+      const res = await fetch(
+        `/api/reservations?start_date=${currentWeekStart.toISOString()}&end_date=${weekEnd.toISOString()}`,
+        { credentials: 'include' }
+      )
+      if (res.ok) {
+        const json = await res.json()
+        setReservations(json.reservations ?? [])
+      }
+    } catch {
+      // keep previous data on error
+    } finally {
+      setReservationsLoading(false)
+    }
+  }, [currentWeekStart, weekEnd])
 
-  const { data: vehicles } = useSWR<Vehicle[]>('/api/vehicles?limit=100', apiFetcher)
+  useEffect(() => {
+    fetchReservations()
+  }, [fetchReservations])
+
+  useEffect(() => {
+    let cancelled = false
+    async function loadVehicles() {
+      try {
+        const res = await fetch('/api/vehicles?limit=100', { credentials: 'include' })
+        if (res.ok && !cancelled) {
+          const json = await res.json()
+          setVehicles(json.data ?? [])
+        }
+      } catch {
+        // ignore
+      }
+    }
+    loadVehicles()
+    return () => { cancelled = true }
+  }, [])
 
   // ---------------------------------------------------------------------------
   // Derived data
@@ -278,63 +313,76 @@ export function ReservationCalendarView() {
   // ---------------------------------------------------------------------------
 
   const handleApprove = async (id: string, action: 'approve' | 'reject') => {
-    const csrf = await getCsrfToken()
-    const res = await fetch(`/api/reservations/${id}/approve`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-      body: JSON.stringify({ action }),
-    })
-    if (!res.ok) {
+    try {
+      const csrf = await getCsrfToken()
+      const res = await fetch(`/api/reservations/${id}/approve`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({ action }),
+      })
+      if (!res.ok) {
+        toast.error(`Failed to ${action} reservation`)
+        return
+      }
+      toast.success(`Reservation ${action}d`)
+      fetchReservations()
+      if (selectedReservation?.id === id) setSelectedReservation(null)
+    } catch {
       toast.error(`Failed to ${action} reservation`)
-      return
     }
-    toast.success(`Reservation ${action}d`)
-    mutate()
-    if (selectedReservation?.id === id) setSelectedReservation(null)
   }
 
   const handleCancel = async (id: string) => {
-    const csrf = await getCsrfToken()
-    const res = await fetch(`/api/reservations/${id}`, {
-      method: 'DELETE',
-      credentials: 'include',
-      headers: { 'X-CSRF-Token': csrf },
-    })
-    if (!res.ok) {
+    try {
+      const csrf = await getCsrfToken()
+      const res = await fetch(`/api/reservations/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: { 'X-CSRF-Token': csrf },
+      })
+      if (!res.ok) {
+        toast.error('Failed to cancel reservation')
+        return
+      }
+      toast.success('Reservation cancelled')
+      fetchReservations()
+      if (selectedReservation?.id === id) setSelectedReservation(null)
+    } catch {
       toast.error('Failed to cancel reservation')
-      return
     }
-    toast.success('Reservation cancelled')
-    mutate()
-    if (selectedReservation?.id === id) setSelectedReservation(null)
   }
 
   const handleCreateReservation = async (data: CreateReservationRequest) => {
-    const csrf = await getCsrfToken()
-    const res = await fetch('/api/reservations', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
-      body: JSON.stringify({
-        vehicle_id: data.vehicleId,
-        driver_id: data.driverId || undefined,
-        reservation_type: data.reservationType,
-        start_time: data.startTime,
-        end_time: data.endTime,
-        pickup_location: data.pickupLocation,
-        dropoff_location: data.dropoffLocation,
-        estimated_miles: data.estimatedMiles,
-        purpose: data.purpose,
-        notes: data.notes,
-      }),
-    })
-    if (!res.ok) {
+    try {
+      const csrf = await getCsrfToken()
+      const res = await fetch('/api/reservations', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrf },
+        body: JSON.stringify({
+          vehicle_id: data.vehicleId,
+          driver_id: data.driverId || undefined,
+          reservation_type: data.reservationType,
+          start_time: data.startTime,
+          end_time: data.endTime,
+          pickup_location: data.pickupLocation,
+          dropoff_location: data.dropoffLocation,
+          estimated_miles: data.estimatedMiles,
+          purpose: data.purpose,
+          notes: data.notes,
+        }),
+      })
+      if (!res.ok) {
+        toast.error('Failed to create reservation')
+        throw new Error('Failed to create reservation')
+      }
+      toast.success('Reservation created')
+      fetchReservations()
+    } catch (err) {
       toast.error('Failed to create reservation')
-      throw new Error('Failed to create reservation')
+      throw err
     }
-    toast.success('Reservation created')
-    mutate()
   }
 
   const handleOpenCreateModal = (date?: Date) => {
@@ -459,8 +507,16 @@ export function ReservationCalendarView() {
         </Button>
       </div>
 
+      {/* ---- Loading state ---- */}
+      {reservationsLoading && (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <Loader2 className="w-6 h-6 text-white/30 animate-spin" />
+          <p className="text-sm text-white/40">Loading reservations...</p>
+        </div>
+      )}
+
       {/* ---- Empty state ---- */}
-      {isEmpty && (
+      {!reservationsLoading && isEmpty && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <Calendar className="w-10 h-10 text-white/20" />
           <p className="text-sm text-white/40">No reservations for this week</p>
@@ -476,7 +532,7 @@ export function ReservationCalendarView() {
       )}
 
       {/* ---- Week view ---- */}
-      {!isEmpty && viewMode === 'week' && (
+      {!reservationsLoading && !isEmpty && viewMode === 'week' && (
         <div className="grid grid-cols-7 gap-px bg-white/[0.04] rounded-xl border border-white/[0.08] overflow-hidden">
           {/* Column headers */}
           {Array.from({ length: 7 }, (_, i) => {
@@ -586,7 +642,7 @@ export function ReservationCalendarView() {
                 statusColors(selectedReservation.status).badge
               )}
             >
-              {selectedReservation.status}
+              {formatEnum(selectedReservation.status)}
             </span>
           </div>
 
@@ -667,7 +723,7 @@ export function ReservationCalendarView() {
       />
 
       {/* ---- List view ---- */}
-      {!isEmpty && viewMode === 'list' && (
+      {!reservationsLoading && !isEmpty && viewMode === 'list' && (
         <div className="rounded-xl border border-white/[0.08] overflow-hidden">
           {/* Table header */}
           <div className="grid grid-cols-[1.5fr_1fr_1fr_1fr_0.8fr_0.7fr_1fr] gap-px bg-white/[0.02] px-4 py-2.5 border-b border-white/[0.06]">
@@ -711,7 +767,7 @@ export function ReservationCalendarView() {
                       colors.badge
                     )}
                   >
-                    {r.status}
+                    {formatEnum(r.status)}
                   </span>
                 </div>
                 <div className="flex items-center gap-1">

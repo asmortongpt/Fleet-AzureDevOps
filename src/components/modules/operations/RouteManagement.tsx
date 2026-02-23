@@ -9,6 +9,7 @@ import {
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
+import { formatVehicleName } from "@/utils/vehicle-display"
 import { MetricCard } from "@/components/MetricCard"
 import { UniversalMap } from "@/components/UniversalMap"
 import { Badge } from "@/components/ui/badge"
@@ -232,7 +233,7 @@ export function RouteManagement() {
                     <SelectContent>
                       {vehicles.map(v => (
                         <SelectItem key={v.id} value={v.id}>
-                          {v.number} - {v.make} {v.model}
+                          {formatVehicleName(v)}
                         </SelectItem>
                       ))}
                     </SelectContent>

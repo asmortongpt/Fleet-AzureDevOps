@@ -113,6 +113,9 @@ router.get(
         category,
         entity_type,
         entity_id,
+        vehicle_id,
+        driver_id,
+        work_order_id,
         search
       } = req.query
       const offset = (Number(page) - 1) * Number(limit)
@@ -148,6 +151,24 @@ router.get(
       if (entity_id) {
         query += ` AND d.related_entity_id = $${paramIndex}`
         params.push(entity_id)
+        paramIndex++
+      }
+
+      if (vehicle_id) {
+        query += ` AND d.vehicle_id = $${paramIndex}`
+        params.push(vehicle_id)
+        paramIndex++
+      }
+
+      if (driver_id) {
+        query += ` AND d.driver_id = $${paramIndex}`
+        params.push(driver_id)
+        paramIndex++
+      }
+
+      if (work_order_id) {
+        query += ` AND d.work_order_id = $${paramIndex}`
+        params.push(work_order_id)
         paramIndex++
       }
 

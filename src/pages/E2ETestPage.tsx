@@ -22,6 +22,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
 import { formatDateTime } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
@@ -381,7 +382,7 @@ export default function E2ETestPage() {
                   <SelectContent>
                     {vehicles.map((vehicle) => (
                       <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.year} {vehicle.make} {vehicle.model} ({vehicle.vin})
+                        {formatVehicleName(vehicle)} ({vehicle.vin})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -544,7 +545,7 @@ export default function E2ETestPage() {
                   <tr key={schedule.id} className="border-b hover:bg-accent/50">
                     <td className="p-2 font-medium">{schedule.name}</td>
                     <td className="p-2 text-xs">
-                      <div>{schedule.year} {schedule.make} {schedule.model}</div>
+                      <div>{formatVehicleName(schedule)}</div>
                       <div className="text-muted-foreground font-mono">{schedule.vin}</div>
                     </td>
                     <td className="p-2">

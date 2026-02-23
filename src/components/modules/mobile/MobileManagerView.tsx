@@ -21,6 +21,7 @@ import React, { useState, useEffect } from 'react';
 
 import { useAuth } from '@/hooks/useAuth';
 import { formatDate } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
 import { toast } from 'sonner';
 import { brandColors } from '@/theme/designSystem'
@@ -124,7 +125,7 @@ const MobileManagerView: React.FC = () => {
 
             <div className="mb-3">
               <p className="text-sm font-medium text-gray-700">
-                {assignment.unit_number} - {assignment.make} {assignment.model} {assignment.year}
+                {formatVehicleName({ year: assignment.year, make: assignment.make, model: assignment.model, number: assignment.unit_number })}
               </p>
               <p className="text-xs text-gray-700">
                 Type: {assignment.assignment_type.replace('_', ' ')}
@@ -176,7 +177,7 @@ const MobileManagerView: React.FC = () => {
             </span>
           </div>
           <p className="text-sm text-gray-700">
-            {assignment.unit_number} - {assignment.make} {assignment.model}
+            {formatVehicleName({ make: assignment.make, model: assignment.model, number: assignment.unit_number })}
           </p>
           <p className="text-xs text-gray-700 mt-1">
             Since: {formatDate(assignment.start_date)}
@@ -208,7 +209,7 @@ const MobileManagerView: React.FC = () => {
 
             {period.unit_number && (
               <p className="text-sm text-gray-700 mb-2">
-                Vehicle: {period.unit_number} - {period.make} {period.model}
+                Vehicle: {formatVehicleName({ make: period.make, model: period.model, number: period.unit_number })}
               </p>
             )}
 
@@ -244,7 +245,7 @@ const MobileManagerView: React.FC = () => {
               <strong>Driver:</strong> {selectedAssignment.driver_name}
             </p>
             <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
-              <strong>Vehicle:</strong> {selectedAssignment.unit_number} - {selectedAssignment.make} {selectedAssignment.model}
+              <strong>Vehicle:</strong> {formatVehicleName({ make: selectedAssignment.make, model: selectedAssignment.model, number: selectedAssignment.unit_number })}
             </p>
             <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
               <strong>Type:</strong> {selectedAssignment.assignment_type.replace('_', ' ')}

@@ -211,7 +211,7 @@ return
           v.longitude,
           v.metadata
         FROM vehicles v
-        WHERE v.is_active = true AND v.status = 'active'
+        WHERE v.is_active = true AND v.status != 'retired'
         ORDER BY v.created_at, v.id
       `)
 

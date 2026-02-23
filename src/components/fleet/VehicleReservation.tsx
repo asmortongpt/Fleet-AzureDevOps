@@ -331,7 +331,7 @@ export default function VehicleReservation({ vehicleId, driverId }: VehicleReser
                         >
                           <div className="flex items-center gap-3">
                             {event.type === 'reservation' ? (
-                              <User className="h-5 w-5 text-blue-500" />
+                              <User className="h-5 w-5 text-emerald-500" />
                             ) : (
                               <FileText className="h-5 w-5 text-orange-500" />
                             )}

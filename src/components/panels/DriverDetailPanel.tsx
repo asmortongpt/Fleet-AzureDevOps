@@ -9,6 +9,7 @@ import {
     Activity
 } from "lucide-react"
 
+import { formatVehicleShortName } from "@/utils/vehicle-display"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -135,7 +136,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                                     </div>
                                                     <div>
                                                         <div className="font-semibold text-sm group-hover:text-emerald-200 transition-colors">
-                                                            {assignment.make} {assignment.model}
+                                                            {formatVehicleShortName(assignment)}
                                                         </div>
                                                         <div className="text-xs text-muted-foreground mt-0.5">
                                                             {assignment.number}
@@ -203,7 +204,7 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                                             <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mb-3">
                                                 <Truck className="w-4 h-4 text-emerald-400" />
                                             </div>
-                                            <h3 className="font-bold text-sm">{assignment.make} {assignment.model}</h3>
+                                            <h3 className="font-bold text-sm">{formatVehicleShortName(assignment)}</h3>
                                             <div className="text-sm text-muted-foreground">{assignment.number}</div>
                                             <Badge className="mt-2" variant={assignment.status === 'active' ? 'default' : 'secondary'}>
                                                 {assignment.status}

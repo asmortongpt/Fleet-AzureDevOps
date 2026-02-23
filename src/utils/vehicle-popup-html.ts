@@ -22,14 +22,28 @@ const STATUS_COLORS: Record<string, string> = {
   service: "#f59e0b",   // amber
   emergency: "#f43f5e", // rose
   offline: "#9ca3af",   // gray
+  assigned: "#818cf8",  // indigo
+  dispatched: "#fb923c", // orange
+  en_route: "#38bdf8",  // sky
+  on_site: "#facc15",   // yellow
+  completed: "#34d399", // emerald
+  maintenance: "#f59e0b", // amber
+  retired: "#6b7280",   // gray
 }
 
 function statusColor(status: string): string {
   return STATUS_COLORS[status] || "#9ca3af"
 }
 
+const STATUS_LABELS: Record<string, string> = {
+  en_route: "En Route",
+  on_site: "On Site",
+  in_service: "In Service",
+}
+
 function statusLabel(status: string): string {
   if (!status) return "Unknown"
+  if (STATUS_LABELS[status]) return STATUS_LABELS[status]
   return status.charAt(0).toUpperCase() + status.slice(1)
 }
 

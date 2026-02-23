@@ -757,7 +757,18 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
               } as any}
             >
               <div className="relative">
-                <div className={`w-3 h-3 rounded-full ${v.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' : 'bg-slate-500'} transition-all`} />
+                <div className={`w-3 h-3 rounded-full ${
+                  v.status === 'active' ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)]' :
+                  v.status === 'assigned' ? 'bg-indigo-400 shadow-[0_0_10px_rgba(129,140,248,0.5)]' :
+                  v.status === 'dispatched' ? 'bg-orange-400 shadow-[0_0_10px_rgba(251,146,60,0.5)]' :
+                  v.status === 'en_route' ? 'bg-sky-400 shadow-[0_0_10px_rgba(56,189,248,0.5)]' :
+                  v.status === 'on_site' ? 'bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.5)]' :
+                  v.status === 'completed' ? 'bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]' :
+                  v.status === 'service' || v.status === 'maintenance' ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' :
+                  v.status === 'emergency' ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
+                  v.status === 'charging' ? 'bg-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.5)]' :
+                  'bg-gray-500'
+                } transition-all`} />
                 <div className="absolute -inset-2 border border-emerald-500/30 rounded-full opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300" />
 
                 {/* Tooltip */}

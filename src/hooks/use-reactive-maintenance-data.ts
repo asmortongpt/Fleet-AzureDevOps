@@ -24,6 +24,7 @@ import { useMemo, useCallback, useRef, useEffect } from 'react'
 import { z } from 'zod'
 
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 // ============================================================================
 // CONFIGURATION CONSTANTS
@@ -135,7 +136,7 @@ const WorkOrderSchema = z
     // Build vehicle display name from joined vehicle data or fall back to vehicleName
     const vehicleName = row.vehicleName ?? row.vehicle_name ?? (
       row.vehicle_make && row.vehicle_model
-        ? `${row.vehicle_year ? row.vehicle_year + ' ' : ''}${row.vehicle_make} ${row.vehicle_model}`
+        ? formatVehicleName({ year: row.vehicle_year as number | undefined, make: row.vehicle_make as string, model: row.vehicle_model as string })
         : undefined
     )
 

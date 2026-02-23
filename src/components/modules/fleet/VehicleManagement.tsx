@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 
 import { useVehicles, useDeleteVehicle, Vehicle } from "@/hooks/useVehicles"
 import { formatNumber } from "@/utils/format-helpers"
-import { formatVehicleName } from "@/utils/vehicle-display"
+import { formatVehicleName, formatVehicleShortName } from "@/utils/vehicle-display"
 
 // StatusChip component following Fleet Design System
 const StatusChip: React.FC<{status: 'active'|'inactive'|'maintenance'|'retired'; label?: string}> = ({status, label}) => {
@@ -476,7 +476,7 @@ export function VehicleManagement() {
                               <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
                                   <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Make/Model</span>
-                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>{vehicle.make} {vehicle.model}</span>
+                                  <span style={{fontSize:12, color:'var(--text, #f1f5f9)', fontWeight:600}}>{formatVehicleShortName(vehicle)}</span>
                                 </div>
                                 <div style={{display:'flex', justifyContent:'space-between'}}>
                                   <span style={{fontSize:12, color:'var(--muted, #94a3b8)'}}>Year</span>
@@ -821,7 +821,7 @@ export function VehicleManagement() {
                 Are you sure you want to delete vehicle <strong>{vehicleToDelete.vehicleNumber}</strong>?
               </p>
               <p style={{color:'var(--muted, #94a3b8)', fontSize:13}}>
-                {vehicleToDelete.make} {vehicleToDelete.model} ({vehicleToDelete.year}) &mdash; VIN: {vehicleToDelete.vin}
+                {formatVehicleName(vehicleToDelete)} &mdash; VIN: {vehicleToDelete.vin}
               </p>
               <p style={{color:'#f59e0b', fontSize:12, marginTop:12}}>
                 This action cannot be undone. All associated data will be permanently removed.

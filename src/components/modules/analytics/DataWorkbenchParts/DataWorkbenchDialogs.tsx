@@ -3,6 +3,7 @@ import { useState } from "react"
 
 import { AdvancedSearchCriteria } from "./types"
 
+import { formatVehicleName } from "@/utils/vehicle-display"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -422,7 +423,7 @@ export function DataWorkbenchDialogs({
                 <SelectContent>
                   {vehicles.slice(0, 10).map(v => (
                     <SelectItem key={v.id} value={v.id}>
-                      {v.number} - {v.make} {v.model}
+                      {formatVehicleName(v)}
                     </SelectItem>
                   ))}
                 </SelectContent>

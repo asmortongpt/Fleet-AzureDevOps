@@ -26,6 +26,7 @@ import { Switch } from '@/components/ui/switch';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
 import { formatEnum } from '@/utils/format-enum';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { formatNumber, formatTime } from '@/utils/format-helpers';
 
 interface Vehicle {
@@ -185,7 +186,7 @@ export function OperationsHub() {
       generatedAlerts.push({
         id: `maint-${v.id}`,
         type: 'info',
-        message: `${v.vehicleNumber} is in maintenance - ${v.make} ${v.model}`,
+        message: `${v.vehicleNumber} is in maintenance - ${formatVehicleShortName(v)}`,
         timestamp: formatTime(new Date(Date.now() - (i + 3) * 10 * 60000))
       });
     });
@@ -397,7 +398,7 @@ export function OperationsHub() {
             <div className="flex justify-between">
               <span className="text-white/60">Make/Model:</span>
               <span className="font-medium">
-                {selectedVehicle.make} {selectedVehicle.model}
+                {formatVehicleShortName(selectedVehicle)}
               </span>
             </div>
             <div className="flex justify-between">
@@ -474,7 +475,7 @@ export function OperationsHub() {
             <div className="flex justify-between">
               <span className="text-white/60">Make/Model:</span>
               <span className="font-medium">
-                {selectedVehicle.make} {selectedVehicle.model}
+                {formatVehicleShortName(selectedVehicle)}
               </span>
             </div>
             <div className="flex justify-between">

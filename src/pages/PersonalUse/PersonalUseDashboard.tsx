@@ -4,6 +4,7 @@ import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, C
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { TripMarker } from '@/components/PersonalUse/TripMarker'
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -346,7 +347,7 @@ export function PersonalUseDashboard() {
                           {format(new Date(trip.trip_date), 'MMM dd, yyyy')}
                         </TableCell>
                         <TableCell>
-                          {trip.make} {trip.model}
+                          {formatVehicleShortName(trip)}
                           <div className="text-xs text-muted-foreground">
                             {trip.license_plate}
                           </div>

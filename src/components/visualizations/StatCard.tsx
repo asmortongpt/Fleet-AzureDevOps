@@ -50,10 +50,10 @@ export function StatCard({
 
   return (
     <div className={cn('h-full', className)}>
-      <div className="relative h-full rounded-lg border border-white/[0.08] bg-[#242424] p-3 shadow-sm overflow-hidden">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-md bg-white/[0.06] text-white/60">
-            <Icon className="h-4 w-4" />
+      <div className="relative h-full rounded-lg border border-white/[0.08] bg-[#242424] p-2 shadow-sm overflow-hidden">
+        <div className="flex items-start justify-between mb-1">
+          <div className="flex h-6 w-6 items-center justify-center rounded-md bg-white/[0.06] text-white/60">
+            <Icon className="h-3.5 w-3.5" />
           </div>
           {change !== undefined && (
             <div className={cn(
@@ -75,10 +75,10 @@ export function StatCard({
           </div>
         ) : (
           <>
-            <div className="text-xl font-semibold tracking-tight text-foreground">
+            <div className="text-lg font-semibold tracking-tight text-foreground leading-tight">
               {value}
             </div>
-            <p className="text-[11px] font-medium text-muted-foreground mt-0.5 uppercase tracking-wide">
+            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
               {title}
             </p>
             {description && (
@@ -87,8 +87,8 @@ export function StatCard({
               </p>
             )}
             {hasSparkline && (
-              <div className="mt-2 -mx-1">
-                <ResponsiveContainer width="100%" height={28}>
+              <div className="mt-1 -mx-1">
+                <ResponsiveContainer width="100%" height={24}>
                   <LineChart data={sparklineData}>
                     <Line
                       type="monotone"

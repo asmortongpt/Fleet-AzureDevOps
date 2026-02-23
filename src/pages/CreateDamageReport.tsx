@@ -15,6 +15,7 @@ import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
 import { useNavigation } from '@/contexts/NavigationContext'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
@@ -307,7 +308,7 @@ export function CreateDamageReport() {
                     <SelectItem value="empty" disabled>No vehicles available</SelectItem>
                   ) : vehicles.map((vehicle) => (
                     <SelectItem key={vehicle.id} value={vehicle.id}>
-                      {vehicle.name || `${vehicle.make} ${vehicle.model}`} {vehicle.vin ? `(${vehicle.vin})` : ''}
+                      {formatVehicleName(vehicle)} {vehicle.vin ? `(${vehicle.vin})` : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>

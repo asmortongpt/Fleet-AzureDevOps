@@ -44,6 +44,7 @@ import {
 import { usePolicies } from "@/contexts/PolicyContext"
 import { apiFetcher } from "@/lib/api-fetcher"
 import { formatCurrency, formatDate, formatTime } from "@/utils/format-helpers"
+import { formatVehicleShortName } from "@/utils/vehicle-display"
 import {
   enforceEVChargingPolicy,
   shouldBlockAction,
@@ -142,7 +143,7 @@ export function EVChargingManagement() {
         id: session.id,
         tenantId: session.tenant_id,
         vehicleId: session.vehicle_id,
-        vehicleNumber: session.vehicle_number || `${session.make || ''} ${session.model || ''}`.trim() || session.vehicle_id,
+        vehicleNumber: session.vehicle_number || formatVehicleShortName({ make: session.make, model: session.model }) || session.vehicle_id,
         driverId: session.driver_id,
         driverName: session.first_name ? `${session.first_name} ${session.last_name || ''}`.trim() : undefined,
         stationId: session.station_id,

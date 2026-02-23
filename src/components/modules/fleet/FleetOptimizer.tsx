@@ -116,12 +116,12 @@ export function FleetOptimizer() {
               </div>
               <p className="text-sm text-yellow-700">Schedule preventive maintenance for 3 vehicles to avoid potential breakdowns</p>
             </div>
-            <div className="p-4 border rounded-lg bg-blue-50 border-blue-200">
+            <div className="p-4 border rounded-lg bg-emerald-500/5 border-emerald-500/20">
               <div className="flex items-center gap-2 mb-2">
-                <Route className="h-4 w-4 text-blue-600" />
-                <span className="font-medium text-blue-800">Quick Win</span>
+                <Route className="h-4 w-4 text-emerald-600" />
+                <span className="font-medium text-emerald-500">Quick Win</span>
               </div>
-              <p className="text-sm text-blue-700">Reassign Vehicle 003 to shorter routes to match its fuel efficiency profile</p>
+              <p className="text-sm text-emerald-400">Reassign Vehicle 003 to shorter routes to match its fuel efficiency profile</p>
             </div>
           </CardContent>
         </Card>
@@ -142,7 +142,7 @@ export function FleetOptimizer() {
                     contentStyle={{ backgroundColor: 'hsl(var(--popover))', border: '1px solid hsl(var(--border))', borderRadius: '6px', color: 'hsl(var(--foreground))' }}
                     formatter={(value) => [`$${Number(value ?? 0).toLocaleString()}`, 'Fuel Cost']}
                   />
-                  <Area type="monotone" dataKey="fuelCost" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.15} name="Fuel Cost ($)" />
+                  <Area type="monotone" dataKey="fuelCost" stroke="#10b981" fill="#10b981" fillOpacity={0.15} name="Fuel Cost ($)" />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (

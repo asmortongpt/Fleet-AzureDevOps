@@ -27,6 +27,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { brandColors } from '@/theme/designSystem'
 import { formatCurrency, formatDate } from '@/utils/format-helpers';
+import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
 import { toast } from 'sonner';
 interface Assignment {
@@ -237,7 +238,7 @@ const MobileEmployeeDashboard: React.FC = () => {
                   {assignment.unit_number}
                 </h3>
                 <p className="text-sm text-white/40" style={{ color: brandColors.archon.mediumGray }}>
-                  {assignment.make} {assignment.model} {assignment.year}
+                  {formatVehicleName({ year: assignment.year, make: assignment.make, model: assignment.model })}
                 </p>
               </div>
               <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
@@ -345,7 +346,7 @@ const MobileEmployeeDashboard: React.FC = () => {
               {period.unit_number && (
                 <div className="flex items-center gap-2 text-sm  mb-3" style={{ color: brandColors.archon.mediumGray }}>
                   <Car className="w-4 h-4" />
-                  <span>{period.unit_number} - {period.make} {period.model}</span>
+                  <span>{formatVehicleName({ make: period.make, model: period.model, number: period.unit_number })}</span>
                 </div>
               )}
 

@@ -7,6 +7,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { usePermissions } from '@/hooks/usePermissions';
+import { formatEnum } from '@/utils/format-enum';
 import { formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 import { formatVehicleName } from '@/utils/vehicle-display';
@@ -142,7 +143,9 @@ const VehicleAssignmentManagement: React.FC = () => {
         ]);
         if (vRes.ok) {
           const vData = await vRes.json();
-          const vehicles = vData.data || vData.vehicles || [];
+          // Handle response formatter: { success, data: { data: [...], total } }
+          const vPayload = vData?.data || vData;
+          const vehicles = Array.isArray(vPayload) ? vPayload : (vPayload?.data || vPayload?.vehicles || []);
           setVehicleOptions(vehicles.map((v: Record<string, unknown>) => ({
             id: String(v.id),
             label: formatVehicleName({ year: v.year as number | undefined, make: v.make as string | undefined, model: v.model as string | undefined, number: v.unit_number as string | undefined })
@@ -150,7 +153,9 @@ const VehicleAssignmentManagement: React.FC = () => {
         }
         if (dRes.ok) {
           const dData = await dRes.json();
-          const drivers = dData.data || dData.drivers || [];
+          // Handle response formatter: { success, data: { data: [...], total } }
+          const dPayload = dData?.data || dData;
+          const drivers = Array.isArray(dPayload) ? dPayload : (dPayload?.data || dPayload?.drivers || []);
           setDriverOptions(drivers.map((d: Record<string, unknown>) => ({
             id: String(d.id),
             label: `${d.first_name || ''} ${d.last_name || ''} (#${d.employee_number || ''})`.trim()
@@ -219,9 +224,30 @@ const VehicleAssignmentManagement: React.FC = () => {
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
-      setAssignments(data.assignments || []);
+      // Response formatter wraps in { success, data: { assignments, pagination } }
+      const payload = data?.data || data;
+      const rawAssignments = payload?.assignments || [];
+      // Map backend field names to what the UI expects
+      const mapped = rawAssignments.map((a: Record<string, unknown>) => ({
+        ...a,
+        // Backend returns 'status'; UI uses 'lifecycle_state'
+        lifecycle_state: a.lifecycle_state || a.status || 'active',
+        // Backend returns is_primary_assignment; map commuting_authorized
+        commuting_authorized: a.commuting_authorized ?? a.is_primary_assignment ?? false,
+        // unit_number may come as 'unit_number' or fallback to 'vehicle_number'
+        unit_number: a.unit_number || a.vehicle_number || '',
+        // department_name is not joined in the current query; use empty string
+        department_name: a.department_name || '',
+        // home_county, secured_parking_name not in current query
+        home_county: a.home_county || '',
+        secured_parking_name: a.secured_parking_name || '',
+        // employee_number fallback
+        employee_number: a.employee_number || '',
+      }));
+      setAssignments(mapped);
     } catch (err: unknown) {
       logger.error('Error fetching assignments:', err);
+      toast.error('Failed to load assignments');
     } finally {
       setLoading(false);
     }
@@ -234,22 +260,28 @@ const VehicleAssignmentManagement: React.FC = () => {
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
-      setOnCallPeriods(data || []);
+      // Handle response formatter wrapping
+      const payload = data?.data || data;
+      setOnCallPeriods(Array.isArray(payload) ? payload : payload?.periods || []);
     } catch (err: unknown) {
       logger.error('Error fetching on-call periods:', err);
+      // Silently fail - on-call periods are secondary data
     }
   };
 
   const fetchComplianceExceptions = async () => {
     try {
-      const response = await fetch('/api/reports/policy-compliance', {
+      const response = await fetch('/api/assignment-reporting/policy-compliance', {
         credentials: 'include',
       });
       if (!response.ok) throw new Error('Request failed: ' + response.status);
       const data = await response.json();
-      setComplianceExceptions(data.exceptions || []);
+      // Handle response formatter wrapping
+      const payload = data?.data || data;
+      setComplianceExceptions(payload?.exceptions || []);
     } catch (err: unknown) {
       logger.error('Error fetching compliance exceptions:', err);
+      // Silently fail - compliance data is secondary
     }
   };
 
@@ -427,28 +459,28 @@ const VehicleAssignmentManagement: React.FC = () => {
         <>
           {/* Summary Stats */}
           <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(240px, 1fr))', gap:16, marginBottom:32}}>
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))'}}>
-              <div style={{fontSize:12, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Total Assignments</div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))'}}>
+              <div style={{fontSize:12, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8, fontWeight:600}}>Total Assignments</div>
               <div style={{fontSize:32, fontWeight:900, color:'#34d399'}}>{stats.total}</div>
             </div>
 
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.08))'}}>
-              <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Active</div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05))'}}>
+              <div style={{fontSize:12, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8, fontWeight:600}}>Active</div>
               <div style={{fontSize:32, fontWeight:900, color:'#10b981'}}>{stats.active}</div>
             </div>
 
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.08))'}}>
-              <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Pending Approval</div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05))'}}>
+              <div style={{fontSize:12, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8, fontWeight:600}}>Pending Approval</div>
               <div style={{fontSize:32, fontWeight:900, color:'#f59e0b'}}>{stats.pending}</div>
             </div>
 
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.08))'}}>
-              <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>On-Call</div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(168,85,247,0.15), rgba(168,85,247,0.05))'}}>
+              <div style={{fontSize:12, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8, fontWeight:600}}>On-Call</div>
               <div style={{fontSize:32, fontWeight:900, color:'#a855f7'}}>{stats.onCall}</div>
             </div>
 
-            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(236,72,153,0.08))'}}>
-              <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8}}>Temporary</div>
+            <div style={{padding:20, borderRadius:16, border:'1px solid rgba(255,255,255,0.08)', background:'linear-gradient(135deg, rgba(236,72,153,0.15), rgba(236,72,153,0.05))'}}>
+              <div style={{fontSize:12, color:'rgba(255,255,255,0.7)', textTransform:'uppercase', letterSpacing:'.12em', marginBottom:8, fontWeight:600}}>Temporary</div>
               <div style={{fontSize:32, fontWeight:900, color:'#ec4899'}}>{stats.temporary}</div>
             </div>
           </div>
@@ -544,7 +576,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                             <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))'}}>{formatVehicleName(assignment)}</div>
                           </td>
                           <td style={{padding:16}}>
-                            <StatusChip status={assignment.assignment_type as AssignmentStatus} label={assignment.assignment_type.replace('_', ' ')} />
+                            <StatusChip status={assignment.assignment_type as AssignmentStatus} label={formatEnum(assignment.assignment_type)} />
                           </td>
                           <td style={{padding:16}}>
                             <StatusChip status={assignment.lifecycle_state as AssignmentStatus} />
@@ -587,11 +619,11 @@ const VehicleAssignmentManagement: React.FC = () => {
                                     <div style={{display:'flex', flexDirection:'column', gap:10}}>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>ASSIGNMENT TYPE</div>
-                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{assignment.assignment_type.toUpperCase().replace('_', ' ')}</div>
+                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatEnum(assignment.assignment_type)}</div>
                                       </div>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>LIFECYCLE STATE</div>
-                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{assignment.lifecycle_state.toUpperCase()}</div>
+                                        <div style={{fontSize:14, color:'var(--text, #e2e8f0)'}}>{formatEnum(assignment.lifecycle_state)}</div>
                                       </div>
                                       <div>
                                         <div style={{fontSize:11, color:'var(--muted, rgba(255,255,255,0.4))', marginBottom:4}}>COMMUTING AUTHORIZED</div>
@@ -849,7 +881,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                   </tr>
                 ) : (
                   complianceExceptions.map((exc, idx) => (
-                    <tr key={idx} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
+                    <tr key={`${exc.assignment_id}-${exc.exception_type}-${idx}`} style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
                       <td style={{padding:16, fontSize:14, fontWeight:600, color:'var(--text, #e2e8f0)'}}>{exc.driver_name}</td>
                       <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{exc.unit_number}</td>
                       <td style={{padding:16, fontSize:14, color:'var(--text, #e2e8f0)'}}>{exc.department_name}</td>
@@ -858,7 +890,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                           display:'inline-flex', alignItems:'center', padding:'4px 10px', borderRadius:999, fontSize:12, fontWeight:600,
                           color:'#ef4444', border:'1px solid rgba(239,68,68,0.3)', background:'rgba(239,68,68,0.15)',
                         }}>
-                          {exc.exception_type?.replace(/_/g, ' ').toUpperCase() || 'POLICY VIOLATION'}
+                          {exc.exception_type ? formatEnum(exc.exception_type) : 'Policy Violation'}
                         </span>
                       </td>
                       <td style={{padding:16, fontSize:13, color:'var(--muted, rgba(255,255,255,0.4))', maxWidth:300}}>{exc.exception_description}</td>
@@ -896,7 +928,7 @@ const VehicleAssignmentManagement: React.FC = () => {
                         </span>
                       </div>
                       <div style={{fontSize:12, color:'var(--muted, rgba(255,255,255,0.4))'}}>
-                        {a.unit_number} | {a.department_name} | {a.assignment_type.replace('_', ' ')}
+                        {a.unit_number} | {a.department_name} | {formatEnum(a.assignment_type)}
                       </div>
                     </div>
                   );

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useMemo } from 'react';
 
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { formatTime } from '@/utils/format-helpers';
@@ -144,7 +145,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                   <div>
                     <h3 className="font-semibold text-sm">{vehicle.number || vehicle.vehicleNumber}</h3>
                     <p className="text-xs text-slate-600">
-                      {vehicle.make} {vehicle.model}
+                      {formatVehicleShortName(vehicle)}
                     </p>
                   </div>
                 </div>

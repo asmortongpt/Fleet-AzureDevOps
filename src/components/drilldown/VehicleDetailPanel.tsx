@@ -17,6 +17,7 @@ import {
   Settings,
   Wrench,
   FileText,
+  Files,
   User,
   UserPlus,
   MapPin,
@@ -105,6 +106,26 @@ interface FuelRecord {
   odometer?: number
 }
 
+interface DocumentRecord {
+  id: string
+  name?: string
+  title?: string
+  file_name?: string
+  original_filename?: string
+  document_type?: string
+  type?: string
+  category?: string
+  description?: string
+  file_size?: number
+  file_size_bytes?: number
+  mime_type?: string
+  status?: string
+  uploaded_at?: string
+  created_at?: string
+  expires_at?: string
+  uploaded_by_name?: string
+}
+
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
@@ -118,9 +139,13 @@ function statusBadgeVariant(status: string) {
     case 'in_progress':
     case 'in_use':
     case 'in_service':
+    case 'en_route':
+    case 'dispatched':
       return 'info' as const
     case 'pending':
     case 'scheduled':
+    case 'assigned':
+    case 'on_site':
       return 'warning' as const
     case 'inactive':
     case 'out_of_service':
@@ -202,7 +227,7 @@ function TableSkeleton({ rows = 4 }: { rows?: number }) {
 
 function EmptyState({ icon: Icon, message }: { icon: React.ComponentType<{ className?: string }>; message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-10 text-center">
+    <div className="flex flex-col items-center justify-center py-5 text-center">
       <Icon className="h-8 w-8 text-white/20 mb-2" />
       <p className="text-sm text-white/40">No records found</p>
       <p className="text-xs text-white/25 mt-0.5">{message}</p>
@@ -261,6 +286,12 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
     { shouldRetryOnError: false }
   )
 
+  const { data: documentsData, isLoading: documentsLoading } = useSWR<{ data?: DocumentRecord[] } | DocumentRecord[]>(
+    vehicleId ? `/api/documents?vehicle_id=${vehicleId}` : null,
+    apiFetcher,
+    { shouldRetryOnError: false }
+  )
+
   const nextPm = useMemo(() => {
     if (!Array.isArray(schedules) || schedules.length === 0) return null
     const sorted = schedules
@@ -313,6 +344,12 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
   const tripsArr = Array.isArray(trips) ? trips : []
   const inspectionsArr = Array.isArray(inspections) ? inspections : []
   const fuelArr = Array.isArray(fuelRecords) ? fuelRecords : []
+  // Documents API returns { data: [...] } or array directly
+  const documentsArr: DocumentRecord[] = Array.isArray(documentsData)
+    ? documentsData
+    : Array.isArray((documentsData as any)?.data)
+      ? (documentsData as any).data
+      : []
 
   const totalMaintenanceCost = maintenanceArr.reduce((sum, record) => sum + (record.cost || 0), 0)
   const totalIncidentCost = incidentsArr.reduce((sum, record) => sum + (record.cost || 0), 0)
@@ -327,7 +364,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
   return (
     <DrilldownContent loading={isLoading} error={error} onRetry={() => mutate()}>
       {vehicle && (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {/* ---------------------------------------------------------------- */}
           {/* Header: compact, data-dense                                      */}
           {/* ---------------------------------------------------------------- */}
@@ -400,7 +437,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 label: 'Health Score',
                 data: { vehicleId, healthScore }
               })}
-              className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5 text-left hover:bg-white/[0.04] transition-colors cursor-pointer"
+              className="rounded-lg bg-[#242424] border border-white/[0.08] p-2 text-left hover:bg-white/[0.04] transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-1.5 mb-1">
                 <Activity className="h-3.5 w-3.5 text-white/40" />
@@ -418,7 +455,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </button>
 
             {/* Fuel Level */}
-            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
+            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <Fuel className="h-3.5 w-3.5 text-white/40" />
                 <span className="text-[11px] text-white/40 font-medium">Fuel</span>
@@ -435,7 +472,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </div>
 
             {/* Odometer */}
-            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
+            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <Gauge className="h-3.5 w-3.5 text-white/40" />
                 <span className="text-[11px] text-white/40 font-medium">Odometer</span>
@@ -447,7 +484,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
             </div>
 
             {/* Uptime */}
-            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
+            <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
               <div className="flex items-center gap-1.5 mb-1">
                 <Clock className="h-3.5 w-3.5 text-white/40" />
                 <span className="text-[11px] text-white/40 font-medium">Uptime</span>
@@ -468,13 +505,14 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
           {/* Tabbed Content                                                    */}
           {/* ---------------------------------------------------------------- */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full h-auto grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
+            <TabsList className="grid w-full h-auto grid-cols-4 md:grid-cols-7">
               <TabsTrigger value="overview">Overview</TabsTrigger>
               <TabsTrigger value="maintenance">Maintenance ({maintenanceHistory?.length || 0})</TabsTrigger>
               <TabsTrigger value="incidents">Incidents ({incidents?.length || 0})</TabsTrigger>
               <TabsTrigger value="trips">Trips ({trips?.length || 0})</TabsTrigger>
               <TabsTrigger value="inspections">Inspections</TabsTrigger>
               <TabsTrigger value="fuel">Fuel</TabsTrigger>
+              <TabsTrigger value="documents">Docs ({documentsArr.length})</TabsTrigger>
             </TabsList>
 
             {/* ============================================================= */}
@@ -758,7 +796,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 <TableSkeleton />
               ) : maintenanceArr.length > 0 ? (
                 <div className="rounded-lg border border-white/[0.08] overflow-hidden">
-                  <div className="max-h-[200px] overflow-y-auto">
+                  <div className="max-h-[300px] overflow-y-auto">
                     <table className="w-full text-sm">
                       <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
                         <tr>
@@ -815,7 +853,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 <TableSkeleton />
               ) : incidentsArr.length > 0 ? (
                 <div className="rounded-lg border border-white/[0.08] overflow-hidden">
-                  <div className="max-h-[200px] overflow-y-auto">
+                  <div className="max-h-[300px] overflow-y-auto">
                     <table className="w-full text-sm">
                       <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
                         <tr>
@@ -874,11 +912,11 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 <>
                   {/* Summary strip */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
+                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
                       <p className="text-[11px] text-white/40">Total Trips</p>
                       <p className="text-sm font-bold text-white">{formatNumber(totalTrips)}</p>
                     </div>
-                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
+                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
                       <p className="text-[11px] text-white/40">Total Distance</p>
                       <p className="text-sm font-bold text-white">{formatNumber(totalDistance, 1)} mi</p>
                     </div>
@@ -886,7 +924,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
 
                   {/* Trips table */}
                   <div className="rounded-lg border border-white/[0.08] overflow-hidden">
-                    <div className="max-h-[200px] overflow-y-auto">
+                    <div className="max-h-[300px] overflow-y-auto">
                       <table className="w-full text-sm">
                         <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
                           <tr>
@@ -944,7 +982,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 <TableSkeleton />
               ) : inspectionsArr.length > 0 ? (
                 <div className="rounded-lg border border-white/[0.08] overflow-hidden">
-                  <div className="max-h-[200px] overflow-y-auto">
+                  <div className="max-h-[300px] overflow-y-auto">
                     <table className="w-full text-sm">
                       <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
                         <tr>
@@ -997,13 +1035,13 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 <>
                   {/* Fuel summary strip */}
                   <div className="grid grid-cols-2 gap-2">
-                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
+                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
                       <p className="text-[11px] text-white/40">Total Fuel</p>
                       <p className="text-sm font-bold text-white">
                         {formatNumber(fuelArr.reduce((sum, r) => sum + r.gallons, 0), 1)} gal
                       </p>
                     </div>
-                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2.5">
+                    <div className="rounded-lg bg-[#242424] border border-white/[0.08] p-2">
                       <p className="text-[11px] text-white/40">Total Cost</p>
                       <p className="text-sm font-bold text-white">
                         {formatCurrency(fuelArr.reduce((sum, r) => sum + r.cost, 0))}
@@ -1013,7 +1051,7 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
 
                   {/* Fuel table */}
                   <div className="rounded-lg border border-white/[0.08] overflow-hidden">
-                    <div className="max-h-[200px] overflow-y-auto">
+                    <div className="max-h-[300px] overflow-y-auto">
                       <table className="w-full text-sm">
                         <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
                           <tr>
@@ -1051,6 +1089,75 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                 </>
               ) : (
                 <EmptyState icon={Fuel} message="No fuel records for this vehicle" />
+              )}
+            </TabsContent>
+
+            {/* ============================================================= */}
+            {/* Documents Tab                                                  */}
+            {/* ============================================================= */}
+            <TabsContent value="documents" className="mt-2">
+              {documentsLoading ? (
+                <TableSkeleton />
+              ) : documentsArr.length > 0 ? (
+                <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                  <div className="max-h-[300px] overflow-y-auto">
+                    <table className="w-full text-sm">
+                      <thead className="sticky top-0 z-10 bg-[#242424] border-b border-white/[0.08]">
+                        <tr>
+                          <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Document</th>
+                          <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Type</th>
+                          <th className="text-left text-[11px] text-white/50 font-medium px-3 py-2">Status</th>
+                          <th className="text-right text-[11px] text-white/50 font-medium px-3 py-2">Size</th>
+                          <th className="text-right text-[11px] text-white/50 font-medium px-3 py-2">Date</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/[0.05]">
+                        {documentsArr.map((doc) => {
+                          const docName = doc.name || doc.title || doc.file_name || doc.original_filename || 'Untitled'
+                          const docType = doc.document_type || doc.type || doc.category || 'Other'
+                          const fileSize = doc.file_size ?? doc.file_size_bytes ?? 0
+                          const docDate = doc.uploaded_at || doc.created_at
+                          const docStatus = doc.status || 'active'
+                          return (
+                            <tr key={doc.id} className="hover:bg-white/[0.03]">
+                              <td className="px-3 py-2">
+                                <div className="flex items-center gap-2">
+                                  <Files className="h-3.5 w-3.5 text-white/30 shrink-0" />
+                                  <div className="min-w-0">
+                                    <span className="font-medium text-white/80 truncate block max-w-[180px]">{docName}</span>
+                                    {doc.description && (
+                                      <p className="text-[11px] text-white/40 truncate max-w-[180px]">{doc.description}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-3 py-2">
+                                <Badge variant="outline" size="sm">{formatEnum(docType)}</Badge>
+                              </td>
+                              <td className="px-3 py-2">
+                                <Badge variant={statusBadgeVariant(docStatus)} size="sm">
+                                  {formatEnum(docStatus)}
+                                </Badge>
+                              </td>
+                              <td className="px-3 py-2 text-right text-white/50 text-xs tabular-nums">
+                                {fileSize > 0
+                                  ? fileSize >= 1048576
+                                    ? `${(fileSize / 1048576).toFixed(1)} MB`
+                                    : `${Math.round(fileSize / 1024)} KB`
+                                  : '\u2014'}
+                              </td>
+                              <td className="px-3 py-2 text-right text-white/50 text-xs">
+                                {docDate ? formatDate(docDate) : '\u2014'}
+                              </td>
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <EmptyState icon={Files} message="No documents attached to this vehicle" />
               )}
             </TabsContent>
           </Tabs>

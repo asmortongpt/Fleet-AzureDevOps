@@ -22,6 +22,7 @@ import React, { ReactNode, KeyboardEvent } from 'react'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import { formatEnum } from '@/utils/format-enum'
+import { formatVehicleName, formatVehicleShortName } from '@/utils/vehicle-display'
 
 export interface DrilldownListItem {
   id: string | number
@@ -262,7 +263,7 @@ export function DrilldownVehicleList({
       items={vehicles}
       recordType="vehicle"
       getRecordId={(v) => v.id}
-      getRecordLabel={(v) => v.name || v.number || `Vehicle ${v.id}`}
+      getRecordLabel={(v) => v.name || formatVehicleName(v)}
       getRecordData={(v) => ({ vehicleId: v.id })}
       loading={loading}
       emptyMessage={emptyMessage}
@@ -272,11 +273,11 @@ export function DrilldownVehicleList({
         <div className="flex items-center justify-between">
           <div>
             <div className="font-medium">
-              {vehicle.name || vehicle.number || `Vehicle ${vehicle.id}`}
+              {vehicle.name || formatVehicleName(vehicle)}
             </div>
             {vehicle.make && vehicle.model && (
               <div className="text-sm text-muted-foreground">
-                {vehicle.make} {vehicle.model}
+                {formatVehicleShortName(vehicle)}
               </div>
             )}
           </div>

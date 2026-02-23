@@ -228,7 +228,7 @@ export function FuelCardDialog({
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-blue-600" />
+              <CreditCard className="h-5 w-5 text-emerald-500" />
               Add Fuel Card
             </DialogTitle>
             <DialogDescription>

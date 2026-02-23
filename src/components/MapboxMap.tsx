@@ -86,13 +86,20 @@ function validateMapboxToken(token: string | undefined): boolean {
 }
 
 function getVehicleColor(status: Vehicle["status"]): string {
-  const colors: Record<Vehicle["status"], string> = {
+  const colors: Record<string, string> = {
     active: "hsl(var(--success))",
     idle: "hsl(var(--muted-foreground))",
     charging: "hsl(var(--primary))",
     service: "hsl(var(--warning))",
     emergency: "hsl(var(--destructive))",
-    offline: "hsl(var(--muted-foreground))"
+    offline: "hsl(var(--muted-foreground))",
+    assigned: "#818cf8",
+    dispatched: "#fb923c",
+    en_route: "#38bdf8",
+    on_site: "#facc15",
+    completed: "#34d399",
+    maintenance: "hsl(var(--warning))",
+    retired: "hsl(var(--muted-foreground))",
   }
   return colors[status] || "hsl(var(--muted-foreground))"
 }

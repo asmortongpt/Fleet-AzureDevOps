@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { formatTime } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 // Local type definitions for safety dashboard
 interface Driver {
@@ -355,7 +356,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                     {driver.firstName} {driver.lastName}
                   </CardTitle>
                   <p className="text-sm text-slate-700">
-                    {driver.department} • {vehicle?.make} {vehicle?.model}
+                    {driver.department} • {vehicle ? formatVehicleShortName(vehicle) : ''}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
                     <Badge variant={riskLevel === 'low' ? 'default' : 'destructive'}>

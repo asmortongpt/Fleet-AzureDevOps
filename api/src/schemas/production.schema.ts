@@ -10,7 +10,7 @@ import { pgTable, uuid, varchar, text, timestamp, integer, decimal, boolean, jso
 // ENUMS
 // ============================================================================
 
-export const vehicleStatusEnum = pgEnum('vehicle_status', ['active', 'idle', 'charging', 'service', 'emergency', 'offline', 'maintenance', 'retired']);
+export const vehicleStatusEnum = pgEnum('vehicle_status', ['active', 'idle', 'charging', 'service', 'emergency', 'offline', 'maintenance', 'retired', 'assigned', 'dispatched', 'en_route', 'on_site', 'completed']);
 export const vehicleTypeEnum = pgEnum('vehicle_type', ['sedan', 'suv', 'truck', 'van', 'bus', 'emergency', 'construction', 'specialty']);
 export const fuelTypeEnum = pgEnum('fuel_type', ['gasoline', 'diesel', 'electric', 'hybrid', 'propane', 'cng', 'hydrogen']);
 export const priorityEnum = pgEnum('priority', ['low', 'medium', 'high', 'critical', 'emergency']);

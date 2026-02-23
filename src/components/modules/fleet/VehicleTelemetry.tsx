@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton"
 import { apiFetcher } from "@/lib/api-fetcher"
 import { formatTime } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 const fetcher = apiFetcher
 
@@ -90,7 +91,7 @@ export function VehicleTelemetry() {
               <SelectContent>
                 {vehicles.map((vehicle) => (
                   <SelectItem key={vehicle.id} value={String(vehicle.id)}>
-                    {vehicle.name || vehicle.number || `${vehicle.make} ${vehicle.model}`}
+                    {vehicle.name || formatVehicleName(vehicle)}
                   </SelectItem>
                 ))}
               </SelectContent>

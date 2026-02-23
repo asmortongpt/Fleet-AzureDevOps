@@ -7,6 +7,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useEffect, useMemo, useState } from "react";
 
+import { formatVehicleName } from "@/utils/vehicle-display";
 import ErrorBoundary from "../../components/common/ErrorBoundary";
 import { DataGrid } from "../../components/common/DataGrid";
 import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
@@ -109,7 +110,7 @@ const WorkHub: React.FC = () => {
       const vehicle = vehiclesById.get(order.vehicle_id || order.vehicleId);
       return {
         id: order.id,
-        vehicle: vehicle ? `${vehicle.name || vehicle.make} ${vehicle.model || ''}`.trim() : '',
+        vehicle: vehicle ? formatVehicleName(vehicle) : '',
         type: order.title || order.type || 'Maintenance',
         scheduledDate: order.scheduled_date || order.due_date || order.created_at || '',
         status: order.status || "scheduled",

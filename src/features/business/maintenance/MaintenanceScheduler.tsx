@@ -4,6 +4,7 @@ import { maintenanceService } from '../../services/maintenanceService';
 import { vehicleService, Vehicle } from '../../services/vehicleService';
 
 import logger from '@/utils/logger';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface MaintenanceSchedulerProps {
   currentTheme: any;
@@ -231,7 +232,7 @@ const MaintenanceScheduler: React.FC<MaintenanceSchedulerProps> = ({
               <option value="">Select a vehicle</option>
               {vehicles.map(vehicle => (
                 <option key={vehicle.id} value={vehicle.id}>
-                  {vehicle.licensePlate || vehicle.vin} - {vehicle.make} {vehicle.model}
+                  {vehicle.licensePlate || vehicle.vin} - {formatVehicleShortName(vehicle)}
                 </option>
               ))}
             </select>

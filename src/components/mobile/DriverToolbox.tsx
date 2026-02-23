@@ -20,6 +20,7 @@ import { offlineSyncService } from '../../services/offline-sync.service';
 import { pushNotificationService } from '../../services/push-notifications.service';
 
 import logger from '@/utils/logger';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { formatNumber, formatTime } from '@/utils/format-helpers';
 import { toast } from 'sonner';
 
@@ -263,7 +264,7 @@ export const DriverToolbox: React.FC = () => {
               <div>
                 <p className="text-sm text-blue-200">Active Vehicle</p>
                 <p className="text-sm font-semibold">
-                  {activeVehicle.vehicleNumber} - {activeVehicle.make} {activeVehicle.model}
+                  {activeVehicle.vehicleNumber} - {formatVehicleShortName(activeVehicle)}
                 </p>
                 <p className="text-sm text-blue-200">{activeVehicle.licensePlate}</p>
               </div>

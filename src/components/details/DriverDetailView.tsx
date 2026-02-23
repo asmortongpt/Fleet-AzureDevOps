@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { formatNumber } from '@/utils/format-helpers';
 import { Badge } from '@/components/ui/badge';
@@ -450,7 +451,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                         <div className="flex items-start justify-between mb-2">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-semibold">{assignment.make || assignment.vehicle_make || ''} {assignment.model || assignment.vehicle_model || ''}</h4>
+                              <h4 className="font-semibold">{formatVehicleShortName({ make: assignment.make || assignment.vehicle_make, model: assignment.model || assignment.vehicle_model })}</h4>
                               {getStatusBadge(assignment.status || 'active')}
                             </div>
                             <p className="text-sm text-muted-foreground">ID: {assignment.vehicleId || assignment.vehicle_id || assignment.id}</p>

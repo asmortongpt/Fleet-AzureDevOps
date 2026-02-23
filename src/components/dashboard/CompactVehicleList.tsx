@@ -5,7 +5,7 @@ import { useMemo, useRef, useEffect, useState } from "react"
 import { Vehicle } from "@/lib/types"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
-import { formatVehicleName } from "@/utils/vehicle-display"
+import { formatVehicleName, formatVehicleShortName } from "@/utils/vehicle-display"
 
 interface CompactVehicleListProps {
   vehicles: Vehicle[]
@@ -24,15 +24,22 @@ export function CompactVehicleList({
   const [visibleRange, setVisibleRange] = useState({ start: 0, end: 20 })
 
   const getStatusColor = (status: Vehicle["status"]) => {
-    const colors = {
+    const colors: Record<string, string> = {
       active: "bg-green-100 text-green-700 border-green-200 dark:bg-green-950 dark:text-green-400 dark:border-green-900",
       idle: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700",
       charging: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-700 dark:border-blue-900",
       service: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
       emergency: "bg-red-100 text-red-700 border-red-200 dark:bg-red-950 dark:text-red-400 dark:border-red-900",
-      offline: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700"
+      offline: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700",
+      assigned: "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-950 dark:text-indigo-400 dark:border-indigo-900",
+      dispatched: "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-950 dark:text-orange-400 dark:border-orange-900",
+      en_route: "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-950 dark:text-sky-400 dark:border-sky-900",
+      on_site: "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-400 dark:border-yellow-900",
+      completed: "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-400 dark:border-emerald-900",
+      maintenance: "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-900",
+      retired: "bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-700 dark:border-gray-700",
     }
-    return colors[status]
+    return colors[status] || colors.offline
   }
 
   const getBatteryColor = (level: number) => {
@@ -182,15 +189,22 @@ export function CompactVehicleListMini({
   const displayVehicles = useMemo(() => vehicles.slice(0, maxItems), [vehicles, maxItems])
 
   const getStatusColor = (status: Vehicle["status"]) => {
-    const colors = {
+    const colors: Record<string, string> = {
       active: "text-green-600 dark:text-green-400",
       idle: "text-gray-700 dark:text-gray-700",
       charging: "text-blue-800 dark:text-blue-700",
       service: "text-amber-600 dark:text-amber-400",
       emergency: "text-red-600 dark:text-red-400",
-      offline: "text-gray-700 dark:text-gray-700"
+      offline: "text-gray-700 dark:text-gray-700",
+      assigned: "text-indigo-600 dark:text-indigo-400",
+      dispatched: "text-orange-600 dark:text-orange-400",
+      en_route: "text-sky-600 dark:text-sky-400",
+      on_site: "text-yellow-600 dark:text-yellow-400",
+      completed: "text-emerald-600 dark:text-emerald-400",
+      maintenance: "text-amber-600 dark:text-amber-400",
+      retired: "text-gray-700 dark:text-gray-700",
     }
-    return colors[status]
+    return colors[status] || colors.offline
   }
 
   return (
@@ -208,7 +222,7 @@ export function CompactVehicleListMini({
                 {vehicle.number}
               </div>
               <div className="text-[10px] text-muted-foreground truncate">
-                {vehicle.make} {vehicle.model}
+                {formatVehicleShortName(vehicle)}
               </div>
             </div>
           </div>

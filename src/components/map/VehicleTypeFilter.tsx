@@ -33,6 +33,13 @@ const STATUS_LABELS: Record<string, string> = {
   service: 'In Service',
   emergency: 'Emergency',
   offline: 'Offline',
+  assigned: 'Assigned',
+  dispatched: 'Dispatched',
+  en_route: 'En Route',
+  on_site: 'On Site',
+  completed: 'Completed',
+  maintenance: 'Maintenance',
+  retired: 'Retired',
 };
 
 export const VehicleTypeFilter = memo(function VehicleTypeFilter({

@@ -240,7 +240,7 @@ router.get('/status',
     // System Statistics
     try {
       const [vehicleCount, driverCount, maintenanceCount] = await Promise.all([
-        pool.query('SELECT COUNT(*)::integer as count FROM vehicles'),
+        pool.query("SELECT COUNT(*)::integer as count FROM vehicles WHERE status != 'retired'"),
         pool.query('SELECT COUNT(*)::integer as count FROM drivers'),
         pool.query(`
           SELECT COUNT(*)::integer as count

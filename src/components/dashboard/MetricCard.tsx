@@ -2,6 +2,7 @@ import { ArrowUp, ArrowDown, Minus } from "lucide-react"
 import { ReactNode } from "react"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { formatNumber } from "@/utils/format-helpers"
 
 export interface MetricCardProps {
   /** Metric label/title */
@@ -68,37 +69,37 @@ export function MetricCard({
   loading = false,
   variant = "default",
 }: MetricCardProps) {
-  // Variant color mappings (WCAG AAA compliant)
+  // Variant color mappings — uses emerald accents (no slate/blue per design system)
   const variantStyles = {
     default:
-      "border-slate-200/80 dark:border-slate-700/80 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20",
+      "border-white/[0.08] hover:border-emerald-500/30 hover:shadow-emerald-900/10",
     success:
-      "border-emerald-200/80 dark:border-emerald-800/80 hover:border-emerald-300 dark:hover:border-emerald-600 hover:shadow-emerald-100/50 dark:hover:shadow-emerald-900/20",
+      "border-emerald-800/80 hover:border-emerald-500/40 hover:shadow-emerald-900/20",
     warning:
-      "border-amber-200/80 dark:border-amber-800/80 hover:border-amber-300 dark:hover:border-amber-600 hover:shadow-amber-100/50 dark:hover:shadow-amber-900/20",
+      "border-amber-800/80 hover:border-amber-500/40 hover:shadow-amber-900/20",
     danger:
-      "border-red-200/80 dark:border-red-800/80 hover:border-red-300 dark:hover:border-red-600 hover:shadow-red-100/50 dark:hover:shadow-red-900/20",
-    info: "border-blue-200/80 dark:border-blue-800/80 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-blue-100/50 dark:hover:shadow-blue-900/20",
+      "border-red-800/80 hover:border-red-500/40 hover:shadow-red-900/20",
+    info: "border-emerald-800/60 hover:border-emerald-500/30 hover:shadow-emerald-900/10",
   }
 
   const iconColorStyles = {
     default:
-      "text-slate-700 dark:text-slate-500 group-hover:text-blue-800 dark:group-hover:text-blue-700 group-hover:scale-110",
+      "text-white/40 group-hover:text-emerald-400 group-hover:scale-110",
     success:
-      "text-emerald-700 dark:text-emerald-600 group-hover:text-emerald-600 dark:group-hover:text-emerald-700 group-hover:scale-110",
+      "text-emerald-600 group-hover:text-emerald-400 group-hover:scale-110",
     warning:
-      "text-amber-400 dark:text-amber-500 group-hover:text-amber-600 dark:group-hover:text-amber-400 group-hover:scale-110",
+      "text-amber-500 group-hover:text-amber-400 group-hover:scale-110",
     danger:
-      "text-red-400 dark:text-red-500 group-hover:text-red-600 dark:group-hover:text-red-400 group-hover:scale-110",
-    info: "text-blue-700 dark:text-blue-800 group-hover:text-blue-800 dark:group-hover:text-blue-700 group-hover:scale-110",
+      "text-red-500 group-hover:text-red-400 group-hover:scale-110",
+    info: "text-emerald-600 group-hover:text-emerald-400 group-hover:scale-110",
   }
 
   // Trend color mappings (semantic colors)
   const trendColors = {
-    up: "text-emerald-600 dark:text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50",
-    down: "text-red-600 dark:text-red-500 bg-red-50 dark:bg-red-950/50",
+    up: "text-emerald-600 bg-emerald-950/50",
+    down: "text-red-500 bg-red-950/50",
     neutral:
-      "text-slate-600 dark:text-slate-700 bg-slate-50 dark:bg-slate-900/50",
+      "text-white/40 bg-white/[0.04]",
   }
 
   // Trend icons
@@ -116,7 +117,7 @@ export function MetricCard({
       <Card
         className={`
           border-2 transition-all duration-300 ease-out
-          bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm
+          bg-[#242424] backdrop-blur-sm
           ${variantStyles[variant]}
           ${onClick ? "hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0 active:shadow-md" : "hover:shadow-md"}
           ${loading ? "animate-pulse" : ""}
@@ -124,7 +125,7 @@ export function MetricCard({
       >
         <CardHeader className="pb-2 pt-2 px-2">
           <CardTitle className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-600 dark:text-slate-700 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-white/60 uppercase tracking-wider">
               {label}
             </span>
             {icon && (
@@ -141,18 +142,18 @@ export function MetricCard({
           {loading ? (
             // Professional loading skeleton
             <div className="space-y-2.5 animate-pulse">
-              <div className="h-9 w-28 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 rounded-lg animate-shimmer" />
-              <div className="h-4 w-20 bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 rounded animate-shimmer" />
+              <div className="h-9 w-28 bg-white/[0.06] rounded-lg" />
+              <div className="h-4 w-20 bg-white/[0.04] rounded" />
             </div>
           ) : (
             <>
               {/* Main value with smooth entry animation */}
               <div className="flex items-baseline gap-1.5 mb-2 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <span className="text-base md:text-sm font-bold text-slate-900 dark:text-white tracking-tight tabular-nums">
+                <span className="text-base md:text-sm font-bold text-white tracking-tight tabular-nums">
                   {value}
                 </span>
                 {unit && (
-                  <span className="text-sm font-semibold text-slate-500 dark:text-slate-700">
+                  <span className="text-sm font-semibold text-white/40">
                     {unit}
                   </span>
                 )}
@@ -173,10 +174,10 @@ export function MetricCard({
                      
                     />
                     <span className="text-xs font-bold tabular-nums">
-                      {Math.abs(change).toFixed(1)}%
+                      {formatNumber(Math.abs(change), 1)}%
                     </span>
                   </div>
-                  <span className="text-xs text-slate-500 dark:text-slate-700 font-medium ml-2">
+                  <span className="text-xs text-white/40 font-medium ml-2">
                     vs last period
                   </span>
                 </div>
@@ -205,13 +206,13 @@ export function MetricCard({
  */
 export function MetricCardSkeleton() {
   return (
-    <Card className="border-2 border-slate-200/80 dark:border-slate-700/80 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm">
+    <Card className="border-2 border-white/[0.08] bg-[#242424] backdrop-blur-sm">
       <CardHeader className="pb-2 pt-2 px-2">
-        <div className="h-3 w-24 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 rounded animate-pulse" />
+        <div className="h-3 w-24 bg-white/[0.06] rounded animate-pulse" />
       </CardHeader>
       <CardContent className="px-2 pb-2 space-y-2.5">
-        <div className="h-9 w-28 bg-gradient-to-r from-slate-200 via-slate-300 to-slate-200 dark:from-slate-700 dark:via-slate-600 dark:to-slate-700 rounded-lg animate-pulse" />
-        <div className="h-4 w-20 bg-gradient-to-r from-slate-100 via-slate-200 to-slate-100 dark:from-slate-800 dark:via-slate-700 dark:to-slate-800 rounded animate-pulse" />
+        <div className="h-9 w-28 bg-white/[0.06] rounded-lg animate-pulse" />
+        <div className="h-4 w-20 bg-white/[0.04] rounded animate-pulse" />
       </CardContent>
     </Card>
   )

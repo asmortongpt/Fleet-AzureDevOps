@@ -15,7 +15,7 @@ import { useDrilldown } from '@/contexts/DrilldownContext';
 import { secureFetch } from '@/hooks/use-api';
 import { formatEnum } from '@/utils/format-enum';
 import { formatCurrency, formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers';
-import { formatVehicleName } from '@/utils/vehicle-display';
+import { formatVehicleName, formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface Vehicle {
   id: string;
@@ -441,7 +441,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-1">
-                  <DetailRow label="Make / Model" value={`${vehicle.make} ${vehicle.model}`} />
+                  <DetailRow label="Make / Model" value={formatVehicleShortName(vehicle)} />
                   <DetailRow label="Year" value={vehicle.year} />
                   <DetailRow label="VIN" value={<span className="font-mono text-xs">{vehicle.vin || '--'}</span>} />
                   <DetailRow label="License Plate" value={vehicle.licensePlate || vehicle.license_plate || '--'} />

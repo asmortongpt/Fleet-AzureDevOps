@@ -160,7 +160,7 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
     push({
       id: `vehicle-${vehicle.id}`,
       type: 'vehicle',
-      label: `${vehicle.make} ${vehicle.model}`,
+      label: formatVehicleName(vehicle),
       data: { vehicleId: vehicle.id },
     })
   }

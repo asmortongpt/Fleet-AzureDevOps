@@ -19,7 +19,17 @@ const vehicleStatusEnum = z.enum([
   'maintenance',
   'sold',
   'retired',
-  'out_of_service'
+  'out_of_service',
+  'idle',
+  'charging',
+  'service',
+  'emergency',
+  'offline',
+  'assigned',
+  'dispatched',
+  'en_route',
+  'on_site',
+  'completed'
 ]);
 
 // Fuel type enum

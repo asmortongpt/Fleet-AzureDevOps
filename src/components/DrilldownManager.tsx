@@ -86,6 +86,10 @@ import { HealthScoreBreakdown } from '@/components/drilldown/HealthScoreBreakdow
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
 import { ViolationDetailPanel } from '@/components/drilldown/ViolationDetailPanel'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
+import { VehicleAssignmentDrilldown } from '@/components/drilldown/VehicleAssignmentDrilldown'
+import { GarageBayDrilldown } from '@/components/drilldown/GarageBayDrilldown'
+import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
+import { PolicyDetailPanel } from '@/components/drilldown/PolicyDetailPanel'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
 
 // ============================================================================
@@ -770,6 +774,21 @@ function DrilldownContent() {
         />
       )
 
+    case 'vehicle-assignments':
+      return (
+        <VehicleAssignmentDrilldown
+          filter={currentLevel.data?.vehicleId}
+        />
+      )
+
+    case 'vehicle-maintenance':
+    case 'vehicle-service-history':
+    case 'asset-maintenance':
+      return <MaintenanceDrilldown />
+
+    case 'vehicle-alerts':
+      return <SafetyAlertsDrilldown />
+
     case 'trip-telemetry':
       return (
         <TripTelemetryView
@@ -807,7 +826,9 @@ function DrilldownContent() {
     // Maintenance drilldown hierarchy
     // ============================================
     case 'workOrder':
-      return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId} />
+    case 'work-order':
+    case 'workorder':
+      return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId || currentLevel.data?.id} />
 
     case 'work-order-detail':
       return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId} />
@@ -838,11 +859,13 @@ function DrilldownContent() {
     case 'drivers-roster':
     case 'total-drivers':
     case 'on-duty':
+    case 'drivers-list':
       return <DriversRosterDrilldown />
 
     case 'driver-performance-hub':
     case 'top-performers':
     case 'needs-coaching':
+    case 'driver-rankings':
       return <DriverPerformanceDrilldown />
 
     case 'driver-scorecard':
@@ -868,7 +891,27 @@ function DrilldownContent() {
       return <MaintenanceCalendarDrilldown />
 
     case 'maintenance-requests':
+    case 'maintenance-request-detail':
       return <MaintenanceRequestsDrilldown />
+
+    case 'garage-bay':
+    case 'service-bay':
+      return (
+        <GarageBayDrilldown
+          bayId={currentLevel.data?.bayId}
+          bayNumber={currentLevel.data?.bayNumber}
+        />
+      )
+
+    case 'maintenance-schedule':
+    case 'scheduled-item':
+      return <MaintenanceCalendarDrilldown />
+
+    case 'cost-breakdown':
+      return <CostAnalysisDrilldown />
+
+    case 'create-corrective-actions':
+      return <WorkOrderCreateDrilldown />
 
     // ============================================
     // Analytics Hub Drilldowns
@@ -904,7 +947,15 @@ function DrilldownContent() {
       return <VideoTelematicsDrilldown />
 
     case 'safety-alerts':
+    case 'safety-alert':
       return <SafetyAlertsDrilldown />
+
+    case 'hazard-zone':
+      return (
+        <HazardZoneDetailPanel
+          hazardZoneId={currentLevel.data?.zoneId}
+        />
+      )
 
     // ============================================
     // Operations Hub Drilldowns
@@ -918,6 +969,7 @@ function DrilldownContent() {
     case 'routes':
     case 'active-routes':
     case 'optimized-today':
+    case 'routes-list':
       return <RoutesDrilldown />
 
     case 'tasks':
@@ -947,10 +999,16 @@ function DrilldownContent() {
     case 'purchase-orders':
     case 'open-pos':
     case 'in-transit-pos':
+    case 'vendor-orders':
+    case 'po-create':
       return <PurchaseOrdersDrilldown />
+
+    case 'vendor-invoices':
+      return <InvoiceDetailPanel invoiceId={currentLevel.data?.invoiceId || currentLevel.data?.id} />
 
     case 'fuel-purchasing':
     case 'fuel-cards':
+    case 'fuel-transaction':
       return <FuelPurchasingDrilldown />
 
     // ============================================
@@ -1028,7 +1086,13 @@ function DrilldownContent() {
       return <CSADrilldown />
 
     case 'compliance-item':
+    case 'compliance-renewal':
+    case 'compliance-zone':
       return <ComplianceItemDrilldown />
+
+    case 'policy':
+    case 'policies':
+      return <PolicyDetailPanel policyId={currentLevel.data?.policyId || currentLevel.id} />
 
     case 'policy-category':
       return <PolicyCategoryDrilldown />
@@ -1053,6 +1117,7 @@ function DrilldownContent() {
     case 'critical-alerts':
     case 'resolved-today':
     case 'suppressed':
+    case 'alert-detail':
       return <AlertsDrilldown />
 
     case 'files':
@@ -1083,6 +1148,7 @@ function DrilldownContent() {
     case 'asset':
     case 'asset-detail':
     case 'equipment':
+    case 'asset-history':
       return <AssetDetailPanel assetId={currentLevel.data?.assetId || currentLevel.data?.id} />
 
     case 'asset-create':
@@ -1103,6 +1169,7 @@ function DrilldownContent() {
     // ============================================
     case 'route':
     case 'route-detail':
+    case 'route-stops':
       return <RouteDetailPanel routeId={currentLevel.data?.routeId || currentLevel.data?.id} />
 
     // ============================================
@@ -1117,7 +1184,11 @@ function DrilldownContent() {
     // ============================================
     case 'incident':
     case 'incident-detail':
+    case 'incident-documents':
       return <IncidentDetailPanel incidentId={currentLevel.data?.incidentId || currentLevel.data?.id} />
+
+    case 'incident-create':
+      return <IncidentsDrilldown />
 
     // ============================================
     // Vendor drilldown hierarchy (single vendor detail)
@@ -1131,6 +1202,7 @@ function DrilldownContent() {
     // ============================================
     case 'part':
     case 'part-detail':
+    case 'part-history':
       return <PartDetailPanel partId={currentLevel.data?.partId || currentLevel.data?.id} />
 
     // ============================================
@@ -1153,6 +1225,60 @@ function DrilldownContent() {
     case 'inspection':
     case 'inspection-detail':
       return <InspectionDetailPanel inspectionId={currentLevel.data?.inspectionId || currentLevel.data?.id} />
+
+    // ============================================
+    // Training / Certification drilldowns
+    // ============================================
+    case 'training-schedule':
+    case 'training-renewal':
+    case 'training-certificate':
+      return <ComplianceItemDrilldown />
+
+    // ============================================
+    // Policy execution detail
+    // ============================================
+    case 'execution-detail':
+      return <ComplianceItemDrilldown />
+
+    // ============================================
+    // Audit / User / Report drilldowns (Admin & Compliance)
+    // ============================================
+    case 'audit':
+    case 'audit-log':
+    case 'report':
+      return <ComplianceItemDrilldown />
+
+    case 'user':
+    case 'technician':
+      return <SystemHealthDrilldown />
+
+    // ============================================
+    // Equipment / Inventory item detail (Asset Hub)
+    // ============================================
+    case 'equipment-detail':
+    case 'inventory-item-detail':
+      return <AssetDetailPanel assetId={currentLevel.data?.assetId || currentLevel.data?.id} />
+
+    // ============================================
+    // Service record / vendor detail (Maintenance Hub)
+    // ============================================
+    case 'service-record-detail':
+      return <WorkOrderDetailPanel workOrderId={currentLevel.data?.workOrderId || currentLevel.data?.id} />
+
+    case 'service-vendor-detail':
+      return <VendorDetailPanel vendorId={currentLevel.data?.vendorId || currentLevel.data?.id} />
+
+    // ============================================
+    // Schedule (calendar item from HubDrilldowns)
+    // ============================================
+    case 'schedule':
+      return <MaintenanceCalendarDrilldown />
+
+    // ============================================
+    // Job (from TaskDetailPanel)
+    // ============================================
+    case 'job':
+      return <TasksDrilldown />
 
     // ============================================
     // Fallback for unknown types

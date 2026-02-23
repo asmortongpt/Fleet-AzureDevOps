@@ -31,6 +31,7 @@ import { useVehicles, useDrivers } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
 import { Geofence, Driver } from '@/lib/types';
 import { formatEnum } from '@/utils/format-enum';
+import { formatNumber, formatDate, formatTime as formatTimeHelper } from '@/utils/format-helpers';
 import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
 
@@ -401,7 +402,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
     }
     list.sort((a: any, b: any) => {
       if (sideSort === 'status') {
-        const order: Record<string, number> = { emergency: 0, service: 1, active: 2, charging: 3, idle: 4, offline: 5 };
+        const order: Record<string, number> = { emergency: 0, service: 1, en_route: 2, dispatched: 3, on_site: 4, assigned: 5, active: 6, charging: 7, idle: 8, maintenance: 9, completed: 10, offline: 11, retired: 12 };
         return (order[a.status] ?? 6) - (order[b.status] ?? 6);
       }
       if (sideSort === 'name') return (a.name || '').localeCompare(b.name || '');
@@ -436,6 +437,13 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
           { key: 'service', label: 'Service', color: '#f59e0b' },
           { key: 'emergency', label: 'Emergency', color: '#ef4444' },
           { key: 'offline', label: 'Offline', color: '#374151' },
+          { key: 'assigned', label: 'Assigned', color: '#818cf8' },
+          { key: 'dispatched', label: 'Dispatched', color: '#fb923c' },
+          { key: 'en_route', label: 'En Route', color: '#38bdf8' },
+          { key: 'on_site', label: 'On Site', color: '#facc15' },
+          { key: 'completed', label: 'Completed', color: '#34d399' },
+          { key: 'maintenance', label: 'Maintenance', color: '#f59e0b' },
+          { key: 'retired', label: 'Retired', color: '#6b7280' },
         ];
         const total = vehicles.length;
         return (
@@ -540,7 +548,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                     : 'bg-transparent text-white/25 border-white/[0.04]'
                 }`}
               >
-                <span className="capitalize">{type}</span>
+                <span>{formatEnum(type)}</span>
                 <span className="text-emerald-400/70">{count as number}</span>
               </button>
             ))}
@@ -584,6 +592,12 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                     selectedVehicle.status === 'charging' ? 'bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.5)]' :
                     selectedVehicle.status === 'service' ? 'bg-amber-400' :
                     selectedVehicle.status === 'emergency' ? 'bg-red-400 shadow-[0_0_6px_rgba(239,68,68,0.5)]' :
+                    selectedVehicle.status === 'assigned' ? 'bg-indigo-400 shadow-[0_0_6px_rgba(129,140,248,0.5)]' :
+                    selectedVehicle.status === 'dispatched' ? 'bg-orange-400 shadow-[0_0_6px_rgba(251,146,60,0.5)]' :
+                    selectedVehicle.status === 'en_route' ? 'bg-sky-400 shadow-[0_0_6px_rgba(56,189,248,0.5)]' :
+                    selectedVehicle.status === 'on_site' ? 'bg-yellow-400 shadow-[0_0_6px_rgba(250,204,21,0.5)]' :
+                    selectedVehicle.status === 'completed' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)]' :
+                    selectedVehicle.status === 'maintenance' ? 'bg-amber-400' :
                     'bg-gray-500'
                   }`} />
                   <span className="font-semibold text-sm text-white/95 truncate">
@@ -595,6 +609,12 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                   selectedVehicle.status === 'service' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
                   selectedVehicle.status === 'emergency' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
                   selectedVehicle.status === 'charging' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' :
+                  selectedVehicle.status === 'assigned' ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30' :
+                  selectedVehicle.status === 'dispatched' ? 'bg-orange-500/20 text-orange-400 border-orange-500/30' :
+                  selectedVehicle.status === 'en_route' ? 'bg-sky-500/20 text-sky-400 border-sky-500/30' :
+                  selectedVehicle.status === 'on_site' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                  selectedVehicle.status === 'completed' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                  selectedVehicle.status === 'maintenance' ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
                   'bg-white/[0.06] text-white/50 border-white/[0.08]'
                 }`}>
                   {formatEnum(selectedVehicle.status)}
@@ -606,14 +626,14 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                   <span className="font-mono">{selectedVehicle.vehicleNumber || selectedVehicle.number}</span>
                 )}
                 {(selectedVehicle.vehicleNumber || selectedVehicle.number) && vType && <span>·</span>}
-                {vType && <span className="capitalize">{vType}</span>}
+                {vType && <span>{formatEnum(vType)}</span>}
                 {selectedVehicle.year && <><span>·</span><span>{selectedVehicle.year}</span></>}
                 {vFuelType && (
                   <>
                     <span>·</span>
                     <span className={`flex items-center gap-0.5 ${vFuelType === 'electric' ? 'text-emerald-400' : vFuelType === 'hybrid' ? 'text-amber-400' : ''}`}>
                       {(vFuelType === 'electric' || vFuelType === 'hybrid') && <Zap className="h-2.5 w-2.5" />}
-                      <span className="capitalize">{vFuelType}</span>
+                      <span>{formatEnum(vFuelType)}</span>
                     </span>
                   </>
                 )}
@@ -685,7 +705,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                 <div className="flex items-center gap-1.5 min-w-0">
                   <Gauge className="h-3 w-3 text-white/25 shrink-0" />
                   <span className={`text-[11px] ${vMileage != null ? 'text-white/80' : 'text-white/30'}`}>
-                    {vMileage != null ? `${Number(vMileage).toLocaleString()} mi` : '—'}
+                    {vMileage != null ? `${formatNumber(vMileage)} mi` : '—'}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 min-w-0">
@@ -706,7 +726,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                     <span className="text-white/30 truncate font-mono">VIN: {vVin.slice(-8)}</span>
                   )}
                   {vEngineHours != null && (
-                    <span className="text-white/30">{Number(vEngineHours).toLocaleString()}h</span>
+                    <span className="text-white/30">{formatNumber(vEngineHours)}h</span>
                   )}
                 </div>
               )}
@@ -720,7 +740,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                       <span className={`text-[10px] truncate ${
                         new Date(vNextService) < new Date() ? 'text-red-400 font-medium' : 'text-white/60'
                       }`}>
-                        Svc: {new Date(vNextService).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        Svc: {formatDate(vNextService)}
                       </span>
                     </div>
                   )}
@@ -728,7 +748,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                     <div className="flex items-center gap-1.5 min-w-0">
                       <Clock className="h-3 w-3 text-white/25 shrink-0" />
                       <span className="text-[10px] text-white/40 truncate">
-                        Last: {new Date(vLastService).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        Last: {formatDate(vLastService)}
                       </span>
                     </div>
                   )}
@@ -739,7 +759,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                         new Date(vInsExpiry) < new Date() ? 'text-red-400' :
                         new Date(vInsExpiry) < new Date(Date.now() + 30 * 86400000) ? 'text-amber-400' : 'text-white/50'
                       }`}>
-                        Ins: {new Date(vInsExpiry).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        Ins: {formatDate(vInsExpiry)}
                       </span>
                     </div>
                   )}
@@ -749,7 +769,7 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                       <span className={`text-[10px] truncate ${
                         new Date(vRegExpiry) < new Date() ? 'text-red-400' : 'text-white/50'
                       }`}>
-                        Reg: {new Date(vRegExpiry).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        Reg: {formatDate(vRegExpiry)}
                       </span>
                     </div>
                   )}
@@ -904,6 +924,12 @@ export const LiveFleetDashboard = React.memo(function LiveFleetDashboard({ initi
                       vehicle.status === 'service' ? 'bg-amber-400' :
                       vehicle.status === 'emergency' ? 'bg-red-400' :
                       vehicle.status === 'charging' ? 'bg-cyan-400' :
+                      vehicle.status === 'assigned' ? 'bg-indigo-400' :
+                      vehicle.status === 'dispatched' ? 'bg-orange-400' :
+                      vehicle.status === 'en_route' ? 'bg-sky-400' :
+                      vehicle.status === 'on_site' ? 'bg-yellow-400' :
+                      vehicle.status === 'completed' ? 'bg-emerald-400' :
+                      vehicle.status === 'maintenance' ? 'bg-amber-400' :
                       'bg-gray-500'
                     }`} />
                     <span className="font-medium text-[11px] text-white/90 truncate">
