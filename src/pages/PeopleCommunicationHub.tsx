@@ -34,6 +34,8 @@ import {
   Megaphone,
   BookOpen,
   Plus,
+  Video,
+  ExternalLink,
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
 
@@ -559,12 +561,44 @@ const WorkTabContent = memo(function WorkTabContent() {
     { shouldRetryOnError: false }
   )
 
+  // Calendar events for upcoming meetings
+  const now = new Date()
+  const calendarKey = useMemo(() => {
+    const start = new Date()
+    start.setHours(0, 0, 0, 0)
+    const end = new Date(start.getTime() + 7 * 24 * 60 * 60 * 1000)
+    return `/api/calendar/events?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
+  }, [])
+  const { data: calendarData } = useSWR<any>(
+    calendarKey,
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const meetings = useMemo(() => {
+    const events = Array.isArray(calendarData?.events) ? calendarData.events : (Array.isArray(calendarData) ? calendarData : [])
+    return events
+      .filter((e: any) => e.event_type === 'meeting' || e.event_type === 'conference' || e.subject || e.attendees)
+      .slice(0, 5)
+  }, [calendarData])
+
+  // Meeting detail dialog
+  const [selectedMeeting, setSelectedMeeting] = useState<any>(null)
+
+  const handleJoinMeeting = (meeting: any) => {
+    const meetingUrl = meeting.onlineMeetingUrl || meeting.online_meeting_url || meeting.location
+    if (meetingUrl && (meetingUrl.startsWith('http://') || meetingUrl.startsWith('https://'))) {
+      window.open(meetingUrl, '_blank', 'noopener,noreferrer')
+    } else {
+      // Show meeting details dialog if no URL available
+      setSelectedMeeting(meeting)
+    }
+  }
+
   // P0-4: Add Task dialog state
   const [showAddTask, setShowAddTask] = useState(false)
   const [newTask, setNewTask] = useState({ title: '', description: '', priority: 'medium', status: 'pending' })
 
   const taskRows = Array.isArray(tasks) ? tasks : []
-  const now = new Date()
 
   const activeTasks = taskRows.filter((task: any) => (task.status || '').toLowerCase() !== 'completed')
   const completedThisWeek = taskRows.filter((task: any) => {
@@ -821,8 +855,85 @@ const WorkTabContent = memo(function WorkTabContent() {
               )}
             </div>
           </Section>
+
+          {/* Upcoming Meetings */}
+          <Section
+            title="Upcoming Meetings"
+            description="Scheduled meetings this week"
+            icon={<Video className="h-4 w-4" />}
+          >
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {meetings.length === 0 ? (
+                <div className="flex items-center justify-center h-20 text-muted-foreground text-sm">No upcoming meetings</div>
+              ) : (
+                <div className="space-y-1.5">
+                  {meetings.map((meeting: any) => (
+                    <div key={meeting.id} className="flex items-center justify-between rounded border border-white/[0.08] bg-[#242424] p-2.5">
+                      <div className="flex items-center gap-2">
+                        <Video className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{meeting.subject || meeting.title || 'Meeting'}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatDateTime(meeting.start || meeting.start_time)}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm" onClick={() => handleJoinMeeting(meeting)}>
+                        {(meeting.onlineMeetingUrl || meeting.online_meeting_url || (meeting.location && meeting.location.startsWith('http'))) ? (
+                          <><ExternalLink className="h-3 w-3 mr-1" />Join</>
+                        ) : (
+                          'Details'
+                        )}
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Section>
         </div>
       </div>
+
+      {/* Meeting Details Dialog */}
+      <Dialog open={!!selectedMeeting} onOpenChange={(open) => { if (!open) setSelectedMeeting(null); }}>
+        <DialogContent className="bg-[#242424] border-white/[0.08]">
+          <DialogHeader>
+            <DialogTitle>{selectedMeeting?.subject || selectedMeeting?.title || 'Meeting Details'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm">
+            <div>
+              <p className="text-muted-foreground text-xs">Time</p>
+              <p className="text-foreground">{formatDateTime(selectedMeeting?.start || selectedMeeting?.start_time)} - {formatDateTime(selectedMeeting?.end || selectedMeeting?.end_time)}</p>
+            </div>
+            {selectedMeeting?.location && (
+              <div>
+                <p className="text-muted-foreground text-xs">Location</p>
+                <p className="text-foreground">{selectedMeeting.location}</p>
+              </div>
+            )}
+            {selectedMeeting?.description && (
+              <div>
+                <p className="text-muted-foreground text-xs">Description</p>
+                <p className="text-foreground text-xs">{selectedMeeting.description}</p>
+              </div>
+            )}
+            {selectedMeeting?.attendees && (
+              <div>
+                <p className="text-muted-foreground text-xs">Attendees</p>
+                <p className="text-foreground text-xs">
+                  {Array.isArray(selectedMeeting.attendees)
+                    ? selectedMeeting.attendees.map((a: any) => typeof a === 'string' ? a : (a.name || a.email || '')).join(', ')
+                    : String(selectedMeeting.attendees)
+                  }
+                </p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSelectedMeeting(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* P0-4: Add Task Dialog */}
       <Dialog open={showAddTask} onOpenChange={setShowAddTask}>

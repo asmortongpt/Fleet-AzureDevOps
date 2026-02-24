@@ -1582,7 +1582,7 @@ const MaintenanceTabContent = memo(function MaintenanceTabContent() {
                         {maintenance.vehicleName || 'Unknown Vehicle'} · {formatDate(maintenance.createdAt)}
                       </p>
                     </div>
-                    <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => handleViewWorkOrder(maintenance.id)}>
+                    <Button size="sm" variant="outline" className="h-6 text-[10px] px-2" onClick={() => push({ id: maintenance.id, type: 'workOrder', label: maintenance.title || 'Work Order', data: { workOrderId: maintenance.id, editMode: true } })}>
                       Edit
                     </Button>
                   </div>
