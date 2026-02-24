@@ -20,9 +20,9 @@ import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { DataGrid } from '@/components/common/DataGrid'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmailButton } from '@/components/email/EmailButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {

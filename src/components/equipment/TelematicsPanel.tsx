@@ -25,8 +25,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
-import logger from '@/utils/logger'
 import { formatDateTime, formatTime } from '@/utils/format-helpers'
+import logger from '@/utils/logger'
 
 interface TelematicsData {
   equipment_id: string

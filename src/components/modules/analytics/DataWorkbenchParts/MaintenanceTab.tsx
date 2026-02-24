@@ -11,10 +11,10 @@ import {
 } from "./types"
 
 import { MetricCard } from "@/components/MetricCard"
-import { formatCurrency, formatDate } from "@/utils/format-helpers"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { formatCurrency, formatDate } from "@/utils/format-helpers"
 
 interface MaintenanceTabProps {
   maintenanceRecords: MaintenanceRecord[]

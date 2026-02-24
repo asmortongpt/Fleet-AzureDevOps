@@ -45,8 +45,6 @@ import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
-import { apiFetcher } from '@/lib/api-fetcher'
-import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -61,10 +59,12 @@ import {
   ResponsivePieChart,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
-import { formatDate, formatDateTime, formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
 import { formatVehicleName } from '@/utils/vehicle-display';
 

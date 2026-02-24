@@ -33,8 +33,8 @@ import { toast } from "sonner"
 import { usePermissions } from "@/hooks/usePermissions"
 import { useVehicleInventory } from "@/hooks/useVehicleInventory"
 import { Part } from "@/lib/types"
-import { formatCurrency, formatCurrencyCompact, formatDate } from '@/utils/format-helpers';
 import { formatEnum } from '@/utils/format-enum';
+import { formatCurrency, formatCurrencyCompact, formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface VehicleInventoryProps {

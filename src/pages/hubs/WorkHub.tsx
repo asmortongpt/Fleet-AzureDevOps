@@ -7,9 +7,8 @@ import {
 import { ColumnDef } from "@tanstack/react-table";
 import React, { useEffect, useMemo, useState } from "react";
 
-import { formatVehicleName } from "@/utils/vehicle-display";
-import ErrorBoundary from "../../components/common/ErrorBoundary";
 import { DataGrid } from "../../components/common/DataGrid";
+import ErrorBoundary from "../../components/common/ErrorBoundary";
 import { KPIStrip, KPIMetric } from "../../components/common/KPIStrip";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { Badge } from "../../components/ui/badge";
@@ -17,6 +16,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/ta
 import { secureFetch } from "../../hooks/use-api";
 import { useFleetData } from "../../hooks/use-fleet-data";
 import { formatDate } from "../../utils/format-helpers";
+
+import { formatVehicleName } from "@/utils/vehicle-display";
 
 type WorkModule = "tasks" | "maintenance" | "routes";
 

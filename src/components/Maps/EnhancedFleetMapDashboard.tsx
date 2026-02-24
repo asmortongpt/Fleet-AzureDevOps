@@ -4,8 +4,10 @@
  */
 
 import { motion } from 'framer-motion'
-import { MapPin, Zap, AlertCircle, TrendingUp, Users, Truck } from 'lucide-react'
+import { MapPin, Zap, AlertCircle, TrendingUp, Truck } from 'lucide-react'
+
 import { LiveFleetMap } from './LiveFleetMap'
+
 import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
 
 export function EnhancedFleetMapDashboard() {

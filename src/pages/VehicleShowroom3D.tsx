@@ -48,22 +48,19 @@ import {
 } from 'lucide-react';
 import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
 import useSWR from 'swr';
 
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-
 import { AIModelGenerationPanel } from '@/components/garage/AIModelGenerationPanel';
 import { ComparisonSplitView } from '@/components/garage/ComparisonSplitView';
-import { DamageStrip, type DamagePin, type DamageZone } from '@/components/garage/DamageStrip';
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
+import { DamageStrip, type DamagePin, type DamageZone } from '@/components/garage/DamageStrip';
 import { FleetGalleryGrid } from '@/components/garage/FleetGalleryGrid';
 import { ReferencePhotoCard } from '@/components/garage/ReferencePhotoCard';
-import { VehicleScanUpload } from '@/components/garage/VehicleScanUpload';
 import { TimelineDrawer, type TimelineEvent } from '@/components/garage/TimelineDrawer';
 import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD';
-import { buildImaginUrl, hexToPaintId, type ImaginAngleId } from '@/utils/imagin-studio';
-import { resolveLocalModelUrl, type ModelResolution } from '@/utils/model-resolution';
+import { VehicleScanUpload } from '@/components/garage/VehicleScanUpload';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -74,8 +71,10 @@ import { useTenant } from '@/contexts/TenantContext';
 import { useVehicles } from '@/hooks/use-api';
 import { apiFetcher } from '@/lib/api-fetcher';
 import { cn } from '@/lib/utils';
-import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers';
 import { formatEnum } from '@/utils/format-enum';
+import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers';
+import { buildImaginUrl, hexToPaintId } from '@/utils/imagin-studio';
+import { resolveLocalModelUrl } from '@/utils/model-resolution';
 import { formatVehicleName } from '@/utils/vehicle-display';
 
 const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer'));

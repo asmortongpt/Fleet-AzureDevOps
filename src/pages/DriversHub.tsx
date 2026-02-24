@@ -26,9 +26,9 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Button } from '@/components/ui/button'
+import { DataTable } from '@/components/ui/data-table'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
 import { cn } from '@/lib/utils'
 import { formatEnum } from '@/utils/format-enum'

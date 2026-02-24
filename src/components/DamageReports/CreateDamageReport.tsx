@@ -1,8 +1,6 @@
 import { AlertTriangle, Car, Upload, X, Loader2, CheckCircle } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
-
-import { useNavigation } from '@/contexts/NavigationContext'
 import { z } from 'zod'
 
 import { Alert, AlertDescription } from '@/components/ui/alert'
@@ -19,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Textarea } from '@/components/ui/textarea'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { damageReportsApi } from '@/services/damageReportsApi'
 import logger from '@/utils/logger';
 

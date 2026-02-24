@@ -56,7 +56,6 @@ import { usePolicies } from "@/contexts/PolicyContext"
 import { useAuth } from "@/hooks/useAuth"
 import type { Policy, PolicyType, PolicyMode, PolicyStatus } from "@/lib/policy-engine/types"
 import logger from '@/utils/logger';
-import { brandColors } from "@/theme/designSystem"
 
 export function PolicyEngineWorkbench() {
   // Use PolicyContext for backend integration

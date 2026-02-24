@@ -12,7 +12,6 @@
 import { CheckCircle2, Loader2, AlertCircle, Info } from 'lucide-react';
 import React, { useState } from 'react';
 
-import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { QueryErrorBoundary, QueryErrorDisplay } from '@/components/errors/QueryErrorBoundary';
 import {
   SkeletonTable,
@@ -31,6 +30,7 @@ import {
   useCreateVehicle,
 } from '@/hooks/useDataQueriesEnhanced';
 import logger from '@/utils/logger';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 /**
  * Example 1: Basic Query with Error Handling and Loading State
  */

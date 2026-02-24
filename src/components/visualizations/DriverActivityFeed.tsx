@@ -13,9 +13,9 @@ import { useMemo } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatTime } from '@/utils/format-helpers';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
+import { formatTime } from '@/utils/format-helpers';
 
 /**
  * Driver Activity Feed

@@ -2,8 +2,8 @@ import { useEffect, useRef, useState, useCallback } from "react"
 
 import { usePerformanceMonitor } from "@/hooks/usePerformanceMonitor"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
-import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 import logger from '@/utils/logger';
+import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 
 let mapboxgl: any | null = null
 let mapboxCssLoaded = false

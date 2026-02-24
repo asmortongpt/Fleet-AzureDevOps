@@ -3,9 +3,10 @@ import { Truck, Calendar, Gauge, DollarSign, Wrench } from 'lucide-react';
 import React from 'react';
 
 import { ExcelDataTable } from '../shared/ExcelDataTable';
-import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers';
 
 import { Vehicle } from '@/types';
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers';
+
 
 
 interface VehicleDrilldownViewProps {

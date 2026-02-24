@@ -28,7 +28,6 @@ import { useState, useMemo, useCallback } from "react"
 import { toast } from "sonner"
 import useSWR from "swr"
 
-import { apiFetcher } from '@/lib/api-fetcher'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -59,9 +58,10 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
+import { getCsrfToken } from "@/hooks/use-api"
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from "@/utils/format-enum"
 import { formatDateTime, formatNumber } from '@/utils/format-helpers'
-import { getCsrfToken } from "@/hooks/use-api"
 
 interface SafetyAlert {
   id: string

@@ -16,7 +16,6 @@ import {
 } from "../../ui/sheet";
 
 import { useFleetData } from "@/hooks/use-fleet-data";
-import { brandColors } from "@/theme/designSystem"
 import { formatCurrency, formatNumber } from "@/utils/format-helpers"
 
 interface FuelPanelProps {

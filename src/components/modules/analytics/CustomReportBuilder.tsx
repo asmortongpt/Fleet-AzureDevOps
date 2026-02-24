@@ -33,9 +33,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import apiClient from "@/lib/api-client"
+import { brandColors } from '@/theme/designSystem'
 import { formatDate } from "@/utils/format-helpers"
 import logger from '@/utils/logger'
-import { brandColors } from '@/theme/designSystem'
 
 interface DataSource {
   id: string

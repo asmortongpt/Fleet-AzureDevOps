@@ -15,9 +15,9 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatCurrency, formatDateTime, formatTime } from '@/utils/format-helpers'
 
 interface TripTelemetryViewProps {

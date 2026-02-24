@@ -14,7 +14,6 @@ import { analytics } from '../services/analytics';
 import analyticsService from '../utils/analytics';
 
 import { formatTime } from '@/utils/format-helpers';
-
 import logger from '@/utils/logger';
 interface TelemetryEvent {
   name: string;

@@ -40,8 +40,8 @@ import {
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useViolationMutations, type HOSViolation } from '@/hooks/use-hos-data'
-import logger from '@/utils/logger'
 import { formatDateTime } from '@/utils/format-helpers'
+import logger from '@/utils/logger'
 
 // ============================================================================
 // TYPES

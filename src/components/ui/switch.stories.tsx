@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Bell, Lock, Eye, MapPin, AlertTriangle } from 'lucide-react';
-import { Switch } from './switch';
-import { Label } from './label';
+import { Bell, Lock, Eye, AlertTriangle } from 'lucide-react';
+
 import { Card } from './card';
+import { Label } from './label';
+import { Switch } from './switch';
 
 const meta: Meta<typeof Switch> = {
   title: 'UI/Form/Switch',

@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ThemeProvider, useThemeContext } from '../ThemeProvider'
 import { ReactNode } from 'react'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+
+import { ThemeProvider, useThemeContext } from '../ThemeProvider'
 
 const TestComponent = () => {
   const { theme, setTheme, resolvedTheme } = useThemeContext()

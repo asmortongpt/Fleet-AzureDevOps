@@ -15,14 +15,14 @@
 
 import { Clipboard, AlertTriangle, Wrench, MapPin, FileText, Clock, CheckCircle } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { offlineSyncService } from '../../services/offline-sync.service';
 import { pushNotificationService } from '../../services/push-notifications.service';
 
+import { formatNumber, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 import { formatVehicleShortName } from '@/utils/vehicle-display';
-import { formatNumber, formatTime } from '@/utils/format-helpers';
-import { toast } from 'sonner';
 
 interface Vehicle {
   id: string;

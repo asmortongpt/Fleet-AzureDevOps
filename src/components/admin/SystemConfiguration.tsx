@@ -39,8 +39,8 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import logger from '@/utils/logger';
 import { formatDateTime } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 interface EnvironmentVariable {
   key: string;

@@ -71,8 +71,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { apiClient } from "@/lib/api-client"
 import { arcgisService } from "@/lib/arcgis/service"
 import type { ArcGISLayerConfig } from "@/lib/arcgis/types"
-import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
+import logger from '@/utils/logger';
 /**
  * Layer operation state for tracking individual layer operations
  */

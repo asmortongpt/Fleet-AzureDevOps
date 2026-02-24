@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 
 import ErrorBoundary from '@/components/common/ErrorBoundary'
-import { formatNumber } from '@/utils/format-helpers'
 import { EntityAvatar } from '@/shared/design-system/EntityAvatar'
 import { RowExpandPanel } from '@/shared/design-system/RowExpandPanel'
 import { StatusChip } from '@/shared/design-system/StatusChip'
 import type { VehicleRow } from '@/shared/design-system/types'
+import { formatNumber } from '@/utils/format-helpers'
 
 /**
  * STANDALONE FLEET DESIGN SYSTEM DEMO

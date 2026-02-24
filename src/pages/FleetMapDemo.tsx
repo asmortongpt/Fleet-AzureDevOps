@@ -1,8 +1,8 @@
 import { MapPin, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
-import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { FleetMap } from '@/components/FleetMap';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';

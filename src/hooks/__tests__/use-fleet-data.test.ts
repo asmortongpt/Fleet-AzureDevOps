@@ -1,7 +1,8 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useFleetData } from '../use-fleet-data';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
 import * as useApiHooks from '../use-api';
+import { useFleetData } from '../use-fleet-data';
 
 /**
  * Test Suite: useFleetData Hook

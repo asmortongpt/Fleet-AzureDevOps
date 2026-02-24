@@ -7,8 +7,6 @@
 
 import type { Span } from '@sentry/core';
 import * as Sentry from '@sentry/react';
-
-import logger from '@/utils/logger';
 import {
   browserTracingIntegration,
   replayIntegration,
@@ -16,6 +14,7 @@ import {
 } from '@sentry/react';
 
 import type { User } from '@/types';
+import logger from '@/utils/logger';
 
 /**
  * Sentry Configuration

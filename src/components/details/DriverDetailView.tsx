@@ -5,9 +5,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { formatNumber } from '@/utils/format-helpers';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,6 +13,8 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { secureFetch } from '@/hooks/use-api';
+import { formatNumber } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface Driver {
   id: string;

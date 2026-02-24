@@ -27,12 +27,12 @@ import {
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
-import { formatVehicleName } from '@/utils/vehicle-display'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn } from '@/components/ui/data-table'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { cn } from '@/lib/utils'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface ComplianceRecord {
   id: number

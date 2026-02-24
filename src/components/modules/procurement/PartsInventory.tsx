@@ -37,7 +37,6 @@ import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Part } from "@/lib/types"
 import { formatEnum } from "@/utils/format-enum"
 import { formatCurrency } from "@/utils/format-helpers"
-import { brandColors } from "@/theme/designSystem"
 
 
 export function PartsInventory() {

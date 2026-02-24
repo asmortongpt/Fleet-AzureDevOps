@@ -4,14 +4,15 @@
  */
 
 import { useAtom } from 'jotai'
-import { Moon, Sun, Wand2, Palette, Type, Sidebar, Palette as PaletteIcon } from 'lucide-react'
+import { Moon, Sun, Wand2, Palette, Type, Sidebar } from 'lucide-react'
+
+import { ThemeSelector } from './ThemeSelector'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Switch } from '@/components/ui/switch'
 import { appearanceSettingsAtom, hasUnsavedChangesAtom } from '@/lib/reactive-state'
-import { ThemeSelector } from './ThemeSelector'
 
 const colorSchemes = [
   { value: 'blue', label: 'Blue', color: 'bg-blue-500' },

@@ -1,5 +1,6 @@
-import { LogOut, User, CreditCard, Users, Menu, X } from 'lucide-react';
+import { LogOut, User, CreditCard, Users } from 'lucide-react';
 import { useState, useCallback } from 'react';
+
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { SearchInput } from '@/components/shared/SearchInput';
@@ -14,7 +15,6 @@ import {
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { brandColors } from '@/theme/designSystem';
 import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
 

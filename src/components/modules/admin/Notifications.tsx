@@ -37,7 +37,6 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { apiClient } from '@/lib/api-client'
 import { useInspect } from '@/services/inspect/InspectContext'
-import { brandColors } from '@/theme/designSystem'
 import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 

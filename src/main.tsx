@@ -7,17 +7,7 @@ import ReactDOM from "react-dom/client"
 import './i18n/config'
 
 // Initialize axe-core accessibility testing in development
-import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } from "react-router-dom"
-import { registerSW } from 'virtual:pwa-register'
 import { validateEnvironment } from './lib/config/validate-environment'
-
-import logger from './utils/logger'
-import App from "./App"
-import ProtectedRoute from "./components/ProtectedRoute"
-import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
-import { ThemeProvider } from "./components/providers/ThemeProvider"
-import { AuthProvider } from "./contexts/AuthContext"
-import { initializeAxe } from './lib/accessibility/axe-init'
 // Only enable when explicitly requested; axe logs to console.error by design.
 if (import.meta.env.DEV && import.meta.env.VITE_ENABLE_AXE === 'true') {
   initializeAxe()
@@ -48,7 +38,6 @@ if (import.meta.env.MODE === 'production' && typeof window !== 'undefined') {
 
 // Azure Key Vault integration is backend-only (Node.js packages cannot run in browser)
 // Frontend validates backend availability via /api/health endpoint instead
-import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { FeatureFlagProvider } from "./contexts/FeatureFlagContext"
 import { PolicyProvider } from "./contexts/PolicyContext"
 import { TenantProvider } from "./contexts/TenantContext"
@@ -77,12 +66,22 @@ import telemetryService from "./lib/telemetry"
 
 const reactPlugin = telemetryService.initialize()
 import { QueryClientProvider } from "@tanstack/react-query"
+import { createBrowserRouter, createRoutesFromElements, RouterProvider, Route } from "react-router-dom"
+import { registerSW } from 'virtual:pwa-register'
+import App from "./App"
+import ProtectedRoute from "./components/ProtectedRoute"
+import { SentryErrorBoundary } from "./components/errors/SentryErrorBoundary"
+import { ThemeProvider } from "./components/providers/ThemeProvider"
 
 import { queryClient } from "./config/query-client"
-import { InspectProvider } from "./services/inspect/InspectContext"
+import { AuthProvider } from "./contexts/AuthContext"
+import { DrilldownProvider } from "./contexts/DrilldownContext"
 import { NavigationProvider } from "./contexts/NavigationContext"
 import { PanelProvider } from "./contexts/PanelContext"
+import { initializeAxe } from './lib/accessibility/axe-init'
+import { InspectProvider } from "./services/inspect/InspectContext"
 import { BrandingProvider } from "./shared/branding/BrandingProvider"
+import logger from './utils/logger'
 
 // Core Tailwind v4 + Enterprise Design System + Optimized CSS Bundle
 // All CSS consolidated in index.css (5 files: index.css + 4 imports)

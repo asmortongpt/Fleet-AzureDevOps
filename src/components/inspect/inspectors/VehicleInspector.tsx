@@ -40,8 +40,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { apiClient } from "@/lib/api-client";
 import { formatEnum } from '@/utils/format-enum';
 import { formatDateTime, formatNumber } from '@/utils/format-helpers';
-import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface VehicleInspectorProps {
   id: string;

@@ -5,10 +5,11 @@ import { Calendar, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react
 import React from 'react';
 import useSWR from 'swr';
 
-import { apiFetcher } from '@/lib/api-fetcher';
-import { useVehicles } from '@/hooks/use-api';
-
 import { ReservationSystem } from './ReservationSystem';
+
+import { useVehicles } from '@/hooks/use-api';
+import { apiFetcher } from '@/lib/api-fetcher';
+
 
 interface Reservation {
   id: string;

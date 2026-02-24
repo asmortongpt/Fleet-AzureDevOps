@@ -1,5 +1,5 @@
-import { memo } from 'react';
 import { Maximize2, Target } from 'lucide-react';
+import { memo } from 'react';
 
 interface MapToolbarProps {
   onFitAll?: () => void;

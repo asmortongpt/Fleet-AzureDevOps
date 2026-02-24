@@ -3,12 +3,13 @@
  * thumbnails, model accuracy badges, condition sparklines, and click-to-enter navigation.
  */
 
-import { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+
 import { cn } from '@/lib/utils';
+import { formatEnum } from '@/utils/format-enum';
 import { buildImaginUrl } from '@/utils/imagin-studio';
 import { resolveLocalModelUrl } from '@/utils/model-resolution';
-import { formatEnum } from '@/utils/format-enum';
 import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface GalleryVehicle {

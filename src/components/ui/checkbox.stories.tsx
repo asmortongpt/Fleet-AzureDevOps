@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { CheckCircle2, AlertCircle } from 'lucide-react';
+
 import { Checkbox } from './checkbox';
 import { Label } from './label';
 

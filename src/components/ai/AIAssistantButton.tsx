@@ -10,9 +10,9 @@
  * - Persists position in localStorage
  */
 
-import { motion, useDragControls } from 'framer-motion';
-import { Bot, GripVertical } from 'lucide-react';
-import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Bot } from 'lucide-react';
+import React, { useState, useRef } from 'react';
 
 import { AIChatPanel } from './AIChatPanel';
 

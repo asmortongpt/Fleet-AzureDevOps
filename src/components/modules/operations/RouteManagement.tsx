@@ -9,7 +9,6 @@ import {
 import { useState, useMemo } from "react"
 import { toast } from "sonner"
 
-import { formatVehicleName } from "@/utils/vehicle-display"
 import { MetricCard } from "@/components/MetricCard"
 import { UniversalMap } from "@/components/UniversalMap"
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +20,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface Route {
   id: string

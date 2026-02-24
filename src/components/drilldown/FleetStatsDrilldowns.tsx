@@ -10,15 +10,15 @@ import {
 } from 'lucide-react'
 import React from 'react'
 
-import { formatVehicleShortName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatEnum } from '@/utils/format-enum'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 // Reusable stat row component
 function StatRow({ label, value, trend, icon: Icon }: {

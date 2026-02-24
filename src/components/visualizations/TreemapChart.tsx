@@ -7,8 +7,8 @@
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatNumber } from '@/utils/format-helpers'
 import { Skeleton } from '@/components/ui/skeleton'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface TreemapDataPoint {
   name: string

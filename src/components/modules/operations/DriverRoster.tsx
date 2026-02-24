@@ -1,6 +1,5 @@
 import {
     Phone,
-    Mail,
     Search,
     User,
     Plus
@@ -9,7 +8,6 @@ import React, { useState } from "react";
 
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
-import { EmailButton } from "@/components/email/EmailButton";
 import { Input } from "../../ui/input";
 import {
     Sheet,
@@ -19,9 +17,9 @@ import {
     SheetDescription,
 } from "../../ui/sheet";
 
+import { EmailButton } from "@/components/email/EmailButton";
 import { useDrilldown } from "@/contexts/DrilldownContext";
 import { useFleetData } from "@/hooks/use-fleet-data";
-import { brandColors } from "@/theme/designSystem"
 import { formatEnum } from "@/utils/format-enum"
 
 interface DriverRosterProps {

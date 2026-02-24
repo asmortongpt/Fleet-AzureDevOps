@@ -10,10 +10,10 @@ import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmailButton } from '@/components/email/EmailButton'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import {
   Dialog,
@@ -45,8 +45,8 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { Vehicle, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { formatNumber } from '@/utils/format-helpers'
 import { MaintenanceAppointment, CreateMaintenanceRequest, AppointmentType, ServiceBay } from '@/types/scheduling'
+import { formatNumber } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 import { formatVehicleName } from '@/utils/vehicle-display'
 

@@ -2,14 +2,14 @@ import { MapPin, RefreshCw, AlertTriangle } from 'lucide-react';
 import { useMemo } from 'react';
 import useSWR from 'swr';
 
-import { apiFetcher } from '@/lib/api-fetcher';
-import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { FleetMap } from '@/components/FleetMap';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Badge } from '@/components/ui/badge';
-import { formatEnum } from '@/utils/format-enum';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { apiFetcher } from '@/lib/api-fetcher';
+import { formatEnum } from '@/utils/format-enum';
 
 interface GpsRecord {
   id?: string;

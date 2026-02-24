@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 import apiClient from '../../lib/api-client';
 
-import { formatTime } from '@/utils/format-helpers';
 
 import AlertsPanel from './AlertsPanel';
 import EmulatorMonitor from './EmulatorMonitor';
@@ -12,6 +11,7 @@ import ErrorRateChart from './ErrorRateChart';
 import PerformanceMetrics from './PerformanceMetrics';
 import SystemHealthWidget from './SystemHealthWidget';
 
+import { formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // Import proper interfaces from child components

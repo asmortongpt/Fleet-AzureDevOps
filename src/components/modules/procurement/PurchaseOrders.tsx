@@ -28,7 +28,6 @@ import { useAuth } from "@/contexts"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { PurchaseOrder } from "@/lib/types"
 import { formatCurrency, formatDate } from "@/utils/format-helpers"
-import { brandColors } from "@/theme/designSystem"
 
 interface POItem {
   description: string

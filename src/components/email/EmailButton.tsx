@@ -6,12 +6,15 @@
  * - icon + label (for action bars)
  */
 
-import { useState } from 'react'
 import { Mail } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react'
+
+
 import { ContextualEmailDialog } from './ContextualEmailDialog'
 import type { EmailContext } from './email-templates'
 import { getEmailTemplate } from './email-templates'
+
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 interface EmailButtonProps {

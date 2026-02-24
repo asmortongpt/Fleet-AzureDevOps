@@ -1,10 +1,9 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
-import { Shield } from "lucide-react"
-import { useState, useMemo, lazy, Suspense, useEffect } from "react"
-import { Toaster } from 'react-hot-toast'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Shield } from "lucide-react"
+import { useMemo, lazy, Suspense, useEffect } from "react"
+import { Toaster } from 'react-hot-toast'
 
-import { pageTransitionVariants } from '@/lib/animations'
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { SkipNavigation } from "@/components/common/SkipNavigation"
@@ -17,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts"
 import { useNavigation } from "@/contexts/NavigationContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { pageTransitionVariants } from '@/lib/animations'
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
 import logger from '@/utils/logger'

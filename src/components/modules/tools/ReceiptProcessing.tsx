@@ -35,9 +35,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { aiAssistant } from "@/lib/aiAssistant"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
-import { formatCurrency, formatDate } from "@/utils/format-helpers"
 import { Receipt as ReceiptType } from "@/lib/types"
-import { brandColors } from "@/theme/designSystem"
+import { formatCurrency, formatDate } from "@/utils/format-helpers"
 
 
 export function ReceiptProcessing() {

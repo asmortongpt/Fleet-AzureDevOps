@@ -4,13 +4,11 @@
  */
 
 import { Bell, AlertTriangle, Info, CheckCircle, X, Eye, Clock, Siren } from 'lucide-react'
-import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
+import { useMemo, useRef, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import useSWR from 'swr'
 
 import { Badge } from '@/components/ui/badge'
-import { apiFetcher } from '@/lib/api-fetcher'
-import logger from '@/utils/logger'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -21,7 +19,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatDate } from '@/utils/format-helpers'
+import logger from '@/utils/logger'
 
 interface SafetyNotification {
     id: string

@@ -46,7 +46,6 @@ import { apiClient } from "@/lib/api-client"
 import { isSuccessResponse } from "@/lib/schemas/responses"
 import type { ApiResponse, SuccessResponse } from "@/lib/schemas/responses"
 import logger from '@/utils/logger'
-import { brandColors } from "@/theme/designSystem"
 
 interface Task {
   id: string

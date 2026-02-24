@@ -22,11 +22,11 @@ import { AlertCircle, AlertTriangle } from 'lucide-react';
 import React from 'react';
 import { toast } from 'react-hot-toast';
 
-import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { FleetStats, CostSummary } from '@/services/dashboardApi';

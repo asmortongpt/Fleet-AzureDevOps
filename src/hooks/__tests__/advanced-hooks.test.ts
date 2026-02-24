@@ -1,5 +1,5 @@
+import { renderHook } from '@testing-library/react';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
 
 /**
  * Test Suite: Advanced Hooks
@@ -555,7 +555,7 @@ describe('Advanced Hooks', () => {
 
     it('should handle immediate invocation', () => {
       const callback = vi.fn();
-      let lastValue: string | null = null;
+      const lastValue: string | null = null;
 
       const debounce = (fn: Function, delay: number, immediate = false) => {
         let timeoutId: any;

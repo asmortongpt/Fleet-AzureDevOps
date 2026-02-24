@@ -21,9 +21,9 @@ import {
 } from 'recharts'
 
 import { Button } from '@/components/ui/button'
-import { formatNumber } from '@/utils/format-helpers'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { formatNumber } from '@/utils/format-helpers'
 
 interface DataPoint {
   name: string

@@ -7,8 +7,6 @@ import { useMemo } from "react"
 
 import { MaintenanceRecord, FuelRecord } from "./types"
 
-import { formatCurrency } from "@/utils/format-helpers"
-import { formatVehicleShortName } from "@/utils/vehicle-display"
 
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,6 +19,8 @@ import {
 } from "@/components/ui/select"
 import { ResponsiveBarChart, ResponsiveLineChart } from "@/components/visualizations"
 import { Vehicle } from "@/lib/types"
+import { formatCurrency } from "@/utils/format-helpers"
+import { formatVehicleShortName } from "@/utils/vehicle-display"
 
 interface AnalyticsTabProps {
   vehicles: Vehicle[]

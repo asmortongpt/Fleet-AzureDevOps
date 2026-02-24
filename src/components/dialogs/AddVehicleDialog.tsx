@@ -3,8 +3,6 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
 import { VehiclePhotoCapture } from '@/components/garage/VehiclePhotoCapture'
-import { formatVehicleName } from '@/utils/vehicle-display'
-
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
@@ -26,6 +24,7 @@ import {
   supportsPTOTracking
 } from "@/types/asset.types"
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface AddVehicleDialogProps {
   onAdd: (vehicle: Vehicle) => Promise<void> | void
