@@ -24,8 +24,8 @@ import { validateCSPConfig } from '@/lib/security/csp';
 import { auditSecurityHeaders } from '@/lib/security/headers';
 import { apiRateLimiter } from '@/lib/security/rate-limiter';
 import { auditResourceSRI } from '@/lib/security/sri';
-import logger from '@/utils/logger';
 import { formatDateTime } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 interface SecurityCheck {
   name: string;
@@ -362,7 +362,7 @@ export function SecurityAudit() {
       <Card className="p-3">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <Shield className="h-8 w-8 text-blue-800" />
+            <Shield className="h-8 w-8 text-emerald-800" />
             <div>
               <h2 className="text-sm font-bold">Security Audit</h2>
               <p className="text-sm text-muted-foreground">
@@ -456,8 +456,8 @@ export function SecurityAudit() {
                     </p>
                   )}
                   {check.recommendation && (
-                    <div className="ml-7 mt-2 p-2 bg-blue-50 border border-blue-200 rounded text-sm">
-                      <strong className="text-blue-700">Recommendation:</strong>{' '}
+                    <div className="ml-7 mt-2 p-2 bg-emerald-500/5 border border-emerald-500/20 rounded text-sm">
+                      <strong className="text-emerald-700">Recommendation:</strong>{' '}
                       {check.recommendation}
                     </div>
                   )}

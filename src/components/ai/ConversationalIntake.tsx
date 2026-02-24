@@ -7,7 +7,6 @@
 import { Send, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 import React, { useState, useRef, useEffect } from 'react'
 
-import { formatTime } from '@/utils/format-helpers'
 
 import { apiClient } from '../../lib/api'
 import { Badge } from '../ui/badge'
@@ -15,6 +14,8 @@ import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import { Input } from '../ui/input'
 import { Progress } from '../ui/progress'
+
+import { formatTime } from '@/utils/format-helpers'
 
 interface Message {
   role: 'user' | 'assistant'
@@ -128,7 +129,7 @@ export function ConversationalIntake({
   const getIntentBadgeColor = (intent: string | null) => {
     if (!intent) return 'secondary'
     const colors: Record<string, string> = {
-      fuel_entry: 'bg-blue-500',
+      fuel_entry: 'bg-emerald-500/50',
       work_order: 'bg-orange-500',
       incident_report: 'bg-red-500',
       inspection: 'bg-green-500'
@@ -210,13 +211,13 @@ export function ConversationalIntake({
 
       {/* Suggestions */}
       {suggestions.length > 0 && (
-        <div className="px-2 py-2 border-t bg-blue-50">
-          <p className="text-xs font-semibold mb-2 text-blue-900">Suggestions:</p>
+        <div className="px-2 py-2 border-t bg-emerald-500/5">
+          <p className="text-xs font-semibold mb-2 text-emerald-900">Suggestions:</p>
           <div className="space-y-1">
             {suggestions.map((suggestion) => (
-              <div key={suggestion.field} className="text-xs text-blue-800">
+              <div key={suggestion.field} className="text-xs text-emerald-800">
                 <span className="font-medium">{suggestion.field}:</span> {String(suggestion.value)}
-                <span className="text-blue-800 ml-2">({suggestion.reason})</span>
+                <span className="text-emerald-800 ml-2">({suggestion.reason})</span>
               </div>
             ))}
           </div>

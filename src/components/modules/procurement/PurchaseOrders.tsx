@@ -28,7 +28,6 @@ import { useAuth } from "@/contexts"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { PurchaseOrder } from "@/lib/types"
 import { formatCurrency, formatDate } from "@/utils/format-helpers"
-import { brandColors } from "@/theme/designSystem"
 
 interface POItem {
   description: string
@@ -217,7 +216,7 @@ export function PurchaseOrders() {
     const colors: Record<PurchaseOrder["status"], string> = {
       draft: "bg-gray-100 text-gray-700",
       "pending-approval": "bg-yellow-100 text-yellow-700",
-      approved: "bg-blue-100 text-blue-700",
+      approved: "bg-emerald-500/10 text-emerald-700",
       ordered: "bg-purple-100 text-purple-700",
       received: "bg-green-100 text-green-700",
       cancelled: "bg-red-100 text-red-700"
@@ -285,7 +284,7 @@ export function PurchaseOrders() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Active Orders</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{activeOrders}</div>
+            <div className="text-sm font-bold text-emerald-800">{activeOrders}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <ShoppingCart className="w-3 h-3" />
               In progress

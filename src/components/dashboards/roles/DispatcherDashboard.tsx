@@ -21,15 +21,15 @@ import {
 // motion removed - React 19 incompatible
 import { AlertTriangle, Car, MessageCircle, Route, Zap } from 'lucide-react';
 import React, { useEffect, useMemo, useState } from 'react';
-import { toast } from 'react-hot-toast';
 
-import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { useFleetData } from '@/hooks/use-fleet-data';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useRoutes } from '@/hooks/use-api';
+import { useFleetData } from '@/hooks/use-fleet-data';
 import { cn } from '@/lib/utils';
+import { formatTime } from '@/utils/format-helpers';
 
 interface OperationStats {
   active_trips: number;
@@ -136,44 +136,37 @@ export function DispatcherDashboard() {
           driver_name: driver?.name || driver?.fullName || 'Driver',
           route: route.name || route.routeName || route.route_name || 'Route',
           status: (String(route.status || 'active').toLowerCase() as ActiveTrip['status']) || 'active',
-          eta: eta ? new Date(eta).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'
+          eta: eta ? formatTime(eta) : '—'
         };
       });
   }, [routes, vehicles, drivers]);
 
   // Quick actions - Navigate to specific pages
   const handleOpenRadio = () => {
-    toast.success('Opening dispatch radio interface...');
     navigateTo('communication');
   };
 
   const handleCreateEmergencyAlert = () => {
-    toast.success('Opening emergency alert form...');
     navigateTo('safety-compliance-hub');
   };
 
   const handleCreateRoute = () => {
-    toast.success('Opening route creation wizard...');
     navigateTo('operations');
   };
 
-  const handleJoinChannel = (channelId: string) => {
-    toast.success(`Joining ${channelId} channel...`);
+  const handleJoinChannel = (_channelId: string) => {
     navigateTo('communication');
   };
 
-  const handleContactDriver = (driverName: string) => {
-    toast(`Contacting ${driverName}...`);
+  const handleContactDriver = (_driverName: string) => {
     navigateTo('communication');
   };
 
   const handleViewOnMap = () => {
-    toast('Switching to full-screen map view...');
     navigateTo('live-fleet-dashboard');
   };
 
-  const handleFilterTrips = (filter: string) => {
-    toast(`Filtering trips by: ${filter}`);
+  const handleFilterTrips = (_filter: string) => {
     navigateTo('operations');
   };
 

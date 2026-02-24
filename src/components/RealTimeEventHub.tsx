@@ -80,7 +80,7 @@ const CATEGORY_CONFIG: Record<EventCategory, {
   label: string
   color: string
 }> = {
-  telemetry: { icon: Activity, label: 'Telemetry', color: 'text-blue-800' },
+  telemetry: { icon: Activity, label: 'Telemetry', color: 'text-emerald-800' },
   maintenance: { icon: Wrench, label: 'Maintenance', color: 'text-orange-500' },
   driver: { icon: User, label: 'Driver', color: 'text-green-500' },
   fuel: { icon: Fuel, label: 'Fuel', color: 'text-amber-500' },
@@ -95,7 +95,7 @@ const SEVERITY_CONFIG: Record<EventSeverity, {
   bgColor: string
   borderColor: string
 }> = {
-  info: { color: 'text-blue-800', bgColor: 'bg-blue-50', borderColor: 'border-blue-200' },
+  info: { color: 'text-emerald-800', bgColor: 'bg-emerald-500/5', borderColor: 'border-emerald-500/20' },
   warning: { color: 'text-amber-600', bgColor: 'bg-amber-50', borderColor: 'border-amber-200' },
   critical: { color: 'text-red-600', bgColor: 'bg-red-50', borderColor: 'border-red-200' },
   success: { color: 'text-green-600', bgColor: 'bg-green-50', borderColor: 'border-green-200' }
@@ -352,7 +352,7 @@ export function RealTimeEventHub({
             {showFilters && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8">
+                  <Button variant="ghost" size="sm" className="h-8" aria-label="Filter events">
                     <Filter className="w-4 h-4 mr-1" />
                     {filters.size > 0 && (
                       <Badge variant="secondary" className="text-xs ml-1">

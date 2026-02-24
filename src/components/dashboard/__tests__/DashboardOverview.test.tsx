@@ -8,10 +8,10 @@
  * - Error states and loading states
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Mock component for testing - simulates the real DashboardOverview
 const MockDashboardOverview = ({

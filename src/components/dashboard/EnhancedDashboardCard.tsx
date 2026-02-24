@@ -10,12 +10,13 @@
  * - Responsive layout
  */
 
-import React from 'react'
-import { TrendingUp, TrendingDown, Loader } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import { TrendingUp, TrendingDown, Loader } from 'lucide-react'
+import React from 'react'
+
 import { cardHoverVariants, cardTapVariants } from '@/lib/animations'
-import { colors, spacing, shadows, transitions, borderRadius } from '@/theme/designSystem'
+import { cn } from '@/lib/utils'
+import { colors, transitions } from '@/theme/designSystem'
 
 interface EnhancedDashboardCardProps {
   title: string

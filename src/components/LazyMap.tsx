@@ -124,7 +124,7 @@ function AnimatedLoadingSkeleton({ minHeight }: { minHeight: number }) {
       aria-live="polite"
       aria-label="Loading map"
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-green-50/20 to-blue-50/20 dark:from-blue-950/20 dark:via-green-950/20 dark:to-blue-950/20 animate-pulse" />
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-green-50/20 to-emerald-500/5 dark:from-emerald-950/20 dark:via-green-950/20 dark:to-emerald-950/20 animate-pulse" />
       <div className="absolute inset-0 opacity-10">
         <div
           className="w-full h-full"

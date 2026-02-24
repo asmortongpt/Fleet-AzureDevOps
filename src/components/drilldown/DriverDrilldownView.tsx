@@ -1,8 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table';
-import { Phone, Mail, Calendar, Award, AlertCircle } from 'lucide-react';
+import { Phone, Calendar, Award, AlertCircle } from 'lucide-react';
 import React from 'react';
 
+import { EmailButton } from '@/components/email/EmailButton';
 import { ExcelDataTable } from '../shared/ExcelDataTable';
+
 import { formatDate, formatNumber } from '@/utils/format-helpers';
 
 
@@ -77,12 +79,21 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
     {
       accessorKey: 'email',
       header: 'Email',
-      cell: ({ getValue }) => (
+      cell: ({ row, getValue }) => (
         <div className="flex items-center gap-2">
-          <Mail className="w-4 h-4 text-white/40" />
-          <a href={`mailto:${getValue<string>()}`} className="text-emerald-400 hover:text-emerald-300 hover:underline">
-            {getValue<string>()}
-          </a>
+          <EmailButton
+            to={getValue<string>()}
+            context={{
+              type: 'driver_notice',
+              recipientName: `${row.original.first_name} ${row.original.last_name}`,
+              details: 'Driver communication',
+            }}
+            label={getValue<string>()}
+            variant="link"
+            size="sm"
+            className="h-auto p-0 text-sm text-emerald-400 hover:text-emerald-300"
+            ariaLabel={`Email ${row.original.first_name} ${row.original.last_name}`}
+          />
         </div>
       ),
     },
@@ -103,7 +114,7 @@ export function DriverDrilldownView({ drivers, onDriverClick, title = 'Drivers' 
         const status = getValue<string>();
         const statusColors: Record<string, string> = {
           active: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30',
-          inactive: 'bg-slate-500/20 text-white/40 border-slate-500/30',
+          inactive: 'bg-white/[0.05] text-white/40 border-white/[0.12]/30',
           'on-leave': 'bg-amber-500/20 text-amber-400 border-amber-500/30',
           terminated: 'bg-red-500/20 text-red-400 border-red-500/30',
         };

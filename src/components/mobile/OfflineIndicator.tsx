@@ -15,12 +15,12 @@
 
 import { Wifi, WifiOff, RefreshCw, AlertCircle, Clock } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { offlineSyncService, type SyncStatus } from '../../services/offline-sync.service';
 
 import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
-import { toast } from 'sonner';
 
 interface OfflineIndicatorProps {
   showDetails?: boolean;
@@ -103,7 +103,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     }
 
     if (syncStatus?.status === 'syncing') {
-      return <RefreshCw className="text-blue-800 animate-spin" size={20} />;
+      return <RefreshCw className="text-emerald-800 animate-spin" size={20} />;
     }
 
     if (syncStatus?.status === 'error') {
@@ -156,7 +156,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
   const getStatusColor = () => {
     if (!isOnline) return 'bg-red-50 border-red-200';
-    if (syncStatus?.status === 'syncing') return 'bg-blue-50 border-blue-200';
+    if (syncStatus?.status === 'syncing') return 'bg-emerald-500/5 border-emerald-500/20';
     if (syncStatus?.status === 'error') return 'bg-orange-50 border-orange-200';
     if (pendingCount > 0) return 'bg-yellow-50 border-yellow-200';
     return 'bg-green-50 border-green-200';
@@ -192,7 +192,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
             <div>
               <p className="text-sm font-medium text-gray-800">{getStatusText()}</p>
               {syncStatus?.message && (
-                <p className="text-xs text-slate-700">{syncStatus.message}</p>
+                <p className="text-xs text-white/70">{syncStatus.message}</p>
               )}
             </div>
           </div>
@@ -214,14 +214,14 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
                 title="Sync now"
                 aria-label="Sync now"
               >
-                <RefreshCw size={16} className="text-slate-700" />
+                <RefreshCw size={16} className="text-white/70" />
               </button>
             )}
 
             {!compact && (
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="text-xs font-medium text-slate-700 hover:text-gray-800 transition-colors"
+                className="text-xs font-medium text-white/70 hover:text-gray-800 transition-colors"
               >
                 {isExpanded ? 'Hide' : 'Details'}
               </button>
@@ -270,7 +270,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           <div className="mt-3">
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div
-                className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                className="bg-emerald-500/50 h-2 rounded-full transition-all duration-300"
                 style={{
                   width: `${(syncStatus.progress.current / syncStatus.progress.total) * 100}%`,
                 }}

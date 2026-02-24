@@ -20,13 +20,12 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { AlertCircle, AlertTriangle } from 'lucide-react';
 import React from 'react';
-import { toast } from 'react-hot-toast';
 
-import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { FleetStats, CostSummary } from '@/services/dashboardApi';
@@ -77,27 +76,22 @@ export function FleetManagerDashboard() {
 
   // Quick actions - Navigate to specific pages
   const handleAssignDriver = () => {
-    toast('Opening driver assignment...');
     navigateTo('drivers');
   };
 
   const handleCreateWorkOrder = () => {
-    toast('Opening work order form...');
     navigateTo('maintenance');
   };
 
   const handleExportReport = async () => {
-    toast.success('Opening reports...');
     navigateTo('analytics');
   };
 
   const handleViewOverdue = () => {
-    toast('Loading overdue maintenance queue...');
     navigateTo('maintenance');
   };
 
   const handleScheduleMaintenance = () => {
-    toast('Opening maintenance scheduler...');
     navigateTo('maintenance');
   };
 

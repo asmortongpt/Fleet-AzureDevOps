@@ -26,19 +26,18 @@ import {
   History,
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
-import { toast } from 'sonner'
 import useSWR from 'swr'
 
 import { MetricCard } from './MetricCard'
 
-import { EditVehicleDialog } from '@/components/dialogs/EditVehicleDialog'
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
+import { EditVehicleDialog } from '@/components/dialogs/EditVehicleDialog'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmailButton } from '@/components/email/EmailButton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { cn } from '@/lib/utils'
 import {
   ASSET_CATEGORY_LABELS,
@@ -600,7 +599,12 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-white/40">No active assignment</p>
                       <button
-                        onClick={() => toast.info('Assignment management available in the Assignments tab')}
+                        onClick={() => push({
+                          id: `vehicle-assignments-${vehicleId}`,
+                          type: 'vehicle-assignments',
+                          label: 'Assign Driver',
+                          data: { vehicleId, vehicleName: vehicle?.name, action: 'assign' },
+                        })}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
                       >
                         <UserPlus className="h-3.5 w-3.5" />

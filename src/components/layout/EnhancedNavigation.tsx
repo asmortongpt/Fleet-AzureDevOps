@@ -11,11 +11,12 @@
  * - Notification badge
  */
 
-import React, { useState, useCallback } from 'react'
 import { Menu, X, Search, Bell, User, LogOut, Settings, ChevronDown } from 'lucide-react'
+import React, { useState, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+
 import { cn } from '@/lib/utils'
-import { colors, spacing, shadows, transitions, typography, borderRadius } from '@/theme/designSystem'
+import { colors, shadows, transitions, typography } from '@/theme/designSystem'
 
 interface NavItem {
   label: string
@@ -150,7 +151,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
         {/* Right Side Actions */}
         <div className="flex items-center gap-4">
           {/* Notifications */}
-          <button className="relative p-2 rounded-lg hover:bg-gray-100" style={{ transition: transitions.fast }}>
+          <button className="relative p-2 rounded-lg hover:bg-gray-100" style={{ transition: transitions.fast }} aria-label="Notifications">
             <Bell size={20} style={{ color: colors.neutral[600] }} />
             {notifications > 0 && (
               <span

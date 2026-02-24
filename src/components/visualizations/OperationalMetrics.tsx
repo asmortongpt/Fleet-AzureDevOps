@@ -83,7 +83,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
   // Get color classes
   const getColorClasses = (color: Metric['color'], isAccent = false) => {
     const colors = {
-      blue: isAccent ? 'bg-blue-500 text-blue-700' : 'text-blue-700 bg-blue-50 border-blue-200',
+      blue: isAccent ? 'bg-emerald-500/50 text-emerald-700' : 'text-emerald-700 bg-emerald-500/5 border-emerald-500/20',
       green: isAccent ? 'bg-green-500 text-green-700' : 'text-green-700 bg-green-50 border-green-200',
       amber: isAccent ? 'bg-amber-500 text-amber-700' : 'text-amber-700 bg-amber-50 border-amber-200',
       purple: isAccent ? 'bg-purple-500 text-purple-700' : 'text-purple-700 bg-purple-50 border-purple-200',
@@ -95,7 +95,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
   // Get progress color
   const getProgressColor = (color: Metric['color']) => {
     const colors = {
-      blue: 'bg-blue-500',
+      blue: 'bg-emerald-500/50',
       green: 'bg-green-500',
       amber: 'bg-amber-500',
       purple: 'bg-purple-500',
@@ -126,9 +126,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
       case 'down':
         return 'text-red-600';
       case 'stable':
-        return 'text-slate-500';
+        return 'text-white/40';
       default:
-        return 'text-slate-500';
+        return 'text-white/40';
     }
   };
 
@@ -149,7 +149,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
             className={`border-l-4 ${getColorClasses(metric.color).split(' ').find(c => c.startsWith('border-'))}`}
           >
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-sm font-medium text-slate-700">
+              <CardTitle className="flex items-center gap-2 text-sm font-medium text-white/70">
                 <Icon className={`h-4 w-4 ${getColorClasses(metric.color).split(' ').find(c => c.startsWith('text-'))}`} />
                 {metric.label}
               </CardTitle>
@@ -158,10 +158,10 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
               {/* Main value */}
               <div className="mb-3">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold text-slate-900">
+                  <span className="text-3xl font-bold text-white/90">
                     {formatNumber(metric.value)}
                   </span>
-                  <span className="text-sm text-slate-600">{metric.unit}</span>
+                  <span className="text-sm text-white/50">{metric.unit}</span>
                 </div>
 
                 {/* Trend indicator */}
@@ -178,7 +178,7 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
 
               {/* Progress bar */}
               <div className="space-y-1">
-                <div className="flex items-center justify-between text-xs text-slate-600">
+                <div className="flex items-center justify-between text-xs text-white/50">
                   <span>Target: {metric.target}{metric.unit}</span>
                   <span className="font-medium">{percentage.toFixed(0)}%</span>
                 </div>
@@ -190,9 +190,9 @@ export function OperationalMetrics({ metrics = defaultMetrics, layout = 'grid' }
               </div>
 
               {/* Status indicator */}
-              <div className="mt-2 pt-2 border-t border-slate-100">
+              <div className="mt-2 pt-2 border-t border-white/[0.08]">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-600">Status</span>
+                  <span className="text-white/50">Status</span>
                   <span className={`font-medium ${isAboveTarget ? 'text-green-600' : 'text-amber-600'}`}>
                     {isAboveTarget ? 'Above Target' : 'Below Target'}
                   </span>
@@ -241,7 +241,7 @@ export function CircularGauge({
   };
 
   const colorMap = {
-    blue: 'stroke-blue-500',
+    blue: 'stroke-emerald-500',
     green: 'stroke-green-500',
     amber: 'stroke-amber-500',
     purple: 'stroke-purple-500',

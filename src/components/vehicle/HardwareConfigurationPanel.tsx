@@ -21,6 +21,7 @@ import {
   ExternalLink
 } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
+import { toast } from 'sonner';
 
 import {
   AlertDialog,
@@ -64,7 +65,6 @@ import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
 import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
-import { toast } from 'sonner';
 // ============================================================================
 // Types & Interfaces
 // ============================================================================
@@ -115,8 +115,8 @@ const PROVIDER_INFO = {
   smartcar: {
     name: 'Smartcar',
     icon: Car,
-    color: 'text-blue-800',
-    bgColor: 'bg-blue-500/10',
+    color: 'text-emerald-800',
+    bgColor: 'bg-emerald-500/10',
     description: 'Connect via Smartcar OAuth for OEM telematics'
   },
   samsara: {
@@ -324,9 +324,9 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
       case 'smartcar':
         return (
           <div className="space-y-2">
-            <div className="p-2 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+            <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
               <div className="flex items-start gap-3">
-                <AlertCircle className="w-3 h-3 text-blue-800 mt-0.5" />
+                <AlertCircle className="w-3 h-3 text-emerald-800 mt-0.5" />
                 <div className="space-y-2">
                   <p className="text-sm font-medium">OAuth Connection Required</p>
                   <p className="text-xs text-muted-foreground">

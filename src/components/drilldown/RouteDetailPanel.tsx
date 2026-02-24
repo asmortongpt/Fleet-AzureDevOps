@@ -21,7 +21,6 @@ import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { DrilldownMatrix, MatrixColumn } from '@/components/drilldown/DrilldownMatrix'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,7 +28,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { formatTime } from '@/utils/format-helpers'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatDate, formatTime } from '@/utils/format-helpers'
 
 interface RouteMatrixData {
   id: string
@@ -114,14 +114,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
     })
   }, [routesArr])
 
-  // formatTime imported from @/utils/format-helpers
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  // formatDate, formatTime imported from @/utils/format-helpers
 
   const getStatusBadge = (status: string) => {
     const variants = {

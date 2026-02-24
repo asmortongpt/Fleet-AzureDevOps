@@ -45,7 +45,6 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
-import { brandColors } from "@/theme/designSystem"
 import { formatDateTime } from "@/utils/format-helpers"
 import logger from '@/utils/logger'
 
@@ -211,7 +210,7 @@ export function DocumentManagement() {
 
   const getFileIcon = (fileType: string) => {
     if (fileType.includes('pdf')) return <FileText className="w-4 h-4 text-red-500" />
-    if (fileType.includes('word') || fileType.includes('document')) return <FileText className="w-4 h-4 text-blue-800" />
+    if (fileType.includes('word') || fileType.includes('document')) return <FileText className="w-4 h-4 text-emerald-800" />
     if (fileType.includes('image')) return <Image className="w-4 h-4 text-green-500" />
     return <File className="w-4 h-4 text-gray-700" />
   }

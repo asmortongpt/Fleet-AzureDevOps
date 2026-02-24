@@ -104,7 +104,7 @@ export function RadioFeed({ channelId, onChannelSelect, transmissions }: RadioFe
                     "border-l-4",
                     transmission.priority === 'CRITICAL' && "border-l-red-500",
                     transmission.priority === 'HIGH' && "border-l-orange-500",
-                    transmission.priority === 'NORMAL' && "border-l-blue-500"
+                    transmission.priority === 'NORMAL' && "border-l-emerald-500"
                   )}>
                     <CardHeader className="pb-3">
                       <div className="flex items-center justify-between">

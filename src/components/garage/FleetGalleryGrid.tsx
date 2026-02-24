@@ -3,12 +3,13 @@
  * thumbnails, model accuracy badges, condition sparklines, and click-to-enter navigation.
  */
 
-import { useState, useMemo, useEffect, useRef } from 'react';
 import { Search, CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+
 import { cn } from '@/lib/utils';
+import { formatEnum } from '@/utils/format-enum';
 import { buildImaginUrl } from '@/utils/imagin-studio';
 import { resolveLocalModelUrl } from '@/utils/model-resolution';
-import { formatEnum } from '@/utils/format-enum';
 import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface GalleryVehicle {
@@ -159,6 +160,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Close gallery"
           >
             <X className="w-4 h-4" />
           </button>

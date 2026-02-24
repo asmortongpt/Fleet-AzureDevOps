@@ -3,9 +3,10 @@ import { Truck, Calendar, Gauge, DollarSign, Wrench } from 'lucide-react';
 import React from 'react';
 
 import { ExcelDataTable } from '../shared/ExcelDataTable';
-import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers';
 
 import { Vehicle } from '@/types';
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers';
+
 
 
 interface VehicleDrilldownViewProps {
@@ -81,7 +82,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
         const status = getValue<string>();
         const statusColors: Record<string, string> = {
           active: 'bg-emerald-500/20 text-emerald-700 border-emerald-500/30',
-          inactive: 'bg-slate-500/20 text-white/40 border-slate-500/30',
+          inactive: 'bg-white/[0.05] text-white/40 border-white/[0.12]/30',
           maintenance: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
           retired: 'bg-red-500/20 text-red-400 border-red-500/30',
           assigned: 'bg-indigo-500/20 text-indigo-400 border-indigo-500/30',
@@ -127,7 +128,7 @@ export function VehicleDrilldownView({ vehicles, onVehicleClick, title = 'Active
           hybrid: 'bg-purple-500/20 text-purple-400',
         };
         return (
-          <span className={`px-2 py-0.5 rounded text-xs ${fuelColors[fuel?.toLowerCase()] || 'bg-slate-500/20 text-white/40'}`}>
+          <span className={`px-2 py-0.5 rounded text-xs ${fuelColors[fuel?.toLowerCase()] || 'bg-white/[0.05] text-white/40'}`}>
             {fuel}
           </span>
         );

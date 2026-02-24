@@ -17,7 +17,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
-import { brandColors } from "@/theme/designSystem"
 import { formatCurrency, formatDate, formatNumber } from "@/utils/format-helpers"
 
 /** Normalized fuel transaction shape used by this component */

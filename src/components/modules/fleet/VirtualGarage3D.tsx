@@ -192,7 +192,7 @@ function VehicleSelector({
 
 function Viewer3DFallback() {
   return (
-    <div className="flex items-center justify-center h-full bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="flex items-center justify-center h-full bg-gradient-to-br from-[#111] to-[#1a1a1a]">
       <div className="text-center text-white">
         <ArrowsClockwise className="w-12 h-9 mx-auto mb-3 animate-spin" />
         <p className="text-sm">Loading 3D viewer...</p>
@@ -278,9 +278,9 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
   }, [selectedVehicle, telemetry])
 
   return (
-    <div className="relative w-full h-[calc(100vh-200px)] min-h-[600px] bg-slate-950 rounded-md overflow-hidden">
+    <div className="relative w-full h-[calc(100vh-200px)] min-h-[600px] bg-[#0a0a0a] rounded-md overflow-hidden">
       {/* Header with vehicle selector */}
-      <div className="absolute top-0 left-0 right-0 z-20 p-2 bg-gradient-to-b from-slate-950 to-transparent">
+      <div className="absolute top-0 left-0 right-0 z-20 p-2 bg-gradient-to-b from-[#0a0a0a] to-transparent">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
             <h2 className="text-base font-bold text-white">Virtual Garage</h2>
@@ -402,7 +402,7 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
       )}
 
       {/* Camera Controls Hint */}
-      <div className="absolute bottom-24 right-4 z-10 bg-slate-900/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-slate-400">
+      <div className="absolute bottom-24 right-4 z-10 bg-[#111]/80 backdrop-blur-sm rounded-lg px-3 py-2 text-xs text-white/50">
         <div className="flex items-center gap-2">
           <Eye className="w-4 h-4" />
           <span>Drag to rotate | Scroll to zoom</span>
@@ -427,10 +427,10 @@ export function VirtualGarage3D({ data: _data }: { data?: any }) {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-slate-950/80 z-30">
+        <div className="absolute inset-0 flex items-center justify-center bg-[#0a0a0a]/80 z-30">
           <div className="text-center">
             <ArrowsClockwise className="w-4 h-4 mx-auto mb-2 animate-spin text-primary" />
-            <p className="text-sm text-slate-400">Loading garage...</p>
+            <p className="text-sm text-white/50">Loading garage...</p>
           </div>
         </div>
       )}

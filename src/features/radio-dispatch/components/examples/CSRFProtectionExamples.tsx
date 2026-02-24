@@ -117,7 +117,7 @@ export function CreateIncidentExample() {
         <button
           type="submit"
           disabled={createIncident.loading}
-          className="px-2 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          className="px-2 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 disabled:opacity-50"
         >
           {createIncident.loading ? 'Creating...' : 'Create Incident'}
         </button>
@@ -315,7 +315,7 @@ export function CSRFTokenDisplay() {
         Example 5: Display CSRF Token
       </h3>
       <div className="space-y-2">
-        <p className="text-sm text-slate-700">
+        <p className="text-sm text-white/70">
           Current CSRF Token (for debugging):
         </p>
         {csrfToken ? (
@@ -366,7 +366,7 @@ export function BatchOperationsExample() {
       </h3>
       <div className="space-y-2">
         <div>
-          <p className="text-sm text-slate-700 mb-2">
+          <p className="text-sm text-white/70 mb-2">
             Selected incidents: {selectedIds.length}
           </p>
           <div className="space-x-2">
@@ -411,7 +411,7 @@ export function CSRFProtectionExamples() {
   return (
     <div className="container mx-auto p-3">
       <h1 className="text-base font-bold mb-2">CSRF Protection Examples</h1>
-      <p className="text-slate-700 mb-3">
+      <p className="text-white/70 mb-3">
         All examples automatically include CSRF tokens. No manual token handling required!
       </p>
 
@@ -424,7 +424,7 @@ export function CSRFProtectionExamples() {
         <BatchOperationsExample />
       </div>
 
-      <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
+      <div className="mt-3 p-2 bg-emerald-500/5 border border-emerald-500/20 rounded">
         <h2 className="font-semibold mb-2">How It Works</h2>
         <ul className="list-disc list-inside space-y-1 text-sm">
           <li>CSRF token is fetched when the app loads (in Providers component)</li>

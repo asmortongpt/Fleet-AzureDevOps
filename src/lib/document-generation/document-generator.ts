@@ -6,6 +6,7 @@
 
 import type { BrandingConfig } from './branding-config'
 import { loadBrandingConfig } from './branding-config'
+
 import { formatDate } from '@/utils/format-helpers'
 
 export interface DocumentMetadata {

@@ -13,19 +13,19 @@ import { useQuery } from '@tanstack/react-query';
 import { Car, MapPin, Fuel, AlertTriangle, CheckCircle, PlayCircle, Clipboard, Clock, Route, Gauge, Calendar, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 // motion removed - React 19 incompatible
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
-import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { secureFetch } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
 import type { DriverVehicle, DriverTrip } from '@/services/dashboardApi';
-import { formatNumber } from '@/utils/format-helpers';
+import { formatNumber, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 import { formatVehicleName } from '@/utils/vehicle-display';
 
@@ -77,18 +77,15 @@ export function DriverDashboard() {
   ]);
 
   // Quick actions - Navigate to specific pages
-  const handleStartTrip = (tripId: number) => {
-    toast(`Starting Trip #${tripId}...`);
+  const handleStartTrip = (_tripId: number) => {
     navigateTo('operations');
   };
 
   const handleLogFuel = () => {
-    toast('Opening fuel log form...');
     navigateTo('fleet');
   };
 
   const handleReportIssue = () => {
-    toast('Opening incident report...');
     navigateTo('safety-compliance-hub');
   };
 
@@ -130,8 +127,7 @@ export function DriverDashboard() {
     }
   };
 
-  const handleViewRoute = (tripId: number) => {
-    toast(`Loading route map for Trip #${tripId}...`);
+  const handleViewRoute = (_tripId: number) => {
     navigateTo('operations');
   };
 
@@ -145,19 +141,7 @@ export function DriverDashboard() {
 
   const allInspectionsDone = inspectionItems.every(item => item.completed);
 
-  // Helper function to format ISO datetime to time string
-  const formatTime = (isoString: string) => {
-    try {
-      const date = new Date(isoString);
-      return date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true
-      });
-    } catch {
-      return isoString; // Return original if parsing fails
-    }
-  };
+  // formatTime imported from @/utils/format-helpers
 
   // Loading state - show spinner while fetching initial data
   if (vehicleLoading || tripsLoading) {

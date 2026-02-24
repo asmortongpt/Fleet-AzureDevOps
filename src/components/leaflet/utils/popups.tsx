@@ -4,9 +4,10 @@
  */
 
 import { escapeHtml } from "./icons"
-import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 
 import type { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
+import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
+
 
 /**
  * Creates HTML content for vehicle marker popup

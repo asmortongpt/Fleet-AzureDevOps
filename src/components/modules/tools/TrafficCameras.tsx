@@ -45,7 +45,6 @@ import {
 import { useInterval } from "@/hooks"
 import { apiClient } from "@/lib/api-client"
 import { TrafficCamera, CameraDataSource } from "@/lib/types"
-import { brandColors } from "@/theme/designSystem"
 import { formatDateTime } from "@/utils/format-helpers"
 
 // ============================================================================
@@ -495,9 +494,9 @@ export function TrafficCameras(): React.ReactElement {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Enabled</p>
-                <p className="text-base font-bold text-blue-800">{stats.enabled}</p>
+                <p className="text-base font-bold text-emerald-800">{stats.enabled}</p>
               </div>
-              <CheckCircle className="w-4 h-4 text-blue-800" />
+              <CheckCircle className="w-4 h-4 text-emerald-800" />
             </div>
           </CardContent>
         </Card>

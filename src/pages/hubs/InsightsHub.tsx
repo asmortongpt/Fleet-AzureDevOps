@@ -10,7 +10,6 @@ import {
 import React, { Suspense, useMemo, useState } from "react";
 import useSWR from "swr";
 
-import { apiFetcher } from '@/lib/api-fetcher'
 import ErrorBoundary from "../../components/common/ErrorBoundary";
 import { HubLayout } from "../../components/layout/HubLayout";
 import { CostAnalysisCenter } from "../../components/modules/analytics/CostAnalysisCenter";
@@ -20,6 +19,8 @@ import { ExecutiveDashboard } from "../../components/modules/analytics/Executive
 import { FleetAnalytics } from "../../components/modules/fleet/FleetAnalytics";
 import { PredictiveMaintenance } from "../../components/modules/maintenance/PredictiveMaintenance";
 import { Button } from "../../components/ui/button";
+
+import { apiFetcher } from '@/lib/api-fetcher'
 
 type InsightsModule =
   | "overview"

@@ -118,7 +118,7 @@ export function EndpointHealthDashboard({
       default:
         return {
           icon: HelpCircle,
-          color: 'text-slate-700 dark:text-gray-700',
+          color: 'text-white/70 dark:text-gray-700',
           bgColor: 'bg-gray-50 dark:bg-gray-950',
           label: 'Unknown'
         }
@@ -138,14 +138,14 @@ export function EndpointHealthDashboard({
       case 'connecting':
         return {
           icon: Activity,
-          color: 'text-blue-800 dark:text-blue-700',
-          bgColor: 'bg-blue-50 dark:bg-blue-950',
+          color: 'text-emerald-800 dark:text-emerald-700',
+          bgColor: 'bg-emerald-500/5 dark:bg-emerald-950',
           label: 'Connecting'
         }
       case 'disconnected':
         return {
           icon: WifiOff,
-          color: 'text-slate-700 dark:text-gray-700',
+          color: 'text-white/70 dark:text-gray-700',
           bgColor: 'bg-gray-50 dark:bg-gray-950',
           label: 'Disconnected'
         }
@@ -159,7 +159,7 @@ export function EndpointHealthDashboard({
       default:
         return {
           icon: HelpCircle,
-          color: 'text-slate-700 dark:text-gray-700',
+          color: 'text-white/70 dark:text-gray-700',
           bgColor: 'bg-gray-50 dark:bg-gray-950',
           label: 'Unknown'
         }
@@ -199,7 +199,7 @@ export function EndpointHealthDashboard({
               Refresh
             </Button>
           </div>
-          <CardDescription className="text-slate-700 dark:text-gray-700">
+          <CardDescription className="text-white/70 dark:text-gray-700">
             Real-time monitoring of REST endpoints and WebSocket connections
           </CardDescription>
         </CardHeader>
@@ -213,13 +213,13 @@ export function EndpointHealthDashboard({
                   <h3 className={cn('font-semibold', overallDisplay.color)}>
                     Overall System Status: {overallDisplay.label}
                   </h3>
-                  <p className="text-sm text-slate-700 dark:text-gray-700">
+                  <p className="text-sm text-white/70 dark:text-gray-700">
                     Health Score: {endpointSummary.healthScore}%
                   </p>
                 </div>
               </div>
               {lastCheck && (
-                <div className="flex items-center gap-2 text-sm text-slate-700 dark:text-gray-700">
+                <div className="flex items-center gap-2 text-sm text-white/70 dark:text-gray-700">
                   <Clock className="h-4 w-4" />
                   <span>Last check: {formatTime(lastCheck)}</span>
                 </div>
@@ -234,7 +234,7 @@ export function EndpointHealthDashboard({
               label="Total Endpoints"
               value={endpointSummary.totalEndpoints}
               icon={Server}
-              color="text-blue-800 dark:text-blue-700"
+              color="text-emerald-800 dark:text-emerald-700"
             />
             <StatCard
               label="Healthy"
@@ -277,7 +277,7 @@ export function EndpointHealthDashboard({
               {showSockets ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </Button>
           </div>
-          <CardDescription className="text-slate-700 dark:text-gray-700">
+          <CardDescription className="text-white/70 dark:text-gray-700">
             {socketSummary.connected} of {socketSummary.total} connected
           </CardDescription>
         </CardHeader>
@@ -310,7 +310,7 @@ export function EndpointHealthDashboard({
                             {display.label}
                           </Badge>
                         </div>
-                        <p className="text-sm text-slate-700 dark:text-gray-700 truncate">
+                        <p className="text-sm text-white/70 dark:text-gray-700 truncate">
                           {socket.description}
                         </p>
                       </div>
@@ -388,7 +388,7 @@ export function EndpointHealthDashboard({
                           <h3 className="font-medium text-gray-900 dark:text-gray-100">
                             {category.name}
                           </h3>
-                          <span className="text-sm text-slate-700 dark:text-gray-700">
+                          <span className="text-sm text-white/70 dark:text-gray-700">
                             ({categoryEndpoints.length})
                           </span>
                         </div>
@@ -438,7 +438,7 @@ export function EndpointHealthDashboard({
                               </div>
                               <div className="flex items-center gap-3 flex-shrink-0 ml-2">
                                 {endpoint.responseTime && (
-                                  <span className="text-xs text-slate-700 dark:text-gray-700">
+                                  <span className="text-xs text-white/70 dark:text-gray-700">
                                     {endpoint.responseTime.toFixed(0)}ms
                                   </span>
                                 )}
@@ -485,7 +485,7 @@ function StatCard({
     <div className="bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg p-3">
       <div className="flex items-center gap-2 mb-1">
         <Icon className={cn('h-4 w-4', color)} />
-        <span className="text-xs font-medium text-slate-700 dark:text-gray-700">
+        <span className="text-xs font-medium text-white/70 dark:text-gray-700">
           {label}
         </span>
       </div>

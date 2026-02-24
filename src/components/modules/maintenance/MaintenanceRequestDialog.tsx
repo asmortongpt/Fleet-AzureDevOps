@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
-import { formatVehicleName } from "@/utils/vehicle-display"
 import { Button } from "@/components/ui/button"
 import {
     Dialog,
@@ -15,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { MaintenanceRequest } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface MaintenanceRequestDialogProps {
     open: boolean

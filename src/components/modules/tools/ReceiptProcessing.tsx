@@ -35,9 +35,8 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { aiAssistant } from "@/lib/aiAssistant"
 import { msOfficeService } from "@/lib/msOfficeIntegration"
-import { formatCurrency, formatDate } from "@/utils/format-helpers"
 import { Receipt as ReceiptType } from "@/lib/types"
-import { brandColors } from "@/theme/designSystem"
+import { formatCurrency, formatDate } from "@/utils/format-helpers"
 
 
 export function ReceiptProcessing() {
@@ -193,7 +192,7 @@ export function ReceiptProcessing() {
       pending: "bg-yellow-100 text-yellow-700",
       approved: "bg-green-100 text-green-700",
       rejected: "bg-red-100 text-red-700",
-      reimbursed: "bg-blue-100 text-blue-700"
+      reimbursed: "bg-emerald-500/10 text-emerald-700"
     }
     return colors[status]
   }
@@ -201,7 +200,7 @@ export function ReceiptProcessing() {
   const getCategoryColor = (category: ReceiptType["category"]) => {
     const colors: Record<ReceiptType["category"], string> = {
       fuel: "bg-orange-100 text-orange-700",
-      maintenance: "bg-blue-100 text-blue-700",
+      maintenance: "bg-emerald-500/10 text-emerald-700",
       parts: "bg-purple-100 text-purple-700",
       service: "bg-green-100 text-green-700",
       toll: "bg-cyan-100 text-cyan-700",

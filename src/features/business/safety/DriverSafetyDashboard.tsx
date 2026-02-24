@@ -237,16 +237,16 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
   const renderOverviewCards = () => (
     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 mb-3">
       {/* Real-time Metrics */}
-      <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+      <Card className="bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 border-emerald-500/20">
         <CardContent className="p-2">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-blue-700">Active Drivers</p>
-              <p className="text-sm font-bold text-blue-900">
+              <p className="text-sm font-medium text-emerald-700">Active Drivers</p>
+              <p className="text-sm font-bold text-emerald-900">
                 {dashboardMetrics.realTime.activeDrivers}
               </p>
             </div>
-            <Users className="w-4 h-4 text-blue-800" />
+            <Users className="w-4 h-4 text-emerald-800" />
           </div>
         </CardContent>
       </Card>
@@ -345,7 +345,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
               <div className="flex items-center gap-3">
                 <div className="relative">
                   <div className="w-12 h-9 bg-gray-200 rounded-full flex items-center justify-center">
-                    <Car className="w-4 h-4 text-slate-700" />
+                    <Car className="w-4 h-4 text-white/70" />
                   </div>
                   {analysis.risk.prediction?.timeToIntervention && (
                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full animate-pulse" />
@@ -355,7 +355,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                   <CardTitle className="text-sm">
                     {driver.firstName} {driver.lastName}
                   </CardTitle>
-                  <p className="text-sm text-slate-700">
+                  <p className="text-sm text-white/70">
                     {driver.department} • {vehicle ? formatVehicleShortName(vehicle) : ''}
                   </p>
                   <div className="flex items-center gap-2 mt-1">
@@ -382,7 +382,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
             <div className="grid grid-cols-4 gap-3">
               <div className="text-center p-2 bg-gray-50 rounded-lg">
                 <div className="flex items-center justify-center mb-1">
-                  <Shield className="w-4 h-4 text-blue-800" />
+                  <Shield className="w-4 h-4 text-emerald-800" />
                   <span className="ml-1 text-xs">Safety</span>
                 </div>
                 <div className="font-semibold">{Math.round(analysis.safetyScore)}</div>
@@ -416,7 +416,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
             {/* AI insights */}
             <div className="space-y-2">
               <h4 className="font-medium text-sm flex items-center gap-2">
-                <Brain className="w-4 h-4 text-blue-800" />
+                <Brain className="w-4 h-4 text-emerald-800" />
                 AI Insights & Alerts
               </h4>
 
@@ -611,7 +611,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                         {severityIcon}
                         <div>
                           <div className="font-medium">{alert.message}</div>
-                          <div className="text-sm text-slate-700">
+                          <div className="text-sm text-white/70">
                             Driver: {driver?.firstName} {driver?.lastName}
                           </div>
                           <div className="text-xs text-gray-700 flex items-center gap-1 mt-1">
@@ -651,7 +651,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
             <CardContent className="p-3 text-center">
               <CheckCircle className="w-12 h-9 mx-auto mb-2 text-green-600" />
               <h3 className="text-sm font-semibold mb-2">No Active Alerts</h3>
-              <p className="text-slate-700">All drivers are operating within safe parameters.</p>
+              <p className="text-white/70">All drivers are operating within safe parameters.</p>
             </CardContent>
           </Card>
         )}
@@ -667,10 +667,10 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
           <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-700">Drivers in Program</p>
+                <p className="text-sm font-medium text-white/70">Drivers in Program</p>
                 <p className="text-sm font-bold">{dashboardMetrics.coaching.driversInProgram}</p>
               </div>
-              <Users className="w-4 h-4 text-blue-800" />
+              <Users className="w-4 h-4 text-emerald-800" />
             </div>
           </CardContent>
         </Card>
@@ -679,7 +679,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
           <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-700">Avg Improvement</p>
+                <p className="text-sm font-medium text-white/70">Avg Improvement</p>
                 <p className="text-sm font-bold text-green-600">
                   +{Math.round(dashboardMetrics.coaching.averageImprovement)}%
                 </p>
@@ -693,7 +693,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
           <CardContent className="p-2">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-slate-700">Completion Rate</p>
+                <p className="text-sm font-medium text-white/70">Completion Rate</p>
                 <p className="text-sm font-bold text-purple-600">
                   {Math.round(dashboardMetrics.coaching.completionRate)}%
                 </p>
@@ -714,10 +714,10 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
             if (!driver) return null;
 
             return (
-              <Card key={analysis.driverId} className="border-blue-200 bg-blue-50">
+              <Card key={analysis.driverId} className="border-emerald-500/20 bg-emerald-500/5">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Target className="w-3 h-3 text-blue-800" />
+                    <Target className="w-3 h-3 text-emerald-800" />
                     {driver.firstName} {driver.lastName} - Coaching Progress
                   </CardTitle>
                 </CardHeader>
@@ -731,7 +731,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                         </Badge>
                       </div>
                       <Progress value={goal.progress} className="h-2" />
-                      <div className="text-sm text-slate-700">
+                      <div className="text-sm text-white/70">
                         Current: {goal.currentValue} | Target: {goal.targetValue}
                       </div>
                     </div>
@@ -768,7 +768,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
       <div className="flex flex-col sm:flex-row gap-2 items-start sm:items-center justify-between">
         <div>
           <h1 className="text-base font-bold text-gray-900">Driver Safety Dashboard</h1>
-          <p className="text-slate-700">Tesla Autopilot-grade AI monitoring & coaching</p>
+          <p className="text-white/70">Tesla Autopilot-grade AI monitoring & coaching</p>
         </div>
 
         <div className="flex items-center gap-3">
@@ -869,7 +869,7 @@ export const DriverSafetyDashboard: React.FC<DriverSafetyDashboardProps> = ({
                     <CardContent className="p-3 text-center">
                       <Car className="w-12 h-9 mx-auto mb-2 text-gray-600" />
                       <h3 className="text-sm font-semibold mb-2">No Active Drivers</h3>
-                      <p className="text-slate-700">No drivers are currently being monitored.</p>
+                      <p className="text-white/70">No drivers are currently being monitored.</p>
                     </CardContent>
                   </Card>
                 )}

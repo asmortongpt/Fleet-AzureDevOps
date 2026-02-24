@@ -328,8 +328,8 @@ export function GeofenceControlPanel({
                 <CardHeader className="pb-2 border-b border-border/50 flex flex-row items-center justify-between space-y-0 relative z-10 bg-card/60 shrink-0">
                     <div>
                         <CardTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-                            <div className="p-1.5 bg-blue-500/10 rounded-md border border-blue-500/30">
-                                <MapPin className="text-blue-200 w-4 h-4" />
+                            <div className="p-1.5 bg-emerald-500/10 rounded-md border border-emerald-500/30">
+                                <MapPin className="text-emerald-200 w-4 h-4" />
                             </div>
                             Geofences
                         </CardTitle>

@@ -8,7 +8,6 @@ import { ChevronDown, ChevronUp, Filter, Search, X } from 'lucide-react';
 import { memo, useMemo, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { VEHICLE_TYPE_LABELS, STATUS_COLORS } from '@/utils/vehicle-map-icons';
 
 export interface VehicleFilters {

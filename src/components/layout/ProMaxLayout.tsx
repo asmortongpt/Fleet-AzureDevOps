@@ -16,9 +16,9 @@ interface ProMaxLayoutProps {
 
 export function ProMaxLayout({ children }: ProMaxLayoutProps) {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-[#888] via-emerald-500/5 to-[#777]">
       {/* Animated background pattern */}
-      <div className="fixed inset-0 bg-grid-slate-200/50 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none" />
+      <div className="fixed inset-0 bg-grid-white/[0.05] [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none" />
 
       {/* Main content with glass effect */}
       <div className="relative z-10">

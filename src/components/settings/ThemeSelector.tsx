@@ -3,20 +3,19 @@
  * Allows users to select from preset themes or create custom themes
  */
 
+import { Eye, Plus, Zap } from 'lucide-react'
 import { useState } from 'react'
-import { ChevronDown, Eye, EyeOff, Plus, Zap } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import {
   useTheme,
   PRESET_THEMES,
   getAccessibilityThemes,
   getWCAGAAAThemes,
-  validateThemeContrast,
 } from '@/lib/themes'
 import type { Theme } from '@/lib/themes'
 
@@ -50,7 +49,7 @@ export function ThemeSelector({ onThemeChange }: ThemeSelectorProps) {
   const getWCAGBadge = (level: string) => {
     const colors = {
       A: 'bg-yellow-100 text-yellow-900',
-      AA: 'bg-blue-100 text-blue-900',
+      AA: 'bg-emerald-500/10 text-emerald-900',
       AAA: 'bg-green-100 text-green-900',
     }
     return colors[level as keyof typeof colors] || colors.A
@@ -156,8 +155,8 @@ export function ThemeSelector({ onThemeChange }: ThemeSelectorProps) {
               <div className="p-3 bg-green-50 rounded-lg border border-green-200">
                 <div className="text-sm font-semibold text-green-900">Valid: {contrastValidation.valid ? 'Yes' : 'No'}</div>
               </div>
-              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <div className="text-sm font-semibold text-blue-900">
+              <div className="p-3 bg-emerald-500/5 rounded-lg border border-emerald-500/20">
+                <div className="text-sm font-semibold text-emerald-900">
                   Level: {currentTheme.wcagLevel || '—'}
                 </div>
               </div>

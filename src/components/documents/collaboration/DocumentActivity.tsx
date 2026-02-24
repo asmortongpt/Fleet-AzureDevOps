@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DocumentActivity as ActivityItem } from '@/lib/documents/types';
 import { formatRelativeTime } from '@/lib/documents/utils';
+import { formatDate } from '@/utils/format-helpers';
 
 interface DocumentActivityProps {
   activities: ActivityItem[];
@@ -32,11 +33,11 @@ export function DocumentActivity({ activities }: DocumentActivityProps) {
   const getActivityColor = (action: ActivityItem['action']) => {
     const colors = {
       created: 'text-green-500',
-      updated: 'text-blue-800',
+      updated: 'text-emerald-800',
       viewed: 'text-gray-700',
       downloaded: 'text-purple-500',
       shared: 'text-orange-500',
-      commented: 'text-blue-800',
+      commented: 'text-emerald-800',
       tagged: 'text-yellow-500',
       moved: 'text-indigo-500',
     };
@@ -93,11 +94,7 @@ export function DocumentActivity({ activities }: DocumentActivityProps) {
           {Object.entries(groupedActivities).map(([date, dateActivities]) => (
             <div key={date}>
               <div className="text-xs font-semibold text-muted-foreground mb-3">
-                {new Date(date).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
+                {formatDate(date)}
               </div>
 
               <div className="space-y-3">

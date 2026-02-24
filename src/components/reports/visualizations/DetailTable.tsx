@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { formatDate } from '@/utils/format-helpers';
 
 export interface TableColumn {
   field: string;
@@ -67,11 +68,7 @@ export function DetailTable({
         return new Intl.NumberFormat('en-US').format(Math.round(value));
 
       case 'date':
-        return new Date(value).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
+        return formatDate(value);
 
       case 'text':
       default:

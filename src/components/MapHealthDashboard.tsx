@@ -16,12 +16,12 @@ import { Button } from './ui/button'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from './ui/card'
 import { Progress } from './ui/progress'
 
+import { formatDateTime, formatTime } from '@/utils/format-helpers'
 import {
   useMapHealthCheck,
   HealthStatus,
   MapServiceProvider,
 } from '@/utils/mapHealthCheck'
-import { formatDateTime, formatTime } from '@/utils/format-helpers'
 
 // ============================================================================
 // Types & Interfaces
@@ -185,7 +185,7 @@ export function MapHealthDashboard(props: MapHealthDashboardProps) {
               <Card
                 key={provider}
                 className={`cursor-pointer transition-all ${
-                  isSelected ? 'ring-2 ring-blue-500' : 'hover:shadow-md'
+                  isSelected ? 'ring-2 ring-emerald-500' : 'hover:shadow-md'
                 }`}
                 onClick={() => handleProviderClick(provider)}
               >

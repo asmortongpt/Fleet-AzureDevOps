@@ -365,10 +365,10 @@ const PushNotificationAdmin: React.FC = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-base font-bold text-gray-900 flex items-center gap-3">
-                <Bell className="text-blue-800" size={32} />
+                <Bell className="text-emerald-400" size={32} />
                 Push Notification Admin
               </h1>
-              <p className="text-slate-700 mt-2" style={{ color: brandColors.archon.mediumGray }}>
+              <p className="text-white/70 mt-2" style={{ color: brandColors.archon.mediumGray }}>
                 Send and manage mobile push notifications for iOS and Android
               </p>
             </div>
@@ -389,16 +389,16 @@ const PushNotificationAdmin: React.FC = () => {
             <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Total Sent</p>
+                  <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>Total Sent</p>
                   <p className="text-sm font-bold text-gray-900">{statsQuery.data?.totalSent}</p>
                 </div>
-                <Send className="text-blue-800" size={32} />
+                <Send className="text-emerald-400" size={32} />
               </div>
             </div>
             <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Delivery Rate</p>
+                  <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>Delivery Rate</p>
                   <p className="text-sm font-bold text-green-600">{statsQuery.data?.deliveryRate.toFixed(1)}%</p>
                 </div>
                 <CheckCircle className="text-green-600" size={32} />
@@ -407,16 +407,16 @@ const PushNotificationAdmin: React.FC = () => {
             <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Open Rate</p>
-                  <p className="text-sm font-bold text-blue-800">{statsQuery.data?.openRate.toFixed(1)}%</p>
+                  <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>Open Rate</p>
+                  <p className="text-sm font-bold text-emerald-400">{statsQuery.data?.openRate.toFixed(1)}%</p>
                 </div>
-                <Eye className="text-blue-800" size={32} />
+                <Eye className="text-emerald-400" size={32} />
               </div>
             </div>
             <div className="bg-white p-2 rounded-lg shadow-sm border border-gray-200">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>Click Rate</p>
+                  <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>Click Rate</p>
                   <p className="text-sm font-bold text-purple-600">{statsQuery.data?.clickRate.toFixed(1)}%</p>
                 </div>
                 <TrendingUp className="text-purple-600" size={32} />
@@ -433,8 +433,8 @@ const PushNotificationAdmin: React.FC = () => {
                 onClick={() => setActiveTab('send')}
                 className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'send'
-                    ? 'border-blue-600 text-blue-800'
-                    : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-emerald-600 text-emerald-400'
+                    : 'border-transparent text-white/70 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
                 <Send size={18} />
@@ -444,8 +444,8 @@ const PushNotificationAdmin: React.FC = () => {
                 onClick={() => setActiveTab('templates')}
                 className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'templates'
-                    ? 'border-blue-600 text-blue-800'
-                    : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-emerald-600 text-emerald-400'
+                    : 'border-transparent text-white/70 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
                 <FileText size={18} />
@@ -455,8 +455,8 @@ const PushNotificationAdmin: React.FC = () => {
                 onClick={() => setActiveTab('history')}
                 className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'history'
-                    ? 'border-blue-600 text-blue-800'
-                    : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-emerald-600 text-emerald-400'
+                    : 'border-transparent text-white/70 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
                 <Clock size={18} />
@@ -466,8 +466,8 @@ const PushNotificationAdmin: React.FC = () => {
                 onClick={() => setActiveTab('stats')}
                 className={`px-3 py-3 border-b-2 font-medium text-sm flex items-center gap-2 ${
                   activeTab === 'stats'
-                    ? 'border-blue-600 text-blue-800'
-                    : 'border-transparent text-slate-700 hover:text-gray-900 hover:border-gray-300'
+                    ? 'border-emerald-600 text-emerald-400'
+                    : 'border-transparent text-white/70 hover:text-gray-900 hover:border-gray-300'
                 }`}
               >
                 <BarChart3 size={18} />
@@ -501,7 +501,7 @@ const PushNotificationAdmin: React.FC = () => {
                       <select
                         value={notificationForm.selectedTemplate}
                         onChange={(e) => setNotificationForm({ ...notificationForm, selectedTemplate: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                       >
                         <option value="">-- Select Template --</option>
                         {templatesQuery.data?.map(template => (
@@ -519,14 +519,14 @@ const PushNotificationAdmin: React.FC = () => {
                         value={notificationForm.templateVariables}
                         onChange={(e) => setNotificationForm({ ...notificationForm, templateVariables: e.target.value })}
                         rows={4}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 font-mono text-sm"
                         placeholder='{"vehicleId": "V-001", "location": "Highway 101"}'
                       />
                     </div>
                     <button
                       onClick={handleSendFromTemplate}
                       disabled={sendFromTemplateMutation.isPending || !notificationForm.selectedTemplate}
-                      className="px-3 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                      className="px-3 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
                     >
                       <Send size={20} />
                       {sendFromTemplateMutation.isPending ? 'Sending...' : 'Send from Template'}
@@ -542,7 +542,7 @@ const PushNotificationAdmin: React.FC = () => {
                         <select
                           value={notificationForm.category}
                           onChange={(e) => setNotificationForm({ ...notificationForm, category: e.target.value })}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                         >
                           {categoryOptions.map(cat => (
                             <option key={cat.value} value={cat.value}>
@@ -558,7 +558,7 @@ const PushNotificationAdmin: React.FC = () => {
                         <select
                           value={notificationForm.priority}
                           onChange={(e) => setNotificationForm({ ...notificationForm, priority: e.target.value })}
-                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                         >
                           {priorityOptions.map(pri => (
                             <option key={pri.value} value={pri.value}>
@@ -577,7 +577,7 @@ const PushNotificationAdmin: React.FC = () => {
                         type="text"
                         value={notificationForm.title}
                         onChange={(e) => setNotificationForm({ ...notificationForm, title: e.target.value })}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                         placeholder="Notification title..."
                       />
                     </div>
@@ -590,7 +590,7 @@ const PushNotificationAdmin: React.FC = () => {
                         value={notificationForm.message}
                         onChange={(e) => setNotificationForm({ ...notificationForm, message: e.target.value })}
                         rows={4}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                         placeholder="Notification message..."
                       />
                     </div>
@@ -602,7 +602,7 @@ const PushNotificationAdmin: React.FC = () => {
                       <select
                         value={notificationForm.recipientType}
                         onChange={(e) => setNotificationForm({ ...notificationForm, recipientType: e.target.value })}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 mb-2"
+                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 mb-2"
                       >
                         <option value="all">All Users</option>
                         <option value="specific">Specific Users</option>
@@ -612,7 +612,7 @@ const PushNotificationAdmin: React.FC = () => {
                           type="text"
                           value={notificationForm.specificUsers}
                           onChange={(e) => setNotificationForm({ ...notificationForm, specificUsers: e.target.value })}
-                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                           placeholder="User IDs (comma-separated)"
                         />
                       )}
@@ -626,14 +626,14 @@ const PushNotificationAdmin: React.FC = () => {
                         type="datetime-local"
                         value={notificationForm.scheduledFor}
                         onChange={(e) => setNotificationForm({ ...notificationForm, scheduledFor: e.target.value })}
-                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                       />
                     </div>
 
                     <button
                       onClick={handleSendNotification}
                       disabled={sendNotificationMutation.isPending || scheduleNotificationMutation.isPending || !notificationForm.title || !notificationForm.message}
-                      className="px-3 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                      className="px-3 py-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 flex items-center gap-2"
                     >
                       {notificationForm.scheduledFor ? <Calendar size={20} /> : <Send size={20} />}
                       {sendNotificationMutation.isPending || scheduleNotificationMutation.isPending ? 'Sending...' : notificationForm.scheduledFor ? 'Schedule Notification' : 'Send Now'}
@@ -664,7 +664,7 @@ const PushNotificationAdmin: React.FC = () => {
                             <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
                               <span className="font-medium">Category:</span> {template.category}
                             </p>
-                            <p className="text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+                            <p className="text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>
                               <span className="font-medium">Priority:</span> {template.priority}
                             </p>
                             <div className="mt-3 p-3 bg-gray-50 rounded border border-gray-200">
@@ -717,14 +717,14 @@ const PushNotificationAdmin: React.FC = () => {
                           <tr key={notification.id} className="hover:bg-gray-50">
                             <td className="px-2 py-3 text-sm">
                               <div className="font-medium text-gray-900">{notification.title}</div>
-                              <div className="text-slate-700 text-xs mt-1" style={{ color: brandColors.archon.mediumGray }}>{notification.message.substring(0, 50)}...</div>
+                              <div className="text-white/70 text-xs mt-1" style={{ color: brandColors.archon.mediumGray }}>{notification.message.substring(0, 50)}...</div>
                             </td>
                             <td className="px-2 py-3 text-sm">{notification.category}</td>
                             <td className="px-2 py-3 text-sm">
                               <span className={`px-2 py-1 rounded text-xs font-medium ${
                                 notification.priority === 'critical' ? 'bg-red-100 text-red-800' :
                                 notification.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                                notification.priority === 'normal' ? 'bg-blue-100 text-blue-800' :
+                                notification.priority === 'normal' ? 'bg-emerald-500/10 text-emerald-400' :
                                 'bg-gray-100 text-gray-800'
                               }`}>
                                 {notification.priority}
@@ -743,7 +743,7 @@ const PushNotificationAdmin: React.FC = () => {
                                 {notification.delivery_status}
                               </span>
                             </td>
-                            <td className="px-2 py-3 text-sm text-slate-700" style={{ color: brandColors.archon.mediumGray }}>
+                            <td className="px-2 py-3 text-sm text-white/70" style={{ color: brandColors.archon.mediumGray }}>
                               {formatDateTime(notification.created_at)}
                             </td>
                           </tr>
@@ -807,7 +807,7 @@ const PushNotificationAdmin: React.FC = () => {
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2">
                               <div
-                                className="bg-blue-600 h-2 rounded-full"
+                                className="bg-emerald-600 h-2 rounded-full"
                                 style={{ width: `${statsQuery.data?.openRate}%` }}
                               />
                             </div>
@@ -829,13 +829,13 @@ const PushNotificationAdmin: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-3 gap-2">
-                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-3 rounded-lg border border-blue-200">
+                      <div className="bg-gradient-to-br from-emerald-500/5 to-emerald-500/10 p-3 rounded-lg border border-emerald-500/20">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="text-sm text-blue-800 font-medium">Total Notifications</p>
-                            <p className="text-base font-bold text-blue-900 mt-2">{statsQuery.data?.totalSent}</p>
+                            <p className="text-sm text-emerald-400 font-medium">Total Notifications</p>
+                            <p className="text-base font-bold text-emerald-500 mt-2">{statsQuery.data?.totalSent}</p>
                           </div>
-                          <Bell className="text-blue-800" size={40} />
+                          <Bell className="text-emerald-400" size={40} />
                         </div>
                       </div>
                       <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-lg border border-green-200">

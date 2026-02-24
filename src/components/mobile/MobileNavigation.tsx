@@ -43,8 +43,8 @@ export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNa
                 transition-colors duration-200
                 ${
                   isActive
-                    ? 'text-blue-800 dark:text-blue-700'
-                    : 'text-slate-700 dark:text-gray-700'
+                    ? 'text-emerald-800 dark:text-emerald-700'
+                    : 'text-white/70 dark:text-gray-700'
                 }
               `}
               aria-label={item.label}
@@ -63,7 +63,7 @@ export function MobileBottomNav({ items, activeId, onItemClick }: MobileBottomNa
               <span className="text-xs mt-1 font-medium truncate max-w-full">{item.label}</span>
               {isActive && (
                 <div
-                  className="absolute bottom-0 left-0 right-0 h-1 bg-blue-600 dark:bg-blue-400 rounded-t-full"
+                  className="absolute bottom-0 left-0 right-0 h-1 bg-emerald-600 dark:bg-emerald-400 rounded-t-full"
                 />
               )}
             </button>
@@ -165,8 +165,8 @@ export function MobileTabs({ tabs, activeId: controlledActiveId, onChange }: Mob
                 transition-colors duration-200 touch-target
                 ${
                   isActive
-                    ? 'text-blue-800 dark:text-blue-700 border-b-2 border-blue-600 dark:border-blue-400'
-                    : 'text-slate-700 dark:text-gray-700'
+                    ? 'text-emerald-800 dark:text-emerald-700 border-b-2 border-emerald-600 dark:border-emerald-400'
+                    : 'text-white/70 dark:text-gray-700'
                 }
               `}
               aria-selected={isActive}
@@ -276,7 +276,7 @@ export function MobileFab({
   }
 
   const colorClasses: Record<string, string> = {
-    primary: 'bg-blue-600 hover:bg-blue-700 text-white',
+    primary: 'bg-emerald-600 hover:bg-emerald-700 text-white',
     success: 'bg-green-600 hover:bg-green-700 text-white',
     warning: 'bg-amber-600 hover:bg-amber-700 text-white',
     error: 'bg-red-600 hover:bg-red-700 text-white',
@@ -355,7 +355,7 @@ export function MobileSearchBar({
             bg-gray-100 dark:bg-gray-800
             border border-gray-300 dark:border-gray-700
             rounded-full
-            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+            focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
             transition-all duration-200
           "
         />
@@ -363,7 +363,7 @@ export function MobileSearchBar({
         {value && (
           <button
             onClick={() => onChange('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 hover:text-slate-700 dark:hover:text-gray-300"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-700 hover:text-white/70 dark:hover:text-gray-300"
             aria-label="Clear search"
           >
             ✕

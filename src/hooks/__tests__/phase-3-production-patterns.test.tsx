@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useCallback, useMemo, useRef, useState, useEffect, useReducer, ReactNode, createContext } from 'react';
+import { useCallback, useMemo, useRef, useState, useEffect, useReducer } from 'react';
+import { describe, it, expect, vi } from 'vitest';
 
 /**
  * PHASE 3: PRODUCTION PATTERNS & PERFORMANCE (100+ tests)

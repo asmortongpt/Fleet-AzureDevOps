@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { formatDateTime } from '@/utils/format-helpers'
 
 // ============================================================================
 // TYPES
@@ -98,7 +99,7 @@ function EmailHeader({ email }: { email: EmailRecord }) {
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
             )}
             {!email.isRead && (
-              <Badge className="bg-blue-500 text-white text-xs">Unread</Badge>
+              <Badge className="bg-emerald-500/50 text-white text-xs">Unread</Badge>
             )}
           </div>
         </div>
@@ -161,14 +162,7 @@ function EmailParticipants({ email, push }: { email: EmailRecord; push: any }) {
           <div className="flex-1 min-w-0">
             <div className="text-xs text-muted-foreground uppercase">Date</div>
             <div className="text-sm">
-              {new Date(email.date).toLocaleString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              })}
+              {formatDateTime(email.date)}
             </div>
           </div>
         </div>

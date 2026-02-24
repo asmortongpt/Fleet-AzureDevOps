@@ -62,6 +62,7 @@ import {
   type DVIRReport,
   type HOSViolation
 } from '@/hooks/use-hos-data'
+import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
 
@@ -268,7 +269,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
           <h2>Period: ${dateLabel}</h2>
           <hr/>
           ${summaryLines.map(line => `<div class="stat">${line}</div>`).join('')}
-          <hr/><p style="font-size:11px;color:#999;">Generated ${new Date().toLocaleString()}</p>
+          <hr/><p style="font-size:11px;color:#999;">Generated ${formatDateTime(new Date())}</p>
           </body></html>`
         const printWindow = window.open('', '_blank')
         if (printWindow) {
@@ -308,7 +309,7 @@ export function DOTReportsDialog({ open, onOpenChange, tenantId }: DOTReportsDia
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-600" />
+            <FileText className="h-5 w-5 text-emerald-600" />
             DOT Compliance Reports
           </DialogTitle>
           <DialogDescription>

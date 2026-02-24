@@ -8,9 +8,8 @@ export interface LogContext {
 const isDev = import.meta.env.DEV;
 
 export const logger = {
-  info: (message: string, ...args: unknown[]): void => {
-    if (isDev) {
-    }
+  info: (message: string, ..._args: unknown[]): void => {
+    // Intentionally silent in production; dev logging handled by debug()
   },
 
   warn: (message: string, ...args: unknown[]): void => {
@@ -31,16 +30,16 @@ export const logger = {
     console.error(`[ERROR] ${message}`, ...args);
   },
 
-  logAudit: (message: string, ...args: unknown[]): void => {
+  logAudit: (_message: string, ..._args: unknown[]): void => {
+    // Audit logging is server-side only
   },
 
   logWarning: (message: string, ...args: unknown[]): void => {
     console.warn(`[WARN] ${message}`, ...args);
   },
 
-  logInfo: (message: string, ...args: unknown[]): void => {
-    if (isDev) {
-    }
+  logInfo: (message: string, ..._args: unknown[]): void => {
+    // Intentionally silent in production; dev logging handled by logDebug()
   },
 
   logDebug: (message: string, ...args: unknown[]): void => {

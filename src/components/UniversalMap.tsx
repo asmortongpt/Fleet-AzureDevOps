@@ -192,12 +192,12 @@ class MapErrorBoundary extends Component<
             <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-2">
               Map Failed to Load
             </h2>
-            <p className="text-slate-700 dark:text-gray-700 mb-2">
+            <p className="text-white/70 dark:text-gray-700 mb-2">
               {this.state.error?.message || "An unexpected error occurred while loading the map."}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-2 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              className="px-2 py-2 bg-emerald-500/50 text-white rounded hover:bg-emerald-600 transition-colors"
             >
               Reload Page
             </button>
@@ -710,8 +710,8 @@ export function UniversalMap(props: UniversalMapProps) {
         {loadingState === "loading" && (
           <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-gray-900/80">
             <div className="flex flex-col items-center gap-3">
-              <div className="w-12 h-9 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-sm text-slate-700 dark:text-gray-700">
+              <div className="w-12 h-9 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-sm text-white/70 dark:text-gray-700">
                 Loading {provider === "google" ? "Google Maps" : "OpenStreetMap"}...
               </p>
             </div>
@@ -737,7 +737,7 @@ export function UniversalMap(props: UniversalMapProps) {
 
         {/* Clustering Info Badge */}
         {shouldCluster && (
-          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded-md shadow-md text-xs text-slate-700 dark:text-gray-300">
+          <div className="absolute bottom-4 left-4 z-40 bg-white/90 dark:bg-gray-800/90 px-3 py-1.5 rounded-md shadow-md text-xs text-white/70 dark:text-gray-300">
             Clustering {totalMarkerCount} markers
           </div>
         )}

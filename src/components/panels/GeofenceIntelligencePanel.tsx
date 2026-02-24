@@ -42,7 +42,7 @@ export function GeofenceIntelligencePanel({
                     <div className="bg-muted/40 border-b border-border/50 p-2 flex items-start justify-between">
                         <div>
                             <div className="flex items-center gap-2 mb-1">
-                                <Badge variant="outline" className="bg-blue-500/10 text-blue-200 border-blue-500/30">
+                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-200 border-emerald-500/30">
                                     {geofence.type}
                                 </Badge>
                                 {geofence.active ? (
@@ -62,7 +62,7 @@ export function GeofenceIntelligencePanel({
                     <ScrollArea className="flex-1 p-2 bg-muted/20">
                         <div className="space-y-2">
                             {/* Live Status Card */}
-                            <Card className="border-l-4 border-l-blue-500/60 shadow-sm relative overflow-hidden bg-card/90 border-border/50">
+                            <Card className="border-l-4 border-l-emerald-500/60 shadow-sm relative overflow-hidden bg-card/90 border-border/50">
                                 <div className="absolute top-0 right-0 p-2 opacity-5">
                                     <Activity className="w-24 h-24" />
                                 </div>
@@ -133,7 +133,7 @@ export function GeofenceIntelligencePanel({
                                         </div>
                                     )}
                                     {geofence.triggers.onExit && (
-                                        <div className="bg-blue-500/15 text-blue-100 border border-blue-500/30 px-3 py-2 rounded text-xs font-medium text-center">
+                                        <div className="bg-emerald-500/15 text-emerald-100 border border-emerald-500/30 px-3 py-2 rounded text-xs font-medium text-center">
                                             Exit
                                         </div>
                                     )}

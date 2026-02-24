@@ -4,9 +4,10 @@
  */
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import type { Theme, ThemeVariant } from './types'
+
 import { PRESET_THEMES_MAP, getThemeById } from './preset-themes'
 import { generateThemeCSS, validateThemeContrast } from './theme-generator'
+import type { Theme, ThemeVariant } from './types'
 
 interface ThemeContextType {
   currentTheme: Theme

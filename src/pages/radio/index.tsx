@@ -3,10 +3,10 @@
  * Live radio feed with real-time transcription and automated dispatch
  */
 
-import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Radio, Activity, FileText, Settings } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { PolicyQueue } from '@/components/radio/PolicyQueue';
 import { RadioFeed } from '@/components/radio/RadioFeed';
 import { TranscriptPanel } from '@/components/radio/TranscriptPanel';

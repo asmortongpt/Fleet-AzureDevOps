@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 import 'leaflet/dist/leaflet.css';
 import { Asset, Geofence } from '@/types';
 import { getAuthHeaders } from '@/utils/auth';
-import { logger } from '@/utils/logger';
 import { formatDateTime } from '@/utils/format-helpers';
+import { logger } from '@/utils/logger';
 import { validateCategory, validateStatus } from '@/utils/validators';
 
 const AssetLocationMap: React.FC<{ tenantId: string }> = ({ tenantId }) => {

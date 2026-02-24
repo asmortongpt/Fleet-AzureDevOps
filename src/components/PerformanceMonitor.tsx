@@ -456,7 +456,7 @@ export function PerformanceMonitor({
                           ? "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300"
                           : warning.severity === "medium"
                           ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300"
-                          : "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300"
+                          : "bg-emerald-500/10 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300"
                       }`}
                     >
                       {warning.message}

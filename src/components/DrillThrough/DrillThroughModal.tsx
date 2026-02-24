@@ -93,14 +93,14 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
               {config.title}
             </h2>
             {config.description && (
-              <p className="text-sm text-slate-700 dark:text-gray-700 mt-1">
+              <p className="text-sm text-white/70 dark:text-gray-700 mt-1">
                 {config.description}
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="text-gray-700 hover:text-slate-700 dark:hover:text-gray-300 transition-colors"
+            className="text-gray-700 hover:text-white/70 dark:hover:text-gray-300 transition-colors"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -115,7 +115,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                 onClick={() => setShowFilters(!showFilters)}
                 className={`px-2 py-2 rounded-lg flex items-center gap-2 transition-colors ${
                   showFilters
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-emerald-600 text-white'
                     : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600'
                 }`}
               >
@@ -135,7 +135,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
           {config.enableExport !== false && (
             <div className="flex items-center gap-2">
-              <span className="text-sm text-slate-700 dark:text-gray-700">Export:</span>
+              <span className="text-sm text-white/70 dark:text-gray-700">Export:</span>
               <button
                 onClick={() => handleExport('csv')}
                 disabled={isExporting || !data?.data?.length}
@@ -146,7 +146,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
               <button
                 onClick={() => handleExport('excel')}
                 disabled={isExporting || !data?.data?.length}
-                className="px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                className="px-3 py-1 rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 Excel
               </button>
@@ -163,11 +163,11 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
 
         {/* Summary Stats */}
         {data?.summary && (
-          <div className="p-2 bg-blue-50 dark:bg-blue-900/20 border-b border-gray-200 dark:border-gray-700">
+          <div className="p-2 bg-emerald-500/5 dark:bg-emerald-900/20 border-b border-gray-200 dark:border-gray-700">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
               {Object.entries(data.summary).map(([key, value]) => (
                 <div key={key}>
-                  <p className="text-xs text-slate-700 dark:text-gray-700 uppercase tracking-wide">
+                  <p className="text-xs text-white/70 dark:text-gray-700 uppercase tracking-wide">
                     {key.replace(/_/g, ' ')}
                   </p>
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -183,7 +183,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
         <div className="flex-1 overflow-auto p-2">
           {isLoading && (
             <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600"></div>
             </div>
           )}
 
@@ -220,7 +220,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
                         <div className="flex items-center gap-2">
                           {column.label}
                           {column.sortable !== false && sortBy === column.key && (
-                            <span className="text-blue-800 dark:text-blue-700">
+                            <span className="text-emerald-800 dark:text-emerald-700">
                               {sortDirection === 'asc' ? '↑' : '↓'}
                             </span>
                           )}
@@ -256,7 +256,7 @@ export function DrillThroughModal({ config, isOpen, onClose }: DrillThroughModal
         {/* Pagination */}
         {data && data.totalPages > 1 && (
           <div className="flex items-center justify-between p-2 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900">
-            <p className="text-sm text-slate-700 dark:text-gray-700">
+            <p className="text-sm text-white/70 dark:text-gray-700">
               Showing {((page - 1) * (data.pageSize ?? 0)) + 1} to{' '}
               {Math.min(page * (data.pageSize ?? 0), data.totalCount ?? 0)} of{' '}
               {formatNumber(data.totalCount ?? 0)} records

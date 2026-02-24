@@ -241,7 +241,7 @@ export function AuthCallback() {
             <div className="absolute inset-0 flex items-center justify-center">
               <Loader2 className="w-6 h-6 text-muted-foreground animate-spin" />
             </div>
-            <div className="absolute -inset-4 bg-blue-500/10 blur-2xl rounded-full" />
+            <div className="absolute -inset-4 bg-emerald-500/10 blur-2xl rounded-full" />
           </div>
 
           <div className="flex flex-col items-center gap-2">

@@ -26,7 +26,6 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { useNavigation } from '@/contexts/NavigationContext'
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -36,6 +35,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { useNavigation } from '@/contexts/NavigationContext'
 import { useDispatchSocket } from '@/hooks/useDispatchSocket'
 
 interface RadioPopoverProps {

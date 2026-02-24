@@ -388,7 +388,7 @@ export function GarageService() {
                           )}
 
                           {order.status === 'review' && hasPermission('work_order:approve') && (
-                            <Button size="sm" variant="outline" className="text-blue-800 hover:text-blue-700" onClick={(e) => { e.stopPropagation(); /* handleTransition(order.id, 'completed') */ }}>
+                            <Button size="sm" variant="outline" className="text-emerald-800 hover:text-emerald-700" onClick={(e) => { e.stopPropagation(); /* handleTransition(order.id, 'completed') */ }}>
                               Approve
                             </Button>
                           )}

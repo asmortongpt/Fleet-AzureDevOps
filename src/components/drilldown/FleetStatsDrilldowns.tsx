@@ -10,15 +10,15 @@ import {
 } from 'lucide-react'
 import React from 'react'
 
-import { formatVehicleShortName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatEnum } from '@/utils/format-enum'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 // Reusable stat row component
 function StatRow({ label, value, trend, icon: Icon }: {
@@ -735,7 +735,7 @@ export function DriverStatsDrilldown() {
                     {[
                         { label: 'Active', count: activeDrivers.length, color: 'text-emerald-600' },
                         { label: 'Off Duty', count: offDutyDrivers.length, color: 'text-amber-500' },
-                        { label: 'On Leave', count: onLeaveDrivers.length, color: 'text-blue-500' },
+                        { label: 'On Leave', count: onLeaveDrivers.length, color: 'text-emerald-500' },
                         { label: 'Suspended', count: suspendedDrivers.length, color: 'text-red-500' },
                     ].map(({ label, count, color }) => (
                         <div key={label} className="flex items-center gap-3">
@@ -759,7 +759,7 @@ export function DriverStatsDrilldown() {
                 <CardContent className="space-y-2">
                     {[
                         { label: 'Excellent (90+)', count: scoreExcellent, variant: 'default' as const, className: 'bg-emerald-600 hover:bg-emerald-700' },
-                        { label: 'Good (75-89)', count: scoreGood, variant: 'default' as const, className: 'bg-blue-600 hover:bg-blue-700' },
+                        { label: 'Good (75-89)', count: scoreGood, variant: 'default' as const, className: 'bg-emerald-600 hover:bg-emerald-700' },
                         { label: 'Fair (60-74)', count: scoreFair, variant: 'default' as const, className: 'bg-amber-500 hover:bg-amber-600' },
                         { label: 'Needs Improvement (<60)', count: scorePoor, variant: 'destructive' as const, className: '' },
                     ].map(({ label, count, variant, className }) => (
@@ -808,7 +808,7 @@ export function DriverStatsDrilldown() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <span className={`text-sm font-bold ${score >= 90 ? 'text-emerald-400' : score >= 75 ? 'text-blue-400' : score >= 60 ? 'text-amber-500' : 'text-red-500'}`}>
+                                        <span className={`text-sm font-bold ${score >= 90 ? 'text-emerald-400' : score >= 75 ? 'text-emerald-400' : score >= 60 ? 'text-amber-500' : 'text-red-500'}`}>
                                             {score}
                                         </span>
                                         <Gauge className="h-4 w-4 text-muted-foreground" />
@@ -846,7 +846,7 @@ export function UtilizationDrilldown() {
         { label: 'Idle', vehicles: idleVehicles, color: 'bg-amber-500', textColor: 'text-amber-400' },
         { label: 'In Service', vehicles: serviceVehicles, color: 'bg-red-500', textColor: 'text-red-400' },
         { label: 'Offline', vehicles: offlineVehicles, color: 'bg-gray-500', textColor: 'text-gray-400' },
-        { label: 'Charging', vehicles: chargingVehicles, color: 'bg-blue-500', textColor: 'text-blue-400' },
+        { label: 'Charging', vehicles: chargingVehicles, color: 'bg-emerald-500/50', textColor: 'text-emerald-400' },
         { label: 'Emergency', vehicles: emergencyVehicles, color: 'bg-purple-500', textColor: 'text-purple-400' },
     ].filter(s => s.vehicles.length > 0)
 
@@ -981,7 +981,7 @@ export function SafetyScoreDrilldown() {
 
     // Score quality label
     const scoreLabel = avgSafetyScore >= 90 ? 'Excellent' : avgSafetyScore >= 75 ? 'Good' : avgSafetyScore >= 60 ? 'Fair' : 'Needs Improvement'
-    const scoreColor = avgSafetyScore >= 90 ? 'text-emerald-400' : avgSafetyScore >= 75 ? 'text-blue-400' : avgSafetyScore >= 60 ? 'text-amber-500' : 'text-red-500'
+    const scoreColor = avgSafetyScore >= 90 ? 'text-emerald-400' : avgSafetyScore >= 75 ? 'text-emerald-400' : avgSafetyScore >= 60 ? 'text-amber-500' : 'text-red-500'
 
     return (
         <div className="space-y-2">

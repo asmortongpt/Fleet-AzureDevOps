@@ -43,7 +43,7 @@ export function MobileVehicleCard({
     maintenance: { color: 'bg-amber-500', label: 'Maintenance', icon: AlertTriangle }, // Mapped from legacy
     service: { color: 'bg-amber-500', label: 'Service', icon: Calendar },
     inactive: { color: 'bg-gray-500', label: 'Inactive', icon: Clock },
-    idle: { color: 'bg-blue-400', label: 'Idle', icon: Clock },
+    idle: { color: 'bg-emerald-400', label: 'Idle', icon: Clock },
     charging: { color: 'bg-green-400', label: 'Charging', icon: Zap },
     emergency: { color: 'bg-red-600', label: 'Emergency', icon: AlertTriangle },
     offline: { color: 'bg-gray-400', label: 'Offline', icon: Power },
@@ -58,8 +58,8 @@ export function MobileVehicleCard({
       <div
         onClick={() => onClick?.(vehicle)}
         className={cn(
-          'flex items-center gap-3 p-3 border-b border-slate-200',
-          'active:bg-slate-50 transition-colors touch-manipulation cursor-pointer',
+          'flex items-center gap-3 p-3 border-b border-white/[0.08]',
+          'active:bg-white/[0.03] transition-colors touch-manipulation cursor-pointer',
           className
         )}
         data-testid={`vehicle-card-list-${vehicle.id}`}
@@ -121,7 +121,7 @@ export function MobileVehicleCard({
           <div className="flex items-start justify-between mb-3">
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <Truck className="h-4 w-4 text-slate-600 flex-shrink-0" />
+                <Truck className="h-4 w-4 text-white/50 flex-shrink-0" />
                 <h3 className="font-semibold text-sm truncate">{vehicle.id}</h3>
               </div>
               <p className="text-xs text-muted-foreground truncate">
@@ -157,7 +157,7 @@ export function MobileVehicleCard({
           </div>
 
           {/* Status Badge */}
-          <div className="mt-3 pt-3 border-t border-slate-100">
+          <div className="mt-3 pt-3 border-t border-white/[0.08]">
             <Badge
               variant={vehicle.status === 'active' ? 'default' : 'secondary'}
               className="w-full justify-center text-xs py-1"
@@ -185,7 +185,7 @@ export function MobileVehicleCard({
         <div className="flex items-start justify-between mb-2">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
-              <Truck className="h-5 w-5 text-slate-600 flex-shrink-0" />
+              <Truck className="h-5 w-5 text-white/50 flex-shrink-0" />
               <h3 className="font-bold text-base truncate">{vehicle.id}</h3>
             </div>
             <p className="text-sm text-muted-foreground">
@@ -260,7 +260,7 @@ export function MobileVehicleCard({
 
         {/* Quick Actions */}
         {showQuickActions && onQuickAction && (
-          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-slate-100">
+          <div className="grid grid-cols-3 gap-2 pt-3 border-t border-white/[0.08]">
             <Button
               variant="outline"
               size="sm"
@@ -308,13 +308,13 @@ export function MobileVehicleCard({
 export function MobileVehicleCardSkeleton({ variant = 'compact' }: { variant?: 'compact' | 'detailed' | 'list' }) {
   if (variant === 'list') {
     return (
-      <div className="flex items-center gap-3 p-3 border-b border-slate-200 animate-pulse">
-        <div className="w-1 h-14 bg-slate-200 rounded-full" />
+      <div className="flex items-center gap-3 p-3 border-b border-white/[0.08] animate-pulse">
+        <div className="w-1 h-14 bg-white/[0.08] rounded-full" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 bg-slate-200 rounded w-24" />
-          <div className="h-3 bg-slate-200 rounded w-32" />
+          <div className="h-4 bg-white/[0.08] rounded w-24" />
+          <div className="h-3 bg-white/[0.08] rounded w-32" />
         </div>
-        <div className="w-12 h-6 bg-slate-200 rounded" />
+        <div className="w-12 h-6 bg-white/[0.08] rounded" />
       </div>
     );
   }
@@ -324,14 +324,14 @@ export function MobileVehicleCardSkeleton({ variant = 'compact' }: { variant?: '
       <CardContent className="p-2 animate-pulse">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1 space-y-2">
-            <div className="h-4 bg-slate-200 rounded w-24" />
-            <div className="h-3 bg-slate-200 rounded w-32" />
+            <div className="h-4 bg-white/[0.08] rounded w-24" />
+            <div className="h-3 bg-white/[0.08] rounded w-32" />
           </div>
-          <div className="w-16 h-6 bg-slate-200 rounded" />
+          <div className="w-16 h-6 bg-white/[0.08] rounded" />
         </div>
         <div className="space-y-2">
-          <div className="h-3 bg-slate-200 rounded w-full" />
-          <div className="h-3 bg-slate-200 rounded w-3/4" />
+          <div className="h-3 bg-white/[0.08] rounded w-full" />
+          <div className="h-3 bg-white/[0.08] rounded w-3/4" />
         </div>
       </CardContent>
     </Card>

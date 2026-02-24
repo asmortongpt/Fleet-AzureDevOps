@@ -14,11 +14,9 @@ import { AlertCircle, Box, Plus, Upload, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { useNavigation } from '@/contexts/NavigationContext'
-import { formatVehicleName } from '@/utils/vehicle-display'
 
-import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -39,8 +37,10 @@ import {
 } from '@/components/ui/select'
 import { SmartTooltip } from '@/components/ui/smart-tooltip'
 import { Textarea } from '@/components/ui/textarea'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { secureFetch } from '@/hooks/use-api'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface DamageReportFormData {
   vehicle_id: string
@@ -459,8 +459,8 @@ export function CreateDamageReport() {
                 />
 
                 {formData.photos.length >= 3 && (
-                  <SmartTooltip content="Generate 3D model from uploaded photos using AI-powered TripoSR">
-                    <Button type="button" variant="secondary" onClick={() => toast.info('3D model generation requires vehicle scan data')}>
+                  <SmartTooltip content="3D model generation requires vehicle LiDAR scan data. Upload photos first, then request a scan from maintenance.">
+                    <Button type="button" variant="secondary" disabled>
                       <Box className="h-4 w-4 mr-2" />
                       Generate 3D Model
                     </Button>

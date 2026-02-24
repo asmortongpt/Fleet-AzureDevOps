@@ -230,7 +230,7 @@ export function InfiniteScroll({
       {hasMore && (
         <div ref={sentinelRef} className="py-2 flex items-center justify-center">
           {loader || (
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
           )}
         </div>
       )}

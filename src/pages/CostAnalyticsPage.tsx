@@ -33,16 +33,16 @@ import {
 import { useState, useMemo } from 'react'
 import { toast } from 'sonner'
 
-import { formatCurrency, formatNumber } from '@/utils/format-helpers'
-import { formatEnum } from '@/utils/format-enum'
-import { formatVehicleName } from '@/utils/vehicle-display'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import HubPage from '@/components/ui/hub-page'
 import { Section } from '@/components/ui/section'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 
 // IRS Standard Mileage Rates (Updated 2024)
@@ -100,6 +100,7 @@ export default function CostAnalyticsPage() {
   const [timeframe, setTimeframe] = useState('month')
   const [department, setDepartment] = useState('all')
   const [sortBy, setSortBy] = useState<'cost' | 'variance' | 'costPerMile'>('cost')
+  const [showAllVehicles, setShowAllVehicles] = useState(false)
 
   // Calculate cost metrics from real fleet data
   const costMetrics = useMemo<CostMetric[]>(() => {
@@ -577,7 +578,7 @@ export default function CostAnalyticsPage() {
       success: 'text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800',
       warning: 'text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800',
       danger: 'text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800',
-      info: 'text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border-blue-200 dark:border-blue-800'
+      info: 'text-emerald-700 dark:text-emerald-400 bg-emerald-500/5 dark:bg-emerald-950/40 border-emerald-500/20 dark:border-emerald-800'
     }
     return colors[variant]
   }
@@ -706,7 +707,7 @@ export default function CostAnalyticsPage() {
                   </div>
                   <div className="relative h-4 bg-muted rounded-full overflow-hidden flex">
                     <div
-                      className="h-full bg-blue-500 transition-all"
+                      className="h-full bg-emerald-500/50 transition-all"
                       style={{ width: `${partsLaborSplit.partsPercent}%` }}
                       title={`Parts: ${partsLaborSplit.partsPercent.toFixed(1)}%`}
                     />
@@ -718,7 +719,7 @@ export default function CostAnalyticsPage() {
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <div className="flex items-center gap-1">
-                      <div className="w-3 h-3 rounded-sm bg-blue-500" />
+                      <div className="w-3 h-3 rounded-sm bg-emerald-500/50" />
                       <span className="text-xs text-muted-foreground">
                         Parts ({partsLaborSplit.partsPercent.toFixed(0)}%)
                       </span>
@@ -741,17 +742,17 @@ export default function CostAnalyticsPage() {
             icon={<BarChart3 className="w-3 h-3" />}
           >
               <div className="space-y-4">
-                <div className="p-2 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="p-2 bg-emerald-500/5 dark:bg-emerald-950 rounded-lg border border-emerald-500/20 dark:border-emerald-800">
                   <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-3 h-3 text-blue-800 dark:text-blue-400 mt-0.5" />
+                    <AlertTriangle className="w-3 h-3 text-emerald-800 dark:text-emerald-400 mt-0.5" />
                     <div>
-                      <p className="font-semibold text-blue-900 dark:text-blue-100">
+                      <p className="font-semibold text-emerald-900 dark:text-emerald-100">
                         2024 IRS Standard Mileage Rate
                       </p>
-                      <p className="text-sm font-bold text-blue-800 dark:text-blue-200 mt-1">
+                      <p className="text-sm font-bold text-emerald-800 dark:text-emerald-200 mt-1">
                         ${CURRENT_IRS_RATE} per mile
                       </p>
-                      <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
+                      <p className="text-xs text-emerald-700 dark:text-emerald-300 mt-2">
                         Use this rate for tax deduction calculations and employee reimbursements
                       </p>
                     </div>
@@ -841,7 +842,7 @@ export default function CostAnalyticsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {vehicleCostData.slice(0, 10).map((vehicle) => (
+                  {(showAllVehicles ? vehicleCostData : vehicleCostData.slice(0, 10)).map((vehicle) => (
                     <tr
                       key={vehicle.vehicleId}
                       className="border-b border-border/50 hover:bg-muted/50 transition-colors"
@@ -928,8 +929,8 @@ export default function CostAnalyticsPage() {
             </div>
             {vehicleCostData.length > 10 && (
               <div className="mt-4 text-center">
-                <Button variant="outline" size="sm" onClick={() => toast.info('Navigating to full vehicle cost breakdown...')}>
-                  View All {vehicleCostData.length} Vehicles
+                <Button variant="outline" size="sm" onClick={() => setShowAllVehicles(prev => !prev)}>
+                  {showAllVehicles ? 'Show Top 10' : `View All ${vehicleCostData.length} Vehicles`}
                 </Button>
               </div>
             )}

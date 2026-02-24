@@ -116,7 +116,7 @@ export function TCOAnalysis({
 
   // Cost breakdown for pie chart
   const costBreakdown = [
-    { label: 'Maintenance', value: costAnalysis.maintenance_cost, color: 'bg-blue-500' },
+    { label: 'Maintenance', value: costAnalysis.maintenance_cost, color: 'bg-emerald-500/50' },
     { label: 'Fuel', value: costAnalysis.fuel_cost, color: 'bg-green-500' },
     { label: 'Labor', value: costAnalysis.labor_cost, color: 'bg-yellow-500' },
     { label: 'Insurance', value: costAnalysis.insurance_cost, color: 'bg-purple-500' },
@@ -226,7 +226,7 @@ export function TCOAnalysis({
                 </div>
                 <Progress
                   value={totalCost > 0 ? (costAnalysis.maintenance_cost / totalCost) * 100 : 0}
-                  className="h-2 [&>div]:bg-blue-500"
+                  className="h-2 [&>div]:bg-emerald-500/50"
                 />
 
                 <div className="flex justify-between items-center">

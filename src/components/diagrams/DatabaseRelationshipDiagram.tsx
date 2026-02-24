@@ -592,7 +592,7 @@ erDiagram
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">
+            <div className="text-sm font-bold text-emerald-800">
               {Object.values(POLICY_TABLES).reduce((sum, t) => sum + t.relationships.length, 0)}
             </div>
           </CardContent>

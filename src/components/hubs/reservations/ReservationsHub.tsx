@@ -5,10 +5,11 @@ import { Calendar, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react
 import React from 'react';
 import useSWR from 'swr';
 
-import { apiFetcher } from '@/lib/api-fetcher';
-import { useVehicles } from '@/hooks/use-api';
-
 import { ReservationSystem } from './ReservationSystem';
+
+import { useVehicles } from '@/hooks/use-api';
+import { apiFetcher } from '@/lib/api-fetcher';
+
 
 interface Reservation {
   id: string;
@@ -118,7 +119,7 @@ export const ReservationsHub: React.FC = () => {
                 {isLoading ? <Loader2 className="h-4 w-4 animate-spin inline" /> : availableVehicles}
               </p>
             </div>
-            <Calendar className="w-4 h-4 text-blue-800" />
+            <Calendar className="w-4 h-4 text-emerald-800" />
           </div>
         </div>
 

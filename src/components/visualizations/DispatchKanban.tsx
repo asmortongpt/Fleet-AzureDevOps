@@ -75,7 +75,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
       case 'medium':
         return 'border-yellow-500 bg-yellow-50';
       case 'low':
-        return 'border-blue-500 bg-blue-50';
+        return 'border-emerald-500 bg-emerald-500/5';
     }
   };
 
@@ -111,7 +111,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
   // Column configuration
   const columnConfig = [
     { id: 'pending' as const, title: 'Pending Dispatch', icon: Clock, color: 'text-amber-600' },
-    { id: 'assigned' as const, title: 'Assigned', icon: User, color: 'text-blue-600' },
+    { id: 'assigned' as const, title: 'Assigned', icon: User, color: 'text-emerald-600' },
     { id: 'in-progress' as const, title: 'In Progress', icon: Navigation, color: 'text-green-600' },
     { id: 'completed' as const, title: 'Completed', icon: CheckCircle, color: 'text-purple-600' }
   ];
@@ -150,7 +150,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
                 >
                   {/* Task header */}
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <span className="text-xs font-mono font-semibold text-slate-700">
+                    <span className="text-xs font-mono font-semibold text-white/70">
                       {task.taskNumber}
                     </span>
                     <Badge variant={getPriorityBadgeVariant(task.priority)} className="text-xs">
@@ -159,32 +159,32 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
                   </div>
 
                   {/* Task description */}
-                  <p className="text-sm text-slate-800 mb-2 line-clamp-2">
+                  <p className="text-sm text-white/80 mb-2 line-clamp-2">
                     {task.description}
                   </p>
 
                   {/* Task metadata */}
                   <div className="space-y-1">
                     {task.assignedVehicleId && (
-                      <div className="flex items-center gap-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1 text-xs text-white/50">
                         <Truck className="h-3 w-3" />
                         <span>Vehicle: {task.assignedVehicleId}</span>
                       </div>
                     )}
                     {task.assignedDriverId && (
-                      <div className="flex items-center gap-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1 text-xs text-white/50">
                         <User className="h-3 w-3" />
                         <span>Driver: {task.assignedDriverId}</span>
                       </div>
                     )}
                     {task.estimatedDuration && (
-                      <div className="flex items-center gap-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1 text-xs text-white/50">
                         <Clock className="h-3 w-3" />
                         <span>{task.estimatedDuration} min</span>
                       </div>
                     )}
                     {task.dueTime && (
-                      <div className="flex items-center gap-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1 text-xs text-white/50">
                         <AlertTriangle className="h-3 w-3" />
                         <span>Due: {formatTime(task.dueTime)}</span>
                       </div>
@@ -193,7 +193,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
 
                   {/* Real-time update indicator */}
                   {getTaskUpdate(task.id) && (
-                    <div className="mt-2 pt-2 border-t border-slate-200">
+                    <div className="mt-2 pt-2 border-t border-white/[0.08]">
                       <div className="flex items-center gap-1 text-xs text-green-600">
                         <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
                         <span>Updated {formatTime(getTaskUpdate(task.id)!.timestamp)}</span>
@@ -204,7 +204,7 @@ export function DispatchKanban({ tasks, onTaskMove, onTaskAssign }: DispatchKanb
               ))}
 
               {columnTasks.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-12 text-slate-700">
+                <div className="flex flex-col items-center justify-center py-12 text-white/70">
                   <Package className="h-12 w-12 mb-2 opacity-20" />
                   <p className="text-sm">No tasks</p>
                 </div>

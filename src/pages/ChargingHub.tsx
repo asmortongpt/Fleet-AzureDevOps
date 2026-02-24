@@ -14,11 +14,11 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Zap, Battery, MapPin, Plus, RefreshCw, Car, Clock, DollarSign, User, Truck } from 'lucide-react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { toast } from 'sonner';
 
-import { formatCurrency, formatDateTime, formatTime } from '@/utils/format-helpers';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table';
 import {
   Dialog,
   DialogContent,
@@ -28,9 +28,8 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import ErrorBoundary from '@/components/common/ErrorBoundary';
-import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table';
 import { useFleetData } from '@/hooks/use-fleet-data';
+import { formatCurrency, formatDateTime, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // =============================================================================
@@ -123,7 +122,7 @@ const stationColumns: ColumnDef<ChargingStation>[] = [
     header: 'Location',
     cell: ({ row }) => (
       <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-        <MapPin className="h-3 w-3 text-blue-400" />
+        <MapPin className="h-3 w-3 text-emerald-400" />
         {row.getValue('location_name')}
       </div>
     ),
@@ -236,7 +235,7 @@ const buildSessionColumns = (onViewDetails: (session: ChargingSession) => void):
     accessorKey: 'energy_delivered_kwh',
     header: 'Energy Delivered',
     cell: ({ row }) => (
-      <span className="font-medium text-blue-400">
+      <span className="font-medium text-emerald-400">
         {(row.getValue('energy_delivered_kwh') as number).toFixed(1)} kWh
       </span>
     ),
@@ -398,7 +397,7 @@ export default function ChargingHub() {
     return (
       <div className="flex items-center justify-center h-screen bg-background">
         <div className="text-center">
-          <Zap className="w-16 h-16 mx-auto text-blue-400 animate-pulse" />
+          <Zap className="w-16 h-16 mx-auto text-emerald-400 animate-pulse" />
           <p className="mt-4 text-sm font-medium text-foreground">Loading Charging Hub...</p>
         </div>
       </div>
@@ -424,7 +423,7 @@ export default function ChargingHub() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <Zap className="w-8 h-8 text-blue-400" />
+            <Zap className="w-8 h-8 text-emerald-400" />
             Charging Hub
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -443,7 +442,8 @@ export default function ChargingHub() {
           <Button
             size="sm"
             className="bg-primary text-primary-foreground"
-            onClick={() => toast.info('Station provisioning requires OCPP configuration. Contact your infrastructure team to register a new charger.')}
+            disabled
+            title="Station provisioning requires OCPP configuration. Contact your infrastructure team to register a new charger."
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Station
@@ -456,12 +456,12 @@ export default function ChargingHub() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
-              <Car className="h-3 w-3 text-blue-400" />
+              <Car className="h-3 w-3 text-emerald-400" />
               Fleet EV Status
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-400">{evStatus.total}</div>
+            <div className="text-2xl font-bold text-emerald-400">{evStatus.total}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {evStatus.electric} Electric / {evStatus.hybrid} Hybrid of {evStatus.fleetTotal} vehicles
             </p>
@@ -526,7 +526,7 @@ export default function ChargingHub() {
             <CardTitle className="text-xs text-muted-foreground uppercase tracking-wide">Available</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-400">
+            <div className="text-2xl font-bold text-emerald-400">
               {metrics.availableConnectors}/{metrics.totalConnectors}
             </div>
           </CardContent>
@@ -574,7 +574,7 @@ export default function ChargingHub() {
       {/* Charging Stations Table */}
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-          <MapPin className="w-5 h-5 text-blue-400" />
+          <MapPin className="w-5 h-5 text-emerald-400" />
           Charging Stations ({stations.length})
         </h2>
         <DataTable
@@ -589,7 +589,7 @@ export default function ChargingHub() {
       {/* Active Sessions Table */}
       <div className="space-y-4">
         <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-          <Battery className="w-5 h-5 text-blue-400" />
+          <Battery className="w-5 h-5 text-emerald-400" />
           Active Charging Sessions ({sessions.length})
         </h2>
         <DataTable
@@ -606,7 +606,7 @@ export default function ChargingHub() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-blue-400" />
+              <Zap className="h-4 w-4 text-emerald-400" />
               Charging Session Details
             </DialogTitle>
             <DialogDescription>
@@ -662,7 +662,7 @@ export default function ChargingHub() {
                   <div className="grid grid-cols-3 gap-3 text-center">
                     <div>
                       <p className="text-xs text-muted-foreground">Energy</p>
-                      <p className="text-lg font-bold text-blue-400">{s.energy_delivered_kwh.toFixed(1)} kWh</p>
+                      <p className="text-lg font-bold text-emerald-400">{s.energy_delivered_kwh.toFixed(1)} kWh</p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">Duration</p>
@@ -682,7 +682,7 @@ export default function ChargingHub() {
                     </div>
                     <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all"
+                        className="h-full bg-gradient-to-r from-emerald-500/50 to-emerald-500 transition-all"
                         style={{ width: `${Math.min(100, ((s.end_soc_percent || s.start_soc_percent) / s.target_soc_percent) * 100)}%` }}
                       />
                     </div>

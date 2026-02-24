@@ -10,9 +10,9 @@
  * - Persists position in localStorage
  */
 
-import { motion, useDragControls } from 'framer-motion';
-import { Bot, GripVertical } from 'lucide-react';
-import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Bot } from 'lucide-react';
+import React, { useState, useRef } from 'react';
 
 import { AIChatPanel } from './AIChatPanel';
 
@@ -155,7 +155,7 @@ export function AIAssistantButton({
           {/* White accent ring on hover */}
           <div className="absolute inset-0 rounded-full border-2 border-white/0 group-hover:border-white/40 transition-all duration-300" />
           {/* Pulse indicator */}
-          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-white border-2 border-slate-700" />
+          <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-white border-2 border-white/[0.15]" />
         </button>
       </motion.div>
 

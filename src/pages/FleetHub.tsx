@@ -24,14 +24,14 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { formatCurrency, formatCurrencyCompact, formatNumber } from '@/utils/format-helpers'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import { Progress } from '@/components/ui/progress'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import { cn } from '@/lib/utils'
+import { formatCurrency, formatCurrencyCompact, formatNumber } from '@/utils/format-helpers'
 
 interface Vehicle {
   id: number

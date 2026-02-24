@@ -1,8 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { LineChart, TrendingUp, TrendingDown, AlertTriangle, DollarSign, Gauge, Truck, Flame, Download, RefreshCw, Brain, Zap } from 'lucide-react'
 import { useMemo } from 'react'
-
-
+import { toast } from 'sonner'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -10,7 +9,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { formatTime, formatNumber } from '@/utils/format-helpers'
-import { toast } from 'sonner'
 
 interface KPIData {
   totalVehicles: number
@@ -189,11 +187,7 @@ export function ExecutiveDashboard() {
   }
 
   const handleExportPDF = () => {
-    toast.info('PDF export is generating...')
-    // Simulate generation time then confirm
-    setTimeout(() => {
-      toast.success('PDF report generated successfully')
-    }, 1500)
+    window.print()
   }
 
   const getHealthColor = (score: number) => {

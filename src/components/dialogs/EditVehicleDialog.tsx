@@ -38,8 +38,8 @@ import {
   requiresHeavyEquipmentFields,
   supportsPTOTracking,
 } from '@/types/asset.types'
-import { formatVehicleName } from '@/utils/vehicle-display'
 import logger from '@/utils/logger'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -186,7 +186,7 @@ export function EditVehicleDialog({
   const [availableAssetTypes, setAvailableAssetTypes] = useState<AssetType[]>([])
 
   // Update available asset types when category changes
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally only re-run when category changes; asset_type is read but should not trigger this effect
+   
   useEffect(() => {
     if (formData.asset_category) {
       const types = getAssetTypesForCategory(formData.asset_category as AssetCategory)

@@ -7,11 +7,11 @@ import Hls from 'hls.js'
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, Circle, Camera, AlertTriangle } from 'lucide-react'
 import { useRef, useState, useEffect, useCallback } from 'react'
 
-import logger from '@/utils/logger'
 
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { cn } from '@/lib/utils'
+import logger from '@/utils/logger'
 
 export interface VideoPlayerProps {
   /** HLS stream URL (.m3u8) or direct video URL (.mp4, .webm) */
@@ -269,8 +269,8 @@ export function VideoPlayer({
 
       {/* No Source - Demo Mode */}
       {!src && status !== 'offline' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-          <Camera className="w-12 h-9 text-slate-600" />
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#111]">
+          <Camera className="w-12 h-9 text-white/50" />
         </div>
       )}
 

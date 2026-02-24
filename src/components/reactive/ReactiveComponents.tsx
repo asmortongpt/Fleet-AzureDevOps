@@ -17,6 +17,7 @@ import {
   vehicleStatsAtom,
   fleetMetricsAtom,
 } from '../../lib/reactive-state'
+
 import { formatEnum } from '@/utils/format-enum'
 import { formatDateTime, formatNumber } from '@/utils/format-helpers'
 
@@ -81,7 +82,7 @@ export function ReactiveMetricCard({
   }, [value, animate])
 
   const colorClasses: Record<string, string> = {
-    primary: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300',
+    primary: 'bg-emerald-500/5 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300',
     success: 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300',
     warning: 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300',
     error: 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300',
@@ -91,7 +92,7 @@ export function ReactiveMetricCard({
   const trendColors: Record<string, string> = {
     up: 'text-green-600 dark:text-green-400',
     down: 'text-red-600 dark:text-red-400',
-    neutral: 'text-slate-700 dark:text-gray-700',
+    neutral: 'text-white/70 dark:text-gray-700',
   }
 
   return (
@@ -179,7 +180,7 @@ export function ReactiveDataTable<T extends Record<string, any>>({
   if (loading) {
     return (
       <div className="flex items-center justify-center p-12">
-        <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600"></div>
       </div>
     )
   }
@@ -252,7 +253,7 @@ export function RealtimeAlertsFeed() {
     success: 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800',
     warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800',
     error: 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800',
-    info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800',
+    info: 'bg-emerald-500/5 dark:bg-emerald-900/20 border-emerald-500/20 dark:border-emerald-800',
   }
 
   const alertIcons: Record<Alert['type'], string> = {

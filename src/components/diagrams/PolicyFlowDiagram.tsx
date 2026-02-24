@@ -286,7 +286,7 @@ flowchart TB
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-blue-500" />
+              <div className="w-4 h-4 rounded bg-emerald-500/50" />
               <span className="text-sm">User Actions</span>
             </div>
             <div className="flex items-center gap-2">

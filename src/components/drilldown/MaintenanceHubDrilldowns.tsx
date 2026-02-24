@@ -19,7 +19,6 @@ import {
   Clock,
   User,
   Phone,
-  Mail,
   Car,
   Package,
   DollarSign,
@@ -41,17 +40,17 @@ import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { DrilldownCard, DrilldownCardGrid } from '@/components/drilldown/DrilldownCard'
+import { EmailButton } from '@/components/email/EmailButton'
 import { ExcelStyleTable, ExcelColumn } from '@/components/shared/ExcelStyleTable'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmailButton } from '@/components/email/EmailButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
-import { formatEnum } from '@/utils/format-enum'
 import { apiFetcher } from '@/lib/api-fetcher'
+import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
 
 // ============================================

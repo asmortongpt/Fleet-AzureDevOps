@@ -12,7 +12,6 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
-import { useNavigation } from '@/contexts/NavigationContext';
 
 
 import { OperationsHubMap } from './OperationsHubMap';
@@ -30,11 +29,12 @@ import { OperationalMetrics, CircularGauge } from '@/components/visualizations/O
 import { RouteTimeline } from '@/components/visualizations/RouteTimeline';
 import { VehicleStatusGrid } from '@/components/visualizations/VehicleStatusGrid';
 import { useDrilldown } from '@/contexts/DrilldownContext';
-import { formatEnum } from '@/utils/format-enum';
-import { formatTime } from '@/utils/format-helpers';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
 import type { Vehicle as CanonicalVehicle } from '@/types/Vehicle';
+import { formatEnum } from '@/utils/format-enum';
+import { formatTime } from '@/utils/format-helpers';
 
 /**
  * Enhanced Operations Hub

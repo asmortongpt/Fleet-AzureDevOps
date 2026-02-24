@@ -45,10 +45,10 @@ export const StandardButton: React.FC<StandardButtonProps> = ({
   // Variant classes with hover/active/focus states
   const variantClasses = {
     primary: `
-      bg-blue-600 text-white
-      hover:bg-blue-700 hover:shadow-md
-      active:bg-blue-800 active:scale-98
-      focus:ring-blue-500
+      bg-emerald-600 text-white
+      hover:bg-emerald-700 hover:shadow-md
+      active:bg-emerald-800 active:scale-98
+      focus:ring-emerald-500
       disabled:bg-gray-300 disabled:text-gray-700 disabled:cursor-not-allowed disabled:hover:shadow-none
     `,
     secondary: `

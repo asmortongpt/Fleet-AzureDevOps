@@ -3,8 +3,8 @@
  * the live 3D model (left) with an IMAGIN.studio reference photo (right).
  */
 
-import { useState, useCallback, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useState, useCallback, useRef } from 'react';
 
 interface ComparisonSplitViewProps {
   referenceImageUrl: string;

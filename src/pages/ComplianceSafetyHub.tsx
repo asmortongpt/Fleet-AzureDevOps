@@ -42,8 +42,6 @@ import { useState, memo, useMemo } from 'react'
 import toast from 'react-hot-toast'
 import useSWR from 'swr'
 
-import { apiFetcher } from '@/lib/api-fetcher'
-import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -56,8 +54,10 @@ import {
   ResponsiveBarChart,
   ResponsiveLineChart,
 } from '@/components/visualizations'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { getCsrfToken } from '@/hooks/use-api'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
@@ -278,7 +278,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     const renewalType = parts[1] || 'Renewal'
     const targetDate = new Date()
     targetDate.setDate(targetDate.getDate() + Math.max(0, (daysLeft ?? 14) - 7))
-    const formattedDate = targetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    const formattedDate = formatDate(targetDate)
     toast.success(`${renewalType} renewal scheduled for ${entityName} — target date: ${formattedDate}`)
     push({
       id: `renewal-${itemName}`,

@@ -23,13 +23,13 @@ import {
   FileText,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { useAuth } from '@/hooks/useAuth';
 import { brandColors } from '@/theme/designSystem'
-import { formatCurrency, formatDate } from '@/utils/format-helpers';
-import { formatVehicleName } from '@/utils/vehicle-display';
+import { formatCurrency, formatDate, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
-import { toast } from 'sonner';
+import { formatVehicleName } from '@/utils/vehicle-display';
 interface Assignment {
   id: string;
   vehicle_id: string;
@@ -329,9 +329,9 @@ const MobileEmployeeDashboard: React.FC = () => {
                     {isActive ? '🔴 Active Now' : 'Upcoming'}
                   </h3>
                   <p className="text-sm  mt-1" style={{ color: brandColors.archon.mediumGray }}>
-                    {formatDate(startDate)} {startDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {formatDate(startDate)} {formatTime(startDate)}
                     <br />
-                    to {formatDate(endDate)} {endDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    to {formatDate(endDate)} {formatTime(endDate)}
                   </p>
                 </div>
                 {!period.acknowledged_by_driver ? (

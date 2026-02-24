@@ -14,6 +14,7 @@
 import { Html, Sphere } from '@react-three/drei'
 import { useState, useRef } from 'react'
 import * as THREE from 'three'
+
 import { formatCurrency } from '@/utils/format-helpers'
 
 // =============================================================================

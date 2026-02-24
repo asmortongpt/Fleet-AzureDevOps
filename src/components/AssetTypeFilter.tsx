@@ -103,7 +103,7 @@ const powerTypes: { value: PowerType; label: string }[] = [
 
 const operationalStatuses: { value: OperationalStatus; label: string; color: string }[] = [
   { value: 'AVAILABLE', label: 'Available', color: 'text-green-600' },
-  { value: 'IN_USE', label: 'In Use', color: 'text-blue-800' },
+  { value: 'IN_USE', label: 'In Use', color: 'text-emerald-800' },
   { value: 'MAINTENANCE', label: 'Maintenance', color: 'text-orange-600' },
   { value: 'RESERVED', label: 'Reserved', color: 'text-purple-600' }
 ]
@@ -160,10 +160,10 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
       {/* Filter Header */}
       <div className="flex items-center justify-between p-2 border-b border-gray-200">
         <div className="flex items-center gap-2">
-          <Filter className="w-3 h-3 text-slate-700" />
+          <Filter className="w-3 h-3 text-white/70" />
           <h3 className="font-semibold text-gray-900">Asset Filters</h3>
           {activeFilterCount > 0 && (
-            <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+            <span className="px-2 py-0.5 text-xs font-medium bg-emerald-500/10 text-emerald-700 rounded-full">
               {activeFilterCount} active
             </span>
           )}
@@ -172,14 +172,14 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
           {activeFilterCount > 0 && (
             <button
               onClick={handleClearAll}
-              className="text-sm text-slate-700 hover:text-gray-900 transition-colors"
+              className="text-sm text-white/70 hover:text-gray-900 transition-colors"
             >
               Clear all
             </button>
           )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-gray-700 hover:text-slate-700 transition-colors"
+            className="text-gray-700 hover:text-white/70 transition-colors"
           >
             {isExpanded ? <X className="w-3 h-3" /> : <Filter className="w-3 h-3" />}
           </button>
@@ -240,7 +240,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
             <select
               value={filters.asset_category || ''}
               onChange={(e) => handleFilterChange('asset_category', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="">All Categories</option>
               {assetCategories.map(cat => (
@@ -261,7 +261,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
               <select
                 value={filters.asset_type || ''}
                 onChange={(e) => handleFilterChange('asset_type', e.target.value || undefined)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="">All Types</option>
                 {availableAssetTypes.map(type => (
@@ -282,7 +282,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
             <select
               value={filters.power_type || ''}
               onChange={(e) => handleFilterChange('power_type', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="">All Power Types</option>
               {powerTypes.map(type => (
@@ -302,7 +302,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
             <select
               value={filters.operational_status || ''}
               onChange={(e) => handleFilterChange('operational_status', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="">All Statuses</option>
               {operationalStatuses.map(status => (
@@ -322,7 +322,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
             <select
               value={filters.primary_metric || ''}
               onChange={(e) => handleFilterChange('primary_metric', e.target.value || undefined)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
             >
               <option value="">All Metrics</option>
               {primaryMetrics.map(metric => (
@@ -340,7 +340,7 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
                 type="checkbox"
                 checked={filters.is_road_legal === true}
                 onChange={(e) => handleFilterChange('is_road_legal', e.target.checked ? true : undefined)}
-                className="w-4 h-4 text-blue-800 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-emerald-800 border-gray-300 rounded focus:ring-emerald-500"
               />
               <span className="text-sm font-medium text-gray-700">
                 Road Legal Only
@@ -355,11 +355,12 @@ export const AssetTypeFilter: React.FC<AssetTypeFilterProps> = ({
 
 // Filter Pill Component
 const FilterPill: React.FC<{ label: string; onRemove: () => void }> = ({ label, onRemove }) => (
-  <div className="flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+  <div className="flex items-center gap-1 px-3 py-1 bg-emerald-500/10 text-emerald-700 rounded-full text-sm">
     <span>{label}</span>
     <button
       onClick={onRemove}
-      className="ml-1 hover:bg-blue-200 rounded-full p-0.5 transition-colors"
+      className="ml-1 hover:bg-emerald-500/20 rounded-full p-0.5 transition-colors"
+      aria-label={`Remove ${label} filter`}
     >
       <X className="w-3 h-3" />
     </button>

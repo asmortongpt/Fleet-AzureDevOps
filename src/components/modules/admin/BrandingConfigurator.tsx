@@ -182,7 +182,7 @@ export function BrandingConfigurator() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-sm font-bold text-white">Document Branding Configuration</h2>
-          <p className="text-slate-700 mt-1" style={{ color: brandColors.archon.mediumGray }}>Customize the appearance of exported policy and SOP documents</p>
+          <p className="text-white/70 mt-1" style={{ color: brandColors.archon.mediumGray }}>Customize the appearance of exported policy and SOP documents</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handlePreview}>
@@ -372,7 +372,7 @@ export function BrandingConfigurator() {
                     <img
                       src={config.logo.base64}
                       alt="Logo preview"
-                      className="max-w-xs border border-slate-700 rounded p-2 bg-white"
+                      className="max-w-xs border border-white/[0.15] rounded p-2 bg-white"
                     />
                   </div>
                 )}

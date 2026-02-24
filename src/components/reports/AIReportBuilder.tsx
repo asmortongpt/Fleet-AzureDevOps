@@ -1,4 +1,4 @@
-import { ArrowLeft, Sparkles, Send, Code, Eye, Save, X } from 'lucide-react';
+import { ArrowLeft, Sparkles, Send, Code, Eye, Save } from 'lucide-react';
 import React, { useState, useCallback } from 'react';
 import { toast } from 'sonner';
 

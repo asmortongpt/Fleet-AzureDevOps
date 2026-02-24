@@ -2,11 +2,11 @@ import { MapPin, Navigation, Clock } from "lucide-react"
 import { useMemo } from "react"
 import useSWR from "swr"
 
-import { apiFetcher } from "@/lib/api-fetcher"
 import { GoogleMapView } from "@/components/Maps/GoogleMapView"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
+import { apiFetcher } from "@/lib/api-fetcher"
 import type { Vehicle } from "@/types/Vehicle"
 import { formatEnum } from "@/utils/format-enum"
 

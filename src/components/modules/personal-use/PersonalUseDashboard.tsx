@@ -238,7 +238,7 @@ export const PersonalUseDashboard: React.FC<PersonalUseDashboardProps> = ({
   const getUsageTypeBadge = (type: string) => {
     const colors: Record<string, string> = {
       business: 'bg-green-500/10 text-green-700 dark:text-green-400',
-      personal: 'bg-blue-500/10 text-blue-700 dark:text-blue-700',
+      personal: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-700',
       mixed: 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400'
     }
 

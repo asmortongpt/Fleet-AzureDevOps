@@ -74,8 +74,8 @@ import {
   ViolationFilter,
   ViolationComment,
 } from '@/lib/types';
-import logger from '@/utils/logger';
 import { brandColors } from '@/theme/designSystem'
+import logger from '@/utils/logger';
 
 
 // Color schemes

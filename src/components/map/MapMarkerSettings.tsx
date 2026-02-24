@@ -1,5 +1,6 @@
-import { memo, useState } from 'react';
 import { Settings2, X } from 'lucide-react';
+import { memo, useState } from 'react';
+
 import { useMapMarkerSettings } from '@/stores/useMapMarkerSettings';
 import type { MarkerStyle, MarkerSize } from '@/stores/useMapMarkerSettings';
 import { getMarkerPreviewSvg, STATUS_COLORS } from '@/utils/vehicle-map-icons';

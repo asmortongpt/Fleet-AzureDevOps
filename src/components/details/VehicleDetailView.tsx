@@ -9,7 +9,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { secureFetch } from '@/hooks/use-api';
@@ -209,7 +208,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
       case 'owned':
         return <Badge className="bg-emerald-600 text-white">{formatEnum(type)}</Badge>;
       case 'leased':
-        return <Badge className="bg-blue-600 text-white">{formatEnum(type)}</Badge>;
+        return <Badge className="bg-emerald-600 text-white">{formatEnum(type)}</Badge>;
       case 'rented':
         return <Badge className="bg-amber-600 text-white">{formatEnum(type)}</Badge>;
       default:
@@ -226,7 +225,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
         return <Badge className="bg-emerald-500 text-white">{formatEnum(status)}</Badge>;
       case 'in_use':
       case 'in use':
-        return <Badge className="bg-blue-500 text-white">{formatEnum(status)}</Badge>;
+        return <Badge className="bg-emerald-500/50 text-white">{formatEnum(status)}</Badge>;
       case 'maintenance':
         return <Badge className="bg-amber-500 text-white">{formatEnum(status)}</Badge>;
       case 'reserved':
@@ -295,7 +294,7 @@ export function VehicleDetailView({ vehicle, onClose }: VehicleDetailViewProps) 
         return <Badge variant="outline"><Calendar className="w-3 h-3 mr-1" />Upcoming</Badge>;
       case 'in_progress':
       case 'in progress':
-        return <Badge className="bg-blue-500 text-white"><Activity className="w-3 h-3 mr-1" />In Progress</Badge>;
+        return <Badge className="bg-emerald-500/50 text-white"><Activity className="w-3 h-3 mr-1" />In Progress</Badge>;
       case 'pending':
         return <Badge className="bg-amber-500 text-white"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
       case 'cancelled':

@@ -39,13 +39,13 @@ import {
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { formatEnum } from '@/utils/format-enum'
-import { formatDate } from '@/utils/format-helpers'
 import {
   useIncidentMutations,
   type Incident,
   type CreateInvestigationInput,
 } from '@/hooks/use-reactive-incident-data'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDate } from '@/utils/format-helpers'
 
 
 // ============================================================================
@@ -587,7 +587,7 @@ export function InvestigationDialog({
                     className="flex items-center justify-between rounded bg-muted p-2 text-sm"
                   >
                     <div className="flex items-center gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-blue-500" />
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                       <span>{measure}</span>
                     </div>
                     <Button

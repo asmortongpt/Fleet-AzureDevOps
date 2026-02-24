@@ -3,11 +3,11 @@ import { useState } from "react"
 
 import { StatusBadge } from "@/components/shared"
 import { Badge } from "@/components/ui/badge"
-import { formatNumber } from "@/utils/format-helpers"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Vehicle } from "@/lib/types"
+import { formatNumber } from "@/utils/format-helpers"
 import { formatVehicleName } from "@/utils/vehicle-display"
 
 interface ActiveFilter {

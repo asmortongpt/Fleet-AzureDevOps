@@ -6,13 +6,13 @@
 import { Users, Calendar } from 'lucide-react'
 import useSWR from 'swr'
 
-import { formatCurrency, formatDate } from '@/utils/format-helpers'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { formatCurrency, formatDate } from '@/utils/format-helpers'
 
 interface LaborDetailsViewProps {
   workOrderId: string

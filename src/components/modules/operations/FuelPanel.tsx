@@ -16,7 +16,6 @@ import {
 } from "../../ui/sheet";
 
 import { useFleetData } from "@/hooks/use-fleet-data";
-import { brandColors } from "@/theme/designSystem"
 import { formatCurrency, formatNumber } from "@/utils/format-helpers"
 
 interface FuelPanelProps {
@@ -140,11 +139,11 @@ export const FuelPanel: React.FC<FuelPanelProps> = ({ open, onOpenChange }) => {
 
                     {/* Efficiency Tip */}
                     <div className="p-2">
-                        <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-                            <h4 className="font-semibold text-blue-800 text-sm mb-1 flex items-center gap-2">
+                        <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-lg p-3">
+                            <h4 className="font-semibold text-emerald-800 text-sm mb-1 flex items-center gap-2">
                                 <TrendingUp className="w-4 h-4" /> Optimization Insight
                             </h4>
-                            <p className="text-xs text-blue-800">
+                            <p className="text-xs text-emerald-800">
                                 Average fuel price at "Shell Station 42" is $0.15 higher than regional average. Consider redirecting units to "Chevron West".
                             </p>
                         </div>

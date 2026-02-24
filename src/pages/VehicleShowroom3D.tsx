@@ -48,22 +48,19 @@ import {
 } from 'lucide-react';
 import { lazy, Suspense, useState, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { toast } from 'sonner';
 import useSWR from 'swr';
 
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-
 import { AIModelGenerationPanel } from '@/components/garage/AIModelGenerationPanel';
 import { ComparisonSplitView } from '@/components/garage/ComparisonSplitView';
-import { DamageStrip, type DamagePin, type DamageZone } from '@/components/garage/DamageStrip';
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
+import { DamageStrip, type DamagePin, type DamageZone } from '@/components/garage/DamageStrip';
 import { FleetGalleryGrid } from '@/components/garage/FleetGalleryGrid';
 import { ReferencePhotoCard } from '@/components/garage/ReferencePhotoCard';
-import { VehicleScanUpload } from '@/components/garage/VehicleScanUpload';
 import { TimelineDrawer, type TimelineEvent } from '@/components/garage/TimelineDrawer';
 import { VehicleHUD, type VehicleStats } from '@/components/garage/VehicleHUD';
-import { buildImaginUrl, hexToPaintId, type ImaginAngleId } from '@/utils/imagin-studio';
-import { resolveLocalModelUrl, type ModelResolution } from '@/utils/model-resolution';
+import { VehicleScanUpload } from '@/components/garage/VehicleScanUpload';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -74,8 +71,10 @@ import { useTenant } from '@/contexts/TenantContext';
 import { useVehicles } from '@/hooks/use-api';
 import { apiFetcher } from '@/lib/api-fetcher';
 import { cn } from '@/lib/utils';
-import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers';
 import { formatEnum } from '@/utils/format-enum';
+import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers';
+import { buildImaginUrl, hexToPaintId } from '@/utils/imagin-studio';
+import { resolveLocalModelUrl } from '@/utils/model-resolution';
 import { formatVehicleName } from '@/utils/vehicle-display';
 
 const Asset3DViewer = lazy(() => import('@/components/garage/Asset3DViewer'));
@@ -228,7 +227,7 @@ function PhotoUploadModal({
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.08]">
           <h3 className="text-sm font-semibold text-white">Vehicle Photos & Wraps</h3>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose}>
+          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onClose} aria-label="Close gallery">
             <X className="w-4 h-4 text-white/60" />
           </Button>
         </div>
@@ -1054,6 +1053,7 @@ export default function VehicleShowroom3D() {
           size="icon"
           className="h-8 w-8 text-white/60 hover:text-white"
           onClick={() => navigateTo('virtual-garage')}
+          aria-label="Go back to virtual garage"
         >
           <ChevronLeft className="w-5 h-5" />
         </Button>
@@ -1107,6 +1107,7 @@ export default function VehicleShowroom3D() {
           className={cn('h-8 w-8', showGallery ? 'text-emerald-400' : 'text-white/40 hover:text-white/60')}
           onClick={() => setShowGallery(!showGallery)}
           title="Fleet Gallery (G)"
+          aria-label="Toggle fleet gallery"
         >
           <LayoutGrid className="w-4 h-4" />
         </Button>
@@ -1118,6 +1119,7 @@ export default function VehicleShowroom3D() {
           className={cn('h-8 w-8', showScanUpload ? 'text-emerald-400' : 'text-white/40 hover:text-white/60')}
           onClick={() => setShowScanUpload(!showScanUpload)}
           title="Vehicle Scanner (S)"
+          aria-label="Toggle vehicle scanner"
         >
           <Camera className="w-4 h-4" />
         </Button>
@@ -1162,6 +1164,7 @@ export default function VehicleShowroom3D() {
             )}
             onClick={() => setAutoRotate(!autoRotate)}
             title={autoRotate ? 'Stop rotation' : 'Auto rotate'}
+            aria-label={autoRotate ? 'Stop auto-rotation' : 'Start auto-rotation'}
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M21 12a9 9 0 11-6.219-8.56" />
@@ -1183,7 +1186,7 @@ export default function VehicleShowroom3D() {
         </div>
 
         {/* More menu placeholder */}
-        <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white/60">
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-white/40 hover:text-white/60" aria-label="More options">
           <MoreHorizontal className="w-4 h-4" />
         </Button>
       </div>
@@ -1367,6 +1370,7 @@ export default function VehicleShowroom3D() {
             size="icon"
             className="h-6 w-6 text-white/40"
             onClick={() => setIsDataPanelOpen(false)}
+            aria-label="Close vehicle data panel"
           >
             <X className="w-3.5 h-3.5" />
           </Button>

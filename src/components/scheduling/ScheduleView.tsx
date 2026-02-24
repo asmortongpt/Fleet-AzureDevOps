@@ -4,13 +4,12 @@
  */
 
 import { format, isWithinInterval, isSameDay } from 'date-fns'
-import { Calendar, CheckCircle, Clock, Mail, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
+import { Calendar, CheckCircle, Clock, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
-import { formatVehicleShortName } from '@/utils/vehicle-display'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmailButton } from '@/components/email/EmailButton'
 import {
   Card,
   CardContent,
@@ -27,6 +26,7 @@ import { Vehicle, Driver, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
 import logger from '@/utils/logger'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 interface ScheduleViewProps {
   reservations?: VehicleReservation[]
@@ -53,7 +53,7 @@ const STATUS_COLORS = {
   pending: 'bg-yellow-100 text-yellow-800 border-yellow-300',
   confirmed: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
   active: 'bg-green-100 text-green-800 border-green-300',
-  completed: 'bg-gray-100 text-slate-700 border-gray-300',
+  completed: 'bg-gray-100 text-white/70 border-gray-300',
   cancelled: 'bg-red-100 text-red-800 border-red-300',
   // Maintenance
   scheduled: 'bg-purple-100 text-purple-800 border-purple-300',

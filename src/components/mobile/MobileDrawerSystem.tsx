@@ -113,7 +113,7 @@ export function MobileDrawerSystem({
             onTouchEnd={handleTouchEnd}
             data-testid="drawer-handle"
           >
-            <div className="w-12 h-1.5 bg-slate-300 rounded-full" />
+            <div className="w-12 h-1.5 bg-white/[0.1] rounded-full" />
           </div>
         )}
 
@@ -146,7 +146,7 @@ export function MobileDrawerSystem({
               key={point}
               className={cn(
                 'w-1.5 h-1.5 rounded-full transition-all',
-                snapPoint === point ? 'bg-blue-500' : 'bg-slate-300'
+                snapPoint === point ? 'bg-emerald-500/50' : 'bg-white/[0.1]'
               )}
               onClick={() => handleSnapPointChange(point)}
               aria-label={`Snap to ${point}`}
@@ -185,7 +185,7 @@ export function SimpleMobileDrawer({
       >
         {/* Handle */}
         <div className="flex items-center justify-center py-3">
-          <GripHorizontal className="h-5 w-5 text-slate-300" />
+          <GripHorizontal className="h-5 w-5 text-white/60" />
         </div>
 
         {title && (

@@ -5,7 +5,6 @@
  * and approve/reject/cancel actions. Self-contained data fetching via fetch + useEffect.
  */
 
-import { useState, useMemo, useEffect, useCallback } from 'react'
 import {
   Calendar,
   ChevronLeft,
@@ -16,19 +15,19 @@ import {
   Car,
   CheckCircle,
   XCircle,
-  Mail,
 } from 'lucide-react'
-import { getCsrfToken } from '@/hooks/use-api'
+import { useState, useMemo, useEffect, useCallback } from 'react'
 import { toast } from 'sonner'
-import { cn } from '@/lib/utils'
-import { formatEnum } from '@/utils/format-enum'
-import { formatDate, formatDateTime, formatNumber, formatTime as formatTimeHelper } from '@/utils/format-helpers'
-import { formatVehicleName } from '@/utils/vehicle-display'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+
 import { EmailButton } from '@/components/email/EmailButton'
 import { VehicleReservationModal } from '@/components/scheduling/VehicleReservationModal'
+import { Button } from '@/components/ui/button'
+import { getCsrfToken } from '@/hooks/use-api'
+import { cn } from '@/lib/utils'
 import type { CreateReservationRequest } from '@/types/scheduling'
+import { formatEnum } from '@/utils/format-enum'
+import { formatDateTime, formatNumber, formatTime as formatTimeHelper } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 // ============================================================================
 // Types
@@ -464,6 +463,7 @@ export function ReservationCalendarView() {
             type="button"
             onClick={goToPreviousWeek}
             className="p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
+            aria-label="Previous week"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -474,6 +474,7 @@ export function ReservationCalendarView() {
             type="button"
             onClick={goToNextWeek}
             className="p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
+            aria-label="Next week"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

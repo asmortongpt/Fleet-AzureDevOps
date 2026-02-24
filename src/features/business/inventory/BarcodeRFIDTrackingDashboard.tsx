@@ -66,6 +66,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
+import { toast } from 'sonner';
 
 import {
   barcodeRFIDTrackingService,
@@ -74,7 +75,6 @@ import {
   InventoryAudit
 } from '../../services/inventory/BarcodeRFIDTrackingService';
 
-import { toast } from 'sonner';
 
 import { useAuth } from '@/contexts';
 import { secureFetch } from '@/hooks/use-api';

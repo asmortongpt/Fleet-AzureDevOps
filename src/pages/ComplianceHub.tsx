@@ -27,12 +27,13 @@ import {
 import { useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
-import { formatVehicleName } from '@/utils/vehicle-display'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn } from '@/components/ui/data-table'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { useFleetData } from '@/hooks/use-fleet-data'
+import { useExport } from '@/hooks/useExport'
 import { cn } from '@/lib/utils'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 interface ComplianceRecord {
   id: number
@@ -52,6 +53,7 @@ interface ComplianceRecord {
 export default function ComplianceHub() {
   const [selectedRecords, setSelectedRecords] = useState<ComplianceRecord[]>([])
   const fleetData = useFleetData()
+  const { exportToCSV } = useExport()
 
   const complianceRecords = useMemo<ComplianceRecord[]>(() => {
     const vehiclesById = new Map(fleetData.vehicles.map((v: any) => [v.id, v]))
@@ -342,7 +344,17 @@ export default function ComplianceHub() {
             <Button
               variant="outline"
               className="bg-card border-primary/20 text-foreground hover:bg-primary/10"
-              onClick={() => toast.info('Exporting compliance records...')}
+              onClick={() => exportToCSV(complianceRecords.map(r => ({
+                recordType: r.recordType,
+                vehicle: r.vehicle,
+                driver: r.driver,
+                date: r.date,
+                status: r.status,
+                category: r.category,
+                severity: r.severity || '-',
+                dueDate: r.dueDate || '-',
+                notes: r.notes || '-',
+              })), 'compliance-records')}
             >
               Export Records
             </Button>

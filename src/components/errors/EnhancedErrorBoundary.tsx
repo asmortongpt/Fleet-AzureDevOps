@@ -11,10 +11,11 @@
  * Meets FAANG-level quality standards
  */
 
-import { AlertTriangle, RotateCw, Home, Mail } from 'lucide-react'
+import { AlertTriangle, RotateCw, Home } from 'lucide-react'
 // motion removed - React 19 incompatible
 import React, { Component, ErrorInfo, ReactNode } from 'react'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
@@ -256,7 +257,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
       <div
         className={`
           ${level === 'page' ? 'min-h-screen' : level === 'section' ? 'min-h-[400px]' : 'min-h-[200px]'}
-          flex items-center justify-center p-2 bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800
+          flex items-center justify-center p-2 bg-gradient-to-b from-[#888] to-[#777] dark:from-[#111] dark:to-[#1a1a1a]
         `}
       >
         <Card className="w-full max-w-2xl shadow-sm border-red-200 dark:border-red-800">
@@ -269,7 +270,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
               </div>
             </div>
 
-            <CardTitle className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            <CardTitle className="text-sm font-bold text-white/90 dark:text-white/80">
               {errorType === 'network' && 'Connection Problem'}
               {errorType === 'loading' && 'Loading Error'}
               {errorType === 'permission' && 'Access Denied'}
@@ -288,7 +289,7 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
           <CardContent className="space-y-2">
             {retryCount > 0 && (
-              <Alert className="bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:border-blue-800">
+              <Alert className="bg-emerald-500/5 border-emerald-500/20 dark:bg-emerald-900/30 dark:border-emerald-800">
                 <AlertTitle className="text-sm font-medium">Auto-retry in progress</AlertTitle>
                 <AlertDescription className="text-sm">
                   Attempt {retryCount} of 3. The system is automatically trying to recover...
@@ -298,29 +299,29 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
 
             {showDetails && error && (
               <details className="mt-2">
-                <summary className="cursor-pointer text-sm font-medium text-slate-600 dark:text-slate-700 hover:text-slate-900 dark:hover:text-slate-100">
+                <summary className="cursor-pointer text-sm font-medium text-white/50 dark:text-white/70 hover:text-white/90 dark:hover:text-white/80">
                   Technical Details
                 </summary>
-                <div className="mt-2 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                <div className="mt-2 p-3 bg-white/[0.05] dark:bg-[#1a1a1a] rounded-lg">
                   <div className="space-y-2 text-xs font-mono">
                     <div>
-                      <span className="text-slate-500">Error ID:</span>{' '}
-                      <span className="text-slate-700 dark:text-slate-300">{errorId}</span>
+                      <span className="text-white/40">Error ID:</span>{' '}
+                      <span className="text-white/70 dark:text-white/60">{errorId}</span>
                     </div>
                     <div>
-                      <span className="text-slate-500">Timestamp:</span>{' '}
-                      <span className="text-slate-700 dark:text-slate-300">
+                      <span className="text-white/40">Timestamp:</span>{' '}
+                      <span className="text-white/70 dark:text-white/60">
                         {errorTimestamp.toISOString()}
                       </span>
                     </div>
                     <div>
-                      <span className="text-slate-500">Message:</span>{' '}
+                      <span className="text-white/40">Message:</span>{' '}
                       <span className="text-red-600 dark:text-red-400">{error.message}</span>
                     </div>
                     {error.stack && (
                       <div className="mt-2">
-                        <span className="text-slate-500">Stack Trace:</span>
-                        <pre className="mt-1 text-[10px] text-slate-600 dark:text-slate-700 overflow-auto max-h-32">
+                        <span className="text-white/40">Stack Trace:</span>
+                        <pre className="mt-1 text-[10px] text-white/50 dark:text-white/70 overflow-auto max-h-32">
                           {error.stack}
                         </pre>
                       </div>
@@ -331,10 +332,10 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
             )}
 
             <div className="pt-2">
-              <h3 className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+              <h3 className="text-sm font-medium text-white/70 dark:text-white/60 mb-2">
                 What you can try:
               </h3>
-              <ul className="space-y-1 text-sm text-slate-600 dark:text-slate-700">
+              <ul className="space-y-1 text-sm text-white/50 dark:text-white/70">
                 {errorType === 'network' && (
                   <>
                     <li>• Check your internet connection</li>
@@ -387,20 +388,20 @@ export class EnhancedErrorBoundary extends Component<Props, State> {
             </Button>
 
             {level === 'page' && (
-              <Button
-                onClick={() => window.location.href = 'mailto:support@fleet.gov'}
-                className="gap-2"
+              <EmailButton
+                to="support@fleet.gov"
+                context={{ type: 'general', recipientName: 'Support Team', details: `Application error report${errorId ? ` (Reference: ${errorId})` : ''}` }}
+                label="Contact Support"
                 variant="outline"
-              >
-                <Mail className="w-4 h-4" />
-                Contact Support
-              </Button>
+                size="default"
+                className="gap-2"
+              />
             )}
           </CardFooter>
 
           {errorId && (
             <div className="px-3 pb-2">
-              <p className="text-xs text-center text-slate-500 dark:text-slate-700">
+              <p className="text-xs text-center text-white/40 dark:text-white/70">
                 Reference this ID when contacting support: <code className="font-mono">{errorId}</code>
               </p>
             </div>

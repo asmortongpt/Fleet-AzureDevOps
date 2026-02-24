@@ -4,9 +4,8 @@ import { Car, DollarSign, Receipt, Calendar, AlertTriangle, TrendingUp, Check, C
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 
-import { formatVehicleShortName } from '@/utils/vehicle-display'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { TripMarker } from '@/components/PersonalUse/TripMarker'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { formatCurrency } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 interface DashboardData {
   driver_id: string

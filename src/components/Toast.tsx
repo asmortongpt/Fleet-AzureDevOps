@@ -23,14 +23,14 @@ export const Toast: React.FC<ToastProps> = ({
   const bgColors = {
     success: 'bg-green-50 border-green-200',
     error: 'bg-red-50 border-red-200',
-    info: 'bg-blue-50 border-blue-200',
+    info: 'bg-emerald-500/5 border-emerald-500/20',
     warning: 'bg-yellow-50 border-yellow-200'
   };
 
   const textColors = {
     success: 'text-green-800',
     error: 'text-red-800',
-    info: 'text-blue-800',
+    info: 'text-emerald-800',
     warning: 'text-yellow-800'
   };
 

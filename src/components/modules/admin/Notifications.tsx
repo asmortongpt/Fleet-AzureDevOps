@@ -37,7 +37,6 @@ import {
 import { Textarea } from '@/components/ui/textarea'
 import { apiClient } from '@/lib/api-client'
 import { useInspect } from '@/services/inspect/InspectContext'
-import { brandColors } from '@/theme/designSystem'
 import { formatDateTime } from '@/utils/format-helpers'
 import logger from '@/utils/logger'
 
@@ -165,7 +164,7 @@ export function Notifications() {
         return 'text-yellow-600 bg-yellow-100 dark:bg-yellow-900/20'
       case 'info':
       default:
-        return 'text-blue-800 bg-blue-100 dark:bg-blue-900/20'
+        return 'text-emerald-800 bg-emerald-500/10 dark:bg-emerald-900/20'
     }
   }
 
@@ -174,12 +173,12 @@ export function Notifications() {
       case 'resolved':
         return 'text-green-600 bg-green-100'
       case 'acknowledged':
-        return 'text-blue-800 bg-blue-100'
+        return 'text-emerald-800 bg-emerald-500/10'
       case 'sent':
         return 'text-purple-600 bg-purple-100'
       case 'pending':
       default:
-        return 'text-slate-700 bg-gray-100'
+        return 'text-white/70 bg-gray-100'
     }
   }
 
@@ -223,7 +222,7 @@ export function Notifications() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-blue-800" />
+              <Bell className="w-4 h-4 text-emerald-800" />
               <div className="text-base font-bold">
                 {stats?.by_status.find(s => s.status === 'sent')?.count || 0}
               </div>

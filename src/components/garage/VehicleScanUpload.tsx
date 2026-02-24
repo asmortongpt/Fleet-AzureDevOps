@@ -12,7 +12,6 @@
  * - AI assessment integration
  */
 
-import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Upload,
   Camera,
@@ -24,20 +23,21 @@ import {
   Video,
   FileWarning,
   RefreshCw,
-  ArrowLeftRight,
   Wrench,
   Box,
   Sparkles,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/utils/format-helpers';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { GuidedScanFlow } from './GuidedScanFlow';
 import { mapScanDamageTo3D } from './scan-to-3d-mapper';
+
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
+import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/utils/format-helpers';
 
 // ============================================================================
 // Types
@@ -533,6 +533,7 @@ export function VehicleScanUpload({
           <button
             onClick={onClose}
             className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Close scanner"
           >
             <X className="w-4 h-4" />
           </button>

@@ -23,7 +23,6 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-import { useNavigation } from '@/contexts/NavigationContext'
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -48,6 +47,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/contexts"
+import { useNavigation } from '@/contexts/NavigationContext'
 import { secureFetch } from "@/hooks/use-api"
 import { useFleetData } from "@/hooks/use-fleet-data"
 import { formatEnum } from "@/utils/format-enum"

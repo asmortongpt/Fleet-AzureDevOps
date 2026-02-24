@@ -46,7 +46,6 @@ import {
 import { getCsrfToken } from "@/hooks/use-api"
 import { apiFetcher } from "@/lib/api-fetcher"
 import { formatDate, formatTime } from "@/utils/format-helpers"
-import { brandColors } from "@/theme/designSystem"
 
 
 interface VideoEvent {

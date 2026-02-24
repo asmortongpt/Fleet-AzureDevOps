@@ -4,7 +4,6 @@
  */
 
 import * as TabsPrimitive from "@radix-ui/react-tabs"
-import { formatVehicleName } from "@/utils/vehicle-display"
 import {
     Layout,
     Truck,
@@ -18,16 +17,17 @@ import {
 } from 'lucide-react'
 import { memo, useCallback, useState, useMemo } from 'react'
 
-import { useNavigation } from '@/contexts/NavigationContext'
 
 import { VehicleModelLibrary } from '@/components/VehicleModelLibrary'
-import { Button } from '@/components/ui/button'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { Button } from '@/components/ui/button'
 import { StatCard } from '@/components/ui/stat-card'
 import { Tabs, TabsContent } from "@/components/ui/tabs"
+import { useNavigation } from '@/contexts/NavigationContext'
 import { useMaintenanceSchedules, useVehicles, useWorkOrders } from '@/hooks/use-api'
 import { useVehicleTelemetry } from '@/hooks/useVehicleTelemetry'
 import { cn } from "@/lib/utils"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 // ============================================================================
 // TYPES & INTERFACES

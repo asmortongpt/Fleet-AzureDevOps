@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Battery, Leaf, TrendingUp, Zap, Car, Plug2, BarChart3, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-import { Badge } from '@/components/ui/badge';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Section } from '@/components/ui/section';
 import { formatCurrency, formatNumber } from '@/utils/format-helpers';
@@ -348,7 +348,7 @@ const EVHub = () => {
             <Section
               title="Total Energy Consumed"
               icon={<Zap className="w-4 h-4" />}
-              className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-none"
+              className="bg-gradient-to-br from-emerald-500/50 to-emerald-600 text-white border-none"
               contentClassName="text-white"
             >
               <div className="text-3xl font-bold" aria-label={`${sustainabilityMetrics.totalEnergyConsumed.toFixed(0)} kilowatt hours consumed`}>

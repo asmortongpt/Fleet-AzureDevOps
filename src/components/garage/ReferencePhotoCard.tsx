@@ -4,8 +4,9 @@
  * users cycle through 6 camera angles + apply the image as a 3D wrap.
  */
 
-import { useState } from 'react';
 import { CheckCircle2, AlertTriangle, X, Minimize2, ImageOff, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+
 import { cn } from '@/lib/utils';
 import {
   IMAGIN_ANGLES,
@@ -82,12 +83,14 @@ export function ReferencePhotoCard({
           <button
             onClick={() => setCollapsed(true)}
             className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Minimize"
           >
             <Minimize2 className="w-3 h-3" />
           </button>
           <button
             onClick={onDismiss}
             className="p-1 rounded hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Dismiss"
           >
             <X className="w-3 h-3" />
           </button>

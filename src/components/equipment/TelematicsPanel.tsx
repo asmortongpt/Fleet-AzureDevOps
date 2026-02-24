@@ -25,8 +25,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { apiClient } from '@/lib/api-client'
 import { isSuccessResponse } from '@/lib/schemas/responses'
 import type { ApiResponse } from '@/lib/schemas/responses'
-import logger from '@/utils/logger'
 import { formatDateTime, formatTime } from '@/utils/format-helpers'
+import logger from '@/utils/logger'
 
 interface TelematicsData {
   equipment_id: string
@@ -323,7 +323,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                 <Card key={alert.id} className={
                   alert.severity === 'critical' ? 'border-red-200 bg-red-50' :
                   alert.severity === 'warning' ? 'border-yellow-200 bg-yellow-50' :
-                  'border-blue-200 bg-blue-50'
+                  'border-emerald-500/20 bg-emerald-500/5'
                 }>
                   <CardContent className="p-2">
                     <div className="flex items-start justify-between">
@@ -331,7 +331,7 @@ export function TelematicsPanel({ equipmentId }: TelematicsPanelProps) {
                         <AlertTriangle className={`w-3 h-3 mt-0.5 ${
                           alert.severity === 'critical' ? 'text-red-600' :
                           alert.severity === 'warning' ? 'text-yellow-600' :
-                          'text-blue-800'
+                          'text-emerald-800'
                         }`} />
                         <div>
                           <p className="font-medium">{alert.message}</p>

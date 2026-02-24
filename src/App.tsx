@@ -1,10 +1,9 @@
 import { withAITracking } from '@microsoft/applicationinsights-react-js'
-import { Shield } from "lucide-react"
-import { useState, useMemo, lazy, Suspense, useEffect } from "react"
-import { Toaster } from 'react-hot-toast'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Shield } from "lucide-react"
+import { useMemo, lazy, Suspense, useEffect } from "react"
+import { Toaster } from 'react-hot-toast'
 
-import { pageTransitionVariants } from '@/lib/animations'
 import { DrilldownManager } from "@/components/DrilldownManager"
 import { AIAssistantChat } from "@/components/ai/AIAssistantChat"
 import { SkipNavigation } from "@/components/common/SkipNavigation"
@@ -17,6 +16,7 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/contexts"
 import { useNavigation } from "@/contexts/NavigationContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { pageTransitionVariants } from '@/lib/animations'
 import { navigationItems } from "@/lib/navigation"
 import telemetryService from '@/lib/telemetry'
 import logger from '@/utils/logger'
@@ -233,7 +233,7 @@ function App() {
         <div className="flex flex-col items-center justify-center h-full p-3 text-center bg-gray-50 rounded-lg">
           <Shield className="w-16 h-16 text-red-500 mb-2" />
           <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-slate-700 mb-3">
+          <p className="text-white/70 mb-3">
             You do not have permission to view this module.
           </p>
           <Button onClick={() => setActiveModule('fleet-hub-consolidated')}>

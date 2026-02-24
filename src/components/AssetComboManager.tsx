@@ -279,10 +279,10 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Link className="w-4 h-4 text-blue-800" />
+          <Link className="w-4 h-4 text-emerald-800" />
           <div>
             <h2 className="text-sm font-bold text-gray-900">{title || 'Asset Combinations'}</h2>
-            <p className="text-sm text-slate-700">Manage tractor-trailer combos and equipment attachments</p>
+            <p className="text-sm text-white/70">Manage tractor-trailer combos and equipment attachments</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -300,7 +300,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
               setUiStatus('Updated')
               setShowCreateDialog(true)
             }}
-            className="flex items-center gap-2 px-2 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-2 py-2 text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors"
           >
             <Plus className="w-4 h-4" />
             Create Relationship
@@ -340,7 +340,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">
+                        <div className="px-2 py-1 bg-emerald-500/10 text-emerald-700 text-xs font-medium rounded">
                           {combo.relationship_type}
                         </div>
                         <CheckCircle className="w-3 h-3 text-green-600" />
@@ -351,7 +351,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <span className="text-gray-700">→</span>
                       <span>{combo.child_asset_name}</span>
                     </div>
-                    <div className="flex items-center gap-2 mt-2 text-sm text-slate-700">
+                    <div className="flex items-center gap-2 mt-2 text-sm text-white/70">
                       <div className="flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
                         <span>Effective from: {formatDate(combo.effective_from)}</span>
@@ -412,7 +412,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                       <div className="text-sm text-gray-900 mb-1">
                         <strong>{entry.parent_asset_name}</strong> → <strong>{entry.child_asset_name}</strong>
                       </div>
-                      <div className="flex items-center gap-2 text-xs text-slate-700">
+                      <div className="flex items-center gap-2 text-xs text-white/70">
                         <span>From: {formatDate(entry.effective_from)}</span>
                         {entry.effective_to && (
                           <span>To: {formatDate(entry.effective_to)}</span>
@@ -423,7 +423,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                         </div>
                       </div>
                       {entry.notes && (
-                        <p className="mt-2 text-sm text-slate-700 italic">{entry.notes}</p>
+                        <p className="mt-2 text-sm text-white/70 italic">{entry.notes}</p>
                       )}
                     </div>
                   </div>
@@ -445,7 +445,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
                   setShowCreateDialog(false)
                   setError(null)
                 }}
-                className="text-gray-700 hover:text-slate-700"
+                className="text-gray-700 hover:text-white/70"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -544,7 +544,7 @@ export const AssetComboManager: React.FC<AssetComboManagerProps> = ({
               </button>
               <button
                 onClick={handleCreateRelationship}
-                className="px-2 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+                className="px-2 py-2 text-white bg-emerald-600 rounded-md hover:bg-emerald-700 transition-colors"
               >
                 Create Relationship
               </button>

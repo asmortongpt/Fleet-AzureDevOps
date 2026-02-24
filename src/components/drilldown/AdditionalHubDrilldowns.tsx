@@ -2,17 +2,18 @@
  * AdditionalHubDrilldowns - Drilldown components for Safety, Operations, and Procurement hubs
  * All data sourced from useFleetData() — no hardcoded/mock data.
  */
-import { useMemo } from 'react'
 import {
     AlertTriangle, ShieldCheck, Video, Truck, Package, Map, Play, Eye,
     ClipboardList, Building2, Wrench, ShoppingCart, Fuel, Loader2
 } from 'lucide-react'
+import { useMemo } from 'react'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatNumber, formatTime } from '@/utils/format-helpers'
 
 
 /** Shared loading spinner used across all drilldowns */
@@ -105,12 +106,12 @@ export function IncidentsDrilldown() {
                                 <div>
                                     <div className="font-medium text-white">{formatEnum(incidentType)}</div>
                                     <div className="text-xs text-white/40">
-                                        {[driverLabel, vehicleLabel, incidentDate ? new Date(incidentDate).toLocaleDateString() : ''].filter(Boolean).join(' \u2022 ')}
+                                        {[driverLabel, vehicleLabel, incidentDate ? formatDate(incidentDate) : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${severity === 'high' || severity === 'critical' ? 'border-red-500 text-red-400' :
                                         severity === 'medium' || severity === 'moderate' ? 'border-amber-500 text-amber-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(severity)}
                                 </Badge>
@@ -274,7 +275,7 @@ export function VideoTelematicsDrilldown() {
                         const eventType = event.type || event.incident_type || 'Event'
                         const vehicleLabel = event.vehicle_number || event.vehicle_id || ''
                         const eventDate = event.incident_date || event.date || event.created_at || ''
-                        const timeStr = eventDate ? new Date(eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+                        const timeStr = eventDate ? formatTime(eventDate) : ''
                         const isResolved = String(event.status || '').toLowerCase() === 'resolved' || String(event.status || '').toLowerCase() === 'closed'
                         return (
                             <div key={event.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
@@ -396,7 +397,7 @@ export function DispatchDrilldown() {
                                 </div>
                                 <Badge variant="outline" className={`${status === 'in_transit' || status === 'in_progress' ? 'border-emerald-500 text-emerald-700' :
                                         status === 'delayed' || status === 'cancelled' ? 'border-red-500 text-red-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(job.status)}
                                 </Badge>
@@ -488,7 +489,7 @@ export function RoutesDrilldown() {
                                 </div>
                                 <Badge variant="outline" className={`${status === 'in_progress' || status === 'in-progress' || status === 'in_transit' ? 'border-emerald-500 text-emerald-700' :
                                         status === 'completed' ? 'border-purple-500 text-purple-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(route.status)}
                                 </Badge>
@@ -540,9 +541,9 @@ export function TasksDrilldown() {
                         <div className="text-xs text-white/40">Pending</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-blue-900/30 border-blue-700/50">
+                <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-blue-400">{statusCounts.inProgress}</div>
+                        <div className="text-sm font-bold text-emerald-400">{statusCounts.inProgress}</div>
                         <div className="text-xs text-white/40">In Progress</div>
                     </CardContent>
                 </Card>
@@ -571,12 +572,12 @@ export function TasksDrilldown() {
                                 <div>
                                     <div className="font-medium text-white text-sm">{wo.title || wo.serviceType || wo.number || 'Work Order'}</div>
                                     <div className="text-xs text-white/40">
-                                        {[formatEnum(wo.status), dueDate ? `Due: ${new Date(dueDate).toLocaleDateString()}` : ''].filter(Boolean).join(' \u2022 ')}
+                                        {[formatEnum(wo.status), dueDate ? `Due: ${formatDate(dueDate)}` : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${priority === 'high' || priority === 'urgent' ? 'border-red-500 text-red-400' :
                                         priority === 'medium' ? 'border-amber-500 text-amber-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(priority)}
                                 </Badge>
@@ -783,9 +784,9 @@ export function PurchaseOrdersDrilldown() {
                         <div className="text-xs text-white/40">High</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-blue-900/30 border-blue-700/50">
+                <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-blue-400">{priorityCounts.medium}</div>
+                        <div className="text-sm font-bold text-emerald-400">{priorityCounts.medium}</div>
                         <div className="text-xs text-white/40">Medium</div>
                     </CardContent>
                 </Card>
@@ -817,12 +818,12 @@ export function PurchaseOrdersDrilldown() {
                                 <div>
                                     <div className="font-medium text-white text-sm">{wo.title || wo.serviceType || wo.number || 'Work Order'}</div>
                                     <div className="text-xs text-white/40">
-                                        {[formatEnum(wo.status), cost > 0 ? `Est: $${Number(cost).toLocaleString()}` : ''].filter(Boolean).join(' \u2022 ')}
+                                        {[formatEnum(wo.status), cost > 0 ? `Est: ${formatCurrency(Number(cost))}` : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${priority === 'urgent' ? 'border-red-500 text-red-400' :
                                         priority === 'high' ? 'border-amber-500 text-amber-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(priority)}
                                 </Badge>
@@ -871,7 +872,7 @@ export function FuelPurchasingDrilldown() {
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-emerald-700">{stats.totalGallons.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                        <div className="text-sm font-bold text-emerald-700">{formatNumber(stats.totalGallons)}</div>
                         <div className="text-xs text-white/40">Total Gallons</div>
                     </CardContent>
                 </Card>
@@ -906,11 +907,11 @@ export function FuelPurchasingDrilldown() {
                                         {station ? ` @ ${station}` : ''}
                                     </div>
                                     <div className="text-xs text-white/40">
-                                        {[vehicleLabel, fuelDate ? new Date(fuelDate).toLocaleDateString() : ''].filter(Boolean).join(' \u2022 ')}
+                                        {[vehicleLabel, fuelDate ? formatDate(fuelDate) : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <span className="text-sm font-medium text-white">
-                                    {cost > 0 ? `$${cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '--'}
+                                    {cost > 0 ? formatCurrency(cost) : '--'}
                                 </span>
                             </div>
                         )

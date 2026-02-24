@@ -5,9 +5,12 @@
  * Supports AI-generated email text and pre-populated fields.
  */
 
-import { useState } from 'react'
 import { Mail, Send, Sparkles, Loader2 } from 'lucide-react'
+import { useState } from 'react'
 import { toast } from 'sonner'
+
+import type { EmailContext } from './email-templates'
+import { getEmailTemplate, buildAIPrompt } from './email-templates'
 
 import { Button } from '@/components/ui/button'
 import {
@@ -19,12 +22,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { msOfficeService } from '@/lib/msOfficeIntegration'
 import { sendMessage } from '@/services/aiService'
-import type { EmailContext } from './email-templates'
-import { getEmailTemplate, buildAIPrompt } from './email-templates'
 
 interface ContextualEmailDialogProps {
   open: boolean

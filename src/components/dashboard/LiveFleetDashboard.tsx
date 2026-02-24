@@ -1,24 +1,20 @@
 import { AlertCircle, Truck, Wrench, MapPin, Gauge, Fuel, Video, Users, HeartPulse, Calendar, Shield, Zap, Navigation, Search, ArrowUpDown, Activity, Clock, ChevronRight } from 'lucide-react';
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import useSWR from 'swr';
 
-import { MapFirstLayout } from '../layout/MapFirstLayout';
 import { GoogleMap, GoogleMapHandle } from '../GoogleMap';
+import { MapFirstLayout } from '../layout/MapFirstLayout';
 import { MapLegend } from '../map/MapLegend';
-import { MapToolbar } from '../map/MapToolbar';
 import { MapMarkerSettings } from '../map/MapMarkerSettings';
-import { useMapMarkerSettings } from '@/stores/useMapMarkerSettings';
+import { MapToolbar } from '../map/MapToolbar';
 import { VehicleTypeFilter, VehicleFilters } from '../map/VehicleTypeFilter';
-import { MobileMapControls } from '../mobile/MobileMapControls';
 import { MobileQuickActions } from '../mobile/MobileQuickActions';
 import { MobileVehicleCard } from '../mobile/MobileVehicleCard';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Card, CardContent, CardHeader } from '../ui/card';
 
-import { GeofenceLayer } from '@/components/layers/GeofenceLayer';
-import { TrafficCameraLayer } from '@/components/layers/TrafficCameraLayer';
 import { MapLayerControl } from '@/components/map/MapLayerControl';
 import { DriverControlPanel } from '@/components/panels/DriverControlPanel';
 import { DriverDetailPanel } from '@/components/panels/DriverDetailPanel';
@@ -27,13 +23,14 @@ import { GeofenceIntelligencePanel } from '@/components/panels/GeofenceIntellige
 import { TrafficCameraControlPanel } from '@/components/panels/TrafficCameraControlPanel';
 import { useDrilldown } from '@/contexts/DrilldownContext';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { useVehicles, useDrivers } from '@/hooks/use-api';
+import { useDrivers } from '@/hooks/use-api';
 import { useGeofenceBreachDetector } from '@/hooks/use-geofence-breach';
 import { Geofence, Driver } from '@/lib/types';
+import { useMapMarkerSettings } from '@/stores/useMapMarkerSettings';
 import { formatEnum } from '@/utils/format-enum';
-import { formatNumber, formatDate, formatTime as formatTimeHelper } from '@/utils/format-helpers';
-import { formatVehicleName } from '@/utils/vehicle-display';
+import { formatNumber, formatDate } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 
 const LOADING_TIMEOUT = 5000; // 5 seconds timeout

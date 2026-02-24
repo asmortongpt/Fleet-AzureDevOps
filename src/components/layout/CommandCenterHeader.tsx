@@ -1,5 +1,6 @@
-import { LogOut, User, CreditCard, Users, Menu, X } from 'lucide-react';
+import { LogOut, User, CreditCard, Users } from 'lucide-react';
 import { useState, useCallback } from 'react';
+
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { NotificationBell } from '@/components/common/NotificationBell';
 import { SearchInput } from '@/components/shared/SearchInput';
@@ -14,7 +15,6 @@ import {
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { brandColors } from '@/theme/designSystem';
 import { cn } from '@/lib/utils';
 import logger from '@/utils/logger';
 
@@ -130,7 +130,7 @@ export function CommandCenterHeader({ isMobile = false }: CommandCenterHeaderPro
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
                             align="end"
-                            className="w-56 bg-slate-900 border-white/20 shadow-lg rounded-lg p-1"
+                            className="w-56 bg-[#111] border-white/20 shadow-lg rounded-lg p-1"
                             sideOffset={8}
                         >
                             <DropdownMenuLabel className="px-3 py-2">

@@ -3,6 +3,7 @@ import { Wrench, Calendar, DollarSign, Clock, AlertTriangle, CheckCircle } from 
 import React from 'react';
 
 import { ExcelDataTable } from '../shared/ExcelDataTable';
+
 import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers';
 
 
@@ -63,7 +64,7 @@ export function MaintenanceDrilldownView({ records, onRecordClick, title = 'Main
           'inspection': 'bg-green-500/20 text-green-400',
         };
         return (
-          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[type?.toLowerCase()] || 'bg-slate-500/20 text-white/40'}`}>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${typeColors[type?.toLowerCase()] || 'bg-white/[0.05] text-white/40'}`}>
             {type}
           </span>
         );
