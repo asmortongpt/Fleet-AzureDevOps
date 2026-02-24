@@ -1,12 +1,12 @@
 /**
  * Smartcar Connected Vehicle Routes
- * OAuth flow and remote vehicle control
+ * OAuth flow, signal retrieval, and remote vehicle control
  */
 
 import express, { Request, Response } from 'express'
 
-import logger from '../config/logger'; // Wave 24: Add Winston logger
-import { pool } from '../db/connection';
+import logger from '../config/logger'
+import { pool } from '../db/connection'
 import { NotFoundError, ValidationError } from '../errors/app-error'
 import { auditLog } from '../middleware/audit'
 import { AuthRequest, authenticateJWT } from '../middleware/auth'
@@ -25,22 +25,67 @@ try {
       process.env.SMARTCAR_CLIENT_SECRET &&
       process.env.SMARTCAR_REDIRECT_URI) {
     smartcarService = new SmartcarService(pool)
-    logger.info('✅ Smartcar service initialized')
+    logger.info('Smartcar service initialized')
   } else if (process.env.SMARTCAR_CLIENT_ID) {
-    logger.warn('⚠️  Smartcar partially configured - missing SMARTCAR_REDIRECT_URI or SMARTCAR_CLIENT_SECRET')
+    logger.warn('Smartcar partially configured - missing SMARTCAR_REDIRECT_URI or SMARTCAR_CLIENT_SECRET')
   }
 } catch (error: unknown) {
-  logger.warn('⚠️  Smartcar service not initialized:', error instanceof Error ? error.message : 'Unknown error')
+  logger.warn('Smartcar service not initialized:', error instanceof Error ? error.message : 'Unknown error')
 }
+
+// ---------------------------------------------------------------------------
+// Helper: standard route handler for single-signal endpoints
+// ---------------------------------------------------------------------------
+function signalRoute(
+  signalName: string,
+  fetchFn: (service: SmartcarService, externalId: string, accessToken: string) => Promise<any>
+) {
+  return async (req: AuthRequest, res: Response) => {
+    if (!smartcarService) {
+      return res.status(503).json({ error: 'Smartcar service not available' })
+    }
+
+    try {
+      const vehicleId = parseInt(req.params.id)
+      if (isNaN(vehicleId) || vehicleId <= 0) {
+        return res.status(400).json({ error: 'Invalid vehicle ID' })
+      }
+
+      const accessToken = await smartcarService.ensureValidToken(vehicleId)
+      const connection = await smartcarService.getVehicleConnection(vehicleId)
+
+      if (!connection) {
+        throw new NotFoundError('Vehicle not connected to Smartcar')
+      }
+
+      const data = await fetchFn(smartcarService, connection.external_vehicle_id, accessToken)
+      res.json({ success: true, data })
+    } catch (error: unknown) {
+      logger.error(`Get Smartcar ${signalName} error:`, error)
+      if (error instanceof NotFoundError) {
+        return res.status(404).json({ error: error.message })
+      }
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+}
+
+// ===========================================================================
+// Status & OAuth
+// ===========================================================================
 
 /**
  * GET /api/smartcar/status
- * Get Smartcar integration status
+ * Get Smartcar integration status (public)
  */
 router.get('/status', (_req, res) => {
   res.json({
-    configured: smartcarService !== null,
-    message: smartcarService ? 'Smartcar integration is active' : 'Smartcar integration is not configured'
+    success: true,
+    data: {
+      configured: smartcarService !== null,
+      mode: smartcarService ? smartcarService.getMode() : null,
+      message: smartcarService ? 'Smartcar integration is active' : 'Smartcar integration is not configured'
+    }
   })
 })
 
@@ -57,7 +102,7 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
     const { vehicle_id } = req.query
 
     if (!vehicle_id) {
-      throw new ValidationError("vehicle_id query parameter is required")
+      throw new ValidationError('vehicle_id query parameter is required')
     }
 
     // Generate state parameter with vehicle_id and user info
@@ -72,11 +117,14 @@ router.get('/connect', authenticateJWT, requirePermission('vehicle:manage:global
     const authUrl = smartcarService.getAuthUrl(state)
 
     res.json({
-      authUrl,
-      message: 'Redirect user to this URL to connect their vehicle'
+      success: true,
+      data: {
+        authUrl,
+        message: 'Redirect user to this URL to connect their vehicle'
+      }
     })
   } catch (error: unknown) {
-    logger.error('Smartcar connect error:', error) // Wave 24: Winston logger
+    logger.error('Smartcar connect error:', error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -94,7 +142,7 @@ router.get('/callback', async (req: Request, res: Response) => {
     const { code, state, error } = req.query
 
     if (error) {
-      logger.error('Smartcar OAuth error:', error) // Wave 24: Winston logger
+      logger.error('Smartcar OAuth error:', error)
       const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
         error: 'smartcar_auth_failed',
         message: error as string
@@ -111,14 +159,14 @@ router.get('/callback', async (req: Request, res: Response) => {
     }
 
     // Decode state parameter
-    const stateData = JSON.parse(Buffer.from(state as string, `base64`).toString(`utf-8`))
+    const stateData = JSON.parse(Buffer.from(state as string, 'base64').toString('utf-8'))
     const { vehicle_id, user_id, tenant_id } = stateData
 
     // SECURITY: Validate vehicle_id is a valid integer to prevent path traversal
     const parsedVehicleId = parseInt(vehicle_id, 10)
     if (isNaN(parsedVehicleId) || parsedVehicleId <= 0) {
       logger.warn(`Invalid vehicle_id in state parameter: ${vehicle_id}`)
-      const safeErrorUrl = buildSafeRedirectUrl(`/vehicles`, {
+      const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
         error: 'invalid_state',
         message: 'Invalid vehicle identifier'
       })
@@ -168,24 +216,24 @@ router.get('/callback', async (req: Request, res: Response) => {
       [
         user_id,
         tenant_id,
-        `CONNECT`,
-        `smartcar_vehicle`,
+        'CONNECT',
+        'smartcar_vehicle',
         parsedVehicleId,
         JSON.stringify({ smartcar_vehicle_id: smartcarVehicleId, ...vehicleInfo }),
         req.ip,
         req.get('User-Agent'),
         'success',
-        `Smartcar vehicle connected successfully`
+        'Smartcar vehicle connected successfully'
       ]
     )
 
-    // SECURITY FIX (CWE-601): Validate redirect path and sanitize vehicle_id
+    // Redirect back to frontend with success — popup will catch this
     const safeSuccessUrl = buildSafeRedirectUrl(`/vehicles/${parsedVehicleId}`, {
       smartcar_connected: 'true'
     })
     res.redirect(safeSuccessUrl)
   } catch (error: unknown) {
-    logger.error('Smartcar callback error:', error) // Wave 24: Winston logger
+    logger.error('Smartcar callback error:', error)
     const safeErrorUrl = buildSafeRedirectUrl('/vehicles', {
       error: 'smartcar_auth_failed',
       message: 'Connection failed'
@@ -194,81 +242,113 @@ router.get('/callback', async (req: Request, res: Response) => {
   }
 })
 
-/**
- * GET /api/smartcar/vehicles/:id/location
- * Get real-time vehicle location
- */
+// ===========================================================================
+// Signal Endpoints (read-only)
+// ===========================================================================
+
 router.get(
   '/vehicles/:id/location',
   authenticateJWT,
   requirePermission('vehicle:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'smartcar_location' }),
-  async (req: AuthRequest, res: Response) => {
-    if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' })
-    }
-
-    try {
-      const vehicleId = parseInt(req.params.id)
-      const accessToken = await smartcarService.ensureValidToken(vehicleId)
-      const connection = await smartcarService.getVehicleConnection(vehicleId)
-
-      if (!connection) {
-        throw new NotFoundError("Vehicle not connected to Smartcar")
-      }
-
-      const location = await smartcarService.getLocation(connection.external_vehicle_id, accessToken)
-
-      res.json(location)
-    } catch (error: unknown) {
-      logger.error('Get Smartcar location error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
-    }
-  }
+  signalRoute('location', (svc, extId, token) => svc.getLocation(extId, token))
 )
 
-/**
- * GET /api/smartcar/vehicles/:id/battery
- * Get EV battery level
- */
 router.get(
   '/vehicles/:id/battery',
   authenticateJWT,
   requirePermission('vehicle:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'smartcar_battery' }),
-  async (req: AuthRequest, res: Response) => {
-    if (!smartcarService) {
-      return res.status(503).json({ error: 'Smartcar service not available' })
-    }
-
-    try {
-      const vehicleId = parseInt(req.params.id)
-      const accessToken = await smartcarService.ensureValidToken(vehicleId)
-      const connection = await smartcarService.getVehicleConnection(vehicleId)
-
-      if (!connection) {
-        throw new NotFoundError("Vehicle not connected to Smartcar")
-      }
-
-      const battery = await smartcarService.getBattery(connection.external_vehicle_id, accessToken)
-
-      res.json(battery)
-    } catch (error: unknown) {
-      logger.error('Get Smartcar battery error:', error) // Wave 24: Winston logger
-      res.status(500).json({ error: 'Internal server error' })
-    }
-  }
+  signalRoute('battery', (svc, extId, token) => svc.getBattery(extId, token))
 )
 
-/**
- * GET /api/smartcar/vehicles/:id/charge
- * Get EV charge status
- */
 router.get(
   '/vehicles/:id/charge',
   authenticateJWT,
   requirePermission('vehicle:view:fleet'),
   auditLog({ action: 'READ', resourceType: 'smartcar_charge' }),
+  signalRoute('charge', (svc, extId, token) => svc.getChargeStatus(extId, token))
+)
+
+router.get(
+  '/vehicles/:id/fuel',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'smartcar_fuel' }),
+  signalRoute('fuel', (svc, extId, token) => svc.getFuel(extId, token))
+)
+
+router.get(
+  '/vehicles/:id/oil',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'smartcar_oil' }),
+  signalRoute('oil', (svc, extId, token) => svc.getEngineOil(extId, token))
+)
+
+router.get(
+  '/vehicles/:id/tires',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'smartcar_tires' }),
+  signalRoute('tires', (svc, extId, token) => svc.getTirePressure(extId, token))
+)
+
+router.get(
+  '/vehicles/:id/diagnostics',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'smartcar_diagnostics' }),
+  signalRoute('diagnostics', (svc, extId, token) => svc.getDiagnostics(extId, token))
+)
+
+router.get(
+  '/vehicles/:id/lock-status',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'smartcar_security' }),
+  signalRoute('lock-status', (svc, extId, token) => svc.getLockStatus(extId, token))
+)
+
+router.get(
+  '/vehicles/:id/info',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'smartcar_info' }),
+  signalRoute('info', (svc, extId, token) => svc.getExtendedInfo(extId, token))
+)
+
+router.get(
+  '/vehicles/:id/vin',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'smartcar_vin' }),
+  signalRoute('vin', async (svc, extId, token) => {
+    const vin = await svc.getVehicleVin(extId, token)
+    return { vin }
+  })
+)
+
+/**
+ * GET /api/smartcar/vehicles/:id/signals
+ * Batch endpoint — fetch all available signals in one request
+ */
+router.get(
+  '/vehicles/:id/signals',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
+  auditLog({ action: 'READ', resourceType: 'smartcar_signals' }),
+  signalRoute('signals', (svc, extId, token) => svc.getAllSignals(extId, token))
+)
+
+/**
+ * GET /api/smartcar/vehicles/:id/connection
+ * Get connection status for a vehicle
+ */
+router.get(
+  '/vehicles/:id/connection',
+  authenticateJWT,
+  requirePermission('vehicle:view:fleet'),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
       return res.status(503).json({ error: 'Smartcar service not available' })
@@ -276,27 +356,33 @@ router.get(
 
     try {
       const vehicleId = parseInt(req.params.id)
-      const accessToken = await smartcarService.ensureValidToken(vehicleId)
-      const connection = await smartcarService.getVehicleConnection(vehicleId)
-
-      if (!connection) {
-        throw new NotFoundError("Vehicle not connected to Smartcar")
+      if (isNaN(vehicleId) || vehicleId <= 0) {
+        return res.status(400).json({ error: 'Invalid vehicle ID' })
       }
 
-      const charge = await smartcarService.getChargeStatus(connection.external_vehicle_id, accessToken)
+      const connection = await smartcarService.getVehicleConnection(vehicleId)
 
-      res.json(charge)
+      res.json({
+        success: true,
+        data: {
+          connected: !!connection,
+          syncStatus: connection?.sync_status || null,
+          syncError: connection?.sync_error || null,
+          lastSync: connection?.updated_at || null,
+          metadata: connection?.metadata || null,
+        }
+      })
     } catch (error: unknown) {
-      logger.error('Get Smartcar charge error:', error) // Wave 24: Winston logger
+      logger.error('Get Smartcar connection error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
-/**
- * POST /api/smartcar/vehicles/:id/lock
- * Lock vehicle doors
- */
+// ===========================================================================
+// Remote Control (write operations — require CSRF)
+// ===========================================================================
+
 router.post(
   '/vehicles/:id/lock',
   csrfProtection, authenticateJWT,
@@ -313,23 +399,18 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError('Vehicle not connected to Smartcar')
       }
 
       const result = await smartcarService.lockDoors(connection.external_vehicle_id, accessToken)
-
-      res.json(result)
+      res.json({ success: true, data: result })
     } catch (error: unknown) {
-      logger.error('Lock vehicle error:', error) // Wave 24: Winston logger
+      logger.error('Lock vehicle error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
-/**
- * POST /api/smartcar/vehicles/:id/unlock
- * Unlock vehicle doors
- */
 router.post(
   '/vehicles/:id/unlock',
   csrfProtection, authenticateJWT,
@@ -346,23 +427,18 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError('Vehicle not connected to Smartcar')
       }
 
       const result = await smartcarService.unlockDoors(connection.external_vehicle_id, accessToken)
-
-      res.json(result)
+      res.json({ success: true, data: result })
     } catch (error: unknown) {
-      logger.error('Unlock vehicle error:', error) // Wave 24: Winston logger
+      logger.error('Unlock vehicle error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
-/**
- * POST /api/smartcar/vehicles/:id/charge/start
- * Start EV charging
- */
 router.post(
   '/vehicles/:id/charge/start',
   csrfProtection, authenticateJWT,
@@ -379,23 +455,18 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError('Vehicle not connected to Smartcar')
       }
 
       const result = await smartcarService.startCharging(connection.external_vehicle_id, accessToken)
-
-      res.json(result)
+      res.json({ success: true, data: result })
     } catch (error: unknown) {
-      logger.error('Start charging error:', error) // Wave 24: Winston logger
+      logger.error('Start charging error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
-/**
- * POST /api/smartcar/vehicles/:id/charge/stop
- * Stop EV charging
- */
 router.post(
   '/vehicles/:id/charge/stop',
   csrfProtection, authenticateJWT,
@@ -412,23 +483,43 @@ router.post(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError('Vehicle not connected to Smartcar')
       }
 
       const result = await smartcarService.stopCharging(connection.external_vehicle_id, accessToken)
-
-      res.json(result)
+      res.json({ success: true, data: result })
     } catch (error: unknown) {
-      logger.error('Stop charging error:', error) // Wave 24: Winston logger
+      logger.error('Stop charging error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
-/**
- * DELETE /api/smartcar/vehicles/:id/disconnect
- * Disconnect Smartcar from vehicle
- */
+// ===========================================================================
+// Sync & Disconnect
+// ===========================================================================
+
+router.post(
+  '/vehicles/:id/sync',
+  csrfProtection, authenticateJWT,
+  requirePermission('vehicle:update:fleet'),
+  auditLog({ action: 'CREATE', resourceType: 'smartcar_sync' }),
+  async (req: AuthRequest, res: Response) => {
+    if (!smartcarService) {
+      return res.status(503).json({ error: 'Smartcar service not available' })
+    }
+
+    try {
+      const vehicleId = parseInt(req.params.id)
+      await smartcarService.syncVehicleData(vehicleId)
+      res.json({ success: true, data: { message: 'Vehicle data synced successfully' } })
+    } catch (error: unknown) {
+      logger.error('Sync Smartcar data error:', error)
+      res.status(500).json({ error: 'Internal server error' })
+    }
+  }
+)
+
 router.delete(
   '/vehicles/:id/disconnect',
   csrfProtection, authenticateJWT,
@@ -444,7 +535,7 @@ router.delete(
       const connection = await smartcarService.getVehicleConnection(vehicleId)
 
       if (!connection) {
-        throw new NotFoundError("Vehicle not connected to Smartcar")
+        throw new NotFoundError('Vehicle not connected to Smartcar')
       }
 
       // Revoke access on Smartcar side
@@ -455,40 +546,43 @@ router.delete(
         `UPDATE vehicle_telematics_connections
          SET sync_status = 'disconnected', updated_at = NOW()
          WHERE vehicle_id = $1
-         AND provider_id = (SELECT id FROM telematics_providers WHERE tenant_id = $2 AND name = 'smartcar')`,
-        [vehicleId, req.user!.tenant_id]
+         AND provider_id = (SELECT id FROM telematics_providers WHERE name = 'smartcar')`,
+        [vehicleId]
       )
 
-      res.json({ success: true, message: 'Smartcar disconnected successfully' })
+      res.json({ success: true, data: { message: 'Smartcar disconnected successfully' } })
     } catch (error: unknown) {
-      logger.error('Disconnect Smartcar error:', error) // Wave 24: Winston logger
+      logger.error('Disconnect Smartcar error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }
 )
 
-/**
- * POST /api/smartcar/vehicles/:id/sync
- * Manually sync vehicle data to telemetry
- */
-router.post(
-  '/vehicles/:id/sync',
-  csrfProtection, authenticateJWT,
-  requirePermission('vehicle:update:fleet'),
-  auditLog({ action: 'CREATE', resourceType: 'smartcar_sync' }),
+// ===========================================================================
+// Admin: List all connections
+// ===========================================================================
+
+router.get(
+  '/connections',
+  authenticateJWT,
+  requirePermission('vehicle:manage:global'),
   async (req: AuthRequest, res: Response) => {
     if (!smartcarService) {
       return res.status(503).json({ error: 'Smartcar service not available' })
     }
 
     try {
-      const vehicleId = parseInt(req.params.id)
-
-      await smartcarService.syncVehicleData(vehicleId)
-
-      res.json({ success: true, message: 'Vehicle data synced successfully' })
+      const connections = await smartcarService.getAllConnections(req.user?.tenant_id)
+      res.json({
+        success: true,
+        data: {
+          connections,
+          total: connections.length,
+          mode: smartcarService.getMode(),
+        }
+      })
     } catch (error: unknown) {
-      logger.error('Sync Smartcar data error:', error) // Wave 24: Winston logger
+      logger.error('List Smartcar connections error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

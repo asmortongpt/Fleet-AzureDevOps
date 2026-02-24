@@ -31,6 +31,8 @@ import useSWR from 'swr'
 import { MetricCard } from './MetricCard'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
+import { SmartcarConnectButton } from '@/components/vehicle/SmartcarConnectButton'
+import { SmartcarDataPanel } from '@/components/vehicle/SmartcarDataPanel'
 import { EditVehicleDialog } from '@/components/dialogs/EditVehicleDialog'
 import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
@@ -500,6 +502,12 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
               </div>
             </div>
           </div>
+
+          {/* ---------------------------------------------------------------- */}
+          {/* Smartcar Integration                                              */}
+          {/* ---------------------------------------------------------------- */}
+          <SmartcarConnectButton vehicleId={vehicleId} />
+          <SmartcarDataPanel vehicleId={vehicleId} />
 
           {/* ---------------------------------------------------------------- */}
           {/* Tabbed Content                                                    */}

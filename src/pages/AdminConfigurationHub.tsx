@@ -868,6 +868,18 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
     { shouldRetryOnError: false }
   )
 
+  // Smartcar integration status
+  const { data: smartcarStatus } = useSWR<any>(
+    '/api/smartcar/status',
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+  const { data: smartcarConnections, mutate: mutateSmartcar } = useSWR<any>(
+    smartcarStatus?.configured ? '/api/smartcar/connections' : null,
+    fetcher,
+    { shouldRetryOnError: false }
+  )
+
   const integrationsError = integrationsHealthError || metricsHistoryError
 
   const integrations = Array.isArray(integrationsHealth?.integrations) ? integrationsHealth.integrations : []
@@ -1029,6 +1041,92 @@ const IntegrationsTabContent = memo(function IntegrationsTabContent() {
             compact
           />
         </Section>
+
+        {/* Smartcar Vehicle API — full-width */}
+        <div className="col-span-2">
+          <Section
+            title="Smartcar Vehicle API"
+            description="Connected vehicle data for 50+ brands"
+            icon={<Plug className="h-4 w-4" />}
+          >
+            <div className="flex-1 min-h-0 overflow-y-auto">
+              {!smartcarStatus?.configured ? (
+                <div className="flex flex-col items-center justify-center h-28 text-muted-foreground text-sm gap-2">
+                  <Plug className="h-6 w-6 text-white/20" />
+                  <p>Smartcar is not configured. Set <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">SMARTCAR_CLIENT_ID</code>, <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">SMARTCAR_CLIENT_SECRET</code>, and <code className="text-xs bg-white/[0.06] px-1.5 py-0.5 rounded">SMARTCAR_REDIRECT_URI</code> in your environment.</p>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {/* Summary cards */}
+                  <div className="grid grid-cols-3 gap-1.5">
+                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                      <p className="text-xs text-muted-foreground">Connected Vehicles</p>
+                      <p className="text-lg font-bold text-foreground">{smartcarConnections?.total ?? 0}</p>
+                    </div>
+                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                      <p className="text-xs text-muted-foreground">Mode</p>
+                      <p className="text-lg font-bold text-foreground">
+                        <Badge variant={smartcarConnections?.mode === 'test' ? 'secondary' : 'default'}>
+                          {smartcarConnections?.mode === 'test' ? 'Test (Simulator)' : 'Live'}
+                        </Badge>
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-white/[0.08] bg-[#242424] p-3">
+                      <p className="text-xs text-muted-foreground">Status</p>
+                      <p className="text-lg font-bold">
+                        <Badge variant="default">
+                          <CheckCircle className="h-3.5 w-3.5 mr-1" />
+                          Active
+                        </Badge>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Connected vehicles table */}
+                  {Array.isArray(smartcarConnections?.connections) && smartcarConnections.connections.length > 0 ? (
+                    <div className="rounded-lg border border-white/[0.08] overflow-hidden">
+                      <table className="w-full text-sm">
+                        <thead className="bg-[#242424]">
+                          <tr className="border-b border-white/[0.08]">
+                            <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Vehicle</th>
+                            <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Status</th>
+                            <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Last Sync</th>
+                            <th className="text-left py-1.5 px-2 text-muted-foreground font-medium text-xs">Error</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {smartcarConnections.connections.map((conn: any) => (
+                            <tr key={conn.vehicle_id} className="border-b border-white/[0.04] hover:bg-white/[0.04]">
+                              <td className="py-1.5 px-2 text-foreground">
+                                {conn.vehicle_name || `Vehicle #${conn.vehicle_id}`}
+                                {conn.license_plate && <span className="text-xs text-muted-foreground ml-1">({conn.license_plate})</span>}
+                              </td>
+                              <td className="py-1.5 px-2">
+                                <Badge variant={conn.sync_status === 'active' ? 'default' : conn.sync_status === 'error' ? 'destructive' : 'secondary'}>
+                                  {formatEnum(conn.sync_status || 'unknown')}
+                                </Badge>
+                              </td>
+                              <td className="py-1.5 px-2 text-muted-foreground text-xs">
+                                {conn.updated_at ? formatDateTime(conn.updated_at) : '\u2014'}
+                              </td>
+                              <td className="py-1.5 px-2 text-xs text-rose-400 truncate max-w-[200px]">
+                                {conn.sync_error || '\u2014'}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center h-20 text-muted-foreground text-sm gap-1">
+                      <p>No vehicles connected yet. Use the vehicle detail panel to connect vehicles via Smartcar.</p>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </Section>
+        </div>
       </div>
     </div>
   )

@@ -333,7 +333,27 @@ const AddProviderDialog: React.FC<AddProviderDialogProps> = ({
                     Click the button below to authorize this vehicle with Smartcar.
                     You'll be redirected to Smartcar's authorization page.
                   </p>
-                  <Button variant="outline" size="sm" className="mt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                    onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/smartcar/connect?vehicle_id=${vehicleId}`, { credentials: 'include' })
+                        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+                        const json = await res.json()
+                        const authUrl = json?.data?.authUrl || json?.authUrl
+                        if (authUrl) {
+                          const w = 500, h = 700
+                          const left = window.screenX + (window.outerWidth - w) / 2
+                          const top = window.screenY + (window.outerHeight - h) / 2
+                          window.open(authUrl, 'smartcar-connect', `width=${w},height=${h},left=${left},top=${top},toolbar=no,menubar=no`)
+                        }
+                      } catch (err) {
+                        toast.error('Failed to start Smartcar connection')
+                      }
+                    }}
+                  >
                     <ExternalLink className="w-4 h-4" />
                     Connect to Smartcar
                   </Button>
