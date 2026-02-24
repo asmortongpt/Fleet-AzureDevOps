@@ -299,7 +299,6 @@ export function ScheduleView({
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <EmailButton
-                  to={reservation.driver_email}
                   context={{
                     type: 'schedule_notification',
                     entityName: formatVehicleShortName(reservation),

@@ -774,7 +774,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                     {repair.technicianEmail && (
                       <EmailButton
                         to={repair.technicianEmail}
-                        context={{ type: 'maintenance_reminder', recipientName: repair.technicianName }}
+                        context={{ type: 'maintenance_reminder', recipientName: repair.assignedTechnician }}
                         label={repair.technicianEmail}
                         variant="ghost"
                         className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
@@ -927,7 +927,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       </a>
                       <EmailButton
                         to={repair.reportedByEmail}
-                        context={{ type: 'general', recipientName: repair.reportedByName }}
+                        context={{ type: 'general', recipientName: repair.reportedBy }}
                         label={repair.reportedByEmail}
                         variant="ghost"
                         className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
@@ -952,7 +952,7 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                         {repair.technicianEmail && (
                           <EmailButton
                             to={repair.technicianEmail}
-                            context={{ type: 'work_order_update', recipientName: repair.technicianName }}
+                            context={{ type: 'work_order_update', recipientName: repair.assignedTechnician }}
                             label={repair.technicianEmail}
                             variant="ghost"
                             className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
@@ -1644,7 +1644,7 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
 
                     <EmailButton
                       to={record.technicianEmail}
-                      context={{ type: 'maintenance_reminder', recipientName: record.technicianName }}
+                      context={{ type: 'maintenance_reminder', recipientName: record.technician }}
                       label={record.technicianEmail}
                       variant="ghost"
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
@@ -1803,7 +1803,7 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
 
                     <EmailButton
                       to={vendor.email}
-                      context={{ type: 'vendor_contact', entityName: vendor.name, recipientName: vendor.contactPerson || vendor.name }}
+                      context={{ type: 'vendor_contact', entityName: vendor.vendorName, recipientName: vendor.contactPerson || vendor.vendorName }}
                       label={vendor.email}
                       variant="ghost"
                       className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
