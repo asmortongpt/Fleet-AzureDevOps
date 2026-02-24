@@ -51,13 +51,13 @@ const EVENT_COLORS = {
     pending: 'bg-yellow-100 border-yellow-300 text-yellow-900',
     confirmed: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
     active: 'bg-green-100 border-green-300 text-green-900',
-    completed: 'bg-gray-100 border-gray-300 text-slate-700',
+    completed: 'bg-gray-100 border-gray-300 text-white/70',
     cancelled: 'bg-red-100 border-red-300 text-red-900',
   },
   maintenance: {
     scheduled: 'bg-purple-100 border-purple-300 text-purple-900',
     in_progress: 'bg-orange-100 border-orange-300 text-orange-900',
-    completed: 'bg-gray-100 border-gray-300 text-slate-700',
+    completed: 'bg-gray-100 border-gray-300 text-white/70',
     cancelled: 'bg-red-100 border-red-300 text-red-900',
   },
 }

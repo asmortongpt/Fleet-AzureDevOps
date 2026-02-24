@@ -246,7 +246,7 @@ export function ChargesAndBilling() {
     return [
       { label: 'Paid on Time', value: Math.round((paidOnTime / total) * 100), color: 'bg-green-500' },
       { label: 'Paid Late', value: Math.round((paidLate / total) * 100), color: 'bg-yellow-500' },
-      { label: 'Invoiced', value: Math.round((invoiced / total) * 100), color: 'bg-blue-500' },
+      { label: 'Invoiced', value: Math.round((invoiced / total) * 100), color: 'bg-emerald-500/50' },
       { label: 'Overdue', value: Math.round((overdue / total) * 100), color: 'bg-red-500' },
       { label: 'Waived', value: Math.round((waived / total) * 100), color: 'bg-muted-foreground' },
     ].filter((item) => item.value > 0)
@@ -516,7 +516,7 @@ export function ChargesAndBilling() {
                 <div className="flex items-end justify-between h-40 gap-2">
                   {monthlyBillingTrend.map((entry) => (
                     <div key={entry.key} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="w-full bg-blue-500 rounded-t" style={{ height: `${Math.max(4, entry.total / 60)}px` }} />
+                      <div className="w-full bg-emerald-500/50 rounded-t" style={{ height: `${Math.max(4, entry.total / 60)}px` }} />
                       <span className="text-[9px] text-muted-foreground">{entry.label}</span>
                     </div>
                   ))}

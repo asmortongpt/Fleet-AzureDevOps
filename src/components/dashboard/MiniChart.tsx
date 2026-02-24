@@ -28,7 +28,7 @@ export function MiniChart({
   const maxValue = useMemo(() => Math.max(...data.map(d => d.value), 1), [data])
 
   const colorClasses = {
-    blue: "bg-blue-500 dark:bg-blue-400",
+    blue: "bg-emerald-500/50 dark:bg-emerald-400",
     green: "bg-green-500 dark:bg-green-400",
     amber: "bg-amber-500 dark:bg-amber-400",
     red: "bg-red-500 dark:bg-red-400",
@@ -36,7 +36,7 @@ export function MiniChart({
   }
 
   const _bgColorClasses = {
-    blue: "bg-blue-100 dark:bg-blue-950",
+    blue: "bg-emerald-500/10 dark:bg-emerald-950",
     green: "bg-green-100 dark:bg-green-950",
     amber: "bg-amber-100 dark:bg-amber-950",
     red: "bg-red-100 dark:bg-red-950",

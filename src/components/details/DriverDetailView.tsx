@@ -232,7 +232,7 @@ export function DriverDetailView({ driver, onClose }: DriverDetailViewProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Email:</span>
-                    <span className="font-medium text-blue-800">{driver.email || '—'}</span>
+                    <span className="font-medium text-emerald-800">{driver.email || '—'}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Phone:</span>

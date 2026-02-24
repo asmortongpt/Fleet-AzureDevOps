@@ -425,23 +425,23 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-gradient-to-br from-slate-900 to-slate-800 rounded-lg">
+        <div className="flex items-center justify-center w-full h-full min-h-[400px] bg-gradient-to-br from-[#111] to-[#1a1a1a] rounded-lg">
           <div className="text-center p-6 max-w-md">
             <AlertTriangle className="w-12 h-12 text-amber-400 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-white mb-2">3D View Unavailable</h3>
-            <p className="text-sm text-slate-300 mb-4">
+            <p className="text-sm text-white/60 mb-4">
               The 3D vehicle viewer could not be loaded. This may be due to browser compatibility
               or graphics driver limitations.
             </p>
             {this.props.vehicleLabel && (
-              <p className="text-xs text-slate-400 mb-4">Vehicle: {this.props.vehicleLabel}</p>
+              <p className="text-xs text-white/50 mb-4">Vehicle: {this.props.vehicleLabel}</p>
             )}
             {import.meta.env.DEV && this.state.error && (
               <details className="text-left mt-4">
-                <summary className="text-xs text-slate-500 cursor-pointer hover:text-slate-300">
+                <summary className="text-xs text-white/40 cursor-pointer hover:text-white/60">
                   Error details (dev only)
                 </summary>
-                <pre className="text-xs text-red-400 mt-2 p-3 bg-slate-950 rounded overflow-auto max-h-40">
+                <pre className="text-xs text-red-400 mt-2 p-3 bg-[#0a0a0a] rounded overflow-auto max-h-40">
                   {this.state.error.message}
                   {'\n\n'}
                   {this.state.error.stack}
@@ -450,7 +450,7 @@ class R3FErrorBoundary extends Component<R3FErrorBoundaryProps, R3FErrorBoundary
             )}
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
-              className="mt-4 px-4 py-2 text-sm bg-slate-700 text-white rounded-lg hover:bg-slate-600 transition-colors"
+              className="mt-4 px-4 py-2 text-sm bg-white/[0.15] text-white rounded-lg hover:bg-white/[0.1] transition-colors"
             >
               Try Again
             </button>

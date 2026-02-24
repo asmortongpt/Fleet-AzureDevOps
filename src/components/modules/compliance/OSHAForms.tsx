@@ -365,7 +365,7 @@ export function OSHAForms() {
   const getStatusColor = (status: OSHAForm["status"]) => {
     const colors = {
       draft: "bg-gray-100 text-gray-700",
-      submitted: "bg-blue-100 text-blue-700",
+      submitted: "bg-emerald-500/10 text-emerald-700",
       "under-review": "bg-yellow-100 text-yellow-700",
       approved: "bg-green-100 text-green-700",
       closed: "bg-purple-100 text-purple-700"

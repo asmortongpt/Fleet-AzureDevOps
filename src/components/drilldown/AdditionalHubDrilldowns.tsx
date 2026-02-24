@@ -111,7 +111,7 @@ export function IncidentsDrilldown() {
                                 </div>
                                 <Badge variant="outline" className={`${severity === 'high' || severity === 'critical' ? 'border-red-500 text-red-400' :
                                         severity === 'medium' || severity === 'moderate' ? 'border-amber-500 text-amber-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(severity)}
                                 </Badge>
@@ -397,7 +397,7 @@ export function DispatchDrilldown() {
                                 </div>
                                 <Badge variant="outline" className={`${status === 'in_transit' || status === 'in_progress' ? 'border-emerald-500 text-emerald-700' :
                                         status === 'delayed' || status === 'cancelled' ? 'border-red-500 text-red-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(job.status)}
                                 </Badge>
@@ -489,7 +489,7 @@ export function RoutesDrilldown() {
                                 </div>
                                 <Badge variant="outline" className={`${status === 'in_progress' || status === 'in-progress' || status === 'in_transit' ? 'border-emerald-500 text-emerald-700' :
                                         status === 'completed' ? 'border-purple-500 text-purple-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(route.status)}
                                 </Badge>
@@ -541,9 +541,9 @@ export function TasksDrilldown() {
                         <div className="text-xs text-white/40">Pending</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-blue-900/30 border-blue-700/50">
+                <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-blue-400">{statusCounts.inProgress}</div>
+                        <div className="text-sm font-bold text-emerald-400">{statusCounts.inProgress}</div>
                         <div className="text-xs text-white/40">In Progress</div>
                     </CardContent>
                 </Card>
@@ -577,7 +577,7 @@ export function TasksDrilldown() {
                                 </div>
                                 <Badge variant="outline" className={`${priority === 'high' || priority === 'urgent' ? 'border-red-500 text-red-400' :
                                         priority === 'medium' ? 'border-amber-500 text-amber-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(priority)}
                                 </Badge>
@@ -784,9 +784,9 @@ export function PurchaseOrdersDrilldown() {
                         <div className="text-xs text-white/40">High</div>
                     </CardContent>
                 </Card>
-                <Card className="bg-blue-900/30 border-blue-700/50">
+                <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-blue-400">{priorityCounts.medium}</div>
+                        <div className="text-sm font-bold text-emerald-400">{priorityCounts.medium}</div>
                         <div className="text-xs text-white/40">Medium</div>
                     </CardContent>
                 </Card>
@@ -823,7 +823,7 @@ export function PurchaseOrdersDrilldown() {
                                 </div>
                                 <Badge variant="outline" className={`${priority === 'urgent' ? 'border-red-500 text-red-400' :
                                         priority === 'high' ? 'border-amber-500 text-amber-400' :
-                                            'border-slate-500 text-white/40'
+                                            'border-white/[0.12] text-white/40'
                                     }`}>
                                     {formatEnum(priority)}
                                 </Badge>

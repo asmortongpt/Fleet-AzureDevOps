@@ -143,7 +143,7 @@ export function DocumentScanner({
 
   const getDocumentTypeColor = (type: string) => {
     const colors: Record<string, string> = {
-      fuel_receipt: 'bg-blue-500',
+      fuel_receipt: 'bg-emerald-500/50',
       parts_invoice: 'bg-green-500',
       service_invoice: 'bg-orange-500',
       inspection_report: 'bg-purple-500',

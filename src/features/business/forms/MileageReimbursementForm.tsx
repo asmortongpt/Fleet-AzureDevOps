@@ -55,14 +55,14 @@ const MileageReimbursementForm: React.FC = () => {
         />
       </div>
       
-      <div className="mt-2 p-2 bg-blue-900 rounded">
+      <div className="mt-2 p-2 bg-emerald-900 rounded">
         <p className="text-white">Total Miles: {totalMiles}</p>
         <p className="text-white font-bold">Reimbursement: ${reimbursement.toFixed(2)}</p>
       </div>
       
       <button 
         type="submit"
-        className="mt-2 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        className="mt-2 px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700"
       >
         Submit Reimbursement Request
       </button>

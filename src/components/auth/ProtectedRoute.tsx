@@ -162,8 +162,8 @@ export const ProtectedRoute = ({
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-slate-700">Verifying authentication...</p>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
+          <p className="text-white/70">Verifying authentication...</p>
         </div>
       </div>
     )
@@ -194,7 +194,7 @@ export const ProtectedRoute = ({
             />
           </svg>
           <h2 className="text-sm font-bold text-gray-900 mb-2">Access Denied</h2>
-          <p className="text-slate-700 mb-3">
+          <p className="text-white/70 mb-3">
             You don't have permission to access this page.
           </p>
           {requiredRole && (
@@ -209,7 +209,7 @@ export const ProtectedRoute = ({
           )}
           <button
             onClick={() => window.history.back()}
-            className="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
           >
             Go Back
           </button>

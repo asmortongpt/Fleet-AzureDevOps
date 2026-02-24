@@ -67,7 +67,7 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
           <div
             className={cn(
               'fixed right-0 top-0 bottom-0 w-full md:w-2/3 lg:w-1/2 xl:w-2/5',
-              'bg-slate-950/95 backdrop-blur-2xl border-l border-slate-800 shadow-sm z-50',
+              'bg-[#0a0a0a]/95 backdrop-blur-2xl border-l border-white/[0.15] shadow-sm z-50',
               'flex flex-col',
               className
             )}
@@ -76,7 +76,7 @@ export function DrilldownPanel({ children, className }: DrilldownPanelProps) {
             aria-labelledby="drilldown-title"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-2 border-b border-slate-800/50 bg-slate-900/20 backdrop-filter backdrop-blur-sm">
+            <div className="flex items-center justify-between p-2 border-b border-white/[0.15]/50 bg-[#111]/20 backdrop-filter backdrop-blur-sm">
               <div className="flex items-center space-x-2">
                 {canGoBack && (
                   <Button

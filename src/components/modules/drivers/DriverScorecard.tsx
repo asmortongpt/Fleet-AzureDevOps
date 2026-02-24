@@ -138,14 +138,14 @@ export function DriverScorecard() {
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return "text-green-600"
-    if (score >= 75) return "text-blue-800"
+    if (score >= 75) return "text-emerald-800"
     if (score >= 60) return "text-yellow-600"
     return "text-red-600"
   }
 
   const getScoreBgColor = (score: number) => {
     if (score >= 90) return "bg-green-100"
-    if (score >= 75) return "bg-blue-100"
+    if (score >= 75) return "bg-emerald-500/10"
     if (score >= 60) return "bg-yellow-100"
     return "bg-red-100"
   }
@@ -167,7 +167,7 @@ export function DriverScorecard() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <div className="animate-spin rounded-full h-9 w-12 border-b-2 border-emerald-600 mx-auto mb-2"></div>
           <p style={{ color: brandColors.archon.mediumGray }}>Loading driver scorecard...</p>
         </div>
       </div>
@@ -369,7 +369,7 @@ export function DriverScorecard() {
                   <div className="grid grid-cols-3 gap-2">
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <ShieldCheck className="h-5 w-5 text-blue-800" />
+                        <ShieldCheck className="h-5 w-5 text-emerald-800" />
                         <span className="text-sm font-medium">Safety</span>
                       </div>
                       <div className="text-sm font-bold">{selectedDriver.safetyScore.toFixed(1)}</div>

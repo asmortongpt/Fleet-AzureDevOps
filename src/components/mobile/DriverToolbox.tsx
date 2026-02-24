@@ -194,7 +194,7 @@ export const DriverToolbox: React.FC = () => {
       id: 'inspection',
       title: 'Pre-Trip Inspection',
       icon: Clipboard,
-      color: 'bg-blue-500',
+      color: 'bg-emerald-500/50',
       action: handleStartInspection,
       badge: stats.pendingInspections,
     },
@@ -239,11 +239,11 @@ export const DriverToolbox: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 pb-20">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-3 rounded-b-3xl shadow-sm">
+      <div className="bg-gradient-to-r from-emerald-600 to-emerald-800 text-white p-3 rounded-b-3xl shadow-sm">
         <div className="flex items-center justify-between mb-2">
           <div>
             <h1 className="text-sm font-bold">Driver Toolbox</h1>
-            <p className="text-blue-200 text-sm">
+            <p className="text-emerald-200 text-sm">
               {isOffline ? 'Working Offline' : 'Connected'}
             </p>
           </div>
@@ -262,11 +262,11 @@ export const DriverToolbox: React.FC = () => {
           <div className="bg-white/10 backdrop-blur-sm rounded-md p-2 mt-2">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-blue-200">Active Vehicle</p>
+                <p className="text-sm text-emerald-200">Active Vehicle</p>
                 <p className="text-sm font-semibold">
                   {activeVehicle.vehicleNumber} - {formatVehicleShortName(activeVehicle)}
                 </p>
-                <p className="text-sm text-blue-200">{activeVehicle.licensePlate}</p>
+                <p className="text-sm text-emerald-200">{activeVehicle.licensePlate}</p>
               </div>
               <div className="text-right">
                 {activeVehicle.mileage && (
@@ -280,7 +280,7 @@ export const DriverToolbox: React.FC = () => {
           </div>
         ) : (
           <div className="bg-white/10 backdrop-blur-sm rounded-md p-2 mt-2 text-center">
-            <p className="text-blue-200">No vehicle assigned</p>
+            <p className="text-emerald-200">No vehicle assigned</p>
             <button className="mt-2 bg-white/20 hover:bg-white/30 px-2 py-2 rounded-lg text-sm transition-colors">
               Select Vehicle
             </button>
@@ -301,7 +301,7 @@ export const DriverToolbox: React.FC = () => {
           </div>
           <div className="bg-white rounded-md p-2 shadow-sm">
             <p className="text-gray-700 text-sm">Pending Inspections</p>
-            <p className="text-sm font-bold text-blue-800">{stats.pendingInspections}</p>
+            <p className="text-sm font-bold text-emerald-800">{stats.pendingInspections}</p>
           </div>
           <div className="bg-white rounded-md p-2 shadow-sm">
             <p className="text-gray-700 text-sm">Pending Sync</p>

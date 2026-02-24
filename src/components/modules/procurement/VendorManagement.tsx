@@ -130,7 +130,7 @@ export function VendorManagement() {
 
   const getTypeColor = (type: Vendor["type"]) => {
     const colors: Record<Vendor["type"], string> = {
-      parts: "bg-blue-100 text-blue-700",
+      parts: "bg-emerald-500/10 text-emerald-700",
       service: "bg-green-100 text-green-700",
       fuel: "bg-orange-100 text-orange-700",
       insurance: "bg-purple-100 text-purple-700",

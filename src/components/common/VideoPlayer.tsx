@@ -269,8 +269,8 @@ export function VideoPlayer({
 
       {/* No Source - Demo Mode */}
       {!src && status !== 'offline' && (
-        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-          <Camera className="w-12 h-9 text-slate-600" />
+        <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-[#1a1a1a] to-[#111]">
+          <Camera className="w-12 h-9 text-white/50" />
         </div>
       )}
 

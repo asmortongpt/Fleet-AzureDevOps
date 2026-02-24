@@ -160,6 +160,7 @@ export function FleetGalleryGrid({ vehicles, onSelectVehicle, onClose }: FleetGa
           <button
             onClick={onClose}
             className="p-1.5 rounded-lg hover:bg-white/[0.08] text-white/40 hover:text-white/60 transition-colors"
+            aria-label="Close gallery"
           >
             <X className="w-4 h-4" />
           </button>

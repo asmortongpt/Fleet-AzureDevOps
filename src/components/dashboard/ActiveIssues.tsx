@@ -166,10 +166,10 @@ export function ActiveIssues({ className }: ActiveIssuesProps) {
     },
     info: {
       icon: <Info className="h-5 w-5" />,
-      bg: 'bg-blue-50 dark:bg-blue-950/30',
-      border: 'border-blue-300 dark:border-blue-800',
-      text: 'text-blue-700 dark:text-blue-700',
-      badge: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+      bg: 'bg-emerald-500/5 dark:bg-emerald-950/30',
+      border: 'border-emerald-500/30 dark:border-emerald-800',
+      text: 'text-emerald-700 dark:text-emerald-700',
+      badge: 'bg-emerald-500/10 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300',
       label: 'INFO'
     }
   };

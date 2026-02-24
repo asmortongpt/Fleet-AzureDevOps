@@ -73,7 +73,7 @@ interface VehicleFormData extends Vehicle {
 const STATUS_OPTIONS = [
   { value: 'active', label: 'Active', color: 'bg-emerald-500/20 border-emerald-500' },
   { value: 'maintenance', label: 'Maintenance', color: 'bg-amber-500/20 border-amber-500' },
-  { value: 'inactive', label: 'Inactive', color: 'bg-slate-500/20 border-slate-500' },
+  { value: 'inactive', label: 'Inactive', color: 'bg-white/[0.05] border-white/[0.12]' },
   { value: 'out_of_service', label: 'Out of Service', color: 'bg-red-500/20 border-red-500' },
 ];
 
@@ -516,7 +516,7 @@ export function VehiclesOperations() {
                 <div className="mt-2 flex items-center gap-3">
                   <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden border border-white/[0.08]">
                     <div
-                      className="h-full bg-gradient-to-r from-blue-400 to-blue-500 transition-all"
+                      className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500/50 transition-all"
                       style={{ width: `${Math.min(selectedVehicle.fuelLevel || 0, 100)}%` }}
                     />
                   </div>
@@ -632,9 +632,9 @@ export function VehiclesOperations() {
           </div>
         ) : filteredVehicles.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-64 text-center p-4">
-            <Car className="w-12 h-12 text-slate-600 mb-3" />
+            <Car className="w-12 h-12 text-white/50 mb-3" />
             <p className="text-sm font-semibold text-muted-foreground">No vehicles found</p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-white/40 mt-1">
               {searchQuery || filterStatus !== 'all'
                 ? 'Try adjusting your search or filters'
                 : 'Add your first vehicle to get started'}

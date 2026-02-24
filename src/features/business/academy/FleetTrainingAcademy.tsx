@@ -274,7 +274,7 @@ const FleetTrainingAcademy: React.FC = () => {
       case 'safety':
         return 'bg-red-100 text-red-800';
       case 'operations':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-emerald-500/10 text-emerald-800';
       case 'maintenance':
         return 'bg-orange-100 text-orange-800';
       case 'compliance':
@@ -341,25 +341,25 @@ const FleetTrainingAcademy: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-          <p className="text-slate-700">Loading training catalog...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto mb-2"></div>
+          <p className="text-white/70">Loading training catalog...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-3">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-500/5 to-indigo-100 p-3">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-3">
           <div className="flex items-center justify-between mb-2">
             <div>
               <h1 className="text-sm font-bold text-gray-900 mb-2 flex items-center">
-                <BookOpen className="mr-3 text-blue-800" />
+                <BookOpen className="mr-3 text-emerald-800" />
                 Fleet Training Academy
               </h1>
-              <p className="text-slate-700 text-sm">
+              <p className="text-white/70 text-sm">
                 Professional development and certification for fleet management excellence
               </p>
             </div>
@@ -377,14 +377,14 @@ const FleetTrainingAcademy: React.FC = () => {
 
           {/* Quick stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-2 mb-3">
-            <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+            <Card className="bg-gradient-to-r from-emerald-500/50 to-emerald-600 text-white">
               <CardContent className="p-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-blue-100">Courses Completed</p>
+                    <p className="text-emerald-100">Courses Completed</p>
                     <p className="text-sm font-bold">{formatNumber(stats.coursesCompleted)}</p>
                   </div>
-                  <CheckCircle2 className="w-4 h-4 text-blue-200" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-200" />
                 </div>
               </CardContent>
             </Card>
@@ -451,7 +451,7 @@ const FleetTrainingAcademy: React.FC = () => {
                   id="category"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="all">All Categories</option>
                   <option value="safety">Safety</option>
@@ -624,8 +624,8 @@ const FleetTrainingAcademy: React.FC = () => {
                                     className="flex items-center p-3 border rounded-lg"
                                   >
                                     <div className="flex items-center space-x-3 flex-1">
-                                      <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center">
-                                        <ModuleIcon className="w-4 h-4 text-blue-800" />
+                                      <div className="w-4 h-4 bg-emerald-500/10 rounded-full flex items-center justify-center">
+                                        <ModuleIcon className="w-4 h-4 text-emerald-800" />
                                       </div>
                                       <div>
                                         <p className="font-medium">
@@ -686,7 +686,7 @@ const FleetTrainingAcademy: React.FC = () => {
                               <h4 className="font-semibold mb-2">Instructor</h4>
                               <div className="p-3 bg-gray-50 rounded-lg">
                                 <p className="font-medium">{course.instructor.name}</p>
-                                <p className="text-sm text-slate-700">{course.instructor.title}</p>
+                                <p className="text-sm text-white/70">{course.instructor.title}</p>
                                 <p className="text-sm mt-1">{course.instructor.bio}</p>
                                 <div className="flex items-center mt-2 text-sm">
                                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
@@ -724,7 +724,7 @@ const FleetTrainingAcademy: React.FC = () => {
                                   <p className="text-sm text-green-600">
                                     Valid for {course.certification.validityPeriod} months
                                   </p>
-                                  <p className="text-xs text-slate-700 mt-1">
+                                  <p className="text-xs text-white/70 mt-1">
                                     Accredited by {course.certification.accreditingBody}
                                   </p>
                                 </div>
@@ -776,7 +776,7 @@ const FleetTrainingAcademy: React.FC = () => {
             <CardContent>
               <BookOpen className="w-16 h-16 text-gray-300 mx-auto mb-2" />
               <h3 className="text-sm font-semibold text-gray-900 mb-2">No courses found</h3>
-              <p className="text-slate-700 mb-2">
+              <p className="text-white/70 mb-2">
                 Try adjusting your search terms or selected category.
               </p>
               <Button

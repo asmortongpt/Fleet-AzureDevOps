@@ -799,7 +799,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           {/* Column Visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 min-h-[44px] sm:min-h-0">
+              <Button variant="outline" size="sm" className="h-9 min-h-[44px] sm:min-h-0" aria-label="Toggle columns">
                 <Eye className="h-4 w-4 mr-1" />
                 {!isMobile && "Columns"}
               </Button>
@@ -826,7 +826,7 @@ export function ExcelStyleTable<T extends Record<string, any>>({
           {enableExport && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-9 min-h-[44px] sm:min-h-0">
+                <Button variant="outline" size="sm" className="h-9 min-h-[44px] sm:min-h-0" aria-label="Export data">
                   <Download className="h-4 w-4 mr-1" />
                   {!isMobile && "Export"}
                 </Button>

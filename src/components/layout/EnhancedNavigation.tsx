@@ -151,7 +151,7 @@ export const EnhancedNavigation: React.FC<EnhancedNavigationProps> = ({
         {/* Right Side Actions */}
         <div className="flex items-center gap-4">
           {/* Notifications */}
-          <button className="relative p-2 rounded-lg hover:bg-gray-100" style={{ transition: transitions.fast }}>
+          <button className="relative p-2 rounded-lg hover:bg-gray-100" style={{ transition: transitions.fast }} aria-label="Notifications">
             <Bell size={20} style={{ color: colors.neutral[600] }} />
             {notifications > 0 && (
               <span

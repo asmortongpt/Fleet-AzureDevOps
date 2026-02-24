@@ -99,7 +99,7 @@ function EmailHeader({ email }: { email: EmailRecord }) {
               <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
             )}
             {!email.isRead && (
-              <Badge className="bg-blue-500 text-white text-xs">Unread</Badge>
+              <Badge className="bg-emerald-500/50 text-white text-xs">Unread</Badge>
             )}
           </div>
         </div>

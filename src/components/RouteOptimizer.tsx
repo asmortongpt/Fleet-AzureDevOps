@@ -435,7 +435,7 @@ export function RouteOptimizer() {
    */
   const getScoreColor = useCallback((score: number): string => {
     if (score >= 90) return 'text-green-600'
-    if (score >= 75) return 'text-blue-800'
+    if (score >= 75) return 'text-emerald-800'
     return 'text-orange-600'
   }, [])
 

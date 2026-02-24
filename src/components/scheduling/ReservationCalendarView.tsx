@@ -463,6 +463,7 @@ export function ReservationCalendarView() {
             type="button"
             onClick={goToPreviousWeek}
             className="p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
+            aria-label="Previous week"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -473,6 +474,7 @@ export function ReservationCalendarView() {
             type="button"
             onClick={goToNextWeek}
             className="p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
+            aria-label="Next week"
           >
             <ChevronRight className="w-4 h-4" />
           </button>

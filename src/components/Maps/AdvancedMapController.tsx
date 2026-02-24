@@ -68,7 +68,7 @@ export function AdvancedMapController() {
 
         {showLayerPanel && (
           <motion.div
-            className="absolute top-full left-0 mt-2 rounded-xl backdrop-blur-xl border border-white/20 bg-slate-900/95 p-3 space-y-2 min-w-max"
+            className="absolute top-full left-0 mt-2 rounded-xl backdrop-blur-xl border border-white/20 bg-[#111]/95 p-3 space-y-2 min-w-max"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
           >
@@ -96,7 +96,7 @@ export function AdvancedMapController() {
 
       {/* Map Info Overlay */}
       <motion.div
-        className="absolute bottom-6 left-6 z-40 rounded-xl backdrop-blur-xl border border-white/20 bg-slate-900/95 p-6 max-w-sm"
+        className="absolute bottom-6 left-6 z-40 rounded-xl backdrop-blur-xl border border-white/20 bg-[#111]/95 p-6 max-w-sm"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}

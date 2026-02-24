@@ -84,11 +84,11 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
       case 'warning':
         return 'border-amber-500 bg-amber-50';
       case 'maintenance':
-        return 'border-blue-500 bg-blue-50';
+        return 'border-emerald-500 bg-emerald-500/5';
       case 'offline':
         return 'border-gray-400 bg-gray-50';
       default:
-        return 'border-slate-300 bg-white';
+        return 'border-white/[0.12] bg-white';
     }
   };
 
@@ -97,7 +97,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
     if (isMoving) return <Navigation className="h-4 w-4 text-green-600 animate-pulse" />;
     if (status === 'healthy') return <CheckCircle className="h-4 w-4 text-green-600" />;
     if (status === 'warning') return <AlertTriangle className="h-4 w-4 text-amber-600 animate-pulse" />;
-    if (status === 'maintenance') return <Wrench className="h-4 w-4 text-blue-600" />;
+    if (status === 'maintenance') return <Wrench className="h-4 w-4 text-emerald-600" />;
     return <Clock className="h-4 w-4 text-gray-600" />;
   };
 
@@ -117,7 +117,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                 <span className="text-xs font-semibold truncate">{vehicle.number || vehicle.vehicleNumber}</span>
               </div>
               {health.issues.length > 0 && (
-                <p className="text-xs text-slate-600 truncate">{health.issues[0]}</p>
+                <p className="text-xs text-white/50 truncate">{health.issues[0]}</p>
               )}
             </div>
           );
@@ -141,10 +141,10 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
               {/* Header */}
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <Truck className="h-5 w-5 text-slate-700" />
+                  <Truck className="h-5 w-5 text-white/70" />
                   <div>
                     <h3 className="font-semibold text-sm">{vehicle.number || vehicle.vehicleNumber}</h3>
-                    <p className="text-xs text-slate-600">
+                    <p className="text-xs text-white/50">
                       {formatVehicleShortName(vehicle)}
                     </p>
                   </div>
@@ -168,7 +168,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                 {vehicle.fuelLevel !== undefined && (
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1 text-xs text-white/50">
                         <Fuel className="h-3 w-3" />
                         <span>Fuel</span>
                       </div>
@@ -185,7 +185,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                 {vehicle.batteryLevel !== undefined && (
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1 text-xs text-white/50">
                         <Battery className="h-3 w-3" />
                         <span>Battery</span>
                       </div>
@@ -194,7 +194,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                     <Progress
                       value={vehicle.batteryLevel}
                       className={`h-1.5 ${vehicle.batteryLevel < 20 ? 'bg-red-200' : ''}`}
-                      indicatorClassName={vehicle.batteryLevel < 20 ? 'bg-red-500' : 'bg-blue-500'}
+                      indicatorClassName={vehicle.batteryLevel < 20 ? 'bg-red-500' : 'bg-emerald-500/50'}
                     />
                   </div>
                 )}
@@ -202,7 +202,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
                 {vehicle.odometer && vehicle.nextMaintenanceMiles && (
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1 text-xs text-white/50">
                         <Gauge className="h-3 w-3" />
                         <span>Next Maintenance</span>
                       </div>
@@ -221,7 +221,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
 
               {/* Health issues */}
               {health.issues.length > 0 && (
-                <div className="mt-3 pt-3 border-t border-slate-200">
+                <div className="mt-3 pt-3 border-t border-white/[0.08]">
                   {health.issues.map((issue) => (
                     <div key={issue} className="flex items-center gap-1 text-xs text-amber-700">
                       <AlertTriangle className="h-3 w-3" />
@@ -233,7 +233,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
 
               {/* Real-time update indicator */}
               {vehicle.position && (
-                <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+                <div className="mt-3 pt-3 border-t border-white/[0.08] flex items-center justify-between text-xs text-white/40">
                   <span>Last update</span>
                   <div className="flex items-center gap-1">
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
@@ -249,7 +249,7 @@ export function VehicleStatusGrid({ vehicles, onVehicleClick, compact = false }:
       })}
 
       {enhancedVehicles.length === 0 && (
-        <div className="col-span-full text-center py-12 text-slate-500">
+        <div className="col-span-full text-center py-12 text-white/40">
           <Truck className="h-16 w-16 mx-auto mb-4 opacity-20" />
           <p>No vehicles found</p>
         </div>

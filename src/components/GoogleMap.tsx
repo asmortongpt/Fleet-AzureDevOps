@@ -703,7 +703,7 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
   if (!hasValidApiKey) {
     return (
       <div
-        className={`relative w-full h-full min-h-[500px] bg-slate-950 overflow-hidden ${className}`}
+        className={`relative w-full h-full min-h-[500px] bg-[#0a0a0a] overflow-hidden ${className}`}
       >
         {/* Grid Background */}
         <div className="absolute inset-0"
@@ -772,9 +772,9 @@ export const GoogleMap = forwardRef<GoogleMapHandle, GoogleMapProps>(function Go
                 <div className="absolute -inset-2 border border-emerald-500/30 rounded-full opacity-0 group-hover:opacity-100 scale-0 group-hover:scale-100 transition-all duration-300" />
 
                 {/* Tooltip */}
-                <div className="absolute left-4 top-0 bg-slate-900 border border-emerald-500/30 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none backdrop-blur-md shadow-sm">
+                <div className="absolute left-4 top-0 bg-[#111] border border-emerald-500/30 px-2 py-1 rounded text-[10px] font-mono whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-20 pointer-events-none backdrop-blur-md shadow-sm">
                   <div className="text-emerald-700 font-bold">{v.name}</div>
-                  <div className="text-slate-700">{v.status.toUpperCase()}</div>
+                  <div className="text-white/70">{v.status.toUpperCase()}</div>
                   <div className="text-[9px] text-gray-800 mt-1">
                     LAT: {typeof v.location?.lat === 'number' ? v.location.lat.toFixed(4) : '—'}
                   </div>

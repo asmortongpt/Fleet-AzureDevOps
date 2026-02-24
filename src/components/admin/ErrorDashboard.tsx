@@ -196,9 +196,9 @@ export function ErrorDashboard() {
       case 'medium':
         return 'text-yellow-600 bg-yellow-100 border-yellow-300';
       case 'low':
-        return 'text-blue-800 bg-blue-100 border-blue-300';
+        return 'text-emerald-800 bg-emerald-500/10 border-emerald-500/30';
       default:
-        return 'text-slate-700 bg-gray-100 border-gray-300';
+        return 'text-white/70 bg-gray-100 border-gray-300';
     }
   }
 

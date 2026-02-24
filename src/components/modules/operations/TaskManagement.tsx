@@ -260,7 +260,7 @@ export function TaskManagement() {
   const getPriorityColor = (priority: Task['priority']) => {
     const colors = {
       low: "bg-gray-100 text-gray-700",
-      medium: "bg-blue-100 text-blue-700",
+      medium: "bg-emerald-500/10 text-emerald-700",
       high: "bg-orange-100 text-orange-700",
       critical: "bg-red-100 text-red-700"
     }
@@ -270,7 +270,7 @@ export function TaskManagement() {
   const getStatusColor = (status: Task['status']) => {
     const colors = {
       pending: "bg-gray-100 text-gray-700",
-      in_progress: "bg-blue-100 text-blue-700",
+      in_progress: "bg-emerald-500/10 text-emerald-700",
       completed: "bg-green-100 text-green-700",
       cancelled: "bg-red-100 text-red-700"
     }
@@ -434,7 +434,7 @@ export function TaskManagement() {
             <CardTitle className="text-sm font-medium text-muted-foreground">In Progress</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-sm font-bold text-blue-800">{inProgressTasks}</div>
+            <div className="text-sm font-bold text-emerald-800">{inProgressTasks}</div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
               <Clock className="w-3 h-3" />
               Active work

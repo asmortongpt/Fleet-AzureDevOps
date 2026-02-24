@@ -50,7 +50,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'medium':
         return 'border-l-4 border-l-yellow-500 bg-yellow-50/50 dark:bg-yellow-950/20'
       case 'low':
-        return 'border-l-4 border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+        return 'border-l-4 border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-950/20'
     }
   }
 
@@ -63,7 +63,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'medium':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
       case 'low':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700'
+        return 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700'
     }
   }
 
@@ -72,7 +72,7 @@ export function AIInsightsPanel({ insights, onDismiss }: AIInsightsPanelProps) {
       case 'prediction':
         return 'text-purple-600 dark:text-purple-400'
       case 'recommendation':
-        return 'text-blue-800 dark:text-blue-700'
+        return 'text-emerald-800 dark:text-emerald-700'
       case 'alert':
         return 'text-red-600 dark:text-red-400'
       case 'optimization':

@@ -109,7 +109,7 @@ export function DocumentClassification({
                     if (e.key === 'Enter') handleAddTag();
                   }}
                 />
-                <Button onClick={handleAddTag} disabled={!newTag.trim()} size="icon">
+                <Button onClick={handleAddTag} disabled={!newTag.trim()} size="icon" aria-label="Add tag">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>

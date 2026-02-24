@@ -109,7 +109,7 @@ export function MaintenanceScheduling() {
 
   const getStatusColor = (status: MaintenanceSchedule["status"]) => {
     const colors: Record<MaintenanceSchedule["status"], string> = {
-      scheduled: "bg-blue-100 text-blue-700",
+      scheduled: "bg-emerald-500/10 text-emerald-700",
       due: "bg-yellow-100 text-yellow-700",
       overdue: "bg-red-100 text-red-700",
       completed: "bg-green-100 text-green-700"
@@ -120,7 +120,7 @@ export function MaintenanceScheduling() {
   const getPriorityColor = (priority: MaintenanceSchedule["priority"]) => {
     const colors: Record<MaintenanceSchedule["priority"], string> = {
       low: "bg-gray-100 text-gray-700",
-      medium: "bg-blue-100 text-blue-700",
+      medium: "bg-emerald-500/10 text-emerald-700",
       high: "bg-orange-100 text-orange-700",
       urgent: "bg-red-100 text-red-700"
     }

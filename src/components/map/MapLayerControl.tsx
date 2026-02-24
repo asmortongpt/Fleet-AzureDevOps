@@ -38,7 +38,7 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
                         {layers.map((layer) => (
                             <div key={layer.id} className="flex items-center justify-between group">
                                 <div className="flex items-center gap-3">
-                                    <div className={`p-2 rounded-lg transition-colors ${layer.active ? 'bg-blue-500/15 text-blue-200' : 'bg-muted/40 text-muted-foreground group-hover:bg-muted/60'}`}>
+                                    <div className={`p-2 rounded-lg transition-colors ${layer.active ? 'bg-emerald-500/15 text-emerald-200' : 'bg-muted/40 text-muted-foreground group-hover:bg-muted/60'}`}>
                                         {layer.icon}
                                     </div>
                                     <div className="flex flex-col">
@@ -51,7 +51,7 @@ export function MapLayerControl({ layers }: MapLayerControlProps) {
                                 <Switch
                                     checked={layer.active}
                                     onCheckedChange={layer.onToggle}
-                                    className="scale-75 data-[state=checked]:bg-blue-500"
+                                    className="scale-75 data-[state=checked]:bg-emerald-500/50"
                                 />
                             </div>
                         ))}

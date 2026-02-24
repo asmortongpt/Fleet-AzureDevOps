@@ -41,7 +41,7 @@ export function VirtualGarageControls({
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         {/* Header */}
         <div 
-          className="bg-gradient-to-r from-blue-600 to-blue-700 px-2 py-3 flex items-center justify-between cursor-pointer"
+          className="bg-gradient-to-r from-emerald-600 to-emerald-700 px-2 py-3 flex items-center justify-between cursor-pointer"
           onClick={() => setExpanded(!expanded)}
         >
           <div className="flex items-center gap-2 text-white">
@@ -68,7 +68,7 @@ export function VirtualGarageControls({
                     onClick={() => onCameraChange(preset.id)}
                     className={`px-3 py-2 rounded-lg text-sm transition-all ${
                       currentCamera === preset.id
-                        ? 'bg-blue-600 text-white shadow-md'
+                        ? 'bg-emerald-600 text-white shadow-md'
                         : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                     }`}
                   >
@@ -92,7 +92,7 @@ export function VirtualGarageControls({
                     onClick={() => onQualityChange(level.id as any)}
                     className={`w-full px-3 py-2 rounded-lg text-left transition-all ${
                       currentQuality === level.id
-                        ? 'bg-blue-600 text-white shadow-md'
+                        ? 'bg-emerald-600 text-white shadow-md'
                         : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
                     }`}
                   >
@@ -111,7 +111,7 @@ export function VirtualGarageControls({
               </h3>
               <button
                 onClick={onToggleShowcase}
-                className="w-full px-2 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg font-medium hover:shadow-sm transition-all"
+                className="w-full px-2 py-3 bg-gradient-to-r from-purple-600 to-emerald-600 text-white rounded-lg font-medium hover:shadow-sm transition-all"
               >
                 <div className="flex items-center justify-center gap-2">
                   <Maximize2 size={18} />

@@ -129,7 +129,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
         return 'text-yellow-600 dark:text-yellow-400'
       case 'info':
       default:
-        return 'text-blue-800 dark:text-blue-700'
+        return 'text-emerald-800 dark:text-emerald-700'
     }
   }
 
@@ -143,7 +143,7 @@ export function NotificationBell({ onNavigate }: { onNavigate: (module: string, 
         return 'bg-yellow-100 dark:bg-yellow-900/20'
       case 'info':
       default:
-        return 'bg-blue-100 dark:bg-blue-900/20'
+        return 'bg-emerald-500/10 dark:bg-emerald-900/20'
     }
   }
 

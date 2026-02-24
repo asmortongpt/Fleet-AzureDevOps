@@ -48,7 +48,7 @@ export function HubPageSkeleton() {
 // Stat card skeleton
 export function StatCardSkeleton() {
     return (
-        <div className="p-2 rounded-md border border-white/10 bg-slate-900/50 space-y-3">
+        <div className="p-2 rounded-md border border-white/10 bg-[#111]/50 space-y-3">
             <div className="flex justify-between items-start">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-8 w-8 rounded-lg" />
@@ -62,7 +62,7 @@ export function StatCardSkeleton() {
 // Generic card skeleton
 export function CardSkeleton({ className }: { className?: string }) {
     return (
-        <div className={cn("rounded-md border border-white/10 bg-slate-900/50 p-2", className)}>
+        <div className={cn("rounded-md border border-white/10 bg-[#111]/50 p-2", className)}>
             <div className="space-y-3 h-full">
                 <Skeleton className="h-5 w-1/3" />
                 <Skeleton className="h-4 w-full" />
@@ -100,8 +100,8 @@ export function TableSkeleton({ rows = 5 }: { rows?: number }) {
 // Map skeleton
 export function MapSkeleton() {
     return (
-        <div className="relative w-full h-full min-h-[400px] rounded-md overflow-hidden bg-slate-900/80">
-            <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-slate-900/50 via-slate-800/50 to-slate-900/50" />
+        <div className="relative w-full h-full min-h-[400px] rounded-md overflow-hidden bg-[#111]/80">
+            <div className="absolute inset-0 animate-shimmer bg-gradient-to-r from-[#111]/50 via-[#1a1a1a]/50 to-[#111]/50" />
             <div className="absolute top-4 left-4 space-y-2">
                 <Skeleton className="h-8 w-48" />
                 <Skeleton className="h-8 w-32" />

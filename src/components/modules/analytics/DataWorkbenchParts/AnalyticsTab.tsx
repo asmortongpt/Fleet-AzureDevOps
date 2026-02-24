@@ -284,7 +284,7 @@ export function AnalyticsTab({
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-500"
+                      className="h-full bg-emerald-500/50"
                       style={{
                         width: `${totalCostValue > 0 ? (fuelCostValue / totalCostValue) * 100 : 0}%`
                       }}

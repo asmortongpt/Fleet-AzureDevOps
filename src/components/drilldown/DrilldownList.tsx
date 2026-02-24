@@ -356,7 +356,7 @@ export function DrilldownDriverList({
                 'px-2 py-1 text-xs rounded-full',
                 driver.status === 'on-duty' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
                 driver.status === 'off-duty' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600',
-                driver.status === 'driving' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700'
+                driver.status === 'driving' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700'
               )}
             >
               {formatEnum(driver.status)}
@@ -437,7 +437,7 @@ export function DrilldownWorkOrderList({
               <span
                 className={cn(
                   'px-2 py-1 text-xs rounded-full',
-                  workOrder.status === 'pending' && 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-700',
+                  workOrder.status === 'pending' && 'bg-emerald-500/10 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-700',
                   workOrder.status === 'in-progress' && 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
                   workOrder.status === 'completed' && 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
                   workOrder.status === 'cancelled' && 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-600'

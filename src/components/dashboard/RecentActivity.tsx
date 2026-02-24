@@ -198,7 +198,7 @@ export function RecentActivity({ className }: RecentActivityProps) {
   const significanceConfig = {
     high: 'border-l-red-500 bg-red-50/50 dark:bg-red-950/20',
     medium: 'border-l-orange-500 bg-orange-50/50 dark:bg-orange-950/20',
-    low: 'border-l-blue-500 bg-blue-50/50 dark:bg-blue-950/20'
+    low: 'border-l-emerald-500 bg-emerald-500/5 dark:bg-emerald-950/20'
   };
 
   const trendIcons = {

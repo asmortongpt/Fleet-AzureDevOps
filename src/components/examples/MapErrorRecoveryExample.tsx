@@ -173,7 +173,7 @@ export function MapErrorRecoveryExample() {
       {/* Header */}
       <div>
         <h1 className="text-base font-bold mb-2">Map Error Recovery System</h1>
-        <p className="text-slate-700 dark:text-gray-400">
+        <p className="text-white/70 dark:text-gray-400">
           Comprehensive demonstration of advanced error recovery, retry logic, and health monitoring
         </p>
       </div>
@@ -332,7 +332,7 @@ export function MapErrorRecoveryExample() {
                           ? 'text-red-600'
                           : log.type === 'success'
                           ? 'text-green-600'
-                          : 'text-slate-700'
+                          : 'text-white/70'
                       }`}
                     >
                       <span className="text-gray-400">{log.time}</span>
@@ -372,7 +372,7 @@ export function MapErrorRecoveryExample() {
 
             <TabsContent value="retry" className="space-y-2">
               <h3 className="font-semibold">Exponential Backoff Retry</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
+              <ul className="list-disc list-inside space-y-1 text-sm text-white/70">
                 <li>Automatic retry with exponential backoff (1s, 2s, 4s, ...)</li>
                 <li>Maximum 3 retry attempts by default</li>
                 <li>Jitter to prevent thundering herd</li>
@@ -383,7 +383,7 @@ export function MapErrorRecoveryExample() {
 
             <TabsContent value="circuit" className="space-y-2">
               <h3 className="font-semibold">Circuit Breaker Pattern</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
+              <ul className="list-disc list-inside space-y-1 text-sm text-white/70">
                 <li>CLOSED: Normal operation, requests allowed</li>
                 <li>OPEN: Too many failures, requests rejected</li>
                 <li>HALF_OPEN: Testing recovery, limited requests</li>
@@ -394,7 +394,7 @@ export function MapErrorRecoveryExample() {
 
             <TabsContent value="health" className="space-y-2">
               <h3 className="font-semibold">Health Monitoring</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
+              <ul className="list-disc list-inside space-y-1 text-sm text-white/70">
                 <li>Periodic health checks every 60 seconds</li>
                 <li>Response time tracking and averaging</li>
                 <li>Uptime percentage calculation</li>
@@ -405,7 +405,7 @@ export function MapErrorRecoveryExample() {
 
             <TabsContent value="fallback" className="space-y-2">
               <h3 className="font-semibold">Fallback Strategies</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
+              <ul className="list-disc list-inside space-y-1 text-sm text-white/70">
                 <li>Automatic fallback from Google Maps to OpenStreetMap</li>
                 <li>Offline mode detection and handling</li>
                 <li>Error categorization (network, API, timeout, etc.)</li>

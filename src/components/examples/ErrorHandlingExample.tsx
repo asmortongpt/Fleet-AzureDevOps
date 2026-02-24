@@ -349,17 +349,17 @@ export const ErrorHandlingExample: React.FC = () => {
       </Tabs>
 
       {/* Best Practices Card */}
-      <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-800">
+      <Card className="border-emerald-500/20 bg-emerald-500/5 dark:bg-emerald-950 dark:border-emerald-800">
         <CardHeader>
-          <CardTitle className="text-blue-900 dark:text-blue-100">
+          <CardTitle className="text-emerald-900 dark:text-emerald-100">
             Best Practices
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid md:grid-cols-2 gap-2 text-sm">
             <div>
-              <h4 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">For Queries:</h4>
-              <ul className="space-y-1 text-blue-800 dark:text-blue-200">
+              <h4 className="font-semibold mb-2 text-emerald-900 dark:text-emerald-100">For Queries:</h4>
+              <ul className="space-y-1 text-emerald-800 dark:text-emerald-200">
                 <li>✓ Always show loading skeletons</li>
                 <li>✓ Display errors inline with retry option</li>
                 <li>✓ Use error boundaries for protection</li>
@@ -367,8 +367,8 @@ export const ErrorHandlingExample: React.FC = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold mb-2 text-blue-900 dark:text-blue-100">For Mutations:</h4>
-              <ul className="space-y-1 text-blue-800 dark:text-blue-200">
+              <h4 className="font-semibold mb-2 text-emerald-900 dark:text-emerald-100">For Mutations:</h4>
+              <ul className="space-y-1 text-emerald-800 dark:text-emerald-200">
                 <li>✓ Show toast on success/error</li>
                 <li>✓ Disable buttons while pending</li>
                 <li>✓ Show loading spinners</li>

@@ -30,9 +30,9 @@ export const MobileCameraCapture: React.FC<MobileCameraCaptureProps> = ({
 }) => {
     return (
         <div className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center text-white">
-            <div className="bg-slate-900 p-3 rounded-lg max-w-sm w-full">
+            <div className="bg-[#111] p-3 rounded-lg max-w-sm w-full">
                 <h2 className="text-base font-bold mb-2">Camera Capture</h2>
-                <p className="mb-3 text-slate-300">
+                <p className="mb-3 text-white/60">
                     Camera component was missing from the import. This is a placeholder.
                 </p>
                 <div className="flex gap-3">
@@ -44,13 +44,13 @@ export const MobileCameraCapture: React.FC<MobileCameraCaptureProps> = ({
                             blob: new Blob([''], { type: 'image/jpeg' }),
                             timestamp: new Date()
                         }])}
-                        className="flex-1 py-2 bg-blue-600 rounded hover:bg-blue-700"
+                        className="flex-1 py-2 bg-emerald-600 rounded hover:bg-emerald-700"
                     >
                         Simulate Capture
                     </button>
                     <button
                         onClick={onClose}
-                        className="flex-1 py-2 bg-slate-700 rounded hover:bg-slate-600"
+                        className="flex-1 py-2 bg-white/[0.15] rounded hover:bg-white/[0.1]"
                     >
                         Close
                     </button>

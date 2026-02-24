@@ -116,7 +116,7 @@ export function PullToRefresh({
           className={`
             flex items-center justify-center
             w-10 h-8 rounded-full
-            bg-blue-600 text-white
+            bg-emerald-600 text-white
             shadow-sm
             transition-transform duration-200
             ${isPulling || isRefreshing ? 'scale-110' : 'scale-100'}
@@ -179,7 +179,7 @@ export function RefreshButton({ onRefresh, className = '' }: RefreshButtonProps)
       disabled={isRefreshing}
       className={`
         flex items-center gap-2 px-2 py-2
-        bg-blue-600 hover:bg-blue-700
+        bg-emerald-600 hover:bg-emerald-700
         text-white rounded-lg
         disabled:opacity-50 disabled:cursor-not-allowed
         transition-colors

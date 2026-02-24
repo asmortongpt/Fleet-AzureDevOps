@@ -111,7 +111,7 @@ export const VehicleFormExample: React.FC = () => {
       <button
         type="submit"
         disabled={loading}
-        className="bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
+        className="bg-emerald-600 text-white px-3 py-2 rounded hover:bg-emerald-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center"
       >
         {loading ? (
           <>
