@@ -198,3 +198,4 @@ claws-reports/
 logs/verification-*.log
 .worktrees/
 *.zip
+GPS-Tracker/
