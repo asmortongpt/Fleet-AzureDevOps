@@ -14,6 +14,7 @@ import { Progress } from '@/components/ui/progress'
 import { useDrilldown, DrilldownLevel } from '@/contexts/DrilldownContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
 import { formatVehicleName } from '@/utils/vehicle-display'
 
 // Define interfaces for data structures
@@ -470,7 +471,7 @@ export function PredictiveMaintenanceDrilldown() {
                 <Card className="bg-[#242424] border-white/[0.08]">
                     <CardContent className="p-2 text-center">
                         <Gauge className="w-4 h-4 text-white/60 mx-auto mb-1" />
-                        <div className="text-base font-bold text-white">{avgMileage.toLocaleString()}</div>
+                        <div className="text-base font-bold text-white">{formatNumber(avgMileage)}</div>
                         <div className="text-sm text-white/40">Avg Miles</div>
                     </CardContent>
                 </Card>
@@ -527,7 +528,7 @@ export function PredictiveMaintenanceDrilldown() {
                                                 ? formatVehicleName(vehicle)
                                                 : `Vehicle #${vehicle.number || vehicle.vehicleNumber || vehicle.id?.slice(-6)}`}
                                         </div>
-                                        <div className="text-xs text-white/40">{(vehicle.mileage || 0).toLocaleString()} mi</div>
+                                        <div className="text-xs text-white/40">{formatNumber(vehicle.mileage || 0)} mi</div>
                                     </div>
                                 </div>
                                 <Badge variant="outline" className="border-red-500/50 text-red-400">Needs Service</Badge>
@@ -613,12 +614,6 @@ export function MaintenanceCalendarDrilldown() {
     }
 
     upcomingItems.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
-
-    const formatDate = (d: string) => {
-        try {
-            return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-        } catch { return d }
-    }
 
     const priorityColor = (p: string) => {
         switch (p) {
@@ -776,7 +771,7 @@ export function ExecutiveDashboardDrilldown() {
                 <Card className="bg-[#242424] border-white/[0.08]">
                     <CardContent className="p-2 text-center">
                         <GasPump className="w-4 h-4 text-white/60 mx-auto mb-1" />
-                        <div className="text-base font-bold text-white">${totalFuelCost.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+                        <div className="text-base font-bold text-white">{formatCurrency(totalFuelCost)}</div>
                         <div className="text-sm text-white/40">Total Fuel Cost</div>
                     </CardContent>
                 </Card>
@@ -873,8 +868,6 @@ export function CostAnalysisDrilldown() {
     // Cost breakdown percentages
     const fuelPct = totalCost > 0 ? Math.round((totalFuelCost / totalCost) * 100) : 0
     const maintPct = totalCost > 0 ? Math.round((totalMaintenanceCost / totalCost) * 100) : 0
-
-    const formatCurrency = (val: number) => `$${val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
 
     return (
         <div className="space-y-2">
@@ -1105,11 +1098,11 @@ export function FleetOptimizerDrilldown() {
                             <div className="text-xs text-white/40">Avg MPG</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-sm font-medium text-white">{totalGallons.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                            <div className="text-sm font-medium text-white">{formatNumber(totalGallons)}</div>
                             <div className="text-xs text-white/40">Total Gallons</div>
                         </div>
                         <div className="text-center">
-                            <div className="text-sm font-medium text-white">{totalDistance.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                            <div className="text-sm font-medium text-white">{formatNumber(totalDistance)}</div>
                             <div className="text-xs text-white/40">Total Miles</div>
                         </div>
                     </div>
@@ -1164,7 +1157,7 @@ export function FleetOptimizerDrilldown() {
                                                 ? formatVehicleName(v)
                                                 : `Vehicle #${v.number || v.vehicleNumber || v.id?.slice(-6)}`}
                                         </div>
-                                        <div className="text-xs text-white/40">{(v.mileage || 0).toLocaleString()} mi | {formatEnum(v.fuelType || 'unknown')}</div>
+                                        <div className="text-xs text-white/40">{formatNumber(v.mileage || 0)} mi | {formatEnum(v.fuelType || 'unknown')}</div>
                                     </div>
                                 </div>
                                 <Badge variant="outline" className="border-amber-500/50 text-amber-400">Idle</Badge>

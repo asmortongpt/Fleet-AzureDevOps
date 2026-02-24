@@ -390,7 +390,14 @@ export function ReportViewer({ reportId, onBack }: ReportViewerProps) {
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline" size="sm" onClick={() => toast.info('Share report link copied to clipboard')}>
+            <Button variant="outline" size="sm" onClick={() => {
+              const shareUrl = `${window.location.origin}${window.location.pathname}?report=${encodeURIComponent(reportId || '')}`
+              navigator.clipboard.writeText(shareUrl).then(() => {
+                toast.success('Report link copied to clipboard')
+              }).catch(() => {
+                toast.error('Failed to copy link')
+              })
+            }}>
               <Share2 className="h-4 w-4 mr-2" />
               Share
             </Button>

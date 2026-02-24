@@ -278,7 +278,7 @@ const ComplianceTabContent = memo(function ComplianceTabContent() {
     const renewalType = parts[1] || 'Renewal'
     const targetDate = new Date()
     targetDate.setDate(targetDate.getDate() + Math.max(0, (daysLeft ?? 14) - 7))
-    const formattedDate = targetDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    const formattedDate = formatDate(targetDate)
     toast.success(`${renewalType} renewal scheduled for ${entityName} — target date: ${formattedDate}`)
     push({
       id: `renewal-${itemName}`,

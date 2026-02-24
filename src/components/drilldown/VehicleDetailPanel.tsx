@@ -26,7 +26,6 @@ import {
   History,
 } from 'lucide-react'
 import { useState, useMemo } from 'react'
-import { toast } from 'sonner'
 import useSWR from 'swr'
 
 import { MetricCard } from './MetricCard'
@@ -600,7 +599,12 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
                     <div className="flex items-center justify-between">
                       <p className="text-xs text-white/40">No active assignment</p>
                       <button
-                        onClick={() => toast.info('Assignment management available in the Assignments tab')}
+                        onClick={() => push({
+                          id: `vehicle-assignments-${vehicleId}`,
+                          type: 'vehicle-assignments',
+                          label: 'Assign Driver',
+                          data: { vehicleId, vehicleName: vehicle?.name, action: 'assign' },
+                        })}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors"
                       >
                         <UserPlus className="h-3.5 w-3.5" />

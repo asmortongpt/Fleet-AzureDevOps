@@ -12,7 +12,6 @@
 import { Shield, Users, LineChart, FileText, AlertTriangle, CheckCircle, Lock, Database, Cpu, Clock, TrendingUp, UserPlus, Download, Eye } from 'lucide-react';
 import React, { useMemo } from 'react';
 // motion removed - React 19 incompatible
-import toast from 'react-hot-toast';
 
 
 import { Button } from '@/components/ui/button';
@@ -101,37 +100,30 @@ export function AdminDashboard() {
 
   // Quick actions - Navigate to specific pages
   const handleAddUser = () => {
-    toast.success('Opening new user creation form...');
     navigateTo('admin-hub-consolidated');
   };
 
   const handleViewAuditLogs = () => {
-    toast('Loading audit logs...');
     navigateTo('admin-hub-consolidated');
   };
 
   const handleGenerateReport = () => {
-    toast.success('Opening reports...');
     navigateTo('analytics');
   };
 
   const handleConfigureSettings = () => {
-    toast('Opening system configuration...');
     navigateTo('settings');
   };
 
   const handleExportData = () => {
-    toast.success('Preparing data export...');
     navigateTo('admin-hub-consolidated');
   };
 
   const handleViewUsers = () => {
-    toast('Loading user management interface...');
     navigateTo('admin-hub-consolidated');
   };
 
   const handleViewSecurityAlerts = () => {
-    toast('Loading security alerts...');
     navigateTo('safety-compliance-hub');
   };
 

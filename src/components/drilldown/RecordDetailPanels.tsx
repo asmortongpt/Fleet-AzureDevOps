@@ -26,8 +26,11 @@ import {
   Pencil,
   Save,
   X,
+  Download,
+  Plus,
+  Minus,
 } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { toast } from 'sonner'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
@@ -44,6 +47,36 @@ import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
 import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
+
+// ============================================================================
+// SHARED UTILITIES
+// ============================================================================
+
+/** Generate a CSV download from an array of key-value rows */
+function downloadCsv(filename: string, headers: string[], rows: string[][]) {
+  const csvContent = [
+    headers.join(','),
+    ...rows.map(r => r.map(cell => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')),
+  ].join('\n')
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
+
+/** Generate a printable detail view and trigger browser print dialog */
+function printDetailView(title: string, sections: { label: string; value: string }[]) {
+  const printWindow = window.open('', '_blank', 'width=800,height=600')
+  if (!printWindow) return
+  const rows = sections.map(s => `<tr><td style="padding:6px 12px;font-weight:600;white-space:nowrap">${s.label}</td><td style="padding:6px 12px">${s.value}</td></tr>`).join('')
+  printWindow.document.write(`<!DOCTYPE html><html><head><title>${title}</title><style>body{font-family:system-ui,sans-serif;padding:40px}table{border-collapse:collapse;width:100%}tr:nth-child(even){background:#f5f5f5}h1{font-size:20px;margin-bottom:16px}@media print{body{padding:20px}}</style></head><body><h1>${title}</h1><table>${rows}</table></body></html>`)
+  printWindow.document.close()
+  printWindow.focus()
+  printWindow.print()
+}
 
 // ============================================================================
 // SHARED COMPONENTS
@@ -279,6 +312,8 @@ interface InvoiceDetailPanelProps {
 export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [confirmPayOpen, setConfirmPayOpen] = useState(false)
+  const [invoiceStatus, setInvoiceStatus] = useState<string | null>(null)
 
   const invoice = {
     id: invoiceId || data.invoiceId || data.id,
@@ -365,10 +400,53 @@ export function InvoiceDetailPanel({ invoiceId }: InvoiceDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button size="sm" onClick={() => toast.success(`Invoice ${invoice.number} marked as paid`)}>Mark as Paid</Button>
-          <Button variant="outline" size="sm" onClick={() => toast.info(`Preparing PDF for ${invoice.number}...`)}>Download PDF</Button>
+          {(invoiceStatus || invoice.status) !== 'paid' && (
+            <Button size="sm" onClick={() => setConfirmPayOpen(true)}>
+              <DollarSign className="w-3 h-3 mr-1" />
+              Mark as Paid
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => {
+            printDetailView(`Invoice ${invoice.number}`, [
+              { label: 'Invoice Number', value: invoice.number },
+              { label: 'Vendor', value: invoice.vendor },
+              { label: 'Status', value: invoiceStatus || invoice.status },
+              { label: 'Issue Date', value: invoice.issueDate ? formatDate(invoice.issueDate) : '-' },
+              { label: 'Due Date', value: invoice.dueDate ? formatDate(invoice.dueDate) : '-' },
+              { label: 'Subtotal', value: formatCurrency(invoice.amount) },
+              { label: 'Tax', value: formatCurrency(invoice.tax) },
+              { label: 'Total', value: formatCurrency(invoice.total) },
+              { label: 'Description', value: invoice.description || '-' },
+            ])
+          }}>
+            <Download className="w-3 h-3 mr-1" />
+            Download PDF
+          </Button>
           <Button variant="outline" size="sm" onClick={() => { if (invoice.vendorId) { push({ id: `vendor-${invoice.vendorId}`, type: 'vendor', label: invoice.vendor, data: { vendorId: invoice.vendorId } }) } else { toast.info('No vendor linked to this invoice') } }}>View Vendor</Button>
         </div>
+
+        {/* Mark as Paid Confirmation Dialog */}
+        <Dialog open={confirmPayOpen} onOpenChange={setConfirmPayOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Confirm Payment</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground py-2">
+              Mark invoice <strong>{invoice.number}</strong> ({formatCurrency(invoice.total)}) from <strong>{invoice.vendor}</strong> as paid?
+            </p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfirmPayOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setInvoiceStatus('paid')
+                setConfirmPayOpen(false)
+                toast.success(`Invoice ${invoice.number} marked as paid`)
+              }}>
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Confirm Payment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -507,7 +585,10 @@ export function RouteDetailPanel({ routeId }: RouteDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.info(`Loading map view for ${route.name}...`)}>View on Map</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `route-map-${route.id}`, type: 'route-map', label: `${route.name} Map`, data: { routeId: route.id, startLocation: route.startLocation, endLocation: route.endLocation, stops: route.stops } })}>
+            <MapPin className="w-3 h-3 mr-1" />
+            View on Map
+          </Button>
           <Button variant="outline" size="sm" onClick={() => {
             setEditFields({
               name: route.name || '',
@@ -582,6 +663,10 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   const data = currentLevel?.data || {}
   const [editOpen, setEditOpen] = useState(false)
   const [editFields, setEditFields] = useState<Record<string, string>>({})
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false)
+  const [noteText, setNoteText] = useState('')
+  const [confirmCompleteOpen, setConfirmCompleteOpen] = useState(false)
+  const [taskStatus, setTaskStatus] = useState<string | null>(null)
 
   const task = {
     id: taskId || data.taskId || data.id,
@@ -680,8 +765,8 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          {task.status !== 'completed' && (
-            <Button size="sm" onClick={() => toast.success(`Task "${task.name}" marked as complete`)}>
+          {(taskStatus || task.status) !== 'completed' && (
+            <Button size="sm" onClick={() => setConfirmCompleteOpen(true)}>
               <CheckCircle className="w-4 h-4 mr-2" />
               Complete Task
             </Button>
@@ -699,7 +784,10 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             <Pencil className="w-3 h-3 mr-1" />
             Edit Task
           </Button>
-          <Button variant="outline" size="sm" onClick={() => toast.info('Note added to task')}>Add Note</Button>
+          <Button variant="outline" size="sm" onClick={() => { setNoteText(''); setNoteDialogOpen(true) }}>
+            <Plus className="w-3 h-3 mr-1" />
+            Add Note
+          </Button>
         </div>
 
         {/* Edit Dialog */}
@@ -754,6 +842,62 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Complete Task Confirmation Dialog */}
+        <Dialog open={confirmCompleteOpen} onOpenChange={setConfirmCompleteOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Complete Task</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-muted-foreground py-2">
+              Mark task <strong>{task.name}</strong> as completed? This action indicates the task has been fully resolved.
+            </p>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setConfirmCompleteOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setTaskStatus('completed')
+                setConfirmCompleteOpen(false)
+                toast.success(`Task "${task.name}" marked as complete`)
+              }}>
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Complete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Note Dialog */}
+        <Dialog open={noteDialogOpen} onOpenChange={setNoteDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Note to Task</DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <Label htmlFor="task-note">Note</Label>
+              <Textarea
+                id="task-note"
+                placeholder="Enter your note..."
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                rows={4}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNoteDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (!noteText.trim()) {
+                  toast.error('Please enter a note')
+                  return
+                }
+                setNoteDialogOpen(false)
+                toast.success('Note added to task')
+              }}>
+                <Save className="w-3 h-3 mr-1" />
+                Save Note
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -770,6 +914,11 @@ interface IncidentDetailPanelProps {
 export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
   const { currentLevel, push } = useDrilldown()
   const data = currentLevel?.data || {}
+  const [statusDialogOpen, setStatusDialogOpen] = useState(false)
+  const [incidentNewStatus, setIncidentNewStatus] = useState('')
+  const [incidentCurrentStatus, setIncidentCurrentStatus] = useState<string | null>(null)
+  const [notesDialogOpen, setNotesDialogOpen] = useState(false)
+  const [incidentNoteText, setIncidentNoteText] = useState('')
 
   const incident = {
     id: incidentId || data.incidentId || data.id,
@@ -891,10 +1040,81 @@ export function IncidentDetailPanel({ incidentId }: IncidentDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.info(`Update status for incident ${incident.number}`)}>Update Status</Button>
-          <Button variant="outline" size="sm" onClick={() => toast.info('Notes added to incident record')}>Add Notes</Button>
+          <Button variant="outline" size="sm" onClick={() => { setIncidentNewStatus(incidentCurrentStatus || incident.status); setStatusDialogOpen(true) }}>
+            <Pencil className="w-3 h-3 mr-1" />
+            Update Status
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => { setIncidentNoteText(''); setNotesDialogOpen(true) }}>
+            <Plus className="w-3 h-3 mr-1" />
+            Add Notes
+          </Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: `incident-docs-${incident.id}`, type: 'incident-documents', label: `${incident.number} Documents`, data: { incidentId: incident.id } })}>View Documents</Button>
         </div>
+
+        {/* Update Status Dialog */}
+        <Dialog open={statusDialogOpen} onOpenChange={setStatusDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Update Incident Status</DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <Label htmlFor="incident-status">Status</Label>
+              <Select value={incidentNewStatus} onValueChange={setIncidentNewStatus}>
+                <SelectTrigger id="incident-status"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="under-review">Under Review</SelectItem>
+                  <SelectItem value="investigating">Investigating</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setStatusDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setIncidentCurrentStatus(incidentNewStatus)
+                setStatusDialogOpen(false)
+                toast.success(`Incident ${incident.number} status updated to ${formatEnum(incidentNewStatus)}`)
+              }}>
+                <Save className="w-3 h-3 mr-1" />
+                Update Status
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Add Notes Dialog */}
+        <Dialog open={notesDialogOpen} onOpenChange={setNotesDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add Notes to Incident</DialogTitle>
+            </DialogHeader>
+            <div className="py-2">
+              <Label htmlFor="incident-note">Notes</Label>
+              <Textarea
+                id="incident-note"
+                placeholder="Enter notes about this incident..."
+                value={incidentNoteText}
+                onChange={(e) => setIncidentNoteText(e.target.value)}
+                rows={4}
+              />
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNotesDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (!incidentNoteText.trim()) {
+                  toast.error('Please enter a note')
+                  return
+                }
+                setNotesDialogOpen(false)
+                toast.success('Notes added to incident record')
+              }}>
+                <Save className="w-3 h-3 mr-1" />
+                Save Notes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -1070,6 +1290,10 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
   const data = currentLevel?.data || {}
   const [editOpen, setEditOpen] = useState(false)
   const [editFields, setEditFields] = useState<Record<string, string>>({})
+  const [qtyDialogOpen, setQtyDialogOpen] = useState(false)
+  const [qtyAdjustment, setQtyAdjustment] = useState(0)
+  const [qtyReason, setQtyReason] = useState('')
+  const [adjustedQty, setAdjustedQty] = useState<number | null>(null)
 
   const part = {
     id: partId || data.partId || data.id,
@@ -1172,7 +1396,10 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
             <Pencil className="w-3 h-3 mr-1" />
             Edit Part
           </Button>
-          <Button variant="outline" size="sm" onClick={() => toast.info(`Quantity adjustment for ${part.name}`)}>Adjust Quantity</Button>
+          <Button variant="outline" size="sm" onClick={() => { setQtyAdjustment(0); setQtyReason(''); setQtyDialogOpen(true) }}>
+            <Plus className="w-3 h-3 mr-1" />
+            Adjust Quantity
+          </Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: `po-create-${part.id}`, type: 'po-create', label: `PO for ${part.name}`, data: { partId: part.id, partName: part.name, vendorId: part.vendorId } })}>Create PO</Button>
         </div>
 
@@ -1223,6 +1450,74 @@ export function PartDetailPanel({ partId }: PartDetailPanelProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Adjust Quantity Dialog */}
+        <Dialog open={qtyDialogOpen} onOpenChange={setQtyDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Adjust Quantity: {part.name}</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-3 py-2">
+              <div className="text-sm text-muted-foreground">
+                Current quantity: <strong>{adjustedQty ?? part.quantity}</strong>
+              </div>
+              <div>
+                <Label htmlFor="qty-adjustment">Adjustment (+/-)</Label>
+                <div className="flex items-center gap-2 mt-1">
+                  <Button variant="outline" size="sm" onClick={() => setQtyAdjustment(q => q - 1)}>
+                    <Minus className="w-3 h-3" />
+                  </Button>
+                  <Input
+                    id="qty-adjustment"
+                    type="number"
+                    value={qtyAdjustment}
+                    onChange={(e) => setQtyAdjustment(Number(e.target.value))}
+                    className="w-24 text-center"
+                  />
+                  <Button variant="outline" size="sm" onClick={() => setQtyAdjustment(q => q + 1)}>
+                    <Plus className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="qty-reason">Reason</Label>
+                <Select value={qtyReason} onValueChange={setQtyReason}>
+                  <SelectTrigger id="qty-reason"><SelectValue placeholder="Select reason..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="received">Received Stock</SelectItem>
+                    <SelectItem value="used">Used in Work Order</SelectItem>
+                    <SelectItem value="damaged">Damaged/Defective</SelectItem>
+                    <SelectItem value="returned">Returned to Vendor</SelectItem>
+                    <SelectItem value="audit">Inventory Audit</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="text-sm">
+                New quantity: <strong>{(adjustedQty ?? part.quantity) + qtyAdjustment}</strong>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setQtyDialogOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                if (qtyAdjustment === 0) {
+                  toast.error('Please enter a non-zero adjustment')
+                  return
+                }
+                if (!qtyReason) {
+                  toast.error('Please select a reason')
+                  return
+                }
+                const newQty = (adjustedQty ?? part.quantity) + qtyAdjustment
+                setAdjustedQty(newQty)
+                setQtyDialogOpen(false)
+                toast.success(`${part.name} quantity adjusted by ${qtyAdjustment > 0 ? '+' : ''}${qtyAdjustment} (now ${newQty})`)
+              }}>
+                <Save className="w-3 h-3 mr-1" />
+                Apply Adjustment
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </DrilldownContent>
   )
@@ -1241,6 +1536,8 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
   const data = currentLevel?.data || {}
   const [editOpen, setEditOpen] = useState(false)
   const [editFields, setEditFields] = useState<Record<string, string>>({})
+  const [receiveConfirmOpen, setReceiveConfirmOpen] = useState(false)
+  const [poCurrentStatus, setPoCurrentStatus] = useState<string | null>(null)
 
   const po = {
     id: purchaseOrderId || data.purchaseOrderId || data.id,
@@ -1348,8 +1645,27 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
             <Pencil className="w-3 h-3 mr-1" />
             Edit PO
           </Button>
-          <Button variant="outline" size="sm" onClick={() => toast.success(`Receiving items for ${po.number}...`)}>Receive Items</Button>
-          <Button variant="outline" size="sm" onClick={() => toast.info(`Preparing PDF for ${po.number}...`)}>Download PDF</Button>
+          {(poCurrentStatus || po.status) !== 'received' && (
+            <Button variant="outline" size="sm" onClick={() => setReceiveConfirmOpen(true)}>
+              <CheckCircle className="w-3 h-3 mr-1" />
+              Receive Items
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={() => {
+            printDetailView(`Purchase Order ${po.number}`, [
+              { label: 'PO Number', value: po.number },
+              { label: 'Vendor', value: po.vendor || '-' },
+              { label: 'Status', value: poCurrentStatus || po.status },
+              { label: 'Order Date', value: po.orderDate ? formatDate(po.orderDate) : '-' },
+              { label: 'Expected Delivery', value: po.expectedDate ? formatDate(po.expectedDate) : '-' },
+              { label: 'Amount', value: formatCurrency(po.amount) },
+              { label: 'Items', value: po.items?.map((i: any) => `${i.name || i.partName} x${i.quantity}`).join(', ') || 'None' },
+              { label: 'Notes', value: po.notes || '-' },
+            ])
+          }}>
+            <Download className="w-3 h-3 mr-1" />
+            Download PDF
+          </Button>
         </div>
 
         {/* Edit Dialog */}
@@ -1383,6 +1699,41 @@ export function PurchaseOrderDetailPanel({ purchaseOrderId }: PurchaseOrderDetai
                 toast.success(`Purchase Order "${po.number}" updated successfully`)
                 setEditOpen(false)
               }}><Save className="w-3 h-3 mr-1" />Save Changes</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Receive Items Confirmation Dialog */}
+        <Dialog open={receiveConfirmOpen} onOpenChange={setReceiveConfirmOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Receive Items</DialogTitle>
+            </DialogHeader>
+            <div className="py-2 space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Confirm receipt of all items for <strong>{po.number}</strong> from <strong>{po.vendor}</strong>?
+              </p>
+              {po.items && po.items.length > 0 && (
+                <div className="space-y-1">
+                  {po.items.map((item: any) => (
+                    <div key={item.name || item.partName} className="flex justify-between p-2 bg-muted/30 rounded text-sm">
+                      <span>{item.name || item.partName}</span>
+                      <span className="text-muted-foreground">Qty: {item.quantity}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setReceiveConfirmOpen(false)}>Cancel</Button>
+              <Button onClick={() => {
+                setPoCurrentStatus('received')
+                setReceiveConfirmOpen(false)
+                toast.success(`Items received for ${po.number}`)
+              }}>
+                <CheckCircle className="w-3 h-3 mr-1" />
+                Confirm Receipt
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -1543,9 +1894,33 @@ export function TripDetailPanel({ tripId }: TripDetailPanelProps) {
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.info(`Loading map for trip ${trip.id}...`)}>View on Map</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `trip-map-${trip.id}`, type: 'trip-map', label: `${trip.name} Map`, data: { tripId: trip.id, startLocation: trip.startLocation, endLocation: trip.endLocation } })}>
+            <MapPin className="w-3 h-3 mr-1" />
+            View on Map
+          </Button>
           <Button variant="outline" size="sm" onClick={() => push({ id: `trip-telemetry-${trip.id}`, type: 'trip-telemetry', label: 'Trip Telemetry', data: { tripId: trip.id } })}>View Telemetry</Button>
-          <Button variant="outline" size="sm" onClick={() => toast.info('Generating trip report...')}>Download Report</Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            downloadCsv(`trip-${trip.id}-report.csv`, ['Field', 'Value'], [
+              ['Trip ID', String(trip.id)],
+              ['Trip Name', trip.name],
+              ['Status', trip.status],
+              ['Driver', trip.driver || '-'],
+              ['Vehicle', trip.vehicle || '-'],
+              ['Start', trip.startLocation || '-'],
+              ['End', trip.endLocation || '-'],
+              ['Start Time', trip.startTime ? formatDateTime(trip.startTime) : '-'],
+              ['End Time', trip.endTime ? formatDateTime(trip.endTime) : '-'],
+              ['Distance (miles)', String(trip.distance)],
+              ['Duration (min)', String(trip.duration)],
+              ['Fuel Used (gal)', trip.fuelUsed !== undefined ? trip.fuelUsed.toFixed(1) : '-'],
+              ['Avg Speed (mph)', trip.avgSpeed ? String(trip.avgSpeed) : '-'],
+              ['Max Speed (mph)', trip.maxSpeed ? String(trip.maxSpeed) : '-'],
+            ])
+            toast.success('Trip report downloaded')
+          }}>
+            <Download className="w-3 h-3 mr-1" />
+            Download Report
+          </Button>
         </div>
       </div>
     </DrilldownContent>
@@ -1677,8 +2052,26 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
 
         {/* Actions */}
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={() => toast.info(`Loading inspection form for ${inspection.number}...`)}>View Form</Button>
-          <Button variant="outline" size="sm" onClick={() => toast.info(`Preparing PDF for ${inspection.number}...`)}>Download PDF</Button>
+          <Button variant="outline" size="sm" onClick={() => push({ id: `inspection-form-${inspection.id}`, type: 'inspection-form', label: `${inspection.number} Form`, data: { inspectionId: inspection.id, type: inspection.type, defects: inspection.defects } })}>
+            <FileText className="w-3 h-3 mr-1" />
+            View Form
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => {
+            printDetailView(`Inspection ${inspection.number}`, [
+              { label: 'Inspection #', value: inspection.number },
+              { label: 'Type', value: inspection.type },
+              { label: 'Status', value: inspection.status },
+              { label: 'Result', value: inspection.result },
+              { label: 'Date', value: inspection.date ? formatDate(inspection.date) : '-' },
+              { label: 'Inspector', value: inspection.driver || '-' },
+              { label: 'Vehicle', value: inspection.vehicle || '-' },
+              { label: 'Defects', value: inspection.defects?.length ? inspection.defects.map((d: any) => d.description || d).join('; ') : 'None' },
+              { label: 'Notes', value: inspection.notes || '-' },
+            ])
+          }}>
+            <Download className="w-3 h-3 mr-1" />
+            Download PDF
+          </Button>
         </div>
       </div>
     </DrilldownContent>

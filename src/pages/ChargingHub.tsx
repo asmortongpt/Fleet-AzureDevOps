@@ -14,7 +14,6 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { Zap, Battery, MapPin, Plus, RefreshCw, Car, Clock, DollarSign, User, Truck } from 'lucide-react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { toast } from 'sonner';
 
 import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Button } from '@/components/ui/button';
@@ -443,7 +442,8 @@ export default function ChargingHub() {
           <Button
             size="sm"
             className="bg-primary text-primary-foreground"
-            onClick={() => toast.info('Station provisioning requires OCPP configuration. Contact your infrastructure team to register a new charger.')}
+            disabled
+            title="Station provisioning requires OCPP configuration. Contact your infrastructure team to register a new charger."
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Station

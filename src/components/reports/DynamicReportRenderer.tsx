@@ -22,6 +22,7 @@ import {
 } from 'recharts';
 
 import type { ReportDefinition, ReportVisual, ReportMeasure } from '../../services/ReportLoaderService';
+import { formatDate } from '@/utils/format-helpers';
 
 interface DynamicReportRendererProps {
   report: ReportDefinition;
@@ -151,7 +152,7 @@ export const DynamicReportRenderer: React.FC<DynamicReportRendererProps> = ({
         }).format(value);
 
       case 'date':
-        return new Date(value).toLocaleDateString('en-US');
+        return formatDate(value);
 
       default:
         return String(value);

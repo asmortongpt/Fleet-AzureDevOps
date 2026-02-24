@@ -35,6 +35,7 @@ import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
 import { secureFetch } from '@/hooks/use-api'
+import { useExport } from '@/hooks/useExport'
 import { cn } from '@/lib/utils'
 import { formatNumber } from '@/utils/format-helpers'
 
@@ -70,6 +71,7 @@ export default function AdminHub() {
   const [adminUsers, setAdminUsers] = useState<AdminUser[]>([])
   const [auditLogs, setAuditLogs] = useState<AuditLog[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const { exportToCSV } = useExport()
 
   useEffect(() => {
     let cancelled = false
@@ -467,7 +469,17 @@ export default function AdminHub() {
               <Button
                 variant="outline"
                 className="bg-[hsl(var(--card))] border-[hsl(var(--primary))]/20 text-white hover:bg-[hsl(var(--primary))]/20"
-                onClick={() => toast.info('Exporting user list...')}
+                onClick={() => exportToCSV(adminUsers.map(u => ({
+                  username: u.username,
+                  email: u.email,
+                  role: u.role,
+                  status: u.status,
+                  department: u.department,
+                  lastLogin: u.lastLogin || '-',
+                  loginCount: u.loginCount,
+                  twoFactorEnabled: u.twoFactorEnabled ? 'Yes' : 'No',
+                  createdAt: u.createdAt,
+                })), 'users')}
               >
                 Export Users
               </Button>

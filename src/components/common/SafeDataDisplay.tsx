@@ -178,11 +178,7 @@ export function SafeDate({ date, fallback = '—', format = 'short', className }
   let formatted: string
   switch (format) {
     case 'long':
-      formatted = dateObj.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      })
+      formatted = formatDate(dateObj)
       break
     case 'relative': {
       const now = new Date()

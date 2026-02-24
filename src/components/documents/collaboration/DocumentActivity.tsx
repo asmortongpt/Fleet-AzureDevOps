@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DocumentActivity as ActivityItem } from '@/lib/documents/types';
 import { formatRelativeTime } from '@/lib/documents/utils';
+import { formatDate } from '@/utils/format-helpers';
 
 interface DocumentActivityProps {
   activities: ActivityItem[];
@@ -93,11 +94,7 @@ export function DocumentActivity({ activities }: DocumentActivityProps) {
           {Object.entries(groupedActivities).map(([date, dateActivities]) => (
             <div key={date}>
               <div className="text-xs font-semibold text-muted-foreground mb-3">
-                {new Date(date).toLocaleDateString('en-US', {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
-                })}
+                {formatDate(date)}
               </div>
 
               <div className="space-y-3">

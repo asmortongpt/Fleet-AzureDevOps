@@ -29,7 +29,7 @@ import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { apiFetcher } from '@/lib/api-fetcher'
-import { formatTime } from '@/utils/format-helpers'
+import { formatDate, formatTime } from '@/utils/format-helpers'
 
 interface RouteMatrixData {
   id: string
@@ -114,14 +114,7 @@ export function RouteDetailPanel({ routeId }: { routeId?: string }) {
     })
   }, [routesArr])
 
-  // formatTime imported from @/utils/format-helpers
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    })
-  }
+  // formatDate, formatTime imported from @/utils/format-helpers
 
   const getStatusBadge = (status: string) => {
     const variants = {

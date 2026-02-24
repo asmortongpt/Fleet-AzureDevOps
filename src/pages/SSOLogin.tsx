@@ -21,6 +21,7 @@ import { AlertCircle, Loader2 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -214,14 +215,16 @@ export function SSOLogin() {
               </span>
             </Button>
 
-            <p className="text-center text-xs text-muted-foreground mt-4">
+            <p className="text-center text-xs text-muted-foreground mt-4 inline-flex items-center justify-center gap-1 w-full">
               Need assistance?{' '}
-              <a
-                href="mailto:support@capitaltechalliance.com"
-                className="font-semibold transition-colors hover:underline text-primary"
-              >
-                Contact Support
-              </a>
+              <EmailButton
+                to="support@capitaltechalliance.com"
+                context={{ type: 'general', recipientName: 'Support Team', details: 'SSO login assistance request' }}
+                label="Contact Support"
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-xs font-semibold text-primary"
+              />
             </p>
           </div>
         </Card>

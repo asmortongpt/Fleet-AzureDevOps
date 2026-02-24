@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useFleetData } from '@/hooks/use-fleet-data'
 import { formatEnum } from '@/utils/format-enum'
+import { formatCurrency, formatDate, formatNumber, formatTime } from '@/utils/format-helpers'
 
 
 /** Shared loading spinner used across all drilldowns */
@@ -105,7 +106,7 @@ export function IncidentsDrilldown() {
                                 <div>
                                     <div className="font-medium text-white">{formatEnum(incidentType)}</div>
                                     <div className="text-xs text-white/40">
-                                        {[driverLabel, vehicleLabel, incidentDate ? new Date(incidentDate).toLocaleDateString() : ''].filter(Boolean).join(' \u2022 ')}
+                                        {[driverLabel, vehicleLabel, incidentDate ? formatDate(incidentDate) : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${severity === 'high' || severity === 'critical' ? 'border-red-500 text-red-400' :
@@ -274,7 +275,7 @@ export function VideoTelematicsDrilldown() {
                         const eventType = event.type || event.incident_type || 'Event'
                         const vehicleLabel = event.vehicle_number || event.vehicle_id || ''
                         const eventDate = event.incident_date || event.date || event.created_at || ''
-                        const timeStr = eventDate ? new Date(eventDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+                        const timeStr = eventDate ? formatTime(eventDate) : ''
                         const isResolved = String(event.status || '').toLowerCase() === 'resolved' || String(event.status || '').toLowerCase() === 'closed'
                         return (
                             <div key={event.id} className="flex items-center justify-between p-3 bg-white/[0.03] rounded-lg">
@@ -571,7 +572,7 @@ export function TasksDrilldown() {
                                 <div>
                                     <div className="font-medium text-white text-sm">{wo.title || wo.serviceType || wo.number || 'Work Order'}</div>
                                     <div className="text-xs text-white/40">
-                                        {[formatEnum(wo.status), dueDate ? `Due: ${new Date(dueDate).toLocaleDateString()}` : ''].filter(Boolean).join(' \u2022 ')}
+                                        {[formatEnum(wo.status), dueDate ? `Due: ${formatDate(dueDate)}` : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${priority === 'high' || priority === 'urgent' ? 'border-red-500 text-red-400' :
@@ -817,7 +818,7 @@ export function PurchaseOrdersDrilldown() {
                                 <div>
                                     <div className="font-medium text-white text-sm">{wo.title || wo.serviceType || wo.number || 'Work Order'}</div>
                                     <div className="text-xs text-white/40">
-                                        {[formatEnum(wo.status), cost > 0 ? `Est: $${Number(cost).toLocaleString()}` : ''].filter(Boolean).join(' \u2022 ')}
+                                        {[formatEnum(wo.status), cost > 0 ? `Est: ${formatCurrency(Number(cost))}` : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <Badge variant="outline" className={`${priority === 'urgent' ? 'border-red-500 text-red-400' :
@@ -871,7 +872,7 @@ export function FuelPurchasingDrilldown() {
                 </Card>
                 <Card className="bg-emerald-900/30 border-emerald-700/50">
                     <CardContent className="p-2 text-center">
-                        <div className="text-sm font-bold text-emerald-700">{stats.totalGallons.toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                        <div className="text-sm font-bold text-emerald-700">{formatNumber(stats.totalGallons)}</div>
                         <div className="text-xs text-white/40">Total Gallons</div>
                     </CardContent>
                 </Card>
@@ -906,11 +907,11 @@ export function FuelPurchasingDrilldown() {
                                         {station ? ` @ ${station}` : ''}
                                     </div>
                                     <div className="text-xs text-white/40">
-                                        {[vehicleLabel, fuelDate ? new Date(fuelDate).toLocaleDateString() : ''].filter(Boolean).join(' \u2022 ')}
+                                        {[vehicleLabel, fuelDate ? formatDate(fuelDate) : ''].filter(Boolean).join(' \u2022 ')}
                                     </div>
                                 </div>
                                 <span className="text-sm font-medium text-white">
-                                    {cost > 0 ? `$${cost.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : '--'}
+                                    {cost > 0 ? formatCurrency(cost) : '--'}
                                 </span>
                             </div>
                         )
