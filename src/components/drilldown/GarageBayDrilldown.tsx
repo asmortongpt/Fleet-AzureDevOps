@@ -38,6 +38,7 @@ import { apiFetcher } from '@/lib/api-fetcher'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -370,15 +371,17 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                           <Phone className="h-4 w-4" />
                           {currentWorkOrder.primary_technician.phone}
                         </Button>
-                        <Button
+                        <EmailButton
+                          to={currentWorkOrder.primary_technician.email}
+                          context={{
+                            type: 'work_order_update',
+                            recipientName: currentWorkOrder.primary_technician.name,
+                          }}
+                          label={currentWorkOrder.primary_technician.email}
                           variant="outline"
                           size="sm"
-                          className="gap-2"
-                          onClick={() => window.location.href = `mailto:${currentWorkOrder.primary_technician.email}`}
-                        >
-                          <Mail className="h-4 w-4" />
-                          {currentWorkOrder.primary_technician.email}
-                        </Button>
+                          className="text-xs"
+                        />
                       </div>
                       {currentWorkOrder.primary_technician.certifications && currentWorkOrder.primary_technician.certifications.length > 0 && (
                         <div className="mt-3 flex flex-wrap gap-1">
@@ -601,18 +604,18 @@ export function GarageBayDrilldown({ bayId, bayNumber }: GarageBayDrilldownProps
                                   <Phone className="h-3 w-3" />
                                   {part.supplier_phone}
                                 </Button>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 text-xs gap-1"
-                                  onClick={(e) => {
-                                    e.stopPropagation()
-                                    window.location.href = `mailto:${part.supplier_email}`
+                                <EmailButton
+                                  to={part.supplier_email}
+                                  context={{
+                                    type: 'vendor_contact',
+                                    entityName: part.supplier,
+                                    recipientName: part.supplier_contact,
                                   }}
-                                >
-                                  <Mail className="h-3 w-3" />
-                                  {part.supplier_email}
-                                </Button>
+                                  label={part.supplier_email}
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs"
+                                />
                               </div>
                             </div>
                             {part.delivery_date && (

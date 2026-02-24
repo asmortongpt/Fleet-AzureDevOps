@@ -9,6 +9,7 @@ import React, { useState } from "react";
 
 import { Badge } from "../../ui/badge";
 import { Button } from "../../ui/button";
+import { EmailButton } from "@/components/email/EmailButton";
 import { Input } from "../../ui/input";
 import {
     Sheet,
@@ -149,16 +150,16 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                         >
                                             <Phone className="w-4 h-4" />
                                         </Button>
-                                        <Button
-                                            size="icon"
+                                        <EmailButton
+                                            to={driver.email}
+                                            context={{
+                                                type: 'driver_notice',
+                                                recipientName: driver.name,
+                                            }}
                                             variant="ghost"
                                             className="h-8 w-8"
-                                            onClick={() => window.location.href = `mailto:${driver.email}`}
-                                            title="Email"
-                                            aria-label={`Email ${driver.name}`}
-                                        >
-                                            <Mail className="w-4 h-4" />
-                                        </Button>
+                                            ariaLabel={`Email ${driver.name}`}
+                                        />
                                     </div>
                                 </div>
                             ))
@@ -191,16 +192,16 @@ export const DriverRoster: React.FC<DriverRosterProps> = ({ open, onOpenChange }
                                     >
                                         <Phone className="w-4 h-4" />
                                     </Button>
-                                    <Button
-                                        size="icon"
+                                    <EmailButton
+                                        to={member.email}
+                                        context={{
+                                            type: 'general',
+                                            recipientName: member.name,
+                                        }}
                                         variant="ghost"
                                         className="h-8 w-8"
-                                        onClick={() => window.location.href = `mailto:${member.email}`}
-                                        title="Email"
-                                        aria-label={`Email ${member.name}`}
-                                    >
-                                        <Mail className="w-4 h-4" />
-                                    </Button>
+                                        ariaLabel={`Email ${member.name}`}
+                                    />
                                 </div>
                             </div>
                         ))

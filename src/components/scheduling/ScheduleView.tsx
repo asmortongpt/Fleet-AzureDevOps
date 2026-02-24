@@ -4,12 +4,13 @@
  */
 
 import { format, isWithinInterval, isSameDay } from 'date-fns'
-import { Calendar, CheckCircle, Clock, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
+import { Calendar, CheckCircle, Clock, Mail, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
 import { formatVehicleShortName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import {
   Card,
   CardContent,
@@ -296,6 +297,20 @@ export function ScheduleView({
               <DropdownMenuItem onClick={() => handleQuickAction('view', 'reservation', reservation.id)}>
                 View Details
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <EmailButton
+                  to={reservation.driver_email}
+                  context={{
+                    type: 'schedule_notification',
+                    entityName: formatVehicleShortName(reservation),
+                    recipientName: reservation.driver_name || reservation.reserved_by_name,
+                    details: `Reservation: ${format(new Date(reservation.start_time), 'MMM d, h:mm a')} - ${format(new Date(reservation.end_time), 'h:mm a')}. Purpose: ${reservation.purpose || 'General use'}.`,
+                  }}
+                  label="Send Email"
+                  variant="ghost"
+                  className="w-full justify-start h-8 px-2 py-1.5 text-sm font-normal cursor-default"
+                />
+              </DropdownMenuItem>
               {reservation.approval_status === 'pending' && onApproveReservation && (
                 <>
                   <DropdownMenuItem
@@ -386,6 +401,18 @@ export function ScheduleView({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => handleQuickAction('view', 'maintenance', appointment.id)}>
                 View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <EmailButton
+                  context={{
+                    type: 'maintenance_reminder',
+                    entityName: formatVehicleShortName(appointment),
+                    details: `Appointment: ${format(new Date(appointment.scheduled_start), 'MMM d, h:mm a')} - ${format(new Date(appointment.scheduled_end), 'h:mm a')}. Type: ${appointment.appointment_type || 'Maintenance'}.`,
+                  }}
+                  label="Send Email"
+                  variant="ghost"
+                  className="w-full justify-start h-8 px-2 py-1.5 text-sm font-normal cursor-default"
+                />
               </DropdownMenuItem>
               {appointment.status !== 'cancelled' && appointment.status !== 'completed' && (
                 <>

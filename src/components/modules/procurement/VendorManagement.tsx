@@ -4,6 +4,7 @@ import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import { EmailButton } from "@/components/email/EmailButton"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -407,14 +408,17 @@ export function VendorManagement() {
                           <Phone className="w-4 h-4 mr-1" />
                           Call
                         </Button>
-                        <Button
+                        <EmailButton
+                          to={vendor.email}
+                          context={{
+                            type: 'vendor_contact',
+                            entityName: vendor.name,
+                            recipientName: vendor.contactPerson || vendor.name,
+                          }}
+                          label="Email"
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.location.href = `mailto:${vendor.email}`}
-                        >
-                          <Mail className="w-4 h-4 mr-1" />
-                          Email
-                        </Button>
+                        />
                         <Button
                           variant="ghost"
                           size="sm"
@@ -483,14 +487,17 @@ export function VendorManagement() {
                       <span className="text-muted-foreground">Email:</span>
                       <div className="flex items-center gap-2 mt-1">
                         <p className="font-medium">{selectedVendor.email}</p>
-                        <Button
+                        <EmailButton
+                          to={selectedVendor.email}
+                          context={{
+                            type: 'vendor_contact',
+                            entityName: selectedVendor.name,
+                            recipientName: selectedVendor.contactPerson || selectedVendor.name,
+                          }}
+                          label="Email"
                           size="sm"
                           variant="outline"
-                          onClick={() => window.location.href = `mailto:${selectedVendor.email}`}
-                        >
-                          <Mail className="w-3 h-3 mr-1" />
-                          Email
-                        </Button>
+                        />
                       </div>
                     </div>
                     <div>

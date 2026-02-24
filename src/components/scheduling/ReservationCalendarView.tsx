@@ -16,6 +16,7 @@ import {
   Car,
   CheckCircle,
   XCircle,
+  Mail,
 } from 'lucide-react'
 import { getCsrfToken } from '@/hooks/use-api'
 import { toast } from 'sonner'
@@ -25,6 +26,7 @@ import { formatDate, formatDateTime, formatNumber, formatTime as formatTimeHelpe
 import { formatVehicleName } from '@/utils/vehicle-display'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { VehicleReservationModal } from '@/components/scheduling/VehicleReservationModal'
 import type { CreateReservationRequest } from '@/types/scheduling'
 
@@ -700,6 +702,18 @@ export function ReservationCalendarView() {
                 Cancel Reservation
               </button>
             )}
+            <EmailButton
+              context={{
+                type: 'reservation_confirmation',
+                entityName: vehicleName(selectedReservation),
+                recipientName: selectedReservation.driver_name,
+                details: `Reserved ${formatDateTime(selectedReservation.start_date)} to ${formatDateTime(selectedReservation.end_date)}.${selectedReservation.purpose ? ` Purpose: ${selectedReservation.purpose}.` : ''}`,
+              }}
+              label="Email"
+              size="sm"
+              variant="ghost"
+              className="text-white/40 hover:text-white/60"
+            />
           </div>
         </div>
       )}

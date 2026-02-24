@@ -8,6 +8,7 @@ import * as z from 'zod'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import {
   Dialog,
@@ -549,6 +550,19 @@ export function VehicleReservationModal({
               >
                 Cancel
               </Button>
+              <EmailButton
+                context={{
+                  type: 'reservation_confirmation',
+                  entityName: selectedVehicle ? formatVehicleName(selectedVehicle) : undefined,
+                  details: watchStartDate && watchStartTime
+                    ? `Scheduled ${format(watchStartDate, 'PPP')} at ${watchStartTime}.`
+                    : undefined,
+                }}
+                label="Email Confirmation"
+                size="sm"
+                variant="outline"
+                className="border-white/[0.08] text-white/60 hover:text-white hover:bg-white/[0.06]"
+              />
               <Button
                 type="submit"
                 disabled={checking || submitting || conflicts.length > 0}

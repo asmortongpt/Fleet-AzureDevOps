@@ -36,6 +36,7 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
 import { cn } from '@/lib/utils'
@@ -1163,15 +1164,26 @@ export function VehicleDetailPanel({ vehicleId }: VehicleDetailPanelProps) {
           </Tabs>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
+          <div className="grid grid-cols-3 gap-2 pt-1">
             <Button onClick={handleViewMaintenance} className="w-full" size="sm">
               <Wrench className="h-4 w-4 mr-1.5" />
-              Full Maintenance History
+              Maintenance
             </Button>
             <Button onClick={handleViewTrips} variant="outline" className="w-full" size="sm">
               <Route className="h-4 w-4 mr-1.5" />
               All Trips
             </Button>
+            <EmailButton
+              context={{
+                type: 'general',
+                entityName: vehicle ? formatVehicleName(vehicle) : `Vehicle ${vehicleId}`,
+                details: `Status: ${vehicle?.status || 'N/A'}. License: ${vehicle?.license_plate || 'N/A'}.`,
+              }}
+              label="Send Email"
+              size="sm"
+              variant="outline"
+              className="w-full"
+            />
           </div>
         </div>
       )}

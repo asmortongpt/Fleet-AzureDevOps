@@ -24,6 +24,7 @@ import {
   Building2,
   Hash,
   FileSearch,
+  Mail,
 } from 'lucide-react'
 import { useState } from 'react'
 import useSWR from 'swr'
@@ -33,6 +34,7 @@ import { apiFetcher } from '@/lib/api-fetcher'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -944,15 +946,25 @@ export function WorkOrderDetailPanel({ workOrderId }: WorkOrderDetailPanelProps)
           </Tabs>
 
           {/* Action Buttons */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Button onClick={handleViewParts} className="w-full">
               <Package className="h-4 w-4 mr-2" />
-              View Parts Breakdown
+              View Parts
             </Button>
             <Button onClick={handleViewLabor} variant="outline" className="w-full">
               <Users className="h-4 w-4 mr-2" />
-              View Labor Details
+              View Labor
             </Button>
+            <EmailButton
+              context={{
+                type: 'work_order_update',
+                entityName: `WO #${workOrder?.work_order_number || workOrderId}`,
+                details: `Vehicle: ${workOrder?.vehicle_name || 'N/A'}. Status: ${workOrder?.status || 'N/A'}.${workOrder?.title ? ` Title: ${workOrder.title}.` : ''}`,
+              }}
+              label="Email Update"
+              variant="outline"
+              className="w-full"
+            />
           </div>
         </div>
       )}

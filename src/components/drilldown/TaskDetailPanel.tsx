@@ -8,7 +8,6 @@ import {
   User,
   Truck,
   Phone,
-  Mail,
   Clock,
   AlertTriangle,
   Link2,
@@ -21,6 +20,7 @@ import useSWR from 'swr'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
@@ -36,6 +36,7 @@ interface TaskData {
   id: string
   number?: string
   title: string
+  name?: string
   description?: string
   status: 'open' | 'in-progress' | 'completed' | 'blocked' | 'cancelled'
   priority: 'high' | 'medium' | 'low'
@@ -155,12 +156,6 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
   const handleCallAssignee = () => {
     if (task?.assignedToPhone) {
       window.open(`tel:${task.assignedToPhone}`, '_self')
-    }
-  }
-
-  const handleEmailAssignee = () => {
-    if (task?.assignedToEmail) {
-      window.open(`mailto:${task.assignedToEmail}`, '_self')
     }
   }
 
@@ -361,20 +356,18 @@ export function TaskDetailPanel({ taskId }: TaskDetailPanelProps) {
                         )}
                         {task.assignedToEmail && (
                           <div className="flex items-center gap-2">
-                            <Mail className="h-4 w-4 text-muted-foreground" />
-                            <a
-                              href={`mailto:${task.assignedToEmail}`}
-                              className="text-sm text-emerald-400 hover:underline"
-                              onClick={(e) => {
-                                e.preventDefault()
-                                handleEmailAssignee()
+                            <EmailButton
+                              to={task.assignedToEmail}
+                              context={{
+                                type: 'general',
+                                recipientName: task.assignedToName,
+                                details: `Regarding task: ${task.title || task.name || 'Assigned Task'}.`,
                               }}
-                            >
-                              {task.assignedToEmail}
-                            </a>
-                            <Button size="sm" variant="ghost" onClick={handleEmailAssignee}>
-                              Email
-                            </Button>
+                              label={task.assignedToEmail}
+                              variant="ghost"
+                              size="sm"
+                              className="text-emerald-400 h-auto p-0"
+                            />
                           </div>
                         )}
                       </div>

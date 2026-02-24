@@ -45,6 +45,7 @@ import { ExcelStyleTable, ExcelColumn } from '@/components/shared/ExcelStyleTabl
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -499,16 +500,13 @@ export function PMScheduleDetailPanel({ scheduleId }: PMScheduleDetailPanelProps
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${schedule.serviceProviderContact.email}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{schedule.serviceProviderContact.email}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <EmailButton
+                      to={schedule.serviceProviderContact.email}
+                      context={{ type: 'vendor_contact', entityName: schedule.serviceProviderContact?.name, recipientName: schedule.serviceProviderContact?.name }}
+                      label={schedule.serviceProviderContact.email}
+                      variant="ghost"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
+                    />
                   </div>
 
                   <Button
@@ -774,13 +772,13 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                       </a>
                     )}
                     {repair.technicianEmail && (
-                      <a
-                        href={`mailto:${repair.technicianEmail}`}
-                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
-                      >
-                        <Mail className="w-4 h-4" />
-                        {repair.technicianEmail}
-                      </a>
+                      <EmailButton
+                        to={repair.technicianEmail}
+                        context={{ type: 'maintenance_reminder', recipientName: repair.technicianName }}
+                        label={repair.technicianEmail}
+                        variant="ghost"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
+                      />
                     )}
                   </CardContent>
                 </Card>
@@ -927,13 +925,13 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                         <Phone className="w-4 h-4" />
                         {repair.reportedByPhone}
                       </a>
-                      <a
-                        href={`mailto:${repair.reportedByEmail}`}
-                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
-                      >
-                        <Mail className="w-4 h-4" />
-                        {repair.reportedByEmail}
-                      </a>
+                      <EmailButton
+                        to={repair.reportedByEmail}
+                        context={{ type: 'general', recipientName: repair.reportedByName }}
+                        label={repair.reportedByEmail}
+                        variant="ghost"
+                        className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
+                      />
                     </div>
                   </div>
 
@@ -952,13 +950,13 @@ export function RepairDetailPanel({ repairId }: RepairDetailPanelProps) {
                           </a>
                         )}
                         {repair.technicianEmail && (
-                          <a
-                            href={`mailto:${repair.technicianEmail}`}
-                            className="flex items-center gap-2 text-sm text-emerald-400 hover:underline"
-                          >
-                            <Mail className="w-4 h-4" />
-                            {repair.technicianEmail}
-                          </a>
+                          <EmailButton
+                            to={repair.technicianEmail}
+                            context={{ type: 'work_order_update', recipientName: repair.technicianName }}
+                            label={repair.technicianEmail}
+                            variant="ghost"
+                            className="flex items-center gap-2 text-sm text-emerald-400 hover:underline h-auto p-0 font-normal"
+                          />
                         )}
                       </div>
                     </div>
@@ -1380,16 +1378,13 @@ export function InspectionDetailPanel({ inspectionId }: InspectionDetailPanelPro
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${inspection.inspector.email}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{inspection.inspector.email}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <EmailButton
+                      to={inspection.inspector.email}
+                      context={{ type: 'inspection_notice', recipientName: inspection.inspector?.name }}
+                      label={inspection.inspector.email}
+                      variant="ghost"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -1647,16 +1642,13 @@ export function ServiceRecordDetailPanel({ serviceRecordId }: ServiceRecordDetai
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${record.technicianEmail}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{record.technicianEmail}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <EmailButton
+                      to={record.technicianEmail}
+                      context={{ type: 'maintenance_reminder', recipientName: record.technicianName }}
+                      label={record.technicianEmail}
+                      variant="ghost"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -1809,16 +1801,13 @@ export function ServiceVendorDetailPanel({ vendorId }: ServiceVendorDetailPanelP
                       </div>
                     </a>
 
-                    <a
-                      href={`mailto:${vendor.email}`}
-                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors"
-                    >
-                      <Mail className="w-4 h-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm font-medium">{vendor.email}</p>
-                        <p className="text-xs text-muted-foreground">Click to email</p>
-                      </div>
-                    </a>
+                    <EmailButton
+                      to={vendor.email}
+                      context={{ type: 'vendor_contact', entityName: vendor.name, recipientName: vendor.contactPerson || vendor.name }}
+                      label={vendor.email}
+                      variant="ghost"
+                      className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent transition-colors h-auto justify-start"
+                    />
                   </div>
 
                   <div className="pt-2 border-t">

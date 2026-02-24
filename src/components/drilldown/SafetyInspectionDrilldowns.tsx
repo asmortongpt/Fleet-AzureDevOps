@@ -12,7 +12,6 @@ import {
   Calendar,
   User,
   Phone,
-  Mail,
   FileText,
   Download,
 } from 'lucide-react'
@@ -23,6 +22,7 @@ import { DrilldownContent } from '@/components/DrilldownPanel'
 import { DataGrid } from '@/components/common/DataGrid'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import {
@@ -431,10 +431,8 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
     }
   }
 
-  const handleContactInspector = (email?: string, phone?: string) => {
-    if (email) {
-      window.location.href = `mailto:${email}`
-    } else if (phone) {
+  const handleContactInspector = (_email?: string, phone?: string) => {
+    if (phone) {
       window.location.href = `tel:${phone}`
     }
   }
@@ -565,14 +563,19 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                     </Button>
                   )}
                   {inspection.inspector_email && (
-                    <Button
+                    <EmailButton
+                      to={inspection.inspector_email}
+                      context={{
+                        type: 'inspection_notice',
+                        recipientName: inspection.inspector_name,
+                        entityName: inspection.vehicle_name,
+                        details: `Inspection #${inspection.inspection_number}. Type: ${inspection.type || 'Safety'}. Date: ${inspection.date}.`,
+                      }}
                       variant="ghost"
-                      size="sm"
-                      className="h-6 px-2"
-                      onClick={() => handleContactInspector(inspection.inspector_email)}
-                    >
-                      <Mail className="h-3 w-3" />
-                    </Button>
+                      size="icon"
+                      className="h-6 w-6"
+                      ariaLabel="Email inspector"
+                    />
                   )}
                 </div>
               </CardContent>
@@ -739,13 +742,17 @@ export function SafetyInspectionDetailPanel({ inspectionId }: InspectionDetailPa
                     </Button>
                   )}
                   {inspection.inspector_email && (
-                    <Button
+                    <EmailButton
+                      to={inspection.inspector_email}
+                      context={{
+                        type: 'inspection_notice',
+                        recipientName: inspection.inspector_name,
+                        entityName: inspection.vehicle_name,
+                        details: `Inspection #${inspection.inspection_number}. Type: ${inspection.type || 'Safety'}. Date: ${inspection.date}.`,
+                      }}
+                      label={inspection.inspector_email}
                       variant="outline"
-                      onClick={() => handleContactInspector(inspection.inspector_email)}
-                    >
-                      <Mail className="h-4 w-4 mr-2" />
-                      {inspection.inspector_email}
-                    </Button>
+                    />
                   )}
                 </div>
               </div>

@@ -37,7 +37,7 @@ export function useFleetData() {
   }
 
   // Fetch data from API using SWR hooks
-  const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles()
+  const { data: vehiclesData, isLoading: vehiclesLoading, error: vehiclesError } = useVehicles({ tenant_id: '', limit: 200 })
   const { data: driversData, isLoading: driversLoading, error: driversError } = useDrivers()
   const { data: workOrdersData, isLoading: workOrdersLoading, error: workOrdersError } = useWorkOrders()
   const { data: fuelTransactionsData, isLoading: fuelLoading, error: _fuelError } = useFuelTransactions()

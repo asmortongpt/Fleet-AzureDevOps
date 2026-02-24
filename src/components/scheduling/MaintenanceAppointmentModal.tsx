@@ -13,6 +13,7 @@ import * as z from 'zod'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Calendar as CalendarComponent } from '@/components/ui/calendar'
 import {
   Dialog,
@@ -569,6 +570,18 @@ export function MaintenanceAppointmentModal({
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
+              <EmailButton
+                context={{
+                  type: 'maintenance_reminder',
+                  entityName: selectedVehicle ? formatVehicleName(selectedVehicle) : undefined,
+                  details: watchDate && watchStartTime
+                    ? `Maintenance scheduled ${format(watchDate, 'PPP')} at ${watchStartTime}. Duration: ${watchDuration ?? 60} minutes.${selectedAppointmentType ? ` Service: ${selectedAppointmentType.name}.` : ''}`
+                    : undefined,
+                }}
+                label="Email Notification"
+                size="sm"
+                variant="outline"
+              />
               <Button
                 type="submit"
                 disabled={submitting || checking || conflicts.length > 0}

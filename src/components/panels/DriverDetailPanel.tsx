@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { EmailButton } from "@/components/email/EmailButton"
 import { Driver, Vehicle } from "@/lib/types"
 import { formatEnum } from "@/utils/format-enum"
 import { formatNumber } from "@/utils/format-helpers"
@@ -53,10 +54,18 @@ export function DriverDetailPanel({ driver, onClose, vehicles = [] }: DriverDeta
                             <Phone className="w-3 h-3 mr-1.5" />
                             Call
                         </Button>
-                        <Button size="sm" variant="secondary" className="h-7 text-xs bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-sm">
-                            <Mail className="w-3 h-3 mr-1.5" />
-                            Email
-                        </Button>
+                        <EmailButton
+                            to={driver.email}
+                            context={{
+                                type: 'driver_notice',
+                                entityName: driver.name,
+                                recipientName: driver.name,
+                            }}
+                            label="Email"
+                            size="sm"
+                            variant="secondary"
+                            className="h-7 text-xs bg-white/10 text-white hover:bg-white/20 border-none backdrop-blur-sm"
+                        />
                     </div>
                 </div>
 
