@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import useSWR from 'swr'
 
+import { EmailButton } from '@/components/email/EmailButton'
 import { DrilldownContent } from '@/components/DrilldownPanel'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
@@ -117,6 +118,18 @@ export function DriverDetailPanel({ driverId }: DriverDetailPanelProps) {
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm">{driver.email || '—'}</span>
+                {driver.email && (
+                  <EmailButton
+                    context={{
+                      type: 'driver_notice',
+                      recipientName: [driver.first_name, driver.last_name].filter(Boolean).join(' ') || undefined,
+                    }}
+                    to={driver.email}
+                    size="sm"
+                    variant="ghost"
+                    label="Email"
+                  />
+                )}
               </div>
               <div className="flex items-center gap-2">
                 <Phone className="h-4 w-4 text-muted-foreground" />
