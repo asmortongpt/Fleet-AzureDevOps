@@ -19,7 +19,7 @@ import {
   doubleCsrfProtection,
   getCsrfToken,
   invalidCsrfTokenError
-} from '../../src/middleware/csrf'
+} from '../../../src/middleware/csrf'
 
 describe('CSRF Protection Middleware', () => {
   describe('Token Generation - generateToken()', () => {

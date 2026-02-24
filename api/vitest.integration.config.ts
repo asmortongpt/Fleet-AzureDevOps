@@ -74,7 +74,7 @@ export default defineConfig({
       JWT_SECRET: 'test-jwt-secret-at-least-32-characters-long-for-security',
       CSRF_SECRET: 'test-csrf-secret-at-least-32-characters-long-for-security',
       USE_MOCK_DATA: 'false',
-      DATABASE_URL: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fleet_test'
+      DATABASE_URL: process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || ''
     },
     // Dependencies that should be bundled
     deps: {

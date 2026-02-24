@@ -15,10 +15,10 @@ import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import { v4 as uuidv4 } from 'uuid'
 
-import { authenticateJWT, authorize, checkAccountLock, AuthRequest, AuthUser } from '../../src/middleware/auth'
-import { FIPSJWTService } from '../../src/services/fips-jwt.service'
-import pool from '../../src/config/database'
-import logger from '../../src/config/logger'
+import { authenticateJWT, authorize, checkAccountLock, AuthRequest, AuthUser } from '../../../src/middleware/auth'
+import { FIPSJWTService } from '../../../src/services/fips-jwt.service'
+import pool from '../../../src/config/database'
+import logger from '../../../src/config/logger'
 
 describe('Authentication Middleware - authenticateJWT()', () => {
   let testUserId: string

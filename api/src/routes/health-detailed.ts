@@ -74,23 +74,28 @@ const requireAdmin = (req: Request, res: Response, next: express.NextFunction) =
     return next();
   }
 
-  // Check for JWT with admin role (if using JWT authentication)
+  // Check for JWT with privileged role
   const user = req.user;
-  if (user && (user.role === 'admin' || user.role === 'system_admin')) {
+  const normalizedRole = String(user?.role || '').toLowerCase();
+  const allowedRoles = new Set([
+    'superadmin',
+    'super-admin',
+    'admin',
+    'system_admin',
+    'system-admin',
+    'security-admin',
+    'security_admin',
+    'analyst'
+  ]);
+
+  if (user && allowedRoles.has(normalizedRole)) {
     return next();
   }
 
-  // Production mode requires authentication
-  if (process.env.NODE_ENV === 'production') {
-    return res.status(403).json({
-      error: 'Forbidden',
-      message: 'Admin access required'
-    });
-  }
-
-  // Development mode allows through (with warning)
-  logger.warn('⚠️  Admin endpoint accessed without authentication in development mode');
-  next();
+  return res.status(403).json({
+    error: 'Forbidden',
+    message: 'Admin access required'
+  });
 };
 
 /**

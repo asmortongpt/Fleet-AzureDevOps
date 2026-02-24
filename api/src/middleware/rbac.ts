@@ -216,7 +216,10 @@ export function requireRole(roles: string[]) {
         requiredRoles: roles,
         userRole,
         ipAddress: req.ip,
-        userAgent: req.get('user-agent') || ''
+        userAgent:
+          (typeof req.get === 'function' ? req.get('user-agent') : undefined) ||
+          (typeof req.headers?.['user-agent'] === 'string' ? req.headers['user-agent'] : '') ||
+          ''
       })
 
       return res.status(403).json({

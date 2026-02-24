@@ -25,10 +25,10 @@ import {
   verifyTenantOwnership,
   logAuthorizationFailure,
   clearPermissionCache
-} from '../../src/middleware/rbac'
-import { AuthRequest, AuthUser } from '../../src/middleware/auth'
-import { getUserPermissions, clearPermissionCache as clearPermissionsCacheFromMiddleware } from '../../src/middleware/permissions'
-import pool from '../../src/config/database'
+} from '../../../src/middleware/rbac'
+import { AuthRequest, AuthUser } from '../../../src/middleware/auth'
+import { getUserPermissions, clearPermissionCache as clearPermissionsCacheFromMiddleware } from '../../../src/middleware/permissions'
+import pool from '../../../src/config/database'
 
 describe('RBAC - hasRole() function', () => {
   describe('Role hierarchy', () => {

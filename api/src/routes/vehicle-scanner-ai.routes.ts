@@ -7,9 +7,17 @@
 
 import { Router, Request, Response } from 'express'
 import OpenAI from 'openai'
+import { authenticateJWT } from '../middleware/auth'
+import { requireRole, Role } from '../middleware/rbac'
 import logger from '../utils/logger'
 
 const router = Router()
+
+// Protect AI endpoint from unauthenticated abuse/cost exhaustion.
+router.use(
+  authenticateJWT,
+  requireRole([Role.SUPERADMIN, Role.ADMIN, Role.FLEET_MANAGER, Role.MAINTENANCE_TECH, Role.ANALYST])
+)
 
 const SCANNER_HOST = process.env.VEHICLE_SCANNER_HOST || 'localhost'
 const SCANNER_PORT = parseInt(process.env.VEHICLE_SCANNER_PORT || '8000', 10)

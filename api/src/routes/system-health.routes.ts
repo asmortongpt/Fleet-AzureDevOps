@@ -7,8 +7,16 @@ import { Router } from 'express';
 
 import { connectionHealthService } from '../services/ConnectionHealthService';
 import { logger } from '../utils/logger';
+import { authenticateJWT } from '../middleware/auth';
+import { requireRole, Role } from '../middleware/rbac';
 
 const router = Router();
+
+// Restrict system health diagnostics to privileged users.
+router.use(
+  authenticateJWT,
+  requireRole([Role.SUPERADMIN, Role.ADMIN, Role.SECURITY_ADMIN, Role.ANALYST])
+);
 
 /**
  * GET /api/system-health

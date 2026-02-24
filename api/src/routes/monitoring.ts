@@ -1,6 +1,8 @@
 import { performance } from 'perf_hooks'
 import { Router, Request, Response } from 'express'
 import obd2EmulatorService from '../services/obd2-emulator.service'
+import { authenticateJWT } from '../middleware/auth'
+import { requireRole, Role } from '../middleware/rbac'
 
 const getEmulatorStatus = () => ({
   activeEmulators: obd2EmulatorService.getActiveSessions().length,
@@ -9,6 +11,12 @@ const getEmulatorStatus = () => ({
 
 const router = Router()
 const serverStartTime = Date.now()
+
+// Monitoring endpoints expose operational internals and should require privileged auth.
+router.use(
+  authenticateJWT,
+  requireRole([Role.SUPERADMIN, Role.ADMIN, Role.SECURITY_ADMIN, Role.ANALYST])
+)
 
 // In-memory storage for metrics
 interface RequestMetric {

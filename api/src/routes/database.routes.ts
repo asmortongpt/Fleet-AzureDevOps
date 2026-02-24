@@ -13,8 +13,16 @@ import { Router, Request, Response } from 'express';
 import logger from '../config/logger';
 import { pool } from '../db/connection';
 import { asyncHandler } from '../middleware/async-handler';
+import { authenticateJWT } from '../middleware/auth';
+import { requireRole, Role } from '../middleware/rbac';
 
 const router = Router();
+
+// Protect database health telemetry from unauthenticated disclosure.
+router.use(
+  authenticateJWT,
+  requireRole([Role.SUPERADMIN, Role.ADMIN, Role.SECURITY_ADMIN, Role.ANALYST])
+);
 
 /**
  * GET /api/database/health

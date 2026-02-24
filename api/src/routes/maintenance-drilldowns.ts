@@ -12,9 +12,17 @@
 
 import { Router, Request, Response } from 'express'
 import pool from '../config/database'
+import { authenticateJWT } from '../middleware/auth'
+import { requireRole, Role } from '../middleware/rbac'
 import { logger } from '../utils/logger'
 
 const router = Router()
+
+// Maintenance drilldowns expose detailed operational and cost data.
+router.use(
+  authenticateJWT,
+  requireRole([Role.SUPERADMIN, Role.ADMIN, Role.FLEET_MANAGER, Role.MAINTENANCE_TECH, Role.ANALYST])
+)
 
 // ============================================
 // ROUTES

@@ -110,6 +110,10 @@ export class FleetAPI {
       ? corsOrigin.split(',').map(origin => origin.trim()).filter(Boolean)
       : [];
 
+    if (allowedOrigins.some(origin => origin.includes('*'))) {
+      throw new Error('CORS_ORIGIN cannot contain wildcard entries when credentials are enabled');
+    }
+
     const defaultDevOrigins = [
       'http://localhost:5173',
       'http://127.0.0.1:5173',

@@ -18,6 +18,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:integration:watch": "vitest --config vitest.integration.config.ts",
     "test:integration:coverage": "vitest --coverage --config vitest.integration.config.ts",
+    "test:security:cors": "vitest run --config vitest.security.config.ts",
     "coverage:analyze": "node ../scripts/coverage-analysis.js",
     "coverage:track": "node ../scripts/track-coverage-trends.js",
     "coverage:badge": "node ../scripts/generate-coverage-badge.js",
