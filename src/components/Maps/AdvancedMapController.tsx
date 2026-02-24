@@ -4,7 +4,7 @@
  */
 
 import { motion } from 'framer-motion'
-import { MapPin, Layers, Filter, Eye, EyeOff, Zap, AlertTriangle, Navigation, Settings } from 'lucide-react'
+import { MapPin, Layers, Eye, EyeOff, Zap, AlertTriangle, Navigation, Settings } from 'lucide-react'
 import { useState } from 'react'
 
 interface MapLayer {

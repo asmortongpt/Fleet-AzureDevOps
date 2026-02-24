@@ -18,8 +18,6 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 
-import { useNavigation } from '@/contexts/NavigationContext'
-import { useDrilldown } from '@/contexts/DrilldownContext'
 
 import { DamageReport3DViewer } from './DamageReport3DViewer'
 
@@ -28,9 +26,11 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { useNavigation } from '@/contexts/NavigationContext'
 import { damageReportsApi, DamageReport } from '@/services/damageReportsApi'
-import logger from '@/utils/logger';
 import { formatDateTime } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 export function DamageReportDetails() {
   const { id } = useParams<{ id: string }>()

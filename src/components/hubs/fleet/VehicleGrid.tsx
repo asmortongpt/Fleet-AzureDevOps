@@ -6,13 +6,13 @@ import { useQuery } from '@tanstack/react-query';
 import { Car, MapPin, Wrench } from 'lucide-react';
 import React, { useState } from 'react';
 
+import { Dialog } from '@/components/shared/Dialog';
+import { Button } from '@/components/ui/button';
+import { secureFetch } from '@/hooks/use-api';
 import { formatEnum } from '@/utils/format-enum';
 import { formatNumber } from '@/utils/format-helpers';
 import { formatVehicleShortName } from '@/utils/vehicle-display';
 
-import { Dialog } from '@/components/shared/Dialog';
-import { Button } from '@/components/ui/button';
-import { secureFetch } from '@/hooks/use-api';
 
 interface Vehicle {
   id: string;

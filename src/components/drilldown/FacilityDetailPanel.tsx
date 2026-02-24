@@ -15,12 +15,12 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 
 interface FacilityDetailPanelProps {

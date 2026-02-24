@@ -15,12 +15,12 @@
 
 import { Wifi, WifiOff, RefreshCw, AlertCircle, Clock } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { offlineSyncService, type SyncStatus } from '../../services/offline-sync.service';
 
 import { formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
-import { toast } from 'sonner';
 
 interface OfflineIndicatorProps {
   showDetails?: boolean;

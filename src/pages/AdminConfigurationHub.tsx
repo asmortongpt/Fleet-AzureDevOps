@@ -47,26 +47,25 @@ import {
   Info
 } from 'lucide-react'
 import { useState, memo, useMemo } from 'react'
-
 import { toast } from 'sonner'
 import useSWR from 'swr'
 
-import { apiFetcher } from '@/lib/api-fetcher'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useNavigation } from '@/contexts/NavigationContext'
-import { useDrilldown } from '@/contexts/DrilldownContext'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import HubPage from '@/components/ui/hub-page'
 import { Section } from '@/components/ui/section'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   StatCard,
   ResponsiveLineChart,
 } from '@/components/visualizations'
 import { useTenant } from '@/contexts'
+import { useDrilldown } from '@/contexts/DrilldownContext'
+import { useNavigation } from '@/contexts/NavigationContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime, formatNumber } from '@/utils/format-helpers'
 import logger from '@/utils/logger';

@@ -7,7 +7,6 @@
 import { Send, Loader2, AlertCircle, Sparkles } from 'lucide-react'
 import React, { useState, useRef, useEffect } from 'react'
 
-import { formatTime } from '@/utils/format-helpers'
 
 import { apiClient } from '../../lib/api'
 import { Badge } from '../ui/badge'
@@ -15,6 +14,8 @@ import { Button } from '../ui/button'
 import { Card } from '../ui/card'
 import { Input } from '../ui/input'
 import { Progress } from '../ui/progress'
+
+import { formatTime } from '@/utils/format-helpers'
 
 interface Message {
   role: 'user' | 'assistant'

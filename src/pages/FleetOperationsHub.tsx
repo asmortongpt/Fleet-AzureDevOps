@@ -58,12 +58,10 @@ import {
   CalendarCheck
 } from 'lucide-react'
 import { useState, Suspense, lazy, memo, useMemo } from 'react'
-
 import useSWR from 'swr'
 
-import { apiFetcher } from '@/lib/api-fetcher'
-import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 import ErrorBoundary from '@/components/common/ErrorBoundary'
+import { AddVehicleDialog } from '@/components/dialogs/AddVehicleDialog'
 import { QueryErrorBoundary } from '@/components/errors/QueryErrorBoundary'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
@@ -79,15 +77,16 @@ import {
   GaugeChart,
 } from '@/components/visualizations'
 import { useAuth } from '@/contexts'
+import { useDrilldown } from '@/contexts/DrilldownContext'
 import { useReactiveAssetsData } from '@/hooks/use-reactive-assets-data'
 import { useReactiveDriversData } from '@/hooks/use-reactive-drivers-data'
 import { useReactiveFleetData } from '@/hooks/use-reactive-fleet-data'
 import { useReactiveMaintenanceData } from '@/hooks/use-reactive-maintenance-data'
 import { useReactiveOperationsData } from '@/hooks/use-reactive-operations-data'
-import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
-import { formatVehicleName } from '@/utils/vehicle-display'
 import { formatDate, formatCurrency, formatNumber } from '@/utils/format-helpers'
+import { formatVehicleName } from '@/utils/vehicle-display'
 
 
 // ============================================================================

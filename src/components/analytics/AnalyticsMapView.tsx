@@ -9,7 +9,6 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
-import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { MapFirstLayout } from '@/components/layout/MapFirstLayout';
 import { ProfessionalFleetMap } from '@/components/map/ProfessionalFleetMap';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Separator } from '@/components/ui/separator';
 import { useVehicles } from '@/hooks/use-api';
 import { formatCurrency } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface AnalyticsMapViewProps {
   analyticsType: 'heatmap' | 'routes' | 'performance' | 'fuel';

@@ -10,8 +10,9 @@
  * - Help text
  */
 
-import React, { useState, useCallback } from 'react'
 import { AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
+import React, { useState, useCallback } from 'react'
+
 import { colors, spacing, typography, borderRadius, transitions } from '@/theme/designSystem'
 
 interface EnhancedFormFieldProps {

@@ -2,9 +2,9 @@ import { Plus, Search, Star, Mail, Phone, MapPin } from "lucide-react"
 import { useState } from "react"
 import { toast } from "sonner"
 
+import { EmailButton } from "@/components/email/EmailButton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { EmailButton } from "@/components/email/EmailButton"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
@@ -35,7 +35,6 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { useDrilldown } from "@/contexts/DrilldownContext"
 import { Vendor } from "@/lib/types"
-import { brandColors } from "@/theme/designSystem"
 import { formatEnum } from "@/utils/format-enum"
 import { formatCurrency } from "@/utils/format-helpers"
 

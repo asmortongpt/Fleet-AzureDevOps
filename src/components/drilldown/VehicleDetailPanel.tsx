@@ -31,14 +31,14 @@ import useSWR from 'swr'
 
 import { MetricCard } from './MetricCard'
 
-import { EditVehicleDialog } from '@/components/dialogs/EditVehicleDialog'
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
+import { EditVehicleDialog } from '@/components/dialogs/EditVehicleDialog'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmailButton } from '@/components/email/EmailButton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { cn } from '@/lib/utils'
 import {
   ASSET_CATEGORY_LABELS,

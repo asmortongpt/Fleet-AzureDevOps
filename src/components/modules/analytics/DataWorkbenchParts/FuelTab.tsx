@@ -5,14 +5,14 @@ import { SortIcon } from "./SortIcon"
 import { FuelRecord, FuelMetrics, SortField, SortDirection } from "./types"
 
 import { MetricCard } from "@/components/MetricCard"
-import { formatCurrency, formatDate, formatNumber } from "@/utils/format-helpers"
-import { formatVehicleName } from "@/utils/vehicle-display"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ResponsiveLineChart } from "@/components/visualizations"
 import { Vehicle } from "@/lib/types"
+import { formatCurrency, formatDate, formatNumber } from "@/utils/format-helpers"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 
 interface FuelTabProps {

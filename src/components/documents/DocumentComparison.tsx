@@ -31,8 +31,8 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import logger from '@/utils/logger';
 import { formatDateTime } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;

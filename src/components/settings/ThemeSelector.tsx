@@ -3,20 +3,19 @@
  * Allows users to select from preset themes or create custom themes
  */
 
+import { Eye, Plus, Zap } from 'lucide-react'
 import { useState } from 'react'
-import { ChevronDown, Eye, EyeOff, Plus, Zap } from 'lucide-react'
 
+import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import {
   useTheme,
   PRESET_THEMES,
   getAccessibilityThemes,
   getWCAGAAAThemes,
-  validateThemeContrast,
 } from '@/lib/themes'
 import type { Theme } from '@/lib/themes'
 

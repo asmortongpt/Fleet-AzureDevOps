@@ -11,10 +11,10 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, R
 
 
 import { getCsrfToken, refreshCsrfToken, clearCsrfToken } from '@/hooks/use-api';
+import { startSessionTimeout, trackActivity } from '@/lib/auth/session-timeout';
 import { initializeTokenRefresh, stopTokenRefresh } from '@/lib/auth/token-refresh';
 import { getMicrosoftLoginUrl } from '@/lib/microsoft-auth';
 import { loginRequest } from '@/lib/msal-config';
-import { startSessionTimeout, stopSessionTimeout, trackActivity } from '@/lib/auth/session-timeout';
 import logger from '@/utils/logger';
 
 export interface User {

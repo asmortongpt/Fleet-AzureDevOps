@@ -11,13 +11,13 @@ import {
 } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { formatTime } from '@/utils/format-helpers';
 import { Progress } from '@/components/ui/progress';
 import { useRealtimeOperations } from '@/hooks/use-realtime-operations';
 import type { Vehicle } from '@/types/Vehicle';
+import { formatTime } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 /**
  * Vehicle Status Grid

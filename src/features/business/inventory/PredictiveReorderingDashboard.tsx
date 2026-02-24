@@ -54,8 +54,6 @@ import {
   Badge
 } from '@mui/material';
 import React, { useState, useEffect } from 'react';
-
-import { formatDate } from '@/utils/format-helpers';
 import {
   BarChart,
   Bar,
@@ -73,8 +71,6 @@ import {
   AreaChart
 } from 'recharts';
 
-import { formatCurrency, formatTime } from '@/utils/format-helpers';
-
 import {
   predictiveReorderingService,
   ReorderRecommendation,
@@ -83,6 +79,7 @@ import {
   SupplierRecommendation
 } from '../../../services/inventory/PredictiveReorderingService';
 
+import { formatDate , formatCurrency, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 interface TabPanelProps {

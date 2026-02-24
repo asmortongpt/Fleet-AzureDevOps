@@ -22,8 +22,6 @@ import {
 } from 'lucide-react'
 import { useEffect, useState, useCallback } from 'react'
 
-import { useNavigation } from '@/contexts/NavigationContext'
-
 import {
     CommandDialog,
     CommandEmpty,
@@ -34,6 +32,8 @@ import {
     CommandSeparator,
     CommandShortcut,
 } from '@/components/ui/command'
+import { useNavigation } from '@/contexts/NavigationContext'
+
 
 interface CommandAction {
     id: string

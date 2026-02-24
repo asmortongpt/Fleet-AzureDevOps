@@ -3,7 +3,6 @@
  * Generates CSS variables and theme objects from color configurations
  */
 
-import type { Theme, ThemeGenerationOptions, CustomThemeConfig } from './types'
 import {
   DEUTERANOPIA_PALETTE,
   PROTANOPIA_PALETTE,
@@ -13,6 +12,7 @@ import {
   calculateContrastRatio,
   getWCAGLevel,
 } from './color-blind-palettes'
+import type { Theme, ThemeGenerationOptions, CustomThemeConfig } from './types'
 
 /**
  * Generate CSS variables from theme colors

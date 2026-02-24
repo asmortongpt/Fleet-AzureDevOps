@@ -45,7 +45,6 @@ import {
 import { useInterval } from "@/hooks"
 import { apiClient } from "@/lib/api-client"
 import { TrafficCamera, CameraDataSource } from "@/lib/types"
-import { brandColors } from "@/theme/designSystem"
 import { formatDateTime } from "@/utils/format-helpers"
 
 // ============================================================================

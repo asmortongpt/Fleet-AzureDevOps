@@ -12,8 +12,8 @@ import { api } from '@/services/api';
 import { Vehicle } from '@/types';
 import { formatEnum } from '@/utils/format-enum';
 import { formatCurrency, formatNumber } from '@/utils/format-helpers';
-import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
+import { formatVehicleName } from '@/utils/vehicle-display';
 
 /**
  * DrilldownSystem - Universal Multi-Level Drilldown with Excel Views

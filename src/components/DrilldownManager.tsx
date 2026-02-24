@@ -6,7 +6,6 @@
 import React from 'react'
 
 import { DrilldownBreadcrumbs } from '@/components/DrilldownBreadcrumbs'
-import { formatDateTime, formatTime, formatCurrency } from '@/utils/format-helpers'
 import { DrilldownPanel } from '@/components/DrilldownPanel'
 import {
   IncidentsDrilldown,
@@ -55,6 +54,9 @@ import {
   SafetyScoreDrilldown,
   VehicleListDrilldown
 } from '@/components/drilldown/FleetStatsDrilldowns'
+import { GarageBayDrilldown } from '@/components/drilldown/GarageBayDrilldown'
+import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
+import { HealthScoreBreakdown } from '@/components/drilldown/HealthScoreBreakdown'
 import {
   DriversRosterDrilldown,
   DriverPerformanceDrilldown,
@@ -68,6 +70,7 @@ import {
 } from '@/components/drilldown/HubDrilldowns'
 import { LaborDetailsView } from '@/components/drilldown/LaborDetailsView'
 import { PartsBreakdownView } from '@/components/drilldown/PartsBreakdownView'
+import { PolicyDetailPanel } from '@/components/drilldown/PolicyDetailPanel'
 import {
   AssetDetailPanel,
   InvoiceDetailPanel,
@@ -81,16 +84,13 @@ import {
   InspectionDetailPanel,
 } from '@/components/drilldown/RecordDetailPanels'
 import { TripTelemetryView } from '@/components/drilldown/TripTelemetryView'
+import { VehicleAssignmentDrilldown } from '@/components/drilldown/VehicleAssignmentDrilldown'
 import { VehicleDetailPanel } from '@/components/drilldown/VehicleDetailPanel'
-import { HealthScoreBreakdown } from '@/components/drilldown/HealthScoreBreakdown'
 import { VehicleTripsList } from '@/components/drilldown/VehicleTripsList'
 import { ViolationDetailPanel } from '@/components/drilldown/ViolationDetailPanel'
 import { WorkOrderDetailPanel } from '@/components/drilldown/WorkOrderDetailPanel'
-import { VehicleAssignmentDrilldown } from '@/components/drilldown/VehicleAssignmentDrilldown'
-import { GarageBayDrilldown } from '@/components/drilldown/GarageBayDrilldown'
-import { HazardZoneDetailPanel } from '@/components/drilldown/HazardZoneDetailPanel'
-import { PolicyDetailPanel } from '@/components/drilldown/PolicyDetailPanel'
 import { DrilldownProvider, useDrilldown } from '@/contexts/DrilldownContext'
+import { formatDateTime, formatTime, formatCurrency } from '@/utils/format-helpers'
 
 // ============================================================================
 // INLINE DETAIL COMPONENTS FOR COMPLIANCE DRILLDOWNS

@@ -50,8 +50,6 @@ import {
 } from '@mui/material';
 import { format, parseISO } from 'date-fns';
 import React, { useState, useEffect } from 'react';
-
-import logger from '@/utils/logger';
 import {
   LineChart,
   Line,
@@ -68,8 +66,6 @@ import {
   Cell
 } from 'recharts';
 
-import { formatCurrency, formatNumber } from '@/utils/format-helpers';
-
 import AdvancedAnalyticsService, {
   FleetMetrics,
   PredictiveInsight,
@@ -78,6 +74,9 @@ import AdvancedAnalyticsService, {
   CostOptimization,
   ExecutiveReport
 } from '../../services/analytics/AdvancedAnalyticsService';
+
+import { formatCurrency, formatNumber } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 interface TabPanelProps {
   children?: React.ReactNode;

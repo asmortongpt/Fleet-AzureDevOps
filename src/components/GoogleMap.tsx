@@ -3,10 +3,10 @@ import { useEffect, useRef, useState, useCallback, forwardRef, useImperativeHand
 
 import { DEFAULT_CENTER, DEFAULT_ZOOM, calculateDynamicCenter } from "@/components/UniversalMap/utils/coordinates"
 import { Vehicle, GISFacility, TrafficCamera } from "@/lib/types"
-import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
-import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor } from "@/utils/vehicle-map-icons"
 import type { MarkerStyle, MarkerSize } from "@/stores/useMapMarkerSettings"
 import logger from '@/utils/logger';
+import { buildVehicleMarkerIcon, buildSelectedMarkerIcon, getStatusColor } from "@/utils/vehicle-map-icons"
+import { buildVehiclePopupHTML } from "@/utils/vehicle-popup-html"
 /**
  * Props for the GoogleMap component
  */

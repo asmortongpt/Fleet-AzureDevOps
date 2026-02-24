@@ -11,11 +11,12 @@
  * - Notification badge
  */
 
-import React, { useState, useCallback } from 'react'
 import { Menu, X, Search, Bell, User, LogOut, Settings, ChevronDown } from 'lucide-react'
+import React, { useState, useCallback } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+
 import { cn } from '@/lib/utils'
-import { colors, spacing, shadows, transitions, typography, borderRadius } from '@/theme/designSystem'
+import { colors, shadows, transitions, typography } from '@/theme/designSystem'
 
 interface NavItem {
   label: string

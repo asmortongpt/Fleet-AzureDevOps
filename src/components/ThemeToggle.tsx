@@ -1,5 +1,5 @@
-import * as React from "react"
 import { Moon, Sun, MonitorPlay } from "lucide-react"
+import * as React from "react"
 
 import { useThemeContext } from "@/components/providers/ThemeProvider"
 import { Button } from "@/components/ui/button"

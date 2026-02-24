@@ -80,7 +80,6 @@ import { usePermissions } from "@/hooks/usePermissions"
 import { Part, InventoryTransaction } from "@/lib/types"
 import { formatEnum } from "@/utils/format-enum"
 import { formatCurrency } from "@/utils/format-helpers"
-import { brandColors } from "@/theme/designSystem"
 
 interface InventoryFilters {
   category: string

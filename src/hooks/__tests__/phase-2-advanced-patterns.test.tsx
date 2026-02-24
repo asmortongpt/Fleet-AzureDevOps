@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { useReducer, useCallback, useState, useEffect, createContext, useContext, ReactNode } from 'react';
+import { useReducer, useCallback, useState, useEffect } from 'react';
+import { describe, it, expect, vi } from 'vitest';
 
 /**
  * PHASE 2: ADVANCED STATE MANAGEMENT & COMPLEX HOOKS (150+ tests)

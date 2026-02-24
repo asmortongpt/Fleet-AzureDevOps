@@ -31,9 +31,9 @@ import {
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { Button } from '@/components/ui/button'
 import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table'
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { secureFetch } from '@/hooks/use-api'
 import { cn } from '@/lib/utils'
 import { formatNumber } from '@/utils/format-helpers'

@@ -3,8 +3,9 @@
  * generation workflow: idle → queued → processing → complete → error.
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
 import { Sparkles, Loader2, CheckCircle2, AlertTriangle, X } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+
 import { cn } from '@/lib/utils';
 
 type GenerationStatus = 'idle' | 'queued' | 'processing' | 'complete' | 'error';

@@ -7,11 +7,11 @@
 
 import { toast } from 'sonner';
 
-import { formatCurrency } from '@/utils/format-helpers';
 
 import { checkPolicyCompliance, PolicyEvaluationContext } from './engine';
 import { Policy, PolicyType } from './types';
 
+import { formatCurrency } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 export interface PolicyEnforcementResult {

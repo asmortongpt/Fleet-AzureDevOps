@@ -6,11 +6,10 @@ import {
 } from 'lucide-react';
 import { useMemo } from 'react';
 
-import { Button } from '@/components/ui/button';
 import { ArchonYLogo } from '@/components/branding/ArchonYLogo';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useNavigation } from '@/contexts/NavigationContext';
-import { brandColors } from '@/theme/designSystem';
 import { cn } from '@/lib/utils';
 
 interface CommandCenterSidebarProps {

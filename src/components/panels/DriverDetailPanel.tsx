@@ -2,22 +2,21 @@
 import {
     X,
     Phone,
-    Mail,
     MapPin,
     Truck,
     FileCheck,
     Activity
 } from "lucide-react"
 
-import { formatVehicleShortName } from "@/utils/vehicle-display"
+import { EmailButton } from "@/components/email/EmailButton"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { EmailButton } from "@/components/email/EmailButton"
 import { Driver, Vehicle } from "@/lib/types"
 import { formatEnum } from "@/utils/format-enum"
 import { formatNumber } from "@/utils/format-helpers"
+import { formatVehicleShortName } from "@/utils/vehicle-display"
 
 interface DriverDetailPanelProps {
     driver: Driver | null

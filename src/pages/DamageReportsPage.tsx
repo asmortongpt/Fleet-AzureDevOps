@@ -1,9 +1,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 
-import ErrorBoundary from '@/components/common/ErrorBoundary'
 import { CreateDamageReport } from '@/components/DamageReports/CreateDamageReport'
 import { DamageReportDetails } from '@/components/DamageReports/DamageReportDetails'
 import { DamageReportList } from '@/components/DamageReports/DamageReportList'
+import ErrorBoundary from '@/components/common/ErrorBoundary'
 
 export function DamageReportsPage() {
   return (

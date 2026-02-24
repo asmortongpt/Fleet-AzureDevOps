@@ -20,9 +20,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatCurrency, formatDate, formatNumber } from '@/utils/format-helpers'
-import { apiFetcher } from '@/lib/api-fetcher'
 
 const fetcher = apiFetcher
 

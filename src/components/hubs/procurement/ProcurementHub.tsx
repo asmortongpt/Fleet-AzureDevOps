@@ -21,11 +21,10 @@ import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { apiFetcher } from "@/lib/api-fetcher"
 import { useDrilldown } from "@/contexts/DrilldownContext"
-import { formatCurrency } from "@/utils/format-helpers"
 import { usePolicies } from "@/contexts/PolicyContext"
 import { useFleetData } from "@/hooks/use-fleet-data"
+import { apiFetcher } from "@/lib/api-fetcher"
 import {
   enforcePaymentPolicy,
   shouldBlockAction,
@@ -33,7 +32,7 @@ import {
 } from "@/lib/policy-engine/policy-enforcement"
 import { cn } from "@/lib/utils"
 import { formatEnum } from "@/utils/format-enum"
-import { formatDate } from "@/utils/format-helpers"
+import { formatCurrency , formatDate } from "@/utils/format-helpers"
 
 const fetcher = apiFetcher
 

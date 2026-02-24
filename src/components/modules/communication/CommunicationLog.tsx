@@ -45,8 +45,8 @@ import {
   TableRow
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
-import { apiFetcher } from "@/lib/api-fetcher"
 import { useAuth } from "@/contexts"
+import { apiFetcher } from "@/lib/api-fetcher"
 import { CommunicationLog as CommunicationLogType } from "@/lib/types"
 import { formatEnum } from "@/utils/format-enum"
 import { formatDate, formatTime } from "@/utils/format-helpers"

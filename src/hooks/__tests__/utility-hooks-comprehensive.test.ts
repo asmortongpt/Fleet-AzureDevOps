@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+
+import { useAsync } from '../useAsync';
 import { useDebounce } from '../useDebounce';
 import { useLocalStorage } from '../useLocalStorage';
-import { useAsync } from '../useAsync';
 import { useMediaQuery } from '../useMediaQuery';
 
 /**

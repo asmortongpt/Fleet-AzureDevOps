@@ -14,12 +14,12 @@ import {
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDate, formatDateTime } from '@/utils/format-helpers'
 

@@ -7,7 +7,6 @@ import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, eachDayOfInte
 import { AlertCircle, Calendar, ChevronLeft, ChevronRight, Truck, Wrench } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
-import { formatVehicleShortName } from '@/utils/vehicle-display'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 export type CalendarView = 'day' | 'week' | 'month'
 

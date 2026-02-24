@@ -4,10 +4,12 @@
  */
 
 import { motion } from 'framer-motion'
-import { MapPin, Zap, AlertTriangle, TrendingUp, Activity, Navigation, Fuel } from 'lucide-react'
-import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
-import { AnimatedMetricsVisualization } from './AnimatedMetricsVisualization'
+import { MapPin, Zap, AlertTriangle, Activity, Navigation, Fuel } from 'lucide-react'
 import { useState } from 'react'
+
+import { AnimatedMetricsVisualization } from './AnimatedMetricsVisualization'
+
+import { ArchonYLogo } from '@/components/branding/ArchonYLogo'
 
 export function UltraLuxuryDashboard() {
   const [hoveredSection, setHoveredSection] = useState<string | null>(null)

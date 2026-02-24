@@ -3,7 +3,9 @@
  * Tests for dynamic theme generation and CSS variable creation
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect } from 'vitest'
+
+import { THEME_LIGHT, THEME_HIGH_CONTRAST_LIGHT, THEME_DEUTERANOPIA } from '../preset-themes'
 import {
   generateCSSVariables,
   generateThemeFromColor,
@@ -12,7 +14,6 @@ import {
   generateTailwindConfig,
   createCustomTheme,
 } from '../theme-generator'
-import { THEME_LIGHT, THEME_HIGH_CONTRAST_LIGHT, THEME_DEUTERANOPIA } from '../preset-themes'
 import type { Theme, CustomThemeConfig } from '../types'
 
 describe('Theme Generator', () => {

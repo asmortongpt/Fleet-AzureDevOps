@@ -23,9 +23,9 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { usePermissions } from "@/hooks/usePermissions"
+import { brandColors } from '@/theme/designSystem'
 import { formatCurrency, formatDate } from '@/utils/format-helpers'
 import logger from '@/utils/logger';
-import { brandColors } from '@/theme/designSystem'
 
 interface CostSummary {
   totalCost: number

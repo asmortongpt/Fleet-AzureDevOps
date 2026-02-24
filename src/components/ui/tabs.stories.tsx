@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BarChart3, LineChart, PieChart, Activity } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
+import { BarChart3, LineChart, Activity } from 'lucide-react';
+
 import { Card } from './card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs';
 
 const meta: Meta<typeof Tabs> = {
   title: 'UI/Navigation/Tabs',

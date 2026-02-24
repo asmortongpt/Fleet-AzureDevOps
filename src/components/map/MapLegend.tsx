@@ -1,7 +1,7 @@
-import { memo, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { useMapMarkerSettings } from '@/stores/useMapMarkerSettings';
+import { memo, useState } from 'react';
 
+import { useMapMarkerSettings } from '@/stores/useMapMarkerSettings';
 import {
   VEHICLE_TYPE_LABELS,
   STATUS_COLORS,

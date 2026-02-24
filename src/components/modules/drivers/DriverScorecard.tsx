@@ -27,8 +27,8 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDrilldown } from "@/contexts/DrilldownContext"
-import { brandColors } from "@/theme/designSystem"
 import apiClient from "@/lib/api-client"
+import { brandColors } from "@/theme/designSystem"
 
 interface LeaderboardEntry {
   rank: number

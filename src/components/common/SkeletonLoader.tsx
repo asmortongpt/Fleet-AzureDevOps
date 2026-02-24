@@ -10,6 +10,7 @@
  */
 
 import React from 'react'
+
 import { colors, spacing } from '@/theme/designSystem'
 
 interface SkeletonProps {

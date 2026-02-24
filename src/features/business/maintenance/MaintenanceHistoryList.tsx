@@ -5,8 +5,8 @@ import { maintenanceService, MaintenanceRecord } from '../../services/maintenanc
 import { vehicleService, Vehicle } from '../../services/vehicleService';
 
 import { formatDate, formatNumber } from '@/utils/format-helpers';
-import { formatVehicleShortName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface MaintenanceHistoryListProps {
   currentTheme: any;

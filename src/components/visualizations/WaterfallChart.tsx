@@ -7,8 +7,8 @@
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { formatCurrency, formatCurrencyCompact } from '@/utils/format-helpers'
 import { Skeleton } from '@/components/ui/skeleton'
+import { formatCurrency, formatCurrencyCompact } from '@/utils/format-helpers'
 
 interface WaterfallDataPoint {
   name: string

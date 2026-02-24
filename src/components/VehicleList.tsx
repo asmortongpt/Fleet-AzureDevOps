@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { Vehicle } from '../types/Vehicle';
+
 import { formatVehicleName } from '@/utils/vehicle-display';
 
 interface VehicleListProps {

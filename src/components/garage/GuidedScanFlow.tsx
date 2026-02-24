@@ -6,7 +6,6 @@
  * rear-right, right, front-right) before submitting for scanning.
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react';
 import {
   Camera,
   ChevronLeft,
@@ -15,6 +14,8 @@ import {
   RotateCcw,
   Play,
 } from 'lucide-react';
+import { useState, useCallback, useRef, useEffect } from 'react';
+
 import { cn } from '@/lib/utils';
 
 // ============================================================================

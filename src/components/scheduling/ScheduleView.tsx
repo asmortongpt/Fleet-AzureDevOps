@@ -4,13 +4,12 @@
  */
 
 import { format, isWithinInterval, isSameDay } from 'date-fns'
-import { Calendar, CheckCircle, Clock, Mail, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
+import { Calendar, CheckCircle, Clock, MoreVertical, Truck, User, Wrench, XCircle } from 'lucide-react'
 import { useState, useMemo } from 'react'
 
-import { formatVehicleShortName } from '@/utils/vehicle-display'
+import { EmailButton } from '@/components/email/EmailButton'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { EmailButton } from '@/components/email/EmailButton'
 import {
   Card,
   CardContent,
@@ -27,6 +26,7 @@ import { Vehicle, Driver, Technician } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { VehicleReservation, MaintenanceAppointment } from '@/types/scheduling'
 import logger from '@/utils/logger'
+import { formatVehicleShortName } from '@/utils/vehicle-display'
 
 interface ScheduleViewProps {
   reservations?: VehicleReservation[]

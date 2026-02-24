@@ -1,7 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { renderHook, act, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { ReactNode } from 'react';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 /**
  * COMPREHENSIVE DATA FETCHING HOOKS TEST SUITE

@@ -9,7 +9,6 @@
 
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import React, { ReactNode, useState, useEffect } from 'react';
-import type { MouseEvent } from 'react';
 
 /* ============================================================================
  * PAGE TRANSITIONS

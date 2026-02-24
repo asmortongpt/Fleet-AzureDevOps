@@ -25,7 +25,6 @@ import { useState } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { DrilldownDataTable, DrilldownColumn } from '@/components/drilldown/DrilldownDataTable'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -38,6 +37,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { cn } from '@/lib/utils'
 import { formatEnum } from '@/utils/format-enum'
 import { formatDateTime } from '@/utils/format-helpers'

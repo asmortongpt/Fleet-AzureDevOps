@@ -3,7 +3,6 @@ import { useState } from "react"
 
 import { AdvancedSearchCriteria } from "./types"
 
-import { formatVehicleName } from "@/utils/vehicle-display"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -23,6 +22,7 @@ import {
   SelectValue
 } from "@/components/ui/select"
 import { Vehicle } from "@/lib/types"
+import { formatVehicleName } from "@/utils/vehicle-display"
 
 
 interface DataWorkbenchDialogsProps {

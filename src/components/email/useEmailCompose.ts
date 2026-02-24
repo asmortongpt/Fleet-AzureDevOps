@@ -3,6 +3,7 @@
  */
 
 import { useState, useCallback } from 'react'
+
 import type { EmailContext } from './email-templates'
 
 export interface EmailComposeState {

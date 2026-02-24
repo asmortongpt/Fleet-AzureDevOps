@@ -23,13 +23,13 @@ import {
   FileText,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
 import { useAuth } from '@/hooks/useAuth';
 import { brandColors } from '@/theme/designSystem'
 import { formatCurrency, formatDate } from '@/utils/format-helpers';
-import { formatVehicleName } from '@/utils/vehicle-display';
 import logger from '@/utils/logger';
-import { toast } from 'sonner';
+import { formatVehicleName } from '@/utils/vehicle-display';
 interface Assignment {
   id: string;
   vehicle_id: string;

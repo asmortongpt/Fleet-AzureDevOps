@@ -19,10 +19,10 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { OutlookEmailButton, CalendarEventButton } from '@/components/integrations/MicrosoftIntegration';
+import { Dialog } from '@/components/shared/Dialog';
 import { formatEnum } from '@/utils/format-enum';
 import { formatDateTime } from '@/utils/format-helpers';
 import { formatVehicleName } from '@/utils/vehicle-display';
-import { Dialog } from '@/components/shared/Dialog';
 
 // TypeScript Interfaces
 interface Reservation {

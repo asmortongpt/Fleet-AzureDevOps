@@ -17,15 +17,15 @@ import {
   getDamageDetectionService,
   type DamageReport,
 } from '@/services/AIDamageDetectionService';
-import { formatCurrency } from '@/utils/format-helpers';
 import { photoUploadService } from '@/services/PhotoUploadService';
-import logger from '@/utils/logger';
 
 // Phase 2: Condition Monitoring
 import type { VehicleCondition, ServiceRecord } from '@/types/vehicle-condition.types';
+import { formatCurrency } from '@/utils/format-helpers';
 
 // Phase 3: Performance
 import { LODVehicleModel } from '@/utils/lod-system';
+import logger from '@/utils/logger';
 
 // Phase 4: Rendering
 

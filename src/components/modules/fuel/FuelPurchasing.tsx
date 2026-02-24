@@ -10,7 +10,6 @@ import { useState, useEffect } from "react"
 import { toast } from "sonner"
 
 import { Badge } from "@/components/ui/badge"
-import logger from "@/utils/logger"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -34,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import apiClient from "@/lib/api-client"
 import { brandColors } from '@/theme/designSystem'
 import { formatCurrency } from "@/utils/format-helpers"
+import logger from "@/utils/logger"
 
 interface FuelStation {
   id: string

@@ -18,6 +18,7 @@ import { useCallback, useRef, useState } from 'react'
 import * as THREE from 'three'
 
 import { DamagePoint, DamageSeverity } from './DamageOverlay'
+
 import { formatCurrency } from '@/utils/format-helpers'
 
 // =============================================================================

@@ -16,9 +16,10 @@ import { Zap, Battery, MapPin, Plus, RefreshCw, Car, Clock, DollarSign, User, Tr
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { toast } from 'sonner';
 
-import { formatCurrency, formatDateTime, formatTime } from '@/utils/format-helpers';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table';
 import {
   Dialog,
   DialogContent,
@@ -28,9 +29,8 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import ErrorBoundary from '@/components/common/ErrorBoundary';
-import { DataTable, createStatusColumn, createMonospaceColumn } from '@/components/ui/data-table';
 import { useFleetData } from '@/hooks/use-fleet-data';
+import { formatCurrency, formatDateTime, formatTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
 
 // =============================================================================

@@ -46,7 +46,6 @@ import { apiClient } from "@/lib/api-client"
 import { formatEnum } from '@/utils/format-enum';
 import { formatDate, formatDateTime } from '@/utils/format-helpers';
 import logger from '@/utils/logger';
-import { brandColors } from "@/theme/designSystem"
 interface Incident {
   id: string
   incident_title: string

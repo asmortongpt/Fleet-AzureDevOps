@@ -3,8 +3,9 @@
  * Displays vehicle locations on an interactive Leaflet map with live updates
  */
 
-import { MapPin, Navigation, Clock, Signal, AlertCircle } from 'lucide-react';
-import React, { useState, useEffect } from 'react';
+import { MapPin, Clock, Signal, AlertCircle } from 'lucide-react';
+import React from 'react';
+
 import { LeafletMap } from '@/components/LeafletMap';
 import type { Vehicle as FullVehicle, GISFacility } from '@/lib/types';
 import { brandColors, colors } from '@/theme/designSystem';

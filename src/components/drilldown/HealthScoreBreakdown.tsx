@@ -8,9 +8,9 @@ import { Activity, AlertTriangle, Droplet, Battery, Gauge, Wrench, Loader2 } fro
 import { useMemo } from 'react'
 import useSWR from 'swr'
 
-import { cn } from '@/lib/utils'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { useDrilldown } from '@/contexts/DrilldownContext'
+import { apiFetcher } from '@/lib/api-fetcher'
+import { cn } from '@/lib/utils'
 import { formatNumber } from '@/utils/format-helpers'
 
 // ---------------------------------------------------------------------------

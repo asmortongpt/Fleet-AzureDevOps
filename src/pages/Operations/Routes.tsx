@@ -18,8 +18,8 @@
  * - Actions: optimize, view stops, track metrics
  */
 
-import { MapPin, Plus, Search, Zap, Briefcase, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import { MapPin, Plus, Search, Zap, Briefcase, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
 // motion removed - React 19 incompatible
 import React, { useState, useMemo } from 'react';
 import { toast } from 'react-hot-toast';

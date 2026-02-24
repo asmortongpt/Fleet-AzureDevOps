@@ -45,7 +45,6 @@ import {
 } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 import { apiClient } from "@/lib/api-client"
-import { brandColors } from "@/theme/designSystem"
 import { formatDateTime } from "@/utils/format-helpers"
 import logger from '@/utils/logger'
 

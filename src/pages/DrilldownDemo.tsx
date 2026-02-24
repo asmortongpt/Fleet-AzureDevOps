@@ -6,8 +6,8 @@
 import React from 'react';
 import { toast } from 'sonner';
 
-import ErrorBoundary from '@/components/common/ErrorBoundary';
 import { DataDrilldown, DrilldownRecord, DrilldownPermissions } from '@/components/common/DataDrilldown';
+import ErrorBoundary from '@/components/common/ErrorBoundary';
 
 const DEMO_VEHICLES: DrilldownRecord[] = [
   {

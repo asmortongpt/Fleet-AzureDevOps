@@ -24,8 +24,8 @@ import { validateCSPConfig } from '@/lib/security/csp';
 import { auditSecurityHeaders } from '@/lib/security/headers';
 import { apiRateLimiter } from '@/lib/security/rate-limiter';
 import { auditResourceSRI } from '@/lib/security/sri';
-import logger from '@/utils/logger';
 import { formatDateTime } from '@/utils/format-helpers';
+import logger from '@/utils/logger';
 
 interface SecurityCheck {
   name: string;

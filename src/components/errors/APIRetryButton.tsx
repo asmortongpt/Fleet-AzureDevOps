@@ -12,10 +12,10 @@
 import { RefreshCw } from 'lucide-react'
 import { useState } from 'react'
 
-import logger from '@/utils/logger'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
+import logger from '@/utils/logger'
 
 interface APIRetryButtonProps {
   onRetry: () => Promise<void> | void

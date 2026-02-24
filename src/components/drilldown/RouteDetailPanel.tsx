@@ -21,7 +21,6 @@ import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 import { DrilldownContent } from '@/components/DrilldownPanel'
-import { apiFetcher } from '@/lib/api-fetcher'
 import { DrilldownMatrix, MatrixColumn } from '@/components/drilldown/DrilldownMatrix'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,6 +28,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Progress } from '@/components/ui/progress'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { apiFetcher } from '@/lib/api-fetcher'
 import { formatTime } from '@/utils/format-helpers'
 
 interface RouteMatrixData {

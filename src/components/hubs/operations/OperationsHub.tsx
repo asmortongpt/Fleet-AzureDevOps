@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import { useState, useMemo } from 'react';
 
-import { useNavigation } from '@/contexts/NavigationContext';
 
 import { OperationsHubMap } from './OperationsHubMap';
 
@@ -24,10 +23,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useDrilldown } from '@/contexts/DrilldownContext';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { useVehicles, useDrivers, useWorkOrders, useRoutes } from '@/hooks/use-api';
 import { formatEnum } from '@/utils/format-enum';
-import { formatVehicleShortName } from '@/utils/vehicle-display';
 import { formatNumber, formatTime } from '@/utils/format-helpers';
+import { formatVehicleShortName } from '@/utils/vehicle-display';
 
 interface Vehicle {
   id: string;

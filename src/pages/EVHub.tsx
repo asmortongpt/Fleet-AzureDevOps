@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { Battery, Leaf, TrendingUp, Zap, Car, Plug2, BarChart3, AlertCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-import { Badge } from '@/components/ui/badge';
 import ErrorBoundary from '@/components/common/ErrorBoundary';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Section } from '@/components/ui/section';
 import { formatCurrency, formatNumber } from '@/utils/format-helpers';

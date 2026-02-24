@@ -12,7 +12,6 @@
  * - AI assessment integration
  */
 
-import { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Upload,
   Camera,
@@ -24,20 +23,21 @@ import {
   Video,
   FileWarning,
   RefreshCw,
-  ArrowLeftRight,
   Wrench,
   Box,
   Sparkles,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/utils/format-helpers';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { GuidedScanFlow } from './GuidedScanFlow';
 import { mapScanDamageTo3D } from './scan-to-3d-mapper';
+
 import type { DamagePoint } from '@/components/garage/DamageOverlay';
+import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/utils/format-helpers';
 
 // ============================================================================
 // Types

@@ -9,6 +9,7 @@ import {
   Info
 } from 'lucide-react';
 import React, { useState, useRef, useCallback } from 'react';
+import { toast } from 'sonner';
 
 import { Alert, AlertDescription } from '../ui/alert';
 import { Button } from '../ui/button';
@@ -16,7 +17,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui
 import { Progress } from '../ui/progress';
 
 import logger from '@/utils/logger';
-import { toast } from 'sonner';
 
 interface MobileDamageCaptureProps {
   vehicleId: string;

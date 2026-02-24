@@ -15,12 +15,12 @@ import React, { useState } from 'react';
 // motion removed - React 19 incompatible
 import toast from 'react-hot-toast';
 
-import { useNavigation } from '@/contexts/NavigationContext';
 
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAuth } from '@/contexts';
+import { useNavigation } from '@/contexts/NavigationContext';
 import { secureFetch } from '@/hooks/use-api';
 import { cn } from '@/lib/utils';
 import { dashboardApi, dashboardQueryKeys } from '@/services/dashboardApi';
